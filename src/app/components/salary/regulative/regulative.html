@@ -17,9 +17,28 @@
         </section>
 
         <section *ngIf="!regulativeGroups.length" style="width: 50%; margin: 0 25%;">
-            <div>Ingen regulativ, importer regulativ fra excel ark eller kommunen og statens standard regulativ for å komme igang.</div>
-            <button (click)="importNewFromExcel()" style="margin: 1rem auto; display: block; width: 15rem;">Importer nytt regulativ</button>
-            <button (click)="importStadardRegulatives()" style="margin: 0 auto; display: block; width: 15rem;">Importer standard regulativ</button>
+            <h2 style="margin:1rem auto 1rem auto; width: 25rem; text-align: center">Velkommen som ny bruker av regulativ</h2>
+
+            <article>
+                <p style="text-align: center; margin-bottom: 0">
+                    Statens regulativ kan importeres direkte inn i systemet. Disse kan du laste ned fra Regjeringen sine sider i Excel-format.
+                </p> 
+
+                <p style="text-align: center; margin-top: 0">
+                    <a href="https://www.regjeringen.no/no/tema/arbeidsliv/Statlig-arbeidsgiverpolitikk/lonn-og-tariff-i-staten/lonnstabellen/id438643/#Atabellen" target="_blank">
+                        Du finner de her.
+                    </a>
+                </p>
+
+                <p style="text-align: center;">
+                    Det er også mulig å lage eget regulativ i Excel og lese inn i systemet. 
+                    Du kan også lage egne regulativ ved å eksportere allerede eksisterende regulativ (evt. mal) til Excel, endre og lese inn med ny startdato.
+                </p>
+
+                <button (click)="newRegulation()" class="c2a" style="margin: 2rem auto 1rem auto; display: block; width: 15rem;">Importer regulativ</button>
+
+                <button (click)="importStadardRegulatives()" style="margin: 0 auto; display: block; width: 15rem;">Last ned mal</button>
+            </article>
         </section>
 
     </section>

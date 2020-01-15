@@ -4,7 +4,7 @@ import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { RegulativeGroup, Regulative, RegulativeStep, LocalDate } from '@uni-entities';
-import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { UniModalService, ConfirmActions, UniNewRegulativeModal } from '@uni-framework/uni-modal';
 import {
     RegulativeUploadModalComponent, IRegulativeUploadResult
 } from '../modals/regulative-upload-modal/regulative-upload-modal.component';
@@ -25,26 +25,14 @@ export class RegulativeComponent implements OnInit {
 
     saveActions: IUniSaveAction[] = [
         {
-            label: 'Opprett regulativ',
-            action: this.newRegulation.bind(this),
-            main: true,
-            disabled: false
-        },
-        {
-            label: 'Eksporter til excel',
-            action: this.exportToExcel.bind(this),
-            main: false,
-            disabled: false
-        },
-        {
-            label: 'Importer fra excel',
+            label: 'Oppdater regulativ',
             action: this.importFromExcel.bind(this),
             main: false,
             disabled: false
         },
         {
-            label: 'Importer standard regulativ',
-            action: this.importStandardRegulatives.bind(this),
+            label: 'Eksporter til excel',
+            action: this.exportToExcel.bind(this),
             main: false,
             disabled: false
         }
@@ -58,6 +46,12 @@ export class RegulativeComponent implements OnInit {
 
     toolbarConfig: IToolbarConfig = {
         title: 'Nytt regulativ',
+        navigation: {
+            add: {
+                label: 'Lag nytt regulativ',
+                action: () => this.newRegulation(),
+            }
+        },
     };
 
     regulativeSteps: any[] = [];
@@ -137,13 +131,20 @@ export class RegulativeComponent implements OnInit {
         this.tabChange();
     }
 
-    newRegulation(done: (message: string) => void) {
+    newRegulation() {
         this.tabs = [...this.tabs, {name: this.tabs.length + 1 + ' - Nytt regulativ'}];
         this.activeIndex = this.tabs.length - 1;
         this.toolbarConfig.title = this.tabs[this.activeIndex].name;
         this.regulativeSteps = [];
         this.createConfig();
-        return done('');
+
+        this.uniModalService.open(UniNewRegulativeModal).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.import(this.regulativeGroups[this.activeIndex] || new RegulativeGroup());
+            } else if (response === ConfirmActions.REJECT) {
+                return;
+            }
+        })
     }
 
     exportToExcel(done: (message: string) => void) {
