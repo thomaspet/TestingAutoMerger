@@ -40,7 +40,9 @@ export class PublicDueDatesWidget {
     public ngAfterViewInit() {
         this.widgetDataService.getData('/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=30').subscribe((items) => {
 
-            this.dataHolder = items;
+            this.dataHolder = items.sort((a, b) => {
+                return a.Deadline > b.Deadline ? -1 : 1;
+            });
             this.dataLoaded = true;
 
             // Needs redraw on canvas size change  -- TODO --
@@ -153,6 +155,7 @@ export class PublicDueDatesWidget {
             // Tweak to place text
             const textAlignmentValue = index % 2 === 0 ? -8 : 12;
             // Draw line
+
             this.ctx.beginPath();
             this.ctx.moveTo(this.pointsXValues[item.duedays], this.middleHeight + (index % 2 === 0 ? -4 : 4));
             this.ctx.lineTo(this.pointsXValues[item.duedays], y);
@@ -161,7 +164,7 @@ export class PublicDueDatesWidget {
             // Set text-alignment based on text placement
             if (item.duedays < 3) {
                 this.ctx.textAlign = 'left';
-            } else if (item.duedays >= 28) {
+            } else if (item.duedays >= 26) {
                 this.ctx.textAlign = 'right';
             } else {
                 this.ctx.textAlign = 'center';
@@ -172,10 +175,10 @@ export class PublicDueDatesWidget {
             // Draw blue infor circle icons
             this.ctx.fillStyle = '#0071CD';
             const xValue = this.pointsXValues[item.duedays] + 10 + (this.ctx.measureText(this.dataHolder[index].Name).width *
-                ( item.duedays < 3 ? 1 : item.duedays >= 28 ? 0 : 0.5));
+                ( item.duedays < 3 ? 1 : item.duedays >= 26 ? 0 : 0.5));
 
             this.ctx.beginPath();
-            this.ctx.arc(xValue + ( item.duedays < 3 ? 2 : item.duedays >= 28 ? - 2 : 0), y - 4 + textAlignmentValue, 6, 0, 2 * Math.PI);
+            this.ctx.arc(xValue + ( item.duedays < 3 ? 2 : item.duedays >= 26 ? - 2 : 0), y - 4 + textAlignmentValue, 6, 0, 2 * Math.PI);
             this.ctx.fill();
 
             this.ctx.fillStyle = '#FFF';

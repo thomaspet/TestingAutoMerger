@@ -370,7 +370,6 @@ export class AuthService {
         this.runLogoutRequest();
         //
 
-
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
         this.jwt = undefined;

@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ErrorService, UniFilesService, SupplierInvoiceService} from '@app/services/services';
 import {finalize, take} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'bill-init-modal',
@@ -12,6 +13,7 @@ export class BillInitModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
+    entityLabel = environment.isSrEnvironment ? 'regning' : 'leverandørfaktura';
     busy: boolean;
     inboxFiles;
 
