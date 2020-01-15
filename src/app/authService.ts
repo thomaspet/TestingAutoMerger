@@ -78,6 +78,7 @@ export class AuthService {
         this.userManager = this.getUserManager();
 
         const onMissingAuth = () => {
+            this.token$.next(undefined);
             this.authentication$.next({
                 activeCompany: undefined,
                 user: undefined,
@@ -145,6 +146,7 @@ export class AuthService {
 
         this.userManager.events.addUserSignedOut(() => {
             this.userManager.removeUser().then((res) => {
+                this.token$.next(undefined);
                 this.cleanStorageAndRedirect();
                 this.setLoadIndicatorVisibility(false);
             });
