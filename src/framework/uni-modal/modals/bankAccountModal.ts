@@ -437,7 +437,7 @@ export class UniBankAccountModal implements IUniModal {
                 Property: '_ibanAccountSearch',
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
-                Label: 'IBAN/Kontonummer søk'
+                Label: 'Kontonummer-/IBAN-søk'
             },
             <any> {
                 FieldSet: 1,
