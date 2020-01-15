@@ -48,6 +48,6 @@ export class UniInit {
     }
 
     logout() {
-        this.authService.clearAuthAndGotoLogin(true);
+        this.authService.idsLogout();
     }
 }

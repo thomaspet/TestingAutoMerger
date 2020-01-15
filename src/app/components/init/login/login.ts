@@ -17,7 +17,7 @@ export class Login {
     @ViewChild(UniSelect) select: UniSelect;
     @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
 
-    isAuthenticated: boolean = true;
+    isAuthenticated: boolean;
     availableCompanies: any[];
 
     selectConfig: ISelectConfig = {
