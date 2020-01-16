@@ -6,6 +6,7 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Router} from '@angular/router';
 import {Company} from '@uni-entities';
 import {environment} from 'src/environments/environment';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'uni-login',
@@ -16,7 +17,7 @@ export class Login {
     @ViewChild(UniSelect, { static: false }) select: UniSelect;
     @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
 
-    isAuthenticated: boolean = true;
+    isAuthenticated: boolean;
     availableCompanies: any[];
 
     selectConfig: ISelectConfig = {
@@ -25,18 +26,26 @@ export class Login {
         hideDeleteButton: true
     };
 
+    tokenSubscription: Subscription;
+
     constructor(
         private router: Router,
         public authService: AuthService,
         private http: UniHttp,
         private browserStorage: BrowserStorageService
     ) {
-        this.authService.isAuthenticated().then(isAuthenticated => {
-            this.isAuthenticated = isAuthenticated;
-            if (isAuthenticated) {
+        this.tokenSubscription = this.authService.token$.subscribe(token => {
+            this.isAuthenticated = !!token;
+            if (this.isAuthenticated) {
                 this.loadCompanies();
             }
         });
+    }
+
+    ngOnDestroy() {
+        if (this.tokenSubscription) {
+            this.tokenSubscription.unsubscribe();
+        }
     }
 
     private loadCompanies() {

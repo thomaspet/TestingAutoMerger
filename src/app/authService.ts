@@ -78,6 +78,7 @@ export class AuthService {
         this.userManager = this.getUserManager();
 
         const onMissingAuth = () => {
+            this.token$.next(undefined);
             this.authentication$.next({
                 activeCompany: undefined,
                 user: undefined,
@@ -144,6 +145,7 @@ export class AuthService {
         });
 
         this.userManager.events.addUserSignedOut(() => {
+            this.token$.next(undefined);
             this.userManager.removeUser().then((res) => {
                 this.cleanStorageAndRedirect();
                 this.setLoadIndicatorVisibility(false);
@@ -368,21 +370,24 @@ export class AuthService {
                     hasActiveContract: false,
                 });
 
-                this.setLoadIndicatorVisibility(true, true);
-
-                // Hotfix 20.12.19. This should only be necessary until the next release.
-                this.runLogoutRequest();
-                //
-
-                this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
-                    document.getElementById('silentLogout').setAttribute('src', req.url);
-                });
-
+                this.idsLogout();
             }
             if (!cleanTokens) {
                 this.cleanStorageAndRedirect();
             }
 
+        });
+    }
+
+    idsLogout() {
+        this.setLoadIndicatorVisibility(true, true);
+
+        // Hotfix 20.12.19. This should only be necessary until the next release.
+        this.runLogoutRequest();
+        //
+
+        this.userManager.createSignoutRequest({ id_token_hint: this.id_token }).then((req) => {
+            document.getElementById('silentLogout').setAttribute('src', req.url);
         });
     }
 
@@ -407,7 +412,7 @@ export class AuthService {
         this.activeCompany = undefined;
         this.setLoadIndicatorVisibility(false);
 
-        if (!this.router.url.startsWith('/init')) {
+        if (!this.router.url.includes('init/sign-up')) {
             this.router.navigate(['/init/login']);
         }
     }

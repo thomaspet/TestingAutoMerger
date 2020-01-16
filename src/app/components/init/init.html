@@ -3,6 +3,7 @@
 
     <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
     <a *ngIf="!isAuthenticated && !showTryForFree" routerLink="/init/login">Logg inn</a>
+    <a *ngIf="isAuthenticated" (click)="logout()">Logg ut</a>
 </section>
 
 <section class="init-main" [ngClass]="isSrEnvironment ? 'ext01-init' : 'ue-init'">

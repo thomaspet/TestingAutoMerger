@@ -303,6 +303,14 @@ export class BillsView implements OnInit {
         const selectedRowCount = this.selectedItems && this.selectedItems.length || 0;
         this.saveActions = [];
 
+        let showToPaymentMenu = true;
+        if (this.selectedItems) {
+            this.selectedItems.forEach(invoice => {
+                if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112) {
+                showToPaymentMenu = false;
+            }});
+        }
+
         if ( this.currentFilter.statusCode === StatusCodeSupplierInvoice.Draft ) {
             this.saveActions.push({
                 label: `Bokfør (${selectedRowCount} stk.)`,
@@ -351,21 +359,24 @@ export class BillsView implements OnInit {
                 main: true,
                 disabled: selectedRowCount === 0
             });
-
-            this.saveActions.push({
-                label: `Bokfør og til betaling (${selectedRowCount} stk.)`,
-                action: (done) => this.massTransition(BillMassTransition.JournalAndToPayment, done),
-                disabled: selectedRowCount === 0
-            });
+            if (showToPaymentMenu) {
+                this.saveActions.push({
+                    label: `Bokfør og til betaling (${selectedRowCount} stk.)`,
+                    action: (done) => this.massTransition(BillMassTransition.JournalAndToPayment, done),
+                    disabled: selectedRowCount === 0
+                });
+            }
         }
 
         if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
-            this.saveActions.push({
-                label: `Til betalingsliste (${selectedRowCount} stk)`,
-                action: (done) => this.massTransition(BillMassTransition.ToPayment, done),
-                main: true,
-                disabled: selectedRowCount === 0
-            });
+            if (showToPaymentMenu) {
+                this.saveActions.push({
+                    label: `Til betalingsliste (${selectedRowCount} stk)`,
+                    action: (done) => this.massTransition(BillMassTransition.ToPayment, done),
+                    main: true,
+                    disabled: selectedRowCount === 0
+                });
+            }
         }
 
         if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
