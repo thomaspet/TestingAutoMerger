@@ -875,15 +875,25 @@ export class BillsView implements OnInit {
             new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
-            new UniTableColumn('PaymentStatus', 'Betalingsstatus')
+            new UniTableColumn('PaymentStatus', 'Betalingsstatus', UniTableColumnType.Number)
                 .setTemplate((invoice) => {
                     return this.supplierInvoiceService.getPaymentStatusText(invoice.PaymentStatus);
+                })
+                .setFilterSelectConfig({
+                    options: this.supplierInvoiceService.paymentStatusCodes,
+                    displayField: 'Text',
+                    valueField: 'Code'
                 }),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
                 .setVisible(!!filter.showStatus)
                 .setAlignment('center')
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
+                })
+                .setFilterSelectConfig({
+                    options: this.supplierInvoiceService.statusTypes,
+                    displayField: 'Text',
+                    valueField: 'Code'
                 }),
             new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
             new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)

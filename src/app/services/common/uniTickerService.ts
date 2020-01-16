@@ -1163,6 +1163,13 @@ export class UniTickerService {
                     { ID: 13, Name: 'Ferie' },
                     { ID: 20, Name: 'Sykdom' }
                 ];
+            case 'PaymentStatus':
+                return [
+                    { ID: 30112, Name: 'Betalt' },
+                    { ID: 30111, Name: 'Delbetalt' },
+                    { ID: 30110, Name: 'Overført til bank' },
+                    { ID: 30009, Name: 'Ubetalt' }
+                ];
             default:
                 return [];
         }
