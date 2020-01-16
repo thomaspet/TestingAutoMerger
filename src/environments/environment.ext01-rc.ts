@@ -2,18 +2,20 @@ export const environment = {
     useProdMode: true,
     isSrEnvironment: true,
 
-    // Identity Server Settings
-    authority: 'https://test-login.unieconomy.no',
-    client_id: 'f522f1f4-7734-4930-6ecc-d308ca7135ec',
-    post_logout_redirect_uri: '',
+    authority: 'https://dev-login.unieconomy.no',
+    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
+    post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://rc-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://rc-files.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://rc-jobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://rc-admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://rc-signal.unieconomy.no/pushHub',
+
+    // If you add base urls here please also update the api check in header-interceptor.ts!
+    BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
+    ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
+
 
     API_DOMAINS: {
         INIT: '/api/init/',
