@@ -81,6 +81,7 @@ import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-
 import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
 import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
+import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
 
 @NgModule({
     imports: [
@@ -154,6 +155,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         DisclaimerModal,
         ImportTemplateModal,
         ImportVoucherModal,
+        ImportOrderModal,
         BankInitModal,
 
         WorkEditor,
@@ -198,6 +200,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ImportTemplateModal,
         NewTaskModal,
         ImportVoucherModal,
+        ImportOrderModal,
         BankInitModal
     ],
     exports: [

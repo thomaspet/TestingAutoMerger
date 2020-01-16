@@ -3,6 +3,10 @@
 
     <article>
         <p><strong>Klient: </strong>{{authService?.activeCompany?.Name}}</p>
+        <!-- <label class="uni-label label-left">
+            <span>Klient</span>
+            <span class="value">{{authService?.activeCompany?.Name}}</span>
+        </label> -->
 
         <div class="external-details">
             <label class="uni-label label-left" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
@@ -58,19 +62,6 @@
             <uni-select class="drop-down" [config]="config" [value]="selectedOption" [items]="operators"
                 (valueChange)="onSelectChange($event)">
             </uni-select>
-        </label>
-
-        <label class="uni-label label-left">
-            <span>Med MVA-kode</span>
-            <mat-checkbox [(ngModel)]="isVatEnabled"
-                [disabled]="fileType === txtType"
-                (click)="$event.stopPropagation()">
-            </mat-checkbox>
-        </label>
-
-        <label class="uni-label label-left" *ngIf='selectedOption.type !== post'>
-            <span>Legg til beskrivelse</span>
-            <input type="text" [(ngModel)]="draftDescription">
         </label>
 
         <section *ngIf="loading$ | async" class="modal-spinner">

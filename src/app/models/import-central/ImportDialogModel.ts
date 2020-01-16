@@ -22,6 +22,11 @@ export enum VoucherOptions {
     Post
 }
 
+export enum OrderOptions {
+    Draft,
+    Post
+}
+
 export enum TemplateType {
     Customer,
     Product,

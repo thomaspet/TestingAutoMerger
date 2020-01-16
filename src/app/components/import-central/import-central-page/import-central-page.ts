@@ -11,6 +11,7 @@ import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import
 import { ImportCardModel } from '@app/models/import-central/ImportCardModel';
 import { ImportVoucherModal } from '../modals/custom-component-modals/imports/voucher/import-voucher-modal';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ImportOrderModal } from '../modals/custom-component-modals/imports/order/import-order-modal';
 
 @Component({
   selector: 'import-central-page',
@@ -273,6 +274,21 @@ export class ImportCentralPage implements OnInit {
             downloadTemplateUrl: templateUrl
           }
         });
+    }
+    else if (templateType === TemplateType.Order) {
+      this.modalService.open(ImportOrderModal,
+        {
+          header: header,
+          data: {
+            jobName: jobName,
+            type: type,
+            entity: templateType,
+            conditionalStatement: conditionalStatement,
+            formatStatement: formatStatement,
+            downloadStatement: downloadStatement,
+            downloadTemplateUrl: templateUrl
+          }
+        });
     } else {
       this.modalService.open(ImportTemplateModal,
         {
@@ -319,7 +335,7 @@ export class ImportCentralPage implements OnInit {
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton: 'Eksporter SAF-T' }
         break;
       case TemplateType.Voucher:
-        header = 'Voucher Eksportmal';
+        header = 'Bilag Eksportmal';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
         break;
       case TemplateType.Order:

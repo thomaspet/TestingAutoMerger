@@ -46,7 +46,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     config: ISelectConfig;
     operators: any[] = [];
     selectedOption = {
-        name: 'Draft',
+        name: 'Kladd',
         type: VoucherOptions.Draft
     };
 
@@ -77,11 +77,11 @@ export class ImportVoucherModal implements OnInit, IUniModal {
 
         this.operators = [
             {
-                name: 'Draft',
+                name: 'Kladd',
                 type: VoucherOptions.Draft
             },
             {
-                name: 'Post',
+                name: 'Bokfør',
                 type: VoucherOptions.Post
             }
         ];
@@ -247,7 +247,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
             '',
             ToastType.good,
             ToastTime.medium,
-            `Uploading ${this.options.data.type} list ${fileName}`
+            `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`
         );
     }
 
