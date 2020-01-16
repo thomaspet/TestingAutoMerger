@@ -586,7 +586,8 @@
             },
             {
                 "Header": "Betalingsstatus",
-                "Field": "PaymentStatus"
+                "Field": "PaymentStatus",
+                "FilterSelectConfigKey": "PaymentStatus"
             },
             {
                 "Header": "Viderefakturering",
