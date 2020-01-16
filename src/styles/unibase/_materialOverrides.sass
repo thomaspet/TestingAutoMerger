@@ -149,11 +149,30 @@ mat-calendar
     .mat-calendar-previous-button, .mat-calendar-next-button
         color: var(--link-color) !important
 
+    .mat-calendar-controls
+        .mat-calendar-previous-button
+            order: 1
+
+        .mat-calendar-period-button
+            order: 2
+            margin: 0 auto
+
+        .mat-calendar-next-button
+            order: 3
+
+        .mat-calendar-spacer
+            display: none
+
     mat-month-view
         display: block
         height: 280px
 
+    .mat-calendar-table-header th
+        color: var(--color-c2a-dark)
+        font-size: 14px
+
     .mat-calendar-body
+        font-size: 14px
         tr[aria-hidden]:not([aria-hidden=false])
             display: none
 
@@ -167,6 +186,8 @@ mat-calendar
 
     .mat-calendar-body-cell:not(.mat-calendar-body-disabled):hover>.mat-calendar-body-cell-content:not(.mat-calendar-body-selected)
         border: 2px solid var(--color-c2a)
+        color: var(--color-c2a) !important
+        font-weight: 500
         background-color: unset
 
     .mat-calendar-body-today.mat-calendar-body-selected
