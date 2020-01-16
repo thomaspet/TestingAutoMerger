@@ -160,16 +160,18 @@ export class UniToolbar {
     }
 
     customButtonClick(button: ToolbarButton) {
-        const result = button.action();
-        if (result && result.subscribe) {
-            button['_busy'] = true;
-            result.pipe(
-                take(1),
-                finalize(() => button['_busy'] = false)
-            ).subscribe(
-                () => {},
-                err => this.errorService.handle(err)
-            );
+        if (!button['_busy']) {
+            const result = button.action();
+            if (result && result.subscribe) {
+                button['_busy'] = true;
+                result.pipe(
+                    take(1),
+                    finalize(() => button['_busy'] = false)
+                ).subscribe(
+                    () => {},
+                    err => this.errorService.handle(err)
+                );
+            }
         }
     }
 

@@ -1942,7 +1942,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private preview() {
         const openPreview = (invoice) => {
-            this.modalService.open(TofReportModal, {
+            return this.modalService.open(TofReportModal, {
                 data: {
                     entityLabel: 'Faktura',
                     entityType: 'CustomerInvoice',
@@ -1951,18 +1951,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     hideEmailButton: true,
                     hidePrintButton: true
                 }
-            });
+            }).onClose;
         };
 
         if (this.isDirty || !this.invoice.ID) {
             const saveAsDraft = !this.invoice.InvoiceNumber;
 
-            this.save(saveAsDraft).subscribe(
-                (invoice) => openPreview(invoice),
-                err => this.errorService.handle(err)
+            return this.save(saveAsDraft).pipe(
+                switchMap((invoice) => openPreview(invoice))
             );
         } else {
-            openPreview(this.invoice);
+            return openPreview(this.invoice);
         }
     }
 
