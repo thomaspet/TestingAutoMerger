@@ -4,6 +4,7 @@ import {IUniWidget} from '../uniWidget';
 import {Router} from '@angular/router';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
+import {NumberFormat} from '@app/services/common/numberFormatService';
 
 @Component({
     selector: 'uni-events-widget',
@@ -56,7 +57,7 @@ export class UniEventsWidget implements AfterViewInit {
     public formattedData = [
         {
             label: 'NAVBAR.SUPPLIER_INVOICE',
-            value: 0,
+            value: '0',
             icon: 'receipt',
             class: 'green-event',
             link: '/accounting/bills?filter=All',
@@ -65,7 +66,7 @@ export class UniEventsWidget implements AfterViewInit {
         },
         {
             label: 'Faktura',
-            value: 0,
+            value: '0',
             icon: 'credit_card',
             class: 'green-event',
             link: '/sales/invoices',
@@ -74,7 +75,7 @@ export class UniEventsWidget implements AfterViewInit {
         },
         {
             label: 'Ordre',
-            value: 0,
+            value: '0',
             icon: 'description',
             class: 'green-event',
             link: '/sales/orders',
@@ -83,7 +84,7 @@ export class UniEventsWidget implements AfterViewInit {
         },
         {
             label: 'Tilbud',
-            value: 0,
+            value: '0',
             icon: 'local_offer',
             class: 'green-event',
             link: '/sales/quotes',
@@ -92,7 +93,7 @@ export class UniEventsWidget implements AfterViewInit {
         },
         {
             label: 'Kunder',
-            value: 0,
+            value: '0',
             icon: 'people_outline',
             class: 'green-event',
             link: '/sales/customer',
@@ -104,7 +105,8 @@ export class UniEventsWidget implements AfterViewInit {
     constructor(
         private widgetDataService: WidgetDataService,
         private router: Router,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private numberFormatService: NumberFormat
     ) {
         const indexForTimeSpan = localStorage.getItem('timespanindex');
         this.currentTimeSpan = this.timespans[indexForTimeSpan || 0];
@@ -119,7 +121,7 @@ export class UniEventsWidget implements AfterViewInit {
             res => {
                 res.forEach((data, index) => {
                     const next = this.formattedData.find(item => item.hasAccess);
-                    next.value = data.Data[0].value;
+                    next.value = this.numberFormatService.asNumber(data.Data[0].value, {decimalLength: 0});
                     next.hasAccess = false;
                 });
                 this.cdr.markForCheck();
