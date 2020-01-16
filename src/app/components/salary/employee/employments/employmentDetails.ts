@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep, AmeldingData} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -15,7 +15,7 @@ import {
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import { ConfirmActions } from '@uni-framework/uni-modal';
+import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
 
 declare var _;
@@ -278,6 +278,10 @@ export class EmploymentDetails implements OnChanges {
             this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
         }
 
+        if (changes['SubEntityID'] && employment.SubEntityID) {
+            this.is2amldInPeriod();
+        }
+
         if (changes['JobCode'] && employment.JobCode) {
             this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
                 employment.JobName = jobName;
@@ -285,6 +289,8 @@ export class EmploymentDetails implements OnChanges {
                 this.employment$.next(employment);
                 this.employmentChange.emit(employment);
             });
+
+            this.is2amldInPeriod();
         } else {
             this.employmentChange.emit(this.employment$.getValue());
         }
@@ -370,6 +376,21 @@ export class EmploymentDetails implements OnChanges {
                 }
             }
         }
+    }
+
+    is2amldInPeriod() {
+        this.statisticsService.GetAll('model=ameldingData&select=year,period&distinct=true').subscribe((res) => {
+            if (res.Data.length >= 2) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'Varsel ved endring av felter på arbeidsforhold',
+                    message: 'Ved endring av feltene Yrkeskode eller Virksomhet risikerer du at a-melding blir avvist.'
+                        + ' Vi anbefaler deg å avslutte arbeidsforholdet med sluttdato og opprette et nytt dersom du har sendt a-melding på denne ansatte.',
+                    buttonLabels: {
+                        accept: 'Ok',
+                    }
+                })
+            }
+        })
     }
 
     public onFormReady(value) {
