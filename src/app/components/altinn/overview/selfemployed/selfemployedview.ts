@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
 import { UniTableColumn, UniTableConfig, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
 
 @Component({
     selector: 'selfemployed-view',
@@ -27,6 +28,10 @@ export class SelfEmployedView implements OnInit {
     // public invoices: SupplierInvoice[];
     // public invoicesPerSupplier: SupplierInvoice[];
     public tableConfig: UniTableConfig;
+
+    public infoConfig: IUniInfoConfig = {
+        headline: ''
+      };
 
     constructor(
         private altinnService: AltinnIntegrationService,
