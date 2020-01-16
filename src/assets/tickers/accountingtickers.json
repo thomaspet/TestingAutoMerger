@@ -607,7 +607,7 @@
                 "Code": "open_supplierinvoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "ExecuteWithoutSelection": true,
+                "ExecuteWithoutSelection": false,
                 "DisplayInActionBar": false
             },
             {

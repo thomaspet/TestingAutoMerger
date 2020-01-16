@@ -10,7 +10,7 @@
     <!-- Sub ticker header (ng else) -->
     <ng-template #subTickerHeader>
         <header class="sub-ticker-header">
-            <span class="ticker-title">{{ticker.Name}}</span>
+            <span class="ticker-title">{{ticker.Name | translate}}</span>
 
             <uni-context-menu
                 *ngIf="contextMenuItems?.length && !newWithEntityAction"
