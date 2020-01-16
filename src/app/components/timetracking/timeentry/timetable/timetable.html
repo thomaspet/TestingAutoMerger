@@ -1,10 +1,18 @@
-<mat-form-field>
-    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
-        <mat-option *ngFor="let filter of filters" [value]="filter">
-            {{ filter.label }}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
+<section class="period-dropdown">
+    <span class="dropdown-toggle" #trigger>
+        {{currentFilter?.label || 'Periode'}}
+        <i class="material-icons">expand_more</i>
+    </span>
+
+    <dropdown-menu [trigger]="trigger" [minWidth]="'12rem'">
+        <ng-template>
+            <section *ngFor="let filter of filters" (click)="onFilterClick(filter)" class="dropdown-menu-item">
+                {{filter.label}}
+            </section>
+        </ng-template>
+    </dropdown-menu>
+</section>
+
 
 <section *ngIf="report" [attr.aria-busy]="busy">
 

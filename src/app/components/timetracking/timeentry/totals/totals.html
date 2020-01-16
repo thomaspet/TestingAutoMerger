@@ -1,34 +1,56 @@
-<!-- Source select -->
-<mat-form-field style="margin-right: 1rem;">
-    <mat-select [value]="currentSource" (valueChange)="onSourceClick($event)" placeholder="Visning">
-        <mat-option *ngFor="let source of sources" [value]="source">
-            {{ source.label }}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
+<section class="filter-row">
+    <section>
+        <span class="dropdown-toggle" #sourceToggle>
+            <strong>Visning:</strong> {{currentSource?.label}}
+            <i class="material-icons">expand_more</i>
+        </span>
 
-<!-- Period select -->
-<mat-form-field>
-    <mat-select [value]="currentFilter" (valueChange)="onFilterClick($event)" placeholder="Periode">
-        <mat-option *ngFor="let filter of filters" [value]="filter">
-            {{ filter.label }}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
+        <dropdown-menu [trigger]="sourceToggle" [minWidth]="'12rem'">
+            <ng-template>
+                <section *ngFor="let source of sources" (click)="onSourceClick(source)" class="dropdown-menu-item">
+                    {{source.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
+    </section>
 
-<a (click)="showHideChart()" style="float: right; margin: .8rem 0 0 2rem;"> {{ showChart ? 'Skjul' : 'Vis' }} graf </a>
+    <section>
+        <span class="dropdown-toggle" #periodToggle>
+            <strong>Periode:</strong> {{currentFilter?.label}}
+            <i class="material-icons">expand_more</i>
+        </span>
 
-<!-- Chart select  -->
-<mat-form-field *ngIf="showChart" style="float: right;">
-    <mat-select [value]="chart" (valueChange)="onChartFilterClick($event)" placeholder="Graf-type">
-        <mat-option *ngFor="let crt of charts" [value]="crt">
-            {{ crt.label }}
-        </mat-option>
-    </mat-select>
-</mat-form-field>
+        <dropdown-menu [trigger]="periodToggle" [minWidth]="'12rem'">
+            <ng-template>
+                <section *ngFor="let filter of filters" (click)="onFilterClick(filter)" class="dropdown-menu-item">
+                    {{filter.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
+    </section>
+
+    <section class="pull-right">
+        <span class="dropdown-toggle" #chartToggle>
+            {{chart?.label || 'Diagram'}}
+            <i class="material-icons">expand_more</i>
+        </span>
+
+        <dropdown-menu [trigger]="chartToggle" [minWidth]="'12rem'">
+            <ng-template>
+                <section *ngFor="let crt of charts" (click)="onChartFilterClick(crt)" class="dropdown-menu-item">
+                    {{crt.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
+    </section>
+
+    <a (click)="showHideChart()">
+        {{ showChart ? 'Skjul' : 'Vis' }} diagram
+    </a>
+</section>
+
 
 <div style="display: flex;" [attr.aria-busy]="busy">
-
     <div style="flex: 1" id="totals-grid-container">
         <ag-grid-wrapper
             [resource]="tableData"
@@ -41,5 +63,4 @@
             <canvas #worktypeChart style="height: 300px !important;" id="myChart"></canvas>
         </section>
     </div>
-
 </div>

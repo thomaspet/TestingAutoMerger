@@ -44,12 +44,12 @@ export class RegtimeTotals {
     charts: Array<any> = [
         {
             name: 'bar',
-            label: 'Bar-chart',
+            label: 'Søylediagram',
             isSelected: false
         },
         {
             name: 'pie',
-            label: 'Pie-chart',
+            label: 'Kakediagram',
             isSelected: true
         }
     ];
