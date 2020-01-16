@@ -324,6 +324,11 @@
             "Name": "Barnepass",
             "Translated": "Barnepass",
             "Url": "/altinn/childcare"
+        },
+        {
+            "Name": "SelfEmployed",
+            "Translated": "Selvstendig næringsdrivende",
+            "Url": "/altinn/selfemployed"
         }
     ]
 }

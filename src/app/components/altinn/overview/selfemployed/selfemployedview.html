@@ -1,0 +1,37 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="actions">
+</uni-toolbar>
+
+<section class="application">
+    <table>
+    <tr>
+      <td width="45%">
+        <article style="margin-top: 50px;">
+            <h3>Selvstendig næringsdrivende uten fast kontoradresse</h3>
+            <ag-grid-wrapper
+                [resource]="payments"
+                [config]="tableConfig"
+                (dataLoaded)="onDataLoaded()">
+            </ag-grid-wrapper>
+        </article>
+      </td>
+      <td>
+        <uni-information class="infoNote">
+            <p>
+                Alle næringsdrivende oppdragsgivere som har kjøpt tjenester fra selvstendig næringsdrivende uten fast forretningssted i inntektsåret skal rapportere det fakturerte beløpet, ekskl. mva.
+            </p>
+            <p>
+                Kun leverandører hvor man har krysset i feltet "Selvstendig næringsdrivende uten fast kontoradresse" på Leverandøren er aktuelle for eksport. Beløpet per leverandøren er netto totalsum på leverandørfakturaer med leveringsdato innenfor året man står på. Vær oppmerksom på at leverandørfakturaen må konteres for å bli en del av datagrunnlaget, først da har vi nettosum til rapportering.
+            </p>
+            <p>
+                Dersom du ønsker kan beløpet på leverandøren justeres før innsending. Beløpet som står i listen til venstre ved innsending er verdien som innrapporteres til Altinn.
+            </p>
+            <p>
+                Innleveringsfrist for ordinære oppgaver er 15. februar året etter inntektsåret.
+            </p>
+          </uni-information>
+      </td>
+    </tr>
+    </table>
+</section>  

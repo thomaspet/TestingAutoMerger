@@ -25,10 +25,16 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
     busy: boolean;
     actions: IUniSaveAction[] = [
         {
-            label: 'Rapportere Pass og stell av barn',
-            action: () => this.router.navigateByUrl('/altinn/childcare'),
+            label: 'Rapporter Selvstendig næringsdrivende',
+            action: () => this.router.navigateByUrl('/altinn/selfemployed'),
             disabled: false,
             main: true
+        },
+        {
+            label: 'Rapporter Pass og stell av barn',
+            action: () => this.router.navigateByUrl('/altinn/childcare'),
+            disabled: false,
+            main: false
         }
     ];
 

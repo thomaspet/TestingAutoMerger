@@ -23,6 +23,16 @@ export interface OppgaveBarnepass {
     email: string;
 }
 
+export interface ThirdPartyData {
+    year: number;
+    items: Array<ThirdPartyItem>;
+}
+export interface ThirdPartyItem {
+    number: string;
+    name: string;
+    amount: number;
+}
+
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
 
@@ -98,7 +108,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public getBarnepass(year: number): Observable<BarnepassLeveranse> {
-        return super.GetAction(null, 'get-barnepass&year='+year);
+        return super.GetAction(null, 'get-barnepass&year=' + year);
     }
 
     public emailBarnepassToCustomers(barnepassID: number, customers: any[]) {
@@ -107,7 +117,15 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         */
         return super.ActionWithBody(barnepassID, customers, 'email-barnepass-to-customers', RequestMethod.Put);
     }
-    
+
+    public getSelfEmployedPayments(year: number): Observable<ThirdPartyData> {
+        return super.GetAction(null, 'get-selfemployed-payments&year=' + year);
+    }
+
+    public sendSelfEmployed(data: ThirdPartyData): Observable<AltinnReceipt> {
+        return this.ActionWithBody(null, data, 'send-selfemployed', RequestMethod.Post);
+    }
+
     public readTaxCard(authData: AltinnAuthenticationData, receiptID: number): Observable<TaxCardReadStatus> {
         return this.http
             .asGET()
