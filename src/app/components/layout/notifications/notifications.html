@@ -1,8 +1,10 @@
-<uni-icon [icon]="'notifications'" (click)="toggle()"></uni-icon>
+<span (click)="toggle()">
+    <uni-icon [icon]="'notifications'"></uni-icon>
 
-<span
-    class="unread-indicator"
-    *ngIf="(notificationService.unreadCount$ | async) > 0"
-    >
-    {{notificationService.unreadCount$ | async}}
+    <span
+        class="unread-indicator"
+        *ngIf="(notificationService.unreadCount$ | async) > 0"
+        >
+        {{notificationService.unreadCount$ | async}}
+    </span>
 </span>
