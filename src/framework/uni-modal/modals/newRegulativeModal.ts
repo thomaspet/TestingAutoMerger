@@ -24,7 +24,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
                 <button
                     style="display: inline-block; margin: 0 40%; width: 10rem;"
                     class="secondary"
-                    (click)="reject()">
+                    (click)="cancel()">
                     Last ned mal
                 </button>
             </article>
