@@ -3,7 +3,7 @@ import {forkJoin} from 'rxjs';
 import * as moment from 'moment';
 
 import {AuthService} from '@app/authService';
-import {ElsaCompanyLicense} from '@app/models';
+import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
 import {ElsaContractService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
@@ -11,6 +11,7 @@ import {UniModalService, WizardSettingsModal} from '@uni-framework/uni-modal';
 import {GrantAccessModal, GrantSelfAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
+import {LicenseInfo} from '../license-info';
 
 @Component({
     selector: 'license-info-company-list',
@@ -19,7 +20,9 @@ import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 })
 export class CompanyList {
     contractID: number;
+    currentContractID: number;
     companies: ElsaCompanyLicense[];
+    customers: ElsaCustomer[];
     filteredCompanies: ElsaCompanyLicense[];
     filterValue: string;
     columns: ListViewColumn[] = [
@@ -60,11 +63,15 @@ export class CompanyList {
         private authService: AuthService,
         private modalService: UniModalService,
         private elsaContractService: ElsaContractService,
-        private companyService: CompanyService
+        private companyService: CompanyService,
+        private licenseInfo: LicenseInfo
     ) {
         try {
-            this.contractID = this.authService.currentUser.License.Company.ContractID;
-            this.loadData();
+            this.currentContractID = this.authService.currentUser.License.Company.ContractID;
+            this.licenseInfo.selectedContractID$.subscribe(id => {
+                this.contractID = id;
+                this.loadData();
+            });
         } catch (e) {
             console.error(e);
         }
@@ -120,6 +127,7 @@ export class CompanyList {
         this.modalService.open(GrantSelfAccessModal, {
             data: {
                 contractID: this.contractID,
+                currentContractID: this.currentContractID,
                 companyLicense: company,
                 userIdentity: this.authService.currentUser.License.GlobalIdentity
             }

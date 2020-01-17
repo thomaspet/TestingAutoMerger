@@ -1,5 +1,5 @@
 import {Component, Output, EventEmitter, Input} from '@angular/core';
-import {ElsaCustomer, ElsaContractType, ElsaContract} from '@app/models';
+import {ElsaCustomer, ElsaContract} from '@app/models';
 import {ElsaCustomersService} from '@app/services/elsa/elsaCustomersService';
 import {ErrorService} from '@app/services/common/errorService';
 import {GrantAccessData} from './grant-access-modal';
@@ -53,28 +53,5 @@ export class SelectLicenseForBulkAccess {
         this.data.products = undefined;
 
         this.stepComplete.emit(true);
-    }
-
-    contractTypeToText(contractType: ElsaContractType): string {
-        switch (+contractType) {
-            case ElsaContractType.Demo:
-                return 'Demo';
-            case ElsaContractType.Internal:
-                return 'Intern';
-            case ElsaContractType.Partner:
-                return 'Partner';
-            case ElsaContractType.Pilot:
-                return 'Pilot';
-            case ElsaContractType.Training:
-                return 'Training';
-            case ElsaContractType.Standard:
-                return 'Standard';
-            case ElsaContractType.Bureau:
-                return 'Byrå';
-            case ElsaContractType.NonProfit:
-                return 'Non-profit';
-            default:
-                return 'N/A';
-        }
     }
 }

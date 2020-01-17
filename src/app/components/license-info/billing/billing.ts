@@ -1,11 +1,10 @@
 import {Component} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {AuthService} from '@app/authService';
 import {ListViewColumn} from '../list-view/list-view';
 import {ElsaContractService} from '@app/services/services';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
-import {ElsaUserLicenseType} from '@app/models';
+import {LicenseInfo} from '../license-info';
 
 export interface BillingDataItem {
     ProductID: number;
@@ -38,6 +37,7 @@ export interface BillingData {
     styleUrls: ['./billing.sass']
 })
 export class Billing {
+    contractID: number;
     yearSelectOptions: number[];
     periodFilter: { month: number; year: number };
     viewMode: number = 0;
@@ -58,9 +58,9 @@ export class Billing {
     ];
 
     constructor(
-        private authService: AuthService,
         private http: UniHttp,
-        private contractService: ElsaContractService
+        private contractService: ElsaContractService,
+        private licenseInfo: LicenseInfo,
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -68,13 +68,14 @@ export class Billing {
             month: new Date().getMonth(),
             year: currentYear
         };
-
-        this.loadInvoice();
+        this.licenseInfo.selectedContractID$.subscribe(id => {
+            this.contractID = id;
+            this.loadInvoice();
+        });
     }
 
     loadInvoice() {
-        const contractID = this.authService.currentUser.License.Company.ContractID;
-        const endpoint = `/api/billing/contract/${contractID}`
+        const endpoint = `/api/billing/contract/${this.contractID}`
             + `?year=${this.periodFilter.year}`
             + `&month=${+this.periodFilter.month + 1}`
             + `&tags=true`;

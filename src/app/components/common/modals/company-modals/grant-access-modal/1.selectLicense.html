@@ -13,7 +13,7 @@
             <span>{{customer.Name}}</span>
             <span class="pull-right">
                 Lisenstype:
-                {{contractTypeToText(contract.ContractType)}}
+                {{contract.ContractType | elsaContractType}}
             </span>
         </li>
     </ng-container>

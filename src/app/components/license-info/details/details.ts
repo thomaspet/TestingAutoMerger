@@ -6,6 +6,7 @@ import {AddAdminModal} from '../add-admin-modal/add-admin-modal';
 import {ElsaCompanyLicense} from '@app/models';
 import {cloneDeep} from 'lodash';
 import {environment} from 'src/environments/environment';
+import {LicenseInfo} from '../license-info';
 
 @Component({
     selector: 'license-details',
@@ -39,9 +40,12 @@ export class LicenseDetails {
         private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
         private errorService: ErrorService,
+        private licenseInfo: LicenseInfo,
     ) {
-        this.contractID = this.authService.currentUser.License.Company.ContractID;
-        this.loadData();
+        this.licenseInfo.selectedContractID$.subscribe(id => {
+            this.contractID = id;
+            this.loadData();
+        });
     }
 
     loadData() {

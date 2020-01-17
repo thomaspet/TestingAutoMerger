@@ -48,12 +48,12 @@ export class GrantSelfAccessModal implements IUniModal {
     ngOnInit() {
         this.initData = this.options.data || {};
 
-        if (this.initData.contractID && this.initData.userIdentity && this.initData.companyLicense) {
+        if (this.initData.contractID && this.initData.userIdentity && this.initData.companyLicense && this.initData.currentContractID) {
             this.busy = true;
             forkJoin(
                 this.elsaContractService
                     .get(this.initData.contractID, 'id,customerid,contracttype,startdate,statuscode,enddate,settleduntil'),
-                this.elsaContractService.getUserLicense(this.initData.contractID, this.initData.userIdentity),
+                this.elsaContractService.getUserLicense(this.initData.currentContractID, this.initData.userIdentity),
                 this.elsaProductService.GetAll()
             ).pipe(
                 finalize(() => this.busy = false)
