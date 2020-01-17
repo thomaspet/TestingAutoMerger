@@ -71,7 +71,7 @@ export class EmploymentDetails implements OnChanges {
 
         this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
             this.employmentService.setRegulativeGroups(x);
-            if (this.employment.RegulativeGroupID)
+            if (this.employment && this.employment.RegulativeGroupID)
                 this.employmentService.setRegulativeSteps(x.filter((regulativeGroup: RegulativeGroup) => regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
 
             this.regulativeGroups = x;
@@ -278,7 +278,7 @@ export class EmploymentDetails implements OnChanges {
             this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
         }
 
-        if (changes['SubEntityID'] && employment.SubEntityID) {
+        if (changes['SubEntityID'] && changes['SubEntityID'].previousValue.ID) {
             this.is2amldInPeriod();
         }
 
@@ -290,7 +290,8 @@ export class EmploymentDetails implements OnChanges {
                 this.employmentChange.emit(employment);
             });
 
-            this.is2amldInPeriod();
+            if (changes['JobCode'].previousValue.styrk != '')
+                this.is2amldInPeriod();
         } else {
             this.employmentChange.emit(this.employment$.getValue());
         }
