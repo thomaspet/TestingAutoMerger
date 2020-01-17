@@ -3,17 +3,17 @@ export const environment = {
     isSrEnvironment: true,
 
     // Identity Server Settings
-    authority: 'https://test-login.unieconomy.no',
-    client_id: 'f522f1f4-7734-4930-6ecc-d308ca7135ec',
+    authority: 'https://login.unieconomy.no',
+    client_id: '31ab73a1-a054-e09d-b928-287c35c3afc0',
     post_logout_redirect_uri: '',
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://rc-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://rc-files.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://rc-jobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://rc-admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://rc-signal.unieconomy.no/pushHub',
+    BASE_URL_INTEGRATION: 'https://rcext01-integration.unieconomy.no/',
+    BASE_URL_FILES: 'https://rcext01-files.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://rcext01-jobserver.unieconomy.no/api/',
+    ELSA_SERVER_URL: 'https://rcext01-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://rcext01-signal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
