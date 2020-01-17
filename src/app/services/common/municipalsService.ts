@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Municipal} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 
 @Injectable()
 export class MunicipalService extends BizHttp<Municipal> {
@@ -35,6 +35,13 @@ export class MunicipalService extends BizHttp<Municipal> {
             ...params.filter(param => !param.toLowerCase().startsWith('filter'))
         ];
         return super.GetAll(params.join('&'), expands);
+    }
+
+    public getByNumber(municipalityNo: string): Observable<Municipal[]> {
+        if (!municipalityNo) {
+            return of([]);
+        }
+        return this.GetAll(`filter=MunicipalityNo eq ${municipalityNo}`);
     }
 
     private ignoreRetired(filter: string): string {

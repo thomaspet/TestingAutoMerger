@@ -841,9 +841,9 @@ export class CompanySettingsComponent implements OnInit {
 
         const officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
-            source: this.municipalities,
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityNo',
+            getDefaultData: () => this.municipalService
+                .getByNumber(companySettings.OfficeMunicipalityNo),
+            search: (text: string) => this.municipalService.search(text),
             debounceTime: 200,
             template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - `
                 + `${obj.MunicipalityName.substr(0, 1).toUpperCase()
