@@ -70,6 +70,8 @@ import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {environment} from 'src/environments/environment';
 
 import * as _ from 'lodash';
+import { tap } from 'rxjs/operators';
+import { SubEntitySettingsService } from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 
 @Component({
     selector: 'settings',
@@ -172,7 +174,8 @@ export class CompanySettingsComponent implements OnInit {
         private subEntityService: SubEntityService,
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
-        private reportTypeService: ReportTypeService
+        private reportTypeService: ReportTypeService,
+        private subEntitySettingsService: SubEntitySettingsService,
     ) {
         this.settingsService.setSaveActions([{
             label: 'Lagre firmainnstillinger',
@@ -605,6 +608,14 @@ export class CompanySettingsComponent implements OnInit {
                 complete('Lagring feilet.');
                 return this.errorService.handleRxCatch(err, obs);
             })
+            .pipe(
+                tap((companySettings: CompanySettings) => {
+                    if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
+                        this.subEntitySettingsService
+                            .getSubEntitiesFromBrregAndSaveAll(companySettings.OrganizationNumber);
+                    }
+                })
+            )
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {

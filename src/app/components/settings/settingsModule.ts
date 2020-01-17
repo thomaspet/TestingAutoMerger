@@ -35,6 +35,7 @@ import {UniDimensionModal} from './dimension/dimensionModal';
 
 import {GrantModal} from './agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from './agaAndSubEntitySettings/modals/freeamountModal';
+import {EditSubEntityAgaZoneModal} from './agaAndSubEntitySettings/modals/editSubEntityAgaZoneModal';
 import {CommonServicesModule} from '../../services/commonServicesModule';
 
 import {ActivateAutobankModal} from './users/activate-autobank-modal/activate-autobank-modal';
@@ -100,6 +101,7 @@ import {SalaryModule} from '../salary/salary.module';
         UniDimensionSettings,
         GrantModal,
         FreeAmountModal,
+        EditSubEntityAgaZoneModal,
         ChangeCompanySettingsPeriodSeriesModal,
         ActivateAutobankModal,
         ResetAutobankPasswordModal,
@@ -112,6 +114,7 @@ import {SalaryModule} from '../salary/salary.module';
     entryComponents: [
         GrantModal,
         FreeAmountModal,
+        EditSubEntityAgaZoneModal,
         ChangeCompanySettingsPeriodSeriesModal,
         ActivateAutobankModal,
         ResetAutobankPasswordModal,
