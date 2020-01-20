@@ -858,7 +858,8 @@ export class CompanySettingsComponent implements OnInit {
             debounceTime: 200,
             template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - `
                 + `${obj.MunicipalityName.substr(0, 1).toUpperCase()
-                + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
+                + obj.MunicipalityName.substr(1).toLowerCase()}` : '',
+            valueProperty: 'MunicipalityNo',
         };
 
         const periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');

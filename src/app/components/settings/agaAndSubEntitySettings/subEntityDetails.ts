@@ -91,7 +91,8 @@ export class SubEntityDetails {
                 template: (obj: Municipal) => obj && obj.MunicipalityName
                     ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase()
                         + obj.MunicipalityName.slice(1).toLowerCase()}`
-                    : ''
+                    : '',
+                valueProperty: 'MunicipalityNo'
             };
             this.fields$.next(layout.Fields);
 
@@ -102,7 +103,7 @@ export class SubEntityDetails {
         if (!subEntity) {
             return of([]);
         }
-        return this._municipalityService.GetAll(`filter=MunicipalityNo eq ${subEntity.MunicipalityNo}`);
+        return this._municipalityService.getByNumber(subEntity.MunicipalityNo);
     }
 
     private findByProperty(fields, name) {
