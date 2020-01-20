@@ -918,19 +918,13 @@ export class CompanySettingsComponent implements OnInit {
                     bankaccount.BankAccountType = bankAccountType;
                     bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
                     bankaccount.ID = 0;
-                    switch (bankAccountType) {
-                        case 'company':
-                            bankaccount.Account = !bankaccount.Account ? this.defaultCompanyAccount : bankaccount.Account;
-                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultCompanyAccount.ID : bankaccount.AccountID;
-                            break;
 
-                        case 'tax':
-                            bankaccount.Account = !bankaccount.Account ? this.defaultTaxAccount : bankaccount.Account;
-                            bankaccount.AccountID = !bankaccount.AccountID ? this.defaultTaxAccount.ID : bankaccount.AccountID;
-                            break;
-
-                        default:
-                            break;
+                    if (bankAccountType === 'company' && this.defaultCompanyAccount) {
+                        bankaccount.Account = bankaccount.Account || this.defaultCompanyAccount;
+                        bankaccount.AccountID = bankaccount.AccountID || this.defaultCompanyAccount.ID;
+                    } else if (bankAccountType === 'tax' && this.defaultTaxAccount) {
+                        bankaccount.Account = bankaccount.Account || this.defaultTaxAccount;
+                        bankaccount.AccountID = bankaccount.AccountID || this.defaultTaxAccount.ID;
                     }
                 }
 
