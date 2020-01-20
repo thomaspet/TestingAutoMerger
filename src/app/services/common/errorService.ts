@@ -157,6 +157,18 @@ export class ErrorService {
     }
 
     public addErrorToast(message: string) {
+        /*
+            Hotfix 20.01.2020
+
+            Avoid toasting SignalR error that the user shouldn't worry about.
+            With the next release (most likely before february) errorService
+            will no longer toast all uncaught JS errors unless we're in dev mode.
+            This return statement can be removed then.
+        */
+        if (message.includes('handshake response')) {
+            return;
+        }
+
         this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
     }
 }
