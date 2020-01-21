@@ -2,13 +2,14 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance, SalBalDrawType} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, throwError, of} from 'rxjs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import {switchMap, map, tap} from 'rxjs/operators';
 
 @Injectable()
 export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate> {
@@ -64,7 +65,7 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
     public save(
         template: SalaryBalanceTemplate,
         salBals: SalaryBalance[] = [],
-        done: (msg: string) => void = null): Observable<SalaryBalanceTemplate> {
+    ): Observable<SalaryBalanceTemplate> {
         const errors = [];
 
         if (!template.InstalmentType) {
@@ -85,27 +86,29 @@ export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate>
             const errorString = !!errors.length ? `${errors.join(', ')} og ${lastError}` : lastError;
 
             const message = `Legg til ${errorString} før du lagrer`;
-            this.toastService.addToast(message, ToastType.bad, 5);
-            return Observable.of(template);
+            this.toastService.addToast(message, ToastType.warn, 5);
+            return throwError('Lagring avbrutt');
         }
 
         template.SalaryBalances = this.prepareSalBalsForTemplate(salBals.filter(x => x.EmployeeID), template);
-        const obs = template.ID
-            ? (this.uniModalService
-            .confirm({
+
+        let canSave = of(true);
+        if (template.ID) {
+            canSave = this.uniModalService.confirm({
                 header: 'Lagre trekkmal',
                 message: 'Alle trekkene tilknyttet denne malen blir oppdatert',
+            }).onClose.pipe(map(res => res === ConfirmActions.ACCEPT));
+        }
+
+        return canSave.pipe(
+            switchMap(save => {
+                if (save) {
+                    return this.saveTemplate(template).pipe(tap(() => this.clearCache()));
+                } else {
+                    return throwError('Lagring avbrutt');
+                }
             })
-            .onClose)
-            : Observable.of(ConfirmActions.ACCEPT);
-        return obs
-            .do((res: ConfirmActions) => {
-                if (res === ConfirmActions.ACCEPT || !done) { return; }
-                done('Lagring avbrutt');
-            })
-            .filter((res: ConfirmActions) => res === ConfirmActions.ACCEPT)
-            .switchMap(() => this.saveTemplate(template))
-            .do(() => this.clearCache());
+        );
     }
 
     private prepareSalBalsForTemplate(salBals: SalaryBalance[], template: SalaryBalanceTemplate) {

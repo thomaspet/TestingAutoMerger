@@ -4,8 +4,8 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {EmployeeService, UniCacheService, ErrorService, SalarybalanceService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniView} from '@uni-framework/core/uniView';
-import {Router, ActivatedRoute} from '../../../../../../../node_modules/@angular/router';
-import {Observable} from '../../../../../../../node_modules/rxjs';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
 import { ToastService } from '@uni-framework/uniToast/toastService';
 
 const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';

@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from '../../../../../../../node_modules/rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {SalaryBalanceTemplate, Supplier, Employee} from '@uni-entities';
 import {UniForm} from '@uni-framework/ui/uniform';
 import {ActivatedRoute, Router} from '@angular/router';
