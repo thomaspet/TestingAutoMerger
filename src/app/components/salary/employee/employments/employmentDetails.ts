@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep, AmeldingData} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep, AmeldingData, SalaryRegistry} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {Observable} from 'rxjs';
@@ -279,7 +279,7 @@ export class EmploymentDetails implements OnChanges {
         }
 
         if (changes['SubEntityID'] && changes['SubEntityID'].previousValue.ID) {
-            this.is2amldInPeriod();
+            this.showAmeldingWarningIfNeeded(employment);
         }
 
         if (changes['JobCode'] && employment.JobCode) {
@@ -290,8 +290,9 @@ export class EmploymentDetails implements OnChanges {
                 this.employmentChange.emit(employment);
             });
 
-            if (changes['JobCode'].previousValue.styrk != '')
-                this.is2amldInPeriod();
+            if (changes['JobCode'].previousValue.styrk !== '') {
+                this.showAmeldingWarningIfNeeded(employment);
+            }
         } else {
             this.employmentChange.emit(this.employment$.getValue());
         }
@@ -379,8 +380,18 @@ export class EmploymentDetails implements OnChanges {
         }
     }
 
-    is2amldInPeriod() {
-        this.statisticsService.GetAll('model=ameldingData&select=year,period&distinct=true').subscribe((res) => {
+    showAmeldingWarningIfNeeded(employment: Employment) {
+        if (!employment || !employment.ID) {
+            return;
+        }
+        this.statisticsService
+            .GetAll(
+                `model=ameldingData` +
+                `&select=year,period,log.key` +
+                `&expand=log` +
+                `&filter=log.registry eq ${SalaryRegistry.Employment} and log.key eq ${employment.ID}` +
+                `&distinct=true`)
+            .subscribe((res) => {
             if (res.Data.length >= 2) {
                 this.modalService.open(UniConfirmModalV2, {
                     header: 'Varsel ved endring av felter på arbeidsforhold',
@@ -389,9 +400,9 @@ export class EmploymentDetails implements OnChanges {
                     buttonLabels: {
                         accept: 'Ok',
                     }
-                })
+                });
             }
-        })
+        });
     }
 
     public onFormReady(value) {
