@@ -126,7 +126,7 @@ export class SubscribeModal implements IUniModal, OnInit {
     onPurchaseClick() {
         if (!this.isConsentStep
             && this.product.ProductAgreement
-            && this.product.ProductAgreement.StatusCode === ElsaAgreementStatus.Active
+            && this.product.ProductAgreement.AgreementStatus === ElsaAgreementStatus.Active
         ) {
             this.elsaAgreementService.GetByProductID(this.product.ID).subscribe(
                 agreement => {

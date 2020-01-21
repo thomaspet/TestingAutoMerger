@@ -29,7 +29,7 @@ export class ElsaAgreementService {
     }
 
     GetByProductID(productID: number): Observable<ElsaAgreement> {
-        return this.requestData(`/api/agreements?$filter=productid eq ${productID} and statuscode eq 'Active'`)
+        return this.requestData(`/api/agreements?$filter=productid eq ${productID} and agreementstatus eq 'Active'`)
             .pipe(map(agreements => agreements[0]));
     }
 

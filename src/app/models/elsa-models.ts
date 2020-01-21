@@ -1,7 +1,7 @@
 export interface ElsaAgreement {
     ID: number;
     AgreementText: string;
-    StatusCode: ElsaAgreementStatus;
+    AgreementStatus: ElsaAgreementStatus;
     ProductID: number;
 }
 
