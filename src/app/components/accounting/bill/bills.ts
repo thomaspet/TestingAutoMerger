@@ -117,8 +117,8 @@ export class BillsView implements OnInit {
             label: 'Opprettet', name: 'Draft',
             filter: 'isnull(statuscode,'
                 + StatusCodeSupplierInvoice.Draft
-                + ') eq '
-                + StatusCodeSupplierInvoice.Draft,
+                + ') eq ' + StatusCodeSupplierInvoice.Draft
+                + ' OR statuscode eq ' + StatusCodeSupplierInvoice.Rejected,
             passiveCounter: true,
             statusCode: StatusCodeSupplierInvoice.Draft
         },

@@ -1,0 +1,100 @@
+def YARN_BUILD
+def BUILD_UTILS
+def BRANCH_NAME
+def PUBLISH_NAME
+def OUT_FILE
+def ENV_PATH
+def ENV_NODE
+
+pipeline {
+  agent any
+  options{timestamps()}
+  stages {
+    stage('Prepare') {
+      steps {
+        script {
+          //Load build-utils
+          BUILD_UTILS = load "${pwd()}\\Groovy\\build_utils.groovy"
+
+          //Ensure we only proccess branches that we want to actually deploy somewhere
+          BRANCH_NAME = env.GIT_BRANCH
+          PUBLISH_NAME = "RcExt01-unieconomy.no"
+          YARN_BUILD = "build.ext01-rc"
+
+          echo "Branch  name:" + BRANCH_NAME
+          echo "Publish name:" + PUBLISH_NAME
+
+          //Define variables for use later
+          OUT_FILE = "dist.zip"
+          ENV_PATH = "set PATH=%PATH%;%WORKSPACE%\\node_modules\\.bin"
+          ENV_NODE = "set NODE_PATH=%WORKSPACE%\\node_modules"
+        }
+      }
+    }
+    stage('YarnInstall') {
+      steps {
+        withEnv(([ENV_PATH, ENV_NODE ])) {
+          bat "yarn install"
+        }
+      }
+    }
+    stage('YarnBuild') {
+      steps {
+        withEnv(([ENV_PATH, ENV_NODE ])) {
+          bat "yarn ${YARN_BUILD}"
+        }
+      }
+    }
+    stage('ZipResult') {
+      steps {
+        withEnv(([ENV_PATH, ENV_NODE ])) {
+          bat "yarn zip-dist"
+        }
+      }
+    }
+    stage('TransferAndUnzip') {
+      steps {
+        sshPublisher(
+          publishers: [
+            sshPublisherDesc(
+            configName: PUBLISH_NAME,
+            transfers: [
+                sshTransfer(
+                cleanRemote: false,
+                execTimeout: 120000,
+                sourceFiles: OUT_FILE
+                ),
+                sshTransfer(
+                execCommand: """sudo unzip -o ~/${OUT_FILE} -d /var/www/html/""",
+                execTimeout: 120000,
+                ),
+                sshTransfer(
+                execCommand: """sudo chmod -R 755 /var/www/html/*""",
+                execTimeout: 120000,
+                )
+              ],
+            verbose: true
+            )
+          ]
+        )
+      }
+    }
+  }
+  post {
+    always {
+      cleanWs()
+    }
+    fixed {
+      office365ConnectorSend webhookUrl:env.TEAMS_NOTIFY_URL
+    }
+    failure {
+      office365ConnectorSend webhookUrl:env.TEAMS_NOTIFY_URL
+      script {
+        BUILD_UTILS.sendEmail()
+      }
+    }
+    unstable {
+      office365ConnectorSend webhookUrl:env.TEAMS_NOTIFY_URL
+    }
+  }
+}
