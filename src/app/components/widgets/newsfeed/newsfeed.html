@@ -1,14 +1,15 @@
-<button class="uni-redesign icon-button toggle"
+<button class="tertiary toggle"
     [ngClass]="{'unread': hasUnread}"
     [matMenuTriggerFor]="newfeedDropdown"
     (click)="setRead()">
-    <i class="material-icons">chrome_reader_mode</i>
+    <i class="material-icons-outlined">mail</i>
+    Nyheter
     <span *ngIf="hasUnread" class="unread-indicator"></span>
 </button>
 
 <mat-menu #newfeedDropdown="matMenu" [overlapTrigger]="false" yPosition="below">
     <section class="widget-wrapper" (click)="$event.stopPropagation()">
-        <section class="header">Nyhetsbrev</section>
+        <section class="header">Nyheter</section>
 
         <section class="content">
             <ul>

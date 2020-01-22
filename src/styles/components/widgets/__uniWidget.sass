@@ -580,7 +580,6 @@ header.dashboard-header
     width: 95%
     height: 3rem
     margin: 0 auto 1rem
-    padding-right: 1rem
 
     .title
         font-size: 22px
@@ -592,6 +591,18 @@ header.dashboard-header
         text-overflow: ellipsis
         max-width: 35rem
 
+    button.edit-toggle
+        font-size: 14px
+        font-weight: 500
+        color: var(--scale1)
+        i.material-icons-outline
+            margin-right: 4px
+
+        span
+            margin-left: 4px
+        @media screen and (max-width: 1300px)
+            span
+                display: none
 
     .links
         list-style: none

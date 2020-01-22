@@ -35,7 +35,8 @@ export class UniInit {
                     this.illustration = theme.init.illustration;
                 }
 
-                this.showTryForFree = !event.url.includes('sign-up');
+                // Only showing the link in SR env for now. Might also be made visible for UE users later.
+                this.showTryForFree = this.isSrEnvironment && !event.url.includes('sign-up');
             }
         });
 
