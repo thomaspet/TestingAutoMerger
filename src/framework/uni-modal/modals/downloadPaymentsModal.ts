@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {ToastService, ToastType} from '../../uniToast/toastService';
+import {ToastService} from '../../uniToast/toastService';
 import {
     ErrorService,
     BankFileDownloadService
@@ -11,9 +11,7 @@ import {BehaviorSubject} from 'rxjs';
 @Component({
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Hent bankfiler'}}</h1>
-            </header>
+            <header>{{options.header || 'Hent bankfiler'}}</header>
             <article class="downloadPaymentsModal" [attr.aria-busy]="isLoading">
                 <uni-form
                     [config]="formConfig$"

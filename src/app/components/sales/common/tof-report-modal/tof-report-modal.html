@@ -1,0 +1,55 @@
+<section role="dialog" class="uni-modal">
+    <header>{{options?.header || entityLabel}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="report-type">
+            <mat-radio-group [(ngModel)]="selectedReport" (ngModelChange)="loadReportParameters()">
+                <mat-radio-button *ngFor="let report of reports" [value]="report">
+                    {{report.Description}}
+                </mat-radio-button>
+            </mat-radio-group>
+
+            <mat-checkbox [(ngModel)]="showParameters">
+                Vis parametere
+            </mat-checkbox>
+        </section>
+
+        <section class="report-parameters" *ngIf="showParameters">
+            <label class="uni-label">
+                <span>{{inputFromLabel}}</span>
+                <input type="text" [(ngModel)]="fromNr">
+            </label>
+
+            <label class="uni-label" *ngIf="inputType.secondInputType">
+                <span>{{inputToLabel}}</span>
+                <input type="text" [(ngModel)]="toNr">
+            </label>
+        </section>
+    </article>
+
+    <footer>
+        <button class="secondary pull-left" (click)="cancel()">
+            Avbryt
+        </button>
+
+        <button class="secondary good" (click)="preview()">
+            Forhåndsvis
+        </button>
+
+        <button class="good"
+            *ngIf="!options?.data?.hideEmailButton"
+            (click)="sendEmail()">
+            Send e-post
+        </button>
+
+        <button class="good"
+            *ngIf="!options?.data?.hidePrintButton"
+            (click)="print()">
+            Skriv ut
+        </button>
+    </footer>
+</section>

@@ -1,0 +1,39 @@
+.table-container
+    position: relative
+    width: 100%
+
+    ag-grid-wrapper
+        height: calc(100vh - 17.5rem)
+
+    .quick-filters
+        display: flex
+        align-items: center
+        position: absolute
+        top: 0
+        margin: 0
+        left: 18.5rem
+
+        uni-datepicker
+            flex-basis: 10rem
+
+        > * + *
+            margin-left: 1rem
+
+    @media screen and (max-width: 1000px)
+        .quick-filters
+            position: static
+            margin-bottom: 1rem
+        ag-grid-wrapper
+            height: calc(100vh - 22rem)
+
+.header
+    display: flex
+    margin: 1rem 0
+    padding: 1rem
+    background: var(--alert-info)
+    border: 1px solid var(--border-color)
+    border-radius: var(--section-radius)
+    font-size: 15px
+    strong
+        margin-left: 1rem
+        margin-right: .5rem

@@ -1,26 +1,26 @@
-<section class="application">
-    <uni-tabs
-        [tabs]="tabs"
-        (activeIndexChange)="onTabActivated($event)">
-    </uni-tabs>
+<section class="fixed-position-toolbar">
+    <section class="application">
+        <uni-tabs
+            [tabs]="tabs"
+            (activeIndexChange)="onTabActivated($event)">
+        </uni-tabs>
+    </section>
+
+    <genericdetail
+        [hiddenform]="activeTabIndex !== 0"
+        [viewconfig]="viewconfig"
+        (itemChanged)="onItemChanged($event)"
+        (afterSave)="afterWorkerSaved($event)">
+    </genericdetail>
+
+    <workrelations
+        [hidden]="activeTabIndex !== 0 || !currentId"
+        (valueChange)="onRelationvalueChanged($event)"
+        [workerid]="currentId">
+    </workrelations>
+
+    <workbalances
+        [hidden]="activeTabIndex !== 1"
+        [workerid]="currentId">
+    </workbalances>
 </section>
-
-<genericdetail
-    [hiddenform]="activeTabIndex !== 0"
-    [viewconfig]="viewconfig"
-    (itemChanged)="onItemChanged($event)"
-    (afterSave)="afterWorkerSaved($event)">
-</genericdetail>
-
-<workrelations
-    [hidden]="activeTabIndex !== 0 || !currentId"
-    (valueChange)="onRelationvalueChanged($event)"
-    [workerid]="currentId">
-</workrelations>
-
-<workbalances
-    [hidden]="activeTabIndex !== 1"
-    [workerid]="currentId">
-</workbalances>
-
-

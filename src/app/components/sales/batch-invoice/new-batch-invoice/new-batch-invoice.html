@@ -1,0 +1,37 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="[saveaction]">
+</uni-toolbar>
+
+<section class="application">
+    <section class="header">
+        <i class="material-icons-outlined">info</i>
+
+        <strong>Antall valgte {{entityLabel}}: </strong>
+        <span>{{selectedItems?.length || 0}} av {{totalRowCount || 0}}</span>
+
+        <strong>Totalsum:</strong>
+        <span>{{(selectedItemSum | uninumberformat: 'money') || '0,00'}}</span>
+    </section>
+
+    <section class="table-container">
+        <section class="quick-filters">
+            <uni-datepicker [(value)]="fromDate" (valueChange)="onFilterChange()" placeholder="Fra dato"></uni-datepicker>
+            <uni-datepicker [(value)]="toDate" (valueChange)="onFilterChange()" placeholder="Til dato"></uni-datepicker>
+            <mat-checkbox
+                *ngIf="entityType === 'CustomerOrder'"
+                [(ngModel)]="readyForInvoiceOnly"
+                (ngModelChange)="onFilterChange()">
+                Kun ordre merket klar til fakturering
+            </mat-checkbox>
+        </section>
+
+        <ag-grid-wrapper
+            class="borders no-select-background"
+            [config]="tableConfig"
+            [resource]="items"
+            (rowSelectionChange)="onRowSelectionChange($event)"
+            (dataLoaded)="onDataLoaded()">
+        </ag-grid-wrapper>
+    </section>
+</section>

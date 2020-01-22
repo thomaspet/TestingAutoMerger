@@ -2,13 +2,11 @@ import {
     Component,
     Input,
     ChangeDetectionStrategy,
-    ChangeDetectorRef,
-    ElementRef,
-    ViewChild
+    Output,
+    EventEmitter
 } from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../services/common/keyCodes';
+import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 
 export interface IToolbarSearchConfig {
     lookupFunction: (input: string) => Observable<any[]>;
@@ -20,125 +18,31 @@ export interface IToolbarSearchConfig {
 @Component({
     selector: 'uni-toolbar-search',
     template: `
-        <input type="search" #inputElement
-            (keydown)="onKeyDown($event)"
-            [formControl]="searchControl"
-            (focus)="markText()"
-            autocorrect="off"
-        />
-
-        <ul class="toolbar-dropdown-list"
-            [attr.aria-expanded]="expanded"
-            (clickOutside)="close()">
-
-            <li *ngFor="let item of searchResults; let idx = index"
-                [attr.aria-selected]="idx === selectedIndex"
-                (mouseover)="selectedIndex = idx"
-                (click)="itemSelected(idx)">
-
-                {{item._displayValue}}
-            </li>
-        </ul>
+        <autocomplete [options]="autocompleteOptions" (valueChange)="onSelect($event)"></autocomplete>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToolbarSearch {
-    @Input() public config: IToolbarSearchConfig;
-    @ViewChild('inputElement') private input: ElementRef;
+    @Input() config: IToolbarSearchConfig;
+    @Output() close = new EventEmitter();
 
-    public searchControl: FormControl = new FormControl('');
-    public searchResults: any[] = [];
-    public expanded: boolean;
-    private selectedIndex: number;
-    private lookupInProgress: boolean;
+    autocompleteOptions: AutocompleteOptions;
 
-    constructor(private cdr: ChangeDetectorRef) {}
-
-    public ngOnChanges() {
+    ngOnChanges() {
         if (this.config) {
-            this.searchControl.setValue(this.config.initValue, {emitEvent: false});
+            this.autocompleteOptions = {
+                lookup: this.config.lookupFunction,
+                displayFunction: this.config.itemTemplate,
+                placeholder: this.config.initValue,
+                autofocus: true
+            };
         }
     }
 
-    public ngAfterViewInit() {
-        this.searchControl.valueChanges
-            .do(() => this.lookupInProgress = true)
-            .debounceTime(250)
-            .subscribe(value => {
-                this.config.lookupFunction(value || '')
-                    .finally(() => this.lookupInProgress = false)
-                    .subscribe(items => {
-                        if (items && items.length) {
-                            this.searchResults = items.map(item => {
-                                item['_displayValue'] = this.config.itemTemplate(item);
-                                return item;
-                            });
-
-                            this.expanded = true;
-                            this.selectedIndex = 0;
-                            this.cdr.detectChanges();
-                        }
-                    });
-            });
-
-        if (this.input) {
-            this.input.nativeElement.focus();
+    onSelect(item) {
+        if (item) {
+            this.config.onSelect(item);
+            this.close.emit();
         }
-    }
-
-    public onKeyDown(event: KeyboardEvent) {
-        const keyCode = event.which || event.keyCode;
-        switch (keyCode) {
-            case KeyCodes.UP_ARROW:
-                if (this.selectedIndex > 0) {
-                    this.selectedIndex--;
-                }
-            break;
-            case KeyCodes.DOWN_ARROW:
-                if (this.selectedIndex >= 0) {
-                    if (this.selectedIndex < this.searchResults.length - 1) {
-                        this.selectedIndex++;
-                    }
-                } else {
-                    this.selectedIndex = 0;
-                }
-            break;
-            case KeyCodes.ENTER:
-                this.itemSelected(this.selectedIndex || 0);
-            break;
-        }
-    }
-
-    public close() {
-        if (this.expanded) {
-            this.searchControl.setValue(this.config.initValue, {emitEvent: false});
-            this.expanded = false;
-        }
-    }
-
-    public itemSelected(index: number, retryCount: number = 0) {
-        if (this.lookupInProgress) {
-            if (retryCount < 5) {
-                setTimeout(() => {
-                    retryCount++;
-                    this.itemSelected(index, retryCount);
-                }, 250);
-            }
-
-            return;
-        }
-
-        if (this.searchResults[index]) {
-            this.config.onSelect(this.searchResults[index]);
-            this.close();
-        }
-    }
-
-    public markText() {
-        if (!this.input || !this.input.nativeElement) {
-            return;
-        }
-
-        this.input.nativeElement.select();
     }
 }

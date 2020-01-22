@@ -63,25 +63,26 @@ export class DrilldownResultReportPart implements OnChanges {
 
     @ViewChild('chartElement1')
     private chartElement1: ElementRef;
-
     private treeSummaryList: ResultSummaryData[] = [];
-    private flattenedTreeSummaryList: ResultSummaryData[] = [];
-    public showPercent: boolean = true;
-    private showPreviousAccountYear: boolean = true;
-    private showBudget = true;
-    public showPercentOfBudget: boolean = false;
-    private hideBudget = false;
-    private showall: boolean = false;
-    private budgetSoFar: number = 0;
-    private numberFormat: INumberFormat = {
+
+    flattenedTreeSummaryList: ResultSummaryData[] = [];
+    showPercent: boolean = true;
+    showPreviousAccountYear: boolean = true;
+    showBudget = true;
+    showPercentOfBudget: boolean = false;
+    hideBudget = false;
+    showall: boolean = false;
+    budgetSoFar: number = 0;
+    numberFormat: INumberFormat = {
         thousandSeparator: ' ',
         decimalSeparator: ',',
         decimalLength: 0
     };
-    public busy = true;
-    public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
+
+    busy = true;
+    CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
         '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
-    private myChart: any;
+    myChart: any;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -89,9 +90,7 @@ export class DrilldownResultReportPart implements OnChanges {
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
         private http: UniHttp
-    ) {
-        this.prepChartType();
-    }
+    ) { }
 
     public ngOnChanges() {
         if (this.filter) {
@@ -255,6 +254,7 @@ export class DrilldownResultReportPart implements OnChanges {
                 const list = this.extractGroups(res);
                 this.getBudgetToCurrentMonth(res);
                 this.flattenedTreeSummaryList = list;
+                this.treeSummaryList = [...list];
                 this.calculateTreePercentages(list, null, null);
                 this.setupChart();
             },
@@ -484,7 +484,7 @@ export class DrilldownResultReportPart implements OnChanges {
         }
 
         this.myChart = new Chart(element, {
-            type: 'groupableBar',
+            type: 'bar',
             data: <any> data,
             options: {
                 tooltips: {
@@ -504,79 +504,6 @@ export class DrilldownResultReportPart implements OnChanges {
                     display: true
                 }
             }
-        });
-    }
-
-    private prepChartType() {
-        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
-
-        const helpers = Chart.helpers;
-        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
-            calculateBarX: function (index, datasetIndex) {
-                // position the bars based on the stack index
-                const stackIndex = this.getMeta().stackIndex;
-                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
-            },
-
-            hideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                this.hiddens = [];
-                for (let i = 0; i < datasetIndex; i++) {
-                    const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        this.hiddens.push(dsMeta.hidden);
-                        dsMeta.hidden = true;
-                    }
-                }
-            },
-
-            unhideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                for (let i = 0; i < datasetIndex; i++) {
-                        const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        dsMeta.hidden = this.hiddens.unshift();
-                    }
-                }
-            },
-
-            calculateBarY: function (index, datasetIndex) {
-                this.hideOtherStacks(datasetIndex);
-                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
-                this.unhideOtherStacks(datasetIndex);
-                return barY;
-            },
-
-            calculateBarBase: function (datasetIndex, index) {
-                this.hideOtherStacks(datasetIndex);
-                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
-                this.unhideOtherStacks(datasetIndex);
-                return barBase;
-            },
-
-            getBarCount: function () {
-                const stacks = [];
-
-                // put the stack index in the dataset meta
-                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
-                    const meta = this.chart.getDatasetMeta(datasetIndex);
-                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
-                    let stackIndex = stacks.indexOf(dataset.stack);
-                    if (stackIndex === -1) {
-                    stackIndex = stacks.length;
-                    stacks.push(dataset.stack);
-                    }
-                    meta.stackIndex = stackIndex;
-                }
-                }, this);
-
-                this.getMeta().stacks = stacks;
-                return stacks.length;
-            },
         });
     }
 

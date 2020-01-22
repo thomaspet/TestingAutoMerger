@@ -35,7 +35,6 @@ import {
     ReportService,
     UserService,
     NumberSeriesService,
-    EmailService,
     SellerService,
     VatTypeService,
     DimensionSettingsService,
@@ -49,19 +48,16 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    UniChooseReportModal,
 } from '@uni-framework/uni-modal';
-import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {TradeHeaderCalculationSummary} from '@app/models/sales/TradeHeaderCalculationSummary';
 
-import {IToolbarConfig, ICommentsConfig, IShareAction} from '../../../common/toolbar/toolbar';
+import {IToolbarConfig, ICommentsConfig} from '../../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
 import {TofHead} from '../../common/tofHead';
@@ -73,6 +69,8 @@ import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {cloneDeep} from 'lodash';
+import {tap} from 'rxjs/operators';
+import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 @Component({
     selector: 'quote-details',
@@ -88,8 +86,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     private isDirty: boolean;
     private itemsSummaryData: TradeHeaderCalculationSummary;
 
-    private printStatusPrinted: string = '200';
-    private printStatusEmail: string = '100';
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 
     private numberSeries: NumberSeries[];
@@ -100,7 +96,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     quoteItems: CustomerQuoteItem[];
     readonly: boolean;
     recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
-    shareActions: IShareAction[];
     saveActions: IUniSaveAction[] = [];
 
     currencyCodeID: number;
@@ -118,7 +113,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     vatTypes: VatType[];
     commentsConfig: ICommentsConfig;
     toolbarconfig: IToolbarConfig;
-    private contextMenuItems: IContextMenuItem[] = [];
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
@@ -217,7 +211,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         private projectService: ProjectService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
-        private emailService: EmailService,
         private sellerService: SellerService,
         private vatTypeService: VatTypeService,
         private dimensionsSettingsService: DimensionSettingsService,
@@ -257,7 +250,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
             this.commentsConfig = {
                 entityType: 'CustomerQuote',
-                entityID: this.quoteID
+                entityID: !hasCopyParam ? this.quoteID : 0
             };
 
             if (this.quoteID) {
@@ -592,6 +585,13 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
         this.quote = quote;
         this.currentQuoteDate = quote.QuoteDate;
+        this.updateSaveActions();
+    }
+
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.quote = cloneDeep(this.quote);
+        this.isDirty = true;
         this.updateSaveActions();
     }
 
@@ -1005,10 +1005,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             quoteText = (this.quote.ID) ? 'Tilbud (kladd)' : 'Nytt tilbud';
         }
 
-        const customerText = (this.quote.Customer)
-            ? this.quote.Customer.CustomerNumber + ' - ' + this.quote.Customer.Info.Name
-            : '';
-
         const baseCurrencyCode = this.getCurrencyCode(this.companySettings.BaseCurrencyCodeID);
         const selectedCurrencyCode = this.getCurrencyCode(this.currencyCodeID);
 
@@ -1037,12 +1033,21 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                 next: this.nextQuote.bind(this),
                 add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
-            contextmenu: this.contextMenuItems,
+            contextmenu: [
+                {
+                    label: 'Send via utsendelsesplan',
+                    action: () => this.distribute(),
+                    disabled: () => !this.quote.ID || !this.isDistributable
+                },
+                {
+                    label: 'Skriv ut / send e-post',
+                    action: () => this.printOrEmail(),
+                    disabled: () => !this.quote.ID
+                }
+            ],
             entityID: this.quoteID,
             entityType: 'CustomerQuote'
         };
-
-        this.updateShareActions();
     }
 
     recalcItemSums(quoteItems: CustomerQuoteItem[]) {
@@ -1075,54 +1080,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         this.errorService.handle(error);
     }
 
-    private printAction(reportForm: ReportDefinition): Observable<any> {
-        const savedQuote = this.isDirty
-            ? Observable.fromPromise(this.saveQuote())
-            : Observable.of(this.quote);
-
-        return savedQuote.switchMap((order) => {
-            return this.modalService.open(UniPreviewModal, {
-                data: reportForm
-            }).onClose.switchMap(() => {
-                return this.customerQuoteService.setPrintStatus(
-                    this.quote.ID,
-                    this.printStatusPrinted
-                ).finally(() => {
-                    this.quote.PrintStatus = +this.printStatusPrinted;
-                    this.updateToolbar();
-                });
-            });
-        });
-    }
-
-    private sendEmailAction(reportForm: ReportDefinition, entity: CustomerQuote, entityTypeName: string, name: string): Observable<any> {
-        const savedQuote = this.isDirty
-            ? Observable.fromPromise(this.saveQuote())
-            : Observable.of(this.quote);
-
-        return savedQuote.switchMap(order => {
-            return this.emailService.sendReportEmailAction(reportForm, entity, entityTypeName, name)
-            .finally(() => {
-                this.customerQuoteService.setPrintStatus(this.quote.ID, this.printStatusEmail).take(1).subscribe();
-            });
-        });
-    }
-
-    private updateShareActions() {
-        this.shareActions = [
-            {
-                label: 'Send via utsendelsesplan',
-                action: () => this.distribute(),
-                disabled: () => !this.quote.ID || !this.isDistributable
-            },
-            {
-                label: 'Skriv ut / send e-post',
-                action: () => this.chooseForm(),
-                disabled: () => !this.quote.ID
-            }
-        ];
-    }
-
     private distribute() {
         return Observable.create((obs) => {
             this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
@@ -1138,28 +1095,32 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
     }
 
-    private chooseForm() {
-        return this.modalService.open(
-            UniChooseReportModal,
-            { data: {
-                name: 'Tilbud',
-                typeName: 'Quote',
-                type: ReportTypeEnum.QUOTE,
-                entity: this.quote
-            }}
-        ).onClose.map(res => {
-            if (res === ConfirmActions.CANCEL || !res) {
-                return;
+    private printOrEmail() {
+        return this.modalService.open(TofReportModal, {
+            data: {
+                entityLabel: 'Tilbud',
+                entityType: 'CustomerQuote',
+                entity: this.quote,
+                reportType: ReportTypeEnum.QUOTE
+            }
+        }).onClose.pipe(tap(selectedAction => {
+            let printStatus;
+            if (selectedAction === 'print') {
+                printStatus = '200';
+            } else if (selectedAction === 'email') {
+                printStatus = '100';
             }
 
-            if (res.action === 'print') {
-                this.printAction(res.form).subscribe();
+            if (printStatus) {
+                this.customerQuoteService.setPrintStatus(this.quote.ID, printStatus).subscribe(
+                    () => {
+                        this.quote.PrintStatus = +printStatus;
+                        this.updateToolbar();
+                    },
+                    err => console.error(err)
+                );
             }
-
-            if (res.action === 'email') {
-                this.sendEmailAction(res.form, res.entity, res.entityTypeName, res.name).subscribe();
-            }
-        });
+        }));
     }
 
     private updateSaveActions() {

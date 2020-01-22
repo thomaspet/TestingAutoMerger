@@ -43,7 +43,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         invoiceNumber: get(data, 'cbc:ID', ''),
         invoiceDate: getDateText(get(data, 'cbc:IssueDate', '')),
         dueDate: getDueDate(data),
-        note: get(data, 'cbc:Note.#text', ''),
+        note: get(data, 'cbc:Note.#text') || get(data, 'cbc:Note', ''),
         customerNumber: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.#text', ''),
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
@@ -232,18 +232,26 @@ function getInvoiceLines(data, isCreditNote) {
     }
 
     return invoiceLines.map(line => {
+        const description = get(line, 'cac:Item.cbc:Description');
+        const isDiscount = get(line, 'cac:AllowanceCharge.cbc:ChargeIndicator');
+        const discountString = get(line, 'cac:AllowanceCharge.cbc:Amount.#text');
+        const note = get(line, 'cbc:Note');
+        const amount = get(line, 'cbc:LineExtensionAmount');
+        const productNumber = get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', '');
+        const productName = get(line, 'cac:Item.cbc:Name', '');
         const quantity = get(line, 'cbc:InvoicedQuantity.#text', '') || get(line, 'cbc:CreditedQuantity.#text', '');
+
         let vatPercent = get(line, 'cac:Item.cac:ClassifiedTaxCategory.cbc:Percent', '');
         if (get(vatPercent, '#text')) {
             vatPercent = get(vatPercent, '#text');
         }
 
-        const amount = get(line, 'cbc:LineExtensionAmount', '');
+        let discount = 0.00;
+        if (isDiscount === 'false' && parseFloat(discountString) !== 0) {
+            discount = (parseFloat(discountString) / (parseFloat(get(amount, '#text')) + parseFloat(discountString))) * 100;
+        }
 
         const isCommentLine = !parseFloat(quantity) && !parseFloat(vatPercent) && !parseFloat(amount);
-
-        const productNumber = get(line, 'cac:Item.cac:SellersItemIdentification.cbc:ID', '');
-        const productName = get(line, 'cac:Item.cbc:Name', '');
 
         return {
             productNumber: get(productNumber, '#text') || productNumber,
@@ -251,6 +259,9 @@ function getInvoiceLines(data, isCreditNote) {
             quantity: isCommentLine ? '' : formatNumber(quantity, isCreditNote),
             vatPercent: isCommentLine ? '' : formatNumber(vatPercent),
             vatExclusiveAmount: isCommentLine ? '' : getPriceText(amount, isCreditNote),
+            discount: discount === 0 ? '' : Number(discount.toFixed(2)).toString(),
+            description: get(description, '#text') || description,
+            note: get(note, '#text') || note,
         };
     });
 }

@@ -138,19 +138,49 @@ export class BankReconciliation {
 
     openJournalModal(all: boolean = false) {
         if (!this.loaded) { return; }
-        this.modalService.open(BankStatementJournalModal, {
-            data: {
-                bankAccounts: this.bankAccounts,
-                selectedAccountID: this.selectedBankAccount.AccountID,
-                entries: this.getJournalCandidates(all)
-            }
-        }).onClose.subscribe(importResult => {
-            if (!importResult) { return; }
-            this.session.reload().subscribe( () => {
-                this.autoSuggest = true;
-                this.checkSuggest();
+
+        const openModal = () => {
+            this.modalService.open(BankStatementJournalModal, {
+                data: {
+                    bankAccounts: this.bankAccounts,
+                    selectedAccountID: this.selectedBankAccount.AccountID,
+                    entries: this.getJournalCandidates(all)
+                }
+            }).onClose.subscribe(importResult => {
+                if (!importResult) { return; }
+                this.session.reload().subscribe( () => {
+                    this.autoSuggest = true;
+                    this.checkSuggest();
+                });
             });
-        });
+        }
+
+        if (this.session.closedGroups.length) {
+            const msg = `Du har ${this.session.closedGroups.length} kobling${this.session.closedGroups.length > 1 ? 'er ' : ' '}` +
+            `som ikke er lagret. Ønsker du å lagre disse før du fortsetter?`;
+
+            const modalOptions = {
+                header: 'Ulagrede endringer',
+                message: msg,
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            };
+
+            this.modalService.confirm(modalOptions).onClose.subscribe(confirm => {
+                if (confirm === ConfirmActions.ACCEPT) {
+                    return this.session.saveChanges().subscribe(() => {
+                        openModal();
+                    });
+                } else if (confirm === ConfirmActions.REJECT) {
+                    openModal();
+                }
+            });
+        } else {
+            openModal();
+        }
     }
 
     // TAGED FOR REMOVAL?

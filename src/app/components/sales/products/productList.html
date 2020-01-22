@@ -5,7 +5,8 @@
 
 <section class="application">
     <ag-grid-wrapper
-        class="transquery-grid-font-size"
+        style="height: calc(100vh - 12rem)"
+        class="borders"
         [resource]="lookupFunction"
         [config]="productTable"
         (rowClick)="onRowSelected($event)">

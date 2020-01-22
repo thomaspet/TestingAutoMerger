@@ -1,44 +1,55 @@
-import {Component, Input} from '@angular/core';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {GuidService} from '../../../../app/services/services';
+import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
+import {IContextMenuItem} from '../toolbar/toolbar';
+import {ErrorService} from '@app/services/services';
+import {BehaviorSubject} from 'rxjs';
+import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'uni-context-menu',
     template: `
-    <section (clickOutside)="close()" *ngIf="actions && actions.length">
-        <button type="button"
-            class="contextmenu_button"
-            [id]="guid + '-btn'"
-            (click)="expanded = !expanded"
-            [attr.aria-pressed]="expanded">
-            Flere valg for valgt entitet
+    <section *ngIf="filteredActions?.length">
+        <button #toggle
+            [attr.aria-busy]="loading$ | async"
+            type="button"
+            class="icon-button toggle-button">
+
+            <i class="material-icons">more_horiz</i>
         </button>
 
-        <ul role="menu"
-           class="toolbar-dropdown-list"
-           [attr.aria-labelledby]="guid + '-btn'"
-           [attr.aria-expanded]="expanded">
-           <li *ngFor="let action of actions"
-               (click)="runAction(action)"
-               role="menuitem"
-               [attr.aria-disabled]="isActionDisabled(action)"
-               [title]="action.label"
-               >
-               {{action.label}}
-           </li>
-       </ul>
+        <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'12rem'">
+            <ng-template>
+                <section class="dropdown-menu-item"
+                    *ngFor="let action of filteredActions"
+                    (click)="runAction(action)"
+                    [attr.aria-disabled]="isActionDisabled(action)">
+
+                    {{action.label | translate}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
     </section>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ContextMenu {
+    @Input() actions: IContextMenuItem[];
+    @Input() hideDisabled: boolean;
 
-    @Input() public actions: IContextMenuItem[];
+    filteredActions: IContextMenuItem[];
+    loading$ = new BehaviorSubject(false);
 
-    public expanded: boolean;
-    private guid: string;
+    constructor(private errorService: ErrorService) {}
 
-    constructor(gs: GuidService) {
-        this.guid = gs.guid();
+    ngOnChanges() {
+        if (this.actions && this.actions.length) {
+            this.filteredActions = this.hideDisabled
+                ? this.actions.filter(action => !action.disabled || !action.disabled())
+                : this.actions;
+        }
+    }
+
+    ngOnDestroy() {
+        this.loading$.complete();
     }
 
     private isActionDisabled(action: IContextMenuItem) {
@@ -46,13 +57,21 @@ export class ContextMenu {
     }
 
     public runAction(action: IContextMenuItem) {
-       if (!this.isActionDisabled(action)) {
-           this.close();
-           action.action();
-       }
-   }
+        if (this.isActionDisabled(action)) {
+            return;
+        }
 
-    public close() {
-        this.expanded = false;
+        const res = action.action();
+        if (res && res.subscribe) {
+            this.loading$.next(true);
+            res.pipe(take(1)).subscribe(
+                () => this.loading$.next(false),
+                (err) => {
+                    this.errorService.handle(err);
+                    this.loading$.next(false);
+                },
+                () => this.loading$.next(false)
+            );
+        }
     }
 }

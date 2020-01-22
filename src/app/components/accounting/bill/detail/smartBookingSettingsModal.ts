@@ -1,76 +1,38 @@
-import {Component, Input, Output, EventEmitter, OnInit, ViewChild, HostListener} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
-import {UniModalService} from '../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs';
+import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import {cloneDeep} from 'lodash';
 
 @Component({
-    selector: 'add-file-modal',
+    selector: 'smart-booking-settings-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 35vw; min-width: 640px;">
-            <header><h1>Innstillinger for smart bokføring</h1></header>
+        <section role="dialog" class="uni-modal" style="width: 30rem">
+            <header>Innstillinger for smart bokføring</header>
 
-            <article class="bill-container">
-                <article class="bill-list">
-                    <uni-form class="transquery-filter-form smart-booking-settings-form"
-                        [config]="config$"
-                        [fields]="fields$"
-                        [model]="settings$">
-                    </uni-form>
+            <article *ngIf="settings">
+                <mat-checkbox [(ngModel)]="settings.turnOnSmartBooking">
+                    Kjør smart bokføring automatisk
+                </mat-checkbox>
 
-                </article>
+                <mat-checkbox [(ngModel)]="settings.showNotification">
+                    Vis varsler fra smart bokføring
+                </mat-checkbox>
             </article>
 
-            <footer class="center">
-                <button class="c2a rounded" (click)="close(true)">Lagre</button>
-                <button (click)="close()">Avbryt</button>
+            <footer>
+                <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+                <button class="c2a" (click)="onClose.emit(settings)">Lagre</button>
             </footer>
         </section>
     `
 })
 
 export class UniSmartBookingSettingsModal implements OnInit, IUniModal {
+    @Input() options: IModalOptions;
+    @Output() onClose = new EventEmitter();
 
-    @Input() public options: IModalOptions;
-    @Output() public onClose: EventEmitter<any> = new EventEmitter();
+    settings;
 
-    settings$: BehaviorSubject<any> = new BehaviorSubject({});
-    config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-
-    constructor(
-        private modalService: UniModalService
-    ) {}
-
-    public ngOnInit() {
-        this.settings$.next(this.options.data.settings);
-        this.fields$.next(this.getFields());
-    }
-
-    public getFields() {
-        return [
-            {
-                Property: 'turnOnSmartBooking',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Kjør smart bokføring automatisk',
-                Placeholder: '',
-            },
-            {
-                Property: 'showNotification',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Vis varsler fra smart bokføring',
-                Placeholder: 'Vis varsler',
-            },
-            // {
-            //     Property: 'addNotifcationAsComment',
-            //     FieldType: FieldType.CHECKBOX,
-            //     Label: 'Lag kommentar av varsler',
-            //     Placeholder: '',
-            // }
-        ];
-    }
-
-    public close(save: boolean = false) {
-        this.onClose.emit(save ? this.settings$.getValue() : null);
+    ngOnInit() {
+        this.settings = cloneDeep(this.options.data.settings) || {};
     }
 }

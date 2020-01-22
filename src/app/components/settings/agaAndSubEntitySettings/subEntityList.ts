@@ -1,13 +1,14 @@
 import {Component, ViewChild, OnInit, EventEmitter, Output} from '@angular/core';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable/index';
 import {Observable} from 'rxjs';
-import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '../../../services/services';
-import {SubEntity, Municipal, AGAZone} from '../../../unientities';
+import {SubEntityService, AgaZoneService, MunicipalService, ErrorService} from '@app/services/services';
+import {SubEntity, Municipal, AGAZone} from '@uni-entities';
 import {SubEntityDetails} from './subEntityDetails';
-import {UniModalService} from '../../../../framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {SubEntitySettingsService} from './services/subEntitySettingsService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework//uniToast/toastService';
+import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
 
 @Component({
     selector: 'sub-entity-list',
@@ -29,19 +30,19 @@ export class SubEntityList implements OnInit {
     @ViewChild(SubEntityDetails) private subEntityDetails: SubEntityDetails;
     @Output() public saveIsDisabled: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
-    public actions: any[] = [];
-    public open: boolean = false;
+    actions: ComboButtonAction[] = [
+        { label: 'Hent inn virksomheter fra enhetsregisteret', action: () => this.addSubEntitiesFromExternal() },
+        { label: 'Legg til virksomhet manuelt', action: () => this.addNewSubEntity() }
+    ];
 
     constructor(
         private _subEntityService: SubEntityService,
         private _agaZoneService: AgaZoneService,
         private _municipalService: MunicipalService,
-        private modalService: UniModalService,
         private errorService: ErrorService,
         private subEntitySettingsService: SubEntitySettingsService,
         private toast: ToastService
-    ) {
-    }
+    ) {}
 
     public ngOnInit() {
         this.busy = true;

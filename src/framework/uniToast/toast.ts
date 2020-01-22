@@ -1,39 +1,9 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, HostListener} from '@angular/core';
-import {IToast} from './toastService';
+import {IToast, ToastType} from './toastService';
 
 @Component({
     selector: 'uni-toast',
-    template: `
-        <i class="material-icons"
-            (click)="close()"
-            role="button"
-            aria-label="Close">
-            close
-        </i>
-
-        <header>
-            <span>
-                {{toast.title}}
-                <small class="toast-count" *ngIf="toast.count > 1">({{toast.count}})</small>
-            </span>
-            <span class="toast-action"
-                *ngIf="toast.action && toast.action.displayInHeader"
-                (click)="toast.action.click()">
-                {{toast.action.label}}
-            </span>
-        </header>
-
-        <section class="toast-message"
-            *ngIf="toast.message?.length"
-            [innerHTML]="toast.message">
-        </section>
-
-        <span class="toast-action" role="button"
-            *ngIf="toast.action && !toast.action.displayInHeader"
-            (click)="toast.action.click()">
-            {{toast.action.label}}
-        </span>
-    `,
+    templateUrl: './toast.html',
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniToast {
@@ -42,6 +12,7 @@ export class UniToast {
 
     hovering: boolean;
     timedOut: boolean;
+    icon: string;
 
     @HostListener('click') close() {
         this.dismiss.emit(true);
@@ -55,6 +26,25 @@ export class UniToast {
         this.hovering = false;
         if (this.timedOut) {
             this.close();
+        }
+    }
+
+    ngOnChanges() {
+        if (this.toast) {
+            switch (this.toast.type) {
+                case ToastType.good:
+                    this.icon = 'check_circle';
+                break;
+                case ToastType.warn:
+                    this.icon = 'error';
+                break;
+                case ToastType.bad:
+                    this.icon = 'block';
+                break;
+                default:
+                    this.icon = 'info';
+                break;
+            }
         }
     }
 

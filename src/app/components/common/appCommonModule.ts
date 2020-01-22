@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
@@ -9,12 +8,14 @@ import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
 
 // REVISIT: toolbar should be a module (maybe even in framework?)
 import {UniBreadcrumbs} from './toolbar/breadcrumbs';
-import {StatusTrack} from './toolbar/statustrack';
+import {StatusTrack} from './toolbar/statustrack/statustrack';
+import {StatustrackStatus} from './toolbar/statustrack/statustrack-status/statustrack-status';
 import {UniTags} from './toolbar/tags';
 import {UniToolbar} from './toolbar/toolbar';
-import {UniToolbarShare} from './toolbar/share';
 import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
+import {ToolbarSharingStatus} from './toolbar/sharing-status/sharing-status';
+import {ToolbarCustomStatus} from './toolbar/custom-status/custom-status';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -37,7 +38,6 @@ import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
-import {BrowserWarning} from './browserWarning/browserWarning';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
 import {ApiKeyComponent} from './apikey/apikeys';
@@ -55,6 +55,7 @@ import {
 } from './timetrackingCommon';
 
 import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-rules-modal';
+import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 
 import {
     MatProgressBarModule,
@@ -62,9 +63,11 @@ import {
     MatCheckboxModule,
     MatSelectModule,
     MatSlideToggleModule,
-    MatRadioModule
+    MatRadioModule,
+    MatTooltipModule,
 } from '@angular/material';
 
+import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
@@ -78,7 +81,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule,
         UniFrameworkModule,
         AppPipesModule,
@@ -88,7 +90,8 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         MatCheckboxModule,
         MatSelectModule,
         MatSlideToggleModule,
-        MatRadioModule
+        MatRadioModule,
+        MatTooltipModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -97,10 +100,12 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         AltinnAuthenticationModal,
         UniBreadcrumbs,
         StatusTrack,
+        StatustrackStatus,
         UniToolbar,
-        UniToolbarShare,
         UniToolbarSearch,
         UniToolbarValidation,
+        ToolbarSharingStatus,
+        ToolbarCustomStatus,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
@@ -127,7 +132,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-        BrowserWarning,
         BookPaymentManualModal,
         VacationPaySettingsModal,
 
@@ -139,6 +143,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         DisclaimerModal,
         ImportTemplateModal,
         ImportVoucherModal,
+        BankInitModal,
 
         WorkEditor,
         UniTimeModal,
@@ -148,6 +153,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
+        NewTaskModal,
         UniNewCompanyModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
@@ -176,8 +182,9 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         SelectDistributionPlanModal,
         DisclaimerModal,
         ImportTemplateModal,
+        NewTaskModal,
         ImportVoucherModal,
-        JournalingRulesModal
+        BankInitModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -186,6 +193,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         AltinnAuthenticationModal,
         UniBreadcrumbs,
         StatusTrack,
+        StatustrackStatus,
         UniToolbar,
         UniQueryReadOnly,
         UniSummary,
@@ -202,6 +210,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ReminderSettings,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
+        NewTaskModal,
 
         ContactDetails,
         Contacts,
@@ -213,8 +222,6 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         WorkTypeSystemTypePipe,
 
         LinkMenu,
-
-        BrowserWarning,
 
         ApiKeyComponent,
         ApikeyLine,

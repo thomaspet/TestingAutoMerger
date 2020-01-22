@@ -16,8 +16,6 @@ workitem-transfer-wizard
         font-weight: bold
         font-size: 12pt
 
-    .uniSelect_input
-        cursor: auto
 
     .small
         width: 50%
@@ -55,7 +53,7 @@ workitem-transfer-wizard
         background-color: lighten($uni-color-scale9,2%)
 
     .error
-        color: $uni-color-bad
+        color: var(--color-bad)
 
     .workorder-details
         margin: 0 0.5em 0.5em 1em
@@ -78,7 +76,7 @@ workitem-transfer-wizard
         border-collapse: collapse
         border-spacing: 0
         table-layout: fixed
-        border: 1px solid $uni-color-scale8
+        border: 1px solid var(--border-color)
 
         th, td
             padding: pxToRem(2) pxToRem(5) pxToRem(2) pxToRem(5)
@@ -86,7 +84,7 @@ workitem-transfer-wizard
 
         th
             text-align: left
-            border-bottom: 1px solid $uni-color-scale9
+            border-bottom: 1px solid var(--border-color)
 
         th.right, td.right
             text-align: right

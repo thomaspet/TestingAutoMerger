@@ -1,9 +1,7 @@
-import {ModuleWithProviders} from '@angular/core';
-import {RouterModule} from '@angular/router';
 import {Login} from './login/login';
-import {ResetPassword} from './resetPassword/resetPassword';
 import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {Signup} from './signup/signup';
+import {RegisterCompany} from './registerCompany/registerCompany';
 
 export const initRoutes = [
     {
@@ -16,15 +14,15 @@ export const initRoutes = [
         component: Login
     },
     {
-        path: 'reset-password',
-        component: ResetPassword
-    },
-    {
         path: 'confirm/:guid',
         component: ConfirmInvite
     },
     {
         path: 'sign-up',
         component: Signup
-    }
+    },
+    {
+        path: 'register-company',
+        component: RegisterCompany,
+    },
 ];

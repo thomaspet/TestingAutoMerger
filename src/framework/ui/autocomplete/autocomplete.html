@@ -1,0 +1,86 @@
+<section class="autocomplete-input-wrapper" (clickOutside)="close()">
+    <section class="input-with-button" (keydown.f3)="onF3Key($event)">
+        <input type="text"
+            #inputElement
+            [formControl]="searchControl"
+            (keydown)="onKeyDown($event)"
+            [readonly]="readonly"
+            (focus)="onFocus()"
+            (click)="onClick()"
+            [placeholder]="options?.placeholder || ''"
+        />
+
+        <button type="button" [disabled]="readonly" (click)="$event.stopPropagation(); toggle(); inputElement.focus()">
+            <i class="material-icons">search</i>
+        </button>
+    </section>
+
+    <mat-checkbox *ngFor="let checkbox of options?.filterCheckboxes"
+        [(ngModel)]="checkbox.value"
+        (ngModelChange)="performLookup(searchControl.value)">
+        {{checkbox.label}}
+    </mat-checkbox>
+</section>
+
+<input-dropdown-menu [input]="inputElement" [visible]="isExpanded$ | async">
+    <ng-template>
+        <section *ngIf="loading$ | async" class="spinner-wrapper">
+            <mat-spinner [diameter]="35"></mat-spinner>
+        </section>
+
+        <section *ngIf="!(loading$ | async)" class="result-container" #optionContainer>
+            <!-- List view -->
+            <section *ngIf="!options.resultTableColumns" class="results">
+                <section *ngFor="let item of lookupResults; let idx = index"
+                    (click)="select(item, true)"
+                    class="dropdown-menu-item"
+                    [class.selected]="idx === focusIndex">
+                    {{getDisplayValue(item)}}
+
+                    <i class="material-icons item-edit-icon" *ngIf="options.editHandler" (click)="edit(item)" title="Rediger">edit</i>
+                </section>
+
+                <section class="no-results" *ngIf="!lookupResults?.length">
+                    Ingen resultater
+                </section>
+            </section>
+
+
+            <!-- Table view -->
+            <section *ngIf="options.resultTableColumns" class="results">
+                <table>
+                    <thead>
+                        <tr>
+                            <th *ngFor="let col of options.resultTableColumns">
+                                {{col.header}}
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody #optionContainer>
+                        <tr *ngFor="let item of lookupResults; let idx = index"
+                            [class.focused]="idx === focusIndex"
+                            (click)="select(item, true)">
+
+                            <td *ngFor="let col of options.resultTableColumns">
+                                {{getResultCellValue(item, col)}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <section class="no-results" *ngIf="!lookupResults?.length">
+                    Ingen resultater
+                </section>
+            </section>
+
+            <section *ngIf="options?.createHandler" class="footer">
+                <a (click)="create()">
+                    <i class="material-icons">add</i>
+                    {{options.createLabel || 'Opprett ny'}} (F3)
+                </a>
+            </section>
+        </section>
+
+    </ng-template>
+</input-dropdown-menu>

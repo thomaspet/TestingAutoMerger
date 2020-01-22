@@ -1,0 +1,66 @@
+<section class="widget-wrapper">
+    <section class="header">
+        <span style="flex: 1;">{{ widget.description }}</span>
+        <section class="filters" *ngIf="!missingData">
+            <button class="tertiary c2a" (click)="goToOverdueList()">
+                Se alle forfalte fakturaer
+            </button>
+        </section>
+    </section>
+
+    <section *ngIf="missingData" class="no-content">
+        Ingen fakturaer å vise
+    </section>
+
+    <div *ngIf="!missingData" class="content" style="display: flex;">
+        <section class="chart-section" style="width: 200px;">
+            <div style="height: calc(100% - 8rem)">
+                <canvas style="max-height: 220px" #chartCanvas></canvas>
+            </div>
+            <div class="legend-vertical-class">
+                <section class="legend-row"
+                    *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'overduelegend' + i }}"
+                    (click)="addhiddenClass('overduelegend' + i, i)">
+
+                    <span class="indicator cost" [ngStyle]="{ 'background-color': colors[i] }"></span>
+                    {{ legend }}
+                </section>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <table *ngIf="tableData?.length">
+                <thead>
+                    <tr>
+                        <th>Kunde</th>
+                        <th style="width: 7rem">Fakturanr.</th>
+                        <th class="align-right" style="width: 8.5rem">Utestående</th>
+                        <th class="align-right" style="width: 7.5rem">Forfallsdato</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let row of tableData; let i = index;">
+                        <td>
+                            <span class="indicator" [style.background]="row.color"></span>
+                            <a (click)="onClickNavigate('/sales/customer/', row.CustomerID)">
+                                {{row.CustomerName}}
+                            </a>
+                        </td>
+                        <td>
+                            <a (click)="onClickNavigate('/sales/invoices/', row.ID)">
+                                {{row.InvoiceNumber}}
+                            </a>
+                        </td>
+                        <td class="align-right">{{row.RestAmount | uninumberformat: 'money'}}</td>
+                        <td class="align-right">{{row.PaymentDueDate | date: 'dd.MM.yyyy'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <section *ngIf="!tableData?.length && hasLoadedData" class="no-overdue-invoices">
+                Ingen forfalte fakturaer
+            </section>
+        </section>
+    </div>
+</section>

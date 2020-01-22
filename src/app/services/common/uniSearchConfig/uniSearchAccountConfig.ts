@@ -62,7 +62,7 @@ export class UniSearchAccountConfig {
                 }
             },
             initialItem$: new BehaviorSubject(null),
-            tableHeader: ['Konto nr.', 'Konto navn'],
+            tableHeader: ['Kontonummer', 'Kontonavn'],
             rowTemplateFn: item => [
                 item.AccountNumber,
                 item.AccountName

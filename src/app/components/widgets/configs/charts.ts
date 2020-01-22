@@ -125,30 +125,13 @@ export const CHARTS = [
         permissions: ['ui_salary'],
         width: 5,
         height: 3,
-        widgetType: 'chart',
+        widgetType: 'pieChart',
         config: {
-            chartType: 'pie',
-            labels: [],
-            colors: [],
-            dataEndpoint: [
-                '/api/statistics?model=Employee&select=count(ID) as '
-                + 'Count,Employments.JobName as JobName&expand=Employments'
-            ],
+            dataEndpoint: '/api/statistics?model=Employee&select=count(ID) as '
+                + `Count,isnull(Employments.JobName,'Ingen stillingskode') as JobName&expand=Employments`,
             labelKey: 'JobName',
             valueKey: 'Count',
             maxNumberOfLabels: 7,
-            useIf: '',
-            addDataValueToLabel: false,
-            dataset: [],
-            options: {
-                cutoutPercentage: 0,
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'left'
-                },
-            }
         }
     },
     {
@@ -157,30 +140,15 @@ export const CHARTS = [
         permissions: ['ui_sales_invoices'],
         width: 4,
         height: 3,
-        widgetType: 'chart',
+        widgetType: 'pieChart',
         config: {
-            chartType: 'pie',
-            labels: [],
-            colors: [],
-            dataEndpoint: [
-                '/api/statistics?model=Customer&select=Info.Name as Name,'
+            dataEndpoint: '/api/statistics?model=Customer&select=Info.Name as Name,'
                 + 'isnull(sum(CustomerInvoices.RestAmount),0) as RestAmount'
                 + '&expand=Info,CustomerInvoices&having=sum(CustomerInvoices.RestAmount) gt 0'
-            ],
+                + '&filter=CustomerInvoices.StatusCode gt 42001',
             valueKey: 'RestAmount',
             labelKey: 'Name',
             maxNumberOfLabels: 7,
-            useIf: '',
-            addDataValueToLabel: false,
-            dataset: [],
-            options: {
-                animation: {
-                    animateScale: true
-                },
-                legend: {
-                    position: 'left'
-                }
-            }
         }
     },
     {
@@ -193,5 +161,84 @@ export const CHARTS = [
         config: {
             type: 'wagetype_pie'
         }
-    }
+    },
+    // SR TEMPORARY
+    {
+        id: 'unpaid_supplierinvoice_sr',
+        description: 'Leverandørgjeld',
+        permissions: ['ui_accounting'],
+        width: 4,
+        height: 3,
+        widgetType: 'unpaidsr',
+        srOnly: true,
+        config: {
+            model: 'SupplierInvoice',
+            function: 'unpaid',
+            labels: ['Ikke forfalt', '1-30 dager', '31-60 dager', 'Over 60 dager']
+        }
+    },
+    {
+        id: 'overdue_invoices',
+        description: 'Kundefordringer og kunder jeg bør purre på',
+        permissions: ['ui_accounting'],
+        width: 8,
+        height: 3,
+        srOnly: true,
+        widgetType: 'overdue_invoices',
+    },
+    {
+        id: 'reminder_list',
+        description: 'Huskeliste',
+        permissions: ['ui_accounting'],
+        width: 4,
+        height: 3,
+        widgetType: 'reminderList',
+        srOnly: true,
+        config: {
+
+        }
+    },
+    {
+        id: 'operatingprofit_line',
+        description: 'Driftsresultat',
+        permissions: ['ui_accounting'],
+        width: 8,
+        height: 3,
+        widgetType: 'operatingprofit',
+        srOnly: true,
+        config: {
+            type: 'line',
+            costMultiplier: -1
+        }
+    },
+    {
+        id: 'public_duedates',
+        description: 'Offentlige frister neste 30 dager',
+        width: 8,
+        height: 3,
+        widgetType: 'public_duedates',
+        srOnly: true,
+        config: {}
+    },
+    // {
+    //     id: 'liquidity',
+    //     description: 'Likviditetsprognose',
+    //     width: 5,
+    //     height: 3,
+    //     widgetType: 'liquidity',
+    //     srOnly: true,
+    //     config: {}
+    // },
+    {
+        id: 'bank_balance',
+        description: 'Banksaldo',
+        permissions: ['ui_bank'],
+        srOnly: true,
+        width: 4,
+        height: 3,
+        widgetType: 'bank_balance',
+        config: {
+
+        }
+    },
 ];

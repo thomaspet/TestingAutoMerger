@@ -61,7 +61,6 @@ export class UniRoleModal implements IUniModal {
             res => {
                 this.elsaProducts = res[0];
                 this.elsaPurchases = res[1];
-
                 this.getGroupedRoles().subscribe(groups => this.roleGroups = groups);
             },
             err => this.errorService.handle(err),
@@ -105,22 +104,41 @@ export class UniRoleModal implements IUniModal {
         group.productPurchased = !group.productPurchased;
 
         if (group.productPurchased && !group.roles.some(role => role['_checked'])) {
-            let roleToActivate;
-            try {
-                const defaultRoleName = group.product.ListOfRoles.split(',')[0]
-                    .trim()
-                    .toLowerCase();
+            this.checkDefaultRoles(group);
+        }
+    }
 
-                roleToActivate = defaultRoleName && group.roles.find(role => {
-                    return (role.Name || '').toLowerCase() === defaultRoleName;
-                });
-            } catch (e) {}
+    private checkDefaultRoles(group: IRoleGroup) {
+        // Check if product has DefaultRoles defined first
+        if (group.product.DefaultRoles) {
+            const defaultRoles = group.product.DefaultRoles.toLowerCase();
+            let didCheckRole = false;
 
-            roleToActivate = roleToActivate || group.roles[0];
+            group.roles.forEach(role => {
+                if (role.Name && defaultRoles.includes(role.Name.toLowerCase())) {
+                    role['_checked'] = true;
+                    didCheckRole = true;
+                }
+            });
 
-            if (roleToActivate) {
-                roleToActivate['_checked'] = true;
+            if (didCheckRole) {
+                return;
             }
+        }
+
+        // If not, check if product has ListOfRoles and check the first one
+        if (group.product.ListOfRoles) {
+            const firstRoleName = group.product.ListOfRoles.split(',')[0];
+            const roleIndex = group.roles.findIndex(r => (r.Name || '').toLowerCase() === firstRoleName);
+            if (roleIndex >= 0) {
+                group.roles[roleIndex]['_checked'] = true;
+                return;
+            }
+        }
+
+        // If not, just select the first role in the role array
+        if (group.roles[0]) {
+            group.roles[0]['_checked'] = true;
         }
     }
 
@@ -240,10 +258,11 @@ export class UniRoleModal implements IUniModal {
             roles: []
         };
 
+        roles = roles.filter(role => role.Label !== 'Webhook.Admin');
+
         // Fill the groups with roles
         roles.forEach(role => {
             const roleNameLowerCase = (role.Name || '').toLowerCase();
-
             const groupsThatShouldHaveRole = groups.filter(group => {
                 const listOfRoles = group.product && group.product.ListOfRoles;
                 if (listOfRoles) {

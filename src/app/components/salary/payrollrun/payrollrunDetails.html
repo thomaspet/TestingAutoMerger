@@ -2,9 +2,9 @@
 
     <uni-toolbar
         [config]="toolbarconfig"
+        [showFullStatustrack]="true"
         [contextmenu]="contextMenuItems"
         [saveactions]="saveActions"
-        [statustrack]="getStatustrackConfig()"
         [tags]="categoryFilter"
         [tagConfig]="tagConfig"
         [searchConfig]="searchConfig$ | async"
@@ -17,36 +17,34 @@
     </section>
 
     <section class="application" [attr.aria-disabled]="detailsActive" [attr.aria-busy]="busy">
-        <section class="payroll-info" *ngIf="payrollrun$ | async as payrollrun">
-            <span>
-                <i class="material-icons">date_range</i>
-                Periode: <strong>{{payrollrun.FromDate | unidateformat}} - {{payrollrun.ToDate | unidateformat}}</strong>
-            </span>
+        <section class="payroll-info-and-links">
+            <section class="payroll-info" *ngIf="payrollrun$ | async as payrollrun">
+                <span>
+                    <i class="material-icons">date_range</i>
+                    Periode: <strong>{{payrollrun.FromDate | unidateformat}} - {{payrollrun.ToDate | unidateformat}}</strong>
+                </span>
 
-            <span>
-                <i class="material-icons">date_range</i>
-                Utbetalingsdato: <strong>{{payrollrun.PayDate | unidateformat}}</strong>
-            </span>
+                <span>
+                    <i class="material-icons">date_range</i>
+                    Utbetalingsdato: <strong>{{payrollrun.PayDate | unidateformat}}</strong>
+                </span>
 
-            <span>
-                <i class="material-icons">people</i>
-                {{empCount || 0}} ansatte
-            </span>
+                <span>
+                    <i class="material-icons">people</i>
+                    {{empCount || 0}} ansatte
+                </span>
 
-            <span>
-                <i class="material-icons">attach_money</i>
-                Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
-            </span>
+                <span>
+                    <i class="material-icons">attach_money</i>
+                    Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
+                </span>
+            </section>
 
-            <section class="functions collapsable" [ngClass]="{'-is-open':showFunctions}">
-                <h4 class="functionsHeader" (click)="toggleShowFunctions()">Funksjoner</h4>
-
-                <div class="collapsable-content">
-                    <a (click)="openTaxCardModal()">Skattekort</a>
-                    <a (click)="transferHoursToSalary()">Overfør timer til lønn</a>
-                    <a (click)="transferTravelsToSalary()">Overfør reiser til lønn</a>
-                    <a (click)="generateVacationPay()">Generer feriepenger</a>
-                </div>
+            <section class="link-list-section">
+                <a class="dropdown-menu-item" (click)="openTaxCardModal()">Skattekort</a>
+                <a class="dropdown-menu-item" (click)="transferHoursToSalary()">Overfør timer til lønn</a>
+                <a class="dropdown-menu-item" (click)="transferTravelsToSalary()">Overfør reiser til lønn</a>
+                <a class="dropdown-menu-item" (click)="generateVacationPay()">Generer feriepenger</a>
             </section>
         </section>
 

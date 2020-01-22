@@ -1,13 +1,13 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {PaycheckSending, PaycheckFormat} from './paycheckSending';
 import {IUniModal, IModalOptions, UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {IUniSaveAction} from '../../../../../framework/save/save';
 import {of, Observable} from 'rxjs';
 import {ErrorService, ReportNames, PayrollrunService, ReportDefinitionService, IPaycheckEmailInfo} from '@app/services/services';
 import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ToastTime, ToastType, ToastService} from '@uni-framework/uniToast/toastService';
 import {Employee, ReportDefinition} from '@uni-entities';
 import {filter, tap, switchMap, catchError, finalize, map} from 'rxjs/operators';
+import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
 
 @Component({
     selector: 'paycheck-sender-modal',
@@ -18,7 +18,7 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
     @ViewChild(PaycheckSending) private paycheckSending: PaycheckSending;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-    public saveActions: IUniSaveAction[] = [];
+    public saveActions: ComboButtonAction[] = [];
     public checkedEmps: Employee[];
     public busy: boolean;
     public mailOptions: IPaycheckEmailInfo;
@@ -120,7 +120,7 @@ export class PaycheckSenderModal implements OnInit, IUniModal {
         this.saveActions = this.getSaveActions(this.checkedEmps && !!this.checkedEmps.length);
     }
 
-    private getSaveActions(isActive: boolean): IUniSaveAction[] {
+    private getSaveActions(isActive: boolean): ComboButtonAction[] {
         return [
             {
                 label: 'Send e-post/Skriv ut',

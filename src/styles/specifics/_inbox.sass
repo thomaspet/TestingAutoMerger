@@ -19,34 +19,14 @@ uni-form
   .quarter-width
     @include unigrid-flush(4)
 
-.new-button
-  &,
-  &:hover,
-  &:focus,
-  &:active
-    @extend %unbutton
-    position: absolute
-    display: block
-    cursor: pointer
-    margin-left: 19rem
-    padding-top: .55rem
-    font: 500 14px 'Roboto'
-    color: #1565C0
-    z-index: #{map-get($zindex, base) + 1}
-
-  &:hover,
-  &:focus,
-  &:active
-    text-decoration: underline
-
 %popover
   display: none
   position: absolute
   max-width: 30rem
   color: $uni-color-positive
   background: $uni-color-negative
-  border: pxToRem(1) solid $uni-color-scale8
-  box-shadow: 0 0 .6rem transparentize($uni-color-scale1, .7)
+  border: 1px solid var(--border-color)
+  box-shadow: var(--dropdown-shadow)
   border-radius: pxToRem(5)
   min-width: 13rem
   z-index: map-get($zindex, hamburger)

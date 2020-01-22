@@ -13,47 +13,67 @@ import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
 import {CompanySettings} from '../../../unientities';
-import {UniFilesService} from '../../../services/common/uniFilesService';
 import {ErrorService} from '../../../services/common/errorService';
 import {FinancialYearService} from '@app/services/services';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
 
 const BASE = environment.BASE_URL;
-const FILE_BASE = environment.BASE_URL_FILES;
 
+/* tslint:disable:max-line-length */
 @Component({
     selector: 'uni-bureau-company-tab',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-<section class="company-overview" *ngIf="!!viewData && !!company">
-    <section class="logo" [attr.aria-busy]="!logoUrl">
-        <img *ngIf="!!logoUrl" [src]="logoUrl" />
-    </section>
-    <a (click)="navigateToCompanyUrl('/')" class="company_name">
-        {{company.Name}}
-    </a>
-    <section class="highlighted-bar">
-        <section>
-            <span>Virksomheter</span>
-            <a>{{viewData[2]}}</a>
+        <section class="company-overview" *ngIf="!!viewData && !!company">
+            <i class="material-icons" style="font-size: 2.6rem"> home_work </i>
+            <a (click)="navigateToCompanyUrl('/')" class="company_name"> {{company.Name}} </a>
+
+            <section class="highlighted-bar">
+                <section>
+                    <span>Virksomheter</span>
+                    <a>{{viewData[2]}}</a>
+                </section>
+                <section>
+                    <span>Org. Nummer</span>
+                    <a>{{viewData[0].OrganizationNumber}}</a>
+                </section>
+                <section>
+                    <span>Aktive Brukere</span>
+                    <a (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
+                </section>
+            </section>
+            <section class="info-section">
+                <section>
+                    <i class="material-icons">room</i>
+                    <span class="info-section-header">Addresse</span>
+                    <span> {{ viewData[0].DefaultAddress?.AddressLine1 }} {{ viewData[0].DefaultAddress?.City }} {{ viewData[0].DefaultAddress?.PostalCode }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">mail_outline</i>
+                    <span class="info-section-header">E-post</span>
+                    <span> {{ viewData[0].DefaultEmail?.EmailAddress }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">call</i>
+                    <span class="info-section-header">Telefon</span>
+                    <span> {{ viewData[0].DefaultPhone?.Number }} </span>
+                </section>
+
+                <section>
+                    <i class="material-icons">credit_card</i>
+                    <span class="info-section-header">Driftskonto</span>
+                    <span>{{viewData[0].CompanyBankAccount?.AccountNumber}}</span>
+                </section>
+
+                <section>
+                    <i class="material-icons">compare_arrows</i>
+                    <span class="info-section-header">EHF</span>
+                    <span> <strong> {{ viewData[0].APActivated ? "Aktivert" : "Ikke aktivert" }} </strong> </span>
+                </section>
+            </section>
         </section>
-        <section>
-            <span>Org. Nummer</span>
-            <a>{{viewData[0].OrganizationNumber}}</a>
-        </section>
-        <section>
-            <span>Aktive Brukere</span>
-            <a (click)="navigateToCompanyUrl('/settings/users')">{{viewData[1]}}</a>
-        </section>
-    </section>
-    <section class="info-section">
-        <span><i class="material-icons">room</i><span class="info-name">Addresse</span>{{viewData[0].DefaultAddress?.AddressLine1}} {{viewData[0].DefaultAddress?.City}} {{viewData[0].DefaultAddress?.PostalCode}}</span>
-        <span><i class="material-icons">mail_outline</i><span class="info-name">E-post</span>{{viewData[0].DefaultEmail?.EmailAddress}}</span>
-        <span><i class="material-icons">call</i><span class="info-name">Telefon</span>{{viewData[0].DefaultPhone?.Number}}</span>
-        <span><i class="material-icons">credit_card</i><span class="info-name">Driftskonto</span>{{viewData[0].CompanyBankAccount?.AccountNumber}}</span>
-        <span><i class="material-icons">compare_arrows</i><span class="info-name">EHF</span>{{viewData[0].APActivated ? "aktivert" : "ikke aktivert"}}</span>
-    </section>
-</section>
 `
 })
 export class BureauCompanyTab implements AfterViewInit, OnDestroy {
@@ -61,10 +81,8 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
 
     public accountingYear: number;
     public viewData: any[];
-    public logoUrl: string;
     @HostBinding('class.no_access') public noAccess: boolean = false;
 
-    private authToken: string;
     private subscription: Subscription;
 
     constructor(
@@ -72,13 +90,11 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
         private cd: ChangeDetectorRef,
         private customHttpService: BureauCustomHttpService,
         private authService: AuthService,
-        private uniFilesService: UniFilesService,
         private errorService: ErrorService,
         public currentCompanyService: BureauCurrentCompanyService,
         financialYearService: FinancialYearService,
     ) {
         this.accountingYear = financialYearService.getActiveYear();
-        this.authService.filesToken$.subscribe(token => this.authToken = token);
     }
 
     public ngAfterViewInit() {
@@ -97,13 +113,7 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
                     .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
                     .do(() => this.cd.markForCheck())
                     .subscribe(
-                        result => {
-                            this.viewData = result;
-                            this.logoUrl = undefined;
-                            this.getLogoUrl(this.company.Key)
-                                .do(() => this.cd.markForCheck())
-                                .subscribe(logoUrl => this.logoUrl = logoUrl);
-                        },
+                        result => this.viewData = result,
                         err => {
                             if (err.status === 403) {
                                 this.noAccess = true;
@@ -148,23 +158,6 @@ export class BureauCompanyTab implements AfterViewInit, OnDestroy {
             .map(this.customHttpService.singleStatisticsExtractor)
             .map(result => result.countid);
     }
-
-    private getLogoUrl(companyKey: string): Observable<string> {
-        const logoUrlObservable = this.customHttpService
-            .get(`/api/biz/files/${CompanySettings.EntityType}/1`, companyKey)
-            .map(response => response.body)
-            .map(files => files.length && files[0]
-                    ? `${FILE_BASE}/api/image/?key=${companyKey}&token=${this.authToken}&id=${files[0].StorageReference}`
-                    : '/assets/Logo-Placeholder.png'
-            );
-
-        return Observable.fromPromise(
-            this.uniFilesService
-                .checkAuthentication()
-                .catch(() => this.authService.authenticateUniFiles())
-        ).switchMap(() => logoUrlObservable);
-    }
-
 
     public navigateToCompanyUrl(url: string) {
         this.authService.setActiveCompany(<any>this.company, url);

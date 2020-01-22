@@ -10,6 +10,7 @@ import * as Chart from 'chart.js';
 
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'expenses-widget',
@@ -26,7 +27,7 @@ import {WidgetDataService} from '../../widgetDataService';
             <div *ngIf="!missingData" class="content">
                 <section class="chart-legend">
                     <section *ngFor="let item of items; let idx = index" class="legend">
-                        <span class="indicator" [ngStyle]="{'background': colors[idx]}"></span>
+                        <span class="indicator" [style.background]="colors[idx]"></span>
                         {{item.label}}: <strong>{{ (item.sum | uninumberformat:'money') || 0}}</strong>
                     </section>
                 </section>
@@ -50,7 +51,7 @@ export class ExpensesWidget {
     missingData: boolean;
     totalAmount = 0;
     items: {label: string, sum: number}[] = [];
-    colors = ['#94E4FF', '#7BCBFF', '#62B2FF'];
+    colors = theme.widgets.pie_colors;
 
     constructor(
         private dataService: WidgetDataService,

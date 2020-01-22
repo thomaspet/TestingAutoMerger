@@ -1,13 +1,13 @@
 .uni-container
     flex: 1
     box-sizing: border-box
-    margin: 0 1.25rem 1.25rem 0
-    border-radius: 3px
+    margin-bottom: 1rem
+    border-radius: var(--section-radius)
     background: #fff
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.1)
+    border: 1px solid var(--border-color)
     padding-bottom: 1rem
 
-    > *:not(header):not(uni-tabs):not(button)
+    > *:not(header):not(footer):not(uni-tabs):not(button)
         padding: 1rem 1rem 0
 
     > button
@@ -16,19 +16,22 @@
     > header
         height: 2.5rem
         line-height: 2.5rem
-        font-size: 19px
-        font-weight: 400
-        margin-bottom: .25rem
-        border-bottom: 1px solid $uni-color-scale9
-
         padding: 0 1rem
+        font-weight: 400
+        font-size: 17px
+        @media screen and (max-width: 1300px)
+            font-size: 15px
+
+    > footer
+        display: flex
+        align-items: center
+        height: 2.5rem
+        padding: 0 1rem
+        border-bottom-left-radius: var(--section-radius)
+        border-bottom-right-radius: var(--section-radius)
 
     uni-tabs
         margin-bottom: .25rem
-
-        .mat-tab-label
-            font-weight: 400
-            font-size: 15px
 
     fieldset
         box-shadow: none

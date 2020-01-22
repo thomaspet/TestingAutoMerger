@@ -121,12 +121,12 @@
                 "Field": "StatusCode",
                 "Alias": "ShareStatus",
                 "Format": "SharingStatus",
-                "Width": "7rem"
+                "Width": "120px"
             },
             {
                 "Header": "Sendes",
                 "Field": "DistributeAt",
-                "Width": "4rem",
+                "Width": "8rem",
                 "Type": "datetime",
                 "Format": "DateWithTime"
             },

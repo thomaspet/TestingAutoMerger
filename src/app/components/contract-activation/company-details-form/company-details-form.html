@@ -1,0 +1,31 @@
+<autocomplete style="margin: 0 0 2rem"
+    [options]="autocompleteOptions"
+    (valueChange)="onBrRegItemSelected($event)">
+</autocomplete>
+
+<label #companyNameInput class="uni-label">
+    <span>Firmanavn *</span>
+    <input type="text" [(ngModel)]="details.CompanyName" (ngModelChange)="detailsChange.emit(details)">
+</label>
+
+<label class="uni-label">
+    <span>Organisasjonsnummer *</span>
+    <input type="text" readonly [value]="details.OrganizationNumber || ''">
+</label>
+
+<label class="uni-label">
+    <span>Adresse</span>
+    <input type="text" [(ngModel)]="details.Address" (ngModelChange)="detailsChange.emit(details)">
+</label>
+
+<section class="input-row">
+    <label class="uni-label postal-code">
+        <span>Postnummer</span>
+        <input type="text" [(ngModel)]="details.PostalCode" (ngModelChange)="detailsChange.emit(details)">
+    </label>
+
+    <label class="uni-label">
+        <span>Poststed</span>
+        <input type="text" [(ngModel)]="details.City" (ngModelChange)="detailsChange.emit(details)">
+    </label>
+</section>

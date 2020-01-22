@@ -2,7 +2,6 @@ import {NgModule, ModuleWithProviders} from '@angular/core';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {UniNavbar} from './navbar/navbar';
 import {UniSidebar} from './sidebar/sidebar';
@@ -11,15 +10,12 @@ import {UniTabStrip} from './navbar/tabstrip/tabstrip';
 import {UniTabstripHelp} from './navbar/tabstrip/help';
 import {UniCompanyDropdown} from './navbar/company-dropdown/companyDropdown';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {UniTabs} from './uniTabs/uniTabs';
 import {UniNumberFormatPipe} from '../../pipes/uniNumberFormatPipe';
 import {YearModal} from './navbar/company-dropdown/yearModal';
 import {NavbarLinkService} from './navbar/navbar-link-service';
 
 import {NavbarUserDropdown} from './navbar/user-dropdown/user-dropdown';
 import {UserSettingsModal} from './navbar/user-dropdown/user-settings-modal';
-
-import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
 import {UniCompanySearch} from './smart-search/company-search/company-search';
 import {UniSmartSearch} from './smart-search/smart-search';
@@ -32,43 +28,37 @@ import {OverlayModule} from '@angular/cdk/overlay';
 
 import {NotificationsModule} from './notifications/notifications.module';
 
+import {BoostChat} from './boostChat/boostChat';
+
 import {
-    MatTabsModule,
     MatTooltipModule,
     MatMenuModule,
     MatExpansionModule,
-    MatIconModule,
-    MatButtonModule,
     MatProgressBarModule,
-    MatCardModule
 } from '@angular/material';
-import { ChatBoxComponent } from './chat-box/chat-box.component';
+
+import {ChatBoxComponent} from './chat-box/chat-box.component';
+import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule,
 
         A11yModule,
         OverlayModule,
-        MatTabsModule,
         MatTooltipModule,
         MatMenuModule,
         MatExpansionModule,
-        MatIconModule,
-        MatButtonModule,
         MatProgressBarModule,
-        MatCardModule,
 
         UniFrameworkModule,
         AppPipesModule,
         NotificationsModule
     ],
     declarations: [
-        UniTabs,
         UniNavbar,
         UniSidebar,
         UniMegaMenu,
@@ -82,7 +72,8 @@ import { ChatBoxComponent } from './chat-box/chat-box.component';
         UniCompanySearch,
         UniSmartSearch,
         UniSmartSearchItem,
-        ChatBoxComponent
+        ChatBoxComponent,
+        BoostChat,
     ],
     providers: [
         UniNumberFormatPipe,
@@ -96,13 +87,13 @@ import { ChatBoxComponent } from './chat-box/chat-box.component';
         UniSmartSearch
     ],
     exports: [
-        UniTabs,
         UniNavbar,
         UniSidebar,
         NavbarCreateNew,
         UniCompanyDropdown,
         YearModal,
         ChatBoxComponent,
+        BoostChat,
     ]
 })
 export class LayoutModule {

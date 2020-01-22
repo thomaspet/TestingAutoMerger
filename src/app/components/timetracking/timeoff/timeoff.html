@@ -96,7 +96,7 @@
 
                     <div class="timeoff_year_view">
                         <div *ngFor="let month of months; let i = index;" class="timeoff_year_view_month">
-                            <div> {{ _MONTHS[i] }} </div>
+                            <div (click)="goToMonthView(month)" title="{{ 'Gå til månedsvisning for ' + _MONTHS[i] }}"> {{ _MONTHS[i] }} </div>
                             <table>
                                 <thead>
                                     <tr>

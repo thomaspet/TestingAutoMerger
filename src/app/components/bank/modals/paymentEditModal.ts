@@ -36,8 +36,8 @@ import * as moment from 'moment';
 @Component({
     selector: 'uni-payment-edit-modal',
     template: `
-        <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Rediger utbetalinger</h1></header>
+        <section role="dialog" class="uni-modal" style="width: 80vw;">
+            <header>Rediger utbetalinger</header>
 
             <article style="max-height: 70vh;">
                 <mat-form-field>
@@ -55,9 +55,9 @@ import * as moment from 'moment';
                 </ag-grid-wrapper>
             </article>
 
-            <footer class="center">
-                <button class="c2a rounded" (click)="saveAndClose()">Lagre</button>
-                <button (click)="close()">Avbryt</button>
+            <footer>
+                <button class="secondary" (click)="close()">Avbryt</button>
+                <button class="c2a" (click)="saveAndClose()">Lagre</button>
             </footer>
         </section>
 `
@@ -187,34 +187,63 @@ export class UniPaymentEditModal implements IUniModal {
                         and contains(AccountNumber,'${query}')&top=20`
                     );
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Legg til bankkonto',
-                addNewButtonCallback: (text) => new Promise((resolve, reject) => {
-                    const currentRow = this.table.getCurrentRow();
-                    const bankAccount = new BankAccount();
-                    bankAccount.BusinessRelationID = currentRow.BusinessRelationID;
-                    bankAccount['_createguide'] = this.bankAccountService.getNewGuid();
-                    bankAccount.BankAccountType = '-';
+                addNewButton: {
+                    label: 'Legg til bankkonto',
+                    action: () => {
+                        return new Promise(resolve => {
+                            const currentRow = this.table.getCurrentRow();
+                            const bankAccount = new BankAccount();
+                            bankAccount.BusinessRelationID = currentRow.BusinessRelationID;
+                            bankAccount['_createguide'] = this.bankAccountService.getNewGuid();
+                            bankAccount.BankAccountType = '-';
 
-                    const modal = this.modalService.open(UniBankAccountModal, {
-                        data: bankAccount
-                    });
+                            this.modalService.open(UniBankAccountModal, {
+                                data: bankAccount
+                            }).onClose.subscribe(account => {
+                                if (!account) {
+                                    resolve(undefined);
+                                    return;
+                                }
 
-                    modal.onClose.subscribe((account) => {
-                        if (!account) {
-                            resolve(undefined);
-                            return;
-                        }
+                                this.bankAccountService.Post(account).subscribe(
+                                    res => resolve(res),
+                                    err => {
+                                        this.errorService.handle(err);
+                                        resolve(undefined);
+                                    }
+                                );
+                            });
+                        });
+                    }
+                },
+                // addNewButtonVisible: true,
+                // addNewButtonText: 'Legg til bankkonto',
+                // addNewButtonCallback: (text) => new Promise((resolve, reject) => {
+                //     const currentRow = this.table.getCurrentRow();
+                //     const bankAccount = new BankAccount();
+                //     bankAccount.BusinessRelationID = currentRow.BusinessRelationID;
+                //     bankAccount['_createguide'] = this.bankAccountService.getNewGuid();
+                //     bankAccount.BankAccountType = '-';
 
-                        this.bankAccountService.Post(account).subscribe(
-                            res => resolve(res),
-                            err => {
-                                this.errorService.handle(err);
-                                resolve(undefined);
-                            }
-                        );
-                    });
-                })
+                //     const modal = this.modalService.open(UniBankAccountModal, {
+                //         data: bankAccount
+                //     });
+
+                //     modal.onClose.subscribe((account) => {
+                //         if (!account) {
+                //             resolve(undefined);
+                //             return;
+                //         }
+
+                //         this.bankAccountService.Post(account).subscribe(
+                //             res => resolve(res),
+                //             err => {
+                //                 this.errorService.handle(err);
+                //                 resolve(undefined);
+                //             }
+                //         );
+                //     });
+                // })
             });
 
         const paymentIDCol = new UniTableColumn('PaymentID', 'KID', UniTableColumnType.Text);

@@ -3,9 +3,6 @@
 
 uni-assignments *
     box-sizing: border-box
-    button
-        height: 2rem
-        line-height: 1rem
 
 uni-approvals, uni-tasks
     display: flex
@@ -22,21 +19,27 @@ uni-approvals, uni-tasks
     .assignment-filters
         height: 4rem
         padding-top: 1rem
-        display: block
+        display: flex
+        align-items: center
+
+        .task-checkbox
+            margin-left: 2rem
 
         button
+            height: 2rem
+            line-height: 1rem
             margin: 0
             border-radius: 0
-            background-color: $uni-color-negative
-            color: $uni-color-c2a
-            border: 1px solid $uni-color-c2a
+            background-color: #fff
+            color: var(--color-c2a)
+            border: 1px solid var(--color-c2a)
             text-shadow: none
             box-shadow: none
             margin-right: -4px
             width: 10rem
 
             &.active-filter
-                background-color: $uni-color-c2a
+                background-color: var(--color-c2a)
                 color: $uni-color-negative
 
             &:first-of-type
@@ -64,11 +67,11 @@ uni-approvals, uni-tasks
             flex-flow: row nowrap
             position: relative
             cursor: pointer
-            border-bottom:  pxToRem(1) solid $uni-color-scale9
+            border-bottom:  1px solid var(--border-color)
             padding: 1rem
 
             &[aria-selected]:not([aria-selected=false])
-                background: mix($uni-color-c2a, $uni-color-negative, 10%)
+                background: var(--table-row-select-background)
 
         .assignment-info
             order: 1
@@ -78,7 +81,7 @@ uni-approvals, uni-tasks
 
             .assigned-to
                 padding-right: .5rem
-                border-right: 1px solid $uni-color-scale8
+                border-right: 1px solid var(--border-color)
 
             .created-by
                 padding-left: .5rem
@@ -87,31 +90,12 @@ uni-approvals, uni-tasks
             order: 2
             flex: 0 0 auto
             margin: auto 0
-            text-align: right
-
-            i.material-icons
-                vertical-align: middle
-                margin: 0 .25rem
-
-                &.complete-task
-                    color: $uni-color-scale6
-                    &:hover
-                        color: $uni-color-c2a
-
-                &.approve-approval
-                    color: $uni-color-good
-                    &:hover
-                        color: darken($uni-color-good, 10%)
-
-                &.reject-approval
-                    color: $uni-color-bad
-                    transform: rotate(45deg)
-                    &:hover
-                        color: darken($uni-color-bad, 10%)
-
+            button
+                height: 2rem
 
 .assignment-details
     flex: 1
+    margin-left: 1rem
     box-sizing: border-box
     display: flex
     flex-direction: column
@@ -125,7 +109,7 @@ uni-approvals, uni-tasks
         width: 100%
         padding: 0.7em
         white-space: nowrap
-        border-bottom:  pxToRem(1) solid $uni-color-scale9
+        border-bottom:  1px solid var(--border-color)
 
         td:last-of-type
             text-align: right

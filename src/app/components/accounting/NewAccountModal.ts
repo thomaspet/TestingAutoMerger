@@ -13,7 +13,7 @@ declare const _; // lodash
     selector: 'new-account-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 50vw;">
-            <header><h1>Opprett ny konto</h1></header>
+            <header>Opprett ny konto</header>
 
             <article class="new-account-form" [attr.aria-busy]="busy" style="width: 95vw;">
 

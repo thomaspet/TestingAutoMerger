@@ -6,7 +6,7 @@
                 <li *ngFor="let ticker of group.Tickers"
                     (click)="navigateToTicker(ticker)"
                     [attr.aria-selected]="ticker.Code === selectedTicker?.Code">
-                    {{ticker.Name}}
+                    {{ticker.Name | translate}}
                 </li>
             </ul>
         </li>
@@ -14,21 +14,29 @@
 
     <section class="overview-ticker-section">
         <section class="overview-ticker-header">
-            <span class="ticker-title">{{tickerTitle || 'Oversikt'}}</span>
+            <span class="ticker-title">{{tickerTitle || 'Oversikt' | translate}}</span>
 
-            <span class="ticker-create-new" *ngIf="createNewAction" (click)="onCreateNewClick()">
-                <i class="material-icons">add_circle</i>
-                Opprett ny
-            </span>
+            <section class="ticker-actions pull-right">
+                <!-- <span class="ticker-create-new" *ngIf="createNewAction" (click)="onCreateNewClick()">
+                    <i class="material-icons">add_circle</i>
+                    Opprett ny
+                </span>
 
-            <span class="ticker-export" (click)="exportToExcel()">
-                <i class="material-icons">cloud_download</i>
-                Eksporter til excel
-            </span>
-            <span class="ticker-export" (click)="turnGroupingOnOff()">
-                <i class="material-icons">apps</i>
-                Slå av/på gruppering
-            </span>
+                <span class="ticker-export" (click)="exportToExcel()">
+                    <i class="material-icons">cloud_download</i>
+                    Eksporter til excel
+                </span> -->
+                <button class="tertiary" (click)="turnGroupingOnOff()">
+                    <i class="material-icons">apps</i>
+                    Slå av/på gruppering
+                </button>
+
+                <button class="" *ngIf="createNewAction" (click)="onCreateNewClick()">
+                    <i class="material-icons">add</i>
+                    Opprett ny
+                </button>
+                <button class="c2a" (click)="exportToExcel()">Eksporter til excel</button>
+            </section>
         </section>
 
         <uni-ticker-container *ngIf="!navigatingToTicker"

@@ -16,7 +16,7 @@ import {SellerService} from './sales/sellerService';
 import {SellerLinkService} from './sales/sellerLinkService';
 import {RecurringInvoiceService} from './sales/recurringInvoiceService';
 import {PaymentInfoTypeService} from './sales/paymentInfoTypeService';
-import { BatchInvoiceService } from './sales/batchInvoiceService';
+import {BatchInvoiceService} from './sales/batchInvoiceService';
 
 export * from './sales/addressService';
 export * from './sales/businessRelationService';

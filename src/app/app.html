@@ -1,15 +1,26 @@
-<browser-warning></browser-warning>
 <uni-toast-list></uni-toast-list>
 <section *ngIf="isAuthenticated && !isOnInitRoute" class="chatboxes">
     <uni-chat-box *ngFor="let chatbox of (chatBoxService.businessObjects | async)" [businessObject]="chatbox"></uni-chat-box>
 </section>
 
-<uni-navbar class="no-print" *ngIf="isAuthenticated && !isOnInitRoute"></uni-navbar>
+<uni-navbar [deativateFunctions]="isPendingApproval" class="no-print" *ngIf="isAuthenticated && !isOnInitRoute"></uni-navbar>
 
 <section id="page-container" [ngClass]="'sidebar-' + (navbarService.sidebarState$ | async)">
-    <uni-sidebar *ngIf="isAuthenticated && !isOnInitRoute"></uni-sidebar>
+    <uni-sidebar *ngIf="isAuthenticated && !isOnInitRoute && !isPendingApproval"></uni-sidebar>
 
-    <main id="page-content-container">
+    <section class="locked-company-container" *ngIf="isPendingApproval">
+        <section>
+            <h3>Avventer etablering av kundeforhold</h3>
+            <span>
+                For å bruke fullverdig versjon av SR-Bank Regnskap må du være bedriftskunde i SR-Bank.
+                Dersom du allerede har fylt ut bli-kunde-skjemaet er saken din under behandling. Du vil få beskjed når kundeforholdet er etablert. <br/> <br/>
+                Dersom du ikke allerede har fylt ut skjemaet, trykk på Bli kunde under.
+            </span>
+            <button class="c2a" (click)="goToExternalSignup()"> Bli kunde </button>
+        </section>
+    </section>
+
+    <main id="page-content-container" *ngIf="!isPendingApproval">
         <router-outlet></router-outlet>
     </main>
 </section>

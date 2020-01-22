@@ -5,13 +5,15 @@ import {UniSearch} from './UniSearch';
 import {UniSearchAttr} from './UniSearchAttr';
 import {TestDataService} from './TestDataService';
 import {ClickOutsideModule} from '../../click-outside/click-outside.module';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        ClickOutsideModule
+        ClickOutsideModule,
+        InputDropdownModule
     ],
     declarations: [
         UniSearch,

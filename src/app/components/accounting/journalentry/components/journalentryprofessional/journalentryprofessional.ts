@@ -19,7 +19,7 @@ import {
     IContextMenuItem,
     IColumnTooltip
 } from '../../../../../../framework/ui/unitable/index';
-import {IGroupConfig} from '../../../../../../framework/ui/unitable/controls/autocomplete';
+import {IGroupConfig} from '@uni-framework/ui/unitable/controls/table-autocomplete';
 import {UniHttp} from '../../../../../../framework/core/http/http';
 import {
     Account,
@@ -1180,19 +1180,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             });
 
         const vatDateCol = new UniTableColumn('VatDate', 'Dato', UniTableColumnType.LocalDate)
-            .setWidth('110px')
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setWidth('110px');
 
         const financialDateCol = new UniTableColumn('FinancialDate', 'Regnskapsdato', UniTableColumnType.LocalDate)
             .setWidth('110px')
-            .setVisible(false)
-            .setOptions({
-                defaultYear: this.currentFinancialYear ? this.currentFinancialYear.Year : new Date().getFullYear(),
-                useLastMonthsPreviousYearUntilMonth: 4
-            });
+            .setVisible(false);
 
         const kidCol = new UniTableColumn('PaymentID', 'KID').setVisible(false);
 
@@ -1250,11 +1242,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const manDimReportCol = new UniTableColumn('', 'Påkrevde dimensjoner', UniTableColumnType.Text)
@@ -1373,11 +1364,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                addNewButtonVisible: true,
-                addNewButtonText: 'Opprett ny reskontro',
-                addNewButtonCallback: (text) => {
-                    return this.openNewAccountModal(this.table.getCurrentRow(), text);
-                }
+                addNewButton: {
+                    label: 'Opprett ny reskontro',
+                    action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
+                },
             });
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
@@ -1465,7 +1455,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setSkipOnEnterKeyNavigation(true)
             .setWidth('90px');
 
-/* hotfiks frontend til journalentrytype er flyttet til company base i backend
+
         const journalEntryTypeCol = new UniTableColumn('JournalEntryType', 'Bilagstype', UniTableColumnType.Lookup)
             .setDisplayField('JournalEntryType.DisplayName')
             .setVisible(false)
@@ -1479,7 +1469,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         .map(x => x.Data ? x.Data : []);
                     }
                 });
-*/
+
         const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setDisplayField('Project.ProjectNumber')
             .setVisible(false)
@@ -1671,8 +1661,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 createdByCol,
                 manDimReportCol,
                 addedPaymentCol,
-                fileCol
-                /* ,journalEntryTypeCol */
+                fileCol,
+                journalEntryTypeCol
             ].map(col => {
                 col = _.cloneDeep(col);
                 if (col.field === invoiceNoCol.field ||
@@ -1713,6 +1703,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             netAmountCol.setVisible(false);
             costAllocationCol.setVisible(false);
             debitAccountCol.setWidth('20%');
+            debitAccountCol.setPlaceholder('Velg konto');
 
             columns = [
                 debitAccountCol,
@@ -1727,8 +1718,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCurrencyCol,
                 currencyExchangeRate,
                 costAllocationCol,
-                manDimReportCol
-                /*,journalEntryTypeCol */
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
@@ -1787,8 +1778,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 costAllocationCol,
                 addedPaymentCol,
                 fileCol,
-                manDimReportCol
-                /*,journalEntryTypeCol*/
+                manDimReportCol,
+                journalEntryTypeCol
             ];
 
             if (dimensionCols.length) {
@@ -2126,7 +2117,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const customerInvoice = journalEntryRow.CustomerInvoice;
 
         return new Promise(resolve => {
-            const paymentData: InvoicePaymentData = {
+            const paymentData = <InvoicePaymentData> {
                 Amount: customerInvoice.RestAmount,
                 AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
                 BankChargeAmount: 0,
@@ -2242,9 +2233,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         journalEntryData: JournalEntryData, invoicePaymentData: InvoicePaymentData
     ): Promise<JournalEntryData> {
         const agioRow = new JournalEntryData();
-        const isCredit = (invoicePaymentData.AgioAmount < 0 && journalEntryData.DebitAccount && journalEntryData.DebitAccount.UsePostPost)
-            || (invoicePaymentData.AgioAmount > 0 && journalEntryData.CreditAccount && journalEntryData.CreditAccount.UsePostPost);
-
         agioRow.SameOrNewDetails = journalEntryData.SameOrNewDetails;
         agioRow.CustomerInvoice = journalEntryData.CustomerInvoice;
         agioRow.SameOrNew = journalEntryData.SameOrNew;
@@ -2266,7 +2254,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             this.accountService.Get(invoicePaymentData.AgioAccountID)
                 .subscribe(
                     agioAccount => {
-                        if (isCredit) {
+                        if (invoicePaymentData.AgioAmount < 0) {
                             agioRow.CreditAccountID = agioAccount.ID;
                             agioRow.CreditAccount = agioAccount;
                         } else {

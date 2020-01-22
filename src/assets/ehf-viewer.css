@@ -1,6 +1,13 @@
 /*
 	Not included in main css bundle because it's also used by
 	the popout-fileviewer and when printing EHF files
+
+    Important:
+
+	If you make changes to this file you'll need to update the number in
+	<link href="./assets/ehf-viewer.css?v=<number>"> in fileviewer.html.
+	Since this it's a static html file we don't get the cache busting angular cli usually gives us.
+
 */
 .uni-ehf {
     display: block;
@@ -8,17 +15,21 @@
     padding: 1rem 2rem;
 	font-size: 14px;
 	line-height: 24px;
-	font-family: 'Roboto', sans-serif;
+	font-family: 'Roboto', Arial, Helvetica, sans-serif
 }
 
 .uni-ehf h1 {
-	font: 500 22px 'Roboto', sans-serif;
+	font-weight: 500;
+	font-size: 22px;
+	/* font: 500 22px var(--font-family); */
 	color: #0f4880;
 	margin: 5px 0;
 }
 
 .uni-ehf h4 {
-	font: 700 13px 'Roboto', sans-serif;
+	font-weight: 700;
+	font-size: 13px;
+	/* font: 700 13px var(--font-family); */
 	color: #0f4880;
 	margin: 5px 0;
 }
@@ -88,8 +99,19 @@
 	display: flex;
 	margin: 2rem 0 1rem;
 	padding-top: 1rem;
-	border-top: 1px solid #ccc;
-	page-break-inside: avoid;
+    page-break-inside: avoid;
+    border-top: 1px solid #ccc;
+}
+
+.uni-ehf .note-row {
+    margin: 2rem 0 1rem;
+	padding-top: 0.2rem;
+    page-break-inside: avoid;
+}
+
+.uni-ehf .note-row p {
+    font-size: 13px;
+    font-style: italic;
 }
 
 .uni-ehf .tax-summary {

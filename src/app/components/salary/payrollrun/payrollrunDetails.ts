@@ -84,7 +84,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public saveActions: IUniSaveAction[] = [];
     private activeYear: number;
     private emp: Employee;
-    private showFunctions: boolean = true;
     private browserStorageItemName: string = 'showFunctionsPayrollRunDetails';
 
     public creatingRun: boolean;
@@ -150,8 +149,6 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.config$.next({
             submitText: ''
         });
-
-        this.showFunctions = this.browserStorage.getItem(this.browserStorageItemName);
 
         this.route.params.subscribe(params => {
             this.journalEntry = undefined;
@@ -238,6 +235,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                             next: this.nextPayrollrun.bind(this),
                             add: this.newPayrollrun.bind(this)
                         },
+                        statustrack: this.getStatustrackConfig()
                     };
 
                     this.saveActions = this.getSaveActions(payrollRun);
@@ -382,15 +380,11 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             .subscribe(() => this.addEmpTranses(emp.ID));
     }
 
-    toggleShowFunctions() {
-        this.showFunctions = !this.showFunctions;
-        this.browserStorage.setItem(this.browserStorageItemName, this.showFunctions);
-    }
-
     openTaxCardModal() {
         this.modalService.open(TaxCardModal, {
             data: this.employeeService.convertToEmployee(this.selectedEmp),
-            modalConfig: { }
+            modalConfig: { },
+            closeOnClickOutside: false
         }).onClose.subscribe(res => {
                 if (!res) { return; }
 
@@ -606,14 +600,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private updateTabStrip(payrollrunID) {
         if (payrollrunID) {
             this.tabSer.addTab({
-                name: 'Lønnsavregning ' + payrollrunID,
+                name: 'SALARY.PAYROLL.NUMBER~' + payrollrunID,
                 url: 'salary/payrollrun/' + payrollrunID,
                 moduleID: UniModules.Payrollrun,
                 active: true
             });
         } else {
             this.tabSer.addTab({
-                name: 'Ny lønnsavregning',
+                name: 'SALARY.PAYROLL.NEW',
                 url: this.url + payrollrunID,
                 moduleID: UniModules.Payrollrun,
                 active: true

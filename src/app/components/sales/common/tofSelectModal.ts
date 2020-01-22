@@ -8,7 +8,7 @@ import {ErrorService} from '../../../services/services';
     selector: 'uni-select-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw;">
-            <header><h1>Ny basert på</h1></header>
+            <header>Ny basert på</header>
             <article>
                 <ag-grid-wrapper
                     [resource]="lookupFunction"
@@ -135,6 +135,8 @@ export class UniTofSelectModal implements IUniModal {
         let statusText: string = value;
         switch (value.toString()) {
             case '30101':
+                statusText = 'Opprettet';
+                break;
             case '40101':
             case '41001':
             case '42001':

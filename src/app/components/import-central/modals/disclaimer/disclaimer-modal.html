@@ -1,52 +1,45 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        Betingelser for Import
-    </header>
-    <div class="under-line"></div>
+<section role="dialog" class="uni-modal">
+    <header>Betingelser for Import</header>
     <article>
-        <form class="uni-html-form">
-            <p>
-                Ved benyttelse av verktøyet for import av data til Uni Economy aksepterer brukeren på vegne av
-                lisenseier at dette er på eget ansvar. Feil og mangler i verktøyet samt eventuelle feil som oppstår i
-                etterkant av bruk av programmet er ikke omfattet av supportavtalen.
-            </p>
-            <p>
-                Uni Micro AS er ikke ansvarlig for eventuelle økonomiske tap, dirkete eller indirekte, som følge av
-                feil,
-                tap av data eller mangler i programmet.
-            </p>
-            <p>
-                Uni Micro AS sine kundekonsulenter kan bistå ved import av data til Uni Economy.
-            </p>
-            <p>
-                Hvis du som kunde trenger hjelp til rydde opp etter en import er dette en tjeneste som vil bli belastet
-                per
-                time etter medgått tid fra UniMicro AS sin side.
-            </p>
-            <div [attr.aria-busy]="busy">
-                <label class="check-box-container" *ngIf='!hasAgreed'>
-                    <mat-checkbox class="check-box" [(ngModel)]="isSelected" [ngModelOptions]="{standalone: true}"
-                        (click)="$event.stopPropagation()">
-                    </mat-checkbox>
-                    <label class="option-text">
-                        Jeg godtar vilkår og betingelser
-                    </label>
-                </label>
-
-                <div class="alert-success" *ngIf='hasAgreed' role="alert">
-                    Disse vilkårene og betingelsene ble godtatt av deg den <b>{{approvedDate}}</b>
-                </div>
-            </div>
-
-
-        </form>
-
         <section *ngIf="loading$ | async" class="modal-spinner">
             <mat-spinner></mat-spinner>
         </section>
+
+        <p>
+            Ved benyttelse av verktøyet for import av data aksepterer brukeren på vegne av
+            lisenseier at dette er på eget ansvar.
+        </p>
+
+        <p>
+            Feil og mangler i verktøyet samt eventuelle feil som oppstår i
+            etterkant av bruk av programmet er ikke omfattet av supportavtalen.
+        </p>
+
+        <p>
+            Systemleverandør er ikke ansvarlig for eventuelle økonomiske tap, direkte eller indirekte, som følge av
+            feil, tap av data eller mangler i programmet.
+        </p>
+
+        <p>Systemleverandørens kundekonsulenter kan bistå ved import av data.</p>
+
+        <p>
+            Hvis du som kunde trenger hjelp til rydde opp etter en import er dette en tjeneste som vil bli belastet
+            per time etter medgått tid fra systemleverandør sin side.
+        </p>
+
+        <div [attr.aria-busy]="busy">
+            <mat-checkbox class="check-box" [(ngModel)]="isSelected">
+                Jeg godtar vilkår og betingelser
+            </mat-checkbox>
+
+            <div class="alert good" style="margin-top: 1rem;" *ngIf='hasAgreed'>
+                Disse vilkårene og betingelsene ble godtatt av deg den <b>{{approvedDate}}</b>
+            </div>
+        </div>
     </article>
-    <footer class="center">
-        <button class="c2a rounded" *ngIf='!hasAgreed' (click)="proceed()" [disabled]="!isSelected">Fortsett</button>
-        <button (click)="close()" *ngIf='hasAgreed'>Lukk</button>
+
+    <footer>
+        <button class="secondary" (click)="close()" *ngIf='hasAgreed'>Lukk</button>
+        <button class="c2a" *ngIf='!hasAgreed' (click)="proceed()" [disabled]="!isSelected">Fortsett</button>
     </footer>
 </section>

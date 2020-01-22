@@ -458,7 +458,7 @@
         }
     },
     {
-        "Name": "Leverandørfaktura",
+        "Name": "NAVBAR.SUPPLIER_INVOICE",
         "Code": "supplierinvoice_list",
         "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
@@ -577,6 +577,11 @@
                 "Field": "StatusCode"
             },
             {
+                "Header": "Betalingsstatus",
+                "Field": "PaymentStatus",
+                "FilterSelectConfigKey": "PaymentStatus"
+            },
+            {
                 "Header": "Viderefakturering",
                 "Field": "ReInvoiced",
                 "DefaultHidden": true,
@@ -594,7 +599,7 @@
                 "Code": "open_supplierinvoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,
-                "ExecuteWithoutSelection": true,
+                "ExecuteWithoutSelection": false,
                 "DisplayInActionBar": false
             },
             {
@@ -664,7 +669,7 @@
                 }]
             },
             {
-                "Name": "Kladd",
+                "Name": "Opprettet",
                 "Code": "draft_supplierinvoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
@@ -728,12 +733,17 @@
                 "Code": "paymentlist_supplierinvoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
-                    "UseAllCriterias": true,
+                    "UseAllCriterias": false,
                     "FieldFilters": [
                         {
-                            "Field": "StatusCode",
+                            "Field": "PaymentStatus",
                             "Operator": "eq",
-                            "Value": "30105"
+                            "Value": "30110"
+                        },
+                        {
+                            "Field": "PaymentStatus",
+                            "Operator": "eq",
+                            "Value": "30111"
                         }
                     ]
                 }]
@@ -743,17 +753,12 @@
                 "Code": "paid_supplierinvoices",
                 "UseAllCriterias": true,
                 "FilterGroups": [{
-                    "UseAllCriterias": false,
+                    "UseAllCriterias": true,
                     "FieldFilters": [
                         {
-                            "Field": "StatusCode",
+                            "Field": "PaymentStatus",
                             "Operator": "eq",
-                            "Value": "30106"
-                        },
-                        {
-                            "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "30107"
+                            "Value": "30112"
                         }
                     ]
                 }]

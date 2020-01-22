@@ -11,7 +11,7 @@ export interface IChangeYear {
     selector: 'select-year-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header><h1>Velg år</h1></header>
+            <header>Velg år</header>
             <article>
                 <uni-form [config]="config$" [fields]="fields$" [model]="yearModel$"></uni-form>
             </article>

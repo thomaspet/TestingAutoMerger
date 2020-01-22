@@ -1,14 +1,13 @@
 import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Observable} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService} from '../../../app/services/services';
 import { UniModalService } from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
-import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
-import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankModal} from '@uni-framework/uni-modal/modals/bankModal';
 import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
 
@@ -16,57 +15,63 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
     selector: 'uni-bankaccount-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign">
-            <header>
-                <h1>{{options.header || 'Bankkonto'}}</h1>
-            </header>
-            <article [attr.aria-busy]="busy" style="overflow: visible;">
-                <uni-form
+            <header>{{options.header || 'Bankkonto'}}</header>
+            <article>
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
                     (readyEvent)="onReady()"
                     (changeEvent)="onFormChange($event)">
                 </uni-form>
+                <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
             </article>
             <footer>
-                <button class="good"
-                        (click)="close(true)"
-                        [disabled]="isDirty && !validAccount || !hasChanges">
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()"
+                    (keydown.tab)="onCancelTab($event)">
+                    Avbryt
+                </button>
+
+                <button class="c2a"
+                    (click)="close(true)"
+                    (keydown.tab)="$event.preventDefault()"
+                    [disabled]="!isDirty || !validAccount">
                     Ok
                 </button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
             </footer>
         </section>
     `
 })
 export class UniBankAccountModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Input() modalService: UniModalService;
+    @Output() onClose = new EventEmitter();
 
-    @Input()
-    public modalService: UniModalService;
-
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
-
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<BankAccount> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-
-    public isDirty: boolean;
-    public validAccount: boolean = true;
-    public busy: boolean = false;
-    public hasChanges: boolean = false;
     private saveBankAccountInModal: boolean = false;
-    public bankAccounts: Array<BankAccount> = [];
-    public accountInfo: any;
+
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject(null);
+    formFields$ = new BehaviorSubject([]);
+
+    isDirty: boolean;
+    validAccount: boolean = true;
+    busy: boolean = true;
+    bankAccounts: Array<BankAccount> = [];
+    accountInfo: any;
+    errorMsg: string = '';
+    bankAccountsConnectedToAccount: string = '';
 
     constructor(
         private bankService: BankService,
         private accountService: AccountService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private elementRef: ElementRef,
         private bankAccountService: BankAccountService,
         private statisticsService: StatisticsService
     ) {}
@@ -82,28 +87,45 @@ export class UniBankAccountModal implements IUniModal {
         if (this.accountInfo._saveBankAccountInModal) {
             this.saveBankAccountInModal = true;
         }
+
+        this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
             this.accountInfo['BankList'] = banks;
             if (this.accountInfo.BankID && !this.accountInfo.Bank) {
                 this.accountInfo.Bank = banks.find(x => x.ID === this.accountInfo.BankID);
             }
+
             this.formModel$.next(this.accountInfo);
             this.formFields$.next(this.getFormFields());
+            if (this.options && this.options.modalConfig && this.options.modalConfig.defaultAccountNumber) {
+                this.busy = true;
+                this.getDefaultAccountFromAccountNumber(this.options.modalConfig.defaultAccountNumber);
+            } else {
+                this.busy = false;
+            }
         });
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-            first.value = first.value; // set cursor at end of text
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
-        }
+    getDefaultAccountFromAccountNumber(accountNumber: number) {
+        this.bankAccountService.getAccountFromAccountNumber(accountNumber).subscribe((accounts) => {
+            if (accounts && accounts.length) {
+                const account = accounts[0];
+                const value = this.formModel$.getValue();
+                value.Account = account;
+                value.AccountID = account.ID;
+                this.formModel$.next(value);
+            }
+            this.busy = false;
+        }, err => this.busy = false);
+    }
 
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
+    }
+
+    public onReady() {
         if (this.accountInfo._ibanAccountSearch) {
             this.onFormChange({
                 _ibanAccountSearch: {
@@ -113,17 +135,39 @@ export class UniBankAccountModal implements IUniModal {
         }
     }
 
+    onCancelTab(event: KeyboardEvent) {
+        if (!this.isDirty || !this.validAccount) {
+            event.preventDefault();
+        }
+    }
+
     public close(emitValue?: boolean) {
         let account: BankAccount;
         if (emitValue) {
             account = this.formModel$.getValue();
+
+            // Check if user can only set up given bank account
+            if (this.options.modalConfig && this.options.modalConfig.BICLock) {
+                if (!account.Bank) {
+                    this.errorMsg = 'Kontoen må være knyttet til en bank. Velg korrekt bank i Banknavn-nedtrekkslisten';
+                    return;
+                } else {
+                    if (account.Bank.BIC !== this.options.modalConfig.BICLock.BIC) {
+                        this.errorMsg = 'Valgt konto er ikke en gyldig konto fra ' + this.options.modalConfig.BICLock.BankName +
+                        '. Om du har krysset av for manuelt, sørg for at du har skrevet kontonr korrekt, og velg ' +
+                        this.options.modalConfig.BICLock.BankName + ' i Banknavn-nedtrekkslisten';
+                        return;
+                    }
+                }
+            }
+
             if (this.options.modalConfig
                 && this.options.modalConfig.ledgerAccountVisible
                 && !account.AccountID && !(account.Account && account.Account.ID)) {
 
                 const confirm = this.modalService.open(UniConfirmModalV2, {
                     header: 'Manglende konto',
-                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto?',
+                    message: 'Du har ikke angitt hovedbokskonto (f.eks 1920). Hovedbokskonto må velges for å registrere en bankkonto',
                     buttonLabels: {
                         accept: 'Ok'
                     }
@@ -151,6 +195,36 @@ export class UniBankAccountModal implements IUniModal {
         }
     }
 
+    public GetBankAccountsConnectedToAccount(accountID: number) {
+
+        const accounts = [];
+        this.bankAccountService.getConnectedBankAccounts(accountID, this.accountInfo.ID)
+        .subscribe((res) => {
+            res.forEach(ba => {
+                accounts.push(ba.AccountNumber);
+            });
+            if (accounts.length !== 0) {
+                this.bankAccountsConnectedToAccount = 'Hovedbok er allerede knyttet til konto ' + accounts.join(', ')
+                + '. Vi anbefaler ikke å knytte flere konti til samme hovedbokskonto.';
+            } else {
+                this.bankAccountsConnectedToAccount =  '';
+            }
+            if (this.bankAccountsConnectedToAccount !== '') {
+                this.modalService.open(UniConfirmModalV2, {
+                    message: this.bankAccountsConnectedToAccount,
+                    buttonLabels: {
+                        accept: 'Ok'
+                    }
+                }).onClose.subscribe(() => {
+                    const model = this.formModel$.getValue();
+                    model.AccountID = null;
+                    model.Account = null;
+                    this.formModel$.next(Object.assign({}, model));
+                });
+            }
+        });
+    }
+
     public SaveBankAccount(account: BankAccount) {
         if (!account.Bank || !account.Bank.BIC) {
             this.toastService.addToast('Mangler Bank eller BIC!', ToastType.bad, 5, 'Du må velge en bank og oppgi en BIC for Banken.') ;
@@ -175,10 +249,9 @@ export class UniBankAccountModal implements IUniModal {
     }
 
     public onFormChange(changes) {
+        this.errorMsg = '';
         this.isDirty = true;
         this.validAccount = true;
-        this.hasChanges = true;
-
 
         if (changes['AccountNumber']) {
             this.toastService.clear();
@@ -188,6 +261,7 @@ export class UniBankAccountModal implements IUniModal {
             if (!this.isAccountNumberDuplicate(changes['AccountNumber'].currentValue)) {
                 this.checkIsAccountNumberAlreadyRegistered(account, changes['AccountNumber'].currentValue);
             }
+            this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         }
         if (changes['_manualAccountNumber']) {
             const account = this.formModel$.getValue();
@@ -212,11 +286,18 @@ export class UniBankAccountModal implements IUniModal {
                     this.checkIsAccountNumberAlreadyRegistered(account, changes['_ibanAccountSearch'].currentValue);
                 }
             }
+            this.GetBankAccountsConnectedToAccount(this.accountInfo.AccountID);
         }
         if (changes['AccountID'] && changes['AccountID'].currentValue === null) {
             const account = this.formModel$.getValue();
             account.Account = null;
             this.formModel$.next(account);
+            this.bankAccountsConnectedToAccount = '';
+
+        }
+        if (changes['AccountID'] && changes['AccountID'].currentValue !== null) {
+            const account = this.formModel$.getValue();
+            this.GetBankAccountsConnectedToAccount(changes['AccountID'].currentValue);
         }
     }
 

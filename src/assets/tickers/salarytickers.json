@@ -732,7 +732,7 @@
                 "DefaultHidden": true
             },
             {
-                "Header": "Utbetales med tillegg i prosent",
+                "Header": "Utbetalt i prosent av sats",
                 "Field": "RateFactor",
                 "Type": "percent",
                 "DefaultHidden": true
@@ -851,7 +851,7 @@
         }
     },
     {
-        "Name": "Lønnsavregning",
+        "Name": "NAVBAR.PAYROLL",
         "Code": "payrollrun_list",
         "RequiredUIPermissions": ["ui_salary"],
         "Type": "Table",

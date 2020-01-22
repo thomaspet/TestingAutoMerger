@@ -5,13 +5,13 @@
         width: 100%
         table-layout: fixed
         border-collapse: collapse
-        border: 1px solid $uni-color-scale9
+        border: 1px solid var(--border-color)
         border-radius: 3px
 
         thead, tbody
             tr
                 height: 50px
-                border-bottom: 1px solid $uni-color-scale9
+                border-bottom: 1px solid var(--border-color)
 
                 td:first-of-type
                     padding-left: 1rem
@@ -28,8 +28,9 @@
             tr
                 th
                     text-align: left
-                    color: $uni-color-scale6
-                    font-weight: 600
+                    color: var(--table-header-color)
+                    background: var(--table-header-background)
+                    font-weight: 500
 
                     &:last-of-type
                         width: 50px
@@ -46,26 +47,12 @@
                     border-bottom: none
 
                 td
-                    color: $uni-color-scale1
-                    font-weight: 500
-
                     &:first-of-type
                         padding-left: 1rem
 
                     &:last-of-type
                         i
                             cursor: pointer
-
-                    &.good
-                        color: $uni-color-plus
-                        font-weight: 600
-                    &.bad
-                        color: $uni-color-bad
-                        font-weight: 600
-                    &.done
-                        color: $uni-color-good
-                        font-weight: 600
-
                     i
                         vertical-align: middle
                         font-size: 20px
@@ -73,19 +60,19 @@
 
                     a
                         text-decoration: none
-                        font-weight: 600
+                        font-weight: 500
                         &.recwork
-                            color: $uni-color-warn
+                            color: var(--color-warn)
                         &.recdone
-                            color: $uni-color-good
+                            color: var(--color-good)
                         &.recstart
-                            color: $uni-color-plus
-    .empty-statement-msg
-        font-size: 14px
-        strong
-            font-weight: bold
-            cursor: pointer
-            color: $uni-color-c2a
+                            color: var(--link-color)
+.empty-statement-msg
+    font-size: 14px
+    strong
+        font-weight: bold
+        cursor: pointer
+        color: var(--color-c2a)
 
 .entry-list-ul
     height: 400px
@@ -95,8 +82,8 @@
     display: flex
     flex-direction: column
 
-    li:nth-child(odd)
-        background-color: $uni-color-negative
+    li:nth-child(even)
+        background-color: var(--table-row-even-background)
 
     #scrolling-viewport
         height: 100%
@@ -119,17 +106,7 @@
             padding-right: 2rem
             padding-left: 0
 
-        .good
-            color: $uni-color-plus
-            font-weight: 600
-        .bad
-            color: $uni-color-bad
-            font-weight: 600
-        .done
-            color: $uni-color-good
-            font-weight: 600
-
 .list-header
     font-weight: 600
-    border-bottom: 1px solid $uni-color-scale9
+    border-bottom: 1px solid var(--border-color)
     width: calc(100% - 1rem)

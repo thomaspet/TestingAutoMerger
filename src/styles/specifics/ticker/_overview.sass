@@ -22,6 +22,7 @@ uni-ticker-overview
         padding: .5rem 1.5rem
         margin: 0
         overflow-y: auto
+        font-size: 14px
 
         > li
             font-weight: bold
@@ -43,41 +44,26 @@ uni-ticker-overview
 
     .overview-ticker-section
         flex:  0 0 calc(100% - 13rem)
-        background: #fff
-        padding: .5rem 1.5rem 0 1.5rem
+        padding: .5rem .5rem 0 1.5rem
         box-sizing: border-box
         overflow: hidden
-        box-shadow: 0 1px 4px 0 rgba(0,0,0,0.1)
 
         .overview-ticker-header
             display: flex
-            height: 2rem
-            line-height: 2rem
-            margin: .5rem 0 1rem
-            font-family: 'Roboto', sans-serif
+            align-items: center
+            margin-bottom: 1.5rem
 
             span.ticker-title
                 font-size: 26px
                 margin-right: 1.5rem
 
-            .ticker-create-new, .ticker-export
-                line-height: 2rem
-                margin: 0 .5rem
-                color: $uni-color-scale3
-                font-size: 14px
-                cursor: pointer
-                user-select: none
+            .ticker-actions
+                display: inline-flex
+                align-items: center
+                button
+                    height: 2.25rem
 
-                &:hover
-                    color: $uni-color-link
-
-                i.material-icons
-                    vertical-align: middle
-                    font-size: 21px
-                    margin-top: -4px
-                    margin-right: 2px
-
-            .ticker-create-new i.material-icons
-                color: $uni-color-good
-            .ticker-export i.material-icons
-                color: $uni-color-toolbar
+                    &.tertiary
+                        font-weight: 400
+                        i.material-icons
+                            font-size: 21px

@@ -2,8 +2,13 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {
-    MatMenuModule, MatDatepickerModule, MatNativeDateModule, DateAdapter, MatAutocompleteModule,
-    MatProgressSpinnerModule
+    MatDatepickerModule,
+    MatNativeDateModule,
+    DateAdapter,
+    MatAutocompleteModule,
+    MatCheckboxModule,
+    MatProgressSpinnerModule,
+    MatTooltipModule
 } from '@angular/material';
 
 import {AppPipesModule} from '../../../app/pipes/appPipesModule';
@@ -18,22 +23,29 @@ import {TableFilters} from './filters/filters';
 import {AdvancedFilters} from './filters/advanced-filters/advanced-filters';
 
 import {RowMenuRenderer} from './cell-renderer/row-menu';
+import {StatusCellRenderer} from './cell-renderer/status-cell';
 import {TABLE_CONTROLS} from '../unitable/controls';
 import {UniDateAdapter} from '@app/date-adapter';
+import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
+import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        MatMenuModule,
         MatDatepickerModule,
         MatNativeDateModule,
         MatAutocompleteModule,
+        MatCheckboxModule,
         MatProgressSpinnerModule,
+        MatTooltipModule,
         AppPipesModule,
+        DropdownMenuModule,
+        InputDropdownModule,
         AgGridModule.withComponents([
-            RowMenuRenderer
+            RowMenuRenderer,
+            StatusCellRenderer
         ])
     ],
     declarations: [
@@ -41,6 +53,7 @@ import {UniDateAdapter} from '@app/date-adapter';
         ColumnMenuNew,
         TableEditor,
         RowMenuRenderer,
+        StatusCellRenderer,
         TableFilters,
         AdvancedFilters
     ],

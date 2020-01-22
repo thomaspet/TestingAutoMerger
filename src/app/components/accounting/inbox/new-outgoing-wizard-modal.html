@@ -1,0 +1,26 @@
+<section role="dialog" class="uni-modal" style="width: 30vw;">
+    <header>Registrer kjøp</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="new-outgoing-modal-conatiner">
+            <span>Hvilke type kjøp er dette?</span>
+
+            <section class="outgoing-item-container" *ngFor="let item of VALUE_ITEMS" [ngClass]="{ 'checked': item.selected }" (click)="valueItemSelected(item)">
+                <span class="fake-radio-button-ring" [ngClass]="{ 'checked': item.selected }"> </span>
+                <section class="outgoing-text-container">
+                    <span class="value-header"> {{ item.label }} </span>
+                    <span> {{ item.infoText }} </span>
+                </section>
+            </section>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="cancel()">Avbryt</button>
+        <button class="c2a" (click)="close()">Registrer kjøp</button>
+    </footer>
+</section>

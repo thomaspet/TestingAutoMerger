@@ -9,7 +9,7 @@ import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, EmployeeService, UserService} from '@app/services/services';
 import {Observable} from 'rxjs';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'workers',
@@ -95,7 +95,7 @@ export class WorkerDetailview {
             labels: {
                 single: 'Person',
                 plural: 'Personer',
-                createNew: 'Ny person',
+                createNew: 'TIMETRACKING.PERSON_NEW',
                 ask_delete: 'Er du sikker på at du vil slette denne personen? (Obs: Kan ikke angres)'
             },
             titleProperty: 'Info.Name',

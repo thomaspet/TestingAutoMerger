@@ -14,7 +14,7 @@ export class WorkerListview implements OnInit {
     public tickercode: string = 'worker_main_list';
 
     public toolbarActions = [{
-        label: 'Ny person',
+        label: 'TIMETRACKING.PERSON_NEW',
         action: this.newWorker.bind(this),
         main: true,
         disabled: false
@@ -25,7 +25,7 @@ export class WorkerListview implements OnInit {
     public ngOnInit(): void {
         this.tabService.addTab({
             url: '/timetracking/workers',
-            name: 'Personer',
+            name: 'NAVBAR.PERSONS',
             active: true,
             moduleID: UniModules.Workers
         });

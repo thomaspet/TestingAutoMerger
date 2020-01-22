@@ -183,15 +183,7 @@ export class UniRecurringInvoice implements OnInit {
         private departmentService: DepartmentService,
         private paymentTypeService: PaymentInfoTypeService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService
-    ) {
-        // set default tab title, this is done to set the correct current module to make the breadcrumb correct
-        this.tabService.addTab({
-            url: '/sales/recurringsinvoice/',
-            name: 'Repeterende faktura',
-            active: true,
-            moduleID: UniModules.RecurringInvoice
-        });
-    }
+    ) { }
 
     ngOnInit() {
         this.recalcItemSums(null);
@@ -572,6 +564,13 @@ export class UniRecurringInvoice implements OnInit {
         this.updateSaveActions();
     }
 
+    onFreetextChange() {
+        // Stupid data flow requires this
+        this.invoice = _.cloneDeep(this.invoice);
+        this.isDirty = true;
+        this.updateSaveActions();
+    }
+
     private updateCurrency(invoice: RecurringInvoice, getCurrencyRate: boolean) {
         let shouldGetCurrencyRate = getCurrencyRate;
 
@@ -850,7 +849,8 @@ export class UniRecurringInvoice implements OnInit {
         }
         this.tabService.addTab({
             url: '/sales/recurringinvoice/' + invoice.ID,
-            name: invoice.ID ? 'Repeterende fakturanr. ' + invoice.ID : 'Ny repeterende faktura',
+            name: invoice.ID ? 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NUMBER~' + invoice.ID
+                : 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',
             active: true,
             moduleID: UniModules.RecurringInvoice
         });
@@ -858,7 +858,8 @@ export class UniRecurringInvoice implements OnInit {
 
     private updateToolbar() {
         const toolbarconfig: IToolbarConfig = {
-            title: this.invoice && this.invoice.ID ? 'Repeterende fakturanr. ' + this.invoice.ID : 'Ny repeterende faktura',
+            title: this.invoice.ID ? 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NUMBER~' + this.invoice.ID
+                : 'SALES.RECURRING_INVOICE.RECURRING_INVOICE_NEW',
             subheads: [],
             statustrack: this.getStatustrackConfig(),
             navigation: {
@@ -922,7 +923,7 @@ export class UniRecurringInvoice implements OnInit {
 
     public showRecurringInvoiceLog() {
         const options: IModalOptions = {
-            header: 'Fakturalogg for repeterende fakturanr. ' + this.invoiceID,
+            header: 'SALES.RECURRING_INVOICE.LOG_HEADER~' + this.invoiceID,
             buttonLabels: {
                 accept: 'Ferdig'
             },
@@ -935,6 +936,9 @@ export class UniRecurringInvoice implements OnInit {
 
     private saveAndRefreshInvoice(done) {
         const requiresPageRefresh = !this.invoice.ID;
+
+        // If null, set to 0 so field is updated
+        this.invoice.MaxIterations = this.invoice.MaxIterations || 0;
         this.saveInvoice(done).then(res => {
             if (res) {
                 this.isDirty = false;
@@ -1041,8 +1045,8 @@ export class UniRecurringInvoice implements OnInit {
 
     private deleteRecurringInvoice(done) {
         this.modalService.open(UniConfirmModalV2, {
-            header: 'Slette repeterende faktura?',
-            message: 'Er du sikker på at du vil slette denne repeterende faktura? Dette kan ikke angres.',
+            header: 'SALES.RECURRING_INVOICE.DELETE',
+            message: 'SALES.RECURRING_INVOICE.DELETE_CONFIRM',
             buttonLabels: {
                 accept: 'Slett',
                 cancel: 'Avbryt'
@@ -1050,7 +1054,7 @@ export class UniRecurringInvoice implements OnInit {
         }).onClose.subscribe((res) => {
             if (res === ConfirmActions.ACCEPT) {
                 this.recurringInvoiceService.Remove(this.invoice.ID).subscribe(() => {
-                    this.toastService.addToast('Slettet', ToastType.good, 6, `Repeterende fakturanr. ${this.invoice.ID} er fjernet.`);
+                    this.toastService.addToast('Slettet', ToastType.good, 6, `SALES.RECURRING_INVOICE.DELETED_NR~${this.invoice.ID}`);
                     this.router.navigateByUrl('/sales/recurringinvoice');
                 }, err => this.handleSaveError(err));
             } else {
@@ -1081,7 +1085,7 @@ export class UniRecurringInvoice implements OnInit {
             this.hasWarned = true;
         } else if (this.invoice.StatusCode === 46002 && !this.invoice.DistributionPlanID) {
             this.toastService.addToast('Utsendelsesplan mangler', ToastType.warn, 15,
-            'Det er ikke definert en utsendelsesplan på denne repeterende faktura. Gå til fanen "Utsendelse" for å velge en,' +
+            'Det er ikke definert en utsendelsesplan på denne faktura. Gå til fanen "Utsendelse" for å velge en,' +
             ' eller gå til Innstillinger -> Utsendelse for å lage en ny plan.');
             this.hasWarned = true;
         }

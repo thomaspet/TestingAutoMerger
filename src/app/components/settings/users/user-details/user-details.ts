@@ -34,7 +34,6 @@ enum UserStatus {
     selector: 'user-details',
     templateUrl: './user-details.html',
     styleUrls: ['./user-details.sass'],
-    host: {'class': 'uni-redesign'}
 })
 export class UserDetails {
     @Input() user: User;
@@ -98,7 +97,7 @@ export class UserDetails {
             data: { user: this.user }
         }).onClose.subscribe(rolesChanged => {
             if (rolesChanged) {
-                this.loadData();
+                this.loadSubscription = this.loadData();
             }
         });
     }
@@ -151,7 +150,7 @@ export class UserDetails {
         this.userActions = actions;
     }
 
-    private loadData() {
+    private loadData(): Subscription {
         this.busy = true;
         return forkJoin(
             this.roleService.GetAll(),

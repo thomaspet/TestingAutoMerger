@@ -9,16 +9,14 @@ uni-image
         position: absolute
         background-color: rgba(255, 216, 0, 0.4)
 
-    picture
+    .image-container
         position: relative
+        display: inline-block
 
-    picture img
-        width: auto
-        max-width: 100%
-        cursor: pointer
-
-    picture:hover.clickable
-        cursor: zoom-in
+        img
+            width: auto
+            max-width: 100%
+            cursor: pointer
 
     .uploading-progress-info
         margin-top: 1rem
@@ -28,9 +26,11 @@ uni-image
         display: block
         cursor: pointer
         position: absolute
+        padding: .35rem .7rem
+        opacity: .5
 
     .image-word:hover
-        border: 1px solid gray
+        border: 1px solid var(--border-color)
 
     .uniImage
         display: flex
@@ -39,7 +39,7 @@ uni-image
             display: block
             width: 100%
             height: 100%
-            border: 1px solid $uni-color-scale9
+            border: 1px solid var(--border-color)
             flex: 1
 
         ul.uni-thumbnail-list
@@ -67,34 +67,51 @@ uni-image
                     font-weight: 700
                     color: #0f4880
 
-    .uni-image-pager
+    .uni-image-header
         display: flex
         align-items: center
         justify-content: center
         width: 100%
         height: 2.5rem
-        font: 400 15px 'Roboto', sans-serif
-        color: $uni-color-negative
-        background: rgba(0, 0, 0, 0.5)
-        
+        padding: 0 .5rem
+        font-size: 15px
+        color: #fff
+        background: var(--scale1)
+
+        @media screen and (max-width: 1400px)
+            font-size: 14px
+
         .file-name
             overflow: hidden
             text-overflow: ellipsis
             white-space: nowrap
+            max-width: 25rem
+            @media screen and (max-width: 1725px)
+                max-width: 15rem
+
+        .actions
+            display: flex
+            align-items: center
+            margin-left: auto
+            i + i, .dropdown
+                margin-left: .75rem
 
         i.material-icons
             cursor: pointer
             vertical-align: middle
-            color: $uni-color-negative
-            padding-left: 5px
-            font-size: 21px
+            color: #fff
+            font-size: 20px
 
-        .print
-            margin-left: 5px
+        .dropdown i
+            font-size: 24px
+
+        i.open-file-viewer
+            font-size: 19px
+
         .prev
-            margin-right: auto
+            margin-right: 1rem
         .next
-            margin-left: auto
+            margin-left: 1rem
 
 uni-modal .uni-thumbnail-list
     position: static

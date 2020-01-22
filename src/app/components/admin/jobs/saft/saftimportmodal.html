@@ -1,0 +1,81 @@
+<section role="dialog" class="uni-redesign uni-modal uni-wizard-settings-modal" style="width: 60vw">
+    <header><h1>{{options.header || 'Innstillinger'}}</h1></header><!--Veiviser for SAF-T import-->
+    <article style="overflow: unset">
+        <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true">
+            <mat-step label="Valg" [completed]="currentStep > 0">
+                <article>
+                    <p>Starte import av '{{options.data?.file?.FileName}}' ?</p>
+                    <uni-tooltip [type]="'info'"
+                        [alignment]="'top'"
+                        [matMenuTriggerFor]="infoTypeText">
+                    </uni-tooltip>
+                    <mat-menu #infoTypeText="matMenu">
+                        <div class="infoToolContent">
+                            <p>
+                                Dersom dette er det første året du importerer data til,
+                                bør du sette på kryss for å opprette
+                                åpningsbalanse slik at du får med den inngående
+                                balansen på firmaet.
+                            </p>
+                            <p>
+                                Ved import av data i senere år passe på at haken
+                                på "Opprett åpningsbalanse" ikke er på.
+                            </p>
+                        </div>
+                    </mat-menu>
+                    <uni-form
+                        [config]="formConfig$"
+                        [fields]="formFields$"
+                        [model]="formModel$">
+                    </uni-form>
+                    <p>Du kan lese inn filen flere ganger dersom det skulle oppstå problemer.</p>
+                    <p>Start alltid import på det eldste året du skal importere data til.</p>
+                </article>
+            </mat-step>
+            <mat-step label="Kontroll av fil" [completed]="currentStep > 1">
+                <p>Saf-t filen som skal importeres må gjennom en kontroll før import. Kontrollen består av:</p>
+                <ul>
+                    <li>Dersom "Opprett åpningsbalanse" er krysset:</li>
+                    <li>- Sjekk på at start-året finnes</li>
+                    <li>- dersom balansen ikke går i 0 vil differanse føres mot konto 2050</li>
+                    <li>Oppretter manglende kunder og leverandører</li>
+                    <li>Sjekker nummerserier</li>
+                    <li>Sjekk på bilagsdifferanser</li>
+                </ul>
+            </mat-step>
+            <mat-step label="Resultat av forkontroll" [completed]="currentStep > 2">
+                <article *ngIf="fileOk && !fileError">Ingen bilagsdifferanser</article>
+                <article *ngIf="fileStatus">
+                    <i class="material-icons bad" *ngIf="fileError">error</i>
+                    <span *ngIf="fileStatus">{{fileStatus}}</span>
+                </article>
+                <article *ngIf="!fileOk && !fileError">
+                    <p><strong>Bilagsdifferanser</strong></p>
+                    <ag-grid-wrapper
+                        [resource]="correctionLines"
+                        [config]="correctionLinesConfig"
+                    ></ag-grid-wrapper>
+                    <p>Disse bilagsdifferansene vil bokføres på hovedbokskonto 
+                        <strong *ngIf="saftImportAccount">{{saftImportAccount.AccountNumber}} - {{saftImportAccount.AccountName}}</strong>.
+                        <a (click)="openSaftAccountModal()">Endre konto</a>
+                    </p>
+                    <p>Dersom du ikke ønsker dette må du avbryte saf-t importen og korrigere import-filen slik at den ikke har bilagsdifferanser.</p>
+                </article>
+            </mat-step>
+            <mat-step label="Start import" [completed]="currentStep > 3">
+                <p>Filen er godkjent for import. Selve importen vil kjøres som en jobb. Når importen er ferdig, bør du sjekke loggen. 
+                    Denne finner du på Jobber - SAF-T.
+                </p>
+                <p>Store importer vil ta litt tid å fullføre.</p>
+                <p>Trykk på "Start import" for å gjennomføre importen.</p>
+            </mat-step>
+        </mat-horizontal-stepper>
+    </article>
+    <footer>
+        <button class="back" (click)="goBack()" [disabled]="currentStep === 1">Tilbake</button>
+        <button (click)="close(false)" class="bad">Avbryt</button>
+        <button class="c2a" (click)="checkFile()" *ngIf="currentStep === 2 && !fileIsValidated" [attr.aria-busy]="busy" [disabled]="!dataIsRetrieved">Neste</button>
+        <button class="c2a" (click)="goNext()" *ngIf="currentStep < 4 && (currentStep !== 2 || fileIsValidated)" [disabled]="fileError">Neste</button>
+        <button (click)="close(true)" class="good" *ngIf="currentStep === 4" [disabled]="fileError">Start import</button>
+    </footer>
+</section>

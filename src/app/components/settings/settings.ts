@@ -35,7 +35,6 @@ export class Settings {
             { name: 'Integrasjoner', path: 'webhooks' },
             { name: 'Brukere', path: 'users' },
             { name: 'Team', path: 'teams' },
-            { name: 'Altinn', path: 'altinn' },
             { name: 'Nummerserier', path: 'numberseries' },
             { name: 'Betalings- og leveringsbetingelser', path: 'terms' },
             { name: 'Dimensjoner', path: 'dimension' }

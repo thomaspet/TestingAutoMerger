@@ -37,25 +37,13 @@ accounting-reports, accounting-details-report
     h1
         margin-bottom: pxToRem(5)
 
-    button
-        @extend a:link
-        display: inline-block
-        background: 0 0
-        box-shadow: none
-        text-shadow: none
-        border: none
-        padding: 0
-        margin-left: .3rem
-        margin-right: .3rem
-        text-decoration: none
-
     .amount
         text-align: right !important
-        min-width: 6em;
+        min-width: 6em
 
     .percentage
         text-align: right !important
-        color: $uni-color-scale5 !important
+        color: var(--scale1) !important
         text-overflow: clip
         width: 5%
 
@@ -66,16 +54,9 @@ accounting-reports, accounting-details-report
         margin-bottom: pxToRem(10)
 
         .uniSelect,
-        .uniSelect_dropdown,
-        .uniSelect_dropdown ul.uniSelect_dropdown_list
             min-width: 6.2rem
             width: 6.2rem
             float: right
-
-    .dimension-result h2
-        display: inline-block
-        margin-right: 1rem
-        margin-top: 0
 
     .accounting-report-drilldown
         clear: both
@@ -147,7 +128,7 @@ accounting-reports, accounting-details-report
 
         td, th
             padding: pxToRem(2) pxToRem(6)
-            border-left: pxToRem(1) solid $uni-color-scale9
+            border-left: 1px solid var(--border-color)
             height: calc(1.2rem + #{pxToRem(10)})
             white-space: nowrap
             overflow: hidden
@@ -156,20 +137,17 @@ accounting-reports, accounting-details-report
             &:first-of-type
                 border-left: none
 
-            &.noTruncation
-                text-overflow: clip
-
         tr
-            border-bottom: pxToRem(1) solid $uni-color-scale9
+            border-bottom: 1px solid var(--border-color)
 
             &:nth-of-type(odd)
-                background: mix($uni-color-scale9, $uni-color-negative, 30%)
+                background: var(--table-row-odd-background)
 
             &:nth-of-type(even)
-                background: $uni-color-negative
+                background: var(--table-row-even-background)
 
             &:hover
-                background: mix($uni-color-c2a, $uni-color-negative, 15%)
+                background: var(--table-row-select-background)
 
             &:nth-last-of-type(2)
                 border-bottom: pxToRem(1) solid black
@@ -190,15 +168,10 @@ accounting-reports, accounting-details-report
                 color: blue
 
         th
-            background: $uni-color-negative
-            border-bottom: pxToRem(1) solid $uni-color-scale8
+            border-bottom: 1px solid var(--border-color)
             margin-bottom: pxToRem(-1)
-            color: $uni-color-positive
             font-weight: 600
             text-align: left
-
-            a:link
-                color: $uni-color-positive
 
         .bottom
             vertical-align: bottom
@@ -216,19 +189,6 @@ dimension-type-report
 
     .accounting-report-drilldown, .dimension-result
         margin-top: 0
-
-.iconbutton
-    color: $uni-color-c2a
-    padding: pxToRem(5) pxToRem(8) pxToRem(5) pxToRem(5)
-    cursor: pointer
-    border-radius: pxToRem(5)
-    border: 1px solid $uni-color-scale8
-
-    &:hover, &:focus
-        background-color: $uni-color-scale8
-
-.leftpadding
-    margin-left: 1em
 
 .vertical-middle
     vertical-align: middle
@@ -269,31 +229,12 @@ accounting-reports
 
 .uni-period-selector-trigger-button
     button
-        height: 36px
-        padding: 1px 1rem
-        color: rgba(0, 0, 0, 0.75)
-        display: inline-flex
-        align-items: center
-        border: 1px solid #C3CAD9
-        font: 500 14px 'Roboto', sans-serif
-        border-radius: 2px !important
-
-        &:active, &:focus
-            background-color: transparent
-
-        &:hover
-            background-color: #edeeef
-
+        padding-top: 2px
+        margin-right: 1rem
         i
-            font-size: 1.2rem
-            margin: 0 .5rem
-            color: $uni-color-c2a
+            font-size: 22px
+            margin: 0 0 3px .5rem
+            color: var(--color-c2a)
 
-.date-field-selector
-    font: 500 14px 'Roboto', sans-serif
-    padding-left: .7rem
-    input
-        height: 36px
-    li
-        font: 400 14px 'Roboto', sans-serif
-        line-height: 26px
+account-details fieldset
+    flex: 1

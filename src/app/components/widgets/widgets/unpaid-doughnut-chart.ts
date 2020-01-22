@@ -10,6 +10,8 @@ import {
 import {StatisticsService, NumberFormat} from '@app/services/services';
 import {WidgetDataService} from '../widgetDataService';
 import {IUniWidget} from '../uniWidget';
+import {theme} from 'src/themes/theme';
+
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
@@ -26,6 +28,11 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
                 {{ missingDataMsg }}
             </section>
 
+            <div *ngIf="!missingData" class="overdue-info-header">
+                <span class="overdue-number"> {{ overdueHeaderNumber }} </span>
+                <span *ngIf="overdueHeaderNumber"> Utestående </span>
+            </div>
+
             <div *ngIf="!missingData" class="content">
                 <div style="height: 100%">
                     <canvas style="max-height: 220px" #unpaidDoughnutChart></canvas>
@@ -37,17 +44,18 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 })
 
 export class UniUnpaidDoughnutChart implements AfterViewInit {
-    @ViewChild('unpaidDoughnutChart')
-    private unpaidDoughnutChart: ElementRef;
+    @ViewChild('unpaidDoughnutChart') unpaidDoughnutChart: ElementRef;
 
     widget: IUniWidget;
-    dataLoaded: EventEmitter<boolean> = new EventEmitter();
+    dataLoaded = new EventEmitter<boolean>();
 
     chartRef: any;
     chartConfig: any;
     totalAmount: number = 0;
+    overdueHeaderNumber: string = '';
     missingData: boolean;
-    missingDataMsg: string = 'Mangler data'
+    missingDataMsg: string = 'Mangler data';
+    colors = theme.widgets.due_date_colors;
 
     constructor(
         private statisticsService: StatisticsService,
@@ -85,7 +93,8 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
                     this.chartConfig = this.getEmptyResultChart();
                     this.chartConfig.data.labels = this.widget.config.labels;
                     if (this.widget.config.function === 'unpaid') {
-                        this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+                        // this.chartConfig.options.plugins.doughnutlabel.labels = this.getUnpaidDoughnutLabels();
+                        this.overdueHeaderNumber = this.numberFormatService.asMoney(this.totalAmount) + ' kr';
                     } else {
                         this.chartConfig.options.plugins.doughnutlabel.labels = [
                             {
@@ -127,22 +136,22 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
     public generateSelect() {
         // Ikke forfalt
         return `sum(casewhen(PaymentDueDate gt '${moment().format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum,`
         // 0 - 30 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(30, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().format('YYYYMMDD')}' and RestAmount gt 0 and `
-        + `StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
+        + `StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum1,`
         // 30 - 60 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(60, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().subtract(31, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum2,`
         // 60 - 90 dager
         + `sum(casewhen(PaymentDueDate ge '${moment().subtract(90, 'd').format('YYYYMMDD')}' and `
         + `PaymentDueDate le '${moment().subtract(61, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum3,`
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum3,`
         // Over 90 dager
         + `sum(casewhen(PaymentDueDate lt '${moment().subtract(90, 'd').format('YYYYMMDD')}' and `
-        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 40001 and StatusCode ne 30101\,RestAmount\,0) ) as sum4`;
+        + `RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101\,RestAmount\,0) ) as sum4`;
     }
 
     public ngAfterViewInit() {
@@ -168,24 +177,30 @@ export class UniUnpaidDoughnutChart implements AfterViewInit {
             data: {
                 datasets: [{
                     data: [],
-                    backgroundColor: ['#94E4FF', '#7BCBFF', '#62B2FF', '#4898F3', '#2F7FDA'],
+                    backgroundColor: this.colors,
                     label: '',
-                    borderColor: 'white'
+                    borderColor: '#fff',
+                    hoverBorderColor: '#fff'
                 }],
                 labels: []
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutoutPercentage: 80,
+                cutoutPercentage: 70,
                 animation: {
                     animateScale: true
                 },
                 legend: {
-                    position: 'left',
+                    position: 'right',
+                    align: 'center',
                     labels: {
-                        usePointStyle: true
+                        usePointStyle: true,
+                        padding: 15
                     }
+                },
+                elements: {
+                    arc: { borderWidth: 4 }
                 },
                 plugins: {
                     doughnutlabel: {

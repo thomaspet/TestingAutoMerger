@@ -1,0 +1,56 @@
+<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+
+<section class="inbox-container">
+    <section class="inbox-list-view" *ngIf="inboxList?.length">
+        <ul id="inbox-item-header-list">
+            <li class="inbox-list-header-row">
+                <span class="filename-inbox-field" (click)="sortInboxList('Name')"> Filnavn </span>
+                <span style="flex: 1" (click)="sortInboxList('Description')"> Tekst </span>
+                <span class="date-inbox-field" (click)="sortInboxList('CreatedAt')"> Dato </span>
+                <span></span>
+            </li>
+        </ul>
+        <ul class="items-list" id="inbox-item-list">
+            <li *ngFor="let item of inboxList" class="list-item" (click)="onDocumentClick(item)" [ngClass]="{'selected' : item.ID === currentFileID}">
+                <span class="filename-inbox-field" title="{{ item.Name }}"> {{ item.Name }} </span>
+
+                <span style="flex: 1; padding-right: 1rem;" title="{{ item.Description }}">{{ item.Description }} </span>
+
+                <span class="date-inbox-field" title="{{ item._date }}"> {{ item._date }}</span>
+                <span>
+                    <button class="use-document-button"
+                        [ngClass]="item.ID === currentFileID ? 'c2a' : 'secondary'"
+                        (click)="registerBuy(item, $event)"
+                        title="Bruk dokumentet for å registrer kjøp" >
+                        Registrer kjøp
+                    </button>
+                    <i class="material-icons" title="Slett dokumentet" (click)="deleteDocument(item, $event)">delete_outline</i>
+                </span>
+            </li>
+        </ul>
+        <span class="inbox-counter-line"> Antall rader: {{ inboxList?.length }} </span>
+    </section>
+    <section *ngIf="!inboxList?.length && dataLoaded" class="empty-inbox-class">
+        <span>Ingen elementer i innboks</span>
+
+        <button class="secondary upload-button" (click)="uploadFile()">
+            Last opp dokument
+        </button>
+    </section>
+
+    <section class="uni-container bill-preview inbox-preview" *ngIf="showPreview">
+         <section class="accounting-preview-actions" style="display: flex; justify-content: flex-end;">
+             <i class="material-icons" title="Skjul forhåndsvisning" style="cursor: pointer;" (click)="closePreview()">close</i>
+        </section>
+
+        <uni-image
+            [splitFileDialogAllowed]="true"
+            [rotateAllowed]="true"
+            [uploadWithoutEntity]="true"
+            [readonly]="true"
+            [fileIDs]="fileIds"
+            (fileSplitCompleted)="onFileSplitCompleted()">
+        </uni-image>
+    </section>
+
+</section>

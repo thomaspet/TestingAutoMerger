@@ -1,8 +1,4 @@
-$toolbar-grey: $uni-color-scale6
-
 @import 'breadcrumbs'
-@import 'statustrack'
-@import 'toolbarTools'
 @import 'toolbarSearch'
 @import 'tags'
 
@@ -10,56 +6,58 @@ $toolbar-grey: $uni-color-scale6
     padding-left: 1.75rem
 
 uni-toolbar
-    position: fixed
-    top: $reserved-height-for-navbar
+    position: sticky
+    top: 0
     width: 100%
-    height: 5.5rem
+    min-height: 5.5rem
     box-sizing: border-box
-    padding: .25rem 1.5rem //.25rem 2rem
+    padding: .75rem 1.5rem
     display: flex
     flex-direction: row
+    align-items: center
+    background: var(--toolbar-background)
+    border-bottom: var(--toolbar-border)
 
     &.static
         position: static
         margin-bottom: 2rem
 
-    background: #fff
-    color: $toolbar-grey
-    // border-bottom: 1px solid $uni-color-scale9
-    box-shadow: 0 1px 4px 0 rgba(0,0,0,0.14)
+    color: var(--scale1)
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
-        color: #1d2b33 // $uni-color-c2a
-        font-size: 1.45rem
-        font-weight: 600
+        color: var(--toolbar-header-color)
+        font-size: 22px
+        font-weight: 500
         .material-icons
             font-size: 22px
             margin-top: 3px
 
+    @include media(650px)
+        flex-wrap: wrap
+        .main-section
+            display: none
 
-.toolbar-dropdown-list
-    @extend %contextMenu
-    position: absolute
-    top: 1.1rem
-    right: 0
-    text-align: left
-    font-size: 14px
-    z-index: #{map-get($zindex, toolbar) + 1}
-
-    li
-        width: 14rem
-        padding: .35rem .5rem
-
-.toolbar-left,
-.toolbar-center,
-.toolbar-right
-    background: #fff
-    height: 100%
+    @media screen and (max-width: 1400px)
+        .prev, .next
+            display: none
+    @media screen and (max-width: 1300px)
+        .toolbar-title
+            font-size: 20px !important
+        .new-button
+            width: 2.5rem
+            padding: 0
+            span
+                display: none
 
 .toolbar-left
+    flex: 1
+    display: flex
+    flex-wrap: wrap
+
+.title-section
     flex: 0 0 auto
-    margin-right: 3rem
+    margin-right: 2rem
     display: flex
     flex-direction: column
     justify-content: center
@@ -72,10 +70,10 @@ uni-toolbar
 
     .toolbar-header
         flex: 0 0 auto
-        max-width: 25rem
+        max-width: 22rem
 
         h1, uni-toolbar-search
-            line-height: inherit
+            line-height: 1.75rem
             margin: 0
             overflow: hidden
             text-overflow: ellipsis
@@ -90,7 +88,7 @@ uni-toolbar
             cursor: pointer
 
 
-.toolbar-center
+.main-section
     flex: 2
     display: flex
     flex-flow: row wrap
@@ -102,13 +100,13 @@ uni-toolbar
         uni-statustrack .future
             display: none
 
-    @include media(650px)
-        display: none
-
     uni-statustrack
         flex: 0 0 auto
         margin: auto 0
         margin-right: 1rem
+
+    toolbar-custom-status
+        margin-right: 2rem
 
     .toolbar-extras
         flex: 0 0 auto
@@ -116,20 +114,20 @@ uni-toolbar
         display: flex
 
         > *
-            margin-right: 1rem
+            margin: auto 1rem auto 0
 
-        .toolbar-subhead
-            color: $uni-color-scale3
-            font-size: 16px
+        .toolbar-subhead,
+        .toolbar-subhead a
+            font-size: 15px
             @include media(1300px)
-                font-size: 15px
+                font-size: 14px
 
             .subhead-label
-                color: $toolbar-grey
+                color: var(--scale1)
                 font-size: inherit
 
             &.bad
-                color: $uni-color-bad
+                color: var(--color-bad)
 
         .toolbar_uniselect
             margin-left: 1.5rem
@@ -139,40 +137,79 @@ uni-toolbar
                 display: inline-block
                 width: 12rem
                 margin-left: .25rem
+                input
+                    height: 2rem !important
 
-                .uniSelect_input
-                    height: 1.75rem
-                    color: $uni-color-scale5
-                    background: #fff unicon-chevron-down($uni-color-scale8) center right .5rem no-repeat !important
-                    background-size: auto .5rem !important
-                    border-color: $uni-color-scale8
-
-                .uniSelect_dropdown_list
-                    color: $uni-color-positive
-                    li
-                        min-height: unset
-
-.toolbar-extras, .toolbar-left
+.toolbar-extras, .title-section
     small
-        font-size: 16px
-        color: $toolbar-grey
+        color: var(--scale1)
         flex-basis: fit-content
         white-space: nowrap
 
-    a:link,
-    a:visited,
-        font-size: 16px
-        color: $uni-color-link
+    a
+        color: var(--link-color)
 
 .toolbar-right
-    flex: 0 1 auto
+    flex: 0 0 auto
     display: flex
-    flex-flow: row wrap
+    flex-flow: row nowrap
     justify-content: flex-end
+    align-items: center
     text-align: right
     margin-left: auto
 
-    .toolbar_tools, uni-save
-        flex: 0 0 auto
-        margin: auto 0 auto .5rem
-        height: 2rem
+    .toolbar-button,
+    uni-context-menu .toggle-button,
+    uni-comments .toggle-button
+        background-color: #fff
+        border: var(--toolbar-button-border)
+        margin-right: .5rem
+        color: var(--color-c2a)
+        font-weight: 500
+        &:hover
+            border-color: var(--color-c2a)
+
+    .new-button i.material-icons
+        font-size: 20px
+
+    > button + button
+        margin-left: 0
+
+.toolbar-status-indicator
+    display: inline-flex
+    align-items: center
+    position: relative
+    cursor: default
+    font-size: 15px
+    color: var(--text-color)
+    margin-right: 1rem
+
+    i
+        margin-right: 4px
+        color: var(--color-c2a)
+
+    &.good i
+        color: var(--color-good)
+    &.warn i
+        color: var(--color-warn)
+    &.bad i
+        color: var(--color-bad)
+
+    @media only screen and (max-width: 1300px)
+        font-size: 13px
+
+    .sub-status-counter
+        position: absolute
+        top: 0
+        right: -1rem
+        display: flex
+        align-items: center
+        justify-content: center
+        width: 14px
+        height: 14px
+        border-radius: 50%
+        font-size: 10px
+        font-weight: 500
+        background: var(--color-warn)
+        color: #fff
+

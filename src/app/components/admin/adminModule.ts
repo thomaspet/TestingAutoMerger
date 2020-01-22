@@ -2,7 +2,6 @@
 import {NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
@@ -12,27 +11,24 @@ import {UniQueryModule} from '../uniquery/uniqueryModule';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
 import {JobLog} from './jobs/log/jobLog';
-import {ApprovalThresholds} from './approvalThresholds/list/approvalThresholds';
-import {ApprovalThresholdRules} from './approvalThresholds/details/approvalThresholdRules';
 import {SaftExportView} from './jobs/saft/view';
 import {SaftImportModal} from './jobs/saft/saftimportmodal';
 import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.component';
 import {PeopleService} from '@app/components/admin/gdpr/people.service';
 import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
 import {SaftExportModal} from './jobs/saft/saftexportmodal';
-import {MatAutocompleteModule, MatSlideToggleModule, MatRadioModule, MatCheckboxModule, MatProgressSpinnerModule, MatProgressBarModule} from '@angular/material';
+import {MatAutocompleteModule} from '@angular/material';
 
 import {FlowSettings} from './flow/flowSettings';
 import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
-import { BatchInvoicesContainer } from '@app/components/admin/jobs/batchInvoices/batchInvoicesContainer/batcInvoicesContainer';
-import { BatchInvoicesList } from '@app/components/admin/jobs/batchInvoices/BatchInvoicesList/batchInvoicesList';
-import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/BatchInvoicesDetails/batchInvoicesDetails';
+import {UniCompanySaftAccountModal} from './jobs/saft/companySaftAccountModal/companySaftAccountModal';
 
 @NgModule({
     entryComponents: [
+        UniCompanySaftAccountModal,
         SaftImportModal,
         SaftExportModal,
         FlowTemplateModal,
@@ -42,7 +38,6 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule,
         FormsModule,
         UniFrameworkModule,
@@ -51,20 +46,14 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         AppPipesModule,
         UniQueryModule,
         MatAutocompleteModule,
-        MatSlideToggleModule,
-        MatProgressSpinnerModule,
-        MatRadioModule,
-        MatCheckboxModule,
-        MatProgressBarModule
     ],
     declarations: [
         JobList,
         JobDetails,
         JobLog,
-        ApprovalThresholds,
-        ApprovalThresholdRules,
         SaftExportView,
         SaftImportModal,
+        UniCompanySaftAccountModal,
         SaftExportModal,
         UniGdprPeopleList,
 
@@ -73,10 +62,6 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         FlowTemplateModal,
         FlowList,
         FlowTemplates,
-
-        BatchInvoicesContainer,
-        BatchInvoicesList,
-        BatchInvoicesDetails,
     ],
     providers: [
         PeopleService,
@@ -86,11 +71,7 @@ import { BatchInvoicesDetails } from '@app/components/admin/jobs/batchInvoices/B
         JobList,
         JobDetails,
         JobLog,
-        ApprovalThresholds,
         UniGdprPeopleList,
-        BatchInvoicesContainer,
-        BatchInvoicesList,
-        BatchInvoicesDetails
     ]
 })
 export class AdminModule {}

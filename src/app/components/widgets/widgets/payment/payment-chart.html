@@ -3,7 +3,7 @@
         <span>Inn- og utbetalinger</span>
 
         <section class="filters uni-redesign">
-            <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+            <button class="tertiary toggle-button" [matMenuTriggerFor]="contextMenu">
                 {{ currentPeriod.label }}
                 <i class="material-icons">expand_more</i>
             </button>
@@ -57,12 +57,12 @@
 
         <section class="chart-legend">
             <section class="legend">
-                <span class="indicator incomming"></span>
+                <span class="indicator" [ngStyle]="{'background': colors[0]}"></span>
                 Totalt innbetalt: <strong>{{ totalIncommmingInPeriod }}</strong>
             </section>
 
             <section class="legend">
-                <span class="indicator outgoing"></span>
+                <span class="indicator" [ngStyle]="{'background': colors[1]}"></span>
                 Totalt utbetalt: <strong>{{ totalOutgoingInPeriod }}</strong>
             </section>
         </section>

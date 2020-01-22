@@ -4,6 +4,7 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {Observable} from 'rxjs';
 import {ObservableInput} from 'rxjs';
 import {ComplexValidationRule, EntityValidationRule} from '../../unientities';
+import {environment} from 'src/environments/environment';
 
 @Injectable()
 export class ErrorService {
@@ -14,6 +15,16 @@ export class ErrorService {
 
     public handle(error: any) {
         this.handleWithMessage(error, null);
+    }
+
+    handleJSError(error: Error) {
+        // Don't toast JS errors in production, just log them
+        if (environment.useProdMode) {
+            console.error(error);
+            this.logger.log(error);
+        } else {
+            this.handle(error);
+        }
     }
 
     public handleRxCatch(err: any, caught: Observable<any>): ObservableInput<any> {
@@ -42,7 +53,15 @@ export class ErrorService {
             return;
         }
 
+        if (typeof err === 'string') {
+            return err;
+        }
+
         const errorBody = this.getErrorBody(err);
+        if (typeof errorBody === 'string') {
+            return errorBody;
+        }
+
         if (errorBody) {
             if (errorBody.message || errorBody.Message) {
                 return errorBody.message || errorBody.Message;
@@ -157,18 +176,6 @@ export class ErrorService {
     }
 
     public addErrorToast(message: string) {
-        /*
-            Hotfix 20.01.2020
-
-            Avoid toasting SignalR error that the user shouldn't worry about.
-            With the next release (most likely before february) errorService
-            will no longer toast all uncaught JS errors unless we're in dev mode.
-            This return statement can be removed then.
-        */
-        if (message.includes('handshake response')) {
-            return;
-        }
-
-        this.toastService.addToast('En feil oppstod', ToastType.bad, null, message);
+        this.toastService.addToast('En feil oppstod', ToastType.warn, null, message);
     }
 }

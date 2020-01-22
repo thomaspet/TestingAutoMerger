@@ -1,37 +1,24 @@
-<section class="init-container">
-    <section id="marketing-content" *ngIf="!marketingContentHidden">
-        <section class="marketing-content-wrapper">
-            <img src="../../../assets/ue-logo.png" alt="UE logo">
-            <h1>Velkommen til Uni Economy!</h1>
+<section class="init-header">
+    <img class="logo" src="themes/logo.svg">
 
-            <p>Sammen med deg skal vi gi dine kunder verdens beste kundereise!</p>
-            <p>Et skybasert økonomisystem i verdensklasse, bygd for den moderne medarbeider.</p>
-            <p>Nysgjerrig? Finn ut mer!</p>
+    <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
+    <a *ngIf="isAuthenticated" (click)="logout()">Logg ut</a>
+</section>
 
-            <button class="signup-link" type="button" [attr.aria-busy]="working" [disabled]="working">
-
-                <a href="https://www.unimicro.no/utforsk">Utforsk</a>
-            </button>
-        </section>
+<section class="init-main" [ngClass]="isSrEnvironment ? 'ext01-init' : 'ue-init'">
+    <section class="init-bg"
+        [ngStyle]="{'background': background, height: backgroundHeight}">
     </section>
 
-    <section id="init-content">
-        <button class="marketing-toggle-btn" [ngClass]="{'expand-content': marketingContentHidden}"
-            (click)="toggleMarketingContent()">
-
-            Vis/skjul markedsinnhold
-        </button>
-
-        <section class="view-container">
-            <div class="router-wrapper">
-                <img src="../../../assets/economy-logo.png" alt="Uni Economy logo">
-                <router-outlet></router-outlet>
-            </div>
-        </section>
-
-        <footer>
-            <span>Uni Micro AS &#169; {{currentYear}}</span>
-        </footer>
+    <section class="illustration-container">
+        <img *ngIf="illustration" [src]="illustration">
     </section>
 
+    <section class="content-container">
+        <router-outlet></router-outlet>
+    </section>
+</section>
+
+<section class="init-footer">
+    Levert av Uni Micro
 </section>

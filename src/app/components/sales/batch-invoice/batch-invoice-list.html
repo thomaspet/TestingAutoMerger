@@ -1,0 +1,35 @@
+<uni-toolbar
+    [config]="{title: 'Samlefakturering'}"
+    [dropdownButton]="dropdownButton">
+</uni-toolbar>
+
+<section class="application">
+    <ng-container *ngIf="totalCount > 0">
+        <uni-tabs [tabs]="tabs" [useRouterLinkTabs]="true"></uni-tabs>
+
+        <section class="uni-container">
+            <ag-grid-wrapper
+                [resource]="lookupFunction"
+                [config]="tableConfig"
+                (rowClick)="onBatchInvoiceSelected($event)">
+            </ag-grid-wrapper>
+        </section>
+    </ng-container>
+
+    <section *ngIf="totalCount === 0" class="no-data">
+        <i class="material-icons">find_in_page</i>
+        <span>Du har ikke opprettet noen samlefaktureringer enda</span>
+        <small>Trykk på "Ny samlefakturering" oppe til høyre for å komme i gang</small>
+    </section>
+</section>
+
+<section class="details-backdrop" *ngIf="detailsVisible && selectedBatchInvoice" (click)="detailsVisible = false">
+    <batch-invoice-details
+        [@slideInOut]
+        [batchInvoice]="selectedBatchInvoice"
+        (close)="detailsVisible = false"
+        (reloadList)="reloadList()"
+        (click)="$event.stopPropagation()">
+    </batch-invoice-details>
+</section>
+

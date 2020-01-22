@@ -1,5 +1,4 @@
 @import '../../../../styles/unibase/colors/__colors'
-@import '../../../../styles/unibase/typography/__typography'
 .emp-header
     display: grid
     grid-template-columns: 1fr 3fr 3fr 1fr
@@ -13,7 +12,7 @@
         grid-column: 1 / span 2
         grid-row: 1
 
-    .button-clean
+    .tertiary
         grid-column: 3 /span 2
         grid-row: 1
 
@@ -31,46 +30,27 @@
 .emp-list
     height: calc(100vh - 28rem)
     li
-        height: 34px
+        height: 44px
         display: flex
         flex-direction: column
-        border-bottom: 1px solid $uni-color-scale9
+        border-bottom: 1px solid var(--border-color)
         padding: .5rem 1rem
         cursor: pointer
         align-items: center
-        span
-            flex: 1
-            margin-left: 5px
-            font-weight: 400
-        div
-            font-weight: bold
-            text-align: right
-            min-width: 2rem
+        font-size: 14px
+
         i
             font-size: 1.2rem
+            color: var(--color-bad)
 
         &:hover
-            background-color: #f3f3f3
+            background-color: var(--dropdown-select-background)
 
         &.selected
-            background-color: #D5EEF6
+            background-color: var(--dropdown-select-background)
 
         span
             flex: 1
             overflow: hidden
             white-space: nowrap
             text-overflow: ellipsis
-            font-size: .8rem
-            &:first-of-type
-                font-weight: 600
-                font-size: .9rem
-            &.number-good
-                font-weight: 400 !important
-                color: $uni-color-plus
-            &.number-bad
-                font-weight: 400 !important
-                color: $uni-color-minus
-            &.link
-                color: #0f4880
-                text-decoration: underline
-                cursor: pointer

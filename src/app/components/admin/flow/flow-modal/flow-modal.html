@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal maybe-default">
+<section role="dialog" class="uni-modal">
     <header>{{header}}</header>
 
     <article class="scrollable" *ngIf="eventPlan">
@@ -109,7 +109,7 @@
                         </button>
                     </section>
 
-                    <button (click)="eventPlan.Subscribers.push({})">
+                    <button class="tertiary c2a" (click)="eventPlan.Subscribers.push({})">
                         <i class="material-icons" style="margin-bottom: 3px">add</i>
                         Legg til {{eventPlan.PlanType === planTypeEnum.Custom ? 'parameter' : 'endepunkt'}}
                     </button>
@@ -119,7 +119,7 @@
     </article>
 
     <footer>
-        <button (click)="savePlan()" class="c2a">Lagre</button>
-        <button (click)="onClose.emit()">Avbryt</button>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="savePlan()">Lagre</button>
     </footer>
 </section>

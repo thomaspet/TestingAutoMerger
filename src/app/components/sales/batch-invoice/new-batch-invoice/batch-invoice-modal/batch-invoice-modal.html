@@ -1,0 +1,47 @@
+<section role="dialog" class="uni-modal">
+    <header>Samlefakturering</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngIf="batchInvoice" class="alert">
+            <strong>Klar til å kjøre samlefakturering av {{numberOfItems}} {{entityLabel}}</strong>
+
+            <span>
+                <ng-container *ngIf="canDistribute">
+                    Fakturaene sendes ut etter oppsatt <a (click)="goToDistributionSettings()">utsendingsplan</a>.
+                </ng-container>
+
+                Når jobben er fullført vil du få et varsel i applikasjonen.
+                Du kan også velge å få en epost med oppsummering av jobben.
+            </span>
+
+            <mat-checkbox [(ngModel)]="batchInvoice.NotifyEmail">
+                Send meg en epost når jobben er fullført
+            </mat-checkbox>
+        </section>
+
+        <section class="alert warn" *ngIf="canDistribute === false">
+            <span>
+                Du har ikke satt opp <a (click)="goToDistributionSettings()">automatisk utsendelse</a> av fakturaer.
+                <br>Samlefakturering kan kjøres, men fakturaene vil ikke bli sendt.
+            </span>
+        </section>
+
+        <uni-form
+            *ngIf="formFields?.length"
+            [config]="{ autofocus: true }"
+            [fields]="formFields"
+            [model]="batchInvoice">
+        </uni-form>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="saveBatchInvoice()">Kjør samlefakturering</button>
+    </footer>
+
+</section>
+

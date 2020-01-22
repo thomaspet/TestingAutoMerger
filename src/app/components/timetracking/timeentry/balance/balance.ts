@@ -110,7 +110,7 @@ export class RegtimeBalance {
 
                     x.PreExpected = x.ExpectedMinutes - x.LastDayExpected;
                     var preActual = x.ActualMinutes - x.LastDayActual;
-                    var preMinutes = x.Minutes - (x.LastDayActual - x.LastDayExpected);
+                    var preMinutes = x.Minutes + (x.LastDayActual - x.LastDayExpected);
 
                     this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
                     this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);

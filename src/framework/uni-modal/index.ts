@@ -3,7 +3,6 @@ import {UniConfirmModalWithList} from './modals/confirmModalWithList';
 import {UniAddressModal} from './modals/addressModal';
 import {UniPhoneModal} from './modals/phoneModal';
 import {UniEmailModal} from './modals/emailModal';
-import {UniSendEmailModal} from './modals/sendEmailModal';
 import {UniSendPaymentModal} from './modals/sendPaymentModal';
 import {UniBankAccountModal} from './modals/bankAccountModal';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
@@ -17,7 +16,6 @@ import {SingleTextFieldModal} from './modals/singleTextFieldModal';
 import {UserLicenseAgreementModal} from './modals/userLicenseAgreementModal';
 import {UniBrRegModal} from './modals/brRegModal/brRegModal';
 import {UniBankModal} from './modals/bankModal';
-import {UniChooseReportModal} from './modals/choose-report-modal/chooseReportModal';
 import {SubCompanyModal} from './modals/subCompanyModal';
 import {UniEditFieldModal} from './modals/editFieldModal';
 import {ProductPurchasesModal} from './modals/product-purchases-modal/product-purchases-modal';
@@ -32,7 +30,10 @@ import {UniMandatoryDimensionsModal} from './modals/mandatoryDimensionsModal/man
 import {LicenseAgreementModal} from './modals/license-agreement-modal/license-agreement-modal';
 import {InvoiceApprovalModal} from './modals/invoice-approval-modal/invoice-approval-modal';
 import {WizardSettingsModal} from './modals/wizard-settings-modal/wizard-settings-modal';
-import { BarnepassProductsModal } from '@app/components/sales/altinn/barnepass/barnepassProductsModal';
+import {BarnepassProductsModal} from './modals/barnepassModals/barnepassProductsModal';
+import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModal';
+import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
+import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -41,7 +42,6 @@ export * from './modals/confirmModalWithList';
 export * from './modals/addressModal';
 export * from './modals/phoneModal';
 export * from './modals/emailModal';
-export * from './modals/sendEmailModal';
 export * from './modals/sendPaymentModal';
 export * from './modals/bankAccountModal';
 export * from './modals/unsavedChangesModal';
@@ -55,7 +55,6 @@ export * from './modals/singleTextFieldModal';
 export * from './modals/userLicenseAgreementModal';
 export * from './modals/brRegModal/brRegModal';
 export * from './modals/bankModal';
-export * from './modals/choose-report-modal/chooseReportModal';
 export * from './modals/editFieldModal';
 export * from './modals/product-purchases-modal/product-purchases-modal';
 export * from './modals/missing-purchase-permission/missing-purchase-permission';
@@ -70,6 +69,8 @@ export * from './modals/mandatoryDimensionsModal/mandatoryDimensionsModal';
 export * from './modals/license-agreement-modal/license-agreement-modal';
 export * from './modals/invoice-approval-modal/invoice-approval-modal';
 export * from './modals/wizard-settings-modal/wizard-settings-modal';
+export * from './modals/file-split-modal/file-split-modal';
+export * from './modals/tof-email-modal/tof-email-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -77,7 +78,6 @@ export const MODALS = [
     UniAddressModal,
     UniPhoneModal,
     UniEmailModal,
-    UniSendEmailModal,
     UniSendPaymentModal,
     UniBankAccountModal,
     UniUnsavedChangesModal,
@@ -91,7 +91,6 @@ export const MODALS = [
     UserLicenseAgreementModal,
     UniBrRegModal,
     UniBankModal,
-    UniChooseReportModal,
     SubCompanyModal,
     UniEditFieldModal,
     ProductPurchasesModal,
@@ -106,6 +105,9 @@ export const MODALS = [
     LicenseAgreementModal,
     InvoiceApprovalModal,
     WizardSettingsModal,
-    BarnepassProductsModal
+    BarnepassProductsModal,
+    BarnepassSenderModal,
+    FileSplitModal,
+    TofEmailModal,
 ];
 

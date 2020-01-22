@@ -1,0 +1,31 @@
+.content
+    display: flex
+    align-items: center
+
+.select-type-of-company
+    display: flex
+    @media screen and (max-width: 700px)
+        flex-direction: column
+        .authentication-component
+            width: 85vw !important
+            margin: 0 0 1rem !important
+
+    .authentication-component
+        display: flex
+        flex-direction: column
+        width: 23rem
+        min-height: 28rem
+        margin: 0 0 auto
+
+        h1
+            margin: 0 0 .5rem
+
+        p
+            margin-top: 0
+
+        & + .authentication-component
+            margin-left: 2rem
+
+        button
+            margin: auto auto 1rem
+            min-width: 12rem

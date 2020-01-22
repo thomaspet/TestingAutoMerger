@@ -1,50 +1,50 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {Phone, PhoneTypeEnum} from '../../../app/unientities';
-
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {PhoneTypeEnum} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
 
 @Component({
     selector: 'uni-phone-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Telefon'}}</h1>
-            </header>
+            <header>{{options.header || 'Telefon'}}</header>
             <article>
-                <uni-form
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
-                    (readyEvent)="onReady()"
                     [model]="formModel$">
                 </uni-form>
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Ok</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()">
+                    Avbryt
+                </button>
+
+                <button
+                    class="c2a"
+                    (click)="close(true)"
+                    (keydown.tab)="$event.preventDefault()">
+                    Ok
+                </button>
             </footer>
         </section>
     `
 })
 export class UniPhoneModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject(null);
+    formFields$ = new BehaviorSubject([]);
+    initialState: any;
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<Phone> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    public initialState: any;
-
-    constructor(private elementRef: ElementRef) {}
-
-    public ngOnInit() {
+    ngOnInit() {
         const phone = this.options.data || {};
         this.initialState = Object.assign({}, phone);
         const fields = this.getFormFields();
@@ -56,33 +56,18 @@ export class UniPhoneModal implements IUniModal {
         this.formFields$.next(this.getFormFields());
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-            first.value = first.value; // set cursor at end of text
-
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
-        }
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
     }
 
-    public close(emitValue?: boolean) {
-        let phone: Phone;
-        if (emitValue) {
-            phone = this.formModel$.getValue();
-        } else {
-            phone = this.initialState;
-        }
-
-        this.onClose.emit(phone);
+    close(emitValue?: boolean) {
+        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
     }
 
     private getFormFields(): UniFieldLayout[] {
-        let fields = [
+        return [
             <any> {
                 EntityType: 'Phone',
                 Property: 'Number',
@@ -94,12 +79,6 @@ export class UniPhoneModal implements IUniModal {
                 Property: 'CountryCode',
                 FieldType: FieldType.TEXT,
                 Label: 'Landskode',
-            },
-            <any> {
-                EntityType: 'Phone',
-                Property: 'Description',
-                FieldType: FieldType.TEXT,
-                Label: 'Beskrivelse',
             },
             <any> {
                 EntityType: 'Phone',
@@ -115,9 +94,18 @@ export class UniPhoneModal implements IUniModal {
                         {ID: PhoneTypeEnum.PtFax, Name: 'Fax'}
                     ]
                 }
-            }
+            },
+            <any> {
+                EntityType: 'Phone',
+                Property: 'Description',
+                FieldType: FieldType.TEXT,
+                Label: 'Beskrivelse',
+                Options: {
+                    events: {
+                        enter: () => this.close(true)
+                    }
+                }
+            },
         ];
-
-        return fields;
     }
 }

@@ -31,7 +31,7 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info'
+    'license-info',
 ];
 
 const PUBLIC_ROUTES = [];
@@ -40,24 +40,15 @@ const PUBLIC_ROUTES = [];
 export class AuthService {
     userManager: UserManager;
 
-    public requestAuthentication$: EventEmitter<any> = new EventEmitter();
     public companyChange: EventEmitter<Company> = new EventEmitter();
 
     public authentication$ = new ReplaySubject<IAuthDetails>(1);
-    public filesToken$ = new ReplaySubject<string>(1);
     public token$ = new ReplaySubject<string>(1);
 
     public jwt: string;
     public id_token: string;
-    public filesToken: string;
     public activeCompany: Company;
     public currentUser: UserDto;
-
-
-    private headers = new HttpHeaders({
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    });
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
     private storage = {
@@ -82,12 +73,12 @@ export class AuthService {
 
     constructor(private router: Router, private http: HttpClient) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
-        this.filesToken = this.storage.getOnUser('filesToken');
 
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
 
         const onMissingAuth = () => {
+            this.token$.next(undefined);
             this.authentication$.next({
                 activeCompany: undefined,
                 user: undefined,
@@ -106,18 +97,14 @@ export class AuthService {
             const sessionStatus = res[1];
 
             if (sessionStatus && user && !user.expired && user.access_token) {
-                this.jwt = user.access_token;
                 this.id_token = user.id_token;
-                this.filesToken$.next(this.filesToken);
-                if (!this.filesToken) {
-                    this.authenticateUniFiles();
-                }
+                this.jwt = user.access_token;
+                this.token$.next(this.jwt);
+                this.storage.saveOnUser('jwt', this.jwt);
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
                         auth => {
-                            this.filesToken$.next(this.filesToken);
-
                             if (!auth.hasActiveContract) {
                                 this.router.navigateByUrl('contract-activation');
                             }
@@ -134,6 +121,8 @@ export class AuthService {
                             if (!this.router.url.startsWith('/init')) {
                                 this.router.navigate(['/init/login']);
                             }
+
+                            this.setLoadIndicatorVisibility(false);
                         }
                     );
                 } else {
@@ -156,6 +145,7 @@ export class AuthService {
         });
 
         this.userManager.events.addUserSignedOut(() => {
+            this.token$.next(undefined);
             this.userManager.removeUser().then((res) => {
                 this.cleanStorageAndRedirect();
                 this.setLoadIndicatorVisibility(false);
@@ -166,11 +156,11 @@ export class AuthService {
         this.userManager.events.addUserLoaded(() => {
             this.userManager.getUser().then(user => {
                 if (user && !user.expired && user.access_token) {
-                    this.jwt = user.access_token;
+                    this.userManager.clearStaleState();
                     this.id_token = user.id_token;
-                    if (!this.filesToken) {
-                        this.authenticateUniFiles();
-                    }
+                    this.jwt = user.access_token;
+                    this.token$.next(this.jwt);
+                    this.storage.saveOnUser('jwt', this.jwt);
                 }
             });
         });
@@ -178,24 +168,22 @@ export class AuthService {
         this.userManager.events.addSilentRenewError(function(res) {
             console.log(res);
         });
-
-        // Also check if we have a files token, and re-authenticate with uni-files if not.
-        setInterval(() => {
-            if (this.jwt && !this.filesToken) {
-                this.authenticateUniFiles();
-            }
-        }, 60000);
     }
 
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         if (visible) {
-            $('#spinnertext').text(function(i, oldText) { return isLogout ? 'Logger ut' : oldText; });
-            $('#data-loading-spinner').fadeIn(0);
+            $('#app-spinner').fadeIn(0);
+            $('#app-spinner-text').text(() => isLogout ? 'Logger ut' : 'Laster selskapsdata');
         } else {
-            $('#spinnertext').text(function(i, oldText) {return isLogout ? 'Logger ut' : oldText; });
-            $('#data-loading-spinner').fadeOut(250);
+            $('#app-spinner').fadeOut(250);
         }
 
+        // #chat-container is added by boost, so it wont show up
+        // if you do a project wide search for it. Dont remove this :)
+        const boostChat = document.getElementById('chat-container');
+        if (boostChat) {
+            boostChat.style.visibility = visible ? 'hidden' : 'visible';
+        }
     }
 
     private getUserManager(): UserManager {
@@ -220,38 +208,6 @@ export class AuthService {
 
     public authenticate(): void {
         this.userManager.signinRedirect();
-    }
-
-    public authenticateUniFiles(): Promise<string> {
-        return new Promise<string>((resolve, reject) => {
-            if (!this.jwt) {
-                reject('No jwt set');
-            }
-
-            const uniFilesUrl =
-                environment.BASE_URL_FILES + '/api/init/sign-in';
-            this.http.post(uniFilesUrl, JSON.stringify(this.jwt), {
-                headers: this.headers,
-                observe: 'response'
-            }).subscribe(
-                res => {
-                    if (res && res.status === 200) {
-                        this.filesToken = res.body.toString();
-                        this.storage.saveOnUser(
-                            'filesToken',
-                            this.filesToken
-                        );
-
-                        this.filesToken$.next(this.filesToken);
-                        resolve(this.filesToken);
-                    }
-                },
-                err => {
-                    reject('Error authenticating');
-                    console.log('Error authenticating:', err);
-                }
-            );
-        });
     }
 
     /**
@@ -374,18 +330,30 @@ export class AuthService {
         return this.activeCompany && this.activeCompany.Key;
     }
 
+    /**
+     * Returns a boolean indicating whether the user is authenticated or not
+     * @returns {Boolean}
+     */
     public isAuthenticated(): Promise<boolean> {
         return new Promise(resolve => {
-            this.userManager.getUser().then(user => {
-                if (user && !user.expired) {
-                    this.jwt = user.access_token;
-                    const hasToken = !!this.jwt;
-                    resolve(hasToken);
-                } else {
-                    resolve(false);
-                }
-            }).catch(() => resolve(false));
+            this.userManager
+                .getUser()
+                .then(user => {
+                    if (user && !user.expired && !!user.access_token) {
+                        this.jwt = user.access_token;
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                })
+                .catch(() => resolve(false));
         });
+    }
+
+    signoutRedirect() {
+        if (this.userManager) {
+            this.userManager.signoutRedirect();
+        }
     }
 
     /**
@@ -402,19 +370,18 @@ export class AuthService {
                     hasActiveContract: false,
                 });
 
-                this.filesToken$.next(undefined);
-                this.setLoadIndicatorVisibility(true, true);
-
                 this.idsLogout();
             }
-
             if (!cleanTokens) {
                 this.cleanStorageAndRedirect();
             }
+
         });
     }
 
     idsLogout() {
+        this.setLoadIndicatorVisibility(true, true);
+
         // Hotfix 20.12.19. This should only be necessary until the next release.
         this.runLogoutRequest();
         //
@@ -441,12 +408,11 @@ export class AuthService {
     public cleanStorageAndRedirect() {
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
-        this.storage.removeOnUser('filesToken');
         this.jwt = undefined;
         this.activeCompany = undefined;
         this.setLoadIndicatorVisibility(false);
 
-        if (!this.router.url.startsWith('/init')) {
+        if (!this.router.url.includes('init/sign-up')) {
             this.router.navigate(['/init/login']);
         }
     }

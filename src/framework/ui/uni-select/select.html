@@ -1,62 +1,57 @@
-<article class="uniSelect"
-         *ngIf="config" (clickOutside)="close()">
+<ng-container *ngIf="config">
+    <section class="input-with-button"
+        (click)="toggle()"
+        (clickOutside)="close()">
 
-    <input type="text" #valueInput
-           [attr.aria-describedby]="config?.asideGuid"
-           class="uniSelect_input"
-           role="combobox"
-           aria-autocomplete="none"
-           [attr.aria-owns]="guid"
-           [attr.aria-activedescendant]="activeDescendantId"
-           tabindex="-1"
-           [formControl]="valueInputControl"
-           [placeholder]="config?.placeholder || ''"
-           [attr.aria-readonly]="readonly"
-           (click)="toggle()"
-           [title]="getTitle()"
-           (keydown.delete)="clear($event)"
-           readonly/>
-    <button
-        type="button"
-        class="closeBtn"
-        tabindex="-1"
-        (click)="clear($event)"
-        *ngIf="selectedItem && !readonly && !config?.hideDeleteButton"
-    ></button>
-    <article class="uniSelect_dropdown" [hidden]="!expanded">
-        <section class="uniSelect_search" *ngIf="searchable">
-            <input #searchInput type="search"
-                   [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
-                   [formControl]="searchControl"
-                   tabindex="-1"
-            />
-        </section>
+        <input type="text" #valueInput
+            class="select-input"
+            tabindex="-1"
+            [formControl]="valueInputControl"
+            [placeholder]="config?.placeholder || ''"
+            [attr.aria-readonly]="readonly"
+            (keydown)="onKeyDown($event)"
+            (keydown.delete)="clear($event)"
+            (keypress)="onKeyPress($event)"
+            readonly
+        />
 
-        <ul #itemDropdown
-            [id]="guid"
-            [attr.aria-expanded]="true"
-            class="uniSelect_dropdown_list"
-            role="listbox"
-            tabindex="-1">
+        <button
+            type="button"
+            tabIndex="-1"
+            style="pointer-events: none"
+            [disabled]="readOnly$ | async">
+            <i class="material-icons">expand_more</i>
+        </button>
+    </section>
 
-            <li *ngFor="let item of filteredItems; let idx = index"
-                class="uniSelect_dropdown_item"
-                role="item"
-                tabindex="-1"
-                [id]="guid + '-item-' + idx"
-                [attr.aria-selected]="idx === focusedIndex"
-                (mouseover)="focusedIndex = idx"
-                (click)="confirmSelection($event)">
-                {{getDisplayValue(item)}}
-            </li>
-            <li *ngIf="newButtonAction"
-                class="uniSelect_dropdown_new_button_item">
-                <button
-                    type="button"
-                    (click)="onNewItemClick()">
-                    Ny
-                </button>
-            </li>
-        </ul>
-    </article>
-</article>
+    <input-dropdown-menu [input]="valueInput" [visible]="expanded">
+        <ng-template>
+            <section class="select-search" *ngIf="searchable">
+                <input #searchInput
+                    (keydown)="onKeyDown($event)"
+                    type="search"
+                    [placeholder]="config?.searchPlaceholder || 'Filtrer elementer'"
+                    [formControl]="searchControl"
+                    tabindex="-1"
+                />
+            </section>
+
+            <section #itemDropdown>
+                <section *ngIf="showNotSelectedOption"
+                    class="dropdown-menu-item"
+                    (mouseover)="focusedIndex = -1"
+                    [attr.aria-selected]="focusedIndex === -1"
+                    (click)="confirmSelection(null)">
+                    Ikke valgt
+                </section>
+
+                <section *ngFor="let item of filteredItems; let idx = index"
+                    class="dropdown-menu-item"
+                    [attr.aria-selected]="idx === focusedIndex"
+                    (click)="confirmSelection(item, $event)">
+                    {{getDisplayValue(item, true)}}
+                </section>
+            </section>
+        </ng-template>
+    </input-dropdown-menu>
+</ng-container>

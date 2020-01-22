@@ -19,9 +19,7 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
     selector: 'uni-activate-einvoice-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Aktiver Efaktura'}}</h1>
-            </header>
+            <header>{{options.header || 'Aktiver Efaktura'}}</header>
             <article>
                 <p *ngIf="!isMissingData">
                    Opplysningene under vil oversendes Nets for aktivering av Efaktura. Vennligst se over at
@@ -41,8 +39,8 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
                 </uni-form>
 
                 <p>
-                   <strong>NB!</strong> Aktivering av Efaktura i Uni Economy vil erstatte eventuelle andre Efakturaavtaler du
-                   har etablert i andre systemer. Ta kontakt med Uni Micro support hvis du har en eksisterende Efakturaavtale fra før!
+                   <strong>NB!</strong> Aktivering av Efaktura vil erstatte Efakturaavtaler du har etablert i andre systemer.
+                   Ta kontakt med kundesenter hvis du har en eksisterende Efakturaavtale fra før!
                 </p>
                 <p>
                    For at Efaktura skal fungere må det være inngått en KID-avtale med banken for kontoen

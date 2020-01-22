@@ -15,6 +15,12 @@ export class TopTenCustomersWidget {
     currentYear = new Date().getFullYear();
     unauthorized: boolean = false;
 
+    contextMenuItems = [
+        { label: 'Ny faktura', entity: 'invoices' },
+        { label: 'Ny ordre', entity: 'orders' },
+        { label: 'Nytt tilbud', entity: 'quotes' },
+    ];
+
     constructor(
         private dataService: WidgetDataService,
         private router: Router,
@@ -57,6 +63,7 @@ export class TopTenCustomersWidget {
             + '&join=Customer.ID eq CustomerInvoice.CustomerID'
             + '&top=10'
             + '&expand=info'
+            + '&filter=CustomerInvoice.StatusCode gt 42001'
             + '&orderby=sum(casewhen(CustomerInvoice.InvoiceDate gt 20170101,CustomerInvoice.TaxInclusiveAmount,0)) desc'
             + '&wrap=false'
             + '&distinct=false';

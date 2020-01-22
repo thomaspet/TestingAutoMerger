@@ -1,42 +1,30 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
-import {Router} from '@angular/router';
-import {UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {AuthService} from '../../../../authService';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'navbar-create-new',
     template: `
-        <i *ngIf="links?.length"
-            class="material-icons"
-            role="button"
-            [matMenuTriggerFor]="menu">
-            add_circle
-        </i>
+        <ng-container *ngIf="links">
+            <uni-icon #toggle [icon]="'add'"></uni-icon>
 
-        <mat-menu #menu="matMenu" yPosition="below" [overlapTrigger]="false">
-            <ng-template matMenuContent>
-                <section class="navbar-link-dropdown">
-                    <strong>Opprett ny</strong>
-                    <ul>
-                        <li *ngFor="let link of links">
-                            <a [routerLink]="link.url">
-                                {{link.name}}
-                            </a>
-                        </li>
-                    </ul>
-                </section>
-            </ng-template>
-        </mat-menu>
+            <dropdown-menu [trigger]="toggle" minWidth="12rem">
+                <ng-template>
+                    <span class="dropdown-menu-header">Opprett ny</span>
+                    <a class="dropdown-menu-item" *ngFor="let link of links" [routerLink]="link.url">
+                        {{link.name | translate}}
+                    </a>
+                </ng-template>
+            </dropdown-menu>
+        </ng-container>
     `
 })
 
 export class NavbarCreateNew {
-    public links: any[] = [];
+    links: any[] = [];
 
     constructor(
         private authService: AuthService,
         private cdr: ChangeDetectorRef,
-        private router: Router
     ) {
         this.authService.authentication$.subscribe(auth => {
             if (auth.user) {
@@ -65,7 +53,7 @@ export class NavbarCreateNew {
             { name: 'Ansatt', url: '/salary/employees/0/personal-details' },
             { name: 'Timeføring', url: '/timetracking/timeentry' },
             { name: 'Leverandør', url: '/accounting/suppliers/0' },
-            { name: 'Leverandørfaktura', url: '/accounting/bills/0' },
+            { name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/bills/0' },
         ];
     }
 }

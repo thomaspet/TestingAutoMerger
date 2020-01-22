@@ -1,6 +1,11 @@
 <section role="dialog" class="uni-modal uni-redesign" style="width: 80vw">
     <header>
-        <h1> Bokføringsregler <i class="material-icons booking-rules-info-icon" title="Klikk her for å se informasjon om bokføringsregler" [matMenuTriggerFor]="contextMenu">info</i> </h1>
+        Bokføringsregler
+        <i class="material-icons booking-rules-info-icon" 
+            title="Klikk her for å se informasjon om bokføringsregler" 
+            [matMenuTriggerFor]="contextMenu">
+            info
+        </i>
         <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
             <section class="info-section-container">
                 <span>
@@ -28,15 +33,16 @@
             </section>
         </mat-menu>
     </header>
-    <article style="overflow: visible;">
+
+    <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
+        
         <section style="display: flex;">
             <section style="flex: 1 80px;" class="rule-grid-container">
                 <ag-grid-wrapper
                     #listTable
-                    class="transquery-grid-font-size"
                     [config]="tableConfig"
                     [(resource)]="bankRules"
                     (dataLoaded)="detailsTable.focusRow(activeIndex)"
@@ -48,12 +54,10 @@
             </section>
 
             <section class="filters">
-                <form class="uni-html-form" style="margin-bottom: 2rem;">
-                    <label>
-                        <span style="flex: 0 0 100px;">Beskrivelse</span>
-                        <input name="Name" type="text" [(ngModel)]="currentRule.Name" (change)="setDirtyOrClean(true)">
-                    </label>
-                </form>
+                <label class="uni-label" style="margin-bottom: 2rem">
+                    <span>Beskrivelse</span>
+                    <input name="Name" type="text" [(ngModel)]="currentRule.Name" (change)="setDirtyOrClean(true)">
+                </label>
 
                 <section #filterRow class="filter" *ngFor="let filter of filters; let idx = index">
                     <input *ngIf="filter['_readonlyField']" disabled [value]="filter.field" type="text" (change)="setDirtyOrClean(true)">

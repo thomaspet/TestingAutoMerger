@@ -8,10 +8,6 @@ export const billStatusflowLabels = {
     'smartbooking': 'Foreslå kontering',
     'journal': 'Bokfør',
 
-    'payInvoice': 'Sett betalt beløp',
-    'sendForPayment': 'Til betalingsliste',
-    'pay': 'Sett til betalt',
-
     'assign': 'Tildel',
     'cancelApprovement': 'Tilbakestill',
     'reAssign': 'Tildel på nytt',
@@ -19,6 +15,4 @@ export const billStatusflowLabels = {
     'rejectInvoice': 'Avvis faktura',
     'rejectAssignment': 'Avvis tildeling',
     'restore': 'Gjenopprett',
-
-    'finish': 'Arkiver'
 };

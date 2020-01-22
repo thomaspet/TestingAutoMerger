@@ -13,7 +13,7 @@ import {Router} from '@angular/router';
                 <div>{{ displayValue }}</div>
             </div>
 
-            <i class="material-icons"> {{ widget.config.icon }} </i>
+            <i class="material-icons-outlined"> {{ widget.config.icon }} </i>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

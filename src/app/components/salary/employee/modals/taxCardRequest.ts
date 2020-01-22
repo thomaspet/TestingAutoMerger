@@ -1,7 +1,14 @@
 import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
 import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, AltinnReceipt, Employee, EmployeeCategory} from '../../../../../app/unientities';
-import {AltinnIntegrationService, ErrorService, FinancialYearService, EmployeeCategoryService, EmployeeService, StatisticsService} from '../../../../../app/services/services';
+import {
+    AltinnIntegrationService,
+    ErrorService,
+    FinancialYearService,
+    EmployeeCategoryService,
+    EmployeeService,
+    StatisticsService
+} from '../../../../../app/services/services';
 import {BehaviorSubject, Observable} from 'rxjs';
 declare const _;
 
@@ -143,7 +150,7 @@ export class TaxCardRequest {
         this.taxRequest(option, this.employee.ID, model.empsAndChanged, model.categoryID);
     }
 
-    change(event: SimpleChanges) {
+    change(event: any) {
         const model = this.model$.value;
         this.uniform.Hidden = false;
         const fields = this.fields$.getValue();
@@ -156,12 +163,18 @@ export class TaxCardRequest {
 
         switch (model.multiEmpChoice) {
             case 1:
-                this.filter = 'filter=employments.endDate eq null&expand=employments';
-                this.employeeService.GetAll(this.filter).subscribe(res => this.empCount = res.length);
+                this.statisticsService.GetAllUnwrapped(
+                    `model=Employee&filter=isnull(employments.enddate,'1900-01-01') eq '1900-01-01'&expand=Employments&select=ID as ID`
+                ).subscribe(res => {
+                    this.empCount = res.length;
+                });
                 break;
             case 2:
-                this.filter = '';
-                this.employeeService.GetAll(this.filter).subscribe(res => this.empCount = res.length);
+                this.statisticsService.GetAllUnwrapped(
+                    `model=Employee&select=count(ID) as count`
+                ).subscribe(res => {
+                    this.empCount = res[0].count;
+                });
                 break;
             case 3:
                 this.getEmpsWithoutTaxInfoForCurrentFinancialYear();
@@ -186,18 +199,8 @@ export class TaxCardRequest {
         this.uniform.Hidden = false;
         const fields = this.fields$.getValue();
         if (parseInt(event.value, 10) === 2) {
-            if (model.multiEmpChoice === 3) {
-                this.getEmpsWithoutTaxInfoForCurrentFinancialYear();
-            } else {
-                this.employeeService
-                .GetAll(this.filter)
-                .subscribe(res => this.empCount = res.length);
-            }
             fields[0].Hidden = false;
-
-            if (model.multiEmpChoice === 4) {
-                fields[1].Hidden = false;
-            }
+            this.change(model);
         } else {
             fields[0].Hidden = true;
             fields[1].Hidden = true;

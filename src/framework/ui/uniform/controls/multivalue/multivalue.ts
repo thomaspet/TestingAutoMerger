@@ -138,15 +138,27 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.moveForwardEvent.emit({event: null, field: this.field});
     }
 
+    onClick(event) {
+        this.toggle();
+    }
+
     public toggle() {
         if (this.isOpen) {
             this.close();
         } else {
-            this.open();
+            if (this.rows && this.rows.length) {
+                this.open();
+            } else {
+                this.addNew();
+            }
         }
     }
 
     public open() {
+        if (this.readOnly$.value) {
+            return;
+        }
+
         this.isOpen = true;
         this.filter = '';
         const listProperty = this.field.Options.listProperty || this.field.Property;
@@ -359,7 +371,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             case KeyCodes.DOWN_ARROW:
                 event.preventDefault();
                 if (!this.isOpen) {
-                    this.isOpen = true;
+                    this.open();
                     return;
                 }
                 const selectedRowIndexDown = this.filteredRows.findIndex(row => row === this.focusedRow);
@@ -384,7 +396,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             case KeyCodes.UP_ARROW:
                 event.preventDefault();
                 if (!this.isOpen) {
-                    this.isOpen = true;
+                    this.open();
                     return;
                 }
                 const selectedRowIndexUp = this.filteredRows.findIndex(row => row === this.focusedRow);
@@ -432,7 +444,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
             case KeyCodes.SPACE:
                 if (!this.isOpen) {
                     event.preventDefault();
-                    this.open();
+                    this.toggle();
                 }
                 break;
             case KeyCodes.F4:

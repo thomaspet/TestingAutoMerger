@@ -14,9 +14,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
     selector: 'import-central-template-modal',
     template:
         `<section role="dialog" class="uni-modal uni-redesign" style="width: 25vw; min-width: 35rem">
-            <header>
-                <h1>{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
             <article>
                 <form class="uni-html-form">
                     <label>

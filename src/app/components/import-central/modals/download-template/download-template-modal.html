@@ -1,71 +1,73 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        {{options.header}}
-    </header>
-    <div class="under-line"></div>
+<section role="dialog" class="uni-modal">
+    <header>{{options.header}}</header>
+
     <article>
-        <form class="uni-html-form">
-            <div class="dropdown-section" *ngIf="options.data.EntityType !== saft">
-                <label class="title">File Type</label>
-                <label class="drop-down-container">
-                    <uni-select class="drop-down" [config]="config" [value]="selectedFileType" [items]="operators"
-                        (valueChange)="onSelectChange($event)">
-                    </uni-select>
-                </label>
-            </div>
-            <div class="check-box-section row-check"
-                *ngIf="options.data.Permisions.hasTemplateDataAccess && options.data.EntityType !== saft">
-                <label class="title"></label>
-                <label class="check-box-container">
-                    <mat-checkbox class="check-box" [(ngModel)]="isSelected"
-                        [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher" [ngModelOptions]="{standalone: true}"
-                        (click)="$event.stopPropagation()">
-                    </mat-checkbox>
-                    <label class="option-text">
-                        {{options.message}}
-                    </label>
-                </label>
-            </div>
-            <div class="saft-export-options" *ngIf="options.data.EntityType === saft">
-                <div class="block">
-                    <label class="title">Fra regnskapsår</label>
-                    <input type="number" [(ngModel)]="fromYear" [ngModelOptions]="{standalone: true}">
-                </div>
-                <div class="block">
-                    <label class="title">Til regnskapsår</label>
-                    <input type="number" [(ngModel)]="toYear" [ngModelOptions]="{standalone: true}">
-                </div>
-                <div class="block">
-                    <label class="title">Fra Periode</label>
-                    <input type="number" [(ngModel)]="fromPeriod" [ngModelOptions]="{standalone: true}">
-                </div>
-                <div class="block">
-                    <label class="title">Til Periode</label>
-                    <input type="number" [(ngModel)]="toPeriod" [ngModelOptions]="{standalone: true}">
-                </div>
-                <div class="block">
-                    <label class="title">Anonymiser data</label>
-                    <mat-checkbox class="check-box" [(ngModel)]="isAnonymous" [ngModelOptions]="{standalone: true}"
-                        (click)="$event.stopPropagation()">
-                    </mat-checkbox>
-                </div>
-                <div class="block">
-                    <label class="title">Send meg epost med filen</label>
-                    <mat-checkbox class="check-box" [(ngModel)]="sendEmail" [ngModelOptions]="{standalone: true}"
-                        (click)="$event.stopPropagation()">
-                    </mat-checkbox>
-                </div>
-                <div class="note">
-                    <label>Du vil få epost med filen når eksporten er ferdig.</label>
-                </div>
-            </div>
-        </form>
         <section *ngIf="loading$ | async" class="modal-spinner">
             <mat-spinner></mat-spinner>
         </section>
+
+        <section *ngIf="options.data.EntityType !== saft">
+            <label class="uni-label label-left">
+                <span>Filetype</span>
+                <uni-select
+                    [config]="config"
+                    [value]="selectedFileType"
+                    [items]="operators"
+                    (valueChange)="onSelectChange($event)">
+                </uni-select>
+            </label>
+
+            <label class="uni-label label-left" *ngIf="options?.data?.Permisions?.hasTemplateDataAccess">
+                <span>{{options.message}}</span>
+                <mat-checkbox class="check-box" [(ngModel)]="isSelected"
+                    [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher"
+                    [ngModelOptions]="{standalone: true}"
+                    (click)="$event.stopPropagation()">
+                </mat-checkbox>
+            </label>
+        </section>
+
+        <section *ngIf="options.data.EntityType === saft">
+            <label class="uni-label label-left">
+                <span>Fra regnskapsår</span>
+                <input type="number" [(ngModel)]="fromYear">
+            </label>
+
+            <label class="uni-label label-left">
+                <span>Til regnskapsår</span>
+                <input type="number" [(ngModel)]="toYear">
+            </label>
+
+            <label class="uni-label label-left">
+                <span>Fra Periode</span>
+                <input type="number" [(ngModel)]="fromPeriod">
+            </label>
+
+            <label class="uni-label label-left">
+                <span>Til Periode</span>
+                <input type="number" [(ngModel)]="toPeriod">
+            </label>
+
+            <label class="uni-label label-left">
+                <span>Anonymiser data</span>
+                <mat-checkbox class="check-box" [(ngModel)]="isAnonymous"
+                    (click)="$event.stopPropagation()">
+                </mat-checkbox>
+            </label>
+
+            <label class="uni-label label-left">
+                <span>Send meg epost med filen</span>
+                <mat-checkbox [(ngModel)]="sendEmail"></mat-checkbox>
+            </label>
+
+            <div class="note">Du vil få epost med filen når eksporten er ferdig.</div>
+        </section>
     </article>
-    <footer class="center">
-        <button class="c2a rounded" (click)="onDownloadTempalte()"> {{options.data.downloadButton}}</button>
-        <button (click)="close()">Avbryt</button>
+
+    <footer>
+        <button class="secondary" (click)="close()">Avbryt</button>
+        <button class="c2a" (click)="onDownloadTempalte()">
+            {{options.data.downloadButton}}
+        </button>
     </footer>
 </section>

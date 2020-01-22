@@ -1,11 +1,19 @@
 import {Component} from '@angular/core';
-import {IUniTab} from '../layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'uni-currency-component',
     template: `
-    <uni-tabs class="application" [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
-    <router-outlet></router-outlet>`
+        <section class="fixed-position-toolbar">
+            <uni-tabs
+                class="application"
+                [tabs]="childRoutes"
+                [useRouterLinkTabs]="true">
+            </uni-tabs>
+
+            <router-outlet></router-outlet>
+        </section>
+    `
 })
 export class CurrencyComponent {
     public childRoutes: IUniTab[];

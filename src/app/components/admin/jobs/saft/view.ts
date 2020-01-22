@@ -25,13 +25,15 @@ const COMPLETEMESSAGE: string = 'Import completed';
 
 export class SaftExportView implements OnInit {
     @ViewChild('fileInput') private fileInput: any;
-    public busy: boolean = false;
-    public busyFetch: boolean = false;
-    public files: Array<ISaftFileInfo> = [];
-    public currentFileId: number;
-    private subscription: any;
-    public jobName: string = JOBNAME;
+    busy: boolean = false;
+    busyFetch: boolean = false;
+    files: Array<ISaftFileInfo> = [];
+    currentFileId: number;
+    jobName: string = JOBNAME;
+    inDelete: boolean = false;
+
     private baseUrl: string = environment.BASE_URL_FILES;
+    private subscription: any;
 
     constructor(
         private errorService: ErrorService,
@@ -118,6 +120,11 @@ export class SaftExportView implements OnInit {
     }
 
     public onFileDeleteClick(file: ISaftFileInfo) {
+        if (this.inDelete) {
+            return;
+        }
+        this.inDelete = true;
+
         this.modalService.confirm({
             header: 'Bekreft sletting av fil',
             message: `Vennligst bekreft sletting av fil ${file.FileName}`,
@@ -132,8 +139,10 @@ export class SaftExportView implements OnInit {
                     .finally(() => file.busy = false)
                     .subscribe(
                         () => this.removeFile(file.FileID),
-                        err => this.errorService.handle(err)
+                        err => { this.errorService.handle(err); this.inDelete = false; }
                     );
+            } else {
+                this.inDelete = false;
             }
         });
     }
@@ -141,6 +150,7 @@ export class SaftExportView implements OnInit {
     private removeFile(fileId: number) {
         const index = this.files.findIndex( x => x.FileID === fileId );
         if (index >= 0) { this.files.splice(index, 1); }
+        this.inDelete = false;
     }
 
     private loadList() {
@@ -201,6 +211,30 @@ export class SaftExportView implements OnInit {
         return retlist;
     }
 
+    private mapValidationJob(list: Array<JobRun>): Array<ISaftFileInfo> {
+        const retlist: Array<ISaftFileInfo> = [];
+        let filter: string = '';
+        list.forEach(job => {
+            const f: any = {};
+            f.JobName = job.JobName;
+            if (job.Output) {
+                const o = JSON.parse(job.Output);
+                if (!!o) {
+                    f.HasError = o.HasError;
+                    f.Message = o.Message;
+                    f.CorrectionLines = o.CorrectionLines;
+                }
+            }
+            if (filter) {
+                filter += ' or ';
+            }
+            filter += 'id eq ' + f.FileID;
+            f.hasError = job.Exception === '';
+            retlist.push(f);
+        });
+
+        return retlist;
+    }
 
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {
         const n = list.length;

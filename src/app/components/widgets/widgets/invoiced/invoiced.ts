@@ -11,9 +11,10 @@ import {StatisticsService, NumberFormat} from '@app/services/services';
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
 import {Router} from '@angular/router';
+import {Observable} from 'rxjs';
+
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
-import { Observable } from 'rxjs';
 
 interface IPeriode {
     label: string;
@@ -42,6 +43,8 @@ export class InvoicedWidget implements AfterViewInit {
     tooltip;
 
     MONTHS = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
+    COLORS = ['#E3E3E3', '#0070E0'];
+
     currentLabels: string[] = [];
     currentLabelsFull: string[] = [];
     periodes: IPeriode[] = [
@@ -75,9 +78,7 @@ export class InvoicedWidget implements AfterViewInit {
         private widgetDataService: WidgetDataService,
         private router: Router,
         private cdr: ChangeDetectorRef
-    ) {
-        this.prepChartType();
-    }
+    ) { }
 
     ngAfterViewInit() {
         if (this.widget) {
@@ -204,13 +205,13 @@ export class InvoicedWidget implements AfterViewInit {
                     {
                         label: 'Innbetalt',
                         data: [],
-                        backgroundColor: '#62B2FF',
+                        backgroundColor: this.COLORS[1],
                     },
                     {
                         label: 'Fakturert',
                         data: [],
-                        backgroundColor: '#4898F3',
-                        hoverBackgroundColor: '#4898F3',
+                        backgroundColor: this.COLORS[0],
+                        // hoverBackgroundColor: '#4898F3',
                     }
                 ]
             },
@@ -272,77 +273,5 @@ export class InvoicedWidget implements AfterViewInit {
                 },
             }
         };
-    }
-
-    private prepChartType() {
-        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
-
-        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
-            calculateBarX: function (index, datasetIndex) {
-                // position the bars based on the stack index
-                const stackIndex = this.getMeta().stackIndex;
-                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
-            },
-
-            hideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                this.hiddens = [];
-                for (let i = 0; i < datasetIndex; i++) {
-                    const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        this.hiddens.push(dsMeta.hidden);
-                        dsMeta.hidden = true;
-                    }
-                }
-            },
-
-            unhideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                for (let i = 0; i < datasetIndex; i++) {
-                        const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        dsMeta.hidden = this.hiddens.unshift();
-                    }
-                }
-            },
-
-            calculateBarY: function (index, datasetIndex) {
-                this.hideOtherStacks(datasetIndex);
-                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
-                this.unhideOtherStacks(datasetIndex);
-                return barY;
-            },
-
-            calculateBarBase: function (datasetIndex, index) {
-                this.hideOtherStacks(datasetIndex);
-                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
-                this.unhideOtherStacks(datasetIndex);
-                return barBase;
-            },
-
-            getBarCount: function () {
-                const stacks = [];
-
-                // put the stack index in the dataset meta
-                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
-                    const meta = this.chart.getDatasetMeta(datasetIndex);
-                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
-                    let stackIndex = stacks.indexOf(dataset.stack);
-                    if (stackIndex === -1) {
-                    stackIndex = stacks.length;
-                    stacks.push(dataset.stack);
-                    }
-                    meta.stackIndex = stackIndex;
-                }
-                }, this);
-
-                this.getMeta().stacks = stacks;
-                return stacks.length;
-            },
-        });
     }
 }

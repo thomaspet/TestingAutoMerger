@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {IUniTab} from '../../../layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {BankService, PageStateService} from '@app/services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 
@@ -14,7 +14,7 @@ export class UniBankReconciliationList {
 
     tabs: IUniTab[] = [
         { name: 'Bankkontoer' },
-        { name: 'Avstemingsrapport' },
+        { name: 'Avstemmingsrapport' },
         { name: 'Kontoutskrifter' }
     ];
 

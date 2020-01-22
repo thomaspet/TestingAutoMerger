@@ -1,30 +1,10 @@
 // Mixin for overrriding the labellength for forms with shorter labels
 @mixin labelLength($newLength)
-    label>span
-        width: $newLength
-        & + *
-            width: calc(100% - #{$newLength})
+    label.uni-label > span
+        width: $newLength !important
 
-    input[type=checkbox]
-        &+label
-            width: calc(#{$newLength} + 2rem)
-
-            &.toggle
-                width: calc(#{$newLength} + 3.2rem)
-
-            &:before
-                left: calc(#{$newLength} - .3rem)
-
-            &:after
-                left: calc(#{$newLength} + .3rem)
-
-
-        &+label.toggle:after
-            left: calc(#{$newLength} + .14rem)
-
-        &:checked+label.toggle:after
-            left: calc(#{$newLength} + 1.8rem)
+    .validation-results
+        margin-left: $newLength
 
     uni-button-input
-        button
-            margin: 0 0 .5rem #{$newLength} !important
+        margin-left: #{$newLength}

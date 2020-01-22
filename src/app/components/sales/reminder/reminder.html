@@ -1,5 +1,7 @@
-<!-- <section class="application"> -->
-<uni-tabs class="application" [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
-<!-- </section> -->
+<section class="fixed-position-toolbar">
+    <section class="application">
+        <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
+    </section>
 
-<router-outlet></router-outlet>
+    <router-outlet></router-outlet>
+</section>

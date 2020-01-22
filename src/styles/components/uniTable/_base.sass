@@ -50,51 +50,17 @@ unitable-editor
         position: absolute
 
         input,
+        .input-with-button,
         unitable-textinput
-            z-index: map-get($zindex, picker)
-            position: absolute
-
             width: 100%
             height: 100%
-
-            &:focus
-                outline: none
 
 unitable-editor span.hidden
     display: none
 
-
 button.table-button
-    background-color: transparent
     border: none
     padding: 0
-    cursor: pointer
-    box-shadow: none
-    line-height: 0
     margin: 0
-    text-shadow: none
-    color: $uni-color-action
-
-    &:hover,
-    &:focus
-        @extend button.table-button
-        text-decoration: underline
-
-.unitable_edit_toggle_button
-    margin: 1rem
-    padding: 0
-    position: absolute
-    top: 0
-    right: 0
-    height: 1rem
-    width: 1rem
-    @extend %hideText
-    display: inline-block
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    border-bottom-color: transparent
-    background-image: unicon-edit($uni-color-c2a)
-
-    &:hover
-        cursor: pointer
+    color: var(--color-warn)
+    height: 100%

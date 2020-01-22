@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import {WidgetDataService} from '../../widgetDataService';
 import {IUniWidget} from '../../uniWidget';
+import {theme} from 'src/themes/theme';
 import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
@@ -24,7 +25,6 @@ export class UniTimetrackingCharts implements AfterViewInit {
     @ViewChild('chartCanvas') private canvas: ElementRef;
 
     widget: IUniWidget;
-    header: string = 'Fakturert siste 12 mnd';
     showPeriodSelector: boolean = false;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
     chartRef: any;
@@ -32,8 +32,6 @@ export class UniTimetrackingCharts implements AfterViewInit {
     workrelationID: number;
     wagetypePeriods: any[] = this.getPeriods();
     currentPeriod = this.wagetypePeriods[1];
-    CUSTOM_COLORS = ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF', '#E1FFFF',
-        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
 
     constructor(private dataService: WidgetDataService, private cdr: ChangeDetectorRef) {}
 
@@ -98,13 +96,19 @@ export class UniTimetrackingCharts implements AfterViewInit {
                                     font: { size: '14' }
                                 },
                                 {
-                                    text: (projectAmount / totalAmount * 100).toFixed(2) + ' %',
-                                    font: { size: '20' }
+                                    text: (projectAmount / totalAmount * 100).toFixed(1) + ' %',
+                                    font: {
+                                        size: '20',
+                                        weight: 500
+                                    }
                                 }
                             ];
                             this.chartConfig.options.legend.display = false;
-                            this.chartConfig.options.cutoutPercentage = 80;
-                            this.chartConfig.data.datasets[0].backgroundColor = ['#2F7FDA', '#ecf5f8'];
+                            this.chartConfig.options.cutoutPercentage = 85;
+                            this.chartConfig.data.datasets[0].backgroundColor = [
+                                theme.widgets.kpi.c2a,
+                                theme.widgets.kpi.background
+                            ];
                             this.chartConfig.data.labels = ['Ført med prosent', 'Ført uten prosent'],
                             this.chartConfig.data.datasets[0].data = chartData;
                             this.drawChart();
@@ -177,7 +181,7 @@ export class UniTimetrackingCharts implements AfterViewInit {
             data: {
                 datasets: [{
                     data: dataset,
-                    backgroundColor: ['#2F7FDA', '#4898F3', '#62B2FF', '#7BCBFF', '#94E4FF'],
+                    backgroundColor: theme.widgets.pie_colors,
                     label: '',
                     borderColor: 'white'
                 }],

@@ -54,7 +54,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
     }
 
     private setupTable() {
-        const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Number);
+        const idCol = new UniTableColumn('ID', 'A-melding ID', UniTableColumnType.Text);
         const statusCol = new UniTableColumn('altinnStatus', 'Altinn status', UniTableColumnType.Text);
         const typeCol = new UniTableColumn('type', 'Type', UniTableColumnType.Text)
             .setTemplate(rowModel => {

@@ -1,0 +1,25 @@
+\:host
+    display: block
+
+.entry-header
+    font-weight: 500
+    font-size: 16px
+    display: flex
+    justify-content: space-between
+    align-items: center
+    margin: .75rem 0
+
+
+.form-grid
+    display: grid
+    grid-template-columns: repeat(auto-fit, minmax(50%, 1fr) ) //1fr 1fr
+
+    // Negative margins to conteract the label margins for half-width inputs
+    margin: 0 -.5rem
+    label
+        margin: 0 .5rem .75rem
+        &.full-width
+            grid-column: span 2
+
+button.secondary
+    margin-top: 1rem

@@ -76,6 +76,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         private toastService: ToastService,
     ) {
         this.formConfig$.next({
+            labelWidth: '15rem',
             sections: {
                 1: { isOpen: true }
             }

@@ -16,12 +16,7 @@ import {RecurringInvoiceService} from '../../../services/services';
     selector: 'uni-recurringinvoice-log-modal',
     template: `
         <section role="dialog" class="uni-modal" style="width: 75vw;">
-
-            <header>
-                <h1>
-                    {{ options.header }}
-                </h1>
-            </header>
+            <header>{{ options.header | translate }}</header>
 
             <article>
                 <section *ngIf="resource">
@@ -33,14 +28,12 @@ import {RecurringInvoiceService} from '../../../services/services';
                 <h5 *ngIf="showNoDataMessage" class="log-error-msg-text">
                     Ingen data å vise enda.
                     <a (click)="goToInvoice()" class="subhead-link">
-                        Gå til repeterende fakturanr {{ this.options.data.reccuringInvoiceID }}
+                        {{ 'SALES.RECURRING_INVOICE.GOTO~' + this.options.data.reccuringInvoiceID | translate }}
                     </a>
                 </h5>
             </article>
             <footer>
-                <button (click)="close()" class="good">
-                    Ferdig
-                </button>
+                <button (click)="close()" class="c2a"> Lukk </button>
             </footer>
         </section>
     `,

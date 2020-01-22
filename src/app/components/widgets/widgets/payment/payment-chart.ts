@@ -14,6 +14,7 @@ import * as Chart from 'chart.js';
 import * as moment from 'moment';
 import { Observable } from 'rxjs';
 import {WidgetDataService} from '../../widgetDataService';
+import {theme} from 'src/themes/theme';
 
 interface IPeriode {
     label: string;
@@ -40,6 +41,7 @@ export class PaymentWidget implements AfterViewInit {
     incommingCounter: any;
     outgoingCounter: any;
     unauthorized: boolean = false;
+    colors = theme.widgets.bar_chart_colors;
 
     tooltip;
 
@@ -215,12 +217,12 @@ export class PaymentWidget implements AfterViewInit {
                     {
                         label: 'Innbetalt',
                         data: [],
-                        backgroundColor: '#62B2FF'
+                        backgroundColor: this.colors[0]
                     },
                     {
                         label: 'Utbetalt',
                         data: [],
-                        backgroundColor: '#FCD292'
+                        backgroundColor: this.colors[0]
                     }
                 ]
             },

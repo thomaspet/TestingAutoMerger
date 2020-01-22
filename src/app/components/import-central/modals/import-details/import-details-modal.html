@@ -1,45 +1,40 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        {{header}}
-    </header>
-    <div class="under-line"></div>
-    <article>
-        <form class="uni-html-form">
-            <div class="fetch-detail" *ngIf='isFetching'>
-                Vennligst vent mens vi henter detaljene...
-            </div>
-            <div class="success-import" *ngIf='status && !isFetching'>
-                <i class="material-icons success-icon">check_circle</i>
-                <label>
-                    Importen av dine {{options.data.entityName}} <span
-                        class="file-name">({{options.data.hangfireJobId}})</span> var vellykket. </label>
-                <div class="success-message">
-                    <p class="progress-title">Progresjon</p>
-                    <div *ngFor="let prgrs of progress" class="status-container">
-                        <i class="material-icons progress-check">check_circle</i>
-                        <p class="progress-time"> {{prgrs.Created | date:'HH:mm:ss'}}</p>
-                        <p>{{prgrs.Progress}}</p>
-                    </div>
-                </div>
-                <a class="action" (click)="onNavigateTo()">Åpne {{options.data.listName}}
-                    <i class="material-icons">open_in_new</i></a>
-            </div>
-            <div class="error-import" *ngIf='!status && !isFetching'>
-                <label>
-                    Det oppstod en feil under importen av dine {{options.data.entityName}}. Følgende feil oppstod:
-                </label>
-                <div class="error-message">
-                    <i class="material-icons">highlight_off</i>
-                    <label>
-                        <span class="error-count">Feil:</span>
-                        {{log[0].Msg}}
-                    </label>
-                </div>
-            </div>
+<section role="dialog" class="uni-modal">
+    <header>{{header}}</header>
 
-        </form>
+    <article>
+        <section *ngIf="isFetching" class="modal-spinner">
+            <mat-spinner></mat-spinner>
+        </section>
+
+        <div class="success-import" *ngIf='status && !isFetching'>
+            <div>Importen av {{options.data.entityName}} var vellykket.</div>
+
+            <div class="success-message">
+                <strong class="progress-title">Progresjon</strong>
+                <div *ngFor="let prgrs of progress" class="status-container">
+                    <i class="material-icons progress-check">check_circle</i>
+                    <span class="progress-time"> {{prgrs.Created | date:'HH:mm:ss'}}</span>
+                    <span>{{prgrs.Progress}}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-import" *ngIf='!status && !isFetching'>
+            <div>
+                Det oppstod en feil under importen av dine {{options.data.entityName}}.
+                Følgende feil oppstod:
+            </div>
+            <div class="error-message">
+                <i class="material-icons">highlight_off</i>
+                {{log[0].Msg}}
+            </div>
+        </div>
     </article>
-    <footer class="center">
-        <button class="c2a rounded" (click)="close()">Lukk</button>
+
+    <footer>
+        <button class="tertiary c2a" *ngIf="status && !isFetching" (click)="onNavigateTo()">
+            Åpne {{options.data.listName}}
+        </button>
+        <button class="secondary" (click)="close()">Lukk</button>
     </footer>
 </section>

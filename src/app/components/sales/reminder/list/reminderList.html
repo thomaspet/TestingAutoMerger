@@ -1,22 +1,23 @@
-<uni-toolbar [config]="toolbarconfig"
-             [saveactions]="saveActions">
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions">
 </uni-toolbar>
 
 <section class="application">
-    <section class="uni-container">
-        <mat-slide-toggle
+    <section class="uni-container reminder-list-container">
+        <mat-checkbox
+            style="display: block"
             [(ngModel)]="showInvoicesWithReminderStop"
-            (change)="updateReminderTable()"
-            [labelPosition]="'before'">
+            (change)="updateReminderTable()">
             Vis faktura med purrestopp
-        </mat-slide-toggle>
+        </mat-checkbox>
 
         <ag-grid-wrapper
-            class="transquery-grid-font-size"
             [resource]="reminderList"
             [config]="reminderTable"
             (rowSelectionChange)="onRowSelectionChange($event)">
         </ag-grid-wrapper>
+
         <uni-summary *ngIf="summaryData" [configs]="summaryFields" [ngClass]="{'-is-dirty':dirty}"></uni-summary>
     </section>
 </section>

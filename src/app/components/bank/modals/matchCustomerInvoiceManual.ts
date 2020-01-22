@@ -12,9 +12,7 @@ import { JournalEntryLineService } from '@app/services/accounting/journalEntryLi
     selector: 'match-invoice-manual-modal',
     template: `
         <section role="dialog" class="uni-modal large uni-redesign">
-            <header>
-                <h1>Velg faktura</h1>
-            </header>
+            <header>Velg faktura</header>
             <article>
                 <p>Beløp igjen for å distribuere: {{amountLeftToDistribute-sumOfSelectedRows}}
                 fra innbetalt beløp: {{paymentData.PaymentAmount}}</p>

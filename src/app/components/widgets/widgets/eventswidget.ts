@@ -12,26 +12,28 @@ import * as moment from 'moment';
             <section class="header">
                 <span> Nye </span>
 
-                <section class="filters uni-redesign">
-                    <button class="toggle-button" [matMenuTriggerFor]="contextMenu">
+                <section class="filters">
+                    <button #toggle class="tertiary toggle-button">
                         {{ currentTimeSpan.label }}
                         <i class="material-icons">expand_more</i>
                     </button>
-                    <mat-menu #contextMenu="matMenu">
-                        <ul class="widget-filter-menu">
-                            <li *ngFor="let ts of timespans" role="button" (click)="changeTimeSpan(ts)">
+                    <dropdown-menu [trigger]="toggle">
+                        <ng-template>
+                            <a class="dropdown-menu-item"
+                                *ngFor="let ts of timespans"
+                                (click)="changeTimeSpan(ts)">
                                 {{ ts.label }}
-                            </li>
-                        </ul>
-                    </mat-menu>
+                            </a>
+                        </ng-template>
+                    </dropdown-menu>
                 </section>
             </section>
 
             <div class="content event-widget-content">
                 <ul>
                     <li *ngFor="let data of formattedData">
-                        <i class="material-icons" [ngClass]="data.class"> {{ data.icon }} </i>
-                        <span (click)="onClickNavigate(data)"> {{ data.label }} </span>
+                        <i class="material-icons-outlined" [ngClass]="data.class"> {{ data.icon }} </i>
+                        <span (click)="onClickNavigate(data)"> {{ data.label | translate }} </span>
                         <span class="event-new-value" [ngClass]="data.class"> {{ data.value }} </span>
                     </li>
                 </ul>
@@ -53,9 +55,9 @@ export class UniEventsWidget implements AfterViewInit {
 
     public formattedData = [
         {
-            label: 'Leverandørfaktura',
+            label: 'NAVBAR.SUPPLIER_INVOICE',
             value: 0,
-            icon: 'inbox',
+            icon: 'receipt',
             class: 'green-event',
             link: '/accounting/bills?filter=All',
             permission: 'ui_accounting_bills',
@@ -73,7 +75,7 @@ export class UniEventsWidget implements AfterViewInit {
         {
             label: 'Ordre',
             value: 0,
-            icon: 'business',
+            icon: 'description',
             class: 'green-event',
             link: '/sales/orders',
             permission: 'ui_sales_orders',

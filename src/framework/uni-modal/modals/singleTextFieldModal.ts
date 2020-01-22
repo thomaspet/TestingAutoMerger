@@ -12,9 +12,7 @@ type FormModel = {field: string};
         <dialog class="uni-modal"
                 (clickOutside)="close(false)"
                 (keydown.esc)="close(false)">
-            <header>
-                <h1>{{options.header}}&nbsp;</h1>
-            </header>
+            <header>{{options.header}}</header>
             <article>
                 <main>
                     <uni-form

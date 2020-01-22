@@ -1,9 +1,7 @@
-@import '~src/styles/uni-redesign/_color.sass'
-
 \:host
     display: block
     padding: 2rem
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
     font-size: 15px
     background: #fff
 
@@ -25,22 +23,20 @@ table
     width: 100%
     th
         text-align: left
-        color: $redesign-scale3
         font-weight: 500
     tr
         cursor: pointer
         & + tr
-            border-top: 1px solid $redesign-scale4
+            border-top: 1px solid var(--border-color)
         &:hover
             background: #f9f9f9
     td
         padding: .75rem 0
-        color: $redesign-scale1
 
     td.delete-plan
         color: rgba(0, 0, 0, .65)
         text-align: center
         &:hover
-            color: $redesign-bad
+            color: var(--color-bad)
         i.material-icons
             vertical-align: middle

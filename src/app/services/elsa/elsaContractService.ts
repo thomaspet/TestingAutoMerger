@@ -55,10 +55,14 @@ export class ElsaContractService {
             });
     }
 
-    activateContract(contractID: number, isBureau: boolean = false) {
+    activateContract(contractID: number, isBureau: boolean = false, statusCode: number = null) {
         let endpoint = `/api/elsa/contracts/${contractID}/activate`;
         if (isBureau) {
             endpoint += `&ContractType=${ElsaContractType.Bureau}`;
+        }
+
+        if (statusCode) {
+            endpoint += '?companyStatusCode=' + statusCode;
         }
 
         return this.uniHttp

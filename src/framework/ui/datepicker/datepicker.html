@@ -1,0 +1,19 @@
+<section class="input-with-button">
+    <input #input
+        type="text"
+        [placeholder]="placeholder || ''"
+        [readonly]="readonly"
+        [matDatepicker]="picker"
+        [(ngModel)]="model"
+        (keydown.space)="$event.preventDefault();picker.open()"
+        (keydown.enter)="input.blur();input.focus()"
+        (keydown.esc)="picker.close()"
+        (blur)="emitChange()"
+    />
+
+    <button type="button" (click)="picker.open()" [disabled]="readonly" tabindex="-1">
+        <i class="material-icons">date_range</i>
+    </button>
+
+    <mat-datepicker #picker (closed)="datepickerClosed()"></mat-datepicker>
+</section>

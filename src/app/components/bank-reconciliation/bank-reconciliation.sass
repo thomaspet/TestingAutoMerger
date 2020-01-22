@@ -1,15 +1,12 @@
 \:host
     display: block
-    margin-top: -5rem
 
     .view-wrapper
         display: flex
         flex-direction: column
-        height: calc(100vh - 13rem)
-        margin: 6.5rem 1.5rem 0 1.5rem
-        padding: 1rem
-        background-color: #FFF
-        width: calc(100% - 3rem)
+        height: calc(100vh - 12.5rem)
+        padding-bottom: 0
+        margin-bottom: 0
 
     .reconciliation-toolbar
         flex: 0 0 auto
@@ -88,7 +85,6 @@
     flex: 1
     overflow: auto
     display: flex
-    padding: 1rem 0
     border-radius: 3px
 
     .list-section
@@ -190,7 +186,7 @@
     .footer
         display: flex
         flex-direction: column
-        margin-top: 0.5rem
+        margin: 1rem 0 0 0
         text-align: center
         padding: 10px 1.5rem
         font-size: 15px
@@ -198,7 +194,7 @@
 
     button.link-posts-button
         width: 100%
-        margin: 1rem 0
+        margin: 1rem 0 0 0
         border-radius: 25px
         &[disabled]
             background-color: #D2DAE2 !important
@@ -223,7 +219,7 @@
     width: 2rem
 
 .book-button
-    margin: 0rem 2rem 1rem 2rem
+    margin: 1rem 2rem 1rem 2rem
     display: flex
     align-items: center
     justify-content: center
@@ -241,13 +237,28 @@
     white-space: nowrap
 
 .positive
-    color: rgba(22, 93, 190, 0.96)
+    color: var(--color-c2a)
 .negative
-    color: #D12323
+    color: var(--color-bad)
 .c2a
-    color: #0f4880
+    color: var(--color-c2a)
 .good
-    color: #01a901
+    color: var(--color-good)
 
 .ontop
     z-index: 999
+
+.menu-list
+    list-style: none
+    margin: 0
+
+    li
+        height: 34px
+        padding: 0 1rem
+        cursor: pointer
+        display: flex
+        align-items: center
+        font-size: 15px
+        &:hover
+            background-color: var(--dropdown-select-background)
+

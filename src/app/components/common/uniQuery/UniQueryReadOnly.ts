@@ -298,12 +298,10 @@ export class UniQueryReadOnly implements OnChanges {
         const companyKey = this.authService.getCompanyKey();
         const configStoreKey = `uniQueryReadonly.${companyKey}.${this.queryDefinitionID}`;
 
-        let pageSize = window.innerHeight - 450;
-
-        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
-
-        this.tableConfig = new UniTableConfig(configStoreKey, false, true, pageSize)
+        this.tableConfig = new UniTableConfig(configStoreKey, false, false)
             .setSearchable(true)
+            .setVirtualScroll(true)
+            .setHideRowCount(true)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
             .setColumns(columns);

@@ -44,18 +44,25 @@
             (itemsChange)="recalcDebouncer.next($event)">
         </uni-tradeitem-table>
 
-        <section class="tof-summary">
-            <span class="currency-info">
-                {{currencyInfo}}
-            </span>
+        <section class="freetext-and-summary">
+            <section *ngIf="invoice" class="freetext">
+                <span>Fritekst</span>
+                <textarea
+                    [(ngModel)]="invoice.FreeTxt"
+                    (change)="onFreetextChange()"></textarea>
+            </section>
 
-            <section class="vertical-summary" *ngIf="summaryLines?.length">
-                <section class="summary-line"
-                    *ngFor="let summaryLine of summaryLines"
-                    [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+            <section class="tof-summary">
+                <span class="currency-info">{{currencyInfo}}</span>
 
-                    <label>{{summaryLine.label}}</label>
-                    <span>{{summaryLine.value}}</span>
+                <section class="vertical-summary" *ngIf="summaryLines?.length">
+                    <section class="summary-line"
+                        *ngFor="let summaryLine of summaryLines"
+                        [ngClass]="{'total-sum': summaryLine.isTotalSum}">
+
+                        <label>{{summaryLine.label}}</label>
+                        <span>{{summaryLine.value}}</span>
+                    </section>
                 </section>
             </section>
         </section>

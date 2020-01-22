@@ -1,18 +1,11 @@
 project-hourtotals
-
-    table.toolbar
-        margin-bottom: pxToRem(10)
+    .hourtotals-toolbar
+        display: flex
+        align-items: flex-start
+        justify-content: space-between
         width: 100%
+        margin-bottom: 1rem
         white-space: nowrap
-
-        button
-            margin: 0
-
-        td.right
-            text-align: right
-
-        td:first-of-type
-            width: 100%
 
     table.report
         width: 100%
@@ -21,20 +14,17 @@ project-hourtotals
         table-layout: fixed
 
         tr:nth-child(even)
-            background-color: lighten($uni-color-scale9,5%)
+            background-color: var(--table-row-even-background)
 
         th
-            border-bottom: 1px solid $uni-color-scale6
+            border-bottom: 1px solid var(--border-color)
             padding-bottom: pxToRem(5)
 
         th.prc, td.prc
             width: 3em
-            background-color: lighten($uni-color-good,72%)
 
         th.prc
-            border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-            border-style: solid
-            border-color: $uni-color-scale8
+            border: 1px solid var(--border-color)
 
         td.left
             text-align: left
@@ -42,52 +32,15 @@ project-hourtotals
 
         td
             padding: pxToRem(2) pxToRem(2) pxToRem(2) pxToRem(2)
-            border-left: 1px solid $uni-color-scale8
-            border-bottom: 1px solid $uni-color-scale8
+            border-left: 1px solid var(--border-color)
+            border-bottom: 1px solid var(--border-color)
             text-align: center
             overflow: hidden
 
         tr td:first-of-type, th:first-of-type
             width: 15em
-            overflow: hidden;
+            overflow: hidden
             white-space: nowrap
             text-overflow: ellipsis
             border-left: 0
             text-align: left
-
-    .filter-nav
-        margin: 0 0 pxToRem(5) 0
-        width: 100%
-
-        ul
-            margin: 0
-            width: 100%
-            overflow: hidden
-            list-style: none
-            display: flex
-            flex-direction: row
-            align-items: right
-
-            li
-                padding: pxToRem(5) 1em pxToRem(5) 1em
-                border-color: $navbarBackground
-                border-style: solid
-                border-width: pxToRem(1) 0 pxToRem(1) pxToRem(1)
-                cursor: pointer
-
-                &:first-of-type
-                    border-radius: 7px 0 0 7px
-
-                &:last-of-type
-                    border-radius: 0 7px 7px 0
-                    border-width: pxToRem(1) pxToRem(1) pxToRem(1) pxToRem(1)
-
-                &.is-active, &:hover
-                    background: $navbarBackground
-                    color: $navbarTextColor
-
-.totals-bold
-    font-weight: bold
-
-.totals-view-data
-    flex: 1

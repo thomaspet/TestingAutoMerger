@@ -38,7 +38,7 @@ teamwork-report
                 strong
                     font-size: 18px
                     font-weight: 400
-                    color: $uni-color-c2a
+                    color: var(--color-c2a)
                     display: block
 
                 progress
@@ -120,39 +120,37 @@ $primaryBorder: pxToRem(1) solid $uni-color-c2a
 vacation .timeentriesTable
     margin-top: 0
 
-.timeentriesTable th
-    text-align: left
-    text-overflow: ellipsis
-    overflow-x: hidden
-    white-space: nowrap
-    border-bottom: 1px solid $uni-color-scale8
-    padding: 3px 4px 0 4px
+.timeentriesTable
+    th
+        text-align: left
+        text-overflow: ellipsis
+        overflow-x: hidden
+        white-space: nowrap
+        border-bottom: 1px solid var(--border-color)
+        padding: 3px 4px 0 4px
 
-.timeentriesTable tr:hover
-    background-color: lighten($uni-color-scale6, 32%)
+    tr:hover
+        background-color: #f7f7f7
 
-.timeentriesTable td
-    padding: 3px 4px 0 4px
-    border-bottom: 1px solid $uni-color-scale9
-    border-left: 1px solid $uni-color-scale9
-    white-space: nowrap
-    text-overflow: ellipsis
-    overflow-x: hidden
+    td
+        padding: 3px 4px 0 4px
+        border-bottom: 1px solid var(--border-color)
+        border-left: 1px solid var(--border-color)
+        white-space: nowrap
+        text-overflow: ellipsis
+        overflow-x: hidden
 
-.timeentriesTable td.center
-    text-align: center
+    td.center
+        text-align: center
 
-.timeentriesTable td:first-of-type
-    border-left: 0
+    td:first-of-type
+        border-left: 0
 
-.timeentriesTable td:last-of-type
-    border-right: 0
+    td:last-of-type
+        border-right: 0
 
-.alternateRow
-    background-color: lighten(mix($uni-color-scale9, $navbarBackground, 50%), 26%)
-
-.alternateRow td
-    border-color: $uni-color-scale8
+    .active-row
+        background-color: #d0dae6
 
 .flex-table
     border-collapse: collapse
@@ -179,18 +177,17 @@ vacation .timeentriesTable
         background-color: lighten($uni-color-c2a, 66%)
 
 div.bad
-    color: $uni-color-bad
+    color: var(--color-bad)
 
 .minus
-	color: $uni-color-minus
+	color: var(--color-bad)
 .plus
-    color: $uni-color-plus
+    color: var(--color-c2a)
 
 .datebox
     position: absolute
     top: pxToRem(-7)
     right: pxToRem(1)
-    letter-spacing: 0
     font-size: pxToRem(10)
     color: $uni-color-scale7
 
@@ -244,33 +241,15 @@ div.bad
         margin: 0
 
     td.ctoa
-        color: $uni-color-c2a
+        color: var(--color-c2a)
 
     td.good
-        color: $uni-color-good
+        color: var(--color-good)
 
 .clickablecell
     cursor: pointer
     &:hover
         background-color: $uni-color-scale8
-
-uni-time-modal
-    dialog.uniModal .modal-content
-        width: 95vw
-
-    dialog.uniModal .total
-        float: left
-        font-weight: 600
-
-    button
-        width: 6rem
-        margin-left: 0 !important
-
-    button:last-of-type
-        margin-right: 0 !important
-
-    dialog.uniModal .closeBtn
-        right: pxToRem(20)
 
 timeentry uni-toolbar h1
     @media screen and (max-width: 1000px)
@@ -310,15 +289,15 @@ uni-file-import input
         border-radius: 9rem
 
     &::-webkit-progress-value
-        background: $uni-color-c2a
+        background: var(--color-c2a)
         border-radius: 9rem
         transition: all 300ms ease
 
     &.-is-complete
-        box-shadow: 0 0 0 pxToRem(1) $uni-color-good
+        box-shadow: 0 0 0 pxToRem(1) var(--color-good)
 
         &::-webkit-progress-value
-            background: $uni-color-good
+            background: var(--color-good)
 
 .vacation_section
     .splitview_list

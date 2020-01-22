@@ -1,12 +1,6 @@
 $cellpadding: pxToRem(3) pxToRem(10)
 
-$unitable-border: 1px solid $uni-color-scale9
-
-%unitable-selected-cell
-    box-shadow: inset 0 0 0 1px $uni-color-c2a
-    padding: $cellpadding
-    margin: 1px
-    min-height: calc(1.5rem + #{pxToRem(10)})
+$unitable-border: 1px solid var(--border-color)
 
 .uni-table:not(.editable-table) tr
     &[aria-selected]:not([aria-selected=false]):not([aria-readonly=true]),
@@ -71,28 +65,25 @@ table.uni-table
         overflow: hidden
         text-overflow: ellipsis
 
-        &.noTruncation
-            text-overflow: clip
-
         &.number-good
-            color: $uni-color-plus
+            color: var(--color-c2a)
 
         &.number-bad
-            color: $uni-color-minus
+            color: var(--color-bad)
 
         &.date-good,
         &.status-good
-            color: $uni-color-good
+            color: var(--color-good)
 
         &.date-bad,
         &.status-bad
-            color: $uni-color-bad
+            color: var(--color-bad)
 
         &.status-waiting
-            color: $uni-color-warn
+            color: var(--color-warn)
 
         &.focus
-            border: 1px solid $uni-color-c2a
+            border: 1px solid var(--color-c2a)
 
     tr
         box-sizing: border-box
@@ -114,7 +105,7 @@ table.uni-table
         background: #fff // mix($uni-color-scale9, $uni-color-negative, 60%)
         height: 2.5rem
         margin-bottom: pxToRem(-1)
-        color: #707d90
+        color: var(--scale1)
         font-weight: 400
         font-size: 14px
 
@@ -127,7 +118,7 @@ table.uni-table
                 display: inline-block
                 float: right
                 font-size: .8rem
-                color: $uni-color-scale5
+                color: var(--scale1)
                 padding-top: .2rem
                 height: 1rem
 
@@ -138,7 +129,7 @@ table.uni-table
             content: '\25BC'
 
     table.editable-table td:focus
-        border: 1px solid $uni-color-c2a
+        border: 1px solid var(--color-c2a)
 
     table:not(.editable-table) tr
         cursor: pointer
@@ -158,7 +149,6 @@ uni-table, .uni-table
         height: 100%
 
 unitable-editor
-    .autocomplete_input,
     input[type=email],
     input[type=number],
     input[type=password],
@@ -174,69 +164,12 @@ unitable-editor
     input[type=time],
     input[type=week],
     input
-        @extend %unitable-selected-cell
         margin: 0
         display: block
-
-.unitable_autocomplete_results
-    background: $uni-color-negative
-    border: 1px solid $uni-color-scale8
-    box-shadow: 0 0 1rem transparentize($uni-color-positive, .8)
-    border-radius: pxToRem(3)
-    box-sizing: border-box
-    display: block
-    position: absolute
-    width: 100%
-    min-width: 20rem
-    max-height: 15rem
-    overflow-x: auto
-    list-style: none
-    margin-top: 2rem
-    z-index: map-get($zindex, picker)
-
-    &[aria-expanded=false]
-        visibility: hidden
-
-.unitable_autocomplete_result
-    padding: .2rem 1rem
-
-    &[aria-selected=true]
-        font-weight: 400
-        background: $uni-color-c2a
-        color: $uni-color-negative
-
-.autocomplete-add-button
-    padding: 0px !important
-    height: 2rem
-
-.autocomplete-add-button button
-    width: 100%
-    margin: 0px
-    height: 100%
-    background-color: $uni-color-scale8
-    padding: 0px !important
 
 unitable-contextmenu
     width: 0
     height: 0
-
-    ul
-        position: absolute
-        z-index: map-get($zindex, picker)
-
-        margin: 0
-        padding: 0
-        border-top-left-radius: 3px
-        border-bottom-left-radius: 3px
-        list-style: none
-
-        &.hidden
-            display: none
-
-        li
-            padding: 5px 10px
-            min-width: 5rem
-            cursor: pointer
 
 .unitable-delete-btn
     margin: 0
@@ -247,7 +180,7 @@ unitable-contextmenu
     background-image: unicon-trash($uni-color-scale7)
 
     &:hover, &:focus
-        background-image: unicon-trash($uni-color-bad)
+        background-image: unicon-trash(#F53B57)
 
     button
         min-width: 100%
@@ -256,122 +189,8 @@ unitable-contextmenu
         &:hover, &:focus
             background: transparent
 
-unitable-autocomplete
-    .autocomplete
-        .uni-autocomplete-searchBtn
-            min-height: calc(1.5rem + #{pxToRem(10)})
-            border: 1px solid $uni-color-scale8
-            border-left: none
-            border-radius: 0
-            &:hover
-                color: red
-
-        .uniTable_dropdown_list
-            margin-top: calc(1.5rem + #{pxToRem(12)})
-
-unitable-select
-    .uniSelect
-        display: inline-block
-        position: absolute
-        width: 100%
-
-        input.uniSelect_input
-            position: relative
-            z-index: map-get($zindex, picker)
-            background: #fff unicon-chevron-down($uni-color-scale5) center right .5rem no-repeat
-            background-size: auto .5rem
-            padding-right: 2rem
-            text-overflow: ellipsis
-            overflow: hidden
-            cursor: pointer
-
-        .uniTable_dropdown_list
-            margin-top: 0
-
-uni-table .uni-datepicker
-    height: 100%
-
-    .uni-datepicker-calendarBtn
-        height: 100%
-        border-radius: 0
-
-.uniTable_dropdown_list
-    position: absolute
-    @extend .uni-multivalue-values
-    box-sizing: border-box
-    min-width: pxToRem(500)
-    max-height: 25rem
-    overflow-y: auto
-
-    visibility: hidden
-    left: 0
-
-    &[aria-expanded]:not([aria-expanded=false])
-        visibility: visible
-
-.uniTable_dropdown_item_edit
-    display: inline-block
-    float: right
-    margin: 0
-    padding: 0
-    @extend %hideText
-    background-size: contain
-    background-position: center center
-    background-repeat: no-repeat
-    background-image: unicon-edit($uni-color-scale6)
-    border-bottom-color: transparent
-    width: 1rem
-    height: 1rem
-
-.unitable_dropdown_table
-    position: absolute
-    min-width: pxToRem(450)
-    box-sizing: border-box
-    border: 1px solid $uni-color-scale9
-    border-radius: .25rem
-    z-index: 399
-    background-color: #fff
-    padding: .5rem 1rem
-    visibility: hidden
-
-    &[aria-expanded]:not([aria-expanded=false])
-        visibility: visible
-    &[aria-upwards]:not([aria-upwards=false])
-        bottom: 6px
-    &[aria-upwards]:not([aria-upwards=true])
-        top: 40px
-
-    button
-        background-color: transparent
-        color: #0f4880
-        text-shadow: none !important
-        text-decoration: underline
-        padding: 0
-        margin: 0 0 .5rem 0
-
-    table
-        table-layout: fixed
-        width: 500px
-        border-left: none
-        border-collapse: separate
-        border-spacing: 0
-
-        th, td
-            padding: 3px 10px
-            border-bottom: 1px solid $uni-color-scale9
-            border-right: 1px solid $uni-color-scale9
-            &:last-of-type
-                border-right: none
-
-        tr[aria-selected=true]
-            background: #d4dfee
-            outline: none
-
-.result_table_container
-    width: 100%
-    height: 340px
-    overflow-y: scroll
-    position: relative
+.table-autocomplete-results
+    min-width: 28rem
 
 .highlighed_search_hit
     color: #1d4882
@@ -390,11 +209,11 @@ uni-table .uni-datepicker
         float: none
 
     &.good
-        background: $uni-color-good unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-good) unicon-info($uni-color-negative) no-repeat center
     &.warn
-        background: $uni-color-warn unicon-info($uni-color-negative) no-repeat center
+        background: var(--color-warn) unicon-info($uni-color-negative) no-repeat center
     &.bad
-        background: unicon-warning($uni-color-bad) no-repeat center
+        background: unicon-warning(#F53B57) no-repeat center
         background-size: 1rem
 
     &.good, &.warn
@@ -404,11 +223,8 @@ uni-table .uni-datepicker
         width: 1.1rem
         margin: .45rem 0
 
-.unitable_greyed_text
-    opacity: .7
-
 transquery-details
     tr
         &[aria-readonly]:not([aria-readonly=false])
             background: #f0f0f0
-            color: #707d90
+            color: var(--scale1)

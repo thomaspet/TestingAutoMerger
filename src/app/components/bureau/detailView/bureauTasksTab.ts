@@ -27,7 +27,7 @@ const BASE = environment.BASE_URL;
 <section class="tasks" *ngIf="!!viewData">
     <section class="for-approval">
         <i class="material-icons">check_circle</i>
-        <a class="company_name">Til godkjenning</a>
+        <span>Til godkjenning</span>
         <section class="text-container">
             <p>
                 Faktura
@@ -42,11 +42,11 @@ const BASE = environment.BASE_URL;
     </section>
     <section class="for-processing">
         <i class="material-icons">autorenew</i>
-        <a class="company_name">Til behandling</a>
+        <span>Til behandling</span>
         <section class="text-container">
             <p>
                 Fakturainnboks
-                <a (click)="navigateToCompanyUrl('/accounting/bills?filter=ForApproval')">{{viewData[0]}}</a>
+                <a (click)="navigateToCompanyUrl(inboxUrl)">{{viewData[0]}}</a>
             </p>
 
             <p>
@@ -59,9 +59,11 @@ const BASE = environment.BASE_URL;
 `
 })
 export class BureauTaskTab implements AfterViewInit, OnDestroy {
-    public company: KpiCompany;
-    public accountingYear: number;
-    public viewData: any[];
+    company: KpiCompany;
+    accountingYear: number;
+    viewData: any[];
+    inboxUrl: string = environment.isSrEnvironment ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
+
     private subscription: Subscription;
     @HostBinding('class.no_access') public noAccess: boolean = false;
 

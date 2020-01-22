@@ -9,6 +9,8 @@ import {IUniWidget} from '../../uniWidget';
 import {FinancialYearService, StatisticsService} from '@app/services/services';
 import * as Chart from 'chart.js';
 import {AuthService} from '@app/authService';
+import {Subscription} from 'rxjs';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-operating-chart',
@@ -32,11 +34,18 @@ export class OperatingProfitWidget {
     showAccumulatedResult: boolean = false;
     accumulatedResult: any[] = [];
     runningResult: any[] = [];
+    isLineChart: boolean = false;
+    lineColors = ['#008A00', '#008ED2', '#FF9100'];
+    barColors = theme.widgets.result_bar_colors;
+    show = [true, true, true];
+    dataHolder: any[] = [];
 
     tooltip: any; // type me
 
     unauthorized: boolean;
     busy: boolean = true;
+
+    dataSubscription: Subscription;
 
     constructor(
         private authService: AuthService,
@@ -62,7 +71,6 @@ export class OperatingProfitWidget {
     }
 
     init() {
-        this.prepChartType();
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const year = new Date().getFullYear();
         this.years.push(year);
@@ -76,36 +84,15 @@ export class OperatingProfitWidget {
         }
 
         this.getDataAndLoadChart();
-        const ShadowLineElement = (<any> Chart).elements.Line.extend({
-            draw () {
-                const { ctx } = this._chart;
-                const originalStroke = ctx.stroke;
-
-                ctx.stroke = function () {
-                    ctx.save();
-                    ctx.shadowColor = 'rgba(0, 0, 0, .05)';
-                    ctx.shadowBlur = 3;
-                    ctx.shadowOffsetX = 0;
-                    ctx.shadowOffsetY = 1;
-                    originalStroke.apply(this, arguments);
-                    ctx.restore();
-                };
-
-                (<any> Chart).elements.Line.prototype.draw.apply(this, arguments);
-
-                ctx.stroke = originalStroke;
-            }
-          });
-
-        Chart.defaults.ShadowLine = Chart.defaults.line;
-        Chart.controllers.ShadowLine = Chart.controllers.line.extend({
-            datasetElementType: ShadowLineElement
-        });
     }
 
     ngOnDestroy() {
         if (this.chartRef) {
             this.chartRef.destroy();
+        }
+
+        if (this.dataSubscription) {
+            this.dataSubscription.unsubscribe();
         }
     }
 
@@ -132,7 +119,9 @@ export class OperatingProfitWidget {
     }
 
     private getDataAndLoadChart() {
-        this.statisticsService.GetAllUnwrapped(
+        this.isLineChart = this.widget && this.widget.config && this.widget.config.type === 'line';
+        const multiplier = (this.widget && this.widget.config && this.widget.config.costMultiplier) || 1;
+        this.dataSubscription = this.statisticsService.GetAllUnwrapped(
             'model=JournalEntryLine&select=Period.No,multiply(-1,sum(amount)) as Sum,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3\,amount\,0))) as Income,' +
             'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber ge 4\,amount\,0))) as Cost' +
@@ -142,9 +131,9 @@ export class OperatingProfitWidget {
             '&expand=Period,Account.TopLevelAccountGroup')
         .subscribe(
             result => {
-                this.chartConfig = this.getEmptyResultChart();
+                this.chartConfig = this.isLineChart ?  this.getEmptyLineChartConfig() : this.getEmptyResultChart();
                 this.chartConfig.data.datasets[1].data = result.map(res => res.Income || 0);
-                this.chartConfig.data.datasets[2].data = result.map(res => res.Cost || 0);
+                this.chartConfig.data.datasets[2].data = result.map(res => (res.Cost * multiplier) || 0);
                 this.runningResult = result.map(res => res.Sum || 0);
 
                 let sum = 0;
@@ -175,6 +164,8 @@ export class OperatingProfitWidget {
                 this.cost = cost;
                 this.sum = sum;
 
+                this.dataHolder = this.chartConfig.data.datasets;
+
                 this.drawChart();
                 this.busy = false;
                 this.cdr.markForCheck();
@@ -192,6 +183,11 @@ export class OperatingProfitWidget {
     }
 
     private drawChart() {
+
+        if (!this.isLineChart) {
+            this.operatingProfit.nativeElement.style.backgroundColor = '#FFFFFFF';
+        }
+
         if (this.chartRef) {
             this.chartRef.destroy();
         }
@@ -199,15 +195,40 @@ export class OperatingProfitWidget {
         this.chartRef = new Chart(<any> this.operatingProfit.nativeElement, this.chartConfig);
     }
 
+    addhiddenClass(id: string, index) {
+        this.show[index] = !this.show[index];
+
+        const element = document.getElementById(id);
+
+        if (this.show[index]) {
+            element.classList.remove('line-through');
+        } else {
+            element.classList.add('line-through');
+        }
+        this.reDrawAfterLegendClick();
+    }
+
+    reDrawAfterLegendClick() {
+        this.chartRef.config.data.datasets = this.dataHolder.map((l, i) =>  {
+            if (this.show[i]) {
+                return l;
+            } else {
+                return [];
+            }
+        });
+
+        this.chartRef.update();
+    }
+
     private getEmptyResultChart() {
         return {
-            type: 'groupableBar',
+            type: 'bar',
             data: {
                 labels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ],
                 datasets: [{
                     label: 'Resultat',
                     data: [],
-                    borderColor: 'rgba(89, 104, 121, .75)',
+                    borderColor: this.barColors[2],
                     pointBorderColor: '#fff',
                     pointBackgroundColor: (context) => {
                         let value = 0;
@@ -217,13 +238,14 @@ export class OperatingProfitWidget {
                             console.error(e);
                         }
 
-                        return value >= 0 ? '#62B2FF' : '#FCD292';
+                        // return value >= 0 ? '#62B2FF' : '#FCD292';
+                        return value >= 0 ? this.barColors[0] : this.barColors[1];
                     },
                     borderWidth: 1.25,
                     pointBorderWidth: 1.25,
                     pointRadius: 4,
                     lineTension: 0,
-                    type: 'ShadowLine',
+                    type: 'line',
                     fill: false,
                     options: {
                         fill: false
@@ -232,14 +254,14 @@ export class OperatingProfitWidget {
                 {
                     label: 'Inntekter',
                     data: [],
-                    backgroundColor: '#62B2FF',
+                    backgroundColor: this.barColors[0],
                     borderWidth: 0,
-                    stack: 1
+                    stack: 1,
                 },
                 {
                     label: 'Kostnader',
                     data: [],
-                    backgroundColor: '#FCD292',
+                    backgroundColor: this.barColors[1],
                     borderWidth: 0,
                     stack: 1
                 }
@@ -251,7 +273,7 @@ export class OperatingProfitWidget {
                     const chartArea = chart.chartArea;
 
                     ctx.save();
-                    ctx.fillStyle = '#fbfbfb';
+                    ctx.fillStyle = '#ffffff';
                     ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
 
                     ctx.restore();
@@ -309,6 +331,90 @@ export class OperatingProfitWidget {
                                 }
                             }
                         },
+                    ],
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                }
+            }
+        };
+    }
+
+    private getEmptyLineChartConfig() {
+        return {
+            type: 'line',
+            data: {
+                labels: [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ],
+                datasets: [{
+                    label: 'Resultat',
+                    data: [],
+                    backgroundColor: this.lineColors[2],
+                    borderColor: this.lineColors[2],
+                    borderWidth: 4,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                    lineTension: 0,
+                },
+                {
+                    label: 'Salg',
+                    data: [],
+                    backgroundColor: this.lineColors[0],
+                    borderColor: this.lineColors[0],
+                    borderWidth: 4,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                    lineTension: 0,
+                },
+                {
+                    label: 'Driftskostnader',
+                    data: [],
+                    backgroundColor: this.lineColors[1],
+                    borderColor: this.lineColors[1],
+                    borderWidth: 4,
+                    lineTension: 0,
+                    fill: false,
+                    options: {
+                        fill: false
+                    },
+                    pointBorderColor: 'transparent',
+                    pointBackgroundColor: 'transparent',
+                }
+            ]},
+            options: {
+                legend: { display: false },
+                scaleShowVerticalLines: false,
+                scales: {
+                    yAxes: [
+                        {
+                            gridLines: {
+                                // color: 'rgba(0, 0, 0, 0.1)'
+                                zeroLineColor: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                maxTicksLimit: 6,
+                                callback: function(value) {
+                                    if (value === 0 || (value < 999 && value > -999)) {
+                                        return value;
+                                    } else if (value > -1000000 && value < 1000000) {
+                                        return (value / 1000) + 'k';
+                                    } else if (value <= -1000000 || value >= 1000000) {
+                                        return (value / 1000000) + 'm';
+                                    } else {
+                                        return value;
+                                    }
+                                }
+                            }
+                        },
                         {
                             // This axes is just to get a border on the right side of the chart
                             position: 'right',
@@ -326,80 +432,32 @@ export class OperatingProfitWidget {
                             display: false
                         }
                     }]
-                }
+                },
+                tooltips: {
+                    enabled: false,
+                    mode: 'index',
+                    position: 'nearest',
+                    custom: tooltip => {
+                        if (tooltip.dataPoints && tooltip.dataPoints.length) {
+                            this.tooltip = {
+                                month: tooltip.dataPoints[0].xLabel,
+                                result: tooltip.dataPoints[0].yLabel || 0,
+                                income: tooltip.dataPoints[1].yLabel || 0,
+                                cost: (tooltip.dataPoints[2].yLabel || 0) * -1,
+                                style: {
+                                    top: tooltip.y + 'px',
+                                    left: tooltip.x + 'px',
+                                    opacity: '1'
+                                }
+                            };
+                        } else {
+                            this.tooltip = undefined;
+                        }
+
+                        this.cdr.markForCheck();
+                    }
+                },
             }
         };
-    }
-
-    private prepChartType() {
-        Chart.defaults.groupableBar = Chart.helpers.clone(Chart.defaults.bar);
-
-        Chart.controllers.groupableBar = Chart.controllers.bar.extend({
-            calculateBarX: function (index) {
-                // position the bars based on the stack index
-                const stackIndex = this.getMeta().stackIndex;
-                return Chart.controllers.bar.prototype.calculateBarX.apply(this, [index, stackIndex]);
-            },
-
-            hideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                this.hiddens = [];
-                for (let i = 0; i < datasetIndex; i++) {
-                    const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        this.hiddens.push(dsMeta.hidden);
-                        dsMeta.hidden = true;
-                    }
-                }
-            },
-
-            unhideOtherStacks: function (datasetIndex) {
-                const meta = this.getMeta();
-                const stackIndex = meta.stackIndex;
-
-                for (let i = 0; i < datasetIndex; i++) {
-                        const dsMeta = this.chart.getDatasetMeta(i);
-                    if (dsMeta.stackIndex !== stackIndex) {
-                        dsMeta.hidden = this.hiddens.unshift();
-                    }
-                }
-            },
-
-            calculateBarY: function (index, datasetIndex) {
-                this.hideOtherStacks(datasetIndex);
-                const barY = Chart.controllers.bar.prototype.calculateBarY.apply(this, [index, datasetIndex]);
-                this.unhideOtherStacks(datasetIndex);
-                return barY;
-            },
-
-            calculateBarBase: function (datasetIndex, index) {
-                this.hideOtherStacks(datasetIndex);
-                const barBase = Chart.controllers.bar.prototype.calculateBarBase.apply(this, [datasetIndex, index]);
-                this.unhideOtherStacks(datasetIndex);
-                return barBase;
-            },
-
-            getBarCount: function () {
-                const stacks = [];
-
-                // put the stack index in the dataset meta
-                Chart.helpers.each(this.chart.data.datasets, function (dataset, datasetIndex) {
-                    const meta = this.chart.getDatasetMeta(datasetIndex);
-                if (meta.bar && this.chart.isDatasetVisible(datasetIndex)) {
-                    let stackIndex = stacks.indexOf(dataset.stack);
-                    if (stackIndex === -1) {
-                    stackIndex = stacks.length;
-                    stacks.push(dataset.stack);
-                    }
-                    meta.stackIndex = stackIndex;
-                }
-                }, this);
-
-                this.getMeta().stacks = stacks;
-                return stacks.length;
-            },
-        });
     }
 }

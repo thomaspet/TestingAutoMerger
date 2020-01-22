@@ -5,9 +5,9 @@ import 'rxjs/add/observable/forkJoin';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout, UniFormError} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {BehaviorSubject} from 'rxjs';
@@ -29,7 +29,6 @@ import {
     SupplierService,
     PhoneService,
     AddressService,
-    EmailService,
     BankAccountService,
     ErrorService,
     UniQueryDefinitionService,
@@ -54,15 +53,14 @@ import {
 } from '../../../../../framework/uni-modal';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
-import {IUniTab} from '@app/components/layout/uniTabs/uniTabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-declare const _; // lodash
 
 @Component({
     selector: 'supplier-details',
     templateUrl: './supplierDetails.html',
+    styleUrls: ['./supplierDetails.sass']
 })
 export class SupplierDetails implements OnInit {
     @Input()
@@ -80,7 +78,7 @@ export class SupplierDetails implements OnInit {
     public supplierID: number;
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
+    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true, labelWidth: '15rem'});
     public addressChanged: any;
     public phoneChanged: any;
     public emailChanged: any;
@@ -191,19 +189,21 @@ export class SupplierDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
-        this.tabs = [
-            {name: 'Detaljer'},
-            {name: 'Åpne poster'},
-            {name: 'Dokumenter'}
-        ];
-
         if (!this.modalMode) {
             combineLatest(this.route.params, this.route.queryParams)
                 .pipe(map(results => ({params: results[0], query: results[1]})))
                 .subscribe(results => {
+
+                this.tabs = [
+                    {name: 'Detaljer'},
+                    {name: 'Åpne poster'},
+                    {name: 'Dokumenter'}
+                ];
+
                 this.supplierID = +results.params['id'];
-                const index = +results.query['tabIndex']  || 0;
                 this.supplier$.getValue().ID = 0;
+
+                const index = +results.query['tabIndex']  || 0;
 
                 this.commentsConfig = {
                     entityType: 'Supplier',
@@ -211,20 +211,19 @@ export class SupplierDetails implements OnInit {
                 };
 
                 this.setup();
-
-                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
-                    links => {
-                        this.reportLinks = links;
-                        this.tabs = [
-                            {name: 'Detaljer'},
-                            {name: 'Åpne poster'},
-                            {name: 'Dokumenter'},
-                            ...links
-                        ];
-                        this.activeTabIndex = index;
-                    },
-                    err => this.errorService.handle(err)
-                );
+                if (this.supplierID) {
+                    this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
+                        links => {
+                            this.reportLinks = links;
+                            this.tabs = [
+                                {name: 'Detaljer'},
+                                {name: 'Åpne poster'},
+                                {name: 'Dokumenter'},
+                                ...links
+                            ];
+                            this.activeTabIndex = index;
+                        }, err => this.errorService.handle(err) );
+                }
             });
         }
         this.setupSaveActions();

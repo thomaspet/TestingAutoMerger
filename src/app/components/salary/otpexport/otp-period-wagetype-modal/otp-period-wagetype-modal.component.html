@@ -1,14 +1,12 @@
 <section role="dialog" class="uni-modal">
-  <header>
-    <h1>Lønnsarter rapporteres OTP</h1>
-  </header>
+  <header>Lønnsarter rapporteres OTP</header>
   <article class="application" class="scrollable">
       <uni-form
-      [config]="formOtpExportWagetypesConfig$" 
-      [fields]="fields$" 
+      [config]="formOtpExportWagetypesConfig$"
+      [fields]="fields$"
       [model]="otpexportWagetypesModel">
     </uni-form>
-    <p>Lønnsarter i listen er med i grunnlaget for periodelønn i otp-eksporten. 
+    <p>Lønnsarter i listen er med i grunnlaget for periodelønn i otp-eksporten.
       Lønnsarter kan legges til og fjernes når det måtte ønskes og rapporteringsgrunnlaget vil endre seg uten å avregne lønn på nytt.</p>
     <ag-grid-wrapper
       [config]="tableConfig"

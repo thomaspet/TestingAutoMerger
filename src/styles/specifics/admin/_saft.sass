@@ -1,7 +1,19 @@
+.jobs-table
+    font-size: 14px
 .saftTableLine
     margin: 0 !important
     height: 2rem
     line-height: 1rem
+
+    td:last-of-type
+        text-align: center
+    td
+        i
+            margin-left: 1rem
+            color: var(--color-c2a)
+            &:hover
+                cursor: pointer
+                color: var(--color-bad)
 
 saft-import-modal
 
@@ -17,3 +29,39 @@ saft-import-modal
     td.right
         text-align: right
 
+.saft-buttons-section
+    display: flex
+    margin-bottom: 1rem
+
+    label
+        display: flex
+        align-items: center
+        justify-content: center
+        cursor: pointer
+        margin-right: 1rem
+        color: #60656a
+        width: 15rem
+        border: 2px solid #ccc
+        padding: .5rem
+        border-radius: var(--button-radius)
+
+        span
+            font-size: 14px
+            font-weight: 500
+            color: var(--color-c2a)
+
+        .material-icons
+            color: var(--color-c2a)
+            vertical-align: middle
+            margin-top: -4px
+            margin-right: .5rem
+
+        &[aria-disabled]:not([aria-disabled=false])
+            cursor: not-allowed
+
+        input[type=file]
+            // "visible" only for screen readers
+            @extend %visuallyHidden
+
+        &:hover
+            border-color: var(--color-c2a)

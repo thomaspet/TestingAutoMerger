@@ -299,9 +299,10 @@ export class GenericDetailview implements OnInit, OnChanges {
                 ? getDeepValue(this.current$.getValue(), nameProp)
                 : fallbackTitle || '';
             this.subTitle = this.ID ? ` (nr. ${this.ID})` : this.viewconfig.labels.createNew;
-            const tabTitle = trimLength(this.title, 12);
+            const tabTitle = !this.ID ? this.title : trimLength(this.title, 12);
 
             const url = this.viewconfig.baseUrl + '/' + this.ID;
+
             this.tabService.addTab({
                 name: tabTitle,
                 url: url,

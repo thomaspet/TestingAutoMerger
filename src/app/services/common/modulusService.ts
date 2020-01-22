@@ -69,12 +69,11 @@ export class ModulusService {
     }
 
     public orgNrValidationUniForm = (orgNr: string, field: UniFieldLayout, international?: boolean): UniFormError | null => {
-        if (international) {
+        if (!orgNr || typeof orgNr !== 'string' || international) {
             return null;
         }
 
-
-        if (!orgNr || typeof orgNr !== 'string' || this.isValidOrgNr(orgNr.trim())) {
+        if (this.isValidOrgNr(orgNr.replace(/ /g, ''))) {
             return null;
         }
 

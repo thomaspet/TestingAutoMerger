@@ -16,6 +16,12 @@ const CONFIG_STORAGE_KEY = 'uniTable_column_configs';
 const FILTER_STORAGE_KEY = 'uniTable_filters';
 const SORT_STORAGE_KEY = 'uniTable_sort';
 
+export interface LastUsedFilter {
+    searchText: string;
+    basicSearchFilters: ITableFilter[];
+    advancedSearchFilters: ITableFilter[];
+}
+
 @Injectable()
 export class TableUtils {
     private columnSetupMap: ColumnSetupMap = {};
@@ -105,7 +111,7 @@ export class TableUtils {
                     col.width = undefined; // cant calculate px value from percent
                 } else if (col.width.includes('px')) {
                     col.width = washed;
-                } else if (col.width.includes('rem')) {
+                } else if (col.width.includes('em')) {
                     col.width = washed * 16; // 16 = root em (as of 08.01.2018, typography.sass)
                 } else if (!/[^0-9\.]/g.test(col.width)) {
                     col.width = +col.width;
@@ -169,7 +175,7 @@ export class TableUtils {
      *
      * @returns {string} displayValue
      */
-    public getColumnValue(rowModel: any, column: UniTableColumn): string {
+    public getColumnValue(rowModel: any, column: UniTableColumn, formatDate?: boolean): string {
         if (!rowModel) {
             return '';
         }
@@ -191,10 +197,9 @@ export class TableUtils {
             case UniTableColumnType.DateTime:
             case UniTableColumnType.LocalDate:
                 if (value) {
-                    const date = value.toDate ? value.toDate() : value;
-                    value = moment(date).format(column.format || 'DD.MM.YYYY');
-                    if (value === 'Invalid date') {
-                        value = '';
+                    value = value.toDate ? value.toDate() : value;
+                    if (formatDate) {
+                        value = moment(value).format(column.format || 'DD.MM.YYYY');
                     }
                 }
             break;
@@ -229,21 +234,23 @@ export class TableUtils {
         return value || '';
     }
 
-    getLastUsedFilter(tableName: string): ITableFilter[] {
-        const key = tableName + '_filters';
+    getLastUsedFilter(tableName: string): LastUsedFilter {
+        const key = tableName + '_last_used_filters';
         try {
-            const filters = JSON.parse(sessionStorage.getItem(key));
-            if (filters && filters.length) {
-                return filters;
-            }
+            const lastUsedFilters = JSON.parse(sessionStorage.getItem(key));
+            return lastUsedFilters;
         } catch (e) { console.error(e); }
     }
 
-    setLastUsedFilter(tableName: string, filters: ITableFilter[]) {
-        const key = tableName + '_filters';
+    setLastUsedFilter(tableName: string, lastUsedFilter: LastUsedFilter) {
+        const key = tableName + '_last_used_filters';
 
-        if (filters && filters.length) {
-            sessionStorage.setItem(key, JSON.stringify(filters || []));
+        if (lastUsedFilter && (
+            lastUsedFilter.searchText
+            || (lastUsedFilter.basicSearchFilters && lastUsedFilter.basicSearchFilters.length)
+            || (lastUsedFilter.advancedSearchFilters && lastUsedFilter.advancedSearchFilters.length)
+        )) {
+            sessionStorage.setItem(key, JSON.stringify(lastUsedFilter));
         } else {
             sessionStorage.removeItem(key);
         }

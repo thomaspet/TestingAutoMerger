@@ -1,11 +1,10 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges, AfterViewInit} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
-import {UniTable, IRowChangeEvent, UniTableColumn, UniTableColumnType, IUniTableConfig, UniTableConfig} from '@uni-framework/ui/unitable';
+import {UniTable, IRowChangeEvent, UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {BehaviorSubject} from 'rxjs';
-import {LocalDate, Employee, Employment, WorkItemToSalary, WorkItem} from '@uni-entities';
+import {LocalDate, WorkItemToSalary, WorkItem} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
-import {Observable} from 'rxjs';
 import {ErrorService, PayrollrunService} from '@app/services/services';
 
 @Component({
@@ -17,14 +16,15 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
     @ViewChild(UniTable) private table: UniTable;
-    public uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public saveactions: IUniSaveAction[] = [];
-    public mainAction: IUniSaveAction;
-    public uniTableConfig: UniTableConfig;
-    public data: WorkItemToSalary[] = [];
-    private createTransesIsActive: boolean;
-    public busy: boolean;
+
+    uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+    mainAction: IUniSaveAction;
+    uniTableConfig: UniTableConfig;
+    data: WorkItemToSalary[] = [];
+    createTransesIsActive: boolean;
+    busy: boolean;
 
     constructor(
         private errorService: ErrorService,
@@ -32,11 +32,15 @@ export class TimeTransferComponent implements OnInit, IUniModal {
         private modalService: UniModalService
     ) {}
 
-    public ngOnInit() {
-        this.saveactions = this.setSaveactions();
+    ngOnInit() {
         this.getData(this.options.data.ToDate);
         this.createFormConfig();
         this.createTableConfig();
+    }
+
+    ngOnDestroy() {
+        this.uniformConfig$.complete();
+        this.uniformFields$.complete();
     }
 
     private getData(todate?: LocalDate) {
@@ -89,18 +93,6 @@ export class TimeTransferComponent implements OnInit, IUniModal {
 
     public closeModal(update: boolean = false) {
         this.onClose.next(this.options.cancelValue || update);
-    }
-
-    public setSaveactions() {
-        const actions = [
-            {
-                label: 'Overfør timer',
-                action: this.createTimeTransactions.bind(this),
-                disabled: !this.createTransesIsActive
-            }
-        ];
-        this.mainAction = actions[0];
-        return actions;
     }
 
     private createFormConfig() {
@@ -159,7 +151,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
             });
     }
 
-    private createTimeTransactions() {
+    createTimeTransactions() {
         this.modalService
             .confirm({
                 header: 'Overfør timer',
@@ -223,6 +215,5 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     public onRowSelectionChange(event) {
         this.resetRowSelection();
         this.createTransesIsActive = this.table.getSelectedRows().length;
-        this.saveactions = this.setSaveactions();
     }
 }

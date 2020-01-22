@@ -1,6 +1,6 @@
 amelding-summary-view
-    .uni-container
-        margin-right: 0
+    .amelding-overview
+        margin-left: .5rem
         display: flex
 
         .amelding_summary_overview
@@ -26,7 +26,7 @@ amelding-summary-view
     list-style: none
 
 .amelding_summary_section
-    border: 1px solid $uni-color-scale9
+    border: 1px solid var(--border-color)
     margin-bottom: 1rem
 
 .amelding_summary_section_details
@@ -34,7 +34,7 @@ amelding-summary-view
 
 .amelding_summary_section[aria-expanded]:not([aria-expanded=false])
     .amelding_summary_section_header
-        border-bottom: pxToRem(1) solid $uni-color-scale9
+        border-bottom: 1px solid var(--border-color)
 
 .amelding_summary_section_header
     width: 100%

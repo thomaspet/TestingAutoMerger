@@ -1,10 +1,10 @@
 import {Component, ViewChild} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ActivatedRoute} from '@angular/router';
 import {IToolbarConfig} from '../../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {UniSelect, ISelectConfig} from '../../../../../framework/ui/uniform/index';
-import {ErrorService, JobService} from '../../../../services/services';
+import {ErrorService, JobService, PageStateService} from '../../../../services/services';
 import {Job} from '../../../../models/admin/jobs/job';
 
 enum JobStartMode {
@@ -46,13 +46,13 @@ export class JobDetails {
 
     constructor(
         private tabService: TabService,
-        private router: Router,
+        private pagestateService: PageStateService,
         private route: ActivatedRoute,
         private errorService: ErrorService,
         private jobService: JobService
     ) {
         this.tabService.addTab({
-            url: '/admin/jobs/',
+            url: this.pagestateService.getUrl(),
             name: 'Jobbdetaljer',
             active: true,
             moduleID: UniModules.Jobs
@@ -73,7 +73,13 @@ export class JobDetails {
 
             this.toolbarconfig = {
                 title: (job && job.Name) || 'Ny jobb',
-                hideBreadcrumbs: true
+                hideBreadcrumbs: true,
+                subheads: [
+                    {
+                        title: 'Tilbake til jobber',
+                        link: '/#/admin/jobs?tab=alljobs'
+                    }
+                ]
             };
 
             if (this.isNewJob) {

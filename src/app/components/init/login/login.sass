@@ -1,7 +1,31 @@
-.login-section
+\:host
     display: flex
-    justify-content: center
-    align-items: center
-    flex-flow: column
-    button
-        width: 100%
+    align-items: flex-start
+    margin-left: 10rem
+    height: 100%
+
+    &.ue-login
+        button.login-button
+            margin-top: 5.5rem
+    &.ext01-login
+        align-items: center
+
+    @media screen and (max-width: 1400px)
+        margin-left: 5rem
+    @media screen and (max-width: 1000px)
+        margin-left: 0
+
+button.c2a
+    width: 20rem
+    height: 5rem
+    font-size: 22px
+    font-weight: 300
+    box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.16)
+
+.validation
+    text-align: center
+    margin: 2rem 0
+
+uni-select
+    height: 3rem
+    margin: 2rem 0

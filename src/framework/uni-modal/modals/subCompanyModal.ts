@@ -8,9 +8,7 @@ import { UniHttp } from '@uni-framework/core/http/http';
     template: `
         <section role="dialog" class="uni-modal">
 
-            <header>
-                <h1>Opprett selskap i lokalt kunderegister</h1>
-            </header>
+            <header>Opprett selskap i lokalt kunderegister</header>
 
             <article [attr.aria-busy]="busy" *ngIf="subCompany === undefined">
                 <h3>Opprette ny kunde: {{options?.data?.Name}}</h3>

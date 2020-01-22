@@ -1,68 +1,73 @@
-<div #container
-    class="result_container"
-    role="listbox"
-    tabindex="-1"
-    [ngClass]="{new_button_padding: hasExternalSearch || hasCreateNewButton}"
-    [attr.aria-expanded]="expanded">
-    <div class="action_buttons">
-        <a *ngIf="hasCreateNewButton"
-            (click)="createNewItem()"
-            class="action_button">Legg til ny (F3)
-        </a>
-        <a *ngIf="hasExternalSearch"
-            (click)="toggleSearchType($event)"
-            class="action_button">
-            Søk {{currentSearchType === SearchTypeEnum.INTERNAL ? 'i 1880' : 'internt'}} (F6)
-        </a>
-        <span
-            class="action_button"
-            *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
-            (click)="toggleSearchCompanies($event)">
-                Firmasøk <input class="action_button" type="checkbox" [(ngModel)]="searchCompanies">
-        </span>
-        <span
-            class="action_button"
-            *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
-            (click)="toggleSearchPersons($event)">
-                Personsøk <input class="action_button" type="checkbox" [(ngModel)]="searchPersons">
-        </span>
-    </div>
-    <table>
-        <thead *ngIf="config.tableHeader && lookupResults?.length">
-            <tr>
-                <th *ngFor="let column of config?.tableHeader">{{column}}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr *ngFor="let item of lookupResults; let idx = index"
-                class="result_item"
-                role="option"
-                (mousemove)="selectedIndex = idx"
-                (click)="selectItem()"
-                [attr.aria-selected]="selectedIndex === idx">
-
-                <td *ngFor="let column of rowTemplate(item)"
-                    [ngClass]="{'is_number': isNumber(column)}">
-                    {{column}}
-                </td>
-            </tr>
-            <tr *ngIf="!lookupResults" class="result_item"><td>( Laster... )</td></tr>
-            <tr *ngIf="lookupResults?.length === 0"
-                [attr.aria-selected]="true"
-                class="result_item">
-                <td>Ingen resultat!</td>
-                <td *ngIf="hasExternalSearch">
+<input-dropdown-menu [input]="inputElement?.nativeElement" [visible]="expanded">
+    <ng-template>
+        <div #container
+            class="search-result-table-container"
+            role="listbox"
+            tabindex="-1"
+            [ngClass]="{new_button_padding: hasExternalSearch || hasCreateNewButton}">
+            <div>
+                <a *ngIf="hasCreateNewButton"
+                    (click)="createNewItem()"
+                    class="action-button">Legg til ny (F3)
+                </a>
+                <a *ngIf="hasExternalSearch"
+                    (click)="toggleSearchType($event)"
+                    class="action-button">
                     Søk {{currentSearchType === SearchTypeEnum.INTERNAL ? 'i 1880' : 'internt'}} (F6)
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <div class="result_footer" *ngIf="config?.maxResultsLength && lookupResults?.length">
-        <span *ngIf="lookupResults.length === config.maxResultsLength">
-            Viser {{config.maxResultsLength}} første treff
-        </span>
-        <span *ngIf="lookupResults.length < config.maxResultsLength">
-            Viser {{lookupResults.length}} av {{lookupResults.length}} treff
-        </span>
-    </div>
-</div>
+                </a>
+                <span
+                    class="action-button"
+                    *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
+                    (click)="toggleSearchCompanies($event)">
+                        Firmasøk <input class="action-button" type="checkbox" [(ngModel)]="searchCompanies">
+                </span>
+                <span
+                    class="action-button"
+                    *ngIf="hasExternalSearch && currentSearchType === SearchTypeEnum.EXTERNAL"
+                    (click)="toggleSearchPersons($event)">
+                        Personsøk <input class="action-button" type="checkbox" [(ngModel)]="searchPersons">
+                </span>
+            </div>
+            <table>
+                <thead *ngIf="config.tableHeader && lookupResults?.length">
+                    <tr>
+                        <th *ngFor="let column of config?.tableHeader">{{column}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of lookupResults; let idx = index"
+                        class="result-item"
+                        role="option"
+                        (mousemove)="selectedIndex = idx"
+                        (click)="selectItem()"
+                        [attr.aria-selected]="selectedIndex === idx">
+
+                        <td *ngFor="let column of rowTemplate(item)">
+                            {{column}}
+                        </td>
+                    </tr>
+                    <tr *ngIf="!lookupResults" class="result-item"><td>( Laster... )</td></tr>
+                    <tr *ngIf="lookupResults?.length === 0"
+                        [attr.aria-selected]="true"
+                        class="result-item">
+                        <td>Ingen resultat!</td>
+                        <td *ngIf="hasExternalSearch">
+                            Søk {{currentSearchType === SearchTypeEnum.INTERNAL ? 'i 1880' : 'internt'}} (F6)
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="result-footer" *ngIf="config?.maxResultsLength && lookupResults?.length">
+                <span *ngIf="lookupResults.length === config.maxResultsLength">
+                    Viser {{config.maxResultsLength}} første treff
+                </span>
+                <span *ngIf="lookupResults.length < config.maxResultsLength">
+                    Viser {{lookupResults.length}} av {{lookupResults.length}} treff
+                </span>
+            </div>
+        </div>
+
+    </ng-template>
+
+
+</input-dropdown-menu>

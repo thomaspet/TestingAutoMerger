@@ -1,27 +1,27 @@
 <section role="dialog" class="uni-modal amelding-advanced-period-modal">
-  <header>
-    <h1>A-meldinger - periode {{options.data.period}}</h1>
-  </header>
-  <article class="application">
-    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
-    <section [ngSwitch]="activeTabIndex">
-      <uni-amelding-period-split-view
-        *ngSwitchCase="0"
-        (changeEvent)="change()"
-        [ameldingerInPeriod]="options.data.ameldingerInPeriod"
-        [companySalary]="options.data.companySalary">
-      </uni-amelding-period-split-view>
-      <uni-amelding-payrolls-period-view
-        *ngSwitchCase="1"
-        (changeEvent)="change()"
-        [period]="options.data.period"
-        [activeYear]="options.data.activeYear">
-      </uni-amelding-payrolls-period-view>
-    </section>
-  </article>
-  <footer>
-    <section>
-      <button class="bad" (click)="closeModal()">Avbryt</button>
-    </section>
-  </footer>
+    <header>A-meldinger - periode {{ options.data.period }}</header>
+    <article class="application">
+        <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+        <section [ngSwitch]="activeTabIndex">
+
+            <uni-amelding-period-split-view
+                *ngSwitchCase="0"
+                (changeEvent)="change()"
+                [ameldingerInPeriod]="options.data.ameldingerInPeriod"
+                [companySalary]="options.data.companySalary">
+            </uni-amelding-period-split-view>
+
+            <uni-amelding-payrolls-period-view
+                *ngSwitchCase="1"
+                (changeEvent)="change()"
+                [period]="options.data.period"
+                [activeYear]="options.data.activeYear">
+            </uni-amelding-payrolls-period-view>
+        </section>
+    </article>
+    <footer>
+        <section>
+            <button class="secondary" (click)="closeModal()">Avbryt</button>
+        </section>
+    </footer>
 </section>

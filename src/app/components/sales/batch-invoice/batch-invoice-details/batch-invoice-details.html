@@ -1,0 +1,21 @@
+<section class="header">
+    Samlefakturering #{{batchInvoice?.ID}}
+    <i class="material-icons close" (click)="close.emit()">close</i>
+</section>
+
+<span class="alert info">
+    På feilede eller ignorerte linjer kan du holde musepekeren over statusindikator for å se årsak
+</span>
+
+<ag-grid-wrapper
+    class="no-select-background"
+    *ngIf="lookupFunction"
+    [config]="tableConfig"
+    [resource]="lookupFunction">
+</ag-grid-wrapper>
+
+<section class="footer" *ngIf="batchInvoice?.StatusCode === 70001">
+    <button class="good" [attr.aria-busy]="invoicing" (click)="rerunBatchInvoice()">
+        Kjør på nytt
+    </button>
+</section>

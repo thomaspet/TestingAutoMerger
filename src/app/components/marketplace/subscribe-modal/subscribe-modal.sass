@@ -1,5 +1,4 @@
 @import '../marketplaceSharedStyles.sass'
-@import '~src/styles/uni-redesign/_color.sass'
 
 .uni-modal
     width: 40rem
@@ -41,15 +40,15 @@
                 margin-left: 1rem
                 font-weight: 400
                 font-size: 14px
-                color: #707d90
+                color: var(--scale1)
                 i.material-icons
-                    color: $good-color
+                    color: var(--color-good)
                     font-size: 21px
                     vertical-align: middle
                     margin-right: 4px
 
         .price-row
-            color: #707d90
+            color: var(--scale1)
             font-weight: 300
             font-size: 13px
 
@@ -60,19 +59,19 @@
         margin: 1rem 0 2rem
 
     .html-content::ng-deep
-        font: 400 15px 'Roboto', sans-serif
+        font: 400 15px var(--font-family)
 
         h1
-            font: 400 22px 'Roboto', sans-serif
+            font: 400 22px var(--font-family)
 
         h2
-            font: 400 18px 'Roboto', sans-serif
+            font: 400 18px var(--font-family)
 
         h3
-            font: 500 16px 'Roboto', sans-serif
+            font: 500 16px var(--font-family)
 
         p
-            font: 400 15px 'Roboto', sans-serif
+            font: 400 15px var(--font-family)
 
         blockquote
             padding: 10px 20px
@@ -104,7 +103,7 @@
 
 .material-icons
     margin: auto
-    color: $redesign-warn
+    color: var(--color-warn)
     font-size: 48px
 
 h1

@@ -7,6 +7,7 @@ import { UniTableColumn, UniTableConfig, UniTableColumnType } from '@uni-framewo
 import {
     defaultOperators,
     dateOperators,
+    statusOperators,
     numericOperators
 } from '../filter-operators';
 import { ITableFilter, ISavedSearch } from '../../interfaces';
@@ -163,6 +164,10 @@ export class AdvancedFilters {
                 operators = dateOperators;
             } else if (column.type === UniTableColumnType.Number || column.type === UniTableColumnType.Percent) {
                 operators = numericOperators;
+            } else if  (column.type === UniTableColumnType.Status) {
+                operators = statusOperators;
+            } else if (column.type === UniTableColumnType.Boolean) {
+                operators = [{ label: 'er', operator: 'eq' }];
             }
         }
 

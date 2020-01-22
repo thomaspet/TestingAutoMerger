@@ -80,4 +80,33 @@ export class WidgetDataService {
 
         return hval >>> 0;
     }
+
+    public addCustomLiquidityPayment(body) {
+        const query = body.ID
+        ? this.http.asPUT().withEndPoint(`/liquiditypayment/${body.ID}`)
+        : this.http.asPOST().withEndPoint('/liquiditypayment');
+
+        return query.usingBusinessDomain()
+            .withBody(body)
+            .send()
+            .map(res => res.body);
+    }
+
+    public getCustomLiquidityPayments() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('/liquiditypayment')
+            .send()
+            .map(res => res.body);
+    }
+
+    public deleteCustomLiquidityPayment(id: number) {
+        return this.http
+            .asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`/liquiditypayment/${id}`)
+            .send()
+            .map(res => res.body);
+    }
 }

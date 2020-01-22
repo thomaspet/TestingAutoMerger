@@ -56,7 +56,7 @@ uni-distibution, batch-invoices-container
                     cursor: default !important
 
         .entity-name-container
-            flex: 1
+            flex: 0 0 225px
             padding-left: 2rem
             font-size: 24px
             span
@@ -70,7 +70,7 @@ uni-distibution, batch-invoices-container
                 color: $uni-color-scale6
                 font-weight: 400
             ul
-                margin-top: .15rem
+                margin: 4px 0 0 0
 
     .plans-info-container
         transition: display .5s ease
@@ -87,6 +87,7 @@ uni-distibution, batch-invoices-container
                     background-color: #f5f6f9
                     color: $uni-color-scale7
                     th
+                        font-weight: 500
                         padding-left: 2rem
                         &:nth-child(2)
                             width: 50%
@@ -126,13 +127,8 @@ uni-distibution, batch-invoices-container
             font-weight: 400
             display: block
 
-            &.new-plan-link
-                padding: 1rem 2rem
-                font-size: 16px
-                font-weight: 600
-
     .entity-functionality-container
-        flex: 1
+        flex: 0 0 auto
         display: flex
         align-items: center
         justify-content: flex-end
@@ -141,24 +137,15 @@ uni-distibution, batch-invoices-container
         span
             font-size: 15px
         &.settings-view
-
             i
                 margin-left: 1rem
                 cursor: pointer
 
-        .change-customer-distribution-button
-            line-height: 16px
-            background-color: $uni-color-plus
-            margin: 0
-
-        .remove-customer-distribution-button
+        .remove-distribution
             color: $uni-color-bad
-            background-color: transparent
             margin: 0
-
             &.disabled
                 opacity: .25
-
             i
                 margin: 0
 
@@ -196,77 +183,38 @@ uni-distibution, batch-invoices-container
             width: 1rem
 
 .distribution-plan-modal-container
-    a
-        color: $uni-color-c2a
-        font-size: 16px
-        font-weight: 600
+    button.add-priority
         display: block
-    label
-        display: flex
-        align-items: center
-        margin-bottom: 1rem
-
-        uni-tooltip
-            position: static !important
-            margin-left: 5px
-
-        span
-            flex: 0 0 90px
-            margin-right: 20px
-            font-weight: 400
-            font-size: 14px
-            line-height: 2.4rem
-
-            &.standard-span-box
-                display: block
-                background-color: #f0ce61
-                height: 24px
-                line-height: 25px
-                text-align: center
-                position: absolute
-                right: 80px
-                padding: 0 .6rem
-                border-radius: 12px
-                font-size: 14px
-
-        input, select
-            flex: 1
-            height: 2.4rem !important
-            border: 1px solid rgba(0, 0, 0, 0.25)
-            border-radius: 3px
-            font-size: 14px
-            width: 100%
-
-        i
-            margin-left: 1rem
-            cursor: pointer
-            color: $uni-color-bad
-
-        &.small
-            span
-                font-size: 12px
-
-    hr
         margin: 1rem 0
+
+    .name-input-label
+        position: relative
+        input
+            padding-right: 6rem
+        .standard-span-box
+            position: absolute
+            right: .5rem
+            top: 2.25rem
+            width: 5rem
+            display: block
+            background-color: #f0ce61
+            line-height: 25px
+            text-align: center
+            padding: 0 .6rem
+            border-radius: 12px
+            font-size: 14px
+
+    .step
+        margin-left: .5rem
+
+    i
+        margin-left: 1rem
+        cursor: pointer
+        color: var(--color-bad)
 
     .empty-priority-messages
         font-size: 12px
-        color: $uni-color-warn
-
-    .company-standard-checkbox
-        display: flex
-        margin-top: 1rem
-
-        i
-            height: 18px
-            width: 18px
-            margin-right: 1rem
-            vertical-align: middle
-            color: $uni-color-c2a
-            cursor: pointer
-
-        span
-            font-size: 15px
+        color: var(--color-warn)
 
 .distribution-customer-list-modal-container
     width: 30vw
@@ -295,15 +243,8 @@ uni-distibution, batch-invoices-container
         align-items: center
         input
             flex: 1
-            border: none
-            border: 1px solid $uni-color-scale8
-            border-radius: 2px
-            height: 40px
-        a
-            color: $uni-color-c2a
-            font-size: 16px
-            font-weight: 600
-            margin: 0 0 0 2rem
+        button.tertiary
+            margin-left: 1rem
 
     .customer-list-section
         table
@@ -314,12 +255,14 @@ uni-distibution, batch-invoices-container
             flex-flow: column
             border-collapse: collapse
             font-size: 15px
+            border: 1px solid var(--border-color)
 
             thead
                 flex: 0 0 auto
                 display: table
                 table-layout: fixed
                 text-align: left
+                border-bottom: 1px solid var(--border-color)
                 tr
                     height: 45px
                     background-color: #f5f6f9
@@ -334,7 +277,6 @@ uni-distibution, batch-invoices-container
                 display: block
                 overflow-y: scroll
                 height: 250px
-                border: 1px solid $uni-color-scale7
                 position: relative
 
                 #scrolling-viewport
@@ -366,7 +308,7 @@ uni-distibution, batch-invoices-container
                                 color: $uni-color-scale6
                                 cursor: pointer
                                 &:hover
-                                    color: $uni-color-bad
+                                    color: var(--color-bad)
 
     .new-customers-no-customers-msg
         font-size: 13px
@@ -420,7 +362,7 @@ uni-distibution, batch-invoices-container
                     font-weight: 600
                 &:last-of-type
                     flex: 1
-                    collor: 1px solid $uni-color-scale8
+                    collor: 1px solid var(--border-color)
 
 .container-for-spinner
     position: relative
@@ -439,5 +381,6 @@ uni-distibution, batch-invoices-container
 
         mat-spinner
             margin: auto
-            circle
-                stroke: #1565c0
+
+.add-button
+    margin: .5rem 2rem

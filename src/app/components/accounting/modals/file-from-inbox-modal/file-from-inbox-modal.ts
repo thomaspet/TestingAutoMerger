@@ -10,7 +10,6 @@ import { UP_ARROW, DOWN_ARROW, ENTER } from '@angular/cdk/keycodes';
     selector: 'file-from-inbox-modal',
     templateUrl: './file-from-inbox-modal.html',
     styleUrls: ['./file-from-inbox-modal.sass'],
-    host: {class: 'uni-redesign'}
 })
 export class FileFromInboxModal implements IUniModal {
     @ViewChild(AgGridWrapper) table: AgGridWrapper;

@@ -1,12 +1,12 @@
 import {
     Component, Input, Output, ElementRef, EventEmitter, ChangeDetectionStrategy, SimpleChanges,
-    OnChanges
+    OnChanges,
+    ViewChild
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {BaseControl} from '../baseControl';
-import * as _ from 'lodash';
-
+import {get, set} from 'lodash';
 
 @Component({
     selector: 'uni-password-input',
@@ -14,6 +14,7 @@ import * as _ from 'lodash';
     templateUrl: './password.html'
 })
 export class UniPasswordInput extends BaseControl implements OnChanges {
+    @ViewChild('inputElement') inputElement: ElementRef;
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
     @Input() public control: FormControl;
@@ -26,13 +27,16 @@ export class UniPasswordInput extends BaseControl implements OnChanges {
 
     private lastControlValue: string;
     private type: string = 'password';
-    constructor(public elementRef: ElementRef) {
+
+    constructor() {
         super();
     }
 
     public focus() {
-        this.elementRef.nativeElement.children[0].focus();
-        this.elementRef.nativeElement.children[0].select();
+        if (this.inputElement) {
+            this.inputElement.nativeElement.focus();
+            this.inputElement.nativeElement.select();
+        }
         return this;
     }
 
@@ -52,8 +56,8 @@ export class UniPasswordInput extends BaseControl implements OnChanges {
             return;
         }
         if (this.control.valid) {
-            const previousValue = _.get(this.model, this.field.Property);
-            _.set(this.model, this.field.Property, this.control.value);
+            const previousValue = get(this.model, this.field.Property);
+            set(this.model, this.field.Property, this.control.value);
             this.lastControlValue = this.control.value;
             this.emitChange(previousValue, this.lastControlValue);
         }

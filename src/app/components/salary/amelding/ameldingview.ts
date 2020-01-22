@@ -27,7 +27,7 @@ import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
-import { IUniTab } from '@app/components/layout/uniTabs/uniTabs';
+import { IUniTab } from '@uni-framework/uni-tabs';
 import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 
 @Component({
@@ -415,14 +415,11 @@ export class AMeldingView implements OnInit {
     private updateToolbar() {
         this.toolbarConfig = {
             title: `Periode ${this.currentPeriod}`,
-            subheads: [
-            {
-                title: this.currentAMelding ? 'A-melding ' + this.currentAMelding.ID : null
-            }],
             navigation: {
                 prev: this.prevPeriod.bind(this),
                 next: this.nextPeriod.bind(this)
-            }
+            },
+            statustrack: this.getStatusTrackConfig()
         };
 
         this.toolbarSearchConfig = {
@@ -459,26 +456,27 @@ export class AMeldingView implements OnInit {
                     _state = STATUSTRACK_STATES.Obsolete;
                 }
 
-                this.aMeldingerInPeriod.forEach(amelding => {
-                    _substatuses.push({
-                        title: 'A-melding ' + amelding.ID,
-                        state: amelding.ID === this.currentAMelding.ID
-                            ? STATUSTRACK_STATES.Active
-                            : STATUSTRACK_STATES.Obsolete,
-                        timestamp: amelding.UpdatedAt
-                            ? new Date(<any> amelding.UpdatedAt)
-                            : new Date(<any> amelding.CreatedAt),
-                        data: amelding
+                if (this.aMeldingerInPeriod && this.aMeldingerInPeriod.length > 1) {
+                    this.aMeldingerInPeriod.forEach(amelding => {
+                        _substatuses.push({
+                            title: 'A-melding ' + amelding.ID,
+                            state: amelding.ID === this.currentAMelding.ID
+                                ? STATUSTRACK_STATES.Active
+                                : STATUSTRACK_STATES.Obsolete,
+                            timestamp: amelding.UpdatedAt
+                                ? new Date(<any> amelding.UpdatedAt)
+                                : new Date(<any> amelding.CreatedAt),
+                            data: amelding,
+                            selectable: true
+                        });
                     });
-                });
+                }
 
             }
 
             statustrack[indx] = {
                 title: amldStatus.Text,
                 state: _state,
-                badge: (_state === STATUSTRACK_STATES.Active || _state === STATUSTRACK_STATES.Obsolete)
-                    && this.aMeldingerInPeriod.length > 1 ? this.aMeldingerInPeriod.length + '' : null,
                 substatusList: _substatuses
             };
         });

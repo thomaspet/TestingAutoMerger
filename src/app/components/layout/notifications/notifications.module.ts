@@ -8,6 +8,7 @@ import {NotificationService} from './notification-service';
 import {Notifications} from './notifications';
 import {NotificationsDropdown} from './notifications-dropdown/notifications-dropdown';
 import {NotificationItem} from './notification-item/notification-item';
+import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 
 @NgModule({
     imports: [
@@ -15,7 +16,8 @@ import {NotificationItem} from './notification-item/notification-item';
         MatMenuModule,
         MatSlideToggleModule,
         OverlayModule,
-        ScrollingModule
+        ScrollingModule,
+        UniFrameworkModule
     ],
     declarations: [
         Notifications,

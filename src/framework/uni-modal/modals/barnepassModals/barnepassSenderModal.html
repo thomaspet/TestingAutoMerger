@@ -1,0 +1,31 @@
+<section role="dialog" class="uni-modal barnepassSenderModal">
+    <header>
+        <h1>Send opplysninger om innrapporterte data til kunder</h1>
+    </header>
+
+    <article>
+        <section><p>Rapport: <b>{{reportName}}</b></p></section>
+
+        <uni-tabs [tabs]="tabs"></uni-tabs>
+        
+        <ag-grid-wrapper
+            [resource]="rows"
+            [config]="tableConfig"
+            (rowSelectionChange)="rowSelectionChange($event)">
+        </ag-grid-wrapper>
+
+        <section class="counters">
+            <p>Antall til e-post: {{emailCount}}</p>
+            <p>Antall til utskrift: {{printCount}}</p>
+        </section>
+    </article>
+
+    <footer>
+        <section role="group" class="comboButton">
+            <combo-button *ngIf="saveActions.length" [actions]="saveActions"></combo-button>
+            <button (click)="close()" class="bad">
+                Lukk
+            </button>
+        </section>
+    </footer>
+</section>

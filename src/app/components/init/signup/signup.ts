@@ -1,43 +1,48 @@
 import {Component} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {passwordValidator, passwordMatchValidator, usernameValidator} from '../authValidators';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {passwordValidator, passwordMatchValidator} from '../authValidators';
+import {AuthService} from '@app/authService';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-signup',
-    templateUrl: './signup.html'
+    templateUrl: './signup.html',
+    styleUrls: ['./signup.sass']
 })
 export class Signup {
-    public confirmationCode: string;
-    public busy: boolean;
+    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    confirmationCode: string;
+    busy: boolean;
 
-    public successMessage: string;
-    public errorMessage: string;
+    headerText = 'Prøv gratis i 30 dager';
 
-    public step1Form: FormGroup;
-    public step2Form: FormGroup;
+    errorMessage: string;
 
-    public step1Successful = false;
-    public step2Successful = false;
-    public invalidConfirmationCode = false;
-    public userExists = false;
+    step1Form: FormGroup;
+    step2Form: FormGroup;
+
+    step1Successful: boolean;
+    step2Successful: boolean;
+    invalidConfirmationCode: boolean;
+    userExists: boolean;
 
     constructor(
+        public authService: AuthService,
         private http: UniHttp,
         private route: ActivatedRoute,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
-            CompanyName: new FormControl('', Validators.required),
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
             PhoneNumber: new FormControl('', Validators.required),
+            SignUpReferrer: new FormControl(window.location.href),
             RecaptchaResponse: new FormControl('', Validators.required)
         });
 
         this.step2Form = formBuilder.group({
-            UserName: new FormControl('', [Validators.required, usernameValidator]),
             Password: new FormControl('', [Validators.required, passwordValidator]),
             ConfirmPassword: new FormControl('', [Validators.required, passwordValidator])
         }, {
@@ -45,13 +50,14 @@ export class Signup {
         });
 
         this.route.queryParams.subscribe(params => {
-            this.successMessage = undefined;
             this.errorMessage = undefined;
 
             if (params['code']) {
+                this.headerText = 'Velg passord';
                 this.confirmationCode = params['code'];
                 this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
+                this.step2Form.enable();
             } else {
                 this.step1Form.enable();
                 this.step2Form.disable();
@@ -67,16 +73,14 @@ export class Signup {
 
         this.http.asPOST()
             .usingInitDomain()
-            .withEndPoint('confirmation')
+            .withEndPoint('sign-up')
             .withBody(this.step1Form.value)
             .send()
             .subscribe(
-                res => {
+                () => {
                     this.busy = false;
                     this.step1Successful = true;
-                    this.successMessage = 'En e-post med mer informasjon ble sendt til: <br><b>'
-                        + this.step1Form.controls['Email'].value
-                        + '</b><br>Vennligst sjekk innboksen din.';
+                    this.headerText = 'Epost sendt';
                 },
                 err => {
                     this.step1Form.enable();
@@ -84,17 +88,10 @@ export class Signup {
                     this.step1Successful = false;
                     grecaptcha.reset();
                     this.step1Form.value.RecaptchaResponse = null;
-                    try {
-                        const errorBody = err.body;
-                        if (errorBody.Message) {
-                            this.errorMessage = errorBody.Message;
-                        } else {
-                            this.errorMessage = 'Noe gikk galt under verifisering.'
-                            + 'Vennligst sjekk detaljer og prøv igjen.';
-                        }
-                    } catch (error) {
-                        this.errorMessage = 'Noe gikk galt under verifisering.'
-                        + 'Vennligst sjekk detaljer og prøv igjen.';
+
+                    this.errorMessage = err && err.error && err.error.Message;
+                    if (!this.errorMessage) {
+                        this.errorMessage = 'Noe gikk galt under verifisering. Vennligst sjekk detaljer og prøv igjen.';
                     }
                 }
             );
@@ -106,7 +103,6 @@ export class Signup {
 
             this.step2Form.controls.Password.markAsTouched();
             this.step2Form.controls.ConfirmPassword.markAsTouched();
-            this.step2Form.controls.UserName.markAsTouched();
             return;
         }
 
@@ -115,26 +111,29 @@ export class Signup {
         const formValues = this.step2Form.value;
 
         const requestBody = {
-            UserName: formValues.UserName,
             Password: formValues.Password,
             ConfirmationCode: this.confirmationCode
         };
 
         this.http.asPOST()
             .usingInitDomain()
-            .withEndPoint('register')
+            .withEndPoint('register-user')
             .withBody(requestBody)
             .send()
             .subscribe(
-                res => {
+                () => {
                     this.step2Successful = true;
+                    this.headerText = 'Brukerregistrering fullført';
                 },
                 err => {
                     this.busy = false;
                     this.step2Successful = false;
                     let errorMessage;
+
+                    console.log(err);
+
                     try {
-                        const errorBody = err.body;
+                        const errorBody = err.error;
                         errorMessage = errorBody.Message || errorBody.Messages[0].Message;
                     } catch (error) {}
 
@@ -169,5 +168,4 @@ export class Signup {
                 }
             );
     }
-
 }

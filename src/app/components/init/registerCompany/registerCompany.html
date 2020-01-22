@@ -1,0 +1,32 @@
+<section class="content">
+    <ng-container *ngIf="!selectedCompanyType">
+        <section class="select-type-of-company" *ngIf="contractID">
+            <section *ngFor="let option of registrationOptions" class="authentication-component">
+                <h1>{{option.header}}</h1>
+
+                <p *ngFor="let text of option.textSections">{{text}}</p>
+
+                <button [ngClass]="option.buttonClass || 'secondary'" (click)="option.action()">
+                    {{option.buttonLabel}}
+                </button>
+            </section>
+        </section>
+
+        <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
+            <small class="alert warn">
+                Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
+            </small>
+            <a routerLink="/init/sign-up">Gå til registrering</a>
+        </section>
+    </ng-container>
+
+    <init-new-demo
+        *ngIf="selectedCompanyType === 'demo'"
+        [contractID]="contractID">
+    </init-new-demo>
+
+    <init-new-company
+        *ngIf="selectedCompanyType === 'company'"
+        [contractID]="contractID">
+    </init-new-company>
+</section>

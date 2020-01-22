@@ -1,0 +1,30 @@
+<ng-container *ngIf="status">
+    <section class="toolbar-status-indicator" [ngClass]="status.class">
+        <i class="material-icons-outlined">{{status.icon || 'info'}}</i>
+        {{status.label}}
+        <span class="sub-status-counter {{status.class}}" *ngIf="status.subStatuses?.length">
+            {{status.subStatuses.length}}
+        </span>
+    </section>
+
+    <section *ngIf="status.subStatuses?.length" class="sub-statuses">
+        <section *ngFor="let subStatus of status.subStatuses" class="sub-status">
+            <a [href]="subStatus.link" *ngIf="subStatus.link !== ''">
+                <span *ngIf="subStatus.timestamp" class="timestamp">
+                    {{subStatus.timestamp | date: 'dd.MM.yyyy'}}
+                </span>
+
+                <span class="text">{{subStatus.label}}</span>
+                <span class="status">{{subStatus.status}}</span>
+            </a>
+            <ng-container *ngIf="subStatus.link === ''">
+                <span *ngIf="subStatus.timestamp" class="timestamp">
+                    {{subStatus.timestamp | date: 'dd.MM.yyyy'}}
+                </span>
+
+                <span class="text">{{subStatus.label}}</span>
+                <span class="status">{{subStatus.status}}</span>
+            </ng-container>
+        </section>
+    </section>
+</ng-container>

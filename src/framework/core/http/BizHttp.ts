@@ -8,7 +8,7 @@ import {RequestMethod} from './request-method';
 import {map} from 'rxjs/operators';
 import {cloneDeep} from 'lodash';
 
-interface IHttpCacheStore<T> {
+export interface IHttpCacheStore<T> {
     [hash: number]: IHttpCacheEntry<T>;
 }
 
@@ -276,12 +276,12 @@ export class BizHttp<T> {
             .map(response => response.body);
     }
 
-    public ActionWithBody<T>(ID: number, entity: T, actionName: string, method: RequestMethod | string = RequestMethod.Put, parameters: string = null): Observable<any> {
+    public ActionWithBody<T>(ID: number, body: T, actionName: string, method: RequestMethod | string = RequestMethod.Put, parameters: string = null): Observable<any> {
         this.invalidateCache();
         return this.http
             .usingBusinessDomain()
             .as(method)
-            .withBody(entity)
+            .withBody(body)
             .withEndPoint(this.relativeURL + '/' + (ID === null ? '' : ID) + '?action=' + actionName + (parameters === null ? '' : '&' + parameters))
             .send()
             .map(response => response.body);

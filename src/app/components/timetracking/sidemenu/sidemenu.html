@@ -21,27 +21,22 @@
     </section>
 
     <section class="sidemenu_template_container"  [hidden]="minimized">
-        <h3>
-            Maler
-            <i class="material-icons" role="button" (click)="createNewTemplate()">
-                add_circle
-            </i>
-        </h3>
+        <section class="template-header">
+            <span> Maler </span>
+            <i class="material-icons" role="button" (click)="createNewTemplate()" title="Opprett ny mal"> add_circle_outline </i>
+        </section>
 
-        <article class="sidemenu_template" *ngFor="let template of timeTrackingTemplates; let i = index;">
-            <section class="template_info_section" (click)="onTemplateSelected(template)">
-                <a class="sidemenu_temmplate_name">{{ template.Name }}</a>
-                <time style="float: right; margin: 0; font-size: 0.9rem;">{{ template.StartTime }} - {{ template.EndTime }}</time><br />
-                <span class="sidemenu_template_timeart">{{ template.Description }}</span>
-                <time class="sidemenu_template_time_total">{{ (template.Minutes / 60).toFixed(1) }}</time>
+        <section class="template_info_section" *ngFor="let template of timeTrackingTemplates; let i = index;" title="{{ template.Description }}" (click)="onTemplateSelected(template)">
+            <section class="info">
+                <span> {{ template.Name }} </span>
+                <span> {{ template.StartTime }} - {{ template.EndTime }} </span>
             </section>
-
-            <i class="material-icons edit-icon" role="button" (click)="onTemplateEdit(template, i)">
-                mode_edit
-            </i>
-        </article>
-
-    </section>
+            <section class="edit">
+                <i class="material-icons" title="Rediger" (click)="$event.stopPropagation(); onTemplateEdit(template, i)">edit</i>
+                <i class="material-icons" title="Slett" (click)="$event.stopPropagation(); onTemplateDelete(i);">delete_outline</i>
+            </section>
+        </section>
+</section>
 
     <div class="sidemenu_hide_button_container" [ngClass]="{'minimized': minimized}">
         <i class="material-icons sidemenu-toggle" role="button" (click)="toggleSidemenu()">

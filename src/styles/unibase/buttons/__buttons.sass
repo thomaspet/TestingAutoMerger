@@ -1,109 +1,149 @@
-$buttons-list: 'button', 'input[type=button]', 'input[type=reset]', 'input[type=submit]'
-$all-buttons: assign-inputs($buttons-list)
-
-@import 'comboButton'
-
 @keyframes rotate
     from
         transform: rotate(0deg)
     to
         transform: rotate(360deg)
 
-@mixin uni-button($color)
-    color: $uni-color-negative
-    background-color: $color
-    // text-shadow: 0 0 .15rem darken($color, 8%)
-    font-weight: 400
-    // box-shadow: 0 pxToRem(1) pxToRem(1) $uni-color-scale7
-
-    // The below part doesn't really _need_ to repeat, so a DRYer solution would
-    // be to place this outside the mixin, but this way we'll be able to call
-    // `@include uni-button($color)` from anywhere, even on objects that aren't
-    // buttons. Which is a good thing.
+@mixin main-btn($type)
+    color: #fff
+    background-color: var(--button-#{$type})
     border: none
+    &:hover, &:focus, &:active, &.test
+        background-color: var(--button-#{$type}-hover)
+        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2)
+    &:before
+        border-color: #fff
+
+@mixin secondary-btn-color($type)
+    color: var(--button-#{$type})
+    &:hover, &:focus, &:active
+        color: var(--button-#{$type}-hover)
+        border-color: var(--button-#{$type}-hover) // $color
+    &:before
+        border-color: var(--button-#{$type}) !important
+
+button, a.button
+    position: relative
+    height: 2.5rem
+    font-size: 15px
+    font-weight: 400
+
     box-sizing: border-box
-    font-size: 1rem
-    border-radius: .2rem
-    padding: .5rem 1rem
-    margin: .5rem 1rem
+    border-radius: var(--button-radius)
+    padding: 0 1rem
     cursor: pointer
-    min-height: 1.6667rem
+    white-space: nowrap
     -webkit-appearance: none
 
-    &:hover,
+    &[disabled], &[aria-disabled]:not([aria-disabled=false])
+        opacity: 0.65
+        pointer-events: none
+
+    &.busy, &[aria-busy]:not([aria-busy=false])
+        color: rgba(0,0,0,0) !important
+        pointer-events: none
+        &:before
+            display: block
+            content: ''
+            position: absolute
+            top: calc(50% - 9px)
+            left: calc(50% - 9px)
+            width: 18px
+            height: 18px
+
+            border: 2px solid #666
+            border-top-color: rgba(0, 0, 0, 0) !important
+            border-left-color: rgba(0, 0, 0, 0) !important
+
+            border-radius: 50%
+            animation: rotate .7s infinite linear
+
     &:focus
-        background-color: darken($color, 5%)
         outline: none
 
-    &:active
-        background-color: darken($color, 5%)
-        transform: scale(.98)
+    &.icon-button
+        background-color: unset
+        padding: 0
+        border: none
+        width: 2.5rem
+        i
+            margin-bottom: 0
 
-    &[disabled],
-    &[aria-disabled]:not([aria-disabled=false])
-        background-color: desaturate(mix($color, $uni-color-negative, 50%), 10%)
-        text-shadow: none
-        cursor: not-allowed
+    i
+        vertical-align: middle
+        margin-bottom: 2px
 
-        &:hover,
-        &:focus
-            background-color: desaturate(mix($color, $uni-color-negative, 80%), 10%)
+    & + button
+        margin-left: 1rem
 
-    &[aria-busy]:not([aria-busy=false]):before
-        display: inline-block
-        content: ''
-        height: 10px
-        width: 10px
-        background: transparent
-        border-radius: 50%
-        border: 1px solid transparentize($color, .5)
-        border-top: 1px solid darken($color, 20%)
-        animation: rotate .5s infinite linear
-        margin: 0 7px -1px -7px
+    // Default
+    background-color: #fff
+    color: #666
+    border: 1px solid #dbdbdb
+    &:hover, &:focus, &:active, .test
+        background-color: #fafafa
 
-    &.small
-        font-size: .9rem
-        line-height: 1.5em
-        padding: .2rem 1rem
-        font-weight: 400
-        text-shadow: none
+    // Main buttons
+    &:not(.secondary):not(.tertiary)
+        &.c2a
+            @include main-btn(c2a)
 
-        &[aria-busy]:not([aria-busy=false]):before
-            margin: 0 5px -2px -5px
+        &.good
+            @include main-btn(good)
 
-#{$all-buttons}, a.button
-    @include uni-button($uni-color-action)
+        &.bad
+            @include main-btn(bad)
 
-    &.good
-        @include uni-button($uni-color-good)
+        &.warning, &.warn
+            @include main-btn(warn)
 
-    &.bad
-        @include uni-button($uni-color-bad)
+    // Secondary
+    &.secondary
+        background-color: #fff
+        border: 2px solid #ccc
+        font-weight: 500
+        @include secondary-btn-color(c2a)
+        &.good
+            @include secondary-btn-color(good)
+        &.bad
+            @include secondary-btn-color(bad)
 
-    &.warning
-        @include uni-button($uni-color-warn)
 
-    &.c2a
-        @include uni-button($uni-color-c2a)
+    // Tertiary
+    &.tertiary
+        background-color: unset
+        padding-left: 0
+        border: none
+        font-weight: 500
+
+        &.c2a
+            color: var(--button-c2a)
+            &:hover, &:focus, &:active
+                color: var(--button-c2a-hover)
+
+            &.busy, &[aria-busy]:not([aria-busy=false])
+                &:before
+                    border-color: var(--button-c2a)
+
+        &.bad
+            color: var(--button-bad)
+            &:hover, &:focus, &:active
+                color: var(--button-bad-hover)
+
+            &.busy, &[aria-busy]:not([aria-busy=false])
+                &:before
+                    border-color: var(--button-bad)
+
+.inbox-upload-button
+    display: flex
+    i
+        margin-right: .5rem
 
 button[type=submit]
     @extend button.c2a
 
+.button-group
+    display: inline-flex
 
-// This will be removed once the button redesign is done
-button.button-clean
-    height: 2.25rem
-    // font: 500 14px 'Roboto', sans-serif
-    font: 400 15px 'Roboto', sans-serif
-    color: rgba(0, 0, 0, 0.87)
-    background: 0 0
-    text-shadow: none
-    padding: 0 10px
-    margin: 0
-
-    &:hover
-        background-color: rgba(0,0,0,.12)
-        transition: background-color .25s ease
-
-    i.material-icons
-        vertical-align: middle
+combo-button + button
+    margin-left: 1rem

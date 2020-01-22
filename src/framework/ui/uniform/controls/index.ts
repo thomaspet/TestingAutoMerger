@@ -7,8 +7,7 @@ export * from './textarea/textarea';
 export * from './url/url';
 export * from './hyperlink/hyperlink';
 export * from './select/select-wrapper';
-export * from './date-picker/date-picker';
-export * from './autocomplete/autocomplete';
+export * from './autocomplete/uniform-autocomplete';
 export * from './multivalue/multivalue';
 export * from './radio-group/radio-group';
 export * from './checkbox-group/checkbox-group';
@@ -25,8 +24,7 @@ import {UniTextareaInput} from './textarea/textarea';
 import {UniUrlInput} from './url/url';
 import {UniHyperlinkInput} from './hyperlink/hyperlink';
 import {UniSelectInput} from './select/select-wrapper';
-import {DateTimePickerInput} from './date-picker/date-picker';
-import {UniAutocompleteInput} from './autocomplete/autocomplete';
+import {UniFormAutocomplete} from './autocomplete/uniform-autocomplete';
 import {UniMultivalueInput} from './multivalue/multivalue';
 import {UniRadiogroupInput} from './radio-group/radio-group';
 import {UniCheckboxgroupInput} from './checkbox-group/checkbox-group';
@@ -38,9 +36,8 @@ import { UniStaticTextInput } from '@uni-framework/ui/uniform/controls/static-te
 import { UniMultiSelectInput } from '@uni-framework/ui/uniform/controls/multiselect/multiselect';
 
 export const CONTROLS = [
-    UniAutocompleteInput, // 0 - autocomplete
+    UniFormAutocomplete, // 0 - autocomplete
     UniButtonInput, // 1 - button
-    DateTimePickerInput, // 2 -  date
     UniSelectInput, // 3 - select
     UniSelectInput, // UniMaskedInput, // 4 - masked
     UniCheckboxInput, // 5 - checkbox
@@ -64,7 +61,6 @@ export const CONTROLS = [
 export enum CONTROLS_ENUM {
     AUTOCOMPLETE = 0, // 0 - autocomplete
     BUTTON = 1, // 1 - button
-    DATE_TIME = 2, // 2 -  date
     SELECT = 3, // 3 - select
     MASKED = 4, // 4 - masked
     CHECKBOX = 5, // 5 - checkbox

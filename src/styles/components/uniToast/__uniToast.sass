@@ -1,75 +1,73 @@
 uni-toast-list
-    ul.toast-list
-        position: fixed
-        top: 4.4rem
-        right: 0
-        z-index: #{map-get($zindex, modal) + 1}
-
-        list-style: none
-        margin: 0
-
-        &.centered
-            top: .35rem
-            right: 50%
-            transform: translateX(50%)
+    position: fixed
+    top: 1.25rem
+    left: 50%
+    transform: translateX(-50%)
+    z-index: #{map-get($zindex, modal) + 1}
+    display: flex
+    flex-direction: column
 
 uni-toast
-    font-family: 'Roboto', sans-serif
-    position: relative
-    display: block
+    display: flex
+    width: 40rem
+    max-width: 95vw
+    padding: 1rem
+    font-family: var(--font-family)
     cursor: pointer
-    height: auto
-    vertical-align: center
-    width: 25rem
-    margin: .5rem
-    padding: 15px 2rem 15px 1rem
-    text-align: left
     border-radius: 4px
-    color: #fff !important
-    box-shadow: 0 3px 5px -1px rgba(0,0,0,.2), 0 6px 10px 0 rgba(0,0,0,.14), 0 1px 18px 0 rgba(0,0,0,.12)
+    overflow: hidden
+    opacity: 1
+    transform: none
+    transition: all 0.5s cubic-bezier(.36,-0.64,.34,1.76)
+    color: var(--text-color)
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25)
 
     &.good
-        background-color: rgba(1, 184, 1, 0.98) // transparentize(lighten($uni-color-good, 3%), .02)
-
+        background-color: var(--toast-good)
+        color: var(--toast-good-text)
     &.bad
-        background-color: rgba(210, 77, 87, 0.98) // transparentize($uni-color-bad, .02)
-
+        background-color: var(--toast-bad)
+        color: var(--toast-bad-text)
     &.warn
-        background-color: rgba(238, 131, 0, 0.98) // transparentize(lighten($uni-color-warn, 5%), .02)
+        background-color: var(--toast-warn)
+        color: var(--toast-warn-text)
+    &.info
+        background-color: var(--toast-info)
+        color: var(--toast-info-text)
+        .header, i.toast-type-icon
+            color: var(--color-c2a-dark)
 
-    i.material-icons
-        position: absolute
-        top: 15px
-        right: 10px
-        font-size: 19px
+    & + uni-toast
+        margin-top: .5rem
 
-    header
-        display: flex
-        font: 500 15px 'Roboto', sans-serif
 
-        span
-            flex: 1
+    &.toast-done
+        opacity: 0
+        transform: rotateX(-90deg)
 
+    i.toast-type-icon
+        flex: 0 0 auto
+        margin-right: .75rem
+
+    .toast-body
+        flex: 1
+        .header
+            font-weight: 500
+            font-size: 17px
             small.toast-count
-                color: #fff
+                color: var(--text-color)
                 font-weight: 300
                 font-size: 13px
 
-            &.toast-action
-                flex: 0 0 auto
-                margin: 1px 10px 0 auto
+        .message
+            margin-top: .5rem
 
-    .toast-message
-        display: block
-        padding-top: 10px
-        font: 400 13px 'Roboto', sans-serif
+        .toast-action
+            height: 30px
+            font-size: 13px
+            min-width: 8rem
+            margin-top: 1rem
 
-    .toast-action
-        display: inline-block
-        padding-top: 10px
-        font-size: 14px
-        text-decoration: underline
-
-    header .toast-action
-        padding-top: 0
-        margin-left: 5px
+    i.toast-close-icon
+        flex: 0 0 auto
+        margin-left: 1rem

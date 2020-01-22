@@ -18,10 +18,10 @@ export interface IAutoBankAgreementDetails {
     BankAccountID: number;
     BankAcceptance: boolean;
     IsBankBalance: boolean;
+    BankApproval: boolean;
     IsBankStatement: boolean;
     IsInbound: boolean;
     IsOutgoing: boolean;
-    BankApproval: boolean;
     Password: string;
     BankAccountNumber: number;
     _confirmPassword?: string;
@@ -117,7 +117,6 @@ export interface IAutoBankAgreementDetails {
 
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
-                    <span style="color: #9198aa; margin: 0 0 1.8rem 9.5rem;"> Fyll ut feltene under </span>
                     <uni-form
                         style="font-size: .9rem; width: 80%"
                         [config]="formConfig$"
@@ -125,8 +124,8 @@ export interface IAutoBankAgreementDetails {
                         [model]="formModel$"
                         (changeEvent)="onFormChange($event)">
                     </uni-form>
-                    <span style="font-weight: 400; margin: 1rem 0 1rem 9.5rem;">
-                        <span style="color: #9198aa;">Marker for ta med i avtale:</span>
+                    <span style="font-weight: 400; margin: 1rem 0 1rem .5rem;">
+                        <span style="color: #9198aa;">Marker for å ta med i avtale:</span>
                         <div class="payments-checkboxes">
                             <div>
                                 <i class="material-icons" (click)="agreementDetails.IsInbound = !agreementDetails.IsInbound">
@@ -164,21 +163,18 @@ export interface IAutoBankAgreementDetails {
                         Velg et passord for autobank. Dette passordet brukes for å sende betalinger.
                         <!-- Velg 2-faktor autentisering for å øke sikkerheten. Vi vil da også trenge et mobilnummer. -->
                     </p>
-                    <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
-                        Opprett passord for autobank
-                        <i class="material-icons two-factor-tooltip" matTooltip="{{ passwordCriteriaMsg }}">
-                            info
-                        </i>
-                    </span>
 
+                    <i class="material-icons" style="margin-bottom: 1rem;" [matTooltip]="passwordCriteriaMsg">
+                        info
+                    </i>
 
-                    <section class="uni-html-form bank-agreement-password-form">
-                        <label>
+                    <section>
+                        <label class="uni-label label-left">
                             <span>Passord</span>
                             <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails.Password">
                         </label>
 
-                        <label>
+                        <label class="uni-label label-left">
                             <span>Bekreft passord</span>
                             <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails._confirmPassword">
                         </label>
@@ -202,8 +198,8 @@ export interface IAutoBankAgreementDetails {
                             </div>
                         </span>
                     </span>
-                    <section class="uni-html-form bank-agreement-password-form" *ngIf="useTwoFactor">
-                        <label>
+                    <section *ngIf="useTwoFactor">
+                        <label class="uni-label label-left">
                             <span>Telefonr</span>
                             <input type="text" [(ngModel)]="agreementDetails.Phone">
                         </label>
@@ -290,8 +286,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         IsInbound: true,
         IsOutgoing: true,
         IsBankBalance: true,
-        IsBankStatement: true,
         BankApproval: true,
+        IsBankStatement: true,
         Password: '',
         _confirmPassword: '',
         BankAccountNumber: 0

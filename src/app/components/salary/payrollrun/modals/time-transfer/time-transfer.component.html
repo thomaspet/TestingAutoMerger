@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal timeTransfer">
-  <header>
-    <h1>Overføre timer</h1>
-  </header>
+  <header>Overføre timer</header>
   <article [attr.aria-busy]="busy">
     <section class="timeTransfer_uniform">
       <uni-form [config]="uniformConfig$" [fields]="uniformFields$" [model]="options.data" (changeEvent)="uniformChange($event)"></uni-form>
@@ -9,15 +7,9 @@
     <uni-table [resource]="data" [config]="uniTableConfig" [attr.aria-busy]="busy" (rowChanged)="rowChanged($event)" (rowSelectionChanged)="onRowSelectionChange($event)"></uni-table>
   </article>
   <footer>
-    <section role="group" class="comboButton" *ngIf="mainAction">
-        <button class="comboButton_btn good" type="button" (click)="mainAction.action()" [attr.aria-busy]="busy" [disabled]="mainAction.disabled">{{mainAction.label}}</button>
-        <button class="comboButton_more good" type="button" (click)="open = !open" aria-owns="saveActionMenu" [attr.aria-expanded]="open">More options</button>
-        <ul class="comboButton_moreList" [attr.aria-expanded]="open" role="menu">
-            <li *ngFor="let action of saveactions" (click)="action.action()" role="menuitem" [attr.aria-disabled]="action.disabled">{{action.label}}</li>
-        </ul>
-    </section>
-    <section>
+      <button class="good" (click)="createTimeTransactions()" [disabled]="!createTransesIsActive">
+        Overfør timer
+      </button>
       <button class="bad" (click)="closeModal()">Lukk</button>
-    </section>
   </footer>
 </section>

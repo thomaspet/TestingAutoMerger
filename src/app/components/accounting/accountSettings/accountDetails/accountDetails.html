@@ -1,3 +1,7 @@
+<div *ngIf="!(account$ | async)">
+    Velg en konto i tabellen til venstre for å vise detaljer om kontoen
+</div>
+
 <div *ngIf="account$ | async">
      <uni-form
         [config]="config$ | async"
@@ -11,8 +15,9 @@
         [model]="dimensions$ | async"
         (changeEvent)="onDimensionsChange($event)"
     ></uni-form>
-    <button (click)="deleteAccount()" [disabled]="deleteButtonDisabled">Slett</button>
+
+    <button class="secondary bad" (click)="deleteAccount()" *ngIf="!deleteButtonDisabled">
+        Slett konto
+    </button>
 </div>
-<div *ngIf="!(account$ | async)">
-    Velg en konto i tabellen til venstre for å vise detaljer om kontoen
-</div>
+

@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal large">
-    <header> <h1>{{description$ | async}}</h1> </header>
+    <header>{{description$ | async}}</header>
     <article [attr.aria-busy]="busy" class="scrollable">
         <uni-summary [configs]="summary"></uni-summary>
         <ag-grid-wrapper [resource]="transes" [config]="tableConfig"></ag-grid-wrapper>

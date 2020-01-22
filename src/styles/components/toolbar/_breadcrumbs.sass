@@ -16,15 +16,17 @@ uni-breadcrumbs
             display: inline-block
             font-size: 19px
             padding: 0 .3rem
-            color: $toolbar-grey
+            color: var(--scale1)
 
-        a:link,
-        a:visited
+        a
             text-transform: uppercase
             text-decoration: none
-            color: $toolbar-grey
-            font-size: 13px
+            color: var(--scale1)
+            font-size: 12px
 
-        a:hover,
-        a:focus
-            color: lighten($toolbar-grey, 10%)
+        a:hover
+            color: var(--link-color)
+
+        @media screen and (max-width: 1300px)
+            a
+                font-size: 11px

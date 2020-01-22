@@ -15,40 +15,45 @@ export interface ISelectOptions {
 @Component({
     selector: 'unitable-select',
     template: `
-        <article class="uniSelect">
-            <input type="text"
-                #inputElement
-                class="uniSelect_input"
+        <section class="input-with-button" (click)="expanded = !expanded">
+            <input #inputElement
+                type="text"
+                class="select-input"
                 role="combobox"
                 aria-autocomplete="none"
                 tabindex="0"
-                (click)="expanded = !expanded"
                 (keydown)="onKeyDown($event)"
                 [formControl]="inputControl"
-                readonly />
+                readonly
+            />
 
-            <ul #itemDropdown
-                [attr.aria-expanded]="expanded"
-                role="listbox"
-                class="uniTable_dropdown_list"
-                tabindex="-1">
-                <li *ngFor="let item of items; let idx = index"
-                    class="uniTable_dropdown_item"
-                    [attr.aria-selected]="idx === focusedIndex"
-                    (mouseover)="focusedIndex = idx"
-                    (click)="itemClicked(idx)">
-                    {{getDisplayValue(item)}}
-                </li>
-            </ul>
-        </article>
+            <button type="button" tabIndex="-1">
+                <i class="material-icons">expand_more</i>
+            </button>
+        </section>
+
+        <input-dropdown-menu [input]="inputElement" [visible]="expanded">
+            <ng-template>
+                <section #dropdown>
+                    <section class="dropdown-menu-item"
+                        *ngFor="let item of items; let idx = index"
+                        [attr.aria-selected]="idx === focusedIndex"
+                        (mouseover)="focusedIndex = idx"
+                        (click)="itemClicked(idx)">
+
+                        {{getDisplayValue(item)}}
+                    </section>
+                </section>
+            </ng-template>
+        </input-dropdown-menu>
     `
 })
 export class UnitableSelect {
     @ViewChild('inputElement')
     public inputElement: ElementRef;
 
-    @ViewChild('itemDropdown')
-    private itemDropdown: ElementRef;
+    @ViewChild('dropdown')
+    private dropdown: ElementRef;
 
     column: any;
     rowModel: any;
@@ -199,14 +204,11 @@ export class UnitableSelect {
     }
 
     private scrollToListItem() {
-        const list = this.itemDropdown.nativeElement;
-        const currItem = list.children[this.focusedIndex];
-        const bottom = list.scrollTop + (list.offsetHeight) - currItem.offsetHeight;
-
-        if (currItem.offsetTop <= list.scrollTop) {
-            list.scrollTop = currItem.offsetTop;
-        } else if (currItem.offsetTop >= bottom) {
-            list.scrollTop = currItem.offsetTop - (list.offsetHeight - currItem.offsetHeight);
+        if (this.dropdown && this.dropdown.nativeElement) {
+            const item: HTMLElement = this.dropdown.nativeElement.children[this.focusedIndex];
+            if (item) {
+                item.scrollIntoView({block: 'nearest'});
+            }
         }
     }
 

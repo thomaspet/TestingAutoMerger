@@ -14,7 +14,7 @@ import * as moment from 'moment';
                 <div>{{ displayValue || '-' }}</div>
             </div>
 
-            <i class="material-icons"> watch_later </i>
+            <i class="material-icons-outlined"> watch_later </i>
         </div>
     `,
     changeDetection: ChangeDetectionStrategy.OnPush

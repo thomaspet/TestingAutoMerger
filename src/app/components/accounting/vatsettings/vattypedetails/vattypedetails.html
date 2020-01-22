@@ -6,7 +6,7 @@
         (change)="onChange($event)">
     </uni-form>
 
-    <fieldset>
+    <fieldset class="uni-fieldset">
         <legend>Satser</legend>
         <ag-grid-wrapper
             [resource]="(vatType$ | async).VatTypePercentages"
@@ -14,7 +14,7 @@
         </ag-grid-wrapper>
     </fieldset>
 
-    <fieldset>
+    <fieldset class="uni-fieldset">
         <legend>Regnskap</legend>
         <ag-grid-wrapper
             [resource]="(vatType$ | async).VatReportReferences"

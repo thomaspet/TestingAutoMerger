@@ -1,33 +1,3 @@
-uni-bureau-dashboard
-    .right-side
-        height: 28rem
-        background-color: $uni-color-legend
-
-        table
-            white-space: nowrap
-            width: 100%
-            padding: .25rem 2rem
-            border-spacing: .5rem
-            line-height: 1rem
-
-        th, td
-            width: 50%
-
-        td:nth-child(2)
-            padding: 0 1rem
-            background: mix($uni-color-negative, $uni-color-c2a, 98%)
-            border-radius: pxToRem(3)
-
-        th ~ th
-            border-top: 2px solid $uni-color-positive
-            padding-top: 8px
-
-        tr
-            height: 1.75rem
-
-        hr
-            border-color: $uni-color-positive
-
 .bureau-company-details
     .tab-part
         margin: 0.5rem
@@ -46,7 +16,7 @@ uni-bureau-dashboard
             justify-content: center
             align-items: center
             margin: 0 0.8rem
-            color: $uni-color-legend2
+            color: $uni-color-toolbar
 
             img
                 display: block
@@ -68,26 +38,26 @@ uni-bureau-dashboard
                 margin-left: .25rem
 
     .invoice-icon
-        content: unicon-supplierinvoice($uni-color-legend2)
+        content: unicon-supplierinvoice($uni-color-toolbar)
 
     .journalentry-icon
-        content: unicon-journalentry($uni-color-legend2)
+        content: unicon-journalentry($uni-color-toolbar)
 
     .hours-icon
-        content: unicon-hourreg($uni-color-legend2)
+        content: unicon-hourreg($uni-color-toolbar)
 
     .amelding-icon
-        content: unicon-amelding($uni-color-legend2)
+        content: unicon-amelding($uni-color-toolbar)
 
     .payrollrun-icon
-        content: unicon-payrollrun($uni-color-legend2)
+        content: unicon-payrollrun($uni-color-toolbar)
 
     .sale-icon
-        content: unicon-sale($uni-color-legend2)
+        content: unicon-sale($uni-color-toolbar)
 
     .material-icons
         vertical-align: bottom
-        color: $uni-color-legend2
+        color: var(--color-c2a)
 
     .no_access
         display: block
@@ -100,10 +70,10 @@ uni-bureau-dashboard
         left: 0
         width: 100%
         height: 100%
-        background: $uni-color-scale9
-        color: $uni-color-legend2
+        background: var(--scale4)
+        color: var(--scale1)
         text-align: center
-        line-height: 28rem
+        padding-top: 4rem
 
     .small-header
         padding-top: 0.5rem

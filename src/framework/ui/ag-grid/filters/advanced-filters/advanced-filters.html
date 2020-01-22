@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign maybe-default">
+<section role="dialog" class="uni-modal">
     <header>Avansert filtrering</header>
 
     <article>
@@ -20,7 +20,7 @@
                 </select>
 
                 <!-- If date filter -->
-                <section *ngIf="filter.isDate; else nonDateFilter" class="date-input">
+                <section *ngIf="filter.isDate; else nonDateFilter" class="input-with-button">
                     <input class="filter-value-input"
                         [(ngModel)]="filter.value"
                         type="text"
@@ -29,7 +29,7 @@
                         (keydown.enter)="dateInput.blur();dateInput.focus();"
                     >
 
-                    <button class="icon-button calendar-toggle" (click)="picker.open()">
+                    <button (click)="picker.open()">
                         <i class="material-icons">date_range</i>
                     </button>
 
@@ -66,7 +66,7 @@
 
             </section>
 
-            <button class="add-button" (click)="addFilter()">
+            <button class="tertiary c2a add-button" (click)="addFilter()">
                 <i class="material-icons">add</i>
                 Legg til filter
             </button>
@@ -75,12 +75,9 @@
     </article>
 
     <footer>
-        <button class="c2a" (click)="submitFilters()">Aktiver søk</button>
-        <button (click)="close(false)">Avbryt</button>
+        <button class="secondary pull-left" (click)="close(false)">Avbryt</button>
 
-        <!-- <button (click)="close(true)">Nullstill</button> -->
-
-        <section class="input-with-button align-right">
+        <section class="save-section">
             <input type="text"
                 placeholder="Lagre søk som"
                 [(ngModel)]="searchName"
@@ -94,8 +91,13 @@
                 </mat-option>
             </mat-autocomplete>
 
-            <button (click)="saveSearch()" [disabled]="!searchName">Lagre</button>
+            <button class="tertiary c2a"
+                (click)="saveSearch()"
+                [disabled]="!searchName">
+                Lagre
+            </button>
         </section>
 
+        <button class="c2a" (click)="submitFilters()">Aktiver søk</button>
     </footer>
 </section>

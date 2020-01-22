@@ -1,0 +1,21 @@
+<!-- Full status track -->
+<section *ngIf="config?.length && showFullStatustrack" class="status-list">
+    <statustrack-status
+        *ngFor="let status of config"
+        [singleStatus]="!showFullStatustrack"
+        [entityType]="entityType"
+        [entityID]="entityID"
+        [status]="status"
+        (subStatusClick)="statusSelectEvent.next($event)">
+    </statustrack-status>
+</section>
+
+<!-- Single status -->
+<statustrack-status
+    *ngIf="!showFullStatustrack && activeStatus"
+    [singleStatus]="!showFullStatustrack"
+    [entityType]="entityType"
+    [entityID]="entityID"
+    [status]="activeStatus"
+    (subStatusClick)="statusSelectEvent.next($event)">
+</statustrack-status>

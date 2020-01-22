@@ -18,9 +18,7 @@ export interface EmailFormData {
     selector: 'uni-report-send-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Send rapport som e-post'}}</h1>
-            </header>
+            <header>{{options.header || 'Send rapport som e-post'}}</header>
             <article>
                 <uni-form
                     [config]="formConfig$"

@@ -77,6 +77,11 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kredittdager",
             "Field": "CreditDays",
             "DefaultHidden": true
@@ -208,6 +213,12 @@
             "Format": "SharingStatus",
             "width": "40px",
             "FilterSelectConfigKey": "SharingStatusCode"
+        },
+        {
+            "Header": "Fakturaliste",
+            "Field": "ExternalReference",
+            "DefaultHidden": true,
+            "Width": "125px"
         }
     ],
     "ParentFilter": {
@@ -840,13 +851,13 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Kredittdager",
-            "Field": "CreditDays",
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
             "DefaultHidden": true
         },
         {
-            "Header": "Kreditert",
-            "Field": "Credited",
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
             "DefaultHidden": true
         },
         {
@@ -1386,13 +1397,13 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Kredittdager",
-            "Field": "CreditDays",
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
             "DefaultHidden": true
         },
         {
-            "Header": "Kreditert",
-            "Field": "Credited",
+            "Header": "Kredittdager",
+            "Field": "CreditDays",
             "DefaultHidden": true
         },
         {
@@ -1891,7 +1902,7 @@
         }
     ]
 }, {
-    "Name": "Repeterende faktura",
+    "Name": "NAVBAR.RECURRING_INVOICE",
     "Code": "recurring_invoice_list",
     "RequiredUIPermissions": ["ui_sales_invoices"],
     "Type": "Table",
@@ -1907,7 +1918,7 @@
             "Type": "Link",
             "LinkNavigationProperty": "ID",
             "Width": 80,
-            "FilterOperator": "eq"
+            "FilterOperator": "startswith"
         },
         {
             "Header": "Kundenr.",
@@ -1956,6 +1967,11 @@
         {
             "Header": "Kommentar",
             "Field": "Comment",
+            "DefaultHidden": true
+        },
+        {
+            "Header": "Fritekst",
+            "Field": "FreeTxt",
             "DefaultHidden": true
         },
         {

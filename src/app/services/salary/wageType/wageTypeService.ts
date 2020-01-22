@@ -295,10 +295,16 @@ export class WageTypeService extends BizHttp<WageType> {
                             EntityType: 'wagetype',
                             Property: 'RateFactor',
                             FieldType: FieldType.NUMERIC,
-                            Label: 'Utbetales med tillegg i prosent',
+                            Label: 'Utbetalt i prosent av sats',
                             FieldSet: 2,
                             Section: 0,
-                            Options: {format: 'percent'}
+                            Options: {format: 'percent'},
+                            Tooltip: {
+                                Type: 'info',
+                                Text: 'Forklaring til utfylling: ' +
+                                    'Utbetales lønn inklusive 50% tillegg, fyll ut 150 i feltet. Utbetales kun tillegg på 50%, fyll ut 50 i feltet.' +
+                                    ' Tomt eller 100% i feltet tolkes som vanlig lønn uten tillegg.'
+                            },
                         },
                         {
                             EntityType: 'wagetype',
@@ -509,10 +515,9 @@ export class WageTypeService extends BizHttp<WageType> {
                         EntityType: 'wagetype',
                         Property: 'Systemtype',
                         FieldType: FieldType.TEXT,
-                        Label: 'UE lønnsart',
+                        Label: 'Standard lønnsart',
                         Tooltip: {
-                            Text: `Kobling mot Uni Economy standard lønnsartregister for
-                             automatisk vedlikehold av lønnsarten fra systemleverandør.`,
+                            Text: `Kobling mot standard lønnsartregister for automatisk vedlikehold av lønnsarten.`,
                         },
                         FieldSet: 1,
                         Section: 0

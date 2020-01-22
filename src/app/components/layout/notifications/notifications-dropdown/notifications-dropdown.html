@@ -3,7 +3,7 @@
         <h1>Varsler</h1>
         <span *ngIf="selectedFilter?.entityType">({{selectedFilter.label}})</span>
 
-        <button [matMenuTriggerFor]="filterMenu">
+        <button class="tertiary" [matMenuTriggerFor]="filterMenu">
             <i class="material-icons">filter_list</i>
             Filter
         </button>

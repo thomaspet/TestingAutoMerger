@@ -1,0 +1,28 @@
+.alert
+    display: block
+    padding: .75rem
+    margin: 0 0 1rem
+    font-weight: 500
+    font-size: 13px
+    box-sizing: border-box
+
+    border: 1px solid rgba(0, 0, 0, .15)
+    border-radius: var(--section-radius, 3px)
+    background-color: var(--alert-info)
+    color: var(--text-color) !important
+
+    a
+        font-size: 13px
+        font-weight: 500
+
+    &.error, &.bad
+        background-color: var(--alert-bad)
+
+    &.good, &.success
+        background-color: var(--alert-good)
+
+    &.warn
+        background-color: var(--alert-warn)
+
+    &.center
+        text-align: center

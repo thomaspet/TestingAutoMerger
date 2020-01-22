@@ -2,7 +2,7 @@
     <section>
         <h2>Send forespørsel om avstemming</h2>
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="model$" (changeEvent)="onFormChange($event)"></uni-form>
-        <p *ngIf="error" role="alert" class="error">{{error}}</p>
+        <section *ngIf="error" class="alert bad">{{error}}</section>
     </section>
     <footer>
         <button class="c2a" (click)="onReconciliationRequest()" [attr.aria-busy]="busy">Send forespørsel til Altinn</button>

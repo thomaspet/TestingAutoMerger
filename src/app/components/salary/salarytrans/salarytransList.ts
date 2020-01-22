@@ -53,7 +53,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
     public busy: boolean;
     private salaryTransactions: SalaryTransaction[];
     public filteredTranses: SalaryTransaction[];
-    private deleteButton: IDeleteButton;
     private refresh: boolean;
 
     constructor(
@@ -69,18 +68,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
     ) {
         super(router.url, cacheService);
-
-        this.deleteButton = {
-            disableOnReadonlyRows: true,
-            deleteHandler: (row: SalaryTransaction) => {
-                if (!row.IsRecurringPost && row.SystemType === StdSystemType.HolidayPayDeduction && !row['_isEmpty']) {
-                    this.onRowDeleted(row);
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        };
 
         route.params.subscribe((params) => {
             this.payrollRunID = +params['id'];
@@ -110,7 +97,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 if (this.salarytransEmployeeTableConfig) {
                     const isOpenRun = this.payrollRun ? this.payrollRun.StatusCode < 1 : false;
                     this.setEditable(isOpenRun);
-                    this.salarytransEmployeeTableConfig.setDeleteButton(isOpenRun ? this.deleteButton : false);
                 }
             });
 
@@ -319,19 +305,28 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                             (trans) => this.onSupplementModalClose(trans),
                             this.payrollRun && !!this.payrollRun.StatusCode);
                 }
-            },
-            {
-                label: 'Legg til dokument', action: (row) => {
-                    this.openDocumentsOnRow(row);
+                },
+                {
+                    label: 'Legg til dokument',
+                    action: (row) => {
+                        this.openDocumentsOnRow(row);
+                    }
+                },
+                {
+                    label: 'Slett post',
+                    action: (row) => {
+                        this.onRowDeleted(row);
+                    },
+                    disabled: (row) => !this.payrollRun || this.payrollRun.StatusCode >= 1
                 }
-            }])
+            ])
             .setColumns([
                 wageTypeCol, wagetypenameCol, employmentidCol, fromdateCol, toDateCol, accountCol, vatTypeCol,
                 amountCol, rateCol, sumCol, payoutCol, projectCol, departmentCol, supplementCol, fileCol
             ])
             .setAutoAddNewRow(true)
             .setColumnMenuVisible(true)
-            .setDeleteButton(this.payrollRun ? (this.payrollRun.StatusCode < 1 ? this.deleteButton : false) : false)
+            .setDeleteButton(false)
             .setPageable(false)
             .setChangeCallback((event) => {
                 const row: SalaryTransaction = event.rowModel;

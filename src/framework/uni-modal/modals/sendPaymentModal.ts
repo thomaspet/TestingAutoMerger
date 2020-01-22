@@ -1,17 +1,12 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ToastService, ToastType, ToastTime} from '../../uniToast/toastService';
-import {
-    ErrorService,
-    PaymentBatchService
-} from '../../../../src/app/services/services';
+import {ErrorService, PaymentBatchService} from '@app/services/services';
 
 @Component({
     template: `
-        <section role="dialog" class="uni-modal uni-send-payment-modal uni-redesign">
-            <header>
-                <h1>{{options.header || 'Send med autobank'}}</h1>
-            </header>
+        <section role="dialog" class="uni-modal uni-send-payment-modal">
+            <header>{{options.header || 'Send med autobank'}}</header>
             <article>
                 <section *ngIf="busy" class="modal-spinner">
                     <mat-spinner class="c2a"></mat-spinner>
@@ -20,12 +15,12 @@ import {
                     <i class="material-icons">phone_android</i>
                     <p> {{ fieldText }} </p>
                 </div>
-                <section class="uni-html-form bank-agreement-password-form">
-                    <label *ngIf="!isFirstStage">
+                <section>
+                    <label class="uni-label label-left" *ngIf="!isFirstStage">
                         <span>Tilsendt kode</span>
                         <input type="password" autocomplete="new-password" [(ngModel)]="model.Code">
                     </label>
-                    <label *ngIf="isFirstStage">
+                    <label class="uni-label label-left" *ngIf="isFirstStage">
                         <span>Passord</span>
                         <input type="password" autocomplete="new-password" [(ngModel)]="model.Password">
                     </label>
@@ -34,8 +29,10 @@ import {
             </article>
 
             <footer>
-                <button class="good" [disabled]="!model.Password && !model.Code" (click)="onGoodClick()">{{ okButtonText }}</button>
-                <button class="bad" (click)="onBadClick()">Avbryt</button>
+                <button class="secondary" (click)="onBadClick()">Avbryt</button>
+                <button class="c2a" [disabled]="!model.Password && !model.Code" (click)="onGoodClick()">
+                    {{ okButtonText }}
+                </button>
             </footer>
         </section>
     `

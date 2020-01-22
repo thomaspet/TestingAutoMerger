@@ -1,59 +1,56 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
-import {Address, Country} from '../../../app/unientities';
-import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
-import {
-    CountryService,
-    PostalCodeService,
-    ErrorService
-} from '../../../app/services/services';
-
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
-import {KeyCodes} from '../../../app/services/common/keyCodes';
-import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import {Address, Country} from '@uni-entities';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {CountryService, PostalCodeService, ErrorService} from '@app/services/services';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 
 @Component({
     selector: 'uni-address-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>
-                <h1>{{options.header || 'Adresse'}}</h1>
-            </header>
+            <header>{{options.header || 'Adresse'}}</header>
             <article>
-                <uni-form
+                <uni-form #form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$"
-                    (changeEvent)="formChange($event)"
-                    (readyEvent)="onReady()">
+                    (changeEvent)="formChange($event)">
                 </uni-form>
             </article>
 
             <footer>
-                <button class="good" (click)="close(true)">Ok</button>
-                <button class="bad" (click)="close(false)">Avbryt</button>
+                <button
+                    class="secondary"
+                    (click)="close(false)"
+                    (keydown.shift.tab)="$event.preventDefault(); form?.focus()">
+                    Avbryt
+                </button>
+
+                <button
+                    class="c2a"
+                    (click)="close(true)"
+                    (keydown.tab)="$event.preventDefault()">
+                    Ok
+                </button>
             </footer>
         </section>
     `
 })
 export class UniAddressModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter();
 
-    @Output()
-    public onClose: EventEmitter<any> = new EventEmitter();
+    formConfig$ = new BehaviorSubject({autofocus: true});
+    formModel$ = new BehaviorSubject(null);
+    formFields$ = new BehaviorSubject([]);
 
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public formModel$: BehaviorSubject<Address> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-
-    public initialState: any;
+    initialState: any;
 
     constructor(
         private countryService: CountryService,
         private postalCodeService: PostalCodeService,
         private errorService: ErrorService,
-        private elementRef: ElementRef
     ) {}
 
     public ngOnInit() {
@@ -65,11 +62,16 @@ export class UniAddressModal implements IUniModal {
         }
         this.initialState = Object.assign({}, address);
         this.formModel$.next(address);
-
         this.formFields$.next(fields);
     }
 
-    public formChange(changes) {
+    ngOnDestroy() {
+        this.formConfig$.complete();
+        this.formModel$.complete();
+        this.formFields$.complete();
+    }
+
+    formChange(changes) {
         if (changes['PostalCode'] && changes['PostalCode'].currentValue) {
             const address = this.formModel$.getValue();
             this.postalCodeService.GetAll(`filter=Code eq ${address.PostalCode}&top=1`)
@@ -83,26 +85,8 @@ export class UniAddressModal implements IUniModal {
         }
     }
 
-    public onReady() {
-        const inputs = <HTMLInputElement[]> this.elementRef.nativeElement.querySelectorAll('input');
-        if (inputs.length) {
-            const first = inputs[0];
-            first.focus();
-            first.value = first.value; // set cursor at end of text
-
-            const last = inputs[inputs.length - 1];
-            Observable.fromEvent(last, 'keydown')
-                .filter((event: KeyboardEvent) => (event.which || event.keyCode) === KeyCodes.ENTER)
-                .subscribe(() => this.close(true));
-        }
-    }
-
-    public close(emitValue?: boolean) {
-        if (emitValue) {
-            this.onClose.emit(this.formModel$.getValue());
-        } else {
-            this.onClose.emit(this.initialState);
-        }
+    close(emitValue?: boolean) {
+        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
     }
 
     private getFormFields(): UniFieldLayout[] {

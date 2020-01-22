@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
@@ -14,7 +13,6 @@ import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntity
 import {SubEntitySettingsService} from './agaAndSubEntitySettings/services/subEntitySettingsService';
 import {SubEntityDetails} from './agaAndSubEntitySettings/subEntityDetails';
 import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
-import {AltinnSettings} from './altinnSettings/altinnSettings';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
@@ -66,7 +64,6 @@ import {SalaryModule} from '../salary/salary.module';
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         RouterModule.forChild(settingsRoutes),
         UniFrameworkModule,
         CommonServicesModule,
@@ -88,7 +85,6 @@ import {SalaryModule} from '../salary/salary.module';
         AgaAndSubEntitySettings,
         SubEntityDetails,
         SubEntityList,
-        AltinnSettings,
         CompanySettingsComponent,
         UserManagement,
         UniRoleModal,
@@ -132,7 +128,6 @@ import {SalaryModule} from '../salary/salary.module';
         AgaAndSubEntitySettings,
         SubEntityDetails,
         SubEntityList,
-        AltinnSettings,
         CompanySettingsComponent,
         UniTerms,
         ChangeCompanySettingsPeriodSeriesModal,

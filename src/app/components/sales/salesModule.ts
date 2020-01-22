@@ -1,8 +1,9 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
+import {MatSlideToggleModule, MatTooltipModule, MatTreeModule} from '@angular/material';
+
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -15,16 +16,17 @@ import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 
-import { InvoiceList } from './invoice/list/invoiceList';
-import { OrderDetails } from './order/details/orderDetails';
-import { TradeItemHelper } from './salesHelper/tradeItemHelper';
-import { OrderList } from './order/list/orderList';
-import { UniOrderToInvoiceModal } from './order/orderToInvoiceModal';
-import { QuoteDetails } from './quote/details/quoteDetails';
-import { QuoteList } from './quote/list/quoteList';
+import {InvoiceList} from './invoice/list/invoiceList';
+import {OrderDetails} from './order/details/orderDetails';
+import {TradeItemHelper} from './salesHelper/tradeItemHelper';
+import {OrderList} from './order/list/orderList';
+import {UniOrderToInvoiceModal} from './order/orderToInvoiceModal';
+import {QuoteDetails} from './quote/details/quoteDetails';
+import {QuoteList} from './quote/list/quoteList';
 
 import {UniSales} from './sales';
 import {InvoiceDetails} from './invoice/details/invoice';
+import {SendInvoiceModal} from './invoice/modals/send-invoice-modal/send-invoice-modal';
 import {UniRecurringInvoice} from './recurringInvoice/recurringInvoiceDetails';
 import {RecurringInvoiceList} from './recurringInvoice/recurringInvoiceList';
 import {UniRecurringInvoiceLogModal} from './recurringInvoice/recurringInvoiceLogModal';
@@ -40,8 +42,11 @@ import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
+import {CustomerEditModal} from './common/customer-edit-modal/customer-edit-modal';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {TofReportModal} from './common/tof-report-modal/tof-report-modal';
+import {TofDistributionForm} from './common/tof-distribution-form';
 import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings';
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
@@ -57,30 +62,22 @@ import {SellerList} from './sellers/sellerList';
 import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
-import {UniDistibutionTOFView} from './common/distibutionForm';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
 import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
-import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
-import { MatSlideToggleModule, MatTooltipModule, MatCardModule, MatTreeModule, MatProgressBarModule, MatSelectModule, MatOptionModule } from '@angular/material';
-import { AvtaleGiroModal } from './customer/avtalegiro-modal/avtalegiro-modal';
-import { AprilaOfferModal } from './invoice/modals/aprila-offer/aprila-offer-modal';
-import { AprilaCreditNoteModal } from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
-import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal';
+import {KidModalComponent} from '@app/components/sales/customer/kid-modal/kid-modal.component';
+import {AvtaleGiroModal} from './customer/avtalegiro-modal/avtalegiro-modal';
+import {AprilaOfferModal} from './invoice/modals/aprila-offer/aprila-offer-modal';
+import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-credit-note-modal';
 
 @NgModule({
     imports: [
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         MatSlideToggleModule,
         MatTreeModule,
         MatTooltipModule,
-        MatCardModule,
-        MatProgressBarModule,
-        MatSelectModule,
-        MatOptionModule,
 
         RouterModule.forChild(salesRoutes),
 
@@ -102,15 +99,18 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
 
         TofHead,
         TofCustomerCard,
+        CustomerEditModal,
         TofDetailsForm,
         TofDeliveryForm,
+        TofDistributionForm,
         TradeItemTable,
+        TofReportModal,
         UniRecurringInvoiceSettingsView,
         UniTofSelectModal,
-        UniDistibutionTOFView,
 
         InvoiceList,
         InvoiceDetails,
+        SendInvoiceModal,
 
         UniRecurringInvoice,
         RecurringInvoiceList,
@@ -132,7 +132,6 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         UniReminderSendingModal,
         UniReminderSendingMethodModal,
         UniChooseOrderHoursModal,
-        BatchInvoiceModal,
         DebtCollection,
         SentToDebtCollection,
         InvoiceReminders,
@@ -162,6 +161,8 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         UniReminderSendingMethodModal,
         ReminderSending,
         InvoiceReminders,
+        SendInvoiceModal,
+        TofReportModal,
         UniTofSelectModal,
         UniProductDetailsModal,
         KidModalComponent,
@@ -170,7 +171,7 @@ import { BatchInvoiceModal } from './common/batchInvoiceModal/batchInvoiceModal'
         AvtaleGiroModal,
         AprilaOfferModal,
         AprilaCreditNoteModal,
-        BatchInvoiceModal
+        CustomerEditModal,
     ],
     providers: [
         TradeItemHelper,

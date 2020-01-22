@@ -7,7 +7,6 @@ import {Observable} from 'rxjs';
 @Injectable()
 export class UniFilesService {
     private uniFilesBaseUrl: string = environment.BASE_URL_FILES;
-    private uniFilesToken: string;
     private activeCompany: any;
 
     constructor(private http: HttpClient, private authService: AuthService) {
@@ -15,10 +14,6 @@ export class UniFilesService {
             if (authDetails) {
                 this.activeCompany = authDetails.activeCompany;
             }
-        });
-
-        this.authService.filesToken$.subscribe(token => {
-            this.uniFilesToken = token;
         });
     }
 
@@ -66,21 +61,6 @@ export class UniFilesService {
                 console.log('error syncing settings to uni files', err);
             }
         );
-    }
-
-    public checkAuthentication(): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            this.http.get(this.uniFilesBaseUrl + '/api/init/check-auth', {
-                headers: {
-                    'Accept': 'application/json',
-                    'Token': this.uniFilesToken,
-                    'Key': this.activeCompany.Key
-                }
-            }).subscribe(
-                () => resolve(true),
-                () => reject('Not authenticated')
-            );
-        });
     }
 
     public forceFullLoad(id: string): Observable<any> {
@@ -168,7 +148,7 @@ export class UniFilesService {
     }
 
     public splitFile(fileStorageReference, fromPage): Observable<any> {
-        const url = this.uniFilesBaseUrl + `/api/file/split?id=${fileStorageReference}&frompage=${fromPage}`
+        const url = this.uniFilesBaseUrl + `/api/file/split?id=${fileStorageReference}&frompage=${fromPage}`;
         return this.http.post(url, null, {
             observe: 'body',
             headers: {

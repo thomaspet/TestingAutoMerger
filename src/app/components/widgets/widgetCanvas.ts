@@ -19,10 +19,13 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
+import {environment} from 'src/environments/environment';
 
 import {Chart} from 'chart.js';
 import 'chartjs-plugin-datalabels';
 Chart.defaults.global.plugins.datalabels.display = false;
+Chart.defaults.global.defaultFontFamily = 'MuseoSans, Roboto';
+
 
 import {
     SHORTCUT_LISTS,
@@ -53,6 +56,7 @@ export interface IWidgetReference {
     x: number;
     y: number;
     widgetID: string;
+    widthOverride?: number;
 }
 
 export interface DefaultWidgetLayout {
@@ -103,6 +107,9 @@ export class UniWidgetCanvas {
 
     canvasHeight: number;
 
+    isSrEnvironment = environment.isSrEnvironment;
+    activeLinkLabel: string = 'Hjem';
+
     constructor(
         private cdr: ChangeDetectorRef,
         private toastService: ToastService,
@@ -138,12 +145,6 @@ export class UniWidgetCanvas {
                 ].filter(link => {
                     return this.authService.canActivateRoute(auth.user, link.url);
                 });
-
-                if (this.layout) {
-                    this.canvasHelper.resetGrid();
-                    const layout = this.canvasHelper.getSavedLayout(this.layoutName);
-                    this.initializeLayout(layout);
-                }
             }
         });
 
@@ -176,6 +177,19 @@ export class UniWidgetCanvas {
 
     ngOnChanges() {
         if (this.defaultLayout && this.layoutName) {
+            // When in SR, show name of current dashboard instead of companyname..
+            if (this.layoutName === 'dashboard') {
+                this.activeLinkLabel = 'Hjem';
+            } else {
+                const active = this.links.find(link => link.url === ('/' + this.layoutName));
+                if (active) {
+                    this.activeLinkLabel = active.label;
+                } else {
+                    // Should never happen, but just in case!
+                    this.activeLinkLabel = 'Startside';
+                }
+            }
+
             const layout = this.canvasHelper.getSavedLayout(this.layoutName);
             this.initializeLayout(layout);
         }
@@ -339,7 +353,7 @@ export class UniWidgetCanvas {
      }
 
     hardReset() {
-        if (!confirm('Ønsker du å gå tilbake til Uni Micro standard layout? Dette vil fjerne alle dine endringer')) {
+        if (!confirm('Ønsker du å gå tilbake til standard layout? Dette vil fjerne alle dine endringer')) {
             return;
         }
 
@@ -499,20 +513,28 @@ export class UniWidgetCanvas {
     }
 
     private initWidgetSelector() {
+        const filter = widgets => {
+            if (environment.isSrEnvironment) {
+                return widgets;
+            } else {
+                return widgets.filter(w => !w.srOnly);
+            }
+        };
+
         this.widgetSelectorItems = [
             {
                 label: 'Tellere',
-                items: COUNTERS
+                items: filter(COUNTERS)
             },
             {
                 label: 'Snarveier',
-                items: SHORTCUT_LISTS
+                items: filter(SHORTCUT_LISTS)
             },
             {
                 label: 'Diagram',
-                items: CHARTS
+                items: filter(CHARTS)
             },
-            ...MISC_WIDGETS,
+            ...filter(MISC_WIDGETS),
         ];
     }
 

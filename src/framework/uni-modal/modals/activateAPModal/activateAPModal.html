@@ -1,7 +1,5 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        <h1>{{options.header || 'EHF aktivering'}}</h1>
-    </header>
+    <header>{{options.header || 'EHF aktivering'}}</header>
     <article>
         <uni-form
             [config]="formConfig$"
@@ -11,20 +9,20 @@
     </article>
 
     <footer>
-        <button class="cancelpurchase bad" (click)="cancelPurchase()">
-            Avbestill
+        <button class="secondary pull-left" (click)="close()">
+            Avbryt
         </button>
 
-        <button class="warning" (click)="confirmTerms()">
+        <button class="secondary" (click)="confirmTerms()">
             Betingelser
         </button>
 
-        <button class="good" (click)="activate()" [disabled]="!termsAgreed">
-            Aktiver
+        <button class="secondary bad" (click)="cancelPurchase()">
+            Avbestill
         </button>
 
-        <button class="bad" (click)="close()">
-            Avbryt
+        <button class="c2a" (click)="activate()" [disabled]="!termsAgreed">
+            Aktiver
         </button>
     </footer>
 </section>

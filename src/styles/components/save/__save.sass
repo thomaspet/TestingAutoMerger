@@ -7,53 +7,23 @@
         opacity: 1
 
 uni-save
-    height: 2rem
     box-sizing: border-box
-
-.save-buttons
-    display: inline-block
-    position: relative
-    button
-        height: 2rem
-        box-sizing: border-box
-        line-height: 0
-        margin: 0
-        float: left
-        background: $uni-color-good
-        text-shadow: none
-        border-radius: 0
-
-        &:hover
-            transition: background .25s ease
-            background: darken($uni-color-good, 5%)
-
-    .toolbar-print,
-    .toolbar-email
-        @extend %hideText
+    .save-buttons
+        display: flex
         position: relative
 
-    .toolbar-save
-        min-width: 8rem
-        border-radius: 3px
+        .toolbar-save
+            min-width: 8rem
 
-        &[disabled],
-        &[aria-disabled]
-            background-color: desaturate(mix($uni-color-good, $uni-color-negative, 50%), 10%)
-
-    .toolbar-save-toggle
-        @extend %hideText
-        background: $uni-color-good unicon-chevron-down($uni-color-negative) center center no-repeat
-        background-size: .75rem auto
-        border-top-right-radius: 3px
-        border-bottom-right-radius: 3px
-
-        margin-left: -2px
-        border-left: 1px solid #fff
-
-        &:hover
-            background: darken($uni-color-good, 5%) unicon-chevron-down($uni-color-negative) center center no-repeat
-            background-size: .75rem auto
-
+        .good.toolbar-save-toggle
+            min-width: unset
+            border-top-left-radius: 0
+            border-bottom-left-radius: 0
+            padding: 0 8px
+            margin-left: -2px
+            border-left: 1px solid rgba(255, 255, 255, .75)
+            i.material-icons
+                margin: 0
 
 .uni-save-status
     position: fixed

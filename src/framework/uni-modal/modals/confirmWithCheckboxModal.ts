@@ -6,9 +6,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
     selector: 'uni-checkbox-confirm-modal',
     template: `
         <section role="dialog" class="uni-modal uni-redesign uni-confirm-with-checkbox-modal">
-            <header>
-                <h1 class="new">{{options.header}}</h1>
-            </header>
+            <header>{{options.header}}</header>
 
             <article>
                 <div class="warning-container" *ngIf="options.warning">

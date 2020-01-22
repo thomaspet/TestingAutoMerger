@@ -47,12 +47,28 @@ export function generateEHFMarkup(invoice: EHFData) {
                         ${getInvoiceSums(invoice)}
                     </section>
                 </section>
+
+                ${
+                    invoice.invoiceLines.some(x => !!x.note) ? `
+                        <section class="note-row">
+                            ${getNoteRow(invoice)}
+                        </section>` : ''
+                }
             </section>
         `;
     } catch (e) {
         console.error('Error generating EHF markup (ehf-markup-generator.ts)', e);
         return;
     }
+}
+
+function getNoteRow(invoice) {
+    const notes = invoice.invoiceLines.filter(line => !!line.note);
+    const lineNumber = notes.map((line, index) => index + 1);
+
+    return notes.filter(line => !!line.note).map(line =>
+        `<p><sup>[${ lineNumber.shift() }]</sup>${ line.note }</p>`
+        ).join('');
 }
 
 function getCompanyInfoMarkup(company) {
@@ -139,6 +155,8 @@ function getTableMarkup(invoice: EHFData) {
     }
 
     const hasProductNumber = invoice.invoiceLines.some(line => !!line.productNumber);
+    const hasDiscount = invoice.invoiceLines.some(line => !!line.discount);
+    const notes = invoice.invoiceLines.filter(line => !!line.note).map((x, i) => i + 1);
 
     return `
         <table>
@@ -148,6 +166,7 @@ function getTableMarkup(invoice: EHFData) {
                     <th>Tekst</th>
                     <th class="number">Antall</th>
                     <th class="number mva">Mva</th>
+                    ${ hasDiscount ? `<th class="number">Rabatt</th>` : ''}
                     <th class="number sum">Sum eks. mva</th>
                 </tr>
             </thead>
@@ -157,14 +176,17 @@ function getTableMarkup(invoice: EHFData) {
                     invoice.invoiceLines.map(line => `
                         <tr>
                             ${hasProductNumber ? `<td>${line.productNumber}</td>` : ''}
-                            <td>${line.productName}</td>
+                            <td>${line.productName}${ line.description ? `, ${ line.description }` : ''}
+                            ${ line.note ? `<sup>[${ notes.shift() }]</sup>` : ''}</td>
                             <td class="number">${line.quantity}</td>
                             <td class="number">${line.vatPercent ? line.vatPercent + '%' : ''}</td>
+                            ${ hasDiscount ? `<td class="number">${line.discount || '0'}%</td>` : ''}
                             <td class="number">${line.vatExclusiveAmount}</td>
                         </tr>
                     `).join('')
                 }
             </tbody>
+
         </table>
     `;
 }

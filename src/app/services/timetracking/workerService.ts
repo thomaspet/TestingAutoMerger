@@ -114,7 +114,7 @@ export class WorkerService extends BizHttp<Worker> {
             .usingStatisticsDomain()
             .withEndPoint(`?model=WorkTimeOff&filter=FromDate ge '${year}-01-01' and ToDate le '${year}-12-31' `
             + `and TimeoffType eq 1&orderby=FromDate`
-            + `&select=ToDate as ToDate,FromDate as FromDate,Description as Description`)
+            + `&select=ToDate as ToDate,FromDate as FromDate,Description as Description,ID as ID`)
             .send()
             .map(res => res.body);
     }

@@ -1,0 +1,74 @@
+<section role="dialog" class="uni-modal large" (keyup)="onKey($event)">
+    <header>Del opp fil</header>
+    <article class="image-split-modal-body" [attr.aria-busy]="isSplitting">
+
+        <div class="left-side">
+            <div *ngIf="processingPercentage" class="images_loading">
+                Prosesserer fil, {{processingPercentage}}% ferdig...
+            </div>
+
+            <section class="header" *ngIf="thumbnails.length > 0">Oppdeling</section>
+            <ul>
+                <li *ngFor="let part of parts">
+                    Dokument {{part.partNo}}: {{getPagesFromPart(part)}}
+                    <a (click)="removePart(part)">Nullstill</a>
+                </li>
+
+                <li *ngIf="currentPart">
+                    Dokument {{currentPart.partNo}}: {{getPagesFromPart(currentPart)}}
+                    <a (click)="clearCurrentPart()" *ngIf="currentPart?.Pages?.length">Nullstill</a>
+                </li>
+            </ul>
+
+            <button (click)="createNewPartFromSelected()" *ngIf="currentPart?.Pages?.length" class="tertiary c2a">
+                Legg til oppdeling
+            </button>
+
+            <p *ngIf="thumbnails.length > 0">
+                Kontroller at oppdelingen blir riktig i listen over. <br/>
+                Du kan også bruke piltastene og mellomromtasten for å velge sider. Holde inne shifttasten mens du navigerer med
+                piltastene for å markere flere sider.<br/>
+                Ctrl + Enter kan brukes for å opprette ny filinndeling med de valgte sidene, eller bruk knappen over.
+            </p>
+        </div>
+
+        <div class="images">
+            <div class="image_thumbnails" #thumbnailcontainer>
+                <section class="thumbnail" *ngFor="let thumbnail of visibleThumbnails | slice: 0 :numberOfVisibleImages; let idx = index"
+                    [ngClass]="thumbnail.class"
+                    (click)="thumbnailClicked(thumbnail.page, $event)"
+                    (focus)="thumbnailFocused(thumbnail, idx)"
+                    tabindex="0">
+
+                    <auth-img
+                        [src]="thumbnail.url"
+                        [alt]="thumbnail.page">
+                    </auth-img>
+                    <div class="pageno">Side {{thumbnail.page}}</div>
+                </section>
+            </div>
+
+            <section class="paging">
+                <button class="load-more"
+                    *ngIf="this.numberOfVisibleImages < this.visibleThumbnails.length"
+                    (click)="numberOfVisibleImages = numberOfVisibleImages + 10">
+                    Last flere
+                </button>
+
+                <section class="no-images" *ngIf="thumbnails.length && !visibleThumbnails.length">
+                    Ingen flere bilder å velge. Trykk "Del opp fil" under for å lagre endringene.
+                </section>
+            </section>
+        </div>
+    </article>
+
+    <footer>
+        <button class="secondary pull-left" [disabled]="isSplitting" (click)="close()">Avbryt</button>
+
+        <button class="secondary" [disabled]="isSplitting" (click)="clear()">Nullstill</button>
+        <button class="secondary" (click)="splitRemainingPerPage()" *ngIf="thumbnails.length > 0 && visibleThumbnails.length > 0">
+            Del opp dokumentet per side
+        </button>
+        <button [attr.aria-busy]="isSplitting" (click)="splitFile()" class="c2a">Del opp fil</button>
+    </footer>
+</section>

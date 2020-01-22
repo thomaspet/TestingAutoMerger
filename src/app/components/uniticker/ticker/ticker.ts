@@ -46,7 +46,7 @@ import { Observable, empty, forkJoin } from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
-import {GetPrintStatusText} from '../../../models/printStatus';
+import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
 
@@ -62,7 +62,6 @@ export const SharingTypeText = [
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
-    {ID: SharingType.Vipps, Title: 'Vipps'},
     {ID: SharingType.InvoicePrint, Title: 'Fakturaprint'},
     {ID: SharingType.Factoring, Title: 'Factoring'},
     {ID: SharingType.Efaktura, Title: 'Efaktura'},
@@ -1107,6 +1106,10 @@ export class UniTicker {
                         col.template = (rowModel) => GetPrintStatusText(rowModel[column.Alias]);
                     }
 
+                    if (column.SelectableFieldName.toLowerCase().endsWith('paymentstatus')) {
+                        col.template = (rowModel) => GetPaymentStatusText(rowModel[column.Alias]);
+                    }
+
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('sharing.type')
                         || (column.Alias && column.Alias.toLocaleLowerCase() === 'sharingtype')) {
                         col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
@@ -1461,24 +1464,13 @@ export class UniTicker {
             });
         }
 
-        let pageSize = window.innerHeight // Window size
-            - 144 // Form height
-            - 20 // Body margin and padding
-            - 32 // Application class margin
-            - 100; // Paddings and marings
-
-        pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
-        pageSize = pageSize > 6 ? pageSize : 6; // Lets keep a minumum of 6 rows
-
-
-        const config = new UniTableConfig(configStoreKey, false, true, this.groupingIsOn ? 100 : (this.ticker.Pagesize || pageSize))
+        const config = new UniTableConfig(configStoreKey, false, false, this.parentModel ? 5 : 30)
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(this.isMultiRowSelect())
             .setSearchListVisible(true)
-            .setAllowEditToggle(this.ticker.EditToggle)
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
             .setSearchable(true)
@@ -1497,12 +1489,12 @@ export class UniTicker {
                 .setSuppressDragLeaveHidesColumns(true)
                 .setAutoGroupColumnDef({
                     headerName: 'Gruppering',
-                    suppressMenu: true
+                    suppressMenu: true,
+                    minWidth: 150
                 });
         }
 
         config.isGroupingTicker = this.groupingIsOn;
-
         return config;
     }
 

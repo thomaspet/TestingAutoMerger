@@ -30,6 +30,15 @@
             </section>
 
         </section>
+        <section *ngIf="isAdmin" class="info-field">
+            <strong>Lisensavtalen</strong>
+            <span>
+                <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">
+                    <i class="material-icons" style="font-size: 18px; margin-bottom: 2px;">launch</i>
+                    Se avtalen
+                </a>
+            </span>
+        </section>
     </section>
 
     <section class="info-card">
@@ -50,7 +59,7 @@
         <h1>Administratorer</h1>
 
         <div class="pull-right">
-            <button *ngIf="isAdmin" (click)="addAdmin()" class="outline-c2a add-admin">
+            <button *ngIf="isAdmin" (click)="addAdmin()" class="tertiary c2a add-admin">
                 Legg til administrator
             </button>
 

@@ -1,5 +1,5 @@
 \:host
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
     margin: 0 1rem 0 2rem
 
 .widget-wrapper
@@ -8,15 +8,19 @@
 
 button.toggle
     position: relative
+    font-size: 14px
+    font-weight: 500
+    color: var(--scale1)
 
     .unread-indicator
         position: absolute
-        top: 3px
-        right: 3px
+        top: 5px
+        right: 5px
         width: 10px
         height: 10px
         border-radius: 50%
         background: #F53B57
+        color: #fff
 
 .content
     padding: 0

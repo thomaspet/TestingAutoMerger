@@ -1,15 +1,15 @@
-import {Component, Input, Output, EventEmitter, ViewChild, ElementRef, OnInit, OnChanges, AfterViewInit} from '@angular/core';
-import {IUniSaveAction, UniSave} from './../../../../framework/save/save';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {IUniSaveAction, UniSave} from '@uni-framework/save/save';
 import {IStatus} from '../../common/toolbar/statustrack';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {UniFieldLayout, FieldType} from '../../../../framework/ui/uniform/index';
 import {IUniTagsConfig, ITag} from './tags';
-import {ISelectConfig} from '../../../../framework/ui/uniform/index';
+import {ISelectConfig} from '@uni-framework/ui/uniform';
 import {IToolbarSearchConfig} from './toolbarSearch';
 import {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 import {Observable} from 'rxjs';
-declare const _; // lodash
-
+import {cloneDeep} from 'lodash';
+import {finalize, take} from 'rxjs/operators';
+import {ErrorService} from '@app/services/services';
+import {ToolbarSharingStatus} from './sharing-status/sharing-status';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -21,15 +21,38 @@ export interface IToolbarSubhead {
     event?: () => void;
 }
 
+export interface ToolbarButton {
+    label?: string;
+    icon?: string;
+    class?: string;
+    action: () => any | Observable<any>;
+    tooltip?: string;
+}
+
+export interface ToolbarDropdownButton {
+    label: string;
+    class?: string;
+    items: { label: string, action: () => any }[];
+}
+
 export interface IToolbarCreateNewAction {
     label: string;
     action: () => void;
+}
+
+export interface StatusIndicator {
+    label: string;
+    class?: string;
+    icon?: string;
+    subStatuses?: {label: string, timestamp?: Date, status?: string}[];
+    link?: string;
 }
 
 export interface IToolbarConfig {
     title?: string;
     subheads?: IToolbarSubhead[];
     statustrack?: IStatus[];
+    sharingStatusConfig?: {entityType: string, entityID: number};
     navigation?: {
         find?: (query: string) => void;
         prev?: () => void;
@@ -42,7 +65,10 @@ export interface IToolbarConfig {
     omitFinalCrumb?: boolean;
     entityID?: any;
     entityType?: string;
+    showSharingStatus?: boolean;
     numberSeriesTasks?: any;
+    buttons?: ToolbarButton[];
+    hideDisabledActions?: boolean;
 }
 
 export interface ICommentsConfig {
@@ -61,110 +87,60 @@ export interface IAutoCompleteConfig {
     valueProperty: string;
 }
 
-export interface IShareAction {
+export interface IContextMenuItem {
     label: string;
-    action: () => Observable<any>;
-    disabled?: () => boolean;
+    action: (item?: any) => void | Observable<any>;
+    disabled?: (item?: any) => boolean;
 }
 
 @Component({
     selector: 'uni-toolbar',
     templateUrl: './toolbar.html'
 })
-export class UniToolbar implements OnInit, OnChanges {
-    @ViewChild('toolbarRight') private toolbarRight;
+export class UniToolbar {
+    @ViewChild(ToolbarSharingStatus) sharingStatus: ToolbarSharingStatus;
+    @ViewChild(UniSave) save: UniSave;
 
-    @ViewChild(UniSave) private save: UniSave;
+    @Input() tags: ITag[];
+    @Input() tagConfig: IUniTagsConfig;
+    @Input() config: IToolbarConfig;
+    @Input() saveactions: IUniSaveAction[];
+    @Input() contextmenu: IContextMenuItem[];
+    @Input() statustrack: IStatus[];
+    @Input() showFullStatustrack: boolean;
+    @Input() customStatus: StatusIndicator;
+    @Input() commentsConfig: ICommentsConfig;
+    @Input() searchConfig: IToolbarSearchConfig;
+    @Input() selectConfig: any;
+    @Input() subheads: IToolbarSubhead[];
+    @Input() validationMessages: IToolbarValidation[];
+    @Input() dropdownButton: ToolbarDropdownButton;
 
-    @Input() public tags: ITag[];
-    @Input() public tagConfig: IUniTagsConfig;
-    @Input() public config: IToolbarConfig;
-    @Input() public shareActions: IShareAction[];
-    @Input() public saveactions: IUniSaveAction[];
-    @Input() public contextmenu: IContextMenuItem[];
-    @Input() public statustrack: IStatus[];
-    @Input() public commentsConfig: ICommentsConfig;
-    @Input() public autocompleteConfig: IAutoCompleteConfig;
-    @Input() public autocompleteModel: any = {};
-    @Input() public searchConfig: IToolbarSearchConfig;
-    @Input() public selectConfig: any;
-    @Input() public subheads: IToolbarSubhead[];
-    @Input() public validationMessages: IToolbarValidation[];
+    @Output() tagsChange = new EventEmitter();
+    @Output() tagsBusy: EventEmitter<boolean> = new EventEmitter();
 
-    @Output()
-    public tagsChange: EventEmitter<any> = new EventEmitter();
-    @Output()
-    public tagsBusy: EventEmitter<boolean> = new EventEmitter();
+    @Output() statusSelectEvent = new EventEmitter();
+    @Output() selectValueChanged = new EventEmitter();
 
-    @Output()
-    public statusSelectEvent: EventEmitter<any> = new EventEmitter();
+    searchVisible: boolean;
 
-    @Output()
-    public autocompleteReadyEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public autocompleteChangeEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public autocompleteFocusEvent: EventEmitter<any> = new EventEmitter();
-
-    @Output()
-    public selectValueChanged: EventEmitter<any> = new EventEmitter();
-
-    private autocompleteField: UniFieldLayout;
-    public searchVisible: boolean;
-
-    public uniSelectConfig: ISelectConfig = {
+    uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
         searchable: false,
         hideDeleteButton: true
     };
 
-    public ngOnInit() {
-        Observable.fromEvent(window, 'resize')
-            .throttleTime(200)
-            .subscribe(event => {
-                if (window.innerWidth <= 1100 && this.toolbarRight) {
-                    const container = this.toolbarRight.nativeElement;
-                    const tools = container.querySelector('#toolbar-tools');
-                    const save = container.querySelector('#toolbar-save');
+    constructor(private errorService: ErrorService) {}
 
-                    const width = Math.max(
-                        tools && tools.clientWidth,
-                        save && save.clientWidth
-                    );
-
-                    container.setAttribute('style', `flex-basis: ${width + 'px'};`);
-                }
-            });
+    ngOnChanges(changes) {
+        if (changes['selectConfig']) {
+            this.selectConfig = cloneDeep(this.selectConfig);
+        }
     }
 
-    public ngOnChanges(change) {
-        if (this.config) {
-            if (this.config.saveactions) {
-                console.warn(`
-                    ATTN. DEVELOPERS
-                    For change detection reasons some fields has been moved out `
-                    + `of toolbar config and into separate inputs.
-                    See example below. Ask Anders or Jørgen if you have any questions.
-                    <uni-toolbar [saveactions]="foo"
-                                 [contextmenu]="bar"
-                                 [statustrack]="baz"
-                                 [config]="config">
-                    </uni-toolbar>
-                `);
-            }
-        }
-
-        if (change['autocompleteConfig']) {
-            this.autocompleteField = new UniFieldLayout();
-            this.autocompleteField.Property = '';
-            this.autocompleteField.FieldType = FieldType.AUTOCOMPLETE;
-            this.autocompleteField.Options = this.autocompleteConfig;
-        }
-
-        if (change['selectConfig']) {
-            this.selectConfig = _.cloneDeep(this.selectConfig);
+    refreshSharingStatuses() {
+        if (this.sharingStatus) {
+            this.sharingStatus.loadStatuses();
         }
     }
 
@@ -180,6 +156,20 @@ export class UniToolbar implements OnInit, OnChanges {
             newAction();
         } else {
             newAction.action();
+        }
+    }
+
+    customButtonClick(button: ToolbarButton) {
+        const result = button.action();
+        if (result && result.subscribe) {
+            button['_busy'] = true;
+            result.pipe(
+                take(1),
+                finalize(() => button['_busy'] = false)
+            ).subscribe(
+                () => {},
+                err => this.errorService.handle(err)
+            );
         }
     }
 

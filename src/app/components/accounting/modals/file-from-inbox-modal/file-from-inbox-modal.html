@@ -12,7 +12,6 @@
             </ag-grid-wrapper>
 
             <uni-image *ngIf="selectedFile"
-                [useEhfReader]="true"
                 [singleImage]="true"
                 [readonly]="true"
                 [uploadWithoutEntity]="true"
@@ -22,6 +21,7 @@
     </article>
 
     <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
         <button
             (click)="onClose.emit(selectedFile)"
             class="c2a"
@@ -29,7 +29,5 @@
 
             Velg fil
         </button>
-
-        <button (click)="onClose.emit()">Avbryt</button>
     </footer>
 </section>

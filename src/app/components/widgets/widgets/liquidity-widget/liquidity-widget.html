@@ -1,0 +1,91 @@
+<section class="widget-wrapper">
+    <section class="header">
+        <span class="header-text"> Likviditetsprognose </span>
+        <section class="bullets">
+            <i class="material-icons" [ngClass]="mode === 'table' ? 'checked' : '' " (click)="changeMode('table')"> {{ mode === 'table' ? 'radio_button_checked' : 'radio_button_unchecked' }} </i>
+            <span> Tabell </span>
+
+            <i class="material-icons" [ngClass]="mode !== 'table' ? 'checked' : '' " (click)="changeMode('graph')"> {{ mode !== 'table' ? 'radio_button_checked' : 'radio_button_unchecked' }} </i>
+            <span> Graf </span>
+        </section>
+    </section>
+    <span class="balance-header"> {{ bankBalanceString }} <strong *ngIf="bankBalance"> Kr. {{ bankBalance }}</strong></span>
+
+   <article>
+        <section class="widget-body" *ngIf="mode === 'table' && data.length">
+            <table>
+                <thead>
+                    <tr>
+                        <th> </th>
+                        <th> I dag </th>
+                        <th> 7 dager </th>
+                        <th> 14 dager </th>
+                        <th> 30 dager </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr>
+                        <td> Kunde </td>
+                        <td> {{ data[0].Custumer | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[1].Custumer | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[2].Custumer | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[3].Custumer | uninumberformat: 'money': 0 }} </td>
+                    </tr>
+                    <tr>
+                        <td> Leverandør </td>
+                        <td> {{ data[0].Supplier | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[1].Supplier | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[2].Supplier | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[3].Supplier | uninumberformat: 'money': 0 }} </td>
+                    </tr>
+                    <tr>
+                        <td> Mva </td>
+                        <td> {{ data[0].VAT | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[1].VAT | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[2].VAT | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[3].VAT | uninumberformat: 'money': 0 }} </td>
+                    </tr>
+
+                    <tr>
+                        <td> <span (click)="addCustomerPayment(false)" class="other-link"> Andre </span> <i class="material-icons new-custom-payment" (click)="addCustomerPayment()" title="Legg til ny betaling i prognosen"> add_circle_outline </i> </td>
+                        <td> {{ data[0].CustomPayments | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[1].CustomPayments | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[2].CustomPayments | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[3].CustomPayments | uninumberformat: 'money': 0 }} </td>
+                    </tr>
+
+                    <tr class="sum-row">
+                        <td> Sum </td>
+                        <td> {{ data[0].Sum | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[1].Sum | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[2].Sum | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[3].Sum | uninumberformat: 'money': 0 }} </td>
+                    </tr>
+
+                    <tr class="liquidity-row">
+                        <td> Likviditet </td>
+                        <td [ngClass]="data[0].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[0].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
+                        <td [ngClass]="data[1].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[1].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
+                        <td [ngClass]="data[2].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[2].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
+                        <td [ngClass]="data[3].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[3].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
+                    </tr>
+
+                </tbody>
+            </table>
+        </section>
+
+        <section class="widget-body" *ngIf="mode !== 'table'">
+            <div style="height: 100%">
+                <canvas #liquidity></canvas>
+            </div>
+        </section>
+
+   </article>
+
+   <footer>
+       <a title="Gå til liste over forfalte faktura" (click)="goToOverdueInvoiceList()"> Forfalte kundefaktura: kr. {{ sumOverdueInvoices }} </a>
+       <a title="Gå til liste over regninger" (click)="goToSupplierInvoices()">Forfalte regninger: kr. {{ sumSupplierInvoices }} </a>
+   </footer>
+
+</section>

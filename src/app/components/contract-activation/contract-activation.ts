@@ -1,67 +1,92 @@
 import {Component, HostBinding} from '@angular/core';
-import {FormGroup, FormControl, Validators, AbstractControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {forkJoin} from 'rxjs';
-
-import {CompanySettings, User, Agency, Company} from '@uni-entities';
+import {take} from 'rxjs/operators';
+import {CompanySettings} from '@uni-entities';
 import {AuthService} from '@app/authService';
 import {CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
+import {ElsaCustomer} from '@app/models';
+import {environment} from 'src/environments/environment';
 import {
-    ModulusService,
     CompanySettingsService,
     ErrorService,
-    BusinessRelationService,
     ElsaContractService,
-    CompanyService,
     ElsaCustomersService,
+    InitService,
+    CompanyService,
 } from '@app/services/services';
-import { take } from 'rxjs/operators';
-import { ElsaCustomer } from '@app/models';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {CompanyDetails} from './company-details-form/company-details-form';
+import {TabService} from '../layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'contract-activation',
     templateUrl: './contract-activation.html',
     styleUrls: ['./contract-activation.sass'],
-    host: {'class': 'uni-redesign'}
 })
 export class ContractActivation {
     @HostBinding('class.overlay') trialExpired: boolean;
 
-    licenseData: FormGroup;
-    noBrRegMatch: boolean;
+    isSrEnvironment = environment.isSrEnvironment;
+    lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
+
+    headerText = this.isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktivering av kundeforhold';
+    buttonText = this.isSrEnvironment ? 'Bestill' : 'Aktiver kontrakt';
 
     busy: boolean;
+    isTestCompany = false;
+    companyCreationMode = false;
+    companyCreationBusy = false;
+
     isDemoLicense: boolean;
     canActivateContract: boolean;
 
-    wrongCompanyMessage: string;
-    mainCompany: Company;
-
+    contractID: number;
     companySettings: CompanySettings;
-    customer: ElsaCustomer;
+    elsaCustomer: ElsaCustomer;
+
+    companyDetails: CompanyDetails = {};
+
+    isEnk: boolean;
+    includeVat: boolean;
+    includeSalary: boolean;
+
+    hasAcceptedTerms = false;
+    isBureau = false;
+    isSrCustomer = false;
 
     constructor(
+        private initService: InitService,
+        private toastService: ToastService,
         private authService: AuthService,
         private modalService: UniModalService,
-        private modulusService: ModulusService,
         private router: Router,
-        private brService: BusinessRelationService,
         private errorService: ErrorService,
-        private companyService: CompanyService,
         private companySettingsService: CompanySettingsService,
         private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
+        private companyService: CompanyService,
+        private tabService: TabService,
     ) {
+        this.tabService.addTab({
+            name: 'Aktivering av kundeforhold',
+            url: '/contract-activation',
+        });
+
         this.authService.authentication$.pipe(take(1)).subscribe(auth => {
             this.trialExpired = auth && !auth.hasActiveContract;
-
             try {
                 const license = auth.user.License;
+                this.contractID = license.Company && license.Company.ContractID;
+
                 this.canActivateContract = license.CustomerAgreement.CanAgreeToLicense;
                 this.isDemoLicense = license.ContractType.TypeName === 'Demo';
 
                 if (this.canActivateContract && this.isDemoLicense) {
-                    this.checkCompanyAccess(license);
+                    this.isTestCompany = auth && auth.activeCompany && auth.activeCompany.IsTest;
+                    if (!this.isTestCompany) {
+                        this.initActivationData(license.Company.ContractID);
+                    }
                 }
             } catch (e) {
                 console.error(e);
@@ -78,171 +103,198 @@ export class ContractActivation {
         }
     }
 
-    private checkCompanyAccess(license) {
-        const activeCompany = this.authService.activeCompany;
-        const agency: Agency = license.Company.Agency || {};
-        const contractID = license.Company.ContractID;
-        // Check if the agency company is currently active
-        if (agency.CompanyKey === activeCompany.Key) {
-
-            this.initActivationData(contractID);
-        } else {
-            this.wrongCompanyMessage = `Kundeforhold må aktiveres fra hovedselskap: `;
-            this.companyService.GetAll().subscribe(
-                companies => {
-                    this.mainCompany = companies.find(c => c.Key === agency.CompanyKey);
-                    // If the user does not have access to the main company we just add
-                    // the agency name to the message, so they at least know which it is.
-                    // If they do have access we'll add a link to the company in the html.
-                    if (!this.mainCompany) {
-                        this.wrongCompanyMessage += agency.Name;
-                    }
-                },
-                err => console.error(err)
-            );
-        }
-    }
-
     private initActivationData(contractID: number) {
-        this.licenseData = new FormGroup({
-            orgNumber: new FormControl('', this.orgNumberValidator.bind(this)),
-            companyName: new FormControl('', Validators.required),
-            address: new FormControl('', Validators.required),
-            postalCode: new FormControl('', Validators.required),
-            city: new FormControl('', Validators.required),
-            isBureau: new FormControl(false),
-            name: new FormControl('', Validators.required),
-            phone: new FormControl('', Validators.required),
-            email: new FormControl('', Validators.email),
-            hasAcceptedTerms: new FormControl(false, Validators.requiredTrue)
-        });
-
         forkJoin(
             this.companySettingsService.Get(1),
             this.elsaCustomerService.getByContractID(contractID)
         ).subscribe(
-            res => this.mapDataToFormModel(res[0], res[1]),
-            err => this.errorService.handle(err)
-        );
-    }
+            res => {
+                const settings: CompanySettings = res[0] || {};
+                const customer = <any> res[1] || {};
 
-    goToMainCompany() {
-        this.authService.setActiveCompany(this.mainCompany);
-    }
+                this.companySettings = <CompanySettings> {
+                    ID: settings.ID,
+                    CompanyName: settings.CompanyName,
+                    OrganizationNumber: settings.OrganizationNumber,
+                    DefaultAddress: settings.DefaultAddress || <any> {_createguid: this.companySettingsService.getNewGuid()}
+                };
 
-    activate() {
-        this.busy = true;
+                this.elsaCustomer = customer;
 
-        const formData = this.licenseData.value;
-        const settings = this.companySettings;
-        const customer = this.customer;
-
-        settings.OrganizationNumber = formData.orgNumber;
-        settings.CompanyName = formData.companyName;
-
-        if (!settings.DefaultAddress) {
-            settings.DefaultAddress = <any> {
-                _createguid: this.companySettingsService.getNewGuid()
-            };
-        }
-
-        settings.DefaultAddress.AddressLine1 = formData.address;
-        settings.DefaultAddress.PostalCode = formData.postalCode;
-        settings.DefaultAddress.City = formData.city;
-
-        customer.ContactPerson = formData.name;
-        customer.ContactPhone = formData.phone;
-        customer.ContactEmail = formData.email;
-
-        forkJoin(
-            this.companySettingsService.Put(1, settings),
-            this.elsaCustomerService.put(customer)
-        ).subscribe(
-            () => {
-                const contractID = this.authService.currentUser.License.Company.ContractID;
-                if (contractID) {
-                    this.elsaContractService.activateContract(
-                        contractID, formData.isBureau
-                    ).subscribe(
-                        () => {
-                            this.authService.loadCurrentSession().subscribe(() => {
-                                this.trialExpired = false;
-                                this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
-                                this.router.navigateByUrl('/');
-                            });
-                        },
-                        err => this.errorService.handle(err)
-                    );
-                }
+                this.companyDetails = {
+                    CompanyName: this.companySettings.CompanyName,
+                    OrganizationNumber: this.companySettings.OrganizationNumber,
+                    Address: this.companySettings.DefaultAddress.AddressLine1,
+                    PostalCode: this.companySettings.DefaultAddress.PostalCode,
+                    City: this.companySettings.DefaultAddress.City,
+                    Country: this.companySettings.DefaultAddress.Country
+                };
             },
             err => this.errorService.handle(err)
         );
     }
 
-    brRegLookup() {
-        const orgNumberControl = this.licenseData.controls['orgNumber'];
-        if (orgNumberControl.value && orgNumberControl.valid) {
-            const orgNumberTrimmed = orgNumberControl.value.replace(/\ /g, '');
-            orgNumberControl.setValue(orgNumberTrimmed, {emitEvent: false});
+    activate() {
+        this.companySettings.CompanyName = this.companyDetails.CompanyName;
+        this.companySettings.OrganizationNumber = this.companyDetails.OrganizationNumber;
+        this.companySettings.DefaultAddress.AddressLine1 = this.companyDetails.Address;
+        this.companySettings.DefaultAddress.PostalCode = this.companyDetails.PostalCode;
+        this.companySettings.DefaultAddress.City = this.companyDetails.City;
+        this.companySettings.DefaultAddress.Country = this.companyDetails.Country;
+        this.companySettings.DefaultAddress.CountryCode = this.companyDetails.CountryCode;
 
-            this.brService.search(orgNumberTrimmed).subscribe(
-                res => {
-                    const brRegInfo = res[0];
+        if (!this.companySettings.CompanyName || !this.companySettings.OrganizationNumber) {
+            this.toastService.toast({
+                title: 'Mangler data',
+                message: 'Firmanavn og organisasjonsnummer er påkrevde felter',
+                type: ToastType.warn,
+                duration: 5
+            });
 
-                    if (brRegInfo) {
-                        this.noBrRegMatch = false;
-                        const isBureau = brRegInfo.nkode1 === '69.201'
-                            || brRegInfo.nkode2 === '69.201'
-                            || brRegInfo.nkode3 === '69.201';
-
-                        this.licenseData.patchValue({
-                            companyName: brRegInfo.navn,
-                            address: brRegInfo.forretningsadr,
-                            postalCode: brRegInfo.forradrpostnr,
-                            city: brRegInfo.forradrpoststed,
-                            isBureau: isBureau
-                        });
-                    } else {
-                        this.noBrRegMatch = true;
-                    }
-                },
-                err => console.error(err) // fail silently
-            );
+            return;
         }
+
+        if (!this.elsaCustomer.ContactPerson || this.elsaCustomer.ContactPerson.length <= 5) {
+            this.toastService.toast({
+                title: 'Navn på kontaktperson må være mer enn 5 bokstaver'
+            });
+
+            return;
+        }
+
+        this.busy = true;
+        this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
+        this.elsaCustomer.OrgNumber = this.companySettings.OrganizationNumber;
+
+        forkJoin(
+            this.companySettingsService.Put(1, this.companySettings),
+            this.elsaCustomerService.put(<any> this.elsaCustomer)
+        ).subscribe(
+            () => {
+                if (this.contractID) {
+                    this.elsaContractService.activateContract(
+                        this.contractID, this.isBureau, (this.isSrEnvironment && !this.isSrCustomer) ? 3 : null)
+                        .subscribe( () => {
+                            setTimeout(() => {
+                                this.authService.loadCurrentSession().subscribe((user) => {
+                                    this.trialExpired = false;
+                                    if (!(this.isSrEnvironment && !this.isSrCustomer)) {
+                                        this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
+                                    }
+                                    this.router.navigateByUrl('/');
+                                });
+
+                                if (this.isSrEnvironment && !this.isSrCustomer) {
+                                    let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
+                                    if (this.companySettings.OrganizationNumber) {
+                                        url += `?bm-orgNumber=${this.companySettings.OrganizationNumber}`;
+                                    }
+                                    window.open(url, '_blank');
+                                }
+                            }, 250);
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.busy = false;
+                        }
+                    );
+                }
+            },
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
     }
 
-    private mapDataToFormModel(settings: CompanySettings, customer: ElsaCustomer) {
-        this.companySettings = settings;
-        this.customer = customer;
-        const companyAddress: any = settings.DefaultAddress || {};
+    createCompany() {
+        if (!this.companyDetails || !this.companyDetails.CompanyName || !this.companyDetails.OrganizationNumber) {
+            this.toastService.toast({
+                title: 'Mangler data',
+                message: 'Firmanavn og organisasjonsnummer er påkrevde felter',
+                type: ToastType.warn,
+                duration: 5
+            });
 
-        this.licenseData.patchValue({
-            orgNumber: settings.OrganizationNumber,
-            companyName: settings.CompanyName,
-            address: companyAddress.AddressLine1,
-            postalCode: companyAddress.PostalCode,
-            city: companyAddress.City,
-            name: customer.ContactPerson,
-            phone: customer.ContactPhone,
-            email: customer.ContactEmail,
+            return;
+        }
+
+        this.initService.getTemplates().subscribe(templates => {
+            const template = this.getCorrectTemplate(templates);
+            const body = {
+                CompanyName: this.companyDetails.CompanyName,
+                ContractID: this.contractID,
+                CompanySettings: this.companyDetails,
+                ProductNames: 'SrBundle',
+                TemplateCompanyKey: template && template.Key
+            };
+
+            this.initService.createCompany(body).subscribe(
+                () => {
+                    this.companyCreationBusy = true;
+                    this.checkCreationStatus(body.CompanyName);
+                },
+                err => {
+                    this.errorService.handle(err);
+                }
+            );
+        });
+    }
+
+    private checkCreationStatus(companyName: string) {
+        this.initService.getCompanies().subscribe(
+            companies => {
+                const nameLowerCase = companyName.toLowerCase();
+                const company = (companies || []).find(c => {
+                    return (c.Name || '').toLowerCase() === nameLowerCase;
+                });
+
+                if (company) {
+                    this.busy = false;
+                    this.companyService.invalidateCache();
+                    this.authService.setActiveCompany(company, '/contract-activation');
+                } else {
+                    setTimeout(() => this.checkCreationStatus(companyName), 3000);
+                }
+            },
+            () => setTimeout(() => this.checkCreationStatus(companyName), 3000)
+        );
+    }
+
+    private getCorrectTemplate(templates) {
+        const filteredTemplates = (templates || []).filter(template => {
+            if (template.IsTest) {
+                return false;
+            }
+
+            const name = template.Name;
+            if (this.isEnk && name.includes('MAL AS')) {
+                return false;
+            }
+
+            if (!this.isEnk && name.includes('MAL ENK')) {
+                return false;
+            }
+
+            if (this.includeVat && name.includes('uten mva')) {
+                return false;
+            }
+
+            if (!this.includeVat && name.includes('med mva')) {
+                return false;
+            }
+
+            if (this.includeSalary && name.includes('uten lønn')) {
+                return false;
+            }
+
+            if (!this.includeSalary && name.includes('med lønn')) {
+                return false;
+            }
+
+            return true;
         });
 
-        // Run br-reg lookup when the user changes orgnumber (to a valid one)
-        this.licenseData.get('orgNumber').valueChanges
-            .distinctUntilChanged()
-            .subscribe(() => {
-                if (this.licenseData.get('orgNumber').valid) {
-                    this.brRegLookup();
-                }
-            });
-    }
-
-    private orgNumberValidator(control: AbstractControl) {
-        const orgNumber = (control.value || '').replace(/\ /g, '');
-        if (!orgNumber || !this.modulusService.isValidOrgNr(orgNumber)) {
-            return { 'orgNumber': true };
-        }
-
-        return null;
+        return filteredTemplates[0];
     }
 }

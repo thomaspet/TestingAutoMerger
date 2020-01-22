@@ -6,6 +6,7 @@ export enum ToastType {
     bad = 1,
     good = 2,
     warn = 3,
+    info = 4,
 }
 
 export enum ToastTime {
@@ -27,7 +28,6 @@ export interface IToastOptions {
     duration?: number;
     type?: ToastType;
     action?: IToastAction;
-    centered?: boolean;
 }
 
 export interface IToast {
@@ -38,7 +38,7 @@ export interface IToast {
     duration: number;
     count: number;
     action?: IToastAction;
-    centered?: boolean;
+    done?: boolean;
 }
 
 @Injectable()
@@ -55,11 +55,10 @@ export class ToastService {
     toast(options: IToastOptions) {
         this.addToast(
             options.title,
-            options.type || ToastType.bad,
+            options.type || ToastType.warn,
             options.duration || 0,
             options.message,
             options.action,
-            options.centered
         );
     }
 
@@ -69,7 +68,6 @@ export class ToastService {
         durationInSeconds?: number,
         message?: string,
         action?: IToastAction,
-        centered?: boolean
     ): number {
         let toastID: number;
         const sanitizedMessage = this.domSanitizer.sanitize(SecurityContext.HTML, message);
@@ -89,19 +87,17 @@ export class ToastService {
                 duration: duplicate.duration,
                 count: duplicate.count + 1,
                 action: action,
-                centered: centered
             };
         } else {
             toastID = this.nextId++;
             this.toasts.push(<IToast>{
                 id: toastID,
-                type: type || ToastType.bad,
+                type: type || ToastType.warn,
                 title: title,
                 message: sanitizedMessage || '',
                 duration: durationInSeconds || 0,
                 count: 1,
                 action: action,
-                centered: centered
             });
         }
 

@@ -23,6 +23,7 @@ export class AmeldingReceiptView {
     public mottattLeveranserIPeriodenConfig: UniTableConfig;
     private periods: any[] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
     private identificationObject: any = {};
+    public isRejected: boolean = false;
 
     constructor(
         private _ameldingService: AMeldingService
@@ -60,6 +61,7 @@ export class AmeldingReceiptView {
             this.alleAvvikNoder.forEach(avvik => {
                 if (period === avvik.belongsToPeriod) {
                     periodAvvik.periodeAvvik.push(avvik);
+                    this.isRejected = avvik['alvorlighetsgrad'] === 'avvisning';
                 }
             });
             if (periodAvvik.periodeAvvik.length) {

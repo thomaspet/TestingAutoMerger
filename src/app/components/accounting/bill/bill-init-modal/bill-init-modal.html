@@ -1,0 +1,40 @@
+<section role="dialog" class="uni-modal">
+    <header> {{ 'ACCOUNTING.SUPPLIER_INVOICE.NEW' | translate }} </header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="inbox" *ngIf="inboxFiles?.length">
+            <section class="header">Fra innboks</section>
+
+            <section class="file-list">
+                <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
+                    Ingen dokumenter i innboks
+                </section>
+
+                <section class="list-item"
+                    *ngFor="let file of inboxFiles"
+                    (click)="onClose.emit(file.ID)">
+
+                    <span>{{file.Name}}</span>
+                    <span class="date">{{file.CreatedAt | date: 'dd.MM.yyyy'}}</span>
+                </section>
+            </section>
+        </section>
+
+        <label class="upload">
+            <input type="file" (change)="uploadFile($event)" />
+
+            <button class="upload-button tertiary c2a">
+                <i class="material-icons">cloud_upload</i>
+                Last opp dokument
+            </button>
+        </label>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Lukk</button>
+    </footer>
+</section>

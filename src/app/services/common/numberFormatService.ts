@@ -2,7 +2,7 @@ import {INumberOptions} from '../../../framework/ui/uniform/index';
 import {Injectable} from '@angular/core';
 
 const HAIRSPACE = '\u200A';
-const THINSPACE = '\u2009';
+const THINSPACE = ' ';
 
 @Injectable()
 export class NumberFormat {
@@ -63,7 +63,6 @@ export class NumberFormat {
         integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, options.thousandSeparator);
 
         stringValue = decimal ? (integer + options.decimalSeparator + decimal) : integer;
-
         return stringValue;
     }
 }

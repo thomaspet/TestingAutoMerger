@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: false,
+    isSrEnvironment: false,
 
     authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
@@ -9,7 +10,6 @@ export const environment = {
     BASE_URL: 'http://localhost:29077',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://dev-unipushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
@@ -26,10 +26,6 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
-    },
-
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
     },
 
     RAYGUN_API_KEY: '',
@@ -51,6 +47,8 @@ export const environment = {
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: '<<voucher-template-url>>'
-    }
+        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx'
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };

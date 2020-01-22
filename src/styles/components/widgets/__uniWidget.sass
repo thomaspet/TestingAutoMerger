@@ -1,7 +1,7 @@
 uni-widget-canvas
     display: block
     width: 100%
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
 
 .canvas-cell,
 .grid-anchor
@@ -10,15 +10,15 @@ uni-widget-canvas
     box-sizing: border-box
     margin-right: 10px
     margin-bottom: 10px
-    border: 1px dashed $uni-color-positive
-    border-radius: 2px
+    border: 1px dashed var(--border-color)
+    border-radius: var(--section-radius)
 
 .grid-anchor
     z-index: #{map-get($zindex, base) + 1}
     &.valid-anchor
-        border: 2px solid $uni-color-positive
+        border: 2px solid var(--border-color)
     &.invalid-anchor
-        border: 2px solid $uni-color-bad
+        border: 2px solid var(--color-bad)
 
 .widget-canvas
     width: 95%
@@ -32,8 +32,8 @@ uni-widget-canvas
         display: block
         position: absolute
         background: #fff
-        box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.05)
-        border-radius: 2px
+        border: 1px solid var(--border-color)
+        border-radius: var(--section-radius)
 
     &.edit-mode
         uni-widget:active
@@ -104,7 +104,7 @@ uni-widget
         align-items: center
         justify-content: center
         height: 100%
-        color: #707d90
+        color: var(--scale1)
         font-size: 14px
 
 uni-widget:hover .widget-remove-btn
@@ -124,10 +124,9 @@ uni-widget-canvas
     display: flex
     height: 100%
     flex-direction: column
-    font-family: 'Roboto', sans-serif
-    font-size: 15px
+    font-family: var(--font-family)
     padding: 0 // 1.5rem
-    color: #596879
+    color: var(--text-color)
     text-align: left
     position: relative
 
@@ -135,27 +134,39 @@ uni-widget-canvas
         flex: 0 0 50px
         display: flex
         align-items: center
+        color: var(--widget-header-color)
+        font-size: var(--widget-header-size)
         font-weight: 500
         padding: 0 1.5rem
         .filters
             margin-left: auto
-            button
+
+            button.pill
+                font-size: 13px
                 font-weight: 400
-                padding: 1px .5rem 0
+                border: 1px solid var(--border-color)
+                border-radius: 25px
+                padding: 0 15px
+                height: 1.5rem
+                &.active
+                    background: var(--widget-c2a)
+                    color: #fff
+                    border: none
+                & + button.pill
+                    margin-left: .5rem
 
-                &.outline-c2a
+            button.tertiary
+                font-weight: 400
+                padding: 0
+                font-size: 14px
+
+                &.c2a
                     font-weight: 500
-                    color: #198CEE
-
-                & + button
-                    margin: 0
-
-                &:focus
-                    background: unset
 
                 &.toggle-button i.material-icons
                     font-size: 21px
                     margin-bottom: 1px
+                    color: var(--link-color)
 
     .content
         flex: 1
@@ -169,26 +180,23 @@ uni-widget-canvas
         display: flex
         justify-content: center
         align-items: center
-        color: #8E98AB
-
-.widget-filter-menu
-    list-style: none
-    margin: 0
-    li
-        cursor: pointer
-        padding: 10px 20px 10px 10px
-        font: 400 14px 'Roboto'
-        color: rgba(0, 0, 0, 0.75)
-        &:hover
-            background: #f5f5f5
-
+        color: var(--scale1)
 
 .widget-logo-wrapper
     display: block
     width: 100%
     height: 100%
-    background-color: $uni-color-negative
-    border-radius: pxToRem(3)
+    background-color: #FFF
+    border-radius: var(--section-radius)
+    uni-image
+        overflow: hidden
+        .image-section
+            display: flex
+            align-items: center
+            justify-content: center
+
+        img
+            height: auto
     uni-image,
     uni-image > article,
     img
@@ -203,15 +211,10 @@ uni-widget-canvas
     justify-content: center
     width: 100%
     height: 100%
-    border-radius: 3px
+    border-radius: var(--section-radius)
     box-sizing: border-box
     text-align: center
-
-    color: $uni-color-scale2
     cursor: pointer
-
-    &:hover
-        background: #f0f0f0
 
     span
         flex: 0 0 auto
@@ -224,27 +227,13 @@ uni-widget-canvas
             margin: .25rem 0
             color: $uni-color-toolbar
             &.warn
-                color: $uni-color-warn
+                color: var(--color-warn)
             &.bad
-                color: $uni-color-bad
+                color: var(--color-bad)
 
             @include media(1600px)
                 font-size: 20px
                 margin: 0
-
-.transaction-list
-    list-style: none
-    color: $uni-color-scale2
-    flex: 1
-
-    li
-        line-height: 2rem
-        padding: .1rem 1rem
-        font-size: 15px
-
-        &:hover, &.is-active
-            cursor: pointer
-            color: $uni-color-toolbar
 
 .transaction_table
     height: calc(100% - 32px)
@@ -256,7 +245,7 @@ uni-widget-canvas
         flex-flow: column
         border-spacing: 0
         font-size: small
-        font-family: 'Roboto', sans-serif
+        font-family: var(--font-family)
 
         thead
             flex: 0 0 auto
@@ -301,7 +290,7 @@ uni-widget-canvas
 
                 &:hover
                     cursor: pointer
-                    background-color: #d4dfee
+                    background-color: var(--table-row-select-background)
 
 .transaction_table_align_right
     text-align: right
@@ -324,7 +313,6 @@ uni-widget-canvas
     padding: 0 1rem 1rem 1rem !important
     margin: 0
     text-align: left
-    color: $uni-color-scale2
     flex: 1
 
     ul
@@ -341,8 +329,8 @@ uni-widget-canvas
             padding: 0 12px
 
             font-size: 13px
-            font-family: 'Roboto', sans-serif
-            color: #198CEE
+            font-family: var(--font-family)
+            color: var(--color-c2a)
             white-space: nowrap
             text-overflow: ellipsis
             overflow: hidden
@@ -352,6 +340,7 @@ uni-widget-canvas
 
             a:first-of-type
                 flex: 1
+                font-weight: 500
             i
                 vertical-align: middle
 
@@ -359,32 +348,30 @@ uni-shortcuts
     display: flex
     width: 100%
     height: 100%
-    border-radius: 3px
+    border-radius: var(--section-radius)
 
     .uni-widget-button
         flex: 1
         cursor: pointer
-        color: $uni-color-scale2
         display: flex
         flex-direction: column
         justify-content: center
         text-align: center
         font-size: 15px
-        &:hover
-            background: #f0f0f0
+
         + .uni-widget-button
-            border-left: 1px solid $uni-color-scale9
+            border-left: 1px solid var(--border-color)
 
         i.material-icons
             display: block
-            color: $uni-color-toolbar
+            color: var(--color-c2a-dark)
             font-size: 36px
             margin-bottom: .25rem
 
         i.letter-icon
             font-style: normal
             font-family: serif
-            color: $uni-color-toolbar
+            color: var(--color-c2a-dark)
             font-size: 40px
             margin: .5rem 0
 
@@ -412,34 +399,36 @@ uni-shortcuts
     height: 100%
     cursor: pointer
     padding: 0 2rem
-    color: #596879
+    color: var(--widget-header-color)
 
     .numbers-section
         flex: 1
         div.header
-            color: #8E98AB
-            font-size: .9rem
-            margin-bottom: 8px
+            font-size: 14px
+            margin-bottom: 5px
+            font-weight: 400
+            color: var(--scale1)
         div
-            font-size: 1.7rem
+            font-size: 1.5rem
+            font-weight: 500
 
-    i.material-icons
+    i.material-icons-outlined
         flex: 0 0 auto
         padding: 1rem
         border-radius: 50%
 
-    &.green-counter i.material-icons
-        color: #05C46B
-        background: #DAF6E9
-    &.blue-counter i.material-icons
-        color: #2699FB
-        background: #E3EEFB
-    &.yellow-counter i.material-icons
-        color: #FFC048
-        background: #FFF6E4
-    &.pink-counter i.material-icons
-        color: #E01E5A
-        background: #FBE1E6
+    &.green-counter i.material-icons-outlined
+        color: var(--color-good)
+        background: var(--alert-good)
+    &.blue-counter i.material-icons-outlined
+        color: var(--color-c2a)
+        background: var(--alert-info)
+    &.yellow-counter i.material-icons-outlined
+        color: var(--color-warn-light)
+        background: var(--alert-warn)
+    &.red-counter i.material-icons-outlined
+        color: var(--color-bad-light)
+        background: var(--alert-bad)
 
     .icon-section
         flex: 1
@@ -448,6 +437,21 @@ uni-shortcuts
         align-items: center
         i
             font-size: 2rem
+
+.overdue-info-header
+    height: 4rem
+    display: flex
+    flex-direction: column
+    justify-content: flex-end
+    padding-left: 1.5rem
+
+    span
+        font-size: 14px
+
+    span.overdue-number
+        font-size: 18px
+        font-weight: 500
+        color: var(--text-color)
 
 .chart-legend
     display: flex
@@ -477,36 +481,37 @@ uni-shortcuts
 
 .event-widget-content
     padding-top: .5rem !important
-
     ul
         list-style: none
         margin: 0
         height: 100%
-        font-weight: 500
-        font-size: .9rem
+        font-size: 15px
         li
             display: flex
             height: 3.5rem
             align-items: center
-            padding: 0 .75rem
-
-            & + li
-                border-top: 2px solid #f5f5f5
-
+            padding: 0 .25rem
             i
                 margin-right: 1rem
-
+                color: var(--widget-c2a)
             span
                 &:first-of-type
                     flex: 1
-                    margin: 0
-
                     &:hover
                         cursor: pointer
-                        color: #2699FB
-
+                        color: var(--link-color)
                 &.event-new-value
-                    font-size: 1rem
+                    font-weight: 500
+
+.widget-filter-menu
+    list-style: none
+    margin: 0
+    li
+        padding: .5rem 1rem
+        color: var(--text-color)
+        &:hover
+            cursor: pointer
+            background-color: var(--table-row-select-background)
 
 
 // Needs to be inside the canvas container.
@@ -518,10 +523,10 @@ uni-shortcuts
     color: #e6e6e6
     padding: 6px 12px
     box-sizing: border-box
-    border-radius: 3px
+    border-radius: var(--section-radius)
     transition: opacity .5s
     min-width: 150px
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
     font-size: 12px
     text-align: left
     pointer-events: none
@@ -538,14 +543,44 @@ uni-shortcuts
         span + span
             padding-left: 10px
 
+.bank-balance-tooltip
+    position: absolute
+    opacity: 0
+    background: white
+    color: var(--text-color)
+    padding: .5rem 1rem
+    box-sizing: border-box
+    border-radius: var(--section-radius)
+    transition: opacity .5s
+    min-width: 150px
+    font-family: var(--font-family)
+    font-size: 14px
+    text-align: left
+    pointer-events: none
+    white-space: nowrap
+    border: 2px solid #ccc
+
+    .tooltip-header
+        font-size: 16px
+        font-weight: bold
+        margin-bottom: 1rem
+        display: block
+
+    .data-row
+        display: flex
+        margin-bottom: .5rem
+        span:first-of-type
+            width: 8rem
+        span:last-of-type
+            font-weight: bold
+
 
 header.dashboard-header
     display: flex
     align-items: center
     width: 95%
     height: 3rem
-    margin: 0 auto 1.5rem
-    padding-right: 1rem
+    margin: 0 auto 1rem
 
     .title
         font-size: 22px
@@ -557,6 +592,18 @@ header.dashboard-header
         text-overflow: ellipsis
         max-width: 35rem
 
+    button.edit-toggle
+        font-size: 14px
+        font-weight: 500
+        color: var(--scale1)
+        i.material-icons-outline
+            margin-right: 4px
+
+        span
+            margin-left: 4px
+        @media screen and (max-width: 1300px)
+            span
+                display: none
 
     .links
         list-style: none
@@ -566,27 +613,66 @@ header.dashboard-header
             margin-left: 5px
 
     a.dashboard-link
-        font-size: 13px
+        font-size: 14px
         font-weight: 500
-        color: #707D90
+        color: var(--scale1)
         text-decoration: none
-        padding: 8px 20px
-        border-radius: 3px
+        padding: 8px 15px
         &:hover
             background: rgba(0, 0, 0, .07)
-
         &.active
-            color: #fff
-            background: #198CEE
+            color: var(--color-c2a)
+            border-bottom: 2px solid var(--color-c2a)
 
-    @media screen and (max-width: 1400px)
+    &:not(.no-link-dashboard)
+        @media screen and (max-width: 1400px)
+            .title
+                display: none
+            .links
+                margin-left: 0
+        @media screen and (max-width: 700px)
+            .title
+                display: block
+                margin-right: auto
+            .links
+                display: none
+
+    &.no-link-dashboard
         .title
-            display: none
-        .links
-            margin-left: 0
-    @media screen and (max-width: 700px)
-        .title
-            display: block
-            margin-right: auto
-        .links
-            display: none
+            flex: 1 !important
+            max-width: none
+
+.line-through
+    text-decoration: line-through
+
+// SR
+sr-unpaid-doughnut-widget
+    .chart-legend
+        display: grid
+        grid-template-columns: 1fr 1fr
+        grid-column-gap: 1rem
+        grid-row-gap: .5rem
+        margin-top: 1rem
+
+        .legend
+            cursor: pointer
+            text-align: center
+
+            & + .legend
+                margin-left: 0
+
+.legend-vertical-class
+    margin-top: .75rem
+    .legend-row
+        margin-top: .25rem
+        font-size: 13px
+        font-weight: 600
+        color: $uni-color-scale4
+        cursor: pointer
+        .indicator
+            display: inline-block
+            width: 10px
+            height: 10px
+            border-radius: 50%
+            margin-right: 8px
+            background: #738293

@@ -1,13 +1,13 @@
 <uni-toolbar [config]="{title: 'Jobber', hideBreadcrumbs: true}"></uni-toolbar>
 
 <section class="application">
-    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (activeIndexChange)="updateTab()"></uni-tabs>
 
     <section class="uni-container">
         <ng-template [ngIf]="activeTabIndex === 0">
             <h2>
                 Sist kjørte jobber
-                <i class="material-icons" role="button" (click)="refresh()">refresh</i>
+                <i class="material-icons" role="button" (click)="refresh()" style="color: var(--color-c2a)">refresh</i>
             </h2>
 
             <ag-grid-wrapper
@@ -30,6 +30,5 @@
         </ng-template>
 
         <saft-import-view *ngIf="activeTabIndex === 2"></saft-import-view>
-        <batch-invoices-container *ngIf="activeTabIndex === 3"></batch-invoices-container>
     </section>
 </section>

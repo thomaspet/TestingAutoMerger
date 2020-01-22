@@ -1,16 +1,24 @@
 import {Injectable} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
 import {HttpResponse} from '@angular/common/http';
-import {BizHttp} from '../../../framework/core/http/BizHttp';
+import {BizHttp, IHttpCacheStore} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import 'rxjs/add/operator/switchMap';
-import {Observable} from 'rxjs';
-import {environment} from 'src/environments/environment';
+import {Observable, of} from 'rxjs';
+import {take, tap, switchMap, map} from 'rxjs/operators';
+import {ErrorService} from './errorService';
+import {saveAs} from 'file-saver';
 
 @Injectable()
 export class FileService extends BizHttp<File> {
+    private imageCache: IHttpCacheStore<Blob> = {};
 
-    constructor(http: UniHttp) {
+    constructor(
+        private httpClient: HttpClient,
+        private errorService: ErrorService,
+        http: UniHttp
+    ) {
         super(http);
         super.disableCache();
 
@@ -23,16 +31,27 @@ export class FileService extends BizHttp<File> {
         return super.GetAll(`filter=EntityLinks.EntityType eq '${entity}' and EntityLinks.EntityID eq ${id}`, ['EntityLinks']);
     }
 
-    public printFile(fileID: number) {
-        return this.http
-            .asGET()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${fileID}?action=download`)
-            .send();
+    getImageBlob(imageUrl: string) {
+        const hash = this.hashFnv32a(imageUrl);
+
+        const cacheEntry = this.imageCache[hash];
+        if (cacheEntry && (!cacheEntry.timeout || performance.now() < cacheEntry.timeout)) {
+            return cacheEntry.data.pipe(take(1));
+        } else {
+            delete this.imageCache[hash];
+        }
+
+        return this.httpClient.get(imageUrl, { responseType: 'blob' }).pipe(
+            tap(res => {
+                this.imageCache[hash] = {
+                    timeout: performance.now() + 60000,
+                    data: of(res)
+                };
+            })
+        );
     }
 
-    public getDownloadUrl(fileID: number) {
+    getDownloadUrl(fileID: number) {
         return this.http
             .asGET()
             .withDefaultHeaders()
@@ -42,18 +61,29 @@ export class FileService extends BizHttp<File> {
             .map(response => response.body);
     }
 
-    public downloadXml(fileID: number, type = 'application/xml') {
-        return this.http
-            .asGET()
-            .withDefaultHeaders()
-            .usingBusinessDomain()
-            .withEndPoint(`files/${fileID}?action=download`)
-            .send()
-            .switchMap((urlResponse: HttpResponse<any>) => {
-                const url = urlResponse.body.replace(/\"/g, '');
-                return this.http.http.get(url, {responseType: 'text'});
-            })
-            .map(res => new Blob([res], { type: type }));
+    downloadFile(file: File) {
+        this.getDownloadUrl(file.ID).pipe(
+            switchMap(url => this.httpClient.get(url, { responseType: 'blob' }))
+        ).subscribe(
+            (blob: Blob) => {
+                if (file.ContentType) {
+                    blob = new Blob([blob], {type: file.ContentType});
+                }
+
+                saveAs(blob, file.Name);
+            },
+            err => this.errorService.handle(err)
+        );
+    }
+
+    downloadXml(fileID: number, type = 'application/xml') {
+        return this.getDownloadUrl(fileID).pipe(
+            switchMap(url => {
+                url = url.replace(/\"/g, '');
+                return this.httpClient.get(url, { responseType: 'text' });
+            }),
+            map(res => new Blob([res], { type: type }))
+        );
     }
 
     public setIsAttachment(entityType: string, entityID: number, fileID: number, isAttachment: boolean) {
@@ -78,6 +108,13 @@ export class FileService extends BizHttp<File> {
             .withEndPoint(`files/${fileID}?action=link&entityType=${entityType}&entityID=${entityID}`)
             .send()
             .map(response => response.body);
+    }
+
+    unlinkFile(entityType: string, entityID: number, fileID: number) {
+        return this.http.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`files/${fileID}?action=unlink&entitytype=${entityType}&entityid=${entityID}`)
+            .send();
     }
 
     public getLinkedEntityID(fileID: number, entityType?: string) {

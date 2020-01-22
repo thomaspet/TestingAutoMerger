@@ -3,7 +3,7 @@ uni-tags
     color: $uni-color-positive
 
     .tags-toggle
-        color: $uni-color-scale5
+        color: var(--scale1)
         cursor: pointer
         user-select: none
         i.material-icons
@@ -23,7 +23,7 @@ uni-tags
             list-style: none
             li
                 display: block
-                border-bottom: 1px solid $uni-color-scale9
+                border-bottom: 1px solid var(--border-color)
                 padding: 5px 0
                 font-size: 14px
 
@@ -33,12 +33,9 @@ uni-tags
                     font-size: 18px
                     cursor: pointer
                     &:hover
-                        color: $uni-color-bad
+                        color: var(--color-bad)
 
         .tags_lookup
             display: block
             width: 100%
             margin-top: 1.5rem
-
-            .uniTable_dropdown_list
-                min-width: unset

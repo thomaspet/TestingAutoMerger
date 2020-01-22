@@ -2,9 +2,7 @@
     display: block
     padding: 0 !important
     margin-right: 1rem
-    border-right: 1px solid $uni-color-scale9
-
-    width: 305px
+    width: 20rem
     &.minimized
         width: 80px
 
@@ -17,7 +15,7 @@
         i.material-icons
             display: block
             font-size: 30px
-            color: $uni-color-toolbar
+            color: var(--color-c2a)
             cursor: pointer
             text-align: center
             padding-top: 1rem
@@ -42,6 +40,7 @@
             width: 100%
             tr
                 background-color: transparent !important
+                height: 2.5rem
             caption
                 background-color: transparent
                 font-size: 1.2rem
@@ -68,22 +67,24 @@
                 right: 2%
 
             thead
-                color: $uni-color-scale5
+                color: var(--scale1)
 
             tbody > tr > td
-                height: 2.2rem
-                line-height: 2.2rem
+                height: 2.5rem
+                line-height: 2.5rem
+                font-size: 13px
 
                 /*-n+2 selects the last two elements of each tr*/
                 &:nth-last-of-type(-n+2)
-                    background-color: #f4f4f4 // $uni-color-scale9
+                    background-color: var(--scale4)
                 &.selected
-                    background-color: $uni-color-scale9
-                    color: $uni-color-positive
+                    background-color: var(--scale4)
+                    color: var(--color-c2a)
 
     button
         @extend button.c2a
-        height: 22px
+        height: 34px
+        border-radius: 17px
         width: 130px
         padding: 0
         margin-top: 1.5rem
@@ -93,56 +94,60 @@
     margin: .75rem 0 0 0
     padding-top: 0 !important
     box-sizing: border-box
-    border-top: 1px solid $uni-color-scale9
+    border-top: 1px solid var(--border-color)
 
-    h3
-        font-size: 1.3rem
-        margin: 1.25rem 10px .25rem
-        i.material-icons
-            color: $uni-color-good
-            vertical-align: middle
-            margin-top: -3px
-            margin-left: .25rem
+    .template-header
+        display: flex
+        align-items: center
+        margin: 1rem 0
+        span
+            flex: 1
+        i
+            color: var(--color-c2a)
             cursor: pointer
 
+    .template_info_section
+        padding: .4rem 1rem
+        display: flex
+        border: 1px solid #CCC
+        border-radius: 4px
+        cursor: pointer
+        margin-bottom: .75rem
+        &:hover
+            background-color: var(--dropdown-select-background)
+        .info
+            flex: 1
+            display: flex
+            justify-content: center
+            flex-direction: column
+            font-size: 14px
+            text-align: left
 
-    .sidemenu_template
-        border-bottom: 1px solid $uni-color-scale9
+            span
+                font-size: 13px
 
-        .template_info_section
-            width: calc(100% - 3.5rem)
-            display: inline-block
-            padding: 10px
-            &:hover
-                background-color: $uni-color-scale9
+            span:first-of-type
+                font-size: 14px
+                font-weight: 600
+                margin-bottom: -5px
+
+        .edit
+            display: flex
+            align-items: center
+
+            i
+                vertical-align: middle
+                font-size: 20px
+                color: var(--text-color)
                 cursor: pointer
 
-        .sidemenu_template_time_total
-            float: right
-            &:after
-                clear: both
+                &:hover
+                    color: var(--color-c2a)
+                &:first-of-type
+                    margin-right: .6rem
+                &:last-of-type:hover
+                     color: var(--color-bad)
 
-        .sidemenu_temmplate_name
-            font-size: 0.8rem
-            color: #638bb2
-            max-width: 50%
-            overflow-x: hidden
-            white-space: nowrap
-            display: inline-block
-
-        .sidemenu_template_timeart
-            font-size: 0.9rem
-            max-width: 60%
-            display: inline-block
-            overflow-x: hidden
-            white-space: nowrap
-
-        .edit-icon
-            vertical-align: top
-            margin-top: 1rem
-            margin-left: .25rem
-            cursor: pointer
-            font-size: 21px
 
     button.good
         height: 2rem
@@ -175,11 +180,11 @@
         border-radius: pxToRem(2)
 
 .calendar_flexplus:after
-    background-color: mix($uni-color-good, $uni-color-negative, 75%)
+    background-color: var(--color-good)
 .calendar_flexminus:after
-    background-color: mix($uni-color-bad, $uni-color-negative, 75%)
+    background-color: var(--color-bad)
 .calendar_flexminus_light:after
-    background-color: #fbc531
+    background-color: var(--color-warn)
 
 uni-template-modal
     label

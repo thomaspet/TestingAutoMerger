@@ -663,6 +663,22 @@ export class NumberSeries {
                     }
                 },
                 {
+                    label: 'Vis ledige numre i serien',
+                    action: (serie) => {
+                        this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
+                            .subscribe(
+                                numberIntervals =>
+                                    this.modalService.open(UniConfirmModalV2,
+                                        {
+                                            buttonLabels: { accept: 'OK' },
+                                            header: 'Ledige nummer i nummerserie',
+                                            message: numberIntervals.join(', '),
+                                        }),
+                                err => this.errorService.handle(err),
+                        );
+                    }
+                },
+                {
                     label: 'Finn neste ledige nr',
                     action: (serie) => {
                         this.numberSeriesService.findAndSetNextNumber(serie.ID)

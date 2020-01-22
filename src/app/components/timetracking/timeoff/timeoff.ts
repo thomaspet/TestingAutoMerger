@@ -187,6 +187,18 @@ export class UniWorkTimeOff {
         }
     }
 
+    public goToMonthView(month: any) {
+        const firstWeek = month[0];
+        const day = firstWeek.find(week => week.calenderText === '01');
+
+        if (day) {
+            this.currentDay = day;
+            this.currentMonth = new Date(this.currentDay.Date).getMonth();
+            this.currentView = this.views[1];
+            this.addTab();
+        }
+    }
+
     public yearSelect(year: number) {
         if (year === this.currentYear) {
             return;

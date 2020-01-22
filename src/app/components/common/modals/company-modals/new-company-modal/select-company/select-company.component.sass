@@ -1,6 +1,3 @@
-@import '~src/styles/unibase/colors/__colors.sass'
-$red: #f53b57
-
 \:host
     margin: 0 auto !important
     height: 90vh !important
@@ -20,36 +17,28 @@ $red: #f53b57
         span
             flex: 0 0 185px
             margin-right: 20px
-            font-weight: 400
             font-size: 14px
-            line-height: 2.4rem
 
         input, select
             flex: 1
-            height: 2.4rem !important
-            border: 1px solid rgba(0, 0, 0, 0.25)
-            border-radius: 3px
-            font-size: 14px
-            width: 100%
-
             &.ng-touched.ng-invalid
-                border: 1px solid $red
+                border: 1px solid var(--color-bad)
 
         .invalid input
-            border: 1px solid $red
+            border: 1px solid var(--color-bad)
 
         .warning input
-            border: 1px solid $uni-color-warn
+            border: 1px solid var(--color-warn)
 
         select
             padding-left: 4px
 
     small.form-warning
         display: block
-        color: $uni-color-warn
-        margin: -10px 0 16px 170px
+        color: var(--color-warn)
+        margin: -10px 0 16px 205px
 
     small.form-error
         display: block
-        color: $red
-        margin: -10px 0 16px 170px
+        color: var(--color-bad)
+        margin: -10px 0 16px 205px

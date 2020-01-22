@@ -21,19 +21,18 @@
                 <div> {{ budget.AccountingYear }} </div>
                 <div (click)="onBudgetSelect(budget)" class="budget-name-link"  style="flex: 1"> {{ budget.Name }} </div>
                 <div> <i class="material-icons is-standard-budget-icon" *ngIf="budget.StatusCode === 47002">check_circle_outline</i></div>
-                <div  [matMenuTriggerFor]="contextMenu">
-                    <ng-container>
-                        <i class="material-icons">
-                            more_horiz
-                        </i>
-                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                            <ul class="menu-list">
-                                <li *ngFor="let item of listActions" (click)="onActionClick($event, item, budget)">
-                                    {{item.label}}
-                                </li>
-                            </ul>
-                        </mat-menu>
-                    </ng-container>
+
+                <div>
+                    <i #toggle class="material-icons" role="button">more_horiz</i>
+                    <dropdown-menu [trigger]="toggle" (click)="$event.stopPropagation()">
+                        <ng-template>
+                            <a class="dropdown-menu-item"
+                                *ngFor="let item of listActions"
+                                (click)="onActionClick(item, budget)">
+                                {{item.label}}
+                            </a>
+                        </ng-template>
+                    </dropdown-menu>
                 </div>
             </li>
         </ul>
@@ -46,9 +45,9 @@
     <div class="budget-standard-container">
 
         <div class="header-container" *ngIf="currentBudget">
-            <h4>
+            <!-- <h4>
                 {{ currentBudget.Name }}
-            </h4>
+            </h4> -->
             <a (click)="showHideSideMenu()">
                 <i class="material-icons">list</i>
                 Vis alle budsjett
@@ -56,7 +55,7 @@
 
             <div style="flex: 1"></div>
 
-            <button (click)="showHideChart()">
+            <button class="tertiary c2a" (click)="showHideChart()">
                 {{ hideChart ? 'Vis' :  'Skjul' }} graf
                 <i class="material-icons"> {{ !hideChart ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }} </i>
             </button>
@@ -81,12 +80,14 @@
                 </div>
                 <div style="flex: 1"></div>
                 <div>
-                    <button (click)="openEntryEditModal()">
-                        Ny budsjettspost
+                    <button class="tertiary c2a" (click)="openBudgetReport()">
+                        Vis budsjettrapport
                     </button>
-                    <button (click)="openBudgetReport()">
-                        Vis budsjettsrapport
+
+                    <button class="c2a" (click)="openEntryEditModal()">
+                        Ny budsjettpost
                     </button>
+
                 </div>
             </div>
             <div class="div-table">
@@ -192,7 +193,7 @@
     <div class="empty-budget-box">
         <i class="material-icons">folder_open</i>
         <h4>Du har ikke satt opp noen budsjett enda</h4>
-        <button (click)="openEditModal()">Importer budsjett</button>
-        <button (click)="downloadTemplate()">Last ned mal</button>
+        <button class="c2a" (click)="openEditModal()">Importer budsjett</button>
+        <button class="secondary" (click)="downloadTemplate()">Last ned mal</button>
     </div>
 </div>

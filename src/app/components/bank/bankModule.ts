@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 
 import {LayoutModule} from '../layout/layoutModule';
@@ -39,7 +38,6 @@ import {
         CommonModule,
         FormsModule,
         ReactiveFormsModule,
-        HttpClientModule,
         MatCheckboxModule,
         MatSelectModule,
         RouterModule.forChild(bankRoutes),

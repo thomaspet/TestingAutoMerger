@@ -2,9 +2,7 @@ import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 import * as moment from 'moment';
 
-import {LocalDate} from '@uni-entities';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {FieldType} from '@uni-framework/ui/uniform';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {CurrencyService, NumberFormat} from '@app/services/services';
@@ -20,18 +18,12 @@ import {
     templateUrl: './currencyexchange.html'
 })
 export class CurrencyExchange {
-    public isBusy: boolean = true;
-    public exchangeTable: UniTableConfig;
-    public exchangelist: any;
+    exchangeTable: UniTableConfig;
+    exchangelist: any;
 
-    filter = {CurrencyDate: new LocalDate()};
-    fields = [{
-        Property: 'CurrencyDate',
-        Label: 'Valutakursdato',
-        FieldType: FieldType.LOCAL_DATE_PICKER
-    }];
+    currencyDate = new Date();
 
-    public toolbarconfig: IToolbarConfig = {
+    toolbarconfig: IToolbarConfig = {
         title: 'Valutakurser',
     };
 
@@ -78,8 +70,8 @@ export class CurrencyExchange {
         this.toolbarconfig = {
             title: 'Valutakurser',
             subheads: [
-                {title: moment(this.filter.CurrencyDate).format('DD.MM.YYYY')},
-                {title: `(NOK)`}
+                { title: moment(this.currencyDate).format('DD.MM.YYYY') },
+                { title: `(NOK)` }
             ],
             navigation: {
                 prev: () => this.addDays(-1),
@@ -88,7 +80,10 @@ export class CurrencyExchange {
             contextmenu: [
                 {
                     label: 'I dag',
-                    action: this.today.bind(this)
+                    action: () => {
+                        this.currencyDate = new Date();
+                        this.loadData();
+                    }
                 },
                 {
                     label: 'Forrige uke',
@@ -106,21 +101,15 @@ export class CurrencyExchange {
         };
     }
 
-    public today() {
-        this.filter.CurrencyDate = new LocalDate();
-        this.loadData();
-    }
-
     private addDays(days) {
-        const date = moment(this.filter.CurrencyDate).add(days, 'days').toDate();
-        this.filter = { CurrencyDate: new LocalDate(date) };
+        this.currencyDate = moment(this.currencyDate).add(days, 'days').toDate();
         this.loadData();
     }
 
     loadData() {
         this.updateToolbar();
         this.toastService.clear();
-        if (this.filter.CurrencyDate > new LocalDate()) {
+        if (moment(this.currencyDate).isAfter(moment(), 'day')) {
             this.toastService.addToast(
                 'Du har valgt en fremtidig dato',
                 ToastType.warn, 5,
@@ -128,8 +117,9 @@ export class CurrencyExchange {
             );
         }
 
-        this.currencyService.getAllExchangeRates(1, this.filter.CurrencyDate)
-            .subscribe(list => this.exchangelist = list);
+        this.currencyService.getAllExchangeRates(1, this.currencyDate).subscribe(
+            list => this.exchangelist = list
+        );
     }
 
     private downLoadCurrency(done) {
@@ -144,7 +134,8 @@ export class CurrencyExchange {
             .setNumberFormat(this.exchangerateFormat)
             .setTemplate(line => `${line.ExchangeRate * line.Factor}`)
             .setConditionalCls(line => {
-                return (this.filter.CurrencyDate > new LocalDate()) && !line.IsOverrideRate ? 'number-bad' : 'number-good';
+                return (moment(this.currencyDate).isAfter(moment(), 'day')) && !line.IsOverrideRate
+                    ? 'number-bad' : 'number-good';
             });
         const factorCol = new UniTableColumn('Factor', 'Omregningsenhet', UniTableColumnType.Money)
             .setNumberFormat(this.factorFormat);

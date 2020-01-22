@@ -243,10 +243,20 @@ export class VatReportService extends BizHttp<VatReport> {
             .map(response => response.body);
     }
 
-    public getStatusText = (statusCode: number) => {
-        let statusType = this.statusTypes.find(x => x.Code === statusCode);
+    public getStatusText(statusCode: number) {
+        const statusType = this.statusTypes.find(x => x.Code === statusCode);
         return statusType ? statusType.Text : '';
-    };
+    }
+
+    public getStatusClassName(statusCode: number) {
+        switch (statusCode) {
+            case StatusCodeVatReport.Approved:
+                return 'success';
+            default:
+                return '';
+        }
+    }
+
 
     public getPaymentStatus(vatReportID: number, defaultPaymentStatus: string = 'Ikke betalt'): Observable<any> {
         return Observable.forkJoin(

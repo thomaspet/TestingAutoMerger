@@ -206,7 +206,7 @@ export class AccountSettings {
                 this.accountService.addMandatoryDimensions(data).subscribe(res => {
                     if (res) {
                         this.toastService.toast({
-                            title: 'Repeterende faktura(er) mangler dimensjon(er)',
+                            title: 'SALES.RECURRING_INVOICE.MISSING_DIM_TOAST_TITLE',
                             message: res,
                             type: ToastType.warn,
                             duration: 5
@@ -231,7 +231,7 @@ export class AccountSettings {
                     disabled: false
                 },
                 {
-                    label: 'Import Logs',
+                    label: 'Importlogg',
                     action: this.importLogs.bind(this),
                     main: true,
                     disabled: false

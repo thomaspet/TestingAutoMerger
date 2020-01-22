@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: true,
+    isSrEnvironment: true,
 
     // Identity Server Settings
     authority: 'https://login.unieconomy.no',
@@ -8,11 +9,11 @@ export const environment = {
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://ext01-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://ext01-files.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://ext01-jobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://ext01-admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://ext01-signal.unieconomy.no/pushHub',
+    BASE_URL_INTEGRATION: 'https://integration.regnskap.sr-bank.no/',
+    BASE_URL_FILES: 'https://files.regnskap.sr-bank.no',
+    UNI_JOB_SERVER_URL: 'https://jobserver.regnskap.sr-bank.no/api/',
+    ELSA_SERVER_URL: 'https://admin.regnskap.sr-bank.no',
+    SIGNALR_PUSHHUB_URL: 'https://signal.regnskap.sr-bank.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -26,10 +27,6 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
-    },
-
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
     },
 
     RAYGUN_API_KEY: '2iYzARArU22aNutdEnvtWw==',
@@ -46,10 +43,13 @@ export const environment = {
         'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW',
 
     IMPORT_CENTRAL_TEMPLATE_URLS : {
-        CUSTOMER: 'https://ext01-public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
-        SUPPLIER: 'https://ext01-public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
-        PRODUCT: 'https://ext01-public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
-        MAIN_LEDGER: 'https://ext01-public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://ext01-public-files.unieconomy.no/files/import/PayrollTemplate.xlsx'
-    }
+        CUSTOMER: 'https://public-files.regnskap.sr-bank.no/files/import/CustomerTemplateFinal.xlsx',
+        SUPPLIER: 'https://public-files.regnskap.sr-bank.no/files/import/SupplierTemplateFinal.xlsx',
+        PRODUCT: 'https://public-files.regnskap.sr-bank.no/files/import/ProductTemplateFinal.xlsx',
+        MAIN_LEDGER: 'https://public-files.regnskap.sr-bank.no/files/import/MainLedgerTemplate.xlsx',
+        PAYROLL: 'https://public-files.regnskap.sr-bank.no/files/import/PayrollTemplate.xlsx',
+        VOUCHER: 'https://public-files.regnskap.sr-bank.no/files/import/VoucherExcelTemplate.xlsx'
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };

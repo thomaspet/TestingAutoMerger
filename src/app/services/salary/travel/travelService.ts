@@ -230,14 +230,14 @@ export class TravelService extends BizHttp<Travel> {
                     {
                         EntityType: 'Travel',
                         Property: '_fromDate',
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Fra dato',
                         ReadOnly: true,
                     },
                     {
                         EntityType: 'Travel',
                         Property: '_toDate',
-                        FieldType: FieldType.DATE_TIME_PICKER,
+                        FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'Til dato',
                         ReadOnly: true,
                     },

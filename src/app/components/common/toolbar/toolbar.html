@@ -1,123 +1,164 @@
 <!-- TOOLBAR LEFT -->
 <section class="toolbar-left">
-    <uni-breadcrumbs
-        *ngIf="!config?.hideBreadcrumbs"
-        [omitFinalCrumb]="config?.omitFinalCrumb">
-    </uni-breadcrumbs>
+    <section class="title-section">
+        <uni-breadcrumbs
+            *ngIf="!config?.hideBreadcrumbs"
+            [omitFinalCrumb]="config?.omitFinalCrumb">
+        </uni-breadcrumbs>
 
-    <section class="toolbar-header">
-        <uni-toolbar-search
-            *ngIf="searchVisible; else textHeader"
-            [config]="searchConfig"
-            (clickOutside)="toggleSearch()">
-        </uni-toolbar-search>
+        <section class="toolbar-header">
+            <uni-toolbar-search
+                *ngIf="searchVisible; else textHeader"
+                [config]="searchConfig"
+                (clickOutside)="toggleSearch()"
+                (close)="searchVisible = false">
+            </uni-toolbar-search>
 
-        <ng-template #textHeader>
-            <h1 class="toolbar-title" (click)="toggleSearch()">
-                {{config?.title || searchConfig?.initValue}}
-                <i class="material-icons" *ngIf="searchConfig">
-                    search
-                </i>
-            </h1>
-        </ng-template>
-    </section>
-</section>
-
-<!-- TOOLBAR CENTER -->
-<section class="toolbar-center">
-    <uni-statustrack
-        *ngIf="statustrack || config?.statustrack"
-        [config]="statustrack || config.statustrack"
-        [entityType]="config?.entityType"
-        [entityID]="config?.entityID"
-        (statusSelectEvent)="selectStatus($event)">
-    </uni-statustrack>
-
-    <uni-toolbar-validation
-        *ngIf="validationMessages?.length"
-        [validationMessages]="validationMessages">
-    </uni-toolbar-validation>
-
-    <section class="toolbar-extras" #toolbarExtras>
-        <section *ngIf="selectConfig" class="toolbar_uniselect">
-            {{selectConfig.label}}
-            <uni-select
-                [config]="uniSelectConfig"
-                [items]="selectConfig.items"
-                [value]="selectConfig.selectedItem"
-                (valueChange)="selectValueSelected($event)">
-            </uni-select>
+            <ng-template #textHeader>
+                <h1 class="toolbar-title" (click)="toggleSearch()">
+                    {{config?.title || searchConfig?.initValue | translate}}
+                    <i class="material-icons" *ngIf="searchConfig">
+                        search
+                    </i>
+                </h1>
+            </ng-template>
         </section>
+    </section>
 
-        <ng-template ngFor let-subhead [ngForOf]="subheads || config?.subheads">
-            <small class="toolbar-subhead"
-                *ngIf="subhead.title || subhead.link"
-                [title]="subhead.title"
-                [ngClass]="subhead.classname || ''"
-                (click)="triggerSubheadEvent(subhead)">
+    <section class="main-section">
+        <uni-statustrack
+            *ngIf="statustrack || config?.statustrack"
+            [config]="statustrack || config.statustrack"
+            [entityType]="config?.entityType"
+            [entityID]="config?.entityID"
+            [showFullStatustrack]="showFullStatustrack"
+            (statusSelectEvent)="selectStatus($event)">
+        </uni-statustrack>
 
-                <span *ngIf="subhead.label" class="subhead-label">{{subhead.label}}: </span>
+        <toolbar-sharing-status
+            *ngIf="config?.showSharingStatus && config?.entityType && config?.entityID"
+            [entityType]="config?.entityType"
+            [entityID]="config?.entityID">
+        </toolbar-sharing-status>
 
-                <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title}}</a>
-                {{subhead.link ? '' : subhead.title}}
-            </small>
-        </ng-template>
+        <toolbar-custom-status
+            *ngIf="customStatus"
+            [status]="customStatus">
+        </toolbar-custom-status>
 
-        <uni-tags
-            *ngIf="tags"
-            [tags]="tags"
-            [config]="tagConfig"
-            (tagsChange)="tagsChangeEvent($event)"
-            (tagsBusy)="tagsBusyEvent($event)">
-        </uni-tags>
+        <uni-toolbar-validation
+            *ngIf="validationMessages?.length"
+            [validationMessages]="validationMessages">
+        </uni-toolbar-validation>
+
+        <section class="toolbar-extras" #toolbarExtras>
+            <section *ngIf="selectConfig" class="toolbar_uniselect">
+                {{selectConfig.label}}
+                <uni-select
+                    [config]="uniSelectConfig"
+                    [items]="selectConfig.items"
+                    [value]="selectConfig.selectedItem"
+                    (valueChange)="selectValueSelected($event)">
+                </uni-select>
+            </section>
+
+            <ng-template ngFor let-subhead [ngForOf]="subheads || config?.subheads">
+                <small class="toolbar-subhead"
+                    *ngIf="subhead.title || subhead.link"
+                    [title]="subhead.title"
+                    [ngClass]="subhead.classname || ''"
+                    (click)="triggerSubheadEvent(subhead)">
+
+                    <span *ngIf="subhead.label" class="subhead-label">{{subhead.label | translate}}: </span>
+
+                    <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title | translate}}</a>
+                    {{subhead.link ? '' : subhead.title | translate}}
+                </small>
+            </ng-template>
+
+            <uni-tags
+                *ngIf="tags"
+                [tags]="tags"
+                [config]="tagConfig"
+                (tagsChange)="tagsChangeEvent($event)"
+                (tagsBusy)="tagsBusyEvent($event)">
+            </uni-tags>
+        </section>
     </section>
 </section>
 
 <!-- TOOLBAR RIGHT -->
 <section #toolbarRight class="toolbar-right">
-    <nav id="toolbar-tools" class="toolbar_tools">
-        <uni-comments *ngIf="commentsConfig?.entityID > 0"
-            [entity]="commentsConfig.entityType"
-            [entityID]="commentsConfig.entityID"
-            [toggleMode]="true">
-        </uni-comments>
+    <button *ngIf="config?.navigation?.prev"
+        title="Forrige"
+        class="toolbar-button icon-button prev"
+        type="button"
+        (click)="navigate('prev')">
+        <i class="material-icons">navigate_before</i>
+    </button>
 
-        <button *ngIf="config?.navigation?.prev"
-            title="Forrige"
-            class="previous"
-            type="button"
-            (click)="navigate('prev')">
-            Forrige
+    <button *ngIf="config?.navigation?.next"
+        title="Neste"
+        class="toolbar-button icon-button next"
+        type="button"
+        (click)="navigate('next')">
+        <i class="material-icons">navigate_next</i>
+    </button>
+
+    <uni-comments *ngIf="commentsConfig?.entityID > 0"
+        [entity]="commentsConfig.entityType"
+        [entityID]="commentsConfig.entityID"
+        [toggleMode]="true">
+    </uni-comments>
+
+    <button *ngFor="let button of config?.buttons"
+        class="toolbar-button"
+        [ngClass]="button.class"
+        (click)="customButtonClick(button)"
+        [attr.aria-busy]="button['_busy']"
+        [matTooltip]="button.tooltip">
+
+        <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
+        {{button.label | translate}}
+    </button>
+
+    <button *ngIf="config?.navigation?.add"
+        [title]="config.navigation.add.label || 'Opprett ny'"
+        class="toolbar-button new-button"
+        type="button"
+        (click)="onCreateNewClick()">
+
+        <i class="material-icons">add</i>
+        <span>{{config.navigation.add.label || 'Opprett ny'}}</span>
+    </button>
+
+    <uni-context-menu
+        *ngIf="contextmenu || config?.contextmenu"
+        [actions]="contextmenu || config.contextmenu"
+        [hideDisabled]="config?.hideDisabledActions">
+    </uni-context-menu>
+
+    <ng-container *ngIf="dropdownButton">
+        <button #toggleBtn [ngClass]="dropdownButton.class || 'good'">
+            {{dropdownButton.label}}
+            <i class="material-icons" style="margin: 0 -4px 0 0">expand_more</i>
         </button>
 
-        <button *ngIf="config?.navigation?.next"
-            title="Neste"
-            class="next"
-            type="button"
-            (click)="navigate('next')">
-            Neste
-        </button>
-
-        <button *ngIf="config?.navigation?.add"
-            [title]="config.navigation.add.label || 'Opprett ny'"
-            class="new"
-            type="button"
-            (click)="onCreateNewClick()">
-
-            <i class="material-icons">add</i>
-            {{config.navigation.add.label || 'Opprett ny'}}
-        </button>
-
-        <uni-context-menu *ngIf="contextmenu || config?.contextmenu"
-            [actions]="contextmenu || config.contextmenu">
-        </uni-context-menu>
-
-        <uni-toolbar-share [shareActions]="shareActions"></uni-toolbar-share>
-    </nav>
+        <dropdown-menu [trigger]="toggleBtn">
+            <ng-template>
+                <section class="dropdown-menu-item"
+                    *ngFor="let item of dropdownButton.items"
+                    (click)="item.action()">
+                    {{item.label}}
+                </section>
+            </ng-template>
+        </dropdown-menu>
+    </ng-container>
 
     <uni-save id="toolbar-save"
         *ngIf="saveactions || config?.saveactions"
-        [actions]="saveactions || config.saveactions">
+        [actions]="saveactions || config?.saveactions"
+        [hideDisabled]="config?.hideDisabledActions">
     </uni-save>
 
 </section>

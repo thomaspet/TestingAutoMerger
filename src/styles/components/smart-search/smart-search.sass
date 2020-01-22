@@ -6,13 +6,13 @@ uni-smart-search, uni-company-search
     max-width: 95vw
     background: #fff
     box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.20)
-    font-family: 'Roboto', sans-serif
+    font-family: var(--font-family)
     border-radius: 5px
 
     .search-container
         box-sizing: border-box
         padding: .25rem $horizontal-padding
-        border-bottom: 1px solid $uni-color-scale9
+        border-bottom: 1px solid var(--border-color)
         background: #f3f3f3
         border-top-left-radius: 5px
         border-top-right-radius: 5px
@@ -44,7 +44,7 @@ uni-smart-search, uni-company-search
         height: 5px
 
         .uni-progress-bar
-            border-bottom: 1px solid $uni-color-scale9
+            border-bottom: 1px solid var(--border-color)
 
     #results-container
         position: relative
@@ -94,10 +94,10 @@ uni-smart-search, uni-company-search
 
         small
             margin: auto 0
-            color: #707d90
+            color: var(--scale1)
 
             span
-                border: 1px solid $uni-color-scale8
+                border: 1px solid var(--border-color)
                 border-radius: 3px
                 background: #f7f7f7
                 color: #596879

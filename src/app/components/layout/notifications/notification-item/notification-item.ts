@@ -40,9 +40,9 @@ export class NotificationItem {
                 this.icon = 'description';
 
                 if (this.notification['_count'] > 1) {
-                    this.notificationText = `${this.notification['_count']} nye leverandørfaktura i innboks`;
+                    this.notificationText = `${this.notification['_count']} nye dokumenter i innboks`;
                 } else {
-                    this.notificationText = `Ny leverandørfaktura i innboks`;
+                    this.notificationText = `Nytt dokument i innboks`;
                 }
             }
 

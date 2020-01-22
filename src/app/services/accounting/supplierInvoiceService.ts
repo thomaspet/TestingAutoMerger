@@ -1,12 +1,10 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User} from '../../unientities';
+import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User, InvoicePaymentData} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {InvoicePaymentData} from '../../models/sales/InvoicePaymentData';
 import {Observable} from 'rxjs';
 import {HttpParams} from '@angular/common/http';
 import {ErrorService} from '../common/errorService';
-import {UserService} from '../common/userService';
 import {StatusCode} from '../../../app/components/sales/salesHelper/salesEnums';
 
 @Injectable()
@@ -14,16 +12,20 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
 
     // TODO: To be retrieved from database schema shared.Status instead?
     public statusTypes: Array<any> = [
-        { Code: StatusCodeSupplierInvoice.Draft, Text: 'Kladd', isPrimary: true},
+        { Code: StatusCodeSupplierInvoice.Draft, Text: 'Opprettet', isPrimary: true},
         { Code: StatusCodeSupplierInvoice.ForApproval, Text: 'Tildelt', isPrimary: false },
         { Code: StatusCodeSupplierInvoice.Rejected, Text: 'Avvist', isPrimary: false},
         { Code: StatusCodeSupplierInvoice.Approved, Text: 'Godkjent', isPrimary: true },
         { Code: StatusCodeSupplierInvoice.Journaled, Text: 'Bokført', isPrimary: true },
-        { Code: StatusCodeSupplierInvoice.ToPayment, Text: 'Betalingsliste', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.PartlyPayed, Text: 'Delbetalt', isPrimary: false },
-        { Code: StatusCodeSupplierInvoice.Payed, Text: 'Betalt', isPrimary: true },
-        { Code: StatusCode.Completed, Text: 'Arkivert', isPrimary: false },
+        { Code: StatusCode.Completed, Text: 'Arkivert', isPrimary: false},
         { Code: StatusCode.Deleted, Text: 'Slettet', isPrimary: false }
+    ];
+
+    public paymentStatusCodes = [
+        { Code: 30109, Text: 'Ubetalt'},
+        { Code: 30110, Text: 'Overført til bank'},
+        { Code: 30111, Text: 'Delbetalt'},
+        { Code: 30112, Text: 'Betalt'}
     ];
 
     constructor(http: UniHttp, private errorService: ErrorService) {
@@ -38,8 +40,13 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         this.DefaultOrderBy = null;
     }
 
-    public getStatusText(statusCode: number): string {
+    getStatusText(statusCode: number): string {
         const statusType = this.statusTypes.find(x => x.Code === statusCode);
+        return statusType && statusType.Text || '';
+    }
+
+    getPaymentStatusText(statusCode: number): string {
+        const statusType = this.paymentStatusCodes.find(x => x.Code === statusCode);
         return statusType && statusType.Text || '';
     }
 
@@ -127,6 +134,16 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             .map(response => response.body);
     }
 
+    public sendForPayment(supplierInvoiceID: number) {
+        super.invalidateCache();
+        return this.http
+        .asPUT()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=sendForPayment&id=${supplierInvoiceID}`)
+        .send()
+        .map(response => response.body);
+    }
+
     public getInvoiceSummary(odatafilter: string): Observable<any> {
         return this.http
             .asGET()
@@ -160,7 +177,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
 
         const flds = this.selectBuilder(
-            'ID', 'StatusCode', 'Supplier.SupplierNumber', 'Info.Name',
+            'ID', 'StatusCode', 'Supplier.SupplierNumber', 'IsSentToPayment', 'Info.Name',
             'PaymentDueDate', 'InvoiceDate', 'FreeTxt', 'InvoiceNumber',
             'stuff(user.displayname) as Assignees', 'BankAccount.AccountNumber',
             'PaymentInformation', 'TaxInclusiveAmount', 'TaxInclusiveAmountCurrency',
@@ -168,7 +185,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber', 'CurrencyCodeID',
             'CurrencyCode.Code', 'CreatedAt', 'ReInvoice.StatusCode',
-            'ReInvoice.ID'
+            'ReInvoice.ID', 'PaymentStatus'
         );
 
         let route = '?model=SupplierInvoice' +
@@ -201,6 +218,20 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.body.Data);
+    }
+
+    public getInvoiceListGroupedPaymentTotals(status: string = ''): Observable<Array<any>> {
+        let route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30109';
+        if (status === 'betalt') {
+            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30112';
+        } else if (status === 'betalingsliste') {
+            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30110 OR PaymentStatus eq 30111';
+        }
+        return this.http
+            .asGET()
+            .withEndPoint(route).usingStatisticsDomain()
+            .send()
+            .map(response => response.body.Data );
     }
 
     public fetch(route: string, httpParams?: HttpParams): Observable<any> {

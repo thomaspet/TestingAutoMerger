@@ -1,105 +1,88 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        {{options.header}}
-    </header>
-    <div class="under-line"></div>
+    <header>{{options.header}}</header>
+
     <article>
-        <form class="uni-html-form">
-            <label class="title">
-                Klient
-                <span class="value">
-                    {{authService?.activeCompany?.Name}}
+        <label class="uni-label label-left">
+            <span>Klient</span>
+            <span class="value">{{authService?.activeCompany?.Name}}</span>
+        </label>
+
+        <div class="external-details">
+            <label class="uni-label label-left" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
+                <span>Last ned mal</span>
+                <span>
+                    <a href="{{options.data.downloadTemplateUrl}}">
+                        {{options.data.downloadTemplateUrl.split("/").pop()}}
+                    </a>
                 </span>
             </label>
 
-            <div class="external-details">
-                <label class="title" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
-                    Last ned mal
-                    <span class="value">
-                        <a
-                            href="{{options.data.downloadTemplateUrl}}">{{options.data.downloadTemplateUrl.split("/").pop()}}</a>
-                    </span>
-                </label>
-                <label class="statement">
-                    {{options.data.conditionalStatement}}
-                </label>
-                <label class="statement">
-                    {{options.data.formatStatement}}
-                </label>
-                <label class="statement">
-                    {{options.data.downloadStatement}}
-                </label>
-                <label class="statement" *ngIf="options.data.isExternal">
-                    Før du laster opp filen til Uni Economy, så vær vennlig og les gjennom våre vilkår. <a
-                        (click)="openDisclaimerNote()">Vilkår.</a>
-                </label>
-            </div>
+            <p>{{options.data.conditionalStatement}}</p>
+            <p>{{options.data.formatStatement}}</p>
+            <p>{{options.data.downloadStatement}}</p>
 
-            <label class="title">
-                Filopplasting
-            </label>
+            <p *ngIf="options.data.isExternal">
+                Vær vennlig og les gjennom
+                <a (click)="openDisclaimerNote()"> våre vilkår </a>
+                før du laster opp filen.
+            </p>
+        </div>
 
 
-            <div class="file-upload" [ngClass]="!isValidFileFormat ? 'error' : 'file-upload'" (click)="selectFile()"
-                (drop)="dropFile($event)" (dragover)="dragFile($event)">
-                <div class="upload-file" *ngIf='isFileSelected'>
-                    <label class="uploaded-txt">Last opp filen</label>
-                    <div class="file-card">
-                        <i class="material-icons file-icon">insert_drive_file</i>
-                        <label class="file-name">{{attachedFile.name}}</label>
-                        <mat-progress-bar class="progress-bar" mode="determinate" [value]='progressBarVal'>
-                        </mat-progress-bar>
-                        <i class="material-icons cancel-icon" (click)="onFileDetach()" *ngIf="showCancel">add_circle</i>
-                    </div>
-                </div>
-                <div class="select-file" *ngIf='!isFileSelected'>
-                    <i class="material-icons">cloud_upload</i>
-                    <span>
-                        Dra og slipp eller <span class="browse-link">bla i</span> dine filer
-                    </span>
-                    <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt">
+        <strong style="font-size: 15px">Filopplasting</strong>
+
+        <div class="file-upload" [ngClass]="!isValidFileFormat ? 'error' : 'file-upload'" (click)="selectFile()"
+            (drop)="dropFile($event)" (dragover)="dragFile($event)">
+            <div class="upload-file" *ngIf='isFileSelected'>
+                <label class="uploaded-txt">Last opp filen</label>
+                <div class="file-card">
+                    <i class="material-icons file-icon">insert_drive_file</i>
+                    <label class="file-name">{{attachedFile.name}}</label>
+                    <mat-progress-bar class="progress-bar" mode="determinate" [value]='progressBarVal'>
+                    </mat-progress-bar>
+                    <i class="material-icons cancel-icon" (click)="onFileDetach()" *ngIf="showCancel">add_circle</i>
                 </div>
             </div>
-            <label class="error-msg" *ngIf='!isValidFileFormat'>
-                Vennligst legg til en fil (.xlsx eller .txt) for å kunne importere {{options.data.type}}.
-            </label>
-
-            <div class="dropdown-section">
-                <label class="title">Valg for import</label>
-                <label class="drop-down-container">
-                    <uni-select class="drop-down" [config]="config" [value]="selectedOption" [items]="operators"
-                        (valueChange)="onSelectChange($event)">
-                    </uni-select>
-                </label>
+            <div class="select-file" *ngIf='!isFileSelected'>
+                <i class="material-icons">cloud_upload</i>
+                <span>
+                    Dra og slipp eller <span class="browse-link">bla i</span> dine filer
+                </span>
+                <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt">
             </div>
+        </div>
 
-            <div class="check-box-section row-check">
-                <label class="title"></label>
-                <label class="check-box-container">
-                    <mat-checkbox class="check-box" [(ngModel)]="isVatEnabled" name='wowVat'
-                        [ngModelOptions]="{standalone: true}" [disabled]="fileType === txtType" (click)="$event.stopPropagation()">
-                    </mat-checkbox>
-                    <label class="option-text" for="wowVat">
-                        Med MVA-kode
-                    </label>
-                </label>
-            </div>
+        <p class="error-msg" *ngIf='!isValidFileFormat'>
+            Vennligst legg til en fil (.xlsx eller .txt) for å kunne importere {{options.data.type}}.
+        </p>
 
-            <div class="input-section" *ngIf="selectedOption.type === draft">
-                    <label class="title">Legg til beskrivelse</label>
-                    <label class="input-container">
-                            <input type="text" [(ngModel)]="draftDescription" [ngModelOptions]="{standalone: true}">
-                    </label>
-                </div>
-        </form>
+        <label class="uni-label label-left">
+            <span>Valg for import</span>
+            <uni-select class="drop-down" [config]="config" [value]="selectedOption" [items]="operators"
+                (valueChange)="onSelectChange($event)">
+            </uni-select>
+        </label>
+
+        <label class="uni-label label-left">
+            <span>Med MVA-kode</span>
+            <mat-checkbox [(ngModel)]="isVatEnabled"
+                [disabled]="fileType === txtType"
+                (click)="$event.stopPropagation()">
+            </mat-checkbox>
+        </label>
+
+        <label class="uni-label label-left">
+            <span>Legg til beskrivelse</span>
+            <input type="text" [(ngModel)]="draftDescription">
+        </label>
 
         <section *ngIf="loading$ | async" class="modal-spinner">
             <mat-spinner></mat-spinner>
         </section>
-
     </article>
-    <footer class="center">
-        <button class="c2a rounded" (click)="importFile()">Importer {{options.data.type}}</button>
-        <button (click)="close()">Avbryt</button>
+
+    <footer>
+        <button class="secondary" (click)="close()">Avbryt</button>
+        <button class="c2a" (click)="importFile()">Importer {{options.data.type}}</button>
     </footer>
 </section>

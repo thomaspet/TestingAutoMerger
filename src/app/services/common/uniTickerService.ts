@@ -1031,7 +1031,6 @@ export class UniTickerService {
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
-                    {ID: SharingType.Vipps,         Name: 'Vipps'},
                     {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
                     {ID: SharingType.Efaktura,      Name: 'Efaktura'},
@@ -1164,6 +1163,13 @@ export class UniTickerService {
                     { ID: 13, Name: 'Ferie' },
                     { ID: 20, Name: 'Sykdom' }
                 ];
+            case 'PaymentStatus':
+                return [
+                    { ID: 30112, Name: 'Betalt' },
+                    { ID: 30111, Name: 'Delbetalt' },
+                    { ID: 30110, Name: 'Overført til bank' },
+                    { ID: 30009, Name: 'Ubetalt' }
+                ];
             default:
                 return [];
         }
@@ -1206,7 +1212,6 @@ export class Ticker {
     public Pagesize?: number;
     public IsActive?: boolean;
     public ReadOnlyCases?: {Key: string, Value: any}[];
-    public EditToggle?: boolean;
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
     public DefaultTabIndex?: number;

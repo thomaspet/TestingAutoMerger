@@ -31,11 +31,26 @@
         min-width: 50rem
         margin-right: 0
 
+        header
+            display: flex
+            padding: .5rem 1rem
+
+        .header-info-container
+            display: flex
+            flex: 1
+            font-size: 15px
+
+            span
+                margin-left: 3rem
+
         .navigation-buttons
-            float: right
+            margin-left: 1rem
+
             i.material-icons
                 vertical-align: middle
                 cursor: pointer
+                &:first-of-type
+                    margin-right: 1rem
 
 
         link-menu, salary-transactions-employee
@@ -54,11 +69,6 @@ payrollrun-details .entityDetails
         width: 32rem
         left: calc(12.5rem - 17.7rem)
 
-.emp-button
-    @include uni-button(#ffffff)
-    padding: .25rem
-    color: $uni-color-positive
-
 .selected-employee-list
     margin-top: 4rem
     h5
@@ -73,6 +83,31 @@ payrollrun-details .entityDetails
             span
                 flex: 1
             i
-                color: $uni-color-bad
+                color: var(--color-bad)
                 cursor: pointer
 
+tax-card-request
+    border-right: 1px solid #CCC
+
+tax-card-request, read-tax-card
+    p
+        font-size: 15px
+
+    h2
+        font-size: 20px
+        font-weight: bold
+
+    h3
+        margin: 1.5rem 0 .75rem 0
+
+    .mat-radio-button
+        margin-bottom: .6rem
+
+    uni-form
+        label.uni-label.label-left
+            flex-direction: column
+            margin-left: 2rem
+            align-items: flex-start
+
+    .mat-radio-label-content, .mat-checkbox-label
+        font-size: 15px

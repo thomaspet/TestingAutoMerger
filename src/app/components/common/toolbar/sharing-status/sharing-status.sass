@@ -1,0 +1,43 @@
+\:host
+    display: flex
+    align-items: center
+    position: relative
+
+    &:hover .status-history
+        display: block
+
+    .toolbar-status-indicator
+        margin-right: 1rem
+
+.status-history
+    display: none
+    position: absolute
+    left: 0
+    top: 3rem
+    background: #fff
+    color: var(--text-color)
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    padding: 1rem 1.5rem
+    font-size: 14px
+    white-space: nowrap
+
+    .status-entry
+        display: flex
+        margin-bottom: .25rem
+        span
+            flex: 0 0 auto
+        .date
+            width: 7.5rem
+        .text
+            width: 15rem
+            margin: 0 1rem
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+        .status
+            width: 6rem
+
+    a
+        display: inline-block
+        margin-top: .5rem

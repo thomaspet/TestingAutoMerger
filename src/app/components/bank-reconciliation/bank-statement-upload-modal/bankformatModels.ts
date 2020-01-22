@@ -31,7 +31,7 @@ export class ImportTemplate {
 
     public static getFieldNameFromEnum(map: FieldMapEnum) {
         switch (map) {
-            case FieldMapEnum.Skip: return 'ikke valgt';
+            case FieldMapEnum.Skip: return 'Ikke valgt';
             case FieldMapEnum.Date: return 'Dato';
             case FieldMapEnum.Text: return 'Tekst';
             case FieldMapEnum.Text2: return 'Sekundærtekst';

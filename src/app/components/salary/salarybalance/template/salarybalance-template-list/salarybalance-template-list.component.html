@@ -1,9 +1,15 @@
 <uni-toolbar
-  [config]="{title: 'Trekkmaler'}"
-  [saveactions]="toolbarActions">
+    [config]="{title: 'Trekkmaler'}"
+    [saveactions]="toolbarActions">
 </uni-toolbar>
+
 <section class="application">
-  <article class="salarybalanceTemplateList" [attr.aria-busy]="busy">
-    <ag-grid-wrapper [resource]="templates$ | async" [config]="tableConfig" (rowClick)="rowSelected($event)"></ag-grid-wrapper>
-  </article>
+    <article class="salarybalanceTemplateList" [attr.aria-busy]="busy">
+        <ag-grid-wrapper
+            class="borders"
+            [resource]="templates$ | async"
+            [config]="tableConfig"
+            (rowClick)="rowSelected($event)">
+        </ag-grid-wrapper>
+    </article>
 </section>

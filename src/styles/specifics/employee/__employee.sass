@@ -8,26 +8,43 @@
                 font-weight: 300
 
 .taxCardRequest
+    padding: 1rem 0
     article
         display: flex
         align-items: flex-start
         justify-content: space-between
+        padding-bottom: 0
 
         tax-card-request
             flex-basis: 45%
         read-tax-card
             flex-basis: 50%
 
-        h1, h2
-            @extend h2
+        h2
             margin: 0
 
         p
             margin-top: 0
 
-.freeTextField
-    @include labelLength(0rem)
+    footer
+        padding: 0 1rem 0 0
+
+        span
+            flex: 1
+            font-weight: 600
+            font-size: 15px
+
+    .main-footer
+        padding-top: 1rem
+        border-top: 1px solid #CCC
+        margin-top: 2rem
+
+.freeTextField label > span
+    width: 0 !important
 
 .freeTextFieldEmployee
     height: 8rem
     overflow-y: auto
+
+.employee-list ag-grid-wrapper
+    height: calc(100vh - 12rem)

@@ -2,8 +2,9 @@
     [config]="{title: 'Ansatte'}"
     [saveactions]="toolbarActions">
 </uni-toolbar>
-<section class="application">
+<section class="application employee-list">
     <ag-grid-wrapper
+        class="borders"
         [resource]="lookupFunction"
         [config]="employeeTableConfig"
         (rowClick)="employeeSelected($event)">

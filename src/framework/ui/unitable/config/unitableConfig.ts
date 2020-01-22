@@ -57,11 +57,12 @@ export interface IUniTableConfig {
     beforeEdit?: (editorData: IEditorData) => IEditorData;
     insertRowHandler?: (index: number) => void;
     searchListVisible?: boolean;
-    allowEditToggle?: boolean;
     headerVisible?: boolean;
     rowDraggable?: boolean;
     autofocus?: boolean;
     showTotalRowCount?: boolean;
+    virtualScroll?: boolean;
+    hideRowCount?: boolean;
 }
 
 export interface IRowChangeEvent {
@@ -111,7 +112,6 @@ export class UniTableConfig implements IUniTableConfig {
     public isRowReadOnly: (rowModel) => boolean;
     public isRowSelectable: (rowModel) => boolean;
     public defaultOrderBy: ISortInfo;
-    public allowEditToggle: boolean = false;
 
     public beforeEdit: (event: IEditorData) => IEditorData;
     public headerVisible: boolean;
@@ -123,6 +123,8 @@ export class UniTableConfig implements IUniTableConfig {
     public autoGroupColumnDef: any;
     public groupsDefaultExpanded: boolean;
     public isGroupingTicker: boolean;
+    public virtualScroll: boolean;
+    public hideRowCount: boolean;
 
     /**
      * @constructor
@@ -257,11 +259,6 @@ export class UniTableConfig implements IUniTableConfig {
         return this;
     }
 
-    public setAllowEditToggle(allowEditToggle: boolean) {
-        this.allowEditToggle = allowEditToggle;
-        return this;
-    }
-
     public setDefaultRowData(defaultRowData: Object) {
         this.defaultRowData = defaultRowData;
         return this;
@@ -376,6 +373,16 @@ export class UniTableConfig implements IUniTableConfig {
 
     public setShowTotalRowCount(show: boolean) {
         this.showTotalRowCount = show;
+        return this;
+    }
+
+    public setVirtualScroll(virtualScroll: boolean) {
+        this.virtualScroll = virtualScroll;
+        return this;
+    }
+
+    public setHideRowCount(hideRowCount: boolean) {
+        this.hideRowCount = hideRowCount;
         return this;
     }
 }

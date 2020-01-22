@@ -1,22 +1,24 @@
-import {Component, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import { CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller } from '../../../unientities';
+import {Component, Input, Output, EventEmitter, SimpleChanges, ViewChild} from '@angular/core';
+import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
+import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
+import {set} from 'lodash';
 import * as moment from 'moment';
-
-declare const _;
 
 @Component({
     selector: 'tof-details-form',
     template: `
-        <uni-form [fields]="fields$"
-                  [model]="entity$"
-                  [config]="formConfig$"
-                  (changeEvent)="onFormChange($event)">
+        <uni-form
+            [fields]="fields$"
+            [model]="entity$"
+            [config]="formConfig$"
+            (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDetailsForm {
+    @ViewChild(UniForm) form: UniForm;
+
     @Input() readonly: boolean;
     @Input() entityType: string;
     @Input() entity: any;
@@ -52,7 +54,7 @@ export class TofDetailsForm {
             if (key.includes('ProjectID')) {
                 this.entity['_updatedField'] = Object.keys(changes)[0];
             }
-            _.set(this.entity, key, changes[key].currentValue);
+            set(this.entity, key, changes[key].currentValue);
         });
 
         if (changes['QuoteDate'] && changes['QuoteDate'].currentValue) {

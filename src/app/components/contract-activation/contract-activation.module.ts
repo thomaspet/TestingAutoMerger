@@ -1,13 +1,13 @@
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {HttpClientModule} from '@angular/common/http';
 import {RouterModule} from '@angular/router';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {ContractActivation} from './contract-activation';
 
-import {MatCheckboxModule} from '@angular/material';
+import {MatCheckboxModule, MatRadioModule, MatProgressSpinnerModule} from '@angular/material';
 import {CanDeactivateGuard} from '@app/canDeactivateGuard';
+import { CompanyDetailsForm } from './company-details-form/company-details-form';
 
 const routes = [{
     path: '',
@@ -19,14 +19,15 @@ const routes = [{
 @NgModule({
     imports: [
         CommonModule,
-        HttpClientModule,
         RouterModule,
         FormsModule,
         ReactiveFormsModule,
         RouterModule.forChild(routes),
         UniFrameworkModule,
         MatCheckboxModule,
+        MatRadioModule,
+        MatProgressSpinnerModule,
     ],
-    declarations: [ContractActivation],
+    declarations: [ContractActivation, CompanyDetailsForm],
 })
 export class ContractActivationModule {}

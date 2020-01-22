@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: false,
+    isSrEnvironment: false,
 
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',
@@ -10,7 +11,6 @@ export const environment = {
     BASE_URL: '',
     BASE_URL_INTEGRATION: 'https://rc-integration.unieconomy.no/',
     BASE_URL_FILES: 'https://rc-files.unieconomy.no',
-    UNI_PUSH_ADAPTER_URL: 'https://rc-pushadapter.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://rc-jobserver.unieconomy.no/api/',
     ELSA_SERVER_URL: 'https://rc-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://rc-signal.unieconomy.no/pushHub',
@@ -27,10 +27,6 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
-    },
-
-    DEFAULT_HEADERS: {
-        'Content-Type': 'application/json'
     },
 
     RAYGUN_API_KEY: 'hOOPVMkqKMWwJ2REMoQYw',
@@ -52,7 +48,9 @@ export const environment = {
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: '<<voucher-template-url>>'
-    }
+        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx'
+    },
+
+    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };
 
