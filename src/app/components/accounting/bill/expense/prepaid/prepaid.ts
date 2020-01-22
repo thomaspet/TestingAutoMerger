@@ -13,8 +13,7 @@ export class ExpensePrepaid implements OnInit {
     busy = true;
     selectedBankAccount: { AccountID: number, AccountName: string, AccountNumber: number };
 
-    constructor() {
-    }
+    constructor() { }
 
     ngOnInit() {
         this.loadBankAccounts();
