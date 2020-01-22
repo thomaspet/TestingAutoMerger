@@ -157,8 +157,8 @@ export class ImportCentralPage implements OnInit {
           hasTemplateAccess: true//this.uiPermission.order.hasTemplateAccess
         },
         iconName: 'shopping_cart',
-        title: 'Orders',
-        importText: 'Importer order',
+        title: 'Ordre',
+        importText: 'Importer ordre',
         downloadText: 'Last ned mal',
         type: TemplateType.Order
       }
@@ -339,7 +339,7 @@ export class ImportCentralPage implements OnInit {
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
         break;
       case TemplateType.Order:
-        header = 'Order Eksportmal';
+        header = 'Ordre Eksportmal';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.ORDER, EntityType: templateType, FileName: 'OrderExportedFile', Permisions: this.uiPermission.order, downloadButton: downloadButton }
         break;
       default:

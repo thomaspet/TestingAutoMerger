@@ -127,7 +127,7 @@ export class ImportCentralLog implements OnInit {
                 this.selectedType = { id: TemplateType.Voucher, name: 'Bilag' }
                 break;
             case TemplateType.Order:
-                this.selectedType = { id: TemplateType.Order, name: 'Order' }
+                this.selectedType = { id: TemplateType.Order, name: 'Ordre' }
                 break;
             default:
                 this.selectedType = { id: TemplateType.All, name: 'All' }
@@ -259,6 +259,21 @@ export class ImportCentralLog implements OnInit {
                         break;
                 }
                 break;
+            case ImportJobName.Order:
+                switch (type) {
+                    case 'entityName':
+                        str = 'Ordre';
+                        break;
+                    case 'listName':
+                        str = 'Ordrelisten';
+                        break;
+                    case 'url':
+                        str = '/sales/orders';
+                        break;
+                    default:
+                        break;
+                }
+                break;
             default:
                 break;
         }
@@ -297,6 +312,9 @@ export class ImportCentralLog implements OnInit {
                     case TemplateType.Voucher:
                         this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Voucher));
                         break;
+                    case TemplateType.Order:
+                        this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Order));
+                        break;
                     case TemplateType.All:
                         this.jobLogs.push(
                             ...results.filter(
@@ -306,7 +324,8 @@ export class ImportCentralLog implements OnInit {
                                     r.JobName === ImportJobName.MainLedger ||
                                     r.JobName === ImportJobName.Payroll ||
                                     r.JobName === ImportJobName.Saft ||
-                                    r.JobName === ImportJobName.Voucher
+                                    r.JobName === ImportJobName.Voucher ||
+                                    r.JobName === ImportJobName.Order
                             ));
                         break;
                     default:
