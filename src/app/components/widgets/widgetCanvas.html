@@ -1,4 +1,4 @@
-<header class="dashboard-header uni-redesign" [ngClass]="{ 'no-link-dashboard': isSrEnvironment }">
+<header class="dashboard-header" [ngClass]="{ 'no-link-dashboard': isSrEnvironment }">
     <span class="title">{{ isSrEnvironment ? activeLinkLabel : companyName}}</span>
 
     <ng-container *ngIf="!isSrEnvironment">
@@ -18,8 +18,9 @@
         <newsfeed></newsfeed>
     </ng-container>
 
-    <button class="edit-toggle icon-button" (click)="toggleEditMode()" title="Rediger dashboard-layout">
-        <i class="material-icons">edit</i>
+    <button class="edit-toggle tertiary" (click)="toggleEditMode()" title="Rediger dashboard-layout">
+        <i class="material-icons-outlined">edit</i>
+        <span>Rediger dashbord</span>
     </button>
 </header>
 
