@@ -198,12 +198,12 @@ export class ContractActivation {
             () => {
                 if (this.contractID) {
                     this.elsaContractService.activateContract(
-                        this.contractID, this.isBureau, (this.isSrEnvironment && !this.isSrCustomer) ? 3 : null)
+                        this.contractID, this.isBureau, this.isSrEnvironment ? 3 : null)
                         .subscribe( () => {
                             setTimeout(() => {
                                 this.authService.loadCurrentSession().subscribe((user) => {
                                     this.trialExpired = false;
-                                    if (!(this.isSrEnvironment && !this.isSrCustomer)) {
+                                    if (!this.isSrEnvironment) {
                                         this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
                                     }
                                     this.router.navigateByUrl('/');
