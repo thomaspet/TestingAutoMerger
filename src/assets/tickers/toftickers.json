@@ -1918,7 +1918,7 @@
             "Type": "Link",
             "LinkNavigationProperty": "ID",
             "Width": 80,
-            "FilterOperator": "eq"
+            "FilterOperator": "startswith"
         },
         {
             "Header": "Kundenr.",
