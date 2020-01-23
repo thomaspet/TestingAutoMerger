@@ -30,7 +30,7 @@ export class UniCompanyDropdown {
     @Input() lockYearSelector = false;
 
     activeCompany: any;
-    companyDropdownActive: Boolean;
+    companyDropdownActive = false;
     companySettings: CompanySettings;
 
     selectYear: string[];
@@ -67,11 +67,12 @@ export class UniCompanyDropdown {
                     res => this.availableCompanies = res,
                     err => console.error(err)
                 );
+
+                this.activeCompany = auth.activeCompany;
+                this.loadCompanyData();
+                this.cdr.markForCheck();
             }
         });
-
-        this.activeCompany = this.browserStorage.getItem('activeCompany');
-        this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
             hideDeleteButton: true,
@@ -86,24 +87,6 @@ export class UniCompanyDropdown {
 
             hideDeleteButton: true
         };
-
-        this.loadCompanyData();
-        this.authService.authentication$.pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe(auth => {
-            if (auth && auth.user) {
-                this.companyService.GetAll(null).pipe(
-                    takeUntil(this.onDestroy$)
-                ).subscribe(
-                    res => this.availableCompanies = res,
-                    err => console.error(err)
-                );
-
-                this.activeCompany = auth.activeCompany;
-                this.loadCompanyData();
-                this.cdr.markForCheck();
-            }
-        });
 
         const currentYear = this.financialYearService.getActiveYear();
         this.selectYear = this.getYearComboSelection(currentYear);
