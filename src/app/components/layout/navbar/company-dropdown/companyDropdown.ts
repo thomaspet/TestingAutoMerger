@@ -17,7 +17,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {YearModal, IChangeYear} from './yearModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -62,13 +62,15 @@ export class UniCompanyDropdown {
         private toastService: ToastService,
         private browserStorage: BrowserStorageService,
     ) {
-        this.authService.authentication$.subscribe(() => {
-            this.companyService.GetAll(null).pipe(
-                takeUntil(this.onDestroy$)
-            ).subscribe(
-                res => this.availableCompanies = res,
-                err => console.error(err)
-            );
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
+            if (auth && auth.user) {
+                this.companyService.GetAll(null).pipe(take(1)).subscribe(
+                    res => this.availableCompanies = res,
+                    err => console.error(err)
+                );
+            }
         });
 
         this.activeCompany = this.browserStorage.getItem('activeCompany');
@@ -89,15 +91,16 @@ export class UniCompanyDropdown {
         };
 
         this.loadCompanyData();
-        this.authService.authentication$.subscribe(auth => {
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
             if (auth && auth.user) {
                 this.activeCompany = auth.activeCompany;
                 this.loadCompanyData();
 
                 this.cdr.markForCheck();
             }
-        },
-        err => this.errorService.handle(err));
+        });
 
         const currentYear = this.financialYearService.getActiveYear();
         this.selectYear = this.getYearComboSelection(currentYear);
