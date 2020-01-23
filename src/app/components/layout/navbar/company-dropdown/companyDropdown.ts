@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable, Subject} from 'rxjs';
-import {takeUntil} from 'rxjs/operators';
+import {takeUntil, take} from 'rxjs/operators';
 import {CompanySettings, FinancialYear, Company} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
@@ -59,13 +59,15 @@ export class UniCompanyDropdown {
         private toastService: ToastService,
         private browserStorage: BrowserStorageService,
     ) {
-        this.authService.authentication$.subscribe(() => {
-            this.companyService.GetAll(null).pipe(
-                takeUntil(this.onDestroy$)
-            ).subscribe(
-                res => this.availableCompanies = res,
-                err => console.error(err)
-            );
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
+            if (auth && auth.user) {
+                this.companyService.GetAll(null).pipe(take(1)).subscribe(
+                    res => this.availableCompanies = res,
+                    err => console.error(err)
+                );
+            }
         });
 
         this.activeCompany = this.browserStorage.getItem('activeCompany');
@@ -86,7 +88,9 @@ export class UniCompanyDropdown {
         };
 
         this.loadCompanyData();
-        this.authService.authentication$.subscribe(auth => {
+        this.authService.authentication$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(auth => {
             if (auth && auth.user) {
                 this.companyService.GetAll(null).pipe(
                     takeUntil(this.onDestroy$)
@@ -99,8 +103,7 @@ export class UniCompanyDropdown {
                 this.loadCompanyData();
                 this.cdr.markForCheck();
             }
-        },
-        err => this.errorService.handle(err));
+        });
 
         const currentYear = this.financialYearService.getActiveYear();
         this.selectYear = this.getYearComboSelection(currentYear);

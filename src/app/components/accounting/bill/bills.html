@@ -22,20 +22,22 @@
     <section class="bill-container">
         <!-- List -->
         <section class="uni-container bill-list">
-            <uniform-autocomplete
-                *ngIf="currentFilter.name === 'Rejected' || currentFilter.name === 'ForApproval' || currentFilter.name === 'Approved'"
-                class="assignee-filter"
-                [field]="assigneeFilterField"
-                [model]="searchParams$"
-                (changeEvent)="onFormFilterChange($event)">
-            </uniform-autocomplete>
+            <ng-container *ngIf="currentFilter">
+                <uniform-autocomplete
+                    *ngIf="currentFilter.name === 'Rejected' || currentFilter.name === 'ForApproval' || currentFilter.name === 'Approved'"
+                    class="assignee-filter"
+                    [field]="assigneeFilterField"
+                    [model]="searchParams$"
+                    (changeEvent)="onFormFilterChange($event)">
+                </uniform-autocomplete>
 
-            <div class="bill-list-sum" *ngIf="this.currentFilter.name === 'Inbox'">
-                {{currentFilter.label}} ({{currentFilter.count}} stk.)
-            </div>
-            <div class="bill-list-sum" *ngIf="this.currentFilter.name !== 'Inbox'">
-                Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
-            </div>
+                <div class="bill-list-sum" *ngIf="currentFilter.name === 'Inbox'">
+                    {{currentFilter.label}} ({{currentFilter.count}} stk.)
+                </div>
+                <div class="bill-list-sum" *ngIf="currentFilter.name !== 'Inbox'">
+                    Sum {{currentFilter.label}} ({{currentFilter.count}} stk.) : {{totals.grandTotal | unicurrency}}
+                </div>
+            </ng-container>
 
             <ag-grid-wrapper
                 [resource]="listOfInvoices"

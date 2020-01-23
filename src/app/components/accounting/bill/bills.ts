@@ -304,11 +304,12 @@ export class BillsView implements OnInit {
         this.saveActions = [];
 
         let showToPaymentMenu = true;
-        if (this.selectedItems) {
+        if (this.selectedItems && Array.isArray(this.selectedItems)) {
             this.selectedItems.forEach(invoice => {
                 if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112) {
-                showToPaymentMenu = false;
-            }});
+                    showToPaymentMenu = false;
+                }
+            });
         }
 
         if ( this.currentFilter.statusCode === StatusCodeSupplierInvoice.Draft ) {

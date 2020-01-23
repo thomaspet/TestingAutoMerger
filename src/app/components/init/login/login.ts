@@ -81,9 +81,10 @@ export class Login {
                         }
                     }, 100);
                 },
-                (err) =>  {
+                err =>  {
                     console.error(err);
-                    // TODO: add something saying the get failed and they might need to log in again
+                    this.isAuthenticated = false;
+                    this.authService.idsLogout();
                 }
             );
     }
