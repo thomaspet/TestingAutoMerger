@@ -5,13 +5,13 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 @Component({
     selector: 'time-approve-modal',
     template: `
-        <section role="dialog" class="uni-modal" style="width: 50vw;">
+        <section role="dialog" class="uni-modal" style="width: 80rem;">
             <header>
                 {{workrelation?.Worker?.Info?.Name}} - {{workrelation?.Description}}
                 {{workrelation?.WorkPercentage}}%
             </header>
 
-            <article>
+            <article style="overflow-y: hidden;">
                 <div class="dialog-container">
                     <timetracking-timetable [workrelation]="workrelation"></timetracking-timetable>
                 </div>

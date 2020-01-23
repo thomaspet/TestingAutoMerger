@@ -19,7 +19,7 @@ import {UniIcon} from '@uni-framework/ui/icon/uni-icon';
     styleUrls: ['./notifications.sass']
 })
 export class Notifications {
-    @ViewChild(UniIcon) toggleRef: UniIcon;
+    @ViewChild(UniIcon, { static: true }) toggleRef: UniIcon;
 
     overlayRef: OverlayRef;
     dropdownPortal: ComponentPortal<NotificationsDropdown>;

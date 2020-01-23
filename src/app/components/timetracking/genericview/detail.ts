@@ -75,7 +75,7 @@ export class GenericDetailview implements OnInit, OnChanges {
     @Input() public hiddenform: boolean;
     @Output() public itemChanged: EventEmitter<any> = new EventEmitter();
     @Output() public afterSave: EventEmitter<IAfterSaveInfo> = new EventEmitter<IAfterSaveInfo>();
-    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniForm, { static: true }) public form: UniForm;
 
     public busy: boolean = true;
     public isDirty: boolean = false;

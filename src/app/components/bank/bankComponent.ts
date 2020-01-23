@@ -49,15 +49,37 @@ import {RequestMethod} from '@uni-framework/core/http';
 import {BookPaymentManualModal} from '@app/components/common/modals/bookPaymentManual';
 import {JournalingRulesModal} from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import {BankInitModal} from '@app/components/common/modals/bank-init-modal/bank-init-modal';
-import {MatchCustomerInvoiceManual} from '@app/components/bank/modals/matchCustomerInvoiceManual';
-import {AuthService} from '@app/authService';
-import {environment} from 'src/environments/environment';
+import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
+import {ConfirmCreditedJournalEntryWithDate} from '../common/modals/confirmCreditedJournalEntryWithDate';
+import { AuthService } from '@app/authService';
+import { environment } from 'src/environments/environment';
 
 @Component({
     selector: 'uni-bank-component',
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
         <section class="ticker-overview">
+            <i class="material-icons bank-info-button" *ngIf="showInfo" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu">
+                info_outline
+            </i>
+
+            <mat-menu #contextMenu="matMenu" yPosition="below">
+                <div class="bank-ticker-info-container">
+                    <h2>Innbetalinger uten match</h2>
+                    <p>
+                        Dette er en feilliste. Når det ligger poster her, er det viktig å behandle disse så raskt som mulig.
+                        Disse postene er autobokført av programmet som innbetalinger på hovedbokskonto for bank,
+                        ofte konto <strong>1920</strong>. Vi har dessverre ikke funnet hvilken kunde eller konto som innbetalingen gjelder.
+                        Denne er derfor ført mot en interrimskonto, ofte konto <strong>2996</strong>.
+                    </p>
+                    <p>
+                        Gjelder innbetalingen en kundefaktura, klikker du på de 3 prikkene borte til høyre, bruker funksjonen <br/>
+                        <strong>"Velg faktura manuelt"</strong>, finner den riktige fakturaen og fullfører. Vet du bare hvilken kunde
+                        dette gjelder, bruker du <br/> <strong>"Velg kunde manuelt</strong>. Da vil innbetalingsbilaget bli endret slik at
+                        bokføringen vil gå mot riktig kunde, i stedet for mot interrimskonto og posten vil bli fjernet fra denne listen.
+                    </p>
+                </div>
+            </mat-menu>
 
             <section class="overview-ticker-section">
                 <uni-ticker-container
@@ -73,7 +95,7 @@ import {environment} from 'src/environments/environment';
 })
 export class BankComponent {
 
-    @ViewChild(UniTickerContainer) public tickerContainer: UniTickerContainer;
+    @ViewChild(UniTickerContainer, { static: true }) public tickerContainer: UniTickerContainer;
 
     private rows: Array<any> = [];
     private canEdit: boolean = true;
@@ -83,6 +105,7 @@ export class BankComponent {
     isSrEnvirnment = environment.isSrEnvironment;
     hasAccessToAutobank: boolean;
     filter: string = '';
+    showInfo: boolean = false;
     failedFiles: any[] = [];
     tickerGroups: TickerGroup[];
     selectedTicker: Ticker;
@@ -185,7 +208,13 @@ export class BankComponent {
             Code: 'set_to_paid',
             ExecuteActionHandler: (selectedRows) => this.updatePaymentStatusToPaid(null, selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+        },
+        {
+            Code: 'credit_journal_entry',
+            ExecuteActionHandler: (selectedRows) => this.creditJournalEntry(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018 || !selectedRow.JournalEntryID
         }
+
     ];
 
     columnOverrides: ITickerColumnOverride[] = [
@@ -332,6 +361,7 @@ export class BankComponent {
                 }
 
                 this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
+                this.showInfo = params['filter'] === 'incomming_without_match';
 
                 if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code || this.filter !== params['filter']) {
                     this.selectedTicker = ticker;
@@ -972,7 +1002,7 @@ export class BankComponent {
             const row = selectedRows[0];
             const modal = this.modalService.open(MatchMainAccountModal, {
                 header: 'Velg hovedbokskonto manuelt',
-                data: { model: row }
+                data: { model: row, interrimsAccount: this.companySettings.InterrimPaymentAccountID }
             });
 
             modal.onClose.subscribe(result => {
@@ -1236,6 +1266,35 @@ export class BankComponent {
                 doneHandler('Feil ved henting av utbetalingsfil');
                 this.errorService.handle(err);
             });
+    }
+
+    private creditJournalEntry(rows) {
+        const item = rows[0];
+        return new Promise((res) => {
+            this.modalService.open(ConfirmCreditedJournalEntryWithDate, {
+                header: `Kreditere bilag ${item.JournalEntryJournalEntryNumber}?`,
+                message: 'Vil du kreditere hele dette bilaget?',
+                buttonLabels: {
+                    accept: 'Krediter',
+                    cancel: 'Avbryt'
+                },
+                data: {JournalEntryID: item.JournalEntryID}
+            }).onClose.subscribe(response => {
+                if (response && response.action === ConfirmActions.ACCEPT) {
+                    this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber, response.creditDate)
+                        .subscribe(() => {
+                            this.toastService.addToast('Kreditering utført', ToastType.good, ToastTime.short);
+                            this.tickerContainer.getFilterCounts();
+                            res();
+                        }, err => {
+                            this.errorService.handle(err);
+                            res();
+                        });
+                } else {
+                    res();
+                }
+            });
+        });
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {

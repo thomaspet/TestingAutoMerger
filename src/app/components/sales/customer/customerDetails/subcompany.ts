@@ -40,7 +40,7 @@ export enum CompanyTypeEnum {
 export class SubCompanyComponent implements OnInit {
     @Input() public customer: BehaviorSubject<Customer> = new BehaviorSubject(null);
     @Output() public change: EventEmitter<ISubCompany> = new EventEmitter<ISubCompany>();
-    @ViewChild(UniForm) private uniForm: UniForm;
+    @ViewChild(UniForm, { static: true }) private uniForm: UniForm;
 
     public subCompany$: BehaviorSubject<ISubCompany> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

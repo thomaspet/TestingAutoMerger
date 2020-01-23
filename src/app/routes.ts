@@ -66,47 +66,47 @@ const routes = [
     // Lazy modules
     {
         path: 'accounting',
-        loadChildren: './components/accounting/accountingModule#AccountingModule',
+        loadChildren: () => import('./components/accounting/accountingModule').then(m => m.AccountingModule),
     },
     {
         path: 'salary',
-        loadChildren: './components/salary/salary.module#SalaryModule',
+        loadChildren: () => import('./components/salary/salary.module').then(m => m.SalaryModule),
     },
     {
         path: 'sales',
-        loadChildren: './components/sales/salesModule#SalesModule',
+        loadChildren: () => import('./components/sales/salesModule').then(m => m.SalesModule),
     },
     {
         path: 'timetracking',
-        loadChildren: './components/timetracking/timetrackingModule#TimetrackingModule',
+        loadChildren: () => import('./components/timetracking/timetrackingModule').then(m => m.TimetrackingModule),
     },
     {
         path: 'settings',
-        loadChildren: './components/settings/settingsModule#SettingsModule',
+        loadChildren: () => import('./components/settings/settingsModule').then(m => m.SettingsModule),
     },
     {
         path: 'bank',
-        loadChildren: './components/bank/bankModule#BankModule',
+        loadChildren: () => import('./components/bank/bankModule').then(m => m.BankModule),
     },
     {
         path: 'altinn',
-        loadChildren: './components/altinn/altinnModule#AltinnModule',
+        loadChildren: () => import('./components/altinn/altinnModule').then(m => m.AltinnModule),
     },
     {
         path: 'contract-activation',
-        loadChildren: './components/contract-activation/contract-activation.module#ContractActivationModule'
+        loadChildren: () => import('./components/contract-activation/contract-activation.module').then(m => m.ContractActivationModule)
     },
     {
         path: 'license-info',
-        loadChildren: './components/license-info/license-info.module#LicenseInfoModule'
+        loadChildren: () => import('./components/license-info/license-info.module').then(m => m.LicenseInfoModule)
     },
     {
         path: 'approval-rules',
-        loadChildren: './components/approval-rules/approval-rules.module#ApprovalRulesModule',
+        loadChildren: () => import('./components/approval-rules/approval-rules.module').then(m => m.ApprovalRulesModule),
     },
     {
         path: 'import',
-        loadChildren: './components/import-central/import-central.module#ImportCentralModule',
+        loadChildren: () => import('./components/import-central/import-central.module').then(m => m.ImportCentralModule),
     },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!

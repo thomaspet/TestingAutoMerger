@@ -1,7 +1,7 @@
 import {NgModule, TemplateRef, Component, Input, ViewChild, ChangeDetectionStrategy, ContentChild, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {OverlayModule, OverlayRef, Overlay, OverlayConfig, ConnectedPosition} from '@angular/cdk/overlay';
-import {PortalModule, TemplatePortalDirective} from '@angular/cdk/portal';
+import {PortalModule, CdkPortal} from '@angular/cdk/portal';
 import {Subject} from 'rxjs';
 
 @Component({
@@ -14,8 +14,8 @@ import {Subject} from 'rxjs';
     `
 })
 export class InputDropdownMenu {
-    @ContentChild(TemplateRef) content: TemplateRef<any>;
-    @ViewChild(TemplatePortalDirective) contentTemplate: TemplatePortalDirective;
+    @ContentChild(TemplateRef, {static: true}) content: TemplateRef<any>;
+    @ViewChild(CdkPortal, { static: true }) contentTemplate: CdkPortal;
     @Input() input: HTMLElement;
     @Input() visible: boolean;
 

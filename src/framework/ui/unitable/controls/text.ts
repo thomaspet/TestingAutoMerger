@@ -7,7 +7,7 @@ import { UniTableColumn } from '@uni-framework/ui/unitable';
     template: `<input #input type="text" [formControl]="inputControl" (blur)="onBlur()">`
 })
 export class UnitableTextInput implements AfterViewInit {
-    @ViewChild('input')
+    @ViewChild('input', { static: true })
     public inputElement: ElementRef;
 
     @Input()

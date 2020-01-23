@@ -20,7 +20,7 @@ import {cloneDeep} from 'lodash';
 })
 
 export class UniMegaMenu {
-    @ViewChild('searchInput')
+    @ViewChild('searchInput', { static: true })
     searchInput: ElementRef;
 
     defaultLinkSection: INavbarLinkSection[];

@@ -22,7 +22,7 @@ import {LocalDate} from '@uni-entities';
     `
 })
 export class  LocalDatePicker {
-    @ViewChild('input') inputElement: ElementRef;
+    @ViewChild('input', { static: true }) inputElement: ElementRef;
     @Input() inputControl: FormControl;
 
     ngOnInit() {

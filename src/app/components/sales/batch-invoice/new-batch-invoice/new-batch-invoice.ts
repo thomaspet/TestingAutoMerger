@@ -28,7 +28,7 @@ const STATE_KEY = 'new_batch_invoice_state';
     styleUrls: ['./new-batch-invoice.sass']
 })
 export class NewBatchInvoice {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
 
     saveaction: IUniSaveAction;
     toolbarConfig: IToolbarConfig = {

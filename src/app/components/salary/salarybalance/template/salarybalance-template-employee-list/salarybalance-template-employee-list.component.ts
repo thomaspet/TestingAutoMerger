@@ -4,8 +4,9 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {EmployeeService, UniCacheService, ErrorService, SalarybalanceService} from '@app/services/services';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniView} from '@uni-framework/core/uniView';
-import {Router, ActivatedRoute} from '../../../../../../../node_modules/@angular/router';
-import {Observable} from '../../../../../../../node_modules/rxjs';
+import {Router, ActivatedRoute} from '@angular/router';
+import {Observable} from 'rxjs';
+import { ToastService } from '@uni-framework/uniToast/toastService';
 
 const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';
 
@@ -16,7 +17,7 @@ const SALARYBALANCES_ON_TEMPLATE_KEY = 'salarybalancesontemplate';
 })
 export class SalarybalanceTemplateEmployeeListComponent extends UniView implements OnInit {
   @Input() currentTemplate: SalaryBalanceTemplate;
-  @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+  @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
   public employees: Employee[] = [];
   public tableConfig: UniTableConfig;
   public salarybalances: SalaryBalance[] = [];
@@ -28,7 +29,8 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
     cacheService: UniCacheService,
     private errorService: ErrorService,
     private salarybalanceService: SalarybalanceService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private toastService: ToastService,
   ) {
     super(router.url, cacheService);
 
@@ -95,6 +97,13 @@ export class SalarybalanceTemplateEmployeeListComponent extends UniView implemen
         const row = event.rowModel;
         row['_isDirty'] = true;
         if (event.field === 'Employee') {
+          const isDuplicatedEmployees = this.salarybalances.some(x => x.EmployeeID === row.Employee.ID);
+          if (isDuplicatedEmployees) {
+            this.toastService.addToast(`Kan ikke legge til fordi ansatt "${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}" eksisterer allerede.`)
+            row['Employee'] = null;
+            return row;
+          }
+
           this.mapEmployeeToSalarybalance(row);
         }
         const updateIndex = this.salarybalances.findIndex(x => x['_originalIndex'] === row['_originalIndex']);

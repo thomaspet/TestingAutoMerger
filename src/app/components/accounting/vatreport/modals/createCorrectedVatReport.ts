@@ -34,7 +34,7 @@ import {
 export class CreateCorrectedVatReportForm implements OnInit {
     @Input() public config: {};
 
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniForm, { static: false }) public uniform: UniForm;
 
     @Output() public formSubmitted: EventEmitter<number> = new EventEmitter<number>();
 
@@ -166,7 +166,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
     providers: [PeriodService]
 })
 export class CreateCorrectedVatReportModal {
-    @ViewChild(UniModal)
+    @ViewChild(UniModal, { static: true })
     public modal: UniModal;
 
     @Output() public changed: EventEmitter<any> = new EventEmitter<any>();

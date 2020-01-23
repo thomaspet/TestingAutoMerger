@@ -23,7 +23,7 @@ export class AnnualStatementSenderComponent implements OnInit {
     @Output() public busy: EventEmitter<boolean> = new EventEmitter();
     @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
 
-    @ViewChild(EmployeeReportPickerListComponent)
+    @ViewChild(EmployeeReportPickerListComponent, { static: true })
     private empReportCmp: EmployeeReportPickerListComponent;
     public formModel$: BehaviorSubject<IAnnualStatementEmailInfo> = new BehaviorSubject({});
     public config$: BehaviorSubject<any> = new BehaviorSubject({});

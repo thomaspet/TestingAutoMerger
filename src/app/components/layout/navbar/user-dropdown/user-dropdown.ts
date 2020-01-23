@@ -11,7 +11,7 @@ import {UserSettingsModal} from './user-settings-modal';
     styleUrls: ['./user-dropdown.sass']
 })
 export class NavbarUserDropdown {
-    @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+    @ViewChild(MatMenuTrigger, { static: true }) trigger: MatMenuTrigger;
 
     user: UserDto;
     licenseRole: string;

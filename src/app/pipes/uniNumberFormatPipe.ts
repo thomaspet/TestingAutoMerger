@@ -1,20 +1,26 @@
 import {Pipe, PipeTransform} from '@angular/core';
 import {ErrorService, NumberFormat, CompanySettingsService} from '../services/services';
 import {CompanySettings} from '../unientities';
+import {AuthService} from '@app/authService';
 
 @Pipe({name: 'uninumberformat'})
 export class UniNumberFormatPipe implements PipeTransform {
     private settings: CompanySettings;
 
     constructor(
+        private authService: AuthService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private settingsService: CompanySettingsService
     ) {
-        this.settingsService.Get(1).subscribe(
-            res => this.settings = res,
-            err => this.errorService.handle(err)
-        );
+        this.authService.authentication$.subscribe(auth => {
+            if (auth && auth.user) {
+                this.settingsService.Get(1).subscribe(
+                    res => this.settings = res,
+                    () => {}
+                );
+            }
+        });
     }
 
     public transform(value: number, format: string, numberOfDecimals: number): string {

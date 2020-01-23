@@ -133,7 +133,7 @@ export class TimetrackingCalendar {
         if ((this.monthIndex === 0 && direction === -1) || (this.monthIndex === this.monthsOneYear.length - 1 && direction === 1)) {
             this.toastService.addToast('4 måneders visning', ToastType.warn, ToastTime.medium,
             'Denne widgeten støtter kun visning av siste 4 mnd. For komplett oversikt, ' +
-            `<a href="/#/timetracking/timeentry">gå til timeføringsbildet</a>`);
+            `<a href="/#/timetracking/timeentry?mode=Registrering">gå til timeføringsbildet</a>`);
         } else {
             this.monthIndex += direction;
             this.currentMonth += direction;

@@ -43,7 +43,7 @@ import {theme} from 'src/themes/theme';
 })
 
 export class ExpensesWidget {
-    @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('canvas', { static: false }) canvas: ElementRef;
 
     widget: IUniWidget;
     chartRef: any;

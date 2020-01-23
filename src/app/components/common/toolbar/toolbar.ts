@@ -98,8 +98,8 @@ export interface IContextMenuItem {
     templateUrl: './toolbar.html'
 })
 export class UniToolbar {
-    @ViewChild(ToolbarSharingStatus) sharingStatus: ToolbarSharingStatus;
-    @ViewChild(UniSave) save: UniSave;
+    @ViewChild(ToolbarSharingStatus, { static: false }) sharingStatus: ToolbarSharingStatus;
+    @ViewChild(UniSave, { static: false }) save: UniSave;
 
     @Input() tags: ITag[];
     @Input() tagConfig: IUniTagsConfig;
@@ -160,16 +160,18 @@ export class UniToolbar {
     }
 
     customButtonClick(button: ToolbarButton) {
-        const result = button.action();
-        if (result && result.subscribe) {
-            button['_busy'] = true;
-            result.pipe(
-                take(1),
-                finalize(() => button['_busy'] = false)
-            ).subscribe(
-                () => {},
-                err => this.errorService.handle(err)
-            );
+        if (!button['_busy']) {
+            const result = button.action();
+            if (result && result.subscribe) {
+                button['_busy'] = true;
+                result.pipe(
+                    take(1),
+                    finalize(() => button['_busy'] = false)
+                ).subscribe(
+                    () => {},
+                    err => this.errorService.handle(err)
+                );
+            }
         }
     }
 

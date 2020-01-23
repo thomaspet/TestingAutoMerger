@@ -27,8 +27,8 @@ import {SmartSearchDataService} from './smart-search-data.service';
     templateUrl: './smart-search.html',
 })
 export class UniSmartSearch {
-    @ViewChild('searchInput') searchInput: ElementRef;
-    @ViewChild('list') resultContainer: ElementRef;
+    @ViewChild('searchInput', { static: true }) searchInput: ElementRef;
+    @ViewChild('list', { static: true }) resultContainer: ElementRef;
     @ViewChildren(UniSmartSearchItem) listItems: QueryList<UniSmartSearchItem>;
 
     scrollbar: PerfectScrollbar;

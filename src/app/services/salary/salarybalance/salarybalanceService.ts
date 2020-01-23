@@ -3,9 +3,9 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
     SalaryBalance, WageType, Employee, Supplier, SalBalType,
-    SalBalDrawType, SalaryBalanceTemplate
+    SalBalDrawType, SalaryBalanceTemplate, Employment
 } from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {FieldType, UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
 import {SalaryBalanceLineService} from './salaryBalanceLineService';
 import {ErrorService} from '../../commonServicesModule';
@@ -19,6 +19,8 @@ import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
 import { SupplierService } from '@app/services/accounting/supplierService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
+import { Type } from '@angular/compiler';
+import { EmploymentService } from '../employee/employmentService';
 
 interface IFieldFunc {
     prop: string;
@@ -55,7 +57,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private wagetypeService: WageTypeService,
         private supplierService: SupplierService,
         private employeeService: EmployeeService,
-        private salarybalanceTemplateService: SalarybalanceTemplateService
+        private salarybalanceTemplateService: SalarybalanceTemplateService,
+        private employmentService: EmploymentService,
     ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
@@ -373,6 +376,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .map(() => entityObject);
     }
 
+    public updateFromEmployments(emps: number[]) {
+        return super.ActionWithBody(null, emps, 'update-from-employments');
+    }
+
     public refreshLayout(
         salbalTemplate: SalaryBalance | SalaryBalanceTemplate,
         ignoreFields: string[],
@@ -481,358 +488,412 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             {
                 Name: layoutID,
                 BaseEntity: entity,
-                Fields: [
-                    {
-                        EntityType: entity,
-                        Property: 'SalaryBalanceTemplateID',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Trekkmal',
-                        Tooltip: {
-                            Text: this.getHelpText('template')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 0,
-                        ReadOnly: !!salBal.ID,
-                        Options: {
-                            source: templates,
-                            displayProperty: 'Name',
-                            valueProperty: 'ID',
-                            debounceTime: 500
-                        }
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'InstalmentType',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Type',
-                        Tooltip: {
-                            Text: this.getHelpText('instalmenttype')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 0,
-                        ReadOnly: basedOnTemplate || !!salBal.ID,
-                        Options: {
-                            source: this.getInstalmentTypes(entity),
-                            displayProperty: 'Name',
-                            valueProperty: 'ID',
-                            debounceTime: 500
-                        },
-                        Validations: [
-                            (value: number, field: UniFieldLayout) => {
-                                if (!!value) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Type er påkrevd',
-                                    isWarning: false};
-                                }
-                        ]
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'Name',
-                        FieldType: FieldType.TEXT,
-                        Label: entity === 'salarybalancetemplate' ? 'Navn på mal' : 'Tekst til lønnspost',
-                        Tooltip: {
-                            Text: this.getHelpText(entity === 'salarybalancetemplate' ? 'templatename' : 'name')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 1,
-                        LineBreak: true,
-                        ReadOnly: basedOnTemplate || !!salBal.ID ? true : false,
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'SalarytransactionDescription',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Tekst til lønnspost',
-                        Tooltip: {
-                            Text: this.getHelpText('name')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 1,
-                        ReadOnly: basedOnTemplate,
-                        LineBreak: true,
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'EmployeeID',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Ansatt',
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 2,
-                        ReadOnly: !!salBal.ID,
-                        Options: {
-                            source: employees,
-                            valueProperty: 'ID',
-                            template: (employee: Employee) => employee
-                                ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
-                                : ''
-                        },
-                        Validations: [
-                            (value: number, field: UniFieldLayout) => {
-                                if (!!value) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Ansatt er påkrevd',
-                                    isWarning: false};
-                                }
-                        ]
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'WageTypeNumber',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Lønnsart',
-                        Tooltip: {
-                            Text: this.getHelpText('wagetypenumber')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 3,
-                        ReadOnly: basedOnTemplate || !!salBal.ID,
-                        Options: {
-                            source: wageTypes,
-                            valueProperty: 'WageTypeNumber',
-                            template: (wagetype: WageType) => wagetype
-                                ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
-                                : ''
-                        },
-                        Validations: [
-                            (value: number, field: UniFieldLayout) => {
-                                if (!!value) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Lønnsart er påkrevd',
-                                    isWarning: false};
-                                }
-                        ]
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'FromDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Fra dato',
-                        Tooltip: {
-                            Text: this.getHelpText('fromdate')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 4
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'ToDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Til dato',
-                        Tooltip: {
-                            Text: this.getHelpText('todate')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 5
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'Amount',
-                        FieldType: FieldType.NUMERIC,
-                        Label: salBal.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo',
-                        Tooltip: {
-                            Text: this.getHelpText('amount')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 6,
-                        Hidden: !!salBal.ID || (salBal.InstalmentType === SalBalType.Contribution
-                            || salBal.InstalmentType === SalBalType.Union),
-                        Options: {
-                            format: 'money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'Instalment',
-                        FieldType: FieldType.NUMERIC,
-                        Label: salBal.InstalmentType === SalBalType.Union ? 'Trekk' : 'Avdrag',
-                        Tooltip: {
-                            Text: this.getHelpText('instalment')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 7,
-                        ReadOnly: basedOnTemplate || !!salBal.InstalmentPercent,
-                        Options: {
-                            format: 'money',
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'InstalmentPercent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: salBal.InstalmentType === SalBalType.Union ? 'Trekk prosent' : 'Avdrag prosent',
-                        Tooltip: {
-                            Text: this.getHelpText('instalmentpercent')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 8,
-                        Options: {
-                            format: 'money',
-                            decimalLength: 2
-                        },
-                        ReadOnly: basedOnTemplate || !!salBal.Instalment,
-                        Hidden: salBal.InstalmentType === SalBalType.Advance
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'MinAmount',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Minimumsbeløp',
-                        Tooltip: {
-                            Text: this.getHelpText('minamount')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 8,
-                        Options: {
-                            format: 'money',
-                            decimalLength: 2
-                        },
-                        ReadOnly: basedOnTemplate || !salBal.InstalmentPercent,
-                        Hidden: salBal.InstalmentType !== SalBalType.Union
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'MaxAmount',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Maksimumsbeløp',
-                        Tooltip: {
-                            Text: this.getHelpText('maxamount')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 8,
-                        Options: {
-                            format: 'money',
-                            decimalLength: 2
-                        },
-                        ReadOnly: basedOnTemplate || !salBal.InstalmentPercent,
-                        Hidden: salBal.InstalmentType !== SalBalType.Union
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'SupplierID',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Leverandør',
-                        Tooltip: {
-                            Text: this.getHelpText('supplierid')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 9,
-                        Hidden: this.isHiddenByInstalmentType(salBal),
-                        ReadOnly: basedOnTemplate,
-                        Options: {
-                            source: suppliers,
-                            valueProperty: 'ID',
-                            template: (supplier: Supplier) => supplier
-                                ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
-                                : ''
-                        },
-                        Validations: [
-                            (value: number, field: UniFieldLayout) => {
-                                if (!!value || salBal.InstalmentType !== SalBalType.Union) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Leverandør er påkrevd',
-                                    isWarning: false};
-                                }
-                        ]
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'KID',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Kid',
-                        Tooltip: {
-                            Text: this.getHelpText('kid')
-                        },
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 10,
-                        Options: {},
-                        Validations: [
-                            (value: string, field: UniFieldLayout) => {
-                                if (typeof(value) !== 'string') {
-                                    return;
-                                }
-
-                                if (field.Hidden || field.ReadOnly || !value || this.modulusService.isValidKID(value)) {
-                                    return;
-                                }
-
-                                return {
-                                    field: field,
-                                    value: value,
-                                    errorMessage: 'Ugyldig KID',
-                                    isWarning: false
-                                };
-                            }
-                        ],
-                        Hidden: this.isHiddenByInstalmentType(salBal),
-                        ReadOnly: basedOnTemplate,
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'Supplier.Info.DefaultBankAccount.AccountNumber',
-                        FieldType: FieldType.TEXT,
-                        ReadOnly: true,
-                        Label: 'Kontonummer',
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 11,
-                        Options: {},
-                        Hidden: this.isHiddenByInstalmentType(salBal)
-                    },
-                    {
-                        EntityType: entity,
-                        Property: 'CreatePayment',
-                        FieldType: FieldType.CHECKBOX,
-                        ReadOnly: basedOnTemplate,
-                        Tooltip: {
-                            Text: this.getHelpText('createpayment')
-                        },
-                        Label: 'Lag utbetaling',
-                        FieldSet: 0,
-                        Section: 0,
-                        Placement: 12,
-                        Options: {},
-                        Hidden: this.isHiddenByInstalmentType(salBal)
-                    }
-                ]
+                Fields: this.GetFieldList(layoutID, salBal, entity, wageTypes, employees, suppliers, templates, basedOnTemplate)
             }
         ]);
+    }
+
+    private GetFieldList(layoutID: string,
+        salBal: SalaryBalance | SalaryBalanceTemplate,
+        entity: string,
+        wageTypes: WageType[],
+        employees: Employee[],
+        suppliers: Supplier[],
+        templates: SalaryBalanceTemplate[],
+        basedOnTemplate: boolean = false) {
+            let fields = [
+                {
+                    EntityType: entity,
+                    Property: 'SalaryBalanceTemplateID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Trekkmal',
+                    Tooltip: {
+                        Text: this.getHelpText('template')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 0,
+                    ReadOnly: !!salBal.ID,
+                    Options: {
+                        source: templates,
+                        displayProperty: 'Name',
+                        valueProperty: 'ID',
+                        debounceTime: 500
+                    }
+                },
+                {
+                    EntityType: entity,
+                    Property: 'InstalmentType',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Type',
+                    Tooltip: {
+                        Text: this.getHelpText('instalmenttype')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 0,
+                    ReadOnly: basedOnTemplate || !!salBal.ID,
+                    Options: {
+                        source: this.getInstalmentTypes(entity),
+                        displayProperty: 'Name',
+                        valueProperty: 'ID',
+                        debounceTime: 500
+                    },
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Type er påkrevd',
+                                isWarning: false};
+                            }
+                    ]
+                },
+                {
+                    EntityType: entity,
+                    Property: 'Name',
+                    FieldType: FieldType.TEXT,
+                    Label: entity === 'salarybalancetemplate' ? 'Navn på mal' : 'Tekst til lønnspost',
+                    Tooltip: {
+                        Text: this.getHelpText(entity === 'salarybalancetemplate' ? 'templatename' : 'name')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 1,
+                    LineBreak: true,
+                    ReadOnly: basedOnTemplate || !!salBal.ID ? true : false,
+                },
+                {
+                    EntityType: entity,
+                    Property: 'SalarytransactionDescription',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Tekst til lønnspost',
+                    Tooltip: {
+                        Text: this.getHelpText('name')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 1,
+                    ReadOnly: basedOnTemplate,
+                    LineBreak: true,
+                },
+                {
+                    EntityType: entity,
+                    Property: 'EmployeeID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Ansatt',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 2,
+                    ReadOnly: !!salBal.ID,
+                    Options: {
+                        source: employees,
+                        valueProperty: 'ID',
+                        template: (employee: Employee) => employee
+                            ? `${employee.EmployeeNumber} - ${employee.BusinessRelationInfo.Name}`
+                            : ''
+                    },
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Ansatt er påkrevd',
+                                isWarning: false};
+                            }
+                    ]
+                },
+                {
+                    EntityType: entity,
+                    Property: 'WageTypeNumber',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Lønnsart',
+                    Tooltip: {
+                        Text: this.getHelpText('wagetypenumber')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 3,
+                    ReadOnly: basedOnTemplate || !!salBal.ID,
+                    Options: {
+                        source: wageTypes,
+                        valueProperty: 'WageTypeNumber',
+                        template: (wagetype: WageType) => wagetype
+                            ? `${wagetype.WageTypeNumber} - ${wagetype.WageTypeName}`
+                            : ''
+                    },
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Lønnsart er påkrevd',
+                                isWarning: false};
+                            }
+                    ]
+                },
+                {
+                    EntityType: entity,
+                    Property: 'FromDate',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Fra dato',
+                    Tooltip: {
+                        Text: this.getHelpText('fromdate')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 4
+                },
+                {
+                    EntityType: entity,
+                    Property: 'ToDate',
+                    FieldType: FieldType.LOCAL_DATE_PICKER,
+                    Label: 'Til dato',
+                    Tooltip: {
+                        Text: this.getHelpText('todate')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 5
+                },
+                {
+                    EntityType: entity,
+                    Property: 'Amount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: salBal.InstalmentType === SalBalType.Advance ? 'Beløp' : 'Saldo',
+                    Tooltip: {
+                        Text: this.getHelpText('amount')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 6,
+                    Hidden: !!salBal.ID || (salBal.InstalmentType === SalBalType.Contribution
+                        || salBal.InstalmentType === SalBalType.Union),
+                    Options: {
+                        format: 'money',
+                        decimalLength: 2
+                    }
+                },
+                {
+                    EntityType: entity,
+                    Property: 'Instalment',
+                    FieldType: FieldType.NUMERIC,
+                    Label: salBal.InstalmentType === SalBalType.Union ? 'Trekk' : 'Avdrag',
+                    Tooltip: {
+                        Text: this.getHelpText('instalment')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 7,
+                    ReadOnly: basedOnTemplate || !!salBal.InstalmentPercent,
+                    Options: {
+                        format: 'money',
+                        decimalLength: 2
+                    }
+                },
+                {
+                    EntityType: entity,
+                    Property: 'InstalmentPercent',
+                    FieldType: FieldType.NUMERIC,
+                    Label: salBal.InstalmentType === SalBalType.Union ? 'Trekk prosent' : 'Avdrag prosent',
+                    Tooltip: {
+                        Text: this.getHelpText('instalmentpercent')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 8,
+                    Options: {
+                        format: 'money',
+                        decimalLength: 2
+                    },
+                    ReadOnly: basedOnTemplate || !!salBal.Instalment,
+                    Hidden: salBal.InstalmentType === SalBalType.Advance
+                },
+                {
+                    EntityType: entity,
+                    Property: 'MinAmount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Minimumsbeløp',
+                    Tooltip: {
+                        Text: this.getHelpText('minamount')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 8,
+                    Options: {
+                        format: 'money',
+                        decimalLength: 2
+                    },
+                    ReadOnly: basedOnTemplate || !salBal.InstalmentPercent,
+                    Hidden: salBal.InstalmentType !== SalBalType.Union
+                },
+                {
+                    EntityType: entity,
+                    Property: 'MaxAmount',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Maksimumsbeløp',
+                    Tooltip: {
+                        Text: this.getHelpText('maxamount')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 8,
+                    Options: {
+                        format: 'money',
+                        decimalLength: 2
+                    },
+                    ReadOnly: basedOnTemplate || !salBal.InstalmentPercent,
+                    Hidden: salBal.InstalmentType !== SalBalType.Union
+                },
+                {
+                    EntityType: entity,
+                    Property: 'SupplierID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Leverandør',
+                    Tooltip: {
+                        Text: this.getHelpText('supplierid')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 9,
+                    Hidden: this.isHiddenByInstalmentType(salBal),
+                    ReadOnly: basedOnTemplate,
+                    Options: {
+                        source: suppliers,
+                        valueProperty: 'ID',
+                        template: (supplier: Supplier) => supplier
+                            ? `${supplier.SupplierNumber} - ${supplier.Info.Name}`
+                            : ''
+                    },
+                    Validations: [
+                        (value: number, field: UniFieldLayout) => {
+                            if (!!value || salBal.InstalmentType !== SalBalType.Union) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Leverandør er påkrevd',
+                                isWarning: false};
+                            }
+                    ]
+                },
+                {
+                    EntityType: entity,
+                    Property: 'KID',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Kid',
+                    Tooltip: {
+                        Text: this.getHelpText('kid')
+                    },
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 10,
+                    Options: {},
+                    Validations: [
+                        (value: string, field: UniFieldLayout) => {
+                            if (typeof(value) !== 'string') {
+                                return;
+                            }
+
+                            if (field.Hidden || field.ReadOnly || !value || this.modulusService.isValidKID(value)) {
+                                return;
+                            }
+
+                            return {
+                                field: field,
+                                value: value,
+                                errorMessage: 'Ugyldig KID',
+                                isWarning: false
+                            };
+                        }
+                    ],
+                    Hidden: this.isHiddenByInstalmentType(salBal),
+                    ReadOnly: basedOnTemplate,
+                },
+                {
+                    EntityType: entity,
+                    Property: 'Supplier.Info.DefaultBankAccount.AccountNumber',
+                    FieldType: FieldType.TEXT,
+                    ReadOnly: true,
+                    Label: 'Kontonummer',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 11,
+                    Options: {},
+                    Hidden: this.isHiddenByInstalmentType(salBal)
+                },
+                {
+                    EntityType: entity,
+                    Property: 'CreatePayment',
+                    FieldType: FieldType.CHECKBOX,
+                    ReadOnly: basedOnTemplate,
+                    Tooltip: {
+                        Text: this.getHelpText('createpayment')
+                    },
+                    Label: 'Lag utbetaling',
+                    FieldSet: 0,
+                    Section: 0,
+                    Placement: 12,
+                    Options: {},
+                    Hidden: this.isHiddenByInstalmentType(salBal)
+                }
+            ];
+
+        if (this.isSalaryBalance(salBal)) {
+            const index = fields.findIndex(f => f.Property === 'MaxAmount');
+            const salaryBalance: SalaryBalance = <SalaryBalance>salBal;
+            const field: any = {
+                EntityType: entity,
+                Property: 'EmploymentID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Arbeidsforhold',
+                FieldSet: 0,
+                Section: 0,
+                Placement: 2,
+                ReadOnly: !salBal['EmployeeID'],
+                Options: {
+                    valueProperty: 'ID',
+                    template: (employment: Employment) => employment
+                        ? `${employment.ID} - ${employment.JobName}`
+                        : '',
+                    getDefaultData: () => {
+                        if (!salaryBalance.EmployeeID) {
+                            return of([]);
+                        }
+                        return salaryBalance.EmploymentID
+                            ? this.employmentService.GetAll(`filter=ID eq ${salaryBalance.EmploymentID}`)
+                            : this.employmentService.GetAll(`filter=EmployeeID eq ${salaryBalance.EmployeeID} and Standard eq true`);
+                    },
+                    search: (query: string) => this.employmentService.searchEmployments(query, salBal['EmployeeID'])
+                }
+            };
+            fields = [...fields.slice(0, index + 1),
+                field,
+                ...fields.slice(index + 1, fields.length),
+            ];
+        }
+        return fields;
+    }
+
+    private isSalaryBalance(salBal: SalaryBalance | SalaryBalanceTemplate) {
+        return 'EmployeeID' in salBal;
+    }
+
+    private isSalaryBalanceTemplate(salBal: SalaryBalance | SalaryBalanceTemplate) {
+        return !this.isSalaryBalance(salBal);
     }
 }

@@ -58,7 +58,7 @@ import {cloneDeep} from 'lodash';
     `
 })
 export class TofCustomerCard {
-    @ViewChild(Autocomplete) autocomplete: Autocomplete;
+    @ViewChild(Autocomplete, { static: true }) autocomplete: Autocomplete;
 
     @Input() readonly: boolean;
     @Input() entity: any;

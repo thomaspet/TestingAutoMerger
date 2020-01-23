@@ -21,7 +21,7 @@ import { ComboButtonAction } from '@uni-framework/ui/combo-button/combo-button';
 })
 
 export class BarnepassSenderModal implements OnInit, IUniModal {
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     public table: AgGridWrapper;
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();

@@ -11,6 +11,7 @@ import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import
 import { ImportCardModel } from '@app/models/import-central/ImportCardModel';
 import { ImportVoucherModal } from '../modals/custom-component-modals/imports/voucher/import-voucher-modal';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ImportOrderModal } from '../modals/custom-component-modals/imports/order/import-order-modal';
 
 @Component({
   selector: 'import-central-page',
@@ -31,7 +32,7 @@ export class ImportCentralPage implements OnInit {
     payroll: new ImportUIPermission(),
     saft: new ImportSaftUIPermission(),
     voucher: new ImportUIPermission(),
-
+    order: new ImportUIPermission(),
   }
 
   constructor(
@@ -139,7 +140,7 @@ export class ImportCentralPage implements OnInit {
       },
       {
         uiPermission: {
-          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess,
+          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess, 
           hasImportAccess: true,
           hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
         },
@@ -148,18 +149,25 @@ export class ImportCentralPage implements OnInit {
         importText: 'Importer bilag',
         downloadText: 'Last ned mal',
         type: TemplateType.Voucher
+      },
+      {
+        uiPermission: {
+          hasComponentAccess: true, //this.uiPermission.order.hasComponentAccess
+          hasImportAccess: true,
+          hasTemplateAccess: true//this.uiPermission.order.hasTemplateAccess
+        },
+        iconName: 'shopping_cart',
+        title: 'Ordre',
+        importText: 'Importer ordre',
+        downloadText: 'Last ned mal',
+        type: TemplateType.Order
       }
     );
     this.importCardsList = this.importCardsList.filter(x => x.uiPermission.hasComponentAccess);
   }
 
   private navigateToLogHistory(type: TemplateType) {
-    if (type === TemplateType.Payroll) {
-      this.router.navigate(['/salary/variablepayrolls']);
-    } else {
-      this.router.navigate(['/import/log', { id: type }]);
-    }
-
+    this.router.navigate(['/import/log', { id: type }]);
   }
 
   //checks with disclaimer agreement
@@ -238,6 +246,14 @@ export class ImportCentralPage implements OnInit {
         type = 'bilag';
         templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
         break;
+      case TemplateType.Order:
+        header = 'Importer Order';
+        jobName = ImportJobName.Order;
+        type = 'Order';
+        conditionalStatement = ImportStatement.OrderConditionalStatement;
+        formatStatement = ImportStatement.OrderFormatStatement;
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.ORDER
+        break;
       default:
         header = '';
         jobName = '';
@@ -246,6 +262,21 @@ export class ImportCentralPage implements OnInit {
     }
     if (templateType === TemplateType.Voucher) {
       this.modalService.open(ImportVoucherModal,
+        {
+          header: header,
+          data: {
+            jobName: jobName,
+            type: type,
+            entity: templateType,
+            conditionalStatement: conditionalStatement,
+            formatStatement: formatStatement,
+            downloadStatement: downloadStatement,
+            downloadTemplateUrl: templateUrl
+          }
+        });
+    }
+    else if (templateType === TemplateType.Order) {
+      this.modalService.open(ImportOrderModal,
         {
           header: header,
           data: {
@@ -304,8 +335,12 @@ export class ImportCentralPage implements OnInit {
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton: 'Eksporter SAF-T' }
         break;
       case TemplateType.Voucher:
-        header = 'Voucher Eksportmal';
+        header = 'Bilag Eksportmal';
         data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
+        break;
+      case TemplateType.Order:
+        header = 'Ordre Eksportmal';
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.ORDER, EntityType: templateType, FileName: 'OrderExportedFile', Permisions: this.uiPermission.order, downloadButton: downloadButton }
         break;
       default:
         header = '';

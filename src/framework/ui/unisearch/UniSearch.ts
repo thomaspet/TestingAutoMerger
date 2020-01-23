@@ -35,7 +35,7 @@ import {IUniSearchConfig} from './IUniSearchConfig';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearch {
-    @ViewChild(UniSearchAttr) uniSearchAttr: UniSearchAttr;
+    @ViewChild(UniSearchAttr, { static: true }) uniSearchAttr: UniSearchAttr;
 
     @Input() config: IUniSearchConfig;
     @Input() disabled: boolean;

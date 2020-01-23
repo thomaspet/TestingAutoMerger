@@ -16,11 +16,16 @@ import { UniSearchAccountConfig } from '@app/services/services';
                     (changeEvent)="mainAccountSelected($event)"
                     [disabled]="false">
                 </uni-search>
+                <small *ngIf="showErrorMsg" style="color: var(--color-bad); margin-top: 1rem; display: block;">
+                    *Du har valgt bokføring mot systemets interrimskonto innbetaling. Vi anbefaler å bokføre mot annen
+                    hovedbokskonto enn denne. Ved bokføring med hovedbokskonto lik interrimskonto innbetaling
+                    vil bilaget få debet/kredit på interrimskonto innbetaling.
+                </small>
             </article>
 
             <footer>
-                <button class="good" [disabled]="!selectedID" (click)="close(selectedID)">Bøkfor valgt rad</button>
-                <button class="bad" (click)="close(null)">Avbryt</button>
+                <button class="c2a" [disabled]="!selectedID" (click)="close(selectedID)">Bøkfor valgt rad</button>
+                <button class="secondary bad" (click)="close(null)">Avbryt</button>
             </footer>
         </section>
     `
@@ -32,8 +37,9 @@ export class MatchMainAccountModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public  selectedID: number;
-    public uniSearchConfig: IUniSearchConfig;
+    selectedID: number;
+    showErrorMsg: boolean = false;
+    uniSearchConfig: IUniSearchConfig;
 
     constructor(
         private uniSearchAccountConfig: UniSearchAccountConfig
@@ -44,6 +50,7 @@ export class MatchMainAccountModal implements IUniModal {
     }
 
     public mainAccountSelected(account) {
+        this.showErrorMsg = this.options.data && this.options.data.interrimsAccount && this.options.data.interrimsAccount === account.ID;
         this.selectedID = account.ID;
     }
 

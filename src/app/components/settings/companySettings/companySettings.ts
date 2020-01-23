@@ -70,16 +70,18 @@ import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {environment} from 'src/environments/environment';
 
 import * as _ from 'lodash';
+import { tap } from 'rxjs/operators';
+import { SubEntitySettingsService } from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 
 @Component({
     selector: 'settings',
     templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     public form: UniForm;
 
-    @ViewChild(ReminderSettings)
+    @ViewChild(ReminderSettings, { static: false })
     public reminderSettings: ReminderSettings;
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
@@ -172,7 +174,8 @@ export class CompanySettingsComponent implements OnInit {
         private subEntityService: SubEntityService,
         private settingsService: SettingsService,
         private businessRelationService: BusinessRelationService,
-        private reportTypeService: ReportTypeService
+        private reportTypeService: ReportTypeService,
+        private subEntitySettingsService: SubEntitySettingsService,
     ) {
         this.settingsService.setSaveActions([{
             label: 'Lagre firmainnstillinger',
@@ -605,6 +608,14 @@ export class CompanySettingsComponent implements OnInit {
                 complete('Lagring feilet.');
                 return this.errorService.handleRxCatch(err, obs);
             })
+            .pipe(
+                tap((companySettings: CompanySettings) => {
+                    if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
+                        this.subEntitySettingsService
+                            .getSubEntitiesFromBrregAndSaveAll(companySettings.OrganizationNumber);
+                    }
+                })
+            )
             .subscribe(
             (response) => {
                 this.companySettingsService.Get(1).subscribe(retrievedCompany => {
@@ -841,13 +852,14 @@ export class CompanySettingsComponent implements OnInit {
 
         const officeMunicipality: UniFieldLayout = fields.find(x => x.Property === 'OfficeMunicipalityNo');
         officeMunicipality.Options = {
-            source: this.municipalities,
-            valueProperty: 'MunicipalityNo',
-            displayProperty: 'MunicipalityNo',
+            getDefaultData: () => this.municipalService
+                .getByNumber(companySettings.OfficeMunicipalityNo),
+            search: (text: string) => this.municipalService.search(text),
             debounceTime: 200,
             template: (obj: Municipal) => obj ? `${obj.MunicipalityNo} - `
                 + `${obj.MunicipalityName.substr(0, 1).toUpperCase()
-                + obj.MunicipalityName.substr(1).toLowerCase()}` : ''
+                + obj.MunicipalityName.substr(1).toLowerCase()}` : '',
+            valueProperty: 'MunicipalityNo',
         };
 
         const periodSeriesAccountID: UniFieldLayout = fields.find(x => x.Property === 'PeriodSeriesAccountID');

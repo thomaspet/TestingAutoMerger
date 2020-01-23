@@ -26,8 +26,8 @@ import {KeyCodes} from '@app/services/common/keyCodes';
     changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class UniTypeaheadInput extends BaseControl {
-    @ViewChild('dropdown') private dropdown: ElementRef;
-    @ViewChild('inputElement') private inputElement: ElementRef;
+    @ViewChild('dropdown', { static: true }) private dropdown: ElementRef;
+    @ViewChild('inputElement', { static: true }) private inputElement: ElementRef;
 
     @Input() field: UniFieldLayout;
     @Input() model: any;

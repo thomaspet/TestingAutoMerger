@@ -1,0 +1,76 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{options.header}}</header>
+
+    <article>
+        <p><strong>Klient: </strong>{{authService?.activeCompany?.Name}}</p>
+        <!-- <label class="uni-label label-left">
+            <span>Klient</span>
+            <span class="value">{{authService?.activeCompany?.Name}}</span>
+        </label> -->
+
+        <div class="external-details">
+            <label class="uni-label label-left" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
+                <span>Last ned mal</span>
+                <span>
+                    <a href="{{options.data.downloadTemplateUrl}}">
+                        {{options.data.downloadTemplateUrl.split("/").pop()}}
+                    </a>
+                </span>
+            </label>
+
+            <p>{{options.data.conditionalStatement}}</p>
+            <p>{{options.data.formatStatement}}</p>
+            <p>{{options.data.downloadStatement}}</p>
+
+            <p *ngIf="options.data.isExternal">
+                Vær vennlig og les gjennom
+                <a (click)="openDisclaimerNote()"> våre vilkår </a>
+                før du laster opp filen.
+            </p>
+        </div>
+
+
+        <strong style="font-size: 15px">Filopplasting</strong>
+
+        <div class="file-upload" [ngClass]="!isValidFileFormat ? 'error' : 'file-upload'" (click)="selectFile()"
+            (drop)="dropFile($event)" (dragover)="dragFile($event)">
+            <div class="upload-file" *ngIf='isFileSelected'>
+                <label class="uploaded-txt">Last opp filen</label>
+                <div class="file-card">
+                    <i class="material-icons file-icon">insert_drive_file</i>
+                    <label class="file-name">{{attachedFile.name}}</label>
+                    <mat-progress-bar class="progress-bar" mode="determinate" [value]='progressBarVal'>
+                    </mat-progress-bar>
+                    <i class="material-icons cancel-icon" (click)="onFileDetach()" *ngIf="showCancel">add_circle</i>
+                </div>
+            </div>
+            <div class="select-file" *ngIf='!isFileSelected'>
+                <i class="material-icons">cloud_upload</i>
+                <span>
+                    Dra og slipp eller <span class="browse-link">bla i</span> dine filer
+                </span>
+                <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt">
+            </div>
+        </div>
+
+        <p class="error-msg" *ngIf='!isValidFileFormat'>
+            Vennligst legg til en fil (.xlsx eller .txt) for å kunne importere {{options.data.type}}.
+        </p>
+
+        <label class="uni-label label-left">
+            <span>Valg for import</span>
+            <uni-select class="drop-down" [config]="config" [value]="selectedOption" [items]="operators"
+                (valueChange)="onSelectChange($event)">
+            </uni-select>
+        </label>
+
+        <section *ngIf="loading$ | async" class="modal-spinner">
+            <mat-spinner></mat-spinner>
+        </section>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="close()">Avbryt</button>
+        <button class="c2a" (click)="importFile()">Importer {{options.data.type}}</button>
+    </footer>
+</section>

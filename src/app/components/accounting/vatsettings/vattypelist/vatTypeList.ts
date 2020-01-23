@@ -12,7 +12,7 @@ import * as moment from 'moment';
 })
 export class VatTypeList implements OnInit, AfterViewInit {
     @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     public vatTableConfig: UniTableConfig;
     public lookupFunction: (urlParams: HttpParams) => any;

@@ -17,7 +17,7 @@ const defaultSystemType = 1; // 1 - Hours (default)
     template: '<genericdetail [viewconfig]="viewconfig"></genericdetail>'
 })
 export class WorktypeDetailview {
-    @ViewChild(GenericDetailview) private genericDetail: GenericDetailview;
+    @ViewChild(GenericDetailview, { static: true }) private genericDetail: GenericDetailview;
     public viewconfig: IViewConfig;
     private productService: ProductService;
     private wagetypeService: WageTypeService;

@@ -165,6 +165,9 @@
                 "Name": "Innbetalt ingen match",
                 "Code": "incomming_without_match",
                 "UseAllCriterias": true,
+                "tooltipClass": "bad",
+                "tooltip": "Du har innbetalinger vi ikke har klart å koble mot faktura, vennligst behandle disse her",
+                "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -251,6 +254,15 @@
             {
                 "Name": "Lag regel for betaling uten match",
                 "Code": "bank_rule_nomatch",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Krediter bilag på betaling",
+                "Code": "credit_journal_entry",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
@@ -617,6 +629,7 @@
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
                 "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken, men vi har ikke funnet en matchende post i systemet. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
+                "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [

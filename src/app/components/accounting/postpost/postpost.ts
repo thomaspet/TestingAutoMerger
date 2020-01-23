@@ -24,7 +24,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 })
 export class PostPost {
 
-    @ViewChild(LedgerAccountReconciliation)
+    @ViewChild(LedgerAccountReconciliation, { static: true })
     public postpost: LedgerAccountReconciliation;
 
     saveActions: IUniSaveAction[];

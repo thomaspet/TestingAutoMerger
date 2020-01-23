@@ -52,6 +52,13 @@
                 <input type="text" [(ngModel)]="elsaCustomer.ContactPerson">
             </label>
 
+            <ng-container *ngIf="isSrEnvironment">
+                <label class="uni-label">
+                    <span>Personnummer *</span>
+                    <input type="text" [(ngModel)]="elsaCustomer.PersonalNumber" placeholder="11 siffer">
+                </label>
+            </ng-container>
+
             <label class="uni-label">
                 <span>Telefon</span>
                 <input type="text" [(ngModel)]="elsaCustomer.ContactPhone">

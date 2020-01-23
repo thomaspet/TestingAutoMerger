@@ -2,18 +2,20 @@ import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaCompanyLicense, ElsaContract, ElsaContractType, ElsaUserLicense} from '@app/models';
+import {environment} from 'src/environments/environment';
+import {HttpClient} from '@angular/common/http';
+import {map} from 'rxjs/operators';
 
 @Injectable()
 export class ElsaContractService {
-    constructor(private uniHttp: UniHttp) {}
+    ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
-    get(id: number): Observable<ElsaContract> {
-        return this.uniHttp
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint(`/api/elsa/contracts/${id}`)
-            .send()
-            .map(req => req.body);
+    constructor(private uniHttp: UniHttp, private http: HttpClient) {}
+
+    get(id: number, select?: string): Observable<ElsaContract> {
+        const selectClause = select ? `$select=${select}&` : '';
+        return this.http.get<ElsaContract[]>(this.ELSA_SERVER_URL + `/api/contracts?${selectClause}$filter=id eq ${id}`)
+            .pipe(map(res => res[0]));
     }
 
     getAll(): Observable<ElsaContract[]> {
@@ -53,6 +55,15 @@ export class ElsaContractService {
                 const users = res.body || [];
                 return users.filter(user => user.UserName !== 'System User');
             });
+    }
+
+    getUserLicense(contractID: number, userIdentity: string): Observable<ElsaUserLicense> {
+        return this.uniHttp
+            .asGET()
+            .usingElsaDomain()
+            .withEndPoint(`/api/contracts/${contractID}/userlicense-summary?$filter=useridentity eq ${userIdentity}`)
+            .send()
+            .map(res => res.body && res.body[0]);
     }
 
     activateContract(contractID: number, isBureau: boolean = false, statusCode: number = null) {

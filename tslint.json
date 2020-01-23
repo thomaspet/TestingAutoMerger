@@ -124,8 +124,8 @@
       "uni",
       "kebab-case"
     ],
-    "use-input-property-decorator": true,
-    "use-output-property-decorator": true,
+    "no-inputs-metadata-property": true,
+    "no-outputs-metadata-property": true,
     "no-input-rename": true,
     "no-output-rename": true,
     "use-pipe-transform-interface": true,

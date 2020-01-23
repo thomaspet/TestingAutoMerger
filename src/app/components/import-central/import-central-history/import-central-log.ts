@@ -29,7 +29,8 @@ export class ImportCentralLog implements OnInit {
         ledger: new ImportUIPermission(),
         payroll: new ImportUIPermission(),
         saft: new ImportSaftUIPermission(),
-        voucher: new ImportUIPermission()
+        voucher: new ImportUIPermission(),
+        order: new ImportUIPermission()
     }
 
     constructor(
@@ -93,6 +94,10 @@ export class ImportCentralLog implements OnInit {
         if (this.uiPermission.voucher.hasComponentAccess) {
             templateType.push({ id: TemplateType.Voucher, name: 'Bilag' });
         }
+        // have to setup order ui permissions in order to work.
+        if (this.uiPermission.order.hasComponentAccess) {
+            templateType.push({ id: TemplateType.Order, name: 'Order' });
+        }
         this.operators = [...templateType];
     }
 
@@ -120,6 +125,9 @@ export class ImportCentralLog implements OnInit {
                 break;
             case TemplateType.Voucher:
                 this.selectedType = { id: TemplateType.Voucher, name: 'Bilag' }
+                break;
+            case TemplateType.Order:
+                this.selectedType = { id: TemplateType.Order, name: 'Ordre' }
                 break;
             default:
                 this.selectedType = { id: TemplateType.All, name: 'All' }
@@ -235,6 +243,37 @@ export class ImportCentralLog implements OnInit {
                         break;
                 }
                 break;
+
+            case ImportJobName.Voucher:
+                switch (type) {
+                    case 'entityName':
+                        str = 'Bilag';
+                        break;
+                    case 'listName':
+                        str = 'Bilaglisten';
+                        break;
+                    case 'url':
+                        str = '/accounting/transquery';
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case ImportJobName.Order:
+                switch (type) {
+                    case 'entityName':
+                        str = 'Ordre';
+                        break;
+                    case 'listName':
+                        str = 'Ordrelisten';
+                        break;
+                    case 'url':
+                        str = '/sales/orders';
+                        break;
+                    default:
+                        break;
+                }
+                break;
             default:
                 break;
         }
@@ -273,6 +312,9 @@ export class ImportCentralLog implements OnInit {
                     case TemplateType.Voucher:
                         this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Voucher));
                         break;
+                    case TemplateType.Order:
+                        this.jobLogs.push(...results.filter(r => r.JobName === ImportJobName.Order));
+                        break;
                     case TemplateType.All:
                         this.jobLogs.push(
                             ...results.filter(
@@ -281,8 +323,9 @@ export class ImportCentralLog implements OnInit {
                                     r.JobName === ImportJobName.Supplier ||
                                     r.JobName === ImportJobName.MainLedger ||
                                     r.JobName === ImportJobName.Payroll ||
-                                    r.JobName === ImportJobName.Saft || 
-                                    r.JobName === ImportJobName.Voucher
+                                    r.JobName === ImportJobName.Saft ||
+                                    r.JobName === ImportJobName.Voucher ||
+                                    r.JobName === ImportJobName.Order
                             ));
                         break;
                     default:

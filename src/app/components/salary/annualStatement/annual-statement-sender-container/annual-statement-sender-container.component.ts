@@ -10,7 +10,7 @@ import {ErrorService} from '../../../../services/services';
 })
 export class AnnualStatementSenderContainerComponent implements OnInit {
     public saveActions: IUniSaveAction[] = [];
-    @ViewChild(AnnualStatementSenderComponent) private senderComponent: AnnualStatementSenderComponent;
+    @ViewChild(AnnualStatementSenderComponent, { static: true }) private senderComponent: AnnualStatementSenderComponent;
     constructor(private errorService: ErrorService) { }
 
     public ngOnInit() {

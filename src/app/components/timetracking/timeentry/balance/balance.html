@@ -1,16 +1,16 @@
-<h3 *ngIf="currentBalance.relationIsClosed">
+<h3 *ngIf="currentBalance?.relationIsClosed">
     Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}}
     <div class="bad">Stillingen har sluttdato: {{currentBalance.WorkRelation.EndTime | date: 'dd.MM.yyyy'}}</div>
 </h3>
 
-<h3 *ngIf="!currentBalance.relationIsClosed">
+<h3 *ngIf="!currentBalance?.relationIsClosed">
     Fra {{currentBalance.BalanceFrom | date:'dd.MM.yyyy'}} til {{currentBalance.BalanceDate | date:'dd.MM.yyyy'}}
 </h3>
 
 <section [attr.aria-busy]="busy" >
 
     <article [hidden]="!isDetailView">
-        <button class="good" (click)="onShowDetails(false)">Vis oppsummering</button>
+        <button class="secondary" (click)="onShowDetails(false)"> Vis oppsummering </button>
         <table class="flex-detail">
             <thead>
                 <tr>
@@ -51,7 +51,7 @@
     </article>
 
     <article [hidden]="isDetailView">
-        <button class="c2a" (click)="onShowDetails(true)">Vis detaljert</button>
+        <button class="secondary" (click)="onShowDetails(true)">Vis detaljert</button>
         <table class="flex-table">
             <tbody>
                 <tr>

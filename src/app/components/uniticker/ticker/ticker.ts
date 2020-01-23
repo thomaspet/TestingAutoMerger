@@ -87,7 +87,7 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) public table: AgGridWrapper;
 
     public model: any;
 

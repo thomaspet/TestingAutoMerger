@@ -71,7 +71,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     scrollbar: PerfectScrollbar;
     employeeIDFromParams: number = 0;
     hasInitialized: boolean = false;
-    @ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
+    @ViewChild(CdkVirtualScrollViewport, { static: true }) viewport: CdkVirtualScrollViewport;
     public standardEmployeeListfilters: IEmpListFilter[] = [
         { name: 'Ansattnummer', value: 'EmployeeNumber', multiplier: 1, initialMulitplier: 1, index: 0 },
         { name: 'Navn', value: 'Name', multiplier: 1, initialMulitplier: 1, index: 1 },
@@ -92,7 +92,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     private categories: EmployeeCategory[];
     public busy: boolean;
 
-    @ViewChild(SalaryTransactionEmployeeList)
+    @ViewChild(SalaryTransactionEmployeeList, { static: false })
     private transList: SalaryTransactionEmployeeList;
 
     constructor(

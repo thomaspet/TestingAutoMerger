@@ -4,7 +4,7 @@ import {
 } from '../../../services/services';
 import {SubEntity, PostalCode, Municipal} from '../../../unientities';
 import {UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 declare var _;
 import {BehaviorSubject} from 'rxjs';
 
@@ -26,11 +26,10 @@ export class SubEntityDetails {
         private _municipalityService: MunicipalService,
         private _statisticsService: StatisticsService,
         private errorService: ErrorService
-    ) {
-        this.createForm();
-    }
+    ) { }
 
     public ngOnInit() {
+        this.createForm();
         this.currentSubEntity$.next(this.currentSubEntity);
     }
 
@@ -85,21 +84,26 @@ export class SubEntityDetails {
                     }
                 }
             };
-            this._municipalityService.getAll('').subscribe(municipalities => {
-                municipality.Options = {
-                    source: municipalities,
-                    valueProperty: 'MunicipalityNo',
-                    displayProperty: 'MunicipalityNo',
-                    debounceTime: 200,
-                    template: (obj: Municipal) => obj && obj.MunicipalityName
-                        ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase()
-                            + obj.MunicipalityName.slice(1).toLowerCase()}`
-                        : ''
-                };
-                this.fields$.next(layout.Fields);
-            }, err => this.errorService.handle(err));
+            municipality.Options = {
+                getDefaultData: () => this.getDefaultMunicipal(this.currentSubEntity),
+                search: (text: string) => this._municipalityService.search(text),
+                debounceTime: 200,
+                template: (obj: Municipal) => obj && obj.MunicipalityName
+                    ? `${obj.MunicipalityNo} - ${obj.MunicipalityName.slice(0, 1).toUpperCase()
+                        + obj.MunicipalityName.slice(1).toLowerCase()}`
+                    : '',
+                valueProperty: 'MunicipalityNo'
+            };
+            this.fields$.next(layout.Fields);
 
         }, err => this.errorService.handle(err));
+    }
+
+    private getDefaultMunicipal(subEntity: SubEntity): Observable<Municipal[]> {
+        if (!subEntity) {
+            return of([]);
+        }
+        return this._municipalityService.getByNumber(subEntity.MunicipalityNo);
     }
 
     private findByProperty(fields, name) {

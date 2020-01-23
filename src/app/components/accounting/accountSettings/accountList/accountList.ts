@@ -22,7 +22,7 @@ import {AccountService, ErrorService} from '../../../../services/services';
     templateUrl: './accountList.html'
 })
 export class AccountList implements OnInit, AfterViewInit {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
     @Output() uniAccountChange: EventEmitter<Account> = new EventEmitter();
 
     accountTable: UniTableConfig;

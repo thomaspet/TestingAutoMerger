@@ -2,10 +2,7 @@
     <header>{{options.header}}</header>
 
     <article>
-        <label class="uni-label label-left">
-            <span>Klient</span>
-            <span class="value">{{authService?.activeCompany?.Name}}</span>
-        </label>
+        <p><strong>Klient: </strong>{{authService?.activeCompany?.Name}}</p>
 
         <div class="external-details">
             <label class="uni-label label-left" *ngIf="options.data.hasTemplateAccess && options.data.isExternal">
@@ -71,7 +68,7 @@
             </mat-checkbox>
         </label>
 
-        <label class="uni-label label-left">
+        <label class="uni-label label-left" *ngIf='selectedOption.type !== post'>
             <span>Legg til beskrivelse</span>
             <input type="text" [(ngModel)]="draftDescription">
         </label>

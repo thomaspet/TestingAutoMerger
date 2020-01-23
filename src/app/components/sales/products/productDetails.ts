@@ -48,10 +48,10 @@ export class ProductDetails {
     @Output()
     public productSavedInModalMode: EventEmitter<IProduct> = new EventEmitter<IProduct>();
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     public form: UniForm;
 
-    @ViewChild('descriptionField')
+    @ViewChild('descriptionField', { static: false })
     public descriptionField: ElementRef;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});

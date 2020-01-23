@@ -46,7 +46,7 @@ export class MatchCustomerInvoiceManual implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     public customerInvoices: Array<any> = [];

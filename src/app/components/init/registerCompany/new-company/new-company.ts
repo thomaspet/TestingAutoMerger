@@ -16,7 +16,7 @@ import {SignalRService} from '@app/services/common/signal-r.service';
     styleUrls: ['./new-company.sass']
 })
 export class NewCompany {
-    @ViewChild('companyNameInput') companyNameInput: ElementRef;
+    @ViewChild('companyNameInput', { static: false }) companyNameInput: ElementRef;
     @Input() contractID: number;
 
     creatingCompany: boolean;

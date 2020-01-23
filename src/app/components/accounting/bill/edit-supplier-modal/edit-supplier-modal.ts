@@ -11,8 +11,8 @@ import {UniForm} from '@uni-framework/ui/uniform';
     styleUrls: ['./edit-supplier-modal.sass']
 })
 export class SupplierEditModal implements IUniModal {
-    @ViewChild(UniForm) form: UniForm;
-    @ViewChild(Autocomplete) autocomplete: Autocomplete;
+    @ViewChild(UniForm, { static: true }) form: UniForm;
+    @ViewChild(Autocomplete, { static: false }) autocomplete: Autocomplete;
 
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();

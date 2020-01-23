@@ -51,6 +51,7 @@ export const EN = {
         'MOVE_TEMPLATES': 'Salary balance template',
         'OTP_EXPORT': 'OTP-export',
         'VARIABLE_PAYROLLS': 'Variable payrolls',
+        'REGULATIVE': 'Regulative',
         'HOURS': 'Timetracking',
         'HOUR_REG': 'Registration',
         'BILLING_HOURS': 'Billing hours',

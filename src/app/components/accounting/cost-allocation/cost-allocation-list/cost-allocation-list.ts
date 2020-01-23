@@ -18,7 +18,7 @@ export class UniCostAllocationList {
     @Output() costAllocationSelected: EventEmitter<{row: CostAllocation, index: number}> = new EventEmitter<{row: CostAllocation, index: number}>(true);
     @Output() costAllocationDeleted: EventEmitter<CostAllocation> = new EventEmitter<CostAllocation>(true);
 
-    @ViewChild('table') table: AgGridWrapper;
+    @ViewChild('table', { static: true }) table: AgGridWrapper;
     config: UniTableConfig;
 
     constructor() {

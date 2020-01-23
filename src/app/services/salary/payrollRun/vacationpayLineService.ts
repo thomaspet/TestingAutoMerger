@@ -25,9 +25,9 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         { id: WageDeductionDueToHolidayType.Deduct1PartOf26, name: '-1/26 av månedslønn' }
     ];
 
-    public getVacationpayBasis(year: number = this.yearService.getActiveYear(), payrun: number = 0, showAllEmps?: boolean)
+    public getVacationpayBasis(year: number = 0, payrun: number = 0, showAllEmps?: boolean)
         : Observable<VacationPayLine[]> {
-        return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year}&showAll=${showAllEmps}`);
+        return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year || this.yearService.getActiveYear()}&showAll=${showAllEmps}`);
     }
 
     public createVacationPay(year: number, payrun: number, payList: VacationPayLine[], hasSixthWeek: boolean) {

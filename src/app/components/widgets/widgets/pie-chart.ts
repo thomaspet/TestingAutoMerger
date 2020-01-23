@@ -26,7 +26,7 @@ import {theme} from 'src/themes/theme';
     `
 })
 export class UniPieChartWidget {
-    @ViewChild('chartElement') chartElement: ElementRef;
+    @ViewChild('chartElement', { static: true }) chartElement: ElementRef;
 
     colors = theme.widgets.pie_colors;
 

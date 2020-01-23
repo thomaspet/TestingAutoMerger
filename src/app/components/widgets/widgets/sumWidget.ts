@@ -37,7 +37,10 @@ export class UniSumWidget implements AfterViewInit {
             .subscribe(
                 (res) => {
                     if (typeof res === 'number') {
-                        this.displayValue = res;
+                        const decimals = (res.toString().indexOf(',') > -1 || res.toString().indexOf('.') > -1) ? 2 : 0;
+                        this.displayValue = this.numberFormatSerivce.asMoney(res, {
+                            decimalLength: decimals
+                        });
                     } else if (this.widget.config.useLength) {
                         if (res && res.Data) {
                             this.displayValue = res.Data.length;

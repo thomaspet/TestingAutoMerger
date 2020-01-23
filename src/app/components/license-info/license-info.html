@@ -1,2 +1,24 @@
-<uni-tabs [tabs]="tabs"></uni-tabs>
+<div class="select-container">
+    <uni-tabs [tabs]="tabs"></uni-tabs>
+    <section class="select-contract" *ngIf="customers?.length > 1">
+        <button #trigger class="tertiary">
+            Dine lisenser<i class="material-icons">keyboard_arrow_down</i>
+        </button>
+        <dropdown-menu [trigger]="trigger" minWidth="100px">
+            <ng-template>
+                <ng-container *ngFor="let customer of customers">
+                    <a 
+                    *ngFor="let contract of customer.Contracts" 
+                    class="dropdown-menu-item" 
+                    (click)="selectContract(contract)"
+                    [ngStyle]="{'color': contract.ID === (selectedContractID$ | async) ? '#0070e0' : ''}"
+                    >
+                        {{customer.Name}}
+                        <span class="pull-right" style="padding-left: 25px">{{contract.ContractType | elsaContractType}}</span>
+                    </a>
+                </ng-container>
+            </ng-template>
+        </dropdown-menu>
+    </section>
+</div>
 <router-outlet></router-outlet>

@@ -24,7 +24,7 @@ export class GrantModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     public table: AgGridWrapper;
 
     public grantTableConfig: UniTableConfig;

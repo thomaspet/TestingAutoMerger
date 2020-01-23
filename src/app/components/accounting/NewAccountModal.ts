@@ -56,7 +56,7 @@ export class NewAccountModal implements IUniModal, AfterViewInit, OnInit, OnChan
     public onClose: EventEmitter<any> = new EventEmitter();
 
     // @ViewChild(UniForm) public form: UniForm;
-    @ViewChild(UniSearch) private uniSearch: UniSearch;
+    @ViewChild(UniSearch, { static: true }) private uniSearch: UniSearch;
 
     public config: any = {};
     public uniSearchConfig: IUniSearchConfig;

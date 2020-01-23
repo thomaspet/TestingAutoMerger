@@ -32,7 +32,7 @@ declare const _;
     templateUrl: './reminderList.html'
 })
 export class ReminderList {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     public reminderTable: UniTableConfig;
     public reminderList: any;
@@ -282,6 +282,10 @@ export class ReminderList {
             return item.DontSendReminders ? 'Ja' : 'Nei';
         });
 
+        const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
+        .setFilterOperator('contains')
+        .setVisible(false);
+
         // Context menu
         const contextMenuItems: IContextMenuItem[] = [];
         contextMenuItems.push({
@@ -332,7 +336,7 @@ export class ReminderList {
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,
-                feeAmountCol, interestAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol
+                feeAmountCol, interestAmountCol, invoiceDateCol, dueDateCol, reminderStoppCol, externalRefCol
             ])
             .setContextMenu(contextMenuItems);
     }

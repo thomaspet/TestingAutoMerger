@@ -26,7 +26,7 @@ import {EHFService} from '@app/services/services';
     `
 })
 export class UniReminderSendingModal implements IUniModal {
-    @ViewChild(ReminderSending) reminderSending: ReminderSending;
+    @ViewChild(ReminderSending, { static: true }) reminderSending: ReminderSending;
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 

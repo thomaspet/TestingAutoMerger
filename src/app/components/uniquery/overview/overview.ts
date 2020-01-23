@@ -33,7 +33,7 @@ export class UniQueryOverview {
     }
 
     public ngOnInit() {
-        this.uniQueryDefinitionService.GetAll<UniQueryDefinition>(null).subscribe((uniQueries: Array<UniQueryDefinition>) => {
+        this.uniQueryDefinitionService.GetAll(null).subscribe((uniQueries: Array<UniQueryDefinition>) => {
             this.queryCategories = new Array<UniQueryCategory>();
 
             for (const uniQuery of uniQueries) {

@@ -42,7 +42,7 @@ interface IEditorPosition {
     }
 })
 export class TableEditor {
-    @ViewChild('editorContainer', {read: ViewContainerRef})
+    @ViewChild('editorContainer', { read: ViewContainerRef, static: true })
     private editorContainer: ViewContainerRef;
 
     @Input() public agGridApi: GridApi;

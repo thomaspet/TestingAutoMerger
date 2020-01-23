@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {TimesheetService} from '../../../../services/timetracking/timesheetService';
 import {WorkRelation, WorkBalance} from '../../../../unientities';
-import {ErrorService} from '../../../../services/services';
 import {roundTo} from '../../../common/utils/utils';
 import {UniTimeModal} from '@app/components/common/timetrackingCommon';
 import {UniModalService} from '../../../../../framework/uni-modal';
@@ -26,16 +25,16 @@ export class RegtimeBalance {
     public valueChange: EventEmitter<any> = new EventEmitter();
 
     public busy: boolean = true;
-    public currentBalance: WorkBalanceDto;
+
+    // tslint:disable-next-line
+    public currentBalance: WorkBalanceDto = new WorkBalanceDto();
     public incomingBalance: WorkBalance;
     public isDetailView: boolean = false;
     private current: WorkRelation;
-    private hasDetails: boolean = false;
     public groupedWeeks: IDetails = { weeks: [], sum: 0 };
 
     constructor(
         private timesheetService: TimesheetService,
-        private errorService: ErrorService,
         private modalService: UniModalService
     ) {}
 
@@ -59,7 +58,7 @@ export class RegtimeBalance {
             return;
         }
 
-        let data = {
+        const data = {
             date: item.Date,
             relation: this.current,
             disableSaveButton: !this.current.IsActive,
@@ -76,17 +75,17 @@ export class RegtimeBalance {
     }
 
     private reloadBalance(rel: WorkRelation, details: boolean = false) {
-        var workRelationId = rel ? rel.ID : 0;
+        const workRelationId = rel ? rel.ID : 0;
         if (!workRelationId) {
             this.valueChange.emit(0);
+            // tslint:disable-next-line
             this.currentBalance = new WorkBalanceDto();
             this.busy = false;
         } else {
             this.timesheetService.getFlexBalance(workRelationId, details).subscribe( (x: any) => {
                 this.busy = false;
-                let prevBalance = this.currentBalance;
+                const prevBalance = this.currentBalance;
                 this.currentBalance = x;
-                this.hasDetails = details;
 
                 if (details) {
                     this.groupedWeeks = this.groupIntoWeeks(x.Details);
@@ -97,7 +96,7 @@ export class RegtimeBalance {
 
                     // Workrelation ended ?
                     if (x.WorkRelation && x.WorkRelation.EndTime) {
-                        var et = moment(x.WorkRelation.EndTime);
+                        let et = moment(x.WorkRelation.EndTime);
                         if (et.year() > 1980) {
                             if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
                             if (et.year() > 1980 && et < moment(x.BalanceDate)) {
@@ -109,8 +108,8 @@ export class RegtimeBalance {
                     }
 
                     x.PreExpected = x.ExpectedMinutes - x.LastDayExpected;
-                    var preActual = x.ActualMinutes - x.LastDayActual;
-                    var preMinutes = x.Minutes + (x.LastDayActual - x.LastDayExpected);
+                    const preActual = x.ActualMinutes - x.LastDayActual;
+                    const preMinutes = x.Minutes + (x.LastDayActual - x.LastDayExpected);
 
                     this.currentBalance.lastDayBalance = x.LastDayActual - x.LastDayExpected;
                     this.currentBalance.lastDayBalanceHours = roundTo((x.LastDayActual - x.LastDayExpected) / 60, 1);
@@ -124,19 +123,19 @@ export class RegtimeBalance {
                 }
 
             }, (err) => {
-                console.log('Unable to fetch balance');
                 this.busy = false;
             });
         }
     }
 
     private groupIntoWeeks(details: IDetail[]): IDetails {
-        var weeks: Week[] = [];
-        var curWeek: Week;
-        var tsum = 0;
-        for (var i = details.length - 1; i >= 0; i--) {
-            let x = details[i];
-            var wk = this.WeekFromDate(x.Date);
+        const weeks: Week[] = [];
+        let curWeek: Week;
+        let tsum = 0;
+
+        for (let i = details.length - 1; i >= 0; i--) {
+            const x = details[i];
+            const wk = this.WeekFromDate(x.Date);
             if (!curWeek) {
                 curWeek = wk;
             }
@@ -155,8 +154,9 @@ export class RegtimeBalance {
     }
 
     private WeekFromDate(dt: Date): Week {
-        var md = moment(dt);
-        var wk = new Week();
+        // tslint:disable-next-line
+        const wk = new Week();
+        const md = moment(dt);
         wk.year = md.year();
         wk.week = md.isoWeek();
         wk.key = wk.year + '-' + wk.week;
@@ -197,10 +197,10 @@ class Week {
         }
 
         if (!this.todayChecked) {
-            var tempDay = moment(date);
-            var today = moment();
+            const tempDay = moment(date);
+            const today = moment();
             if (tempDay.year() === today.year() && tempDay.isoWeek() === today.isoWeek()) {
-                let ix = today.isoWeekday() - 1;
+                const ix = today.isoWeekday() - 1;
                 this.items[ix].IsToday = true;
             }
             this.todayChecked = true;
@@ -209,8 +209,8 @@ class Week {
 
     public addItem(item: IDetail) {
         this.initDays(item.Date);
-        var dt = moment(item.Date);
-        var ixDay = dt.isoWeekday() - 1;
+        const dt = moment(item.Date);
+        const ixDay = dt.isoWeekday() - 1;
         if (ixDay >= 0) {
             item.IsToday = dt.isSame(moment(), 'day');
             this.items[ixDay] = item;

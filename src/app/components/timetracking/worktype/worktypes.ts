@@ -11,7 +11,7 @@ import { WorkTypeSystemTypePipe } from '@app/components/common/utils/pipes';
 })
 export class WorktypeListview implements OnInit {
 
-    @ViewChild(UniTickerWrapper) private tickerWrapper: UniTickerWrapper;
+    @ViewChild(UniTickerWrapper, { static: true }) private tickerWrapper: UniTickerWrapper;
     private systemTypePipe: WorkTypeSystemTypePipe = new WorkTypeSystemTypePipe();
 
     public tickercode: string = 'worktype_list';

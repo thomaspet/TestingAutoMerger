@@ -60,7 +60,7 @@ export interface FileExtended extends File {
       ]
 })
 export class UniImage {
-    @ViewChild(MatMenuTrigger) ocrMenu: MatMenuTrigger;
+    @ViewChild(MatMenuTrigger, { static: false }) ocrMenu: MatMenuTrigger;
 
     @Input() entity: string;
     @Input() entityID: number;

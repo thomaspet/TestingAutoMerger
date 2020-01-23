@@ -19,7 +19,7 @@ import {theme} from 'src/themes/theme';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OperatingProfitWidget {
-    @ViewChild('operatingProfit') operatingProfit: ElementRef;
+    @ViewChild('operatingProfit', { static: true }) operatingProfit: ElementRef;
 
     months: string[] = [ 'Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des' ];
     widget: IUniWidget;

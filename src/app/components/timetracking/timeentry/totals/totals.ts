@@ -1,9 +1,9 @@
-﻿import {Component, ElementRef, ViewChild} from '@angular/core';
-import {TimeSheet, TimesheetService} from '../../../../services/timetracking/timesheetService';
+﻿import {Component, ElementRef, ViewChild, Input} from '@angular/core';
+import {TimeSheet} from '../../../../services/timetracking/timesheetService';
 import {WorkerService, IFilter} from '../../../../services/timetracking/workerService';
 import {ErrorService} from '../../../../services/services';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {theme} from '../../../../../themes/theme';
 import * as Chart from 'chart.js';
 
 
@@ -22,66 +22,61 @@ interface IStatSource {
     templateUrl: './totals.html'
 })
 export class RegtimeTotals {
-    @ViewChild('worktypeChart')
+    @ViewChild('worktypeChart', { static: false })
     private chartElement: ElementRef;
 
-    @ViewChild(AgGridWrapper)
-    private table: AgGridWrapper;
-
-    public BAR_CHART_COLORS =
-        ['#7293cb', '#e1974c', '#84ba5b', '#d35e60', '#808585', '#9067a7', '#ab6857', '#ccc274', '#FFFFFF', '#000000'];
-    public LINE_CHART_COLORS =
-        ['#396bb1', '#da7c30', '#3e9651', '#cc2529', '#535154', '#6b4c9a', '#922428', '#948b3d', '#FFFFFF', '#000000'];
-    public CUSTOM_COLORS = ['#E57373', '#F06292', '#BA68C8', '#9575CD', '#7986CB', '#64B5F6', '#4DD0E1',
-        '#4DB6AC', '#81C784', '#AED581', '#DCE775', '#FFF176 ', '#FFD54F', '#FFB74D', '#FF8A65', '#A1887F', '#E0E0E0', '#90A4AE'];
-    // public CUSTOM_COLORS = ['#FFCC66', '#FF9966', '#FF6666', '#FF3366', '#FF0066', '#990066', '#996666', '#999966',
-    //     '#99CC66', '#99FF66', '#33FF66', '#33CC66', '#339966 ', '#336666', '#333366', '#330066'];
+    @Input()
     private timesheet: TimeSheet;
-    public busy: boolean = true;
-    public showChart: boolean = true;
+
+    CUSTOM_COLORS = theme.widgets.pie_colors;
+    busy: boolean = true;
+    showChart: boolean = true;
+
     private myChart: any;
 
-    public filters: Array<IFilter>;
-    public currentFilter: IFilter;
+    filters: Array<IFilter>;
+    currentFilter: IFilter;
+    sources: Array<IStatSource>;
+    currentSource: IStatSource;
+    tableConfig: UniTableConfig;
+    tableData: any[] = [];
 
-    // Leave in for later
-    public charts: Array<any> = [
+    charts: Array<any> = [
         {
             name: 'bar',
-            label: 'Bar-chart',
+            label: 'Søylediagram',
             isSelected: false
         },
         {
             name: 'pie',
-            label: 'Pie-chart',
+            label: 'Kakediagram',
             isSelected: true
         }
     ];
-
-    public chart: any = this.charts[0];
-
-    public sources: Array<IStatSource>;
-    public currentSource: IStatSource;
-
-    public tableConfig: UniTableConfig;
-    public tableData: any[] = [];
+    chart: any = this.charts[0];
 
     constructor(
         private workerService: WorkerService,
-        private timesheetService: TimesheetService,
         private errorService: ErrorService
-    ) {
-        this.filters = workerService.getFilterIntervalItems();
+    ) { }
+
+    ngOnInit() {
+        this.filters = this.workerService.getFilterIntervalItems();
     }
 
-    public activate(ts: TimeSheet, filter?: IFilter) {
-        if (!this.timesheet) {
-            this.initSources(ts);
-            this.currentFilter = this.filters[3];
-            this.currentSource = this.sources[0];
+    ngOnChanges(change) {
+        if (change['timesheet']) {
+            this.timesheet = change['timesheet'].currentValue;
+            if (this.timesheet && this.timesheet.currentRelation) {
+                this.activate(this.timesheet);
+            }
         }
+    }
 
-        this.timesheet = ts;
+    activate(ts: TimeSheet) {
+        this.initSources(ts);
+        this.currentFilter = this.filters[3];
+        this.currentSource = this.sources[0];
         this.queryTotals();
     }
 

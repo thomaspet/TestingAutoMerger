@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Ticker, UniTickerService} from '@app/services/services';
-import {ActivatedRoute} from '../../../../../../node_modules/@angular/router';
-import {Observable, BehaviorSubject} from '../../../../../../node_modules/rxjs';
+import {ActivatedRoute} from '@angular/router';
+import {Observable, BehaviorSubject} from 'rxjs';
 import * as _ from 'lodash';
 
 @Component({

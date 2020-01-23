@@ -28,7 +28,7 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     @Output()
     public selectedEmps: EventEmitter<number> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     public table: AgGridWrapper;
 
     public employeeTableData: Employee[] = [];

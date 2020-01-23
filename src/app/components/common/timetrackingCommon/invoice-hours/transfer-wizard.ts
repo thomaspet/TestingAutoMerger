@@ -26,9 +26,9 @@ import {
 export class WorkitemTransferWizard implements IUniModal, OnInit, AfterViewInit {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
-    @ViewChild(WorkitemTransferWizardFilter) private wizardFilter: WorkitemTransferWizardFilter;
-    @ViewChild(WorkitemTransferWizardProducts) private wizardProducts: WorkitemTransferWizardProducts;
-    @ViewChild(WorkitemTransferWizardPreview) private wizardPreview: WorkitemTransferWizardPreview;
+    @ViewChild(WorkitemTransferWizardFilter, { static: true }) private wizardFilter: WorkitemTransferWizardFilter;
+    @ViewChild(WorkitemTransferWizardProducts, { static: true }) private wizardProducts: WorkitemTransferWizardProducts;
+    @ViewChild(WorkitemTransferWizardPreview, { static: true }) private wizardPreview: WorkitemTransferWizardPreview;
 
     public workerTypeCombo = '0';
 

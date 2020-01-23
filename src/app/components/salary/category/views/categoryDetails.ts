@@ -38,7 +38,7 @@ export class CategoryDetail extends UniView implements OnDestroy {
     });
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniForm, { static: true }) public uniform: UniForm;
 
     constructor(
         private route: ActivatedRoute,

@@ -20,6 +20,7 @@ import {
     MatTooltipModule,
     MatTreeModule,
  } from '@angular/material';
+import { SelfEmployedView } from './overview/selfemployed/selfemployedview';
 
 @NgModule({
     imports: [
@@ -42,7 +43,8 @@ import {
         AltinnOverviewComponent,
         AltinnOverviewDetailsComponent,
         AltinnSettings,
-        BarnepassView
+        BarnepassView,
+        SelfEmployedView
     ],
     entryComponents: [
 

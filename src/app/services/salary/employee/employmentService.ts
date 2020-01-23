@@ -4,12 +4,13 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction, NumberSeries, RegulativeGroup, RegulativeStep,
 } from '../../../unientities';
 import {Observable, ReplaySubject} from 'rxjs';
-import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout, UniFormError, UniField} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -18,6 +19,8 @@ export class EmploymentService extends BizHttp<Employment> {
     private projects$: ReplaySubject<Project[]> = new ReplaySubject(1);
     private departments$: ReplaySubject<Department[]> = new ReplaySubject(1);
     private employment$: ReplaySubject<Employment> = new ReplaySubject(1);
+    private regulativeGroups$: ReplaySubject<RegulativeGroup[]> = new ReplaySubject(1);
+    private regulativeSteps$: ReplaySubject<RegulativeStep[]> = new ReplaySubject(1);
 
     private typeOfEmployment: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
@@ -69,6 +72,7 @@ export class EmploymentService extends BizHttp<Employment> {
         protected http: UniHttp,
         private companySalaryService: CompanySalaryService,
         private toastService: ToastService,
+        private statisticsService: StatisticsService,
         ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
@@ -125,11 +129,21 @@ export class EmploymentService extends BizHttp<Employment> {
     public setDepartments(departments: Department[]) {
         this.departments$.next(departments);
     }
+
     public setProjects(projects: Project[]) {
         this.projects$.next(projects);
     }
 
+    public setRegulativeGroups(regulativeGroups: RegulativeGroup[]) {
+        this.regulativeGroups$.next(regulativeGroups);
+    }
+
+    public setRegulativeSteps(regulativeSteps: RegulativeStep[]) {
+        this.regulativeSteps$.next(regulativeSteps);
+    }
+
     public updateDefaults(employment: Employment) {
+        employment['_yearlyRate'] = employment.MonthRate * 12;
         this.employment$.next(employment);
     }
 
@@ -306,10 +320,13 @@ export class EmploymentService extends BizHttp<Employment> {
                         FieldType: FieldType.NUMERIC,
                         Label: 'Månedslønn',
                         Legend: 'Ytelser',
+                        ReadOnly: this.rateFieldIsReadonly(),
                         FieldSet: 3,
                         Section: 0,
                         Options: {
-                            format: 'money'
+                            decimalLength: 2,
+                            decimalSeparator: ',',
+                            thousandSeparator: ' ',
                         }
                     },
                     {
@@ -319,10 +336,25 @@ export class EmploymentService extends BizHttp<Employment> {
                         Label: 'Timelønn',
                         FieldSet: 3,
                         Section: 0,
+                        ReadOnly: this.rateFieldIsReadonly(),
                         Options: {
                             decimalLength: 2,
                             decimalSeparator: ',',
                             thousandSeparator: ' '
+                        }
+                    },
+                    {
+                        EntityType: 'Employment',
+                        Property: '_yearlyRate',
+                        FieldType: FieldType.NUMERIC,
+                        Label: 'Årslønn',
+                        FieldSet: 3,
+                        Section: 0,
+                        ReadOnly: true,
+                        Options: {
+                            decimalLength: 2,
+                            decimalSeparator: ',',
+                            thousandSeparator: ' ',
                         }
                     },
                     {
@@ -379,8 +411,8 @@ export class EmploymentService extends BizHttp<Employment> {
                                 ? `${department.DepartmentNumber} - ${department.Name}`
                                 : '',
                                 getDefaultData: () => this.employment$
-                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
-                                .map((result: [Employment, Department[]]) =>
+                                    .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
+                                    .map((result: [Employment, Department[]]) =>
                                     result[1].filter(d => result[0].Dimensions && d.ID === result[0].Dimensions.DepartmentID)),
                                 search: (query: string) => this.departments$
                                     .map(deps =>
@@ -389,10 +421,82 @@ export class EmploymentService extends BizHttp<Employment> {
                                             dep.DepartmentNumber.startsWith(query)))
                         }
                     },
+                    ...this.getRegulativeFields(compSal),
                     ...this.getShipFields(compSal),
                 ]
             };
         });
+    }
+
+    rateFieldIsReadonly(): boolean {
+        let isReadOnly = false;
+        this.employment$.take(1).subscribe(res => isReadOnly = !!res.RegulativeStepNr || !!res.RegulativeGroupID);
+        return isReadOnly;
+    }
+
+    stepFieldIsReadonly(): boolean {
+        let isReadOnly = false;
+        this.employment$.take(1).subscribe(res => isReadOnly = !res.RegulativeGroupID);
+        return isReadOnly;
+    }
+
+    private getRegulativeFields(compSal: CompanySalary): UniFieldLayout[] {
+        let fields = [];
+        this.regulativeGroups$.take(1).subscribe(res => {
+            if (!res || !res.length) return;
+
+            fields = [
+                {
+                    EntityType: 'Employment',
+                    Property: 'RegulativeGroupID',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Regulativnavn',
+                    FieldSet: 5,
+                    Legend: 'Regulativ',
+                    Section: 0,
+                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
+                    Options: {
+                        valueProperty: 'ID',
+                        template: (regulativeGroup: RegulativeGroup) => regulativeGroup ? `${regulativeGroup.ID} - ${regulativeGroup.Name}` : '',
+                        getDefaultData: () => this.employment$
+                            .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeGroups$.take(1)))
+                            .map((result: [Employment, RegulativeGroup[]]) =>
+                                result[1].filter(reg => reg.ID === result[0].RegulativeGroupID)),
+                        search: (query: string) => this.regulativeGroups$
+                            .map(
+                                regulativeGroup => regulativeGroup.filter(reg =>
+                                    reg.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                    reg.ID.toString().startsWith(query)
+                                )
+                            )
+                    },
+                },
+                {
+                    EntityType: 'Employment',
+                    Property: 'RegulativeStepNr',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Lønnstrinn',
+                    FieldSet: 5,
+                    Section: 0,
+                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
+                    ReadOnly: this.stepFieldIsReadonly(),
+                    Options: {
+                        valueProperty: 'Step',
+                        template: (step: RegulativeStep) => step
+                            ? `${step.Step}`
+                            : '',
+                        getDefaultData: () => this.employment$
+                            .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeSteps$.take(1)))
+                            .map((result: [Employment, RegulativeStep[]]) =>
+                                result[1].filter(reg => reg.Step === result[0].RegulativeStepNr)),
+                        search: (query: string) => this.regulativeSteps$
+                            .map(steps => steps.filter(step => step.Step.toString().startsWith(query)))
+                    }
+                }
+            ]
+        });
+
+        return fields;
     }
 
     private getShipFields(compSal: CompanySalary): any[] {
@@ -406,7 +510,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'SkipsRegister',
                 Legend: 'Fartøysopplysninger',
-                FieldSet: 5,
+                FieldSet: 6,
                 Section: 0,
                 Options: {
                     source: this.shipReg,
@@ -419,7 +523,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 Property: 'ShipType',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'SkipsType',
-                FieldSet: 5,
+                FieldSet: 6,
                 Section: 0,
                 Options: {
                     source: this.shipType,
@@ -432,7 +536,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 Property: 'TradeArea',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Fartsområde',
-                FieldSet: 5,
+                FieldSet: 6,
                 Section: 0,
                 Options: {
                     source: this.tradeArea,
@@ -441,5 +545,13 @@ export class EmploymentService extends BizHttp<Employment> {
                 },
             },
         ];
+    }
+
+    public searchEmployments(query: string, employeeID?: number): Observable<{ID: number, JobName: string}[]> {
+        let statisticsQuery = `startswith(ID,${query}) or contains(JobName,${query})`;
+        if (employeeID) {
+            statisticsQuery = `EmployeeID eq ${employeeID} and ( ${statisticsQuery} )`;
+        }
+        return this.statisticsService.GetAllUnwrapped(`select=ID as ID,JobName as JobName&filter=${statisticsQuery}&model=Employment`);
     }
 }

@@ -24,7 +24,7 @@ const COMPLETEMESSAGE: string = 'Import completed';
 
 
 export class SaftExportView implements OnInit {
-    @ViewChild('fileInput') private fileInput: any;
+    @ViewChild('fileInput', { static: false }) private fileInput: any;
     busy: boolean = false;
     busyFetch: boolean = false;
     files: Array<ISaftFileInfo> = [];

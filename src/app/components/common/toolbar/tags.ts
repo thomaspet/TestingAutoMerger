@@ -73,7 +73,7 @@ export class UniTags implements OnChanges {
     @Input() public tags: ITag[];
     @Output() public tagsChange: EventEmitter<any> = new EventEmitter();
     @Output() public tagsBusy: EventEmitter<boolean> = new EventEmitter();
-    @ViewChild(UniFormAutocomplete) public autoComplete: UniFormAutocomplete;
+    @ViewChild(UniFormAutocomplete, { static: false }) public autoComplete: UniFormAutocomplete;
 
     public isOpen: boolean = false;
     public helpText: string;

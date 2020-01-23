@@ -30,7 +30,7 @@ interface RoleGroup {
     host: {'class': 'uni-redesign'}
 })
 export class InviteUsersModal implements IUniModal {
-    @ViewChild('emailInput') emailInput: ElementRef;
+    @ViewChild('emailInput', { static: true }) emailInput: ElementRef;
 
     options: IModalOptions = {};
     onClose: EventEmitter<any> = new EventEmitter();

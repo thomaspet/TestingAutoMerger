@@ -19,7 +19,7 @@ export class View {
     }
     @Output() public valueChange: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UniTable) private tableView: UniTable;
+    @ViewChild(UniTable, { static: true }) private tableView: UniTable;
 
     public currentId: number = 0;
     public relations: Array<WorkRelation>;

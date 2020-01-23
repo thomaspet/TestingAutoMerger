@@ -28,7 +28,7 @@
         </p>
 
         <div [attr.aria-busy]="busy">
-            <mat-checkbox class="check-box" [(ngModel)]="isSelected">
+            <mat-checkbox class="check-box" [(ngModel)]="isSelected" *ngIf='!hasAgreed'>
                 Jeg godtar vilkår og betingelser
             </mat-checkbox>
 

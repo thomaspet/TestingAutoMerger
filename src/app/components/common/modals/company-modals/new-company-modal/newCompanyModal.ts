@@ -32,7 +32,7 @@ export enum STEPS {
     styleUrls: ['./newCompanyModal.sass']
 })
 export class UniNewCompanyModal implements IUniModal, OnInit {
-    @ViewChild(MatStepper) stepper: MatStepper;
+    @ViewChild(MatStepper, { static: true }) stepper: MatStepper;
 
     @Input() options = <IModalOptions>{};
     @Output() onClose = new EventEmitter<Company>();

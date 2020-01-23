@@ -40,6 +40,7 @@ import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDesc
 import {LinkMenu} from './linkMenu/linkMenu';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
@@ -65,16 +66,23 @@ import {
     MatSlideToggleModule,
     MatRadioModule,
     MatTooltipModule,
+    MatFormFieldModule,
+    MatExpansionModule,
+    MatProgressSpinnerModule,
+    MatListModule
 } from '@angular/material';
 
 import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
+import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
 import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
 import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
 import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
+import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
+import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 
 @NgModule({
     imports: [
@@ -91,13 +99,18 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         MatSelectModule,
         MatSlideToggleModule,
         MatRadioModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatFormFieldModule,
+        MatExpansionModule,
+        MatProgressSpinnerModule,
+        MatListModule,
     ],
     declarations: [
         PredefinedDescriptionList,
         ContextMenu,
         AccrualModal,
         AltinnAuthenticationModal,
+        ConfirmCreditedJournalEntryWithDate,
         UniBreadcrumbs,
         StatusTrack,
         StatustrackStatus,
@@ -143,6 +156,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         DisclaimerModal,
         ImportTemplateModal,
         ImportVoucherModal,
+        ImportOrderModal,
         BankInitModal,
 
         WorkEditor,
@@ -160,9 +174,12 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
+        GrantSelfAccessModal,
+        EditSubEntityAgaZoneModal,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
+        ConfirmCreditedJournalEntryWithDate,
         UniReminderSettingsModal,
         ReminderSettings,
         AddPaymentModal,
@@ -176,6 +193,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         UniMarkingDetailsModal,
         WorkitemTransferWizard,
         GrantAccessModal,
+        GrantSelfAccessModal,
         UniNewCompanyModal,
         ImportCentralTemplateModal,
         JournalingRulesModal,
@@ -184,10 +202,13 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ImportTemplateModal,
         NewTaskModal,
         ImportVoucherModal,
-        BankInitModal
+        ImportOrderModal,
+        BankInitModal,
+        EditSubEntityAgaZoneModal
     ],
     exports: [
         PredefinedDescriptionList,
+        ConfirmCreditedJournalEntryWithDate,
         ContextMenu,
         AccrualModal,
         AltinnAuthenticationModal,
@@ -206,6 +227,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
         UniAutomarkModal,
+        EditSubEntityAgaZoneModal,
 
         ReminderSettings,
         UniReminderSettingsModal,

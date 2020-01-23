@@ -1,10 +1,8 @@
 
 <section class="company-dropdown" (clickOutside)="close()" (click)="companyDropdownActive = !companyDropdownActive">
-    <!-- <span class="navbar-company-info" > -->
-        <span class="company-name">{{activeCompany.Name}}</span>
-        <span class="active-year" >{{isCreatingNewYear ? 'Oppretter nytt år...' : activeYear}}</span>
-        <i class="material-icons">keyboard_arrow_down</i>
-    <!-- </span> -->
+    <span class="company-name">{{activeCompany?.Name}}</span>
+    <span class="active-year" >{{isCreatingNewYear ? 'Oppretter nytt år...' : activeYear}}</span>
+    <i class="material-icons">keyboard_arrow_down</i>
 </section>
 
 <section class="navbar_company_dropdown" (click)="$event.stopPropagation()" [attr.aria-expanded]="companyDropdownActive">

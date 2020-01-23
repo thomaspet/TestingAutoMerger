@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import { switchMap, map, take, tap, finalize } from 'rxjs/operators';
+import { switchMap, map, take, tap, finalize, flatMap } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -86,8 +86,8 @@ import { AccrualModal } from '@app/components/common/modals/accrualModal';
 import { cloneDeep } from 'lodash';
 import { AprilaOfferModal } from '../modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from '../modals/aprila-credit-note/aprila-credit-note-modal';
-import {SendInvoiceModal} from '../modals/send-invoice-modal/send-invoice-modal';
-import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
+import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-modal';
+import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -102,9 +102,9 @@ export enum CollectorStatus {
     templateUrl: './invoice.html'
 })
 export class InvoiceDetails implements OnInit, AfterViewInit {
-    @ViewChild(UniToolbar) toolbar: UniToolbar;
-    @ViewChild(TofHead) tofHead: TofHead;
-    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
+    @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
+    @ViewChild(TofHead, { static: true }) tofHead: TofHead;
+    @ViewChild(TradeItemTable, { static: false }) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
@@ -324,8 +324,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.canSendEHF = this.companySettings.APActivated
                         && this.companySettings.APOutgoing
                         && this.companySettings.APOutgoing.some(format => {
-                        return format.Name === 'EHF INVOICE 2.0';
-                    });
+                            return format.Name === 'EHF INVOICE 2.0';
+                        });
 
                     this.currencyCodes = res[4];
                     if (res[5]) {
@@ -421,8 +421,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.canSendEHF = this.companySettings.APActivated
                         && this.companySettings.APOutgoing
                         && this.companySettings.APOutgoing.some(format => {
-                        return format.Name === 'EHF INVOICE 2.0';
-                    });
+                            return format.Name === 'EHF INVOICE 2.0';
+                        });
 
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
@@ -466,9 +466,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                             if (hasMisMatch) {
                                 this.toastService.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
-                                'Denne fakturakladd har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
-                                'lagt til som vedlegg om du velger utsendelse via EHF. ' +
-                                'Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
+                                    'Denne fakturakladd har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
+                                    'lagt til som vedlegg om du velger utsendelse via EHF. ' +
+                                    'Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
                             }
                         });
                     }
@@ -1048,7 +1048,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             const pastDueDate = moment(this.invoice.PaymentDueDate).isBefore(moment(), 'days')
                 && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Paid
                 && this.invoice.StatusCode !== StatusCodeCustomerInvoice.Sold
-                && ( this.invoice.RestAmount >= 0 || this.invoice.RestAmountCurrency >= 0 );
+                && (this.invoice.RestAmount >= 0 || this.invoice.RestAmountCurrency >= 0);
 
             if (pastDueDate) {
                 status.title = 'Forfalt';
@@ -1535,7 +1535,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     private openAprilaOfferModal(invoice: CustomerInvoice, done = null) {
-        this.modalService.open(AprilaOfferModal,
+        return this.modalService.open(AprilaOfferModal,
             {
                 data: {
                     invoiceId: invoice.ID,
@@ -1545,16 +1545,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 closeOnEscape: false,
                 hideCloseButton: true
             }
-        ).onClose.subscribe((res: boolean) => {
-            this.aprilaOption.autoSellInvoice = false;
-            this.getInvoice(this.invoice.ID).subscribe(inv => {
-                this.refreshInvoice(inv);
-            });
-
-            if (done) {
-                done();
-            }
-        });
+        );
     }
 
     private openAprilaCreditNoteModal(aprilaOrderStatus: string) {
@@ -1563,7 +1554,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 data: {
                     orderStatus: aprilaOrderStatus,
                     invoiceNumber: this.invoice.InvoiceReference.InvoiceNumber,
-                    invoiceAmount: this.invoice.InvoiceReference.RestAmountCurrency
+                    invoiceAmount: this.invoice.InvoiceReference.TaxInclusiveAmountCurrency
                 }
             }
         ).onClose.subscribe((res: boolean) => {
@@ -1715,6 +1706,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             return item;
         });
 
+        if (invoice['CustomValues'] && invoice['CustomValues'].CustomAprilaReferenceID) {
+            invoice.UseReportID = null;
+            invoice['CustomValues'].CustomAprilaReferenceID = null;
+        }
+
         return (this.refreshInfo(invoice));
     }
 
@@ -1780,16 +1776,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             const successText = isCreditNote ? 'Faktura kreditert' : 'Faktura fakturert';
             const errorText = isCreditNote ? 'Kreditering feilet' : 'Fakturering feilet';
 
-            // Copy paste aprila stuff from old function
-            if (!isCreditNote && this.aprilaOption.hasPermission && this.aprilaOption.autoSellInvoice) {
-                this.invoice['CustomValues'] = {
-                    CustomAprilaReferenceID: 'tempValueToSkipAutoDistribution'
-                };
-            } else if (this.aprilaOption.hasPermission) {
-                this.invoice['CustomValues'] = {
-                    CustomAprilaReferenceID: null
-                };
-            }
 
             this.save(false, false).subscribe(
                 invoice => {
@@ -1797,24 +1783,25 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                     // If the invoice was a draft we need to run the transition,
                     // if not its already saved as an invoice
-                    const transition = wasDraft
+                    let transition = wasDraft
                         ? this.customerInvoiceService.Transition(invoice.ID, null, 'invoice')
                         : observableOf(invoice);
+
+                    if (!isCreditNote && invoice['CustomValues'] && invoice['CustomValues'].CustomAprilaReferenceID) {
+                        transition = transition.pipe(flatMap(res => {
+                            return this.customerInvoiceService.fulfillAprilaOffer(invoice.ID);
+                        }));
+                    }
 
                     transition.subscribe(
                         res => {
                             this.getInvoice(invoice.ID).subscribe(updatedInvoice => {
                                 this.refreshInvoice(updatedInvoice);
                                 done(successText);
-
                                 // Copy paste aprila stuff from old function
                                 if (this.aprilaOption.hasPermission) {
                                     if (isCreditNote && res['CustomValues'] && res['CustomValues'].AprilaOrderStatus) {
                                         this.openAprilaCreditNoteModal(res['CustomValues'].AprilaOrderStatus);
-                                    }
-
-                                    if (!isCreditNote && this.aprilaOption.autoSellInvoice) {
-                                        this.openAprilaOfferModal(invoice, done);
                                     }
                                 }
 
@@ -1852,8 +1839,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         err => {
                             this.errorService.handle(err);
                             if (isCreditNote) {
-                                const errMsg: string = err.error.Message;
-                                if (errMsg && errMsg.indexOf('AprilaError') > -1) {
+                                const isAprilaInvoice = this.invoice.InvoiceReference &&
+                                this.invoice.InvoiceReference["CustomValues"] &&
+                                this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
+                                if (isAprilaInvoice) {
                                     this.openAprilaCreditNoteModal('ERROR');
                                 }
                             }
@@ -1953,7 +1942,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private preview() {
         const openPreview = (invoice) => {
-            this.modalService.open(TofReportModal, {
+            return this.modalService.open(TofReportModal, {
                 data: {
                     entityLabel: 'Faktura',
                     entityType: 'CustomerInvoice',
@@ -1962,18 +1951,17 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     hideEmailButton: true,
                     hidePrintButton: true
                 }
-            });
+            }).onClose;
         };
 
         if (this.isDirty || !this.invoice.ID) {
             const saveAsDraft = !this.invoice.InvoiceNumber;
 
-            this.save(saveAsDraft).subscribe(
-                (invoice) => openPreview(invoice),
-                err => this.errorService.handle(err)
+            return this.save(saveAsDraft).pipe(
+                switchMap((invoice) => openPreview(invoice))
             );
         } else {
-            openPreview(this.invoice);
+            return openPreview(this.invoice);
         }
     }
 
@@ -2198,8 +2186,39 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             done();
             return;
         }
-        this.aprilaOption.autoSellInvoice = true;
-        this.transition(done);
-    }
 
+        const isCreditNote = this.invoice.InvoiceType === InvoiceTypes.CreditNote;
+        this.invoice['CustomValues'] = {
+            CustomAprilaReferenceID: null
+        };
+
+        this.save(true).subscribe(
+            invoice => {
+                if (!isCreditNote) {
+
+                    this.openAprilaOfferModal(invoice, done)
+                        .onClose.subscribe((res: any) => {
+
+                            if (res) {
+                                if (res.accepted) {
+                                    this.getInvoice(invoice.ID).subscribe(inv => {
+                                        this.refreshInvoice(inv);
+                                        this.transition(done);
+                                    });
+                                } else {
+                                    this.transition(done);
+                                }
+
+
+                            } else { done(); }
+                        });
+                }
+            },
+            err => {
+                this.errorService.handle(err);
+                done('Lagring avbrutt');
+            }
+        );
+
+    }
 }

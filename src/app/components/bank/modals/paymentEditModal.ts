@@ -71,7 +71,7 @@ export class UniPaymentEditModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     private table: AgGridWrapper;
 
     public tableConfig: UniTableConfig;

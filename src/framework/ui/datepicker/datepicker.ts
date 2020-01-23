@@ -7,8 +7,8 @@ import {MatDatepicker} from '@angular/material';
     styleUrls: ['./datepicker.sass']
 })
 export class UniDatepicker {
-    @ViewChild('input') inputElement: ElementRef;
-    @ViewChild(MatDatepicker) datepicker: MatDatepicker<any>;
+    @ViewChild('input', { static: true }) inputElement: ElementRef;
+    @ViewChild(MatDatepicker, { static: true }) datepicker: MatDatepicker<any>;
 
     @Input() placeholder: string;
     @Input() readonly: boolean;

@@ -13,7 +13,7 @@ import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
   styleUrls: ['./otp-filter-modal.component.sass']
 })
 export class OtpFilterModalComponent implements OnInit, IUniModal {
-  @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+  @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
   @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
   private payrolls: PayrollRun[];
   public selectedPayrolls: PayrollRun[];

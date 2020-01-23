@@ -3,8 +3,7 @@ import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {BrowserStorageService, ReportDefinitionService, CompanySettingsService, IPaycheckEmailInfo, ReportNames} from '@app/services/services';
 import {ReportDefinition, CompanySettings} from '@uni-entities';
-import {map, tap, switchMap} from 'rxjs/operators';
-import { initDomAdapter } from '@angular/platform-browser/src/browser';
+import {map, tap} from 'rxjs/operators';
 
 const DEFAULT_OPTIONS_KEY = 'Default_Paycheck_Options';
 

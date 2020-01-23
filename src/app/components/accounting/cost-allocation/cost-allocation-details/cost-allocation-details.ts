@@ -34,7 +34,7 @@ import { percentColumn } from '@app/components/accounting/cost-allocation/cost-a
 export class UniCostAllocationDetails {
     @Input() costAllocation: CostAllocation = new CostAllocation();
     @Output() touched = new EventEmitter<boolean>(true);
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
     formConfig = { autofocus: true };
     formFields = [
         {

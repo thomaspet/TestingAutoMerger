@@ -23,7 +23,7 @@ export class UniModal implements AfterViewInit {
     @Input('config') public config: any;
     @Input('type') public componentType: Type<any>;
     @Input('destroyOnClose') public destroyOnClose: boolean;
-    @ViewChild('modalContainer', {read: ViewContainerRef}) public container: ViewContainerRef;
+    @ViewChild('modalContainer', { read: ViewContainerRef, static: true }) public container: ViewContainerRef;
 
     public isOpen: boolean = false;
 

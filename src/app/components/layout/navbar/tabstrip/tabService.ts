@@ -84,6 +84,7 @@ export enum UniModules {
     SalarybalanceTemplates = 512,
     OTPExport       = 513,
     VariablePayrolls = 514,
+    Regulative = 515,
     WorkProfiles    = 600,
     Workers         = 601,
     WorkTypes       = 602,

@@ -14,7 +14,7 @@ import * as moment from 'moment';
     templateUrl: './tasks.html'
 })
 export class UniTasks {
-    @ViewChild('taskList')
+    @ViewChild('taskList', { static: true })
     private taskList: ElementRef;
 
     private routeParam: number;

@@ -19,7 +19,7 @@ const SELECTED_KEY = '_rowSelected';
     templateUrl: './salarybalanceList.html',
 })
 export class SalarybalanceList implements OnInit, OnChanges, AfterViewInit {
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniTable, { static: true }) private table: UniTable;
 
     @Input() public salarybalances: SalaryBalance[];
     @Input() public lightWeight: boolean;

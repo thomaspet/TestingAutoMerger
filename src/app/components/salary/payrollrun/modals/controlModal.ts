@@ -97,7 +97,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
             .subscribe(sums => this.updateSumModel({sums: sums}));
 
         this.vacationPayService
-            .getVacationpayBasis()
+            .getVacationpayBasis(0, 0, true)
             .subscribe(lines => this.updateSumModel({vacationLines: lines}));
 
         this.statisticsService
@@ -180,7 +180,6 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
         if (!vacationLines.length || !vacationBases.length) {
             return 0;
         }
-
         return vacationBases
             .reduce((sum, curr) =>
                 sum + curr.VacationBase

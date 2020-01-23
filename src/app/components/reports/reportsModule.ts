@@ -1,26 +1,17 @@
-///<reference path='modals/resultAndBalance/ResultAndBalanceReportFilterModal.ts'/>
-// Angular imports
 import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MatCheckboxModule} from '@angular/material';
 import {RouterModule} from '@angular/router';
 
-// App imports
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 
-// routes
-import {BalanceReportFilterForm} from './modals/balanceList/BalanceReportFilterModal';
-import {BalanceReportFilterModal} from './modals/balanceList/BalanceReportFilterModal';
-
 import {UniPreviewModal} from './modals/preview/previewModal';
 import {UniPrintModal} from './modals/print/printModal';
 
-import {ResultAndBalanceReportFilterForm} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
-import {ResultAndBalanceReportFilterModal} from './modals/resultAndBalance/ResultAndBalanceReportFilterModal';
 import {
     SalaryPaymentListReportFilterModal,
     SalaryPaymentListReportFilterModalContent
@@ -64,11 +55,7 @@ import {MatProgressBarModule} from '@angular/material';
     ],
     declarations: [
         UniReports,
-        BalanceReportFilterForm,
-        BalanceReportFilterModal,
         UniPreviewModal,
-        ResultAndBalanceReportFilterForm ,
-        ResultAndBalanceReportFilterModal,
         SalaryPaymentListReportFilterModal,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModal,
@@ -84,8 +71,6 @@ import {MatProgressBarModule} from '@angular/material';
         UniReportSendModal,
     ],
     entryComponents: [
-        BalanceReportFilterForm,
-        ResultAndBalanceReportFilterForm,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModalContent,
         SalaryWithholdingAndAGAReportFilterModalContent,
@@ -99,11 +84,7 @@ import {MatProgressBarModule} from '@angular/material';
     ],
     exports: [
         UniReports,
-        BalanceReportFilterForm,
-        BalanceReportFilterModal,
         UniPreviewModal,
-        ResultAndBalanceReportFilterForm ,
-        ResultAndBalanceReportFilterModal,
         SalaryPaymentListReportFilterModal,
         SalaryPaymentListReportFilterModalContent,
         VacationPayBaseReportFilterModal,

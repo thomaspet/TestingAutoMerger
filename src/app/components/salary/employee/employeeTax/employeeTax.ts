@@ -8,7 +8,6 @@ import {
     UniCacheService, ErrorService, EmployeeTaxCardService
 } from '../../../../services/services';
 import {Observable} from 'rxjs';
-import { SimpleChange } from '@angular/core/src/change_detection/change_detection_util';
 
 @Component({
     selector: 'employee-tax',
@@ -30,7 +29,7 @@ export class EmployeeTax extends UniView implements OnInit {
         private employeeTaxCardService: EmployeeTaxCardService
     ) {
         super(router.url, cacheService);
-        route.parent.params.subscribe((params) => {
+        this.route.parent.params.subscribe((params) => {
             super.updateCacheKey(this.router.url);
             const employeeTaxCard$ = super.getStateSubject('employeeTaxCard');
             const employee$ = super.getStateSubject('employee');

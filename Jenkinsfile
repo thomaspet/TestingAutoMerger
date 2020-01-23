@@ -121,7 +121,8 @@ pipeline {
   }
   post { 
     always { 
-      cleanWs()
+      echo "Not cleaning workspace!"
+      //cleanWs()
     }
     fixed {
       office365ConnectorSend webhookUrl:env.TEAMS_NOTIFY_URL

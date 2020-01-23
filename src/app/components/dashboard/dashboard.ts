@@ -9,7 +9,7 @@ import {AuthService} from '@app/authService';
     templateUrl: './dashboard.html'
 })
 export class Dashboard {
-    @ViewChild(UniWidgetCanvas) widgetCanvas: UniWidgetCanvas;
+    @ViewChild(UniWidgetCanvas, { static: true }) widgetCanvas: UniWidgetCanvas;
 
     layout: DefaultWidgetLayout = theme.dashboardConfig;
     companyName: string;

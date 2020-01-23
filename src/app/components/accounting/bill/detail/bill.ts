@@ -117,10 +117,10 @@ interface ILocalValidation {
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
-    @ViewChild(Autocomplete) autocomplete: Autocomplete;
-    @ViewChild(UniForm) uniForm: UniForm;
-    @ViewChild(UniImage) uniImage: UniImage;
-    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
+    @ViewChild(Autocomplete, { static: false }) autocomplete: Autocomplete;
+    @ViewChild(UniForm, { static: false }) uniForm: UniForm;
+    @ViewChild(UniImage, { static: true }) uniImage: UniImage;
+    @ViewChild(JournalEntryManual, { static: false }) journalEntryManual: JournalEntryManual;
 
     uploadStepActive: boolean;
 
@@ -666,8 +666,12 @@ export class BillView implements OnInit {
                 });
             }),
             display: (bankAccount: BankAccount) => {
-                return bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
+                let ret = bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
                 + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+                if (bankAccount['Label']) {
+                    ret = bankAccount['Label'] + '-' + ret;
+                }
+                return ret;
             }
         };
 

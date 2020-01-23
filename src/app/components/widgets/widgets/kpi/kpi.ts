@@ -23,7 +23,7 @@ interface IKeyNumberObject {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class KpiWidget {
-    @ViewChild('canvas') canvas: ElementRef;
+    @ViewChild('canvas', { static: true }) canvas: ElementRef;
 
     widget: IUniWidget;
     chartRef: Chart;

@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {ElsaUserLicense, ElsaUserLicenseType} from '@app/models';
 import {ErrorService, ElsaContractService} from '@app/services/services';
-import {AuthService} from '@app/authService';
+import {LicenseInfo} from '../license-info';
 
 @Component({
     selector: 'license-user-list',
@@ -9,6 +9,7 @@ import {AuthService} from '@app/authService';
     styleUrls: ['./license-user-list.sass']
 })
 export class UserList {
+    contractID: number;
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
     filterValue: string;
@@ -30,12 +31,18 @@ export class UserList {
     ];
 
     constructor(
-        private authService: AuthService,
         private elsaContractService: ElsaContractService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private licenseInfo: LicenseInfo,
     ) {
-        const contractID = this.authService.currentUser.License.Company.ContractID;
-        this.elsaContractService.getUserLicenses(contractID).subscribe(
+        this.licenseInfo.selectedContractID$.subscribe(id => {
+            this.contractID = id;
+            this.loadData();
+        });
+    }
+
+    loadData() {
+        this.elsaContractService.getUserLicenses(this.contractID).subscribe(
             users => {
                 this.users = users.map(user => {
                     user['_status'] = user.StatusCode === 11 ? 'Deaktivert' : 'Aktiv';

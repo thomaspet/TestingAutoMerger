@@ -20,8 +20,8 @@ declare var _;
     templateUrl: './kidSettings.html'
 })
 export class KIDSettings {
-    @ViewChild('listTable') private detailsTable: AgGridWrapper;
-    @ViewChild(UniForm) private form: UniForm;
+    @ViewChild('listTable', { static: true }) private detailsTable: AgGridWrapper;
+    @ViewChild(UniForm, { static: true }) private form: UniForm;
 
     currentPaymentInfoType: PaymentInfoType;
     currentID: number;

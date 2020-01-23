@@ -48,7 +48,8 @@ export const environment = {
         PRODUCT: 'https://public-files.regnskap.sr-bank.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.regnskap.sr-bank.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.regnskap.sr-bank.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: 'https://public-files.regnskap.sr-bank.no/files/import/VoucherExcelTemplate.xlsx'
+        VOUCHER: 'https://public-files.regnskap.sr-bank.no/files/import/VoucherExcelTemplate.xlsx',
+        ORDER: 'https://public-files.regnskap.sr-bank.no/files/import/OrderTemplate.xlsx'
     },
 
     LICENSE_AGREEMENT_URL: 'https://public-files.regnskap.sr-bank.no/files/license/Lisensavtale_UniEconomy_v2.pdf'

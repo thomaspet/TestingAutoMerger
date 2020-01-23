@@ -46,8 +46,8 @@ export interface IBureauPreferences {
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
-    @ViewChild('contextMenu') private contextMenu: ElementRef;
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+    @ViewChild('contextMenu', { static: false }) private contextMenu: ElementRef;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     companies: KpiCompany[];
     private subCompanies: { ID: number, Name: string, CustomerNumber: number, CompanyKey: string }[];

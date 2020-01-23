@@ -40,7 +40,7 @@ export class DimensionSummaryData {
     templateUrl: './dimensionsOverviewReportPart.html',
 })
 export class DimensionsOverviewReportPart {
-    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) public table: AgGridWrapper;
     @Input() periodFilter1: PeriodFilter;
     @Input() periodFilter2: PeriodFilter;
     @Input() dimensionType: DimensionTypes;

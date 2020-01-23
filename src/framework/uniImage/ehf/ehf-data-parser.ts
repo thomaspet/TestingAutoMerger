@@ -44,6 +44,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         invoiceDate: getDateText(get(data, 'cbc:IssueDate', '')),
         dueDate: getDueDate(data),
         note: get(data, 'cbc:Note.#text') || get(data, 'cbc:Note', ''),
+        paymentTerms : get(data, 'cac:PaymentTerms.cbc:Note.#text') || get(data, 'cac:PaymentTerms.cbc:Note', ''),
         customerNumber: get(data, 'cac:AccountingCustomerParty.cac:Party.cac:PartyIdentification.cbc:ID.#text', ''),
         customer: getCompanyInfo(get(data, 'cac:AccountingCustomerParty.cac:Party', {})),
         supplier: getCompanyInfo(get(data, 'cac:AccountingSupplierParty.cac:Party', {})),
@@ -57,7 +58,7 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
 
     if (isCreditNote) {
         ehfData.creditNoteNumber = get(data, 'cbc:ID', '');
-        ehfData.invoiceNumber = get(data, 'cac:BillingReference.cac:InvoiceDocumentReference.cbc:ID', '')
+        ehfData.invoiceNumber = get(data, 'cac:BillingReference.cac:InvoiceDocumentReference.cbc:ID', '');
     } else {
         ehfData.invoiceNumber = get(data, 'cbc:ID', '');
     }
@@ -224,7 +225,8 @@ function getDeliveryInfo(deliveryData) {
 }
 
 function getInvoiceLines(data, isCreditNote) {
-    let invoiceLines = get(data, 'InvoiceLine') || get(data, 'cac:InvoiceLine') || get(data, 'CreditNoteLine') || get(data, 'cac:CreditNoteLine') || [];
+    let invoiceLines = get(data, 'InvoiceLine') || get(data, 'cac:InvoiceLine')
+    || get(data, 'CreditNoteLine') || get(data, 'cac:CreditNoteLine') || [];
 
     // If theres only one line its sent as an object instead of an array
     if (invoiceLines && !Array.isArray(invoiceLines)) {
@@ -341,7 +343,7 @@ function formatNumber(value: string, invertNumber?: boolean, forceTwoDecimals?: 
         if (!parseInt(decimal, 10) && !forceTwoDecimals) {
             return int;
         } else {
-            const val = [int, decimal].join(',')
+            const val = [int, decimal].join(',');
             return val;
         }
     }

@@ -15,7 +15,6 @@ import {
     ToastService, ToastType, ToastTime
 } from '../../../../../framework/uniToast/toastService';
 import {UniImage} from '../../../../../framework/uniImage/uniImage';
-import {UniModalService} from '../../../../../framework/uni-modal';
 import {Subscription} from 'rxjs';
 
 const SAVING_KEY = 'viewSaving';
@@ -37,8 +36,8 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     public collapseSummary: boolean = false;
     public summaryBusy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    @ViewChild(UniImage) public uniImage: UniImage;
-    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(UniImage, { static: false }) public uniImage: UniImage;
+    @ViewChild(UniForm, { static: true }) public form: UniForm;
 
     @Input() public salarybalance: SalaryBalance;
     @Input() public useExternalChangeDetection: boolean = false;
@@ -52,7 +51,6 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
         private toastService: ToastService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private modalService: UniModalService
     ) {
         super(router.url, cacheService);
 
@@ -185,7 +183,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
             .do(() => this.lastChanges$.next(changes))
             .subscribe((model: SalaryBalance) => {
                 this.updateSalaryBalance(model);
-                if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID']) {
+                if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID'] || changes['EmployeeID']) {
                     this.salarybalanceService.refreshLayout(
                         model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
                         .subscribe(result => {

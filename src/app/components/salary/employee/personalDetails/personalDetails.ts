@@ -37,7 +37,7 @@ const EMPLOYEE_KEY = 'employee';
     templateUrl: './personalDetails.html'
 })
 export class PersonalDetails extends UniView {
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: true })
     public uniform: UniForm;
 
     public busy: boolean;

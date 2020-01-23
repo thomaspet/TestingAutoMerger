@@ -137,7 +137,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         template: tag => `${tag.linkID} - ${tag.title}`
     };
 
-    @ViewChild(UniToolbar) public toolbar: UniToolbar;
+    @ViewChild(UniToolbar, { static: true }) public toolbar: UniToolbar;
 
     constructor(
         private route: ActivatedRoute,
@@ -1244,8 +1244,8 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
         return this.modalService
             .confirm({
-                header: 'Oppdatere dimensjoner på faste poster',
-                message: 'Vil du oppdatere dimensjoner på faste poster med dimensjoner fra arbeidsforhold?',
+                header: 'Oppdatere dimensjoner på faste poster og trekk',
+                message: 'Vil du oppdatere dimensjoner på faste poster og trekk med dimensjoner fra arbeidsforhold?',
                 buttonLabels: {
                     accept: 'Ja',
                     reject: 'Nei',
@@ -1258,16 +1258,21 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                         return;
                     }
                     this.schedualPostSave(config => {
-                        return this.salaryTransService
-                            .updateFromEmployments(updateEmpIds)
-                            .pipe(
-                                filter((transes) => !config.ignoreRefresh && !!transes.length),
-                                tap(() => setTimeout(() => this.getRecurringPosts())),
-                            );
+                        return this.updateTransesAndSalaryBalancesFromEmployments(config, updateEmpIds);
                     });
                 }),
                 map(() => employments),
             );
+    }
+
+    private updateTransesAndSalaryBalancesFromEmployments(config: IEmployeeSaveConfig, updateEmpIds: number[]) {
+        return this.salarybalanceService
+                    .updateFromEmployments(updateEmpIds)
+                    .pipe(
+                        switchMap(() => this.salaryTransService.updateFromEmployments(updateEmpIds)),
+                        filter((transes) => !config.ignoreRefresh && !!transes.length),
+                        tap(() => setTimeout(() => this.getRecurringPosts())),
+                    );
     }
 
     private saveSalarybalancesObs(config: IEmployeeSaveConfig, salBals: SalaryBalance[], employee: Employee): Observable<SalaryBalance[]> {

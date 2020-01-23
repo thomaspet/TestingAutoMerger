@@ -128,7 +128,7 @@ export class BizHttp<T> {
             .map(response => response.body);
     }
 
-    public Get<T>(ID: number|string, expand?: string[],hateoas:boolean=false): Observable<any> {
+    public Get(ID: number|string, expand?: string[], hateoas = false): Observable<any> {
         let expandStr;
         if (expand) {
             expandStr = expand.join(',');
@@ -188,7 +188,7 @@ export class BizHttp<T> {
             );
     }
 
-    public GetAll<T>(query?: string, expand?: string[]): Observable<any> {
+    public GetAll(query?: string, expand?: string[]): Observable<any> {
         if (this.DefaultOrderBy && (!query || (query && query.toLowerCase().indexOf('orderby=') < 0))) {
             if (query) {
                 query += '&orderby=' + this.DefaultOrderBy;

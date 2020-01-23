@@ -176,6 +176,10 @@ export class ErrorService {
     }
 
     public addErrorToast(message: string) {
-        this.toastService.addToast('En feil oppstod', ToastType.warn, null, message);
+        if (message && message.length < 60) {
+            this.toastService.addToast(message, ToastType.warn, 10);
+        } else {
+            this.toastService.addToast('En feil oppstod', ToastType.warn, null, message);
+        }
     }
 }

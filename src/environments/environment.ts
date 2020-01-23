@@ -54,7 +54,8 @@ export const environment = {
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
         MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
         PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx'
+        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx',
+        ORDER: 'https://public-files.unieconomy.no/files/import/OrderTemplate.xlsx'
     },
 
     LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'

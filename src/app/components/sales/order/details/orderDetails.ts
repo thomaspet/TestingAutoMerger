@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, throwError, of} from 'rxjs';
 
 import {
     UniModalService,
@@ -76,6 +76,7 @@ import {AuthService} from '@app/authService';
 import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
+import {switchMap, tap, catchError, map} from 'rxjs/operators';
 
 @Component({
     selector: 'order-details',
@@ -83,8 +84,8 @@ import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
     styleUrls: ['./orderDetails.sass']
 })
 export class OrderDetails implements OnInit, AfterViewInit {
-    @ViewChild(TofHead) private tofHead: TofHead;
-    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+    @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
+    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
 
     @Input() orderID: any;
 
@@ -111,7 +112,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     currencyCodeID: number;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
-    private currentDimensions: string;
     currentUser: User;
 
     projects: Project[];
@@ -489,23 +489,25 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     canDeactivate(): boolean | Observable<boolean> {
-        if (this.isDirty) {
-            return this.modalService.openUnsavedChangesModal().onClose
-                .switchMap(result => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        return Observable.fromPromise(this.saveOrder())
-                            .catch(err => {
-                                this.handleSaveError(err);
-                                return Observable.of(false);
-                            })
-                            .map(res => !!res);
-                    }
-
-                    return Observable.of(result !== ConfirmActions.CANCEL);
-                });
+        if (!this.isDirty) {
+            return true;
         }
 
-        return true;
+        return this.modalService.openUnsavedChangesModal().onClose.pipe(
+            switchMap(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    return this.saveOrder(false).pipe(
+                        map(res => !!res),
+                        catchError(err => {
+                            this.errorService.handle(err);
+                            return of(false);
+                        })
+                    );
+                }
+
+                return of(result !== ConfirmActions.CANCEL);
+            })
+        );
     }
 
     private setUpDims(dims) {
@@ -615,12 +617,10 @@ export class OrderDetails implements OnInit, AfterViewInit {
             if (!isNaN(dimKey) && dimKey >= 5) {
                 this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
                 this.askedAboutSettingDimensionsOnItems = true;
-                this.currentDimensions = dimension;
             } else {
                 // Project, Department, Region and Reponsibility hits here!
                 this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
                 this.askedAboutSettingDimensionsOnItems = true;
-                this.currentDimensions = dimension;
             }
             if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                 this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
@@ -1077,30 +1077,68 @@ export class OrderDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.toolbarconfig = {
+        const config: IToolbarConfig = {
             title: orderText,
             subheads: this.getToolbarSubheads(),
             statustrack: this.getStatustrackConfig(),
+            hideDisabledActions: true,
             navigation: {
                 prev: this.previousOrder.bind(this),
                 next: this.nextOrder.bind(this),
-                add: () => this.order.ID ? this.router.navigateByUrl('sales/orders/0') : this.ngOnInit()
             },
-            contextmenu: [
-                {
-                    label: 'Send via utsendelsesplan',
-                    action: () => this.distribute(),
-                    disabled: () => !this.order.ID || !this.isDistributable
-                },
-                {
-                    label: 'Skriv ut / send e-post',
-                    action: () => this.printOrEmail(),
-                    disabled: () => !this.order.ID
-                }
-            ],
             entityID: this.orderID,
-            entityType: 'CustomerOrder'
+            entityType: 'CustomerOrder',
+            buttons: [{
+                class: 'icon-button',
+                icon: 'remove_red_eye',
+                action: () => this.preview(),
+                tooltip: 'Forhåndsvis'
+            }]
         };
+
+        if (this.order.ID) {
+            config.buttons.push({
+                label: 'Ny ordre',
+                action: () => this.router.navigateByUrl('sales/orders/0')
+            });
+        } else {
+            config.buttons.push({
+                label: 'Lagre kladd',
+                action: () => {
+                    this.order.StatusCode = StatusCode.Draft;
+                    return this.saveOrder();
+                }
+            });
+        }
+
+        this.toolbarconfig = config;
+    }
+
+    private preview() {
+        const openPreview = (order) => {
+            return this.modalService.open(TofReportModal, {
+                data: {
+                    entityLabel: 'Ordre',
+                    entityType: 'CustomerOrder',
+                    entity: order,
+                    reportType: ReportTypeEnum.ORDER,
+                    hideEmailButton: true,
+                    hidePrintButton: true
+                }
+            }).onClose;
+        };
+
+        if (this.isDirty) {
+            if (!this.order.ID) {
+                this.order.StatusCode = StatusCode.Draft;
+            }
+
+            return this.saveOrder().pipe(
+                switchMap(order => openPreview(order))
+            );
+        } else {
+            return openPreview(this.order);
+        }
     }
 
     private printOrEmail() {
@@ -1120,88 +1158,86 @@ export class OrderDetails implements OnInit, AfterViewInit {
             }
 
             if (printStatus) {
-                this.customerOrderService.setPrintStatus(
-                    this.order.ID,
-                    printStatus
-                ).subscribe(() => {
-                    this.order.PrintStatus = +printStatus;
-                    this.updateToolbar();
-                });
+                this.customerOrderService.setPrintStatus(this.order.ID, printStatus).subscribe(
+                    () => {
+                        this.order.PrintStatus = +printStatus;
+                        this.updateToolbar();
+                    },
+                    err => console.error(err)
+                );
             }
-        });
-    }
-
-    private distribute() {
-        return Observable.create((obs) => {
-            this.reportService.distribute(this.order.ID, this.distributeEntityType).subscribe(() => {
-                this.toastService.addToast(
-                    'Ordre er lagt i kø for utsendelse',
-                    ToastType.good,
-                    ToastTime.short);
-                obs.complete();
-            }, err => {
-                this.errorService.handle(err);
-                obs.complete();
-            });
         });
     }
 
     private updateSaveActions() {
         const transitions = (this.order['_links'] || {}).transitions;
         const printStatus = this.order.PrintStatus;
-
         this.saveActions = [];
 
-        this.saveActions.push({
-            label: 'Registrer',
-            action: (done) => {
-                if (this.order.ID) {
-                    this.saveOrderTransition(done, 'register', 'Registrert');
-                } else {
-                    this.saveOrder().then(res => {
-                        done('Ordre registrert');
-                        this.isDirty = false;
-                        this.router.navigateByUrl('/sales/orders/' + res.ID);
-                    }).catch(error => {
-                        this.handleSaveError(error, done);
-                    });
-                }
-            },
-            disabled: transitions && !transitions['register'] || !this.currentCustomer,
-            main: (!transitions || transitions['register']) && !printStatus
-        });
-
-        if (!this.order.ID) {
+        if (!transitions || transitions['register']) {
             this.saveActions.push({
-                label: 'Lagre som kladd',
+                label: 'Registrer',
                 action: (done) => {
-                    this.order.StatusCode = StatusCode.Draft;
-                    this.saveOrder().then(res => {
-                        done('Lagring fullført');
-                        this.isDirty = false;
-                        this.router.navigateByUrl('/sales/orders/' + res.ID);
-                    }).catch(error => {
-                        this.handleSaveError(error, done);
-                    });
+                    if (this.order.ID) {
+                        this.transition(done, 'register');
+                    } else {
+                        this.saveOrder().subscribe(
+                            () => done(),
+                            err => {
+                                this.errorService.handle(err);
+                                done();
+                            }
+                        );
+                    }
                 },
-                disabled: false
+                disabled: !this.currentCustomer,
+                main: !printStatus
             });
         }
 
-        this.saveActions.push({
-            label: 'Lagre',
-            action: (done) => {
-                this.saveOrder().then(res => {
-                    done('Lagring fullført');
-                    this.orderID = res.ID;
-                    this.refreshOrder();
-                }).catch(error => {
-                    this.handleSaveError(error, done);
+        if (this.order.ID) {
+            this.saveActions.push({
+                label: 'Lagre',
+                action: (done) => {
+                    this.saveOrder().subscribe(
+                        () => done(),
+                        err => {
+                            this.errorService.handle(err);
+                            done();
+                        }
+                    );
+                },
+                main: this.isDirty || (this.order.ID && printStatus === 100),
+            });
+
+            if (this.isDistributable) {
+                this.saveActions.push({
+                    label: 'Send via utsendelsesplan',
+                    action: (done) => {
+                        this.reportService.distribute(this.order.ID, this.distributeEntityType).subscribe(
+                            () => {
+                                this.toastService.toast({
+                                    title: 'Ordre er lagt i kø for utsendelse',
+                                    type: ToastType.good,
+                                    duration: ToastTime.short
+                                });
+
+                                done();
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                done();
+                            }
+                        );
+                    }
                 });
-            },
-            main: this.isDirty || (this.order.ID && printStatus === 100),
-            disabled: !this.order.ID
-        });
+            }
+
+            this.saveActions.push({
+                label: 'Skriv ut / send e-post',
+                action: (done) => this.printOrEmail().subscribe(() => done()),
+            });
+        }
 
         this.saveActions.push({
             label: 'Ny basert på',
@@ -1223,7 +1259,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
 
         this.saveActions.push({
             label: 'Avslutt ordre',
-            action: (done) => this.saveOrderTransition(done, 'complete', 'Ordre avsluttet'),
+            action: (done) => this.transition(done, 'complete'),
             disabled: !transitions || !transitions['complete']
         });
 
@@ -1332,31 +1368,36 @@ export class OrderDetails implements OnInit, AfterViewInit {
         return order;
     }
 
-    private saveOrder(): Promise<CustomerOrder> {
+    private saveOrder(reloadAfterSave = true): Observable<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
         this.order = this.tofHelper.beforeSave(this.order);
 
-        return new Promise((resolve, reject) => {
-            const saveRequest = ((this.order.ID > 0)
-                ? this.customerOrderService.Put(this.order.ID, this.order)
-                : this.customerOrderService.Post(this.order));
+        return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
+            if (!canSave) {
+                return throwError('Lagring avbrutt');
+            }
 
-            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
-                if (canSave) {
-                    saveRequest.subscribe(
-                        res => {
-                            if (res.OrderNumber) { this.selectConfig = undefined; }
-                            this.updateTab(res);
-                            resolve(res);
-                            this.tradeItemTable.showWarningIfMissingMandatoryDimensions(this.orderItems);
-                        },
-                        err => reject(err)
-                    );
+            const navigateAfterSave = !this.order.ID;
+            const saveRequest = this.order.ID > 0
+                ? this.customerOrderService.Put(this.order.ID, this.order)
+                : this.customerOrderService.Post(this.order);
+
+            return saveRequest.pipe(switchMap(order => {
+                this.isDirty = false;
+                if (reloadAfterSave) {
+                    if (navigateAfterSave) {
+                        this.router.navigateByUrl('sales/orders/' + order.ID);
+                        return of(order);
+                    } else {
+                        return this.getOrder(order.ID).pipe(
+                            tap(res => this.refreshOrder(res))
+                        );
+                    }
                 } else {
-                    reject('Endre MVA kode og lagre på ny');
+                    return of(order);
                 }
-            });
-        });
+            }));
+        }));
     }
 
     private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
@@ -1389,76 +1430,92 @@ export class OrderDetails implements OnInit, AfterViewInit {
             return;
         }
 
-        // save order and open modal to select what to transfer to invoice
-        this.saveOrder().then(success => {
-            done('Ordre lagret');
-            this.isDirty = false;
-
-            this.modalService.open(UniOrderToInvoiceModal, {
-                data: this.order.ID
-            }).onClose.subscribe(order => {
-                if (order && order.Items && order.Items.length) {
-                    this.customerOrderService.ActionWithBody(
-                        order.ID,
-                        order,
-                        'transfer-to-invoice'
-                    ).subscribe(
-                        res => this.router.navigateByUrl('/sales/invoices/' + res.ID),
-                        err => this.errorService.handle(err)
-                    );
-                }
-            });
-        }).catch(error => {
-            this.handleSaveError(error, done);
-        });
+        this.saveOrder(false).subscribe(
+            order => {
+                this.modalService.open(UniOrderToInvoiceModal, {
+                    data: this.order.ID
+                }).onClose.subscribe(res => {
+                    if (res && res.Items && res.Items.length) {
+                        this.customerOrderService.ActionWithBody(res.ID, res, 'transfer-to-invoice').subscribe(
+                            invoice => this.router.navigateByUrl('/sales/invoices/' + invoice.ID),
+                            err => {
+                                this.errorService.handle(err);
+                                this.getOrder(order.ID).subscribe(
+                                    updatedOrder => {
+                                        this.refreshOrder(updatedOrder);
+                                        done();
+                                    },
+                                    error => {
+                                        console.error(error);
+                                        done();
+                                    }
+                                );
+                            }
+                        );
+                    } else {
+                        done();
+                    }
+                });
+            },
+            err => {
+                this.errorService.handle(err);
+                done();
+            }
+        );
     }
 
-    private saveOrderTransition(done: any, transition: string, doneText: string) {
-        if (this.order.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.order.Customer.OrgNumber)) {
-            return this.modalService.open(UniConfirmModalV2, {
+    private transition(doneCallback, transition: string) {
+        const orgNumber = this.order.Customer && this.order.Customer.OrgNumber;
+        let canTransitionCheck = of(true);
+        if (orgNumber && !this.modulusService.isValidOrgNr(orgNumber)) {
+            canTransitionCheck = this.modalService.open(UniConfirmModalV2, {
                 header: 'Bekreft kunde',
-                message: `Ugyldig org.nr. '${this.order.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
+                message: `Ugyldig org.nr. '${orgNumber}' på kunde. Vil du fortsette?`,
                 buttonLabels: {
                     accept: 'Ja',
                     cancel: 'Avbryt'
                 }
-            }).onClose.subscribe(
-                response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.saveOrder().then((order) => {
-                            this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
-                                (res) => {
-                                    this.selectConfig = undefined;
-                                    this.refreshOrder()
-                                        .then(() => done(doneText));
-                                },
-                                (err) => {
-                                    done('Lagring feilet');
-                                    this.errorService.handle(err);
-                                }
-                            );
-                        }).catch(error => {
-                            this.handleSaveError(error, done);
-                        });
-                    }
-                    return done();
-                }
-            );
+            }).onClose.pipe(map(res => res === ConfirmActions.ACCEPT));
         }
-        this.saveOrder().then((order) => {
-            this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
-                (res) => {
-                    this.selectConfig = undefined;
-                    this.refreshOrder()
-                        .then(() => done(doneText));
+
+        canTransitionCheck.subscribe(canTransition => {
+            if (!canTransition) {
+                doneCallback();
+                return;
+            }
+
+            this.saveOrder(false).subscribe(
+                order => {
+                    const refreshOrder = () => {
+                        this.getOrder(order.ID).subscribe(
+                            updatedOrder => {
+                                this.refreshOrder(updatedOrder);
+                                doneCallback();
+                            },
+                            err => {
+                                console.error(err);
+                                this.refreshOrder(order);
+                                doneCallback();
+                            }
+                        );
+                    };
+
+                    this.customerOrderService.Transition(order.ID, this.order, transition).subscribe(
+                        () => {
+                            this.selectConfig = undefined;
+                            refreshOrder();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            refreshOrder();
+                        }
+                    );
                 },
-                (err) => {
-                    done('Lagring feilet');
+                err => {
                     this.errorService.handle(err);
+                    doneCallback();
                 }
             );
-        }).catch(error => {
-            this.handleSaveError(error, done);
         });
     }
 

@@ -1,6 +1,7 @@
 ﻿import {Component, ViewChildren, QueryList, ChangeDetectorRef, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {Observable, Subject} from 'rxjs';
+import {takeUntil, take} from 'rxjs/operators';
 import {CompanySettings, FinancialYear, Company} from '@app/unientities';
 import {UniSelect, ISelectConfig} from '@uni-framework/ui/uniform';
 import {UniModalService, UniConfirmModalV2, ConfirmActions} from '@uni-framework/uni-modal';
@@ -17,7 +18,6 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {YearModal, IChangeYear} from './yearModal';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
-import { takeUntil, take } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-company-dropdown',
@@ -26,25 +26,22 @@ import { takeUntil, take } from 'rxjs/operators';
 export class UniCompanyDropdown {
     private LAST_ASKED_CHANGE_YEAR_LOCALSTORAGE_KEY: string = 'lastAskedChangeYear';
 
-    @ViewChildren(UniSelect)
-    private dropdowns: QueryList<UniSelect>;
+    @ViewChildren(UniSelect) dropdowns: QueryList<UniSelect>;
+    @Input() lockYearSelector = false;
 
-    @Input()
-    lockYearSelector: boolean = false;
+    activeCompany: any;
+    companyDropdownActive = false;
+    companySettings: CompanySettings;
 
-    public activeCompany: any;
-    public companyDropdownActive: Boolean;
-    public companySettings: CompanySettings;
+    selectYear: string[];
+    activeYear: number;
 
-    public selectYear: string[];
-    public activeYear: number;
+    availableCompanies;
+    selectCompanyConfig: ISelectConfig;
+    selectYearConfig: ISelectConfig;
+    isCreatingNewYear: boolean = false;
 
-    public availableCompanies;
-    public selectCompanyConfig: ISelectConfig;
-    public selectYearConfig: ISelectConfig;
-
-    private financialYears: Array<FinancialYear> = [];
-    public isCreatingNewYear: boolean = false;
+    private financialYears: FinancialYear[] = [];
 
     onDestroy$ = new Subject();
 
@@ -70,11 +67,12 @@ export class UniCompanyDropdown {
                     res => this.availableCompanies = res,
                     err => console.error(err)
                 );
+
+                this.activeCompany = auth.activeCompany;
+                this.loadCompanyData();
+                this.cdr.markForCheck();
             }
         });
-
-        this.activeCompany = this.browserStorage.getItem('activeCompany');
-        this.companyDropdownActive = false;
 
         this.selectCompanyConfig = {
             hideDeleteButton: true,
@@ -90,24 +88,14 @@ export class UniCompanyDropdown {
             hideDeleteButton: true
         };
 
-        this.loadCompanyData();
-        this.authService.authentication$.pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe(auth => {
-            if (auth && auth.user) {
-                this.activeCompany = auth.activeCompany;
-                this.loadCompanyData();
-
-                this.cdr.markForCheck();
-            }
-        });
-
         const currentYear = this.financialYearService.getActiveYear();
         this.selectYear = this.getYearComboSelection(currentYear);
         this.activeYear = currentYear;
 
-        this.financialYearService.lastSelectedFinancialYear$
-            .subscribe(res => {
+        this.financialYearService.lastSelectedFinancialYear$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(
+            res => {
                 const previousSelectedYear = this.activeYear;
                 const newSelectedYear = res.Year;
 
@@ -116,8 +104,8 @@ export class UniCompanyDropdown {
                     this.selectYear = this.getYearComboSelection(newSelectedYear);
                     this.activeYear = newSelectedYear;
                 } else if (!found) {
-                    this.financialYearService.GetAll(null)
-                        .subscribe(years => {
+                    this.financialYearService.GetAll(null).subscribe(
+                        years => {
                             // refresh years before checking if this is actually a new year, someone
                             // else might have created it already after you logged in (or it may have been
                             // automatically created when booking a journalentry)
@@ -131,12 +119,13 @@ export class UniCompanyDropdown {
                             } else if (!foundSecondAttempt) {
                                 this.promptToCreateNewYear(newSelectedYear, previousSelectedYear);
                             }
-                        });
+                        },
+                        err => console.error(err)
+                    );
                 }
             },
-            err => {
-                this.errorService.handle(err);
-            });
+            err => console.error(err)
+        );
     }
 
     ngOnDestroy() {
@@ -250,17 +239,6 @@ export class UniCompanyDropdown {
 
     private loadCompanyData() {
         this.altInnService.clearAltinnAuthenticationDataFromLocalstorage();
-        this.loadYears();
-    }
-
-    private getYearComboSelection(curYear): string[]     {
-        return [
-            `${curYear - 1}`,
-            `${curYear + 1}`,
-            '...'];
-    }
-
-    private loadYears() {
         Observable.forkJoin(
             this.companySettingsService.Get(1, ['DefaultPhone']),
             this.financialYearService.GetAll(null)
@@ -272,8 +250,15 @@ export class UniCompanyDropdown {
 
                 this.cdr.markForCheck(); // not sure where this should be
             },
-            err => this.errorService.handle(err)
-            );
+            err => console.error(err)
+        );
+    }
+
+    private getYearComboSelection(curYear): string[]     {
+        return [
+            `${curYear - 1}`,
+            `${curYear + 1}`,
+            '...'];
     }
 
     public companySelected(selectedCompany): void {

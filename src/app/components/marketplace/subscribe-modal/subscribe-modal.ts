@@ -22,7 +22,8 @@ export class SubscribeModal implements IUniModal, OnInit {
 
     product: ElsaProduct;
     canPurchaseProducts: boolean;
-    missingPermissionText: string;
+    hasOrgNr: boolean;
+    tooltipText: string;
     busy: boolean;
     isConsentStep = false;
 
@@ -58,6 +59,7 @@ export class SubscribeModal implements IUniModal, OnInit {
         const data = this.options.data || {};
         this.product = data.product;
         this.canPurchaseProducts = data.canPurchaseProducts;
+        this.hasOrgNr = data.hasOrgNr;
 
         // client id placeholder should be higher than 4 chars
         this.hasValidClientId =  data.product.ClientID && data.product.ClientID.length > 4;
@@ -77,8 +79,10 @@ export class SubscribeModal implements IUniModal, OnInit {
             this.videoMarkup = this.getVideoMarkup(this.product.VideoUrl);
         }
 
-        if (!data.canPurchaseProducts) {
-            this.missingPermissionText = 'Du må være administrator for å kjøpe produkter';
+        if (!this.canPurchaseProducts) {
+            this.tooltipText = 'Du må være administrator for å kjøpe produkter';
+        } else if (!this.hasOrgNr) {
+            this.tooltipText = 'Vennligst fyll inn selskapets organisasjonsnummer for å kjøpe produkter';
         }
 
         if (this.product.IsPerUser) {
@@ -126,7 +130,7 @@ export class SubscribeModal implements IUniModal, OnInit {
     onPurchaseClick() {
         if (!this.isConsentStep
             && this.product.ProductAgreement
-            && this.product.ProductAgreement.StatusCode === ElsaAgreementStatus.Active
+            && this.product.ProductAgreement.AgreementStatus === ElsaAgreementStatus.Active
         ) {
             this.elsaAgreementService.GetByProductID(this.product.ID).subscribe(
                 agreement => {
@@ -148,7 +152,7 @@ export class SubscribeModal implements IUniModal, OnInit {
     }
 
     purchaseProduct() {
-        if (!this.busy && this.canPurchaseProducts) {
+        if (!this.busy && this.canPurchaseProducts && this.hasOrgNr) {
             this.busy = true;
             const purchase: ElsaPurchase = {
                 ID: null,

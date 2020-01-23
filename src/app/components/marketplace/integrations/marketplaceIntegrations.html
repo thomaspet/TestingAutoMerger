@@ -11,7 +11,7 @@
     <section class="live-integration-items">
         <section class="integration-grid">
             <section class="integration-item" *ngFor="let item of activeIntegrations | filterIntegrations: searchText">
-                <i *ngIf="item._isBought" class="material-icons integration-active">check_circle</i>
+                <i *ngIf="item['_isBought']" class="material-icons integration-active">check_circle</i>
 
                 <section class="integration-icon" [style.background-color]="item.IconBackgroundColor">
                     <img src="{{item.IconReference}}" />

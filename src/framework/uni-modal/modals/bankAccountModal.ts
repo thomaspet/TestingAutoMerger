@@ -58,6 +58,7 @@ export class UniBankAccountModal implements IUniModal {
     formConfig$ = new BehaviorSubject({autofocus: true});
     formModel$ = new BehaviorSubject(null);
     formFields$ = new BehaviorSubject([]);
+    initialBankAccount: BankAccount;
 
     isDirty: boolean;
     validAccount: boolean = true;
@@ -66,6 +67,7 @@ export class UniBankAccountModal implements IUniModal {
     accountInfo: any;
     errorMsg: string = '';
     bankAccountsConnectedToAccount: string = '';
+    connectedAccountWarningShowed = false;
 
     constructor(
         private bankService: BankService,
@@ -78,6 +80,7 @@ export class UniBankAccountModal implements IUniModal {
 
     public ngOnInit() {
         this.accountInfo = this.options.data.bankAccount || this.options.data || {};
+        this.initialBankAccount = this.accountInfo;
         this.bankAccounts = this.options.data.bankAccounts || [];
 
         const fields = this.getFormFields();
@@ -95,7 +98,7 @@ export class UniBankAccountModal implements IUniModal {
                 this.accountInfo.Bank = banks.find(x => x.ID === this.accountInfo.BankID);
             }
 
-            this.formModel$.next(this.accountInfo);
+            this.formModel$.next(Object.assign({}, this.accountInfo));
             this.formFields$.next(this.getFormFields());
             if (this.options && this.options.modalConfig && this.options.modalConfig.defaultAccountNumber) {
                 this.busy = true;
@@ -144,7 +147,14 @@ export class UniBankAccountModal implements IUniModal {
     public close(emitValue?: boolean) {
         let account: BankAccount;
         if (emitValue) {
-            account = this.formModel$.getValue();
+            account = this.initialBankAccount;
+            const editedAccount = this.formModel$.getValue();
+            // Since multivalue currently depends on memory references we need to
+            // map the updated values to the initial object and return that,
+            // instead of returning the edited one.
+            Object.keys(editedAccount).forEach(key => {
+                account[key] = editedAccount[key];
+            });
 
             // Check if user can only set up given bank account
             if (this.options.modalConfig && this.options.modalConfig.BICLock) {
@@ -188,9 +198,6 @@ export class UniBankAccountModal implements IUniModal {
                 }
             }
         } else {
-            account = this.formModel$.getValue();
-            account.Account = null;
-            this.formModel$.next(account);
             this.onClose.emit(null);
         }
     }
@@ -209,7 +216,8 @@ export class UniBankAccountModal implements IUniModal {
             } else {
                 this.bankAccountsConnectedToAccount =  '';
             }
-            if (this.bankAccountsConnectedToAccount !== '') {
+            if (this.bankAccountsConnectedToAccount !== '' && !this.connectedAccountWarningShowed) {
+                this.connectedAccountWarningShowed = true;
                 this.modalService.open(UniConfirmModalV2, {
                     message: this.bankAccountsConnectedToAccount,
                     buttonLabels: {
@@ -429,7 +437,7 @@ export class UniBankAccountModal implements IUniModal {
                 Property: '_ibanAccountSearch',
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
-                Label: 'IBAN/Kontonummer søk'
+                Label: 'Kontonummer-/IBAN-søk'
             },
             <any> {
                 FieldSet: 1,
@@ -512,6 +520,15 @@ export class UniBankAccountModal implements IUniModal {
                         return modal.onClose.take(1).toPromise();
                     }
                 }
+            },
+            <any>{
+                FieldSet: 2,
+                FieldSetColumn: 1,
+                EntityType: 'BankAccount',
+                Property: 'Label',
+                FieldType: FieldType.TEXT,
+                ReadOnly: false,
+                Label: 'Label',
             }
         ];
     }

@@ -1,4 +1,4 @@
-﻿<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="actions"></uni-toolbar>
+﻿<uni-toolbar class="no-print" [config]="toolbarConfig" [saveactions]="saveActions"></uni-toolbar>
 
 <section class="application">
     <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
@@ -55,7 +55,7 @@
             [eventcfg]="preSaveConfig">
         </timetracking-timetable>
 
-        <regtimetotals [hidden]="activeTabIndex !== 2"></regtimetotals>
+        <regtimetotals [hidden]="activeTabIndex !== 2" [timesheet]="timeSheet"></regtimetotals>
 
         <regtimebalance
             [hidden]="activeTabIndex !== 3"

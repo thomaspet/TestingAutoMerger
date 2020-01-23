@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -2069,6 +2069,8 @@ export class Employment extends UniEntity {
     public LedgerAccount: string;
     public MonthRate: number;
     public PayGrade: string;
+    public RegulativeGroupID: number;
+    public RegulativeStepNr: number;
     public RemunerationType: RemunerationType;
     public SeniorityDate: Date;
     public ShipReg: ShipRegistry;
@@ -2194,6 +2196,62 @@ export class PostingSummaryDraft extends UniEntity {
 }
 
 
+export class Regulative extends UniEntity {
+    public static RelativeUrl = 'regulatives';
+    public static EntityType = 'Regulative';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public RegulativeGroupID: number;
+    public StartDate: LocalDate;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Steps: Array<RegulativeStep>;
+    public CustomFields: any;
+}
+
+
+export class RegulativeGroup extends UniEntity {
+    public static RelativeUrl = 'regulativegroups';
+    public static EntityType = 'RegulativeGroup';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public Name: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Regulatives: Array<Regulative>;
+    public CustomFields: any;
+}
+
+
+export class RegulativeStep extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'RegulativeStep';
+
+    public _createguid: string;
+    public Amount: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public RegulativeID: number;
+    public StatusCode: number;
+    public Step: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class SalaryBalance extends UniEntity {
     public static RelativeUrl = 'salarybalances';
     public static EntityType = 'SalaryBalance';
@@ -2207,6 +2265,7 @@ export class SalaryBalance extends UniEntity {
     public CreatePayment: boolean;
     public Deleted: boolean;
     public EmployeeID: number;
+    public EmploymentID: number;
     public FromDate: Date;
     public ID: number;
     public Instalment: number;
@@ -2228,6 +2287,7 @@ export class SalaryBalance extends UniEntity {
     public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
+    public Employment: Employment;
     public CustomFields: any;
 }
 
@@ -2521,6 +2581,7 @@ export class VacationPayLine extends UniEntity {
     public ID: number;
     public ManualVacationPayBase: number;
     public MissingEarlierVacationPay: number;
+    public PaidTaxFreeVacationPay: number;
     public PaidVacationPay: number;
     public Rate: number;
     public Rate60: number;
@@ -2749,6 +2810,7 @@ export class AccountSetup extends UniEntity {
     public IsENK: boolean;
     public IsMini: boolean;
     public PlanType: PlanTypeEnum;
+    public SaftMappingAccountID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public VatCode: string;
@@ -3157,6 +3219,23 @@ export class PostalCode extends UniEntity {
     public Deleted: boolean;
     public ID: number;
     public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class SaftMappingAccount extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'SaftMappingAccount';
+
+    public _createguid: string;
+    public AccountID: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public Description: string;
+    public ID: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -5960,6 +6039,7 @@ export class Account extends UniEntity {
     public Keywords: string;
     public Locked: boolean;
     public LockManualPosts: boolean;
+    public SaftMappingAccountID: number;
     public StatusCode: number;
     public SupplierID: number;
     public SystemAccount: boolean;
@@ -5985,6 +6065,7 @@ export class Account extends UniEntity {
     public UseVatDeductionGroup: VatDeductionGroup;
     public CurrencyCode: CurrencyCode;
     public CostAllocation: CostAllocation;
+    public SaftMappingAccount: SaftMappingAccount;
     public CustomFields: any;
 }
 
@@ -6165,6 +6246,7 @@ export class BankAccount extends UniEntity {
     public Deleted: boolean;
     public IBAN: string;
     public ID: number;
+    public Label: string;
     public Locked: boolean;
     public StatusCode: number;
     public UpdatedAt: Date;
@@ -6315,6 +6397,31 @@ export class BankStatementMatch extends UniEntity {
     public UpdatedBy: string;
     public BankStatementEntry: BankStatementEntry;
     public JournalEntryLine: JournalEntryLine;
+    public CustomFields: any;
+}
+
+
+export class BankStatementRule extends UniEntity {
+    public static RelativeUrl = 'bankstatementrules';
+    public static EntityType = 'BankStatementRule';
+
+    public _createguid: string;
+    public AccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DimensionsID: number;
+    public EntryText: string;
+    public ID: number;
+    public IsActive: boolean;
+    public Name: string;
+    public Priority: number;
+    public Rule: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public Dimensions: Dimensions;
+    public Account: Account;
     public CustomFields: any;
 }
 
@@ -6986,11 +7093,11 @@ export class SupplierInvoice extends UniEntity {
     public VatTotalsAmount: number;
     public VatTotalsAmountCurrency: number;
     public YourReference: string;
-    public Supplier: Supplier;
     public Payments: Array<Payment>;
     public BankAccount: BankAccount;
     public JournalEntry: JournalEntry;
     public DefaultDimensions: Dimensions;
+    public Supplier: Supplier;
     public CurrencyCode: CurrencyCode;
     public Items: Array<SupplierInvoiceItem>;
     public InvoiceReference: SupplierInvoice;
@@ -7628,6 +7735,7 @@ export class InvoicesAndRemindersReadyToRemind extends UniEntity {
     public DontSendReminders: boolean;
     public DueDate: Date;
     public EmailAddress: string;
+    public ExternalReference: string;
     public Fee: number;
     public Interest: number;
     public InvoiceDate: Date;
@@ -7867,6 +7975,11 @@ export class AnnualStatementReportSetup extends UniEntity {
 export class AnnualStatementEmailInfo extends UniEntity {
     public Message: string;
     public Subject: string;
+}
+
+
+export class HandleState extends UniEntity {
+    public inState: State;
 }
 
 
@@ -8121,6 +8234,10 @@ export class Forskuddstrekk extends UniEntity {
 }
 
 
+export class IActionResult extends UniEntity {
+}
+
+
 export class CreateCompanyDetails extends UniEntity {
     public CompanyName: string;
     public ContractID: number;
@@ -8154,19 +8271,19 @@ export class UserDto extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public UserName: string;
-    public License: ElsaUserLicenseInfo;
+    public License: UserLicenseInformation;
     public CustomFields: any;
 }
 
 
-export class ElsaUserLicenseInfo extends UniEntity {
+export class UserLicenseInformation extends UniEntity {
     public Comment: string;
     public GlobalIdentity: string;
     public Name: string;
     public UserLicenseKey: string;
     public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
-    public Company: ElsaCompanyLicenseInfo;
+    public Company: CompanyLicenseInfomation;
     public ContractType: ContractLicenseType;
     public UserLicenseAgreement: LicenseAgreementInfo;
 }
@@ -8186,7 +8303,7 @@ export class UserLicenseType extends UniEntity {
 }
 
 
-export class ElsaCompanyLicenseInfo extends UniEntity {
+export class CompanyLicenseInfomation extends UniEntity {
     public ContactEmail: string;
     public ContactPerson: string;
     public ContractID: number;
@@ -8194,7 +8311,7 @@ export class ElsaCompanyLicenseInfo extends UniEntity {
     public ID: number;
     public Key: string;
     public Name: string;
-    public StatusCode: LicenseStatus;
+    public StatusCode: LicenseEntityStatus;
     public Agency: Agency;
 }
 
@@ -8654,12 +8771,11 @@ export class BudgetImport extends UniEntity {
 }
 
 
-export class IActionResult extends UniEntity {
-}
-
-
 export class LiquidityTableDTO extends UniEntity {
-    public OverdueInvoices: number;
+    public BankBalance: number;
+    public BankBalanceRefferance: BankBalanceType;
+    public OverdueCustomerInvoices: number;
+    public OverdueSupplierInvoices: number;
     public Period: Array<DetailsDTO>;
 }
 
@@ -9611,12 +9727,20 @@ export enum WorkStatus{
 }
 
 
-export enum LicenseStatus{
+export enum State{
+    NoOp = 0,
+    BalanceCreate = 1,
+}
+
+
+export enum LicenseEntityStatus{
     Draft = 0,
     Pending = 3,
     Active = 5,
     Paused = 10,
-    Canceled = 11,
+    Inactive = 11,
+    SoftDeleted = 20,
+    HardDeleted = 25,
 }
 
 
@@ -9692,6 +9816,13 @@ export enum BankfileField{
     Text2 = 8,
     SecondaryAccount = 9,
     Category = 10,
+}
+
+
+export enum BankBalanceType{
+    None = 0,
+    BankAccount = 1,
+    MainLedgerAccount = 2,
 }
 
 

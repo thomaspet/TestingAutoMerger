@@ -20,7 +20,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
-    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
+    @ViewChild('file', { static: false }) fileElement: ElementRef<HTMLElement>;
 
     // view related variables
     isValidFileFormat: boolean = true;
@@ -46,7 +46,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     config: ISelectConfig;
     operators: any[] = [];
     selectedOption = {
-        name: 'Draft',
+        name: 'Kladd',
         type: VoucherOptions.Draft
     };
 
@@ -77,17 +77,18 @@ export class ImportVoucherModal implements OnInit, IUniModal {
 
         this.operators = [
             {
-                name: 'Draft',
+                name: 'Kladd',
                 type: VoucherOptions.Draft
             },
             {
-                name: 'Post',
+                name: 'Bokfør',
                 type: VoucherOptions.Post
             }
         ];
     }
 
     public onSelectChange(selectedItem) {
+        this.draftDescription = '';
         this.selectedOption = selectedItem;
     }
 
@@ -246,7 +247,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
             '',
             ToastType.good,
             ToastTime.medium,
-            `Uploading ${this.options.data.type} list ${fileName}`
+            `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`
         );
     }
 

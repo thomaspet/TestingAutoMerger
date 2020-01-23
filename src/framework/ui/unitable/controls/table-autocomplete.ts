@@ -64,8 +64,8 @@ export interface IGroupConfig {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UnitableAutocomplete implements OnInit {
-    @ViewChild('input') public inputElement: ElementRef;
-    @ViewChild('dropdown') private dropdown: ElementRef;
+    @ViewChild('input', { static: true }) public inputElement: ElementRef;
+    @ViewChild('dropdown', { static: false }) private dropdown: ElementRef;
 
     @Input()
     public column: any;

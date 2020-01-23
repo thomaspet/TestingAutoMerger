@@ -53,8 +53,8 @@ import * as _ from 'lodash';
     providers: [TableDataService] // need this to be singleton for every table
 })
 export class AgGridWrapper {
-    @ViewChild('wrapper') public wrapperElement: ElementRef;
-    @ViewChild(TableEditor) public editor: TableEditor;
+    @ViewChild('wrapper', { static: false }) public wrapperElement: ElementRef;
+    @ViewChild(TableEditor, { static: false }) public editor: TableEditor;
 
     @Input() public config: UniTableConfig;
     @Input() public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
@@ -1191,15 +1191,6 @@ export class AgGridWrapper {
             exportMode: 'xlsx',
             sheetName: 'Gruppert_export',
             fileName: 'Gruppert_export'
-        };
-
-        obj.shouldRowBeSkipped = function(params) {
-            if (params.node.group && !params.node.leafGroup) {
-                return false;
-            } else if (params.node.parent && params.node.parent.expanded) {
-                return false;
-            }
-            return true;
         };
 
         this.agGridApi.exportDataAsExcel(obj);

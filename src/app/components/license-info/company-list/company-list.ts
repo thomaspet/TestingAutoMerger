@@ -3,14 +3,17 @@ import {forkJoin} from 'rxjs';
 import * as moment from 'moment';
 
 import {AuthService} from '@app/authService';
-import {ElsaCompanyLicense} from '@app/models';
-import {ElsaContractService} from '@app/services/services';
+import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
+import {ElsaContractService, SubEntityService, CompanySettingsService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
 import {UniModalService, WizardSettingsModal} from '@uni-framework/uni-modal';
-import {GrantAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
+import {GrantAccessModal, GrantSelfAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
+import {LicenseInfo} from '../license-info';
+import { Company, CompanySettings, SubEntity } from '@uni-entities';
+import { switchMap, tap, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'license-info-company-list',
@@ -19,7 +22,9 @@ import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 })
 export class CompanyList {
     contractID: number;
+    currentContractID: number;
     companies: ElsaCompanyLicense[];
+    customers: ElsaCustomer[];
     filteredCompanies: ElsaCompanyLicense[];
     filterValue: string;
     columns: ListViewColumn[] = [
@@ -44,6 +49,15 @@ export class CompanyList {
             action: (company: ElsaCompanyLicense) => {
                 this.deleteCompanyModal(company);
             }
+        },
+        {
+            label: 'Gi meg selv tilgang',
+            action: (company: ElsaCompanyLicense) => {
+                this.grantSelfAccess(company);
+            },
+            hidden: (company: ElsaCompanyLicense) => {
+                return company['_ueCompany'];
+            }
         }
     ];
 
@@ -51,11 +65,17 @@ export class CompanyList {
         private authService: AuthService,
         private modalService: UniModalService,
         private elsaContractService: ElsaContractService,
-        private companyService: CompanyService
+        private companyService: CompanyService,
+        private licenseInfo: LicenseInfo,
+        private subEntityService: SubEntityService,
+        private companySettingsService: CompanySettingsService,
     ) {
         try {
-            this.contractID = this.authService.currentUser.License.Company.ContractID;
-            this.loadData();
+            this.currentContractID = this.authService.currentUser.License.Company.ContractID;
+            this.licenseInfo.selectedContractID$.subscribe(id => {
+                this.contractID = id;
+                this.loadData();
+            });
         } catch (e) {
             console.error(e);
         }
@@ -82,7 +102,7 @@ export class CompanyList {
                                 license['_orgNumberText'] = license.OrgNumber.match(/.{1,3}/g).join(' ');
                             }
 
-                            license['_ueCompany'] = ueCompanies.find(c => c.Key === license.CompanyKey);
+                            license['_ueCompany'] = ueCompanies.find(c => c.Key.toLowerCase() === license.CompanyKey.toLowerCase());
                             return license;
                         });
 
@@ -107,17 +127,45 @@ export class CompanyList {
         });
     }
 
+    grantSelfAccess(company: ElsaCompanyLicense) {
+        this.modalService.open(GrantSelfAccessModal, {
+            data: {
+                contractID: this.contractID,
+                currentContractID: this.currentContractID,
+                companyLicense: company,
+                userIdentity: this.authService.currentUser.License.GlobalIdentity
+            }
+        }).onClose.subscribe(() => this.loadData());
+    }
+
     createCompany() {
         this.modalService.open(UniNewCompanyModal, {
             data: { contractID: this.contractID }
-        }).onClose.subscribe(company => {
+        }).onClose.subscribe((company: Company) => {
             if (company && company.ID) {
                 this.authService.setActiveCompany(company);
-                this.modalService.open(WizardSettingsModal).onClose.subscribe(() => {
-                    this.loadData();
-                });
+                this.modalService
+                    .open(WizardSettingsModal)
+                    .onClose
+                    .pipe(
+                        tap(() => this.handleSubEntityImport()),
+                    )
+                    .subscribe(() => {
+                        this.loadData();
+                    });
             }
         });
+    }
+
+    handleSubEntityImport() {
+        this.companySettingsService
+            .getCompanySettings()
+            .pipe(
+                switchMap(companySettings =>
+                    this.subEntityService.checkZonesAndSaveFromEnhetsregisteret(companySettings.OrganizationNumber)
+                ),
+            )
+            .subscribe();
     }
 
     deleteCompanyModal(company: ElsaCompanyLicense) {

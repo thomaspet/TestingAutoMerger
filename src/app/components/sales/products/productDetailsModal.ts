@@ -22,7 +22,7 @@ import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 
 export class UniProductDetailsModal implements IUniModal {
 
-    @ViewChild(ProductDetails)
+    @ViewChild(ProductDetails, { static: true })
     private productDetails: ProductDetails;
 
     @Input()

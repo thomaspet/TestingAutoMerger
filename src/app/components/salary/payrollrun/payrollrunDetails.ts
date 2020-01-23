@@ -61,9 +61,9 @@ interface IFromToFilter {
 })
 
 export class PayrollrunDetails extends UniView implements OnDestroy {
-    @ViewChild(ControlModal) public controlModal: ControlModal;
-    @ViewChild(SalaryTransactionSelectionList) private selectionList: SalaryTransactionSelectionList;
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(ControlModal, { static: false }) public controlModal: ControlModal;
+    @ViewChild(SalaryTransactionSelectionList, { static: true }) private selectionList: SalaryTransactionSelectionList;
+    @ViewChild(UniForm, { static: false }) public uniform: UniForm;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -1084,7 +1084,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     public sendPaymentList(done) {
         this.payrollrunService.sendPaymentList(this.payrollrunID)
             .subscribe((response: boolean) => {
-                this.router.navigateByUrl('/bank/ticker');
+                this.router.navigateByUrl('/bank/ticker?code=payment_list');
             },
             (err) => {
                 done('');

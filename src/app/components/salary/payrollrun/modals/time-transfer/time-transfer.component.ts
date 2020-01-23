@@ -15,7 +15,7 @@ import {ErrorService, PayrollrunService} from '@app/services/services';
 export class TimeTransferComponent implements OnInit, IUniModal {
     @Input() public options: IModalOptions;
     @Output() public onClose: EventEmitter<boolean> = new EventEmitter<boolean>();
-    @ViewChild(UniTable) private table: UniTable;
+    @ViewChild(UniTable, { static: true }) private table: UniTable;
 
     uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

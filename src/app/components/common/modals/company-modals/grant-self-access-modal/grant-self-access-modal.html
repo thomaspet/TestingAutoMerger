@@ -1,0 +1,33 @@
+<section role="dialog" class="uni-modal">
+    <ng-container *ngIf="!sendingInvite">
+        <header>Vennligst velg produkter</header>
+    
+        <article>
+            <section *ngIf="busy" class="modal-spinner">
+                <mat-spinner class="c2a"></mat-spinner>
+            </section>
+            <section id="product-wrapper">
+                <mat-accordion multi="true">
+                    <section>
+                        <mat-selection-list>
+                            <mat-list-option *ngFor="let product of products"
+                                [checkboxPosition]="'before'"
+                                [selected]="product['_selected']"
+                                (click)="onSelectProduct(product)">
+                                {{product.Label}}
+                            </mat-list-option>
+                        </mat-selection-list>
+                    </section>
+                </mat-accordion>
+            </section>
+        </article>
+    
+        <footer>
+            <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+            <button class="c2a" (click)="sendSelfInvite()" [disabled]="missingProduct">Gi tilgang</button>
+        </footer>
+    </ng-container>
+    <ng-container *ngIf="sendingInvite">
+        <receipt-for-bulk-access [hangfireID]="hangfireID"></receipt-for-bulk-access>
+    </ng-container>
+</section>

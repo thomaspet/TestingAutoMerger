@@ -24,7 +24,7 @@ import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
 })
 export class SalaryTransactionSupplementList implements OnInit {
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     public model$: SalaryTransactionSupplement[] = [];

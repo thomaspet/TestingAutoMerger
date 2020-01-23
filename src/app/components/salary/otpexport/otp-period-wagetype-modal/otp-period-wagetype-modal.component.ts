@@ -14,7 +14,7 @@ import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 })
 export class OtpPeriodWagetypeModalComponent implements OnInit {
   @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
-  @ViewChild(AgGridWrapper) private table: AgGridWrapper;
+  @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
   public wagetypes: WageType[] = [];
   public selectedWagetypes: OtpExportWagetype[] = [];
   public tableConfig: IUniTableConfig;

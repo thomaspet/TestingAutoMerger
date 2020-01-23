@@ -17,7 +17,7 @@ import { Observable } from 'rxjs';
 })
 
 export class JournalingRulesModal implements OnInit, IUniModal {
-    @ViewChild('listTable')
+    @ViewChild('listTable', { static: true })
     public detailsTable: AgGridWrapper;
 
     @Input()

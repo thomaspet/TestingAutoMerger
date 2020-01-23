@@ -173,6 +173,7 @@ export const NO = {
         'ANNUAL_ASSIGNMENT': 'Årsoppgave til inntektsmottaker',
         'OTP_EXPORT': 'OTP-eksport',
         'VARIABLE_PAYROLLS': 'Variable lønnsposter',
+        'REGULATIVE': 'Regulativ',
         'EMPLOYEES': 'Ansatte',
         'WAGETYPE': 'Lønnsarter',
         'CATAGORIES': 'Kategorier',

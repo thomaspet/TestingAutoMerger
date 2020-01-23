@@ -12,7 +12,7 @@ import {RegisterCompany} from './registerCompany/registerCompany';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
 import {RECAPTCHA_SETTINGS, RecaptchaModule, } from 'ng-recaptcha';
-import {RecaptchaFormsModule} from 'ng-recaptcha/forms';
+import {RecaptchaFormsModule} from 'ng-recaptcha';
 import {environment} from 'src/environments/environment';
 import { MatTooltipModule, MatRadioModule } from '@angular/material';
 import {NewCompany} from './registerCompany/new-company/new-company';

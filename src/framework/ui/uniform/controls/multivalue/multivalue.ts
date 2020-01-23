@@ -22,8 +22,8 @@ import {KeyCodes} from '@app/services/common/keyCodes';
     templateUrl: './multivalue.html'
 })
 export class UniMultivalueInput extends BaseControl implements OnChanges, AfterViewInit {
-    @ViewChild('filterElement') private filterInput: ElementRef;
-    @ViewChild('mainInput') private mainInput: ElementRef;
+    @ViewChild('filterElement', { static: false }) private filterInput: ElementRef;
+    @ViewChild('mainInput', { static: true }) private mainInput: ElementRef;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
@@ -78,7 +78,17 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
             const modelValue = _.get(this.model, this.field.Options.storeResultInProperty);
             this.displayValue = this.getDisplayValue(modelValue);
-            this.focusedRow = this.selectedRow = this.rows.find(row => this.getDisplayValue(row) === this.displayValue);
+
+            let currentRow = this.rows.find(row => this.getDisplayValue(row) === this.displayValue);
+            if (!currentRow && modelValue) {
+                currentRow = this.rows.find(row => {
+                    return (modelValue.ID && modelValue.ID === row.ID)
+                        || (modelValue._guid && modelValue._guid === row._guid)
+                        || (modelValue._createguid && modelValue._createguid === row._createguid);
+                });
+            }
+
+            this.focusedRow = this.selectedRow = currentRow;
 
             if (this.field.Options.onChange) {
                 this.changeEvent.subscribe(value => this.field.Options.onChange(this.selectedRow));
@@ -232,7 +242,8 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         this.edit({
             ID: 0,
             _initValue: initValue,
-            _createguid: this.guidService.guid()
+            _createguid: this.guidService.guid(),
+            _guid: this.guidService.guid()
         });
     }
 

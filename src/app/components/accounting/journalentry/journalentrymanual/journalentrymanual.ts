@@ -22,7 +22,7 @@ import {AccountBalanceInfo} from '../../../../models/accounting/AccountBalanceIn
 import {IUniSaveAction} from '../../../../../framework/save/save';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {Observable, forkJoin} from 'rxjs';
-import {ConfirmCreditedJournalEntryWithDate} from '../../modals/confirmCreditedJournalEntryWithDate';
+import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confirmCreditedJournalEntryWithDate';
 import {
     ToastService,
     ToastType,
@@ -87,8 +87,8 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Output() public dataChanged: EventEmitter<any> = new EventEmitter<any>();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter<any>();
 
-    @ViewChild(UniTable) private openPostsTable: UniTable;
-    @ViewChild(JournalEntryProfessional)
+    @ViewChild(UniTable, { static: false }) private openPostsTable: UniTable;
+    @ViewChild(JournalEntryProfessional, { static: true })
 
     public journalEntryProfessional: JournalEntryProfessional;
 

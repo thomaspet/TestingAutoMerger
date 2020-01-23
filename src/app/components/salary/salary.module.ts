@@ -134,6 +134,8 @@ import {
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
+import { RegulativeComponent } from './regulative/regulative';
+import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal/regulative-upload-modal.component';
 
 @NgModule({
     imports: [
@@ -256,6 +258,10 @@ import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-
         PaycheckMailOptionsComponent,
         PeriodAdminModalComponent,
         OtpPeriodWagetypeModalComponent,
+
+        // Regulation
+        RegulativeComponent,
+        RegulativeUploadModalComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -279,6 +285,7 @@ import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-
         UniFindEmployeeModal,
         UniSupplementEditModal,
         SyncWagetypesModalComponent,
+        RegulativeUploadModalComponent,
     ],
     providers: [
         CanDeactivateGuard,
@@ -378,7 +385,11 @@ import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-
 
         // OTP
         OTPExportComponent,
-        OtpPeriodWagetypeModalComponent
+        OtpPeriodWagetypeModalComponent,
+
+        // Regulation
+        RegulativeComponent,
+        RegulativeUploadModalComponent,
     ]
 })
 export class SalaryModule {}

@@ -42,18 +42,18 @@ export class UniEmailModal implements IUniModal {
     formConfig$ = new BehaviorSubject({autofocus: true});
     formModel$  = new BehaviorSubject<Email>(null);
     formFields$ = new BehaviorSubject([]);
-    initialState: any;
+    initialEmail: Email;
 
     ngOnInit() {
         const email = this.options.data || {};
-        this.initialState = Object.assign({}, email);
+        this.initialEmail = email;
         const fields = this.getFormFields();
 
         if (email._initValue && fields[0] && !email[fields[0].Property]) {
             email[fields[0].Property] = email._initValue;
         }
 
-        this.formModel$.next(email);
+        this.formModel$.next(Object.assign({}, email));
         this.formFields$.next(this.getFormFields());
     }
 
@@ -64,7 +64,19 @@ export class UniEmailModal implements IUniModal {
     }
 
     close(emitValue?: boolean) {
-        this.onClose.emit(emitValue ? this.formModel$.getValue() : null);
+        if (emitValue) {
+            // Since multivalue currently depends on memory references we need to
+            // map the updated values to the initial object and return that,
+            // instead of returning the edited one.
+            const address = this.formModel$.getValue();
+            Object.keys(address).forEach(key => {
+                this.initialEmail[key] = address[key];
+            });
+
+            this.onClose.emit(this.initialEmail);
+        } else {
+            this.onClose.emit(null);
+        }
     }
 
     private getFormFields(): UniFieldLayout[] {

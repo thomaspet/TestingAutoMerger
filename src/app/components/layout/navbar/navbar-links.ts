@@ -422,6 +422,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/salary/variablepayrolls',
                         moduleID: UniModules.VariablePayrolls,
                         activeInSidebar: true
+                    },
+                    {
+                        name: 'NAVBAR.REGULATIVE',
+                        url: '/salary/regulative',
+                        moduleID: UniModules.Regulative,
+                        activeInSidebar: true
                     }
                 ]
             },
@@ -479,7 +485,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 links: [
                     {
                         name: 'NAVBAR.HOUR_REG',
-                        url: '/timetracking/timeentry',
+                        url: '/timetracking/timeentry?mode=Registrering',
                         moduleID: UniModules.Timesheets,
                         activeInSidebar: true
                     },

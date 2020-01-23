@@ -29,8 +29,8 @@ export interface GrantAccessData {
     styleUrls: ['./grant-access-modal.sass']
 })
 export class GrantAccessModal implements IUniModal {
-    @ViewChild(MatStepper) stepper: MatStepper;
-    @ViewChild(ExecuteForBulkAccess) confirmAndExecuteView: ExecuteForBulkAccess;
+    @ViewChild(MatStepper, { static: false }) stepper: MatStepper;
+    @ViewChild(ExecuteForBulkAccess, { static: false }) confirmAndExecuteView: ExecuteForBulkAccess;
 
     options: IModalOptions = {};
     onClose: EventEmitter<void> = new EventEmitter<void>();

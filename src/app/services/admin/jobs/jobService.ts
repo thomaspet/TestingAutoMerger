@@ -129,4 +129,5 @@ export interface JobServerMassInviteInput {
     CompanyLicenses: ElsaCompanyLicense[];
     UserLicenses: ElsaUserLicense[];
     Products: ElsaProduct[];
+    IsSelfInvite?: boolean; // adds Administrator role in backend
 }

@@ -32,8 +32,8 @@ export interface AutocompleteOptions {
     styleUrls: ['./autocomplete.sass']
 })
 export class Autocomplete {
-    @ViewChild('inputElement') inputElement: ElementRef<HTMLInputElement>;
-    @ViewChild('optionContainer') optionContainer: ElementRef;
+    @ViewChild('inputElement', { static: true }) inputElement: ElementRef<HTMLInputElement>;
+    @ViewChild('optionContainer', { static: false }) optionContainer: ElementRef;
 
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;

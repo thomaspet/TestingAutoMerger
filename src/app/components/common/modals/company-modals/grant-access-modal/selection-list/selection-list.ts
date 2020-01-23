@@ -15,6 +15,7 @@ import {FormControl} from '@angular/forms';
 })
 export class GrantAccessSelectionList {
     @Input() labelProperty: string;
+    @Input() secondLabelProperty?: string;
     @Input() items: any[];
     @Output() itemsChange: EventEmitter<any[]> = new EventEmitter();
 
@@ -51,8 +52,13 @@ export class GrantAccessSelectionList {
     }
 
     private filterItems(filterText: string) {
+        const filterLowerCase = filterText.toLowerCase();
         this.filteredItems = this.items.filter(item => {
-            return item[this.labelProperty].includes(filterText);
+            if (item[this.secondLabelProperty]) {
+                return item[this.labelProperty].toLowerCase().includes(filterLowerCase)
+                    || item[this.secondLabelProperty].toLowerCase().includes(filterLowerCase);
+            }
+            return item[this.labelProperty].toLowerCase().includes(filterLowerCase);
         });
     }
 }

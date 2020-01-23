@@ -220,15 +220,15 @@ export const CHARTS = [
         srOnly: true,
         config: {}
     },
-    // {
-    //     id: 'liquidity',
-    //     description: 'Likviditetsprognose',
-    //     width: 5,
-    //     height: 3,
-    //     widgetType: 'liquidity',
-    //     srOnly: true,
-    //     config: {}
-    // },
+    {
+        id: 'liquidity',
+        description: 'Likviditetsprognose',
+        width: 5,
+        height: 3,
+        widgetType: 'liquidity',
+        srOnly: true,
+        config: {}
+    },
     {
         id: 'bank_balance',
         description: 'Banksaldo',

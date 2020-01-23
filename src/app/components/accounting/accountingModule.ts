@@ -75,7 +75,6 @@ import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
-import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
 import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
@@ -162,7 +161,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         ExpenseSummaryModal,
         RecieverModal,
         SelectJournalEntryLineModal,
-        ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         NumberAsMoneyPipe,
         UniSmartBookingSettingsModal,
@@ -211,7 +209,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         CreateCorrectedVatReportForm,
         AccountDetailsReport,
         SelectJournalEntryLineModal,
-        ConfirmCreditedJournalEntryWithDate,
         EditSupplierInvoicePayments,
         NewAccountModal,
         BillAssignmentModal,

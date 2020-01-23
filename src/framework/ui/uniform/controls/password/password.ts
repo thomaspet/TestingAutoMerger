@@ -14,7 +14,7 @@ import {get, set} from 'lodash';
     templateUrl: './password.html'
 })
 export class UniPasswordInput extends BaseControl implements OnChanges {
-    @ViewChild('inputElement') inputElement: ElementRef;
+    @ViewChild('inputElement', { static: false }) inputElement: ElementRef;
     @Input() public field: UniFieldLayout;
     @Input() public model: any;
     @Input() public control: FormControl;

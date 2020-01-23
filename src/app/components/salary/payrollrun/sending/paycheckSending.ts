@@ -16,7 +16,7 @@ export enum PaycheckFormat {
     templateUrl: './paycheckSending.html',
 })
 export class PaycheckSending implements OnInit {
-    @ViewChild(AgGridWrapper) table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
 
     @Input() runID: number;
     @Output() selectedEmps: EventEmitter<Employee[]> = new EventEmitter();

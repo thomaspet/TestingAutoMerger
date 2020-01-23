@@ -13,7 +13,7 @@ import * as Chart from 'chart.js';
 })
 
 export class LiquidityWidget {
-    @ViewChild('liquidity') liquidityChart: ElementRef;
+    @ViewChild('liquidity', { static: false }) liquidityChart: ElementRef;
 
     mode: string = 'table';
     data: any = [];
@@ -67,7 +67,7 @@ export class LiquidityWidget {
     }
 
     goToSupplierInvoices() {
-        this.router.navigateByUrl('/accounting/bills?filter=unpaid');
+        this.router.navigateByUrl('/overview?code=supplierinvoice_list&filter=all_supplierinvoices');
     }
 
     addCustomerPayment(isNew: boolean = true) {

@@ -97,7 +97,7 @@ export class AccrualModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild('form') form: UniForm;
+    @ViewChild('form', { static: true }) form: UniForm;
 
     public modalConfig: any = {
         mode: null,
@@ -369,23 +369,21 @@ export class AccrualModal implements IUniModal {
         this.model$.next(this.modalConfig.model);
         this.currentFinancialYear = this.financialYearService.getActiveYear();
 
-        this.periodService.GetAll<Period>(
-            'filter=AccountYear eq '
-            + this.currentFinancialYear
-            + ' and periodseries.seriestype eq 1',
-            ['PeriodSeries'])
-            .subscribe(periods => {
-                this.currentFinancialYearPeriods = periods;
-                this.isLockedDate(periods);
-                this.setupForm();
+        this.periodService.GetAll(
+            `filter=AccountYear eq ${this.currentFinancialYear} and periodseries.seriestype eq 1`,
+            ['PeriodSeries']
+        ).subscribe(periods => {
+            this.currentFinancialYearPeriods = periods;
+            this.isLockedDate(periods);
+            this.setupForm();
 
-                if (this.modalConfig.model) {
-                    this.checkboxEnabledState = this.isAccrualAccrued();
-                    this.setAccrualPeriodBasedOnAccrual();
-                    this.changeRecalculatePeriods();
-                    this.setAccountingLockedPeriods();
-                }
-            });
+            if (this.modalConfig.model) {
+                this.checkboxEnabledState = this.isAccrualAccrued();
+                this.setAccrualPeriodBasedOnAccrual();
+                this.changeRecalculatePeriods();
+                this.setAccountingLockedPeriods();
+            }
+        });
     }
 
     public ngOnChanges(changes: {[propName: string]: SimpleChange}) {

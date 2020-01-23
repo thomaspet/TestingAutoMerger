@@ -1,7 +1,7 @@
 export interface ElsaAgreement {
     ID: number;
     AgreementText: string;
-    StatusCode: ElsaAgreementStatus;
+    AgreementStatus: ElsaAgreementStatus;
     ProductID: number;
 }
 
@@ -21,6 +21,8 @@ export interface ElsaCustomer {
     ContactPhone: string;
     Managers?: any[];
     Contracts?: ElsaContract[];
+    CompanyTypeID?: number;
+    PersonalNumber?: string;
 }
 
 export interface ElsaCompanyLicense {

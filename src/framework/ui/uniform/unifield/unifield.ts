@@ -29,7 +29,7 @@ export class UniField {
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @HostBinding('class') cssClasses = '';
-    @ViewChild('selectedComponent') public component: any;
+    @ViewChild('selectedComponent', { static: false }) public component: any;
 
     public classes: (string | Function)[] = [];
     public asideGuid: string = 'unifield-' + performance.now();

@@ -23,7 +23,7 @@ import {theme} from 'src/themes/theme';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OverdueInvoicesWidget implements AfterViewInit {
-    @ViewChild('chartCanvas') canvas: ElementRef;
+    @ViewChild('chartCanvas', { static: false }) canvas: ElementRef;
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();

@@ -1,6 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {Observable, throwError, of} from 'rxjs';
+import {tap, switchMap, catchError, map} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -18,7 +19,6 @@ import {
     VatType,
     Department,
     User,
-    ReportDefinition,
 } from '@uni-entities';
 
 import {
@@ -69,7 +69,6 @@ import {TofHelper} from '../../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {cloneDeep} from 'lodash';
-import {tap} from 'rxjs/operators';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 
 @Component({
@@ -77,8 +76,8 @@ import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
     templateUrl: './quoteDetails.html',
 })
 export class QuoteDetails implements OnInit, AfterViewInit {
-    @ViewChild(TofHead) private tofHead: TofHead;
-    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
+    @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
+    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
 
     @Input() quoteID: number;
 
@@ -102,7 +101,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     currencyCodes: Array<CurrencyCode>;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
-    private  askedAboutSettingDimensionsOnItems: boolean;
+    private askedAboutSettingDimensionsOnItems: boolean;
 
     currentUser: User;
     projects: Project[];
@@ -417,70 +416,57 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     }
 
     canDeactivate(): boolean | Observable<boolean> {
-        if (this.isDirty) {
-            return this.modalService.openUnsavedChangesModal().onClose
-                .switchMap(result => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        return Observable.fromPromise(this.saveQuote())
-                            .catch(err => {
-                                this.handleSaveError(err);
-                                return Observable.of(false);
-                            })
-                            .map(res => !!res);
-                    }
-
-                    return Observable.of(result !== ConfirmActions.CANCEL);
-                });
+        if (!this.isDirty) {
+            return true;
         }
 
-        return true;
+        return this.modalService.openUnsavedChangesModal().onClose.pipe(
+            switchMap(result => {
+                if (result === ConfirmActions.ACCEPT) {
+                    return this.saveQuote(false).pipe(
+                        map(res => !!res),
+                        catchError(err => {
+                            this.errorService.handle(err);
+                            return of(false);
+                        })
+                    );
+                }
+
+                return of(result !== ConfirmActions.CANCEL);
+            })
+        );
     }
 
     numberSeriesChange(selectedSerie) {
         this.quote.QuoteNumberSeriesID = selectedSerie.ID;
     }
 
-    private refreshQuote(quote?: CustomerQuote): Promise<boolean> {
-        return new Promise((resolve) => {
-            const orderObservable = !!quote
-                ? Observable.of(quote)
-                : this.getQuote(this.quoteID);
+    private refreshQuote(quote?: CustomerQuote) {
+        this.readonly = quote.StatusCode && (
+            quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
+                || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
+        );
 
-            orderObservable.subscribe(res => {
-                if (!quote) { quote = res; }
+        this.newQuoteItem = this.tradeItemHelper.getDefaultTradeItemData(quote);
+        this.isDirty = false;
+        this.quoteItems = quote.Items.sort(
+            function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
+        );
 
-                this.readonly = quote.StatusCode && (
-                    quote.StatusCode === StatusCodeCustomerQuote.CustomerAccepted
-                    || quote.StatusCode === StatusCodeCustomerQuote.TransferredToOrder
-                    || quote.StatusCode === StatusCodeCustomerQuote.TransferredToInvoice
-                  );
+        this.currentCustomer = quote.Customer;
+        this.currentQuoteDate = quote.QuoteDate;
 
-                this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
-                this.isDirty = false;
-                this.quoteItems = quote.Items.sort(
-                    function(itemA, itemB) { return itemA.SortIndex - itemB.SortIndex; }
-                );
+        this.quote = cloneDeep(quote);
 
-                this.currentCustomer = quote.Customer;
+        this.recalcItemSums(quote.Items);
+        this.updateCurrency(quote, true);
 
-                quote.DefaultSeller = quote.DefaultSeller;
+        this.isDistributable = this.tofHelper.isDistributable('CustomerQuote', this.quote, this.companySettings, this.distributionPlans);
 
-                this.currentQuoteDate = quote.QuoteDate;
-
-                this.quote = cloneDeep(quote);
-
-                this.recalcItemSums(quote.Items);
-                this.updateCurrency(quote, true);
-
-                this.isDistributable = this.tofHelper.isDistributable('CustomerQuote', this.quote, this.companySettings, this.distributionPlans);
-
-                this.updateTab();
-                this.updateToolbar();
-                this.updateSaveActions();
-
-                resolve(true);
-            });
-        });
+        this.updateTab();
+        this.updateToolbar();
+        this.updateSaveActions();
     }
 
     onQuoteChange(quote: CustomerQuote) {
@@ -537,7 +523,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         if (quote['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, false);
-            this.newQuoteItem = <any>this.tradeItemHelper.getDefaultTradeItemData(quote);
+            this.newQuoteItem = this.tradeItemHelper.getDefaultTradeItemData(quote);
 
             const dimension = quote['_updatedField'].split('.');
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
@@ -822,29 +808,25 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
     }
 
-    private newBasedOn(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            if (this.quote.ID) {
-                resolve(true);
-                this.router.navigateByUrl('sales/quotes/' + this.quote.ID + ';copy=true');
-            } else {
-                const config = {
+    private newBasedOn(doneCallback) {
+        if (this.quote.ID) {
+            this.router.navigateByUrl('sales/quotes/' + this.quote.ID + ';copy=true');
+            doneCallback();
+        } else {
+            this.modalService.open(UniTofSelectModal, {
+                data: {
                     service: this.customerQuoteService,
                     moduleName: 'Quote',
                     label: 'Tilbudsnr'
-                };
+                }
+            }).onClose.subscribe((id: number) => {
+                if (id) {
+                    this.router.navigateByUrl('sales/quotes/' + id + ';copy=true');
+                }
 
-                this.modalService.open(UniTofSelectModal, { data: config }).onClose.subscribe((id: number) => {
-                    if (id) {
-                        resolve(id);
-                        this.router.navigateByUrl('sales/quotes/' + id + ';copy=true');
-                    } else {
-                        reject('Kopiering avbrutt');
-                    }
-
-                });
-            }
-        });
+                doneCallback();
+            });
+        }
     }
 
     private copyQuote(quote: CustomerQuote): CustomerQuote {
@@ -1025,29 +1007,67 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.toolbarconfig = {
+        const config: IToolbarConfig = {
             title: quoteText,
             statustrack: this.getStatustrackConfig(),
+            hideDisabledActions: true,
+            entityID: this.quoteID,
+            entityType: 'CustomerQuote',
             navigation: {
                 prev: this.previousQuote.bind(this),
                 next: this.nextQuote.bind(this),
-                add: () => this.quote.ID ? this.router.navigateByUrl('sales/quotes/0') : this.ngOnInit()
             },
-            contextmenu: [
-                {
-                    label: 'Send via utsendelsesplan',
-                    action: () => this.distribute(),
-                    disabled: () => !this.quote.ID || !this.isDistributable
-                },
-                {
-                    label: 'Skriv ut / send e-post',
-                    action: () => this.printOrEmail(),
-                    disabled: () => !this.quote.ID
-                }
-            ],
-            entityID: this.quoteID,
-            entityType: 'CustomerQuote'
+            buttons: [{
+                class: 'icon-button',
+                icon: 'remove_red_eye',
+                action: () => this.preview(),
+                tooltip: 'Forhåndsvis'
+            }]
         };
+
+        if (this.quote.ID) {
+            config.buttons.push({
+                label: 'Nytt tilbud',
+                action: () => this.router.navigateByUrl('sales/quotes/0')
+            });
+        } else {
+            config.buttons.push({
+                label: 'Lagre kladd',
+                action: () => {
+                    this.quote.StatusCode = StatusCode.Draft;
+                    return this.saveQuote();
+                }
+            });
+        }
+
+        this.toolbarconfig = config;
+    }
+
+    private preview() {
+        const openPreview = (quote) => {
+            return this.modalService.open(TofReportModal, {
+                data: {
+                    entityLabel: 'Tilbud',
+                    entityType: 'CustomerQuote',
+                    entity: quote,
+                    reportType: ReportTypeEnum.QUOTE,
+                    hideEmailButton: true,
+                    hidePrintButton: true
+                }
+            }).onClose;
+        };
+
+        if (this.isDirty) {
+            if (!this.quote.ID) {
+                this.quote.StatusCode = StatusCode.Draft;
+            }
+
+            return this.saveQuote().pipe(
+                switchMap(quote => openPreview(quote))
+            );
+        } else {
+            return openPreview(this.quote);
+        }
     }
 
     recalcItemSums(quoteItems: CustomerQuoteItem[]) {
@@ -1070,29 +1090,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         }
 
         this.updateToolbar();
-    }
-
-    private handleSaveError(error, donehandler?) {
-        if (donehandler) {
-            donehandler('Lagring avbrutt');
-        }
-
-        this.errorService.handle(error);
-    }
-
-    private distribute() {
-        return Observable.create((obs) => {
-            this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(() => {
-                this.toastService.addToast(
-                    'Tilbud er lagt i kø for utsendelse',
-                    ToastType.good,
-                    ToastTime.short);
-                obs.complete();
-            }, err => {
-                this.errorService.handle(err);
-                obs.complete();
-            });
-        });
     }
 
     private printOrEmail() {
@@ -1129,6 +1126,76 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
         this.saveActions = [];
 
+        if (this.quote.ID) {
+            this.saveActions.push({
+                label: 'Lagre endringer',
+                action: (done) => {
+                    this.saveQuote().subscribe(
+                        () => done(),
+                        err => {
+                            this.errorService.handle(err);
+                            done();
+                        }
+                    );
+                },
+                main: this.isDirty || (this.quote.ID > 0
+                    && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
+                    && printStatus === 100
+                )
+            });
+
+            this.saveActions.push({
+                label: 'Send via utsendelsesplan',
+                disabled: !this.isDistributable,
+                action: (done) => {
+                    this.reportService.distribute(this.quote.ID, this.distributeEntityType).subscribe(
+                        () => {
+                            this.toastService.toast({
+                                title: 'Tilbud er lagt i kø for utsendelse',
+                                type: ToastType.good,
+                                duration: ToastTime.short
+                            });
+
+                            done();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            done();
+                        }
+                    );
+                }
+            });
+
+            this.saveActions.push({
+                label: 'Skriv ut / send e-post',
+                action: (done) => this.printOrEmail().subscribe(() => done()),
+            });
+
+            this.saveActions.push({
+                label: 'Avslutt tilbud',
+                action: (done) => this.transition(done, 'complete'),
+                disabled: !transitions || !transitions['complete'],
+            });
+
+            this.saveActions.push({
+                label: 'Slett',
+                action: (done) => this.deleteQuote(done),
+                disabled: this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
+            });
+
+            this.saveActions.push({
+                label: 'Overfør til ordre',
+                action: (done) => this.transition(done, 'toOrder'),
+                disabled: !transitions || !transitions['toOrder']
+            });
+
+            this.saveActions.push({
+                label: 'Overfør til faktura',
+                action: (done) => this.transition(done, 'toInvoice'),
+                disabled: !transitions || !transitions['toInvoice']
+            });
+        }
+
         this.saveActions.push({
             label: 'Registrer',
             action: (done) => this.saveQuoteAsRegistered(done),
@@ -1137,106 +1204,49 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         });
 
         this.saveActions.push({
-            label: 'Lagre',
-            action: (done) => {
-                this.saveQuote().then(res => {
-                    done('Lagring fullført');
-                    this.quoteID = res.ID;
-                    this.refreshQuote();
-                }).catch(error => {
-                    this.handleSaveError(error, done);
-                });
-            },
-            disabled: !this.quote.ID,
-            main: this.isDirty
-                || (this.quote.ID > 0
-                    && this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
-                    && printStatus === 100)
-        });
-
-        if (!this.quote.ID) {
-            this.saveActions.push({
-                label: 'Lagre som kladd',
-                action: (done) => this.saveQuoteAsDraft(done),
-                disabled: (this.quote.ID > 0)
-            });
-        }
-
-        // TODO: Add a actions for shipToCustomer,customerAccept
-
-        this.saveActions.push({
-            label: 'Lagre og overfør til ordre',
-            action: (done) => this.saveQuoteTransition(done, 'toOrder', 'Overført til ordre'),
-            disabled: !transitions || !transitions['toOrder']
-        });
-
-        this.saveActions.push({
-            label: 'Lagre og overfør til faktura',
-            action: (done) => this.saveQuoteTransition(done, 'toInvoice', 'Overført til faktura'),
-            disabled: !transitions || !transitions['toInvoice']
-
-        });
-
-        this.saveActions.push({
             label: 'Ny basert på',
-            action: (done) => {
-                this.newBasedOn().then(res => {
-                    done('Tilbud kopiert');
-                }).catch(error => {
-                    done(error);
-                });
-            },
+            action: (done) => this.newBasedOn(done),
             disabled: false
-        });
-
-        this.saveActions.push({
-            label: 'Avslutt tilbud',
-            action: (done) => this.saveQuoteTransition(done, 'complete', 'Tilbud avsluttet'),
-            disabled: !transitions || !transitions['complete'],
-        });
-
-        this.saveActions.push({
-            label: 'Slett',
-            action: (done) => this.deleteQuote(done),
-            disabled: this.quote.StatusCode !== StatusCodeCustomerQuote.Draft
         });
     }
 
-    private saveQuote(): Promise<CustomerQuote> {
+    private saveQuote(reloadAfterSave = true): Observable<CustomerQuote> {
         this.quote.Items = this.tradeItemHelper.prepareItemsForSave(this.quoteItems);
         if (this.quote.Sellers) {
             this.quote.Sellers = this.quote.Sellers.filter(x => !x['_isEmpty']);
-        }
-
-        // Doing this to prevent the 'foreignKey does not match parent ID' error where sellers is present
-        if (this.quote.Sellers && this.quote.ID === 0) {
-            this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
+            if (!this.quote.ID) {
+                this.quote.Sellers.forEach(seller => seller.CustomerQuoteID = null);
+            }
         }
 
         this.quote = this.tofHelper.beforeSave(this.quote);
 
-        return new Promise((resolve, reject) => {
-            // create observable but dont subscribe - resolve it in the promise
-            const saveRequest = ((this.quote.ID > 0)
+        return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
+            if (!canSave) {
+                return throwError('Lagring avbrutt');
+            }
+
+            const navigateAfterSave = !this.quote.ID;
+            const saveRequest = this.quote.ID > 0
                 ? this.customerQuoteService.Put(this.quote.ID, this.quote)
-                : this.customerQuoteService.Post(this.quote));
+                : this.customerQuoteService.Post(this.quote);
 
-            this.checkCurrencyAndVatBeforeSave().subscribe(canSave => {
-                if (canSave) {
-                    saveRequest.subscribe(
-                        res => {
-                            if (res.QuoteNumber) { this.selectConfig = undefined; }
-
-                            this.updateTab(res);
-                            resolve(res);
-                        },
-                        err => reject(err)
-                    );
+            return saveRequest.pipe(switchMap(res => {
+                this.isDirty = false;
+                if (reloadAfterSave) {
+                    if (navigateAfterSave) {
+                        this.router.navigateByUrl('sales/quotes/' + res.ID);
+                        return of(res);
+                    } else {
+                        return this.getQuote(res.ID).pipe(
+                            tap(quote => this.refreshQuote(quote))
+                        );
+                    }
                 } else {
-                    reject('Endre MVA kode og lagre på ny');
+                    return of(res);
                 }
-            });
-        });
+            }));
+        }));
     }
 
     private checkCurrencyAndVatBeforeSave(): Observable<boolean> {
@@ -1264,117 +1274,83 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private saveQuoteAsRegistered(done: any) {
         if (this.quote.ID > 0) {
-            this.saveQuoteTransition(done, 'register', 'Registrert');
+            this.transition(done, 'register');
         } else {
-            this.saveQuote().then(res => {
-                done('Registrering fullført');
-                this.quoteID = res.ID;
-                this.selectConfig = undefined;
-
-                this.isDirty = false;
-                this.router.navigateByUrl('/sales/quotes/' + res.ID);
-            }).catch(error => {
-                this.handleSaveError(error, done);
-            });
+            this.saveQuote().subscribe(
+                () => done(),
+                err => {
+                    this.errorService.handle(err);
+                    done();
+                }
+            );
         }
     }
 
-    private saveQuoteAsDraft(done: any) {
-        this.quote.StatusCode = StatusCode.Draft;
-        const navigateOnSuccess = !this.quote.ID;
-        this.saveQuote().then(res => {
-            this.isDirty = false;
-            done('Lagring fullført');
-            if (navigateOnSuccess) {
-                this.router.navigateByUrl('/sales/quotes/' + res.ID);
-            } else {
-                this.quoteID = res.ID;
-                this.refreshQuote();
-            }
-        }).catch(error => {
-            this.handleSaveError(error, done);
-        });
-    }
-
-    private saveQuoteTransition(done: any, transition: string, doneText: string) {
+    private transition(doneCallback, transition: string) {
         if (!this.quote.Customer) {
             this.toastService.addToast('Kan ikke overføre tilbud uten kunde', ToastType.warn, 5);
-            done('');
+            doneCallback('');
             return;
         }
 
-        if (this.quote.Customer.OrgNumber && !this.modulusService.isValidOrgNr(this.quote.Customer.OrgNumber)) {
-            return this.modalService.open(UniConfirmModalV2, {
+        const orgNumber = this.quote.Customer.OrgNumber;
+        let canTransitionCheck = of(true);
+        if (orgNumber && !this.modulusService.isValidOrgNr(orgNumber)) {
+            canTransitionCheck = this.modalService.confirm({
                 header: 'Bekreft kunde',
                 message: `Ugyldig org.nr. '${this.quote.Customer.OrgNumber}' på kunde. Vil du fortsette?`,
                 buttonLabels: {
                     accept: 'Ja',
                     cancel: 'Avbryt'
                 }
-            }).onClose.subscribe(
-                response => {
-                    if (response === ConfirmActions.ACCEPT) {
-                        this.saveQuote().then(quote => {
-                            this.isDirty = false;
-                            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
-                                (res) => {
-                                    this.selectConfig = undefined;
-                                    if (transition === 'toOrder') {
-                                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID)
-                                            .then(() => done(doneText));
-                                    } else if (transition === 'toInvoice') {
-                                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID)
-                                            .then(() => done(doneText));
-                                    } else {
-                                        this.quoteID = quote.ID;
-                                        this.refreshQuote()
-                                            .then(() => done(doneText));
-                                    }
-                                },
-                                err => this.handleSaveError(err, done)
-                            );
-                        }).catch(error => {
-                            this.handleSaveError(error, done);
-                        });
-                    }
-                    return done();
-                }
-            );
+            }).onClose.pipe(map(res => res === ConfirmActions.ACCEPT));
         }
 
-        this.saveQuote().then(quote => {
-            this.isDirty = false;
-            this.customerQuoteService.Transition(this.quote.ID, this.quote, transition).subscribe(
-                (res) => {
-                    this.selectConfig = undefined;
-                    if (transition === 'toOrder') {
-                        this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID)
-                            .then(() => done(doneText));
-                    } else if (transition === 'toInvoice') {
-                        this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID)
-                            .then(() => done(doneText));
-                    } else {
-                        this.quoteID = quote.ID;
-                        this.refreshQuote()
-                            .then(() => done(doneText));
-                    }
+        canTransitionCheck.subscribe(canTransition => {
+            if (!canTransition) {
+                doneCallback();
+                return;
+            }
+
+            this.saveQuote(false).subscribe(
+                quote => {
+                    this.isDirty = false;
+                    this.customerQuoteService.Transition(quote.ID, quote, transition).subscribe(
+                        res => {
+                            if (transition === 'toOrder') {
+                                this.router.navigateByUrl('/sales/orders/' + res.CustomerOrderID);
+                            } else if (transition === 'toInvoice') {
+                                this.router.navigateByUrl('/sales/invoices/' + res.CustomerInvoiceID);
+                            } else {
+                                this.getQuote(quote.ID).subscribe(updatedQuote => this.refreshQuote(updatedQuote));
+                            }
+
+                            doneCallback();
+                        },
+                        err => {
+                            this.errorService.handle(err);
+                            this.getQuote(quote.ID).subscribe(res => this.refreshQuote(res));
+                            doneCallback();
+                        }
+                    );
                 },
-                err => this.handleSaveError(err, done)
+                err => {
+                    this.errorService.handle(err);
+                    doneCallback();
+                }
             );
-        }).catch(error => {
-            this.handleSaveError(error, done);
         });
     }
 
     private deleteQuote(done) {
         this.customerQuoteService.Remove(this.quote.ID, null).subscribe(
-            (success) => {
+            () => {
                 this.isDirty = false;
                 this.router.navigateByUrl('/sales/quotes');
             },
             (err) => {
                 this.errorService.handle(err);
-                done('Sletting feilet');
+                done();
             }
         );
     }

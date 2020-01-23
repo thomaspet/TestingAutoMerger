@@ -18,6 +18,9 @@
             </i>
 
             {{item[labelProperty]}}
+            <span *ngIf="item[secondLabelProperty]">
+                {{item[secondLabelProperty]}}
+            </span>
         </li>
     </cdk-virtual-scroll-viewport>
 </ul>

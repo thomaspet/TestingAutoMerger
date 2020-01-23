@@ -319,6 +319,11 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
             RequestMethod.Post, `aprilaOrderId=${orderId}&acceptOffer=${acceptOffer}`);
     }
 
+    public fulfillAprilaOffer(invoiceId: number): Observable<any> {
+        return super.Action(invoiceId, 'fulfill-aprila-offer',
+            null, RequestMethod.Post);
+    }
+
     public createAprilaCreditNote(invoiceId: number) {
         return super.PostAction(invoiceId, 'create-aprila-credit-note');
     }

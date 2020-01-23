@@ -72,7 +72,7 @@ export class WagetypeDetail extends UniView {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public busy: boolean;
 
-    @ViewChild(UniForm) public uniform: UniForm;
+    @ViewChild(UniForm, { static: true }) public uniform: UniForm;
 
     private getRateFrom: { ID: GetRateFrom, Name: string }[] = [
         { ID: GetRateFrom.WageType, Name: 'Lønnsart' },

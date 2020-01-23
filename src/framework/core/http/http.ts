@@ -44,7 +44,7 @@ export class UniHttp {
     public appendHeaders(headers: any) {
         Object.keys(headers).forEach(key => {
             if (headers[key]) {
-                this.headers = this.headers.set(key, headers[key]);
+                this.headers = this.headers.set(key, headers[key] + '');
             }
         });
 
@@ -68,7 +68,7 @@ export class UniHttp {
     }
 
     public withHeader(name: string, value: any) {
-        this.headers = this.headers.set(name, value);
+        this.headers = this.headers.set(name, value + '');
         return this;
     }
 

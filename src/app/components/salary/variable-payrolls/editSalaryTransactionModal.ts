@@ -6,6 +6,7 @@ import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastS
 import {
     UniTableConfig,
 } from '../../../../framework/ui/unitable/index';
+import { SalaryTransaction } from '@uni-entities';
 
 @Component({
     selector: 'uni-edit-salarytransaction-modal',
@@ -41,7 +42,7 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
     public tableData: any[] = [];
@@ -99,12 +100,10 @@ export class UniSalaryTransactionModal implements OnInit, IUniModal {
     public rowChanged(event) {
         const row = event.rowModel;
         if (event['field'] === 'Wagetype') {
-            this.salaryTransactionService.completeTrans(row).subscribe(trans => {
-                row['Rate'] = trans.Rate;
-                row['Text'] = trans.Text;
-                row['Sum'] = trans.Sum;
-                row['Amount'] = trans.Amount;
-                this.table.updateRow(row['_originalIndex'], row);
+            this.salaryTransactionService.completeTrans(row).subscribe((transes: SalaryTransaction[]) => {
+                this.tableData = this.salaryTransactionService.updateDataSource(this.tableData, transes);
+                
+                this.table.updateRow(row['_originalIndex'], this.salaryTransactionService.fillInRowmodel(row, transes[0]));
             });
         }
     }

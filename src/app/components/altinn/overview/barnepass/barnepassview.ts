@@ -34,7 +34,7 @@ declare var _;
 
 export class BarnepassView implements OnInit {
 
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: true })
     public table: AgGridWrapper;
 
     public toolbarConfig: IToolbarConfig;

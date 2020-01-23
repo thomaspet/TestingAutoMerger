@@ -58,10 +58,10 @@
 
     <!-- has valid clientID is a temp fix -->
     <footer class="center" *ngIf="action && hasValidClientId"> 
-        <div [matTooltip]="missingPermissionText">
+        <div [matTooltip]="tooltipText">
             <button class="c2a rounded"
                 (click)="onPurchaseClick()"
-                [disabled]="!canPurchaseProducts">
+                [disabled]="!canPurchaseProducts || !hasOrgNr">
                 {{isConsentStep ? 'Godta' : action.label}}
             </button>
         </div>

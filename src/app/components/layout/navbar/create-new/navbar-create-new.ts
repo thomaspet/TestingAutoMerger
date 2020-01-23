@@ -51,7 +51,7 @@ export class NavbarCreateNew {
             { name: 'Kunde', url: '/sales/customer/0' },
             { name: 'Produkt', url: '/sales/products/0' },
             { name: 'Ansatt', url: '/salary/employees/0/personal-details' },
-            { name: 'Timeføring', url: '/timetracking/timeentry' },
+            { name: 'Timeføring', url: '/timetracking/timeentry?mode=Registrering' },
             { name: 'Leverandør', url: '/accounting/suppliers/0' },
             { name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/bills/0' },
         ];

@@ -43,6 +43,7 @@ export class ContractActivation {
 
     contractID: number;
     companySettings: CompanySettings;
+    currentCompanyKey: string;
     elsaCustomer: ElsaCustomer;
 
     companyDetails: CompanyDetails = {};
@@ -85,6 +86,7 @@ export class ContractActivation {
                 if (this.canActivateContract && this.isDemoLicense) {
                     this.isTestCompany = auth && auth.activeCompany && auth.activeCompany.IsTest;
                     if (!this.isTestCompany) {
+                        this.currentCompanyKey = license.Company && license.Company.Key;
                         this.initActivationData(license.Company.ContractID);
                     }
                 }
@@ -127,7 +129,8 @@ export class ContractActivation {
                     Address: this.companySettings.DefaultAddress.AddressLine1,
                     PostalCode: this.companySettings.DefaultAddress.PostalCode,
                     City: this.companySettings.DefaultAddress.City,
-                    Country: this.companySettings.DefaultAddress.Country
+                    Country: this.companySettings.DefaultAddress.Country,
+                    CompanyTypeID: this.companySettings.CompanyTypeID
                 };
             },
             err => this.errorService.handle(err)
@@ -142,6 +145,7 @@ export class ContractActivation {
         this.companySettings.DefaultAddress.City = this.companyDetails.City;
         this.companySettings.DefaultAddress.Country = this.companyDetails.Country;
         this.companySettings.DefaultAddress.CountryCode = this.companyDetails.CountryCode;
+        this.companySettings.CompanyTypeID = this.companyDetails.CompanyTypeID;
 
         if (!this.companySettings.CompanyName || !this.companySettings.OrganizationNumber) {
             this.toastService.toast({
@@ -162,9 +166,30 @@ export class ContractActivation {
             return;
         }
 
-        this.busy = true;
-        this.elsaCustomer.Name = this.elsaCustomer.ContactPerson;
+        this.elsaCustomer.Name = this.companySettings.CompanyName;
         this.elsaCustomer.OrgNumber = this.companySettings.OrganizationNumber;
+        this.elsaCustomer.CompanyKey = this.currentCompanyKey;
+
+        // personal number is required by SR Bank
+        if (this.isSrEnvironment && !this.elsaCustomer.PersonalNumber) {
+            this.toastService.toast({
+                title: 'Vennligst fyll ut personnummer'
+            });
+            return;
+        }
+        // remove all whitespaces from personal number and then check for length and "only contains numbers"
+        if (this.elsaCustomer.PersonalNumber) {
+            this.elsaCustomer.PersonalNumber = this.elsaCustomer.PersonalNumber.replace(/\s/g, '');
+            if (this.elsaCustomer.PersonalNumber.length !== 11 || !/^\d+$/.test(this.elsaCustomer.PersonalNumber)) {
+                this.toastService.toast({
+                    title: 'Personnummer skal være 11 siffer'
+                });
+                return;
+            }
+        }
+
+        this.elsaCustomer.CompanyTypeID = this.companySettings.CompanyTypeID || null;
+        this.busy = true;
 
         forkJoin(
             this.companySettingsService.Put(1, this.companySettings),
@@ -173,12 +198,12 @@ export class ContractActivation {
             () => {
                 if (this.contractID) {
                     this.elsaContractService.activateContract(
-                        this.contractID, this.isBureau, (this.isSrEnvironment && !this.isSrCustomer) ? 3 : null)
+                        this.contractID, this.isBureau, this.isSrEnvironment ? 3 : null)
                         .subscribe( () => {
                             setTimeout(() => {
                                 this.authService.loadCurrentSession().subscribe((user) => {
                                     this.trialExpired = false;
-                                    if (!(this.isSrEnvironment && !this.isSrCustomer)) {
+                                    if (!this.isSrEnvironment) {
                                         this.modalService.open(CompanyActionsModal, { header: 'Kundeforhold aktivert' });
                                     }
                                     this.router.navigateByUrl('/');

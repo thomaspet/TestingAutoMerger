@@ -49,10 +49,10 @@ export interface ISelectOptions {
     `
 })
 export class UnitableSelect {
-    @ViewChild('inputElement')
+    @ViewChild('inputElement', { static: true })
     public inputElement: ElementRef;
 
-    @ViewChild('dropdown')
+    @ViewChild('dropdown', { static: false })
     private dropdown: ElementRef;
 
     column: any;

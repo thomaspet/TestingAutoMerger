@@ -10,7 +10,8 @@ import {
     ElsaProductService,
     ErrorService,
     ElsaPurchaseService,
-    PageStateService
+    PageStateService,
+    CompanySettingsService
 } from '@app/services/services';
 import {forkJoin} from 'rxjs';
 import {AuthService} from '@app/authService';
@@ -40,6 +41,7 @@ export class MarketplaceIntegrations implements OnInit {
     upcomingIntegrations: ElsaProduct[];
     searchText: string = '';
     canPurchaseProducts: boolean;
+    hasOrgNr: boolean;
     toolbarHeader: string = 'NAVBAR.INTEGRATION';
 
     constructor(
@@ -51,6 +53,7 @@ export class MarketplaceIntegrations implements OnInit {
         private userRoleService: UserRoleService,
         private errorService: ErrorService,
         private route: ActivatedRoute,
+        private companySettingsService: CompanySettingsService,
         private pageStateService: PageStateService
     ) { }
 
@@ -83,7 +86,8 @@ export class MarketplaceIntegrations implements OnInit {
             forkJoin(
                 this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
                 this.elsaPurchaseService.getAll(),
-                this.elsaProductService.GetAll(filter)
+                this.elsaProductService.GetAll(filter),
+                this.companySettingsService.Get(1),
             ).subscribe(
                 res => {
                     this.canPurchaseProducts = res[0];
@@ -103,6 +107,8 @@ export class MarketplaceIntegrations implements OnInit {
                     this.upcomingIntegrations = integrations.filter(i => {
                         return i.ProductStatus === ElsaProductStatusCode.SoonToBeLaunched;
                     });
+
+                    this.hasOrgNr = !!res[3].OrganizationNumber;
                 },
                 err => this.errorService.handle(err)
             );
@@ -113,7 +119,8 @@ export class MarketplaceIntegrations implements OnInit {
         return this.modalService.open(SubscribeModal, {
             data: {
                 canPurchaseProducts: this.canPurchaseProducts,
-                product: integrationItem
+                product: integrationItem,
+                hasOrgNr: this.hasOrgNr
             }
         });
     }

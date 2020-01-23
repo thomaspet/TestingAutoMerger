@@ -29,7 +29,7 @@ import {CustomerOrder, StatusCodeCustomerOrderItem} from '../../../unientities';
     `
 })
 export class UniOrderToInvoiceModal implements IUniModal {
-    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: true }) public table: AgGridWrapper;
     @Input() public options: IModalOptions = {};
     @Output() public onClose: EventEmitter<CustomerOrder> = new EventEmitter();
 

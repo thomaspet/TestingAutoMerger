@@ -34,7 +34,7 @@ export class UniSelectInput extends BaseControl implements OnChanges {
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<UniSelectInput> = new EventEmitter<UniSelectInput>();
 
-    @ViewChild('uniselect') public uniSelect: UniSelect;
+    @ViewChild('uniselect', { static: true }) public uniSelect: UniSelect;
 
     public items: any[];
     public selectedItem: any;

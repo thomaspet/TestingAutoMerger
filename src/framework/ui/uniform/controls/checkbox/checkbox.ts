@@ -22,7 +22,7 @@ import {MatCheckbox} from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCheckboxInput extends BaseControl {
-    @ViewChild(MatCheckbox) public checkbox: MatCheckbox;
+    @ViewChild(MatCheckbox, { static: false }) public checkbox: MatCheckbox;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;

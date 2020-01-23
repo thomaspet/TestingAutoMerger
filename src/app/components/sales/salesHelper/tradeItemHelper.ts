@@ -69,8 +69,8 @@ export class TradeItemHelper  {
             });
     }
 
-    public getDefaultTradeItemData(mainEntity) {
-        const ent = {
+    public getDefaultTradeItemData(mainEntity): any {
+        return {
             ID: 0,
             Product: null,
             ProductID: null,
@@ -89,7 +89,6 @@ export class TradeItemHelper  {
             TimeFactor: null,
             ReduceIncompletePeriod: false
         };
-        return ent;
     }
 
     public tradeItemChangeCallback(

@@ -15,7 +15,7 @@ import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
     styleUrls: ['./import-template-modal.sass']
 })
 export class ImportTemplateModal implements OnInit, IUniModal {
-    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
+    @ViewChild('file', { static: false }) fileElement: ElementRef<HTMLElement>;
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
@@ -32,6 +32,8 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     // saft related
     saftType: TemplateType = TemplateType.Saft;
     voucherType: TemplateType = TemplateType.Voucher;
+    orderType: TemplateType = TemplateType.Order;
+    isOrderDraft: boolean = false;
     isOpening: boolean = false;
     isKeepRecords: boolean = false;
     isUpdate: boolean = false;
@@ -66,7 +68,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         private payrollService: PayrollrunService,
         private errorService: ErrorService,
         private modalService: UniModalService
-    ) {}
+    ) { }
 
     ngOnInit(): void {
         if (this.options.data.entity == this.payrollType) {
@@ -160,7 +162,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                 const company = this.authService.activeCompany;
                 const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res._publictoken}`;
                 this.loading$.next(false);
-                const importModel = {
+                const importModel: any = {
                     CompanyKey: company.Key,
                     CompanyName: company.Name,
                     Url: fileURL,
@@ -170,6 +172,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                 };
 
                 dataToImport = importModel;
+                // if saft
                 if (this.options.data.entity === this.saftType) {
                     const saftModel = {
                         FileID: res.ExternalId,
@@ -180,9 +183,10 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                         UpdateExistingData: this.isUpdate,
                         Automark: this.isAutomatic
                     };
-
                     dataToImport = saftModel;
                 }
+
+                
                 this.loading$.next(true);
                 this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
                     () => {
@@ -243,12 +247,12 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     // show success message
     private showToast(fileName: string, type: TemplateType) {
-        if(type != this.saftType) {
-        this.toastService.addToast('', ToastType.good, ToastTime.medium,
-            `Uploading ${this.options.data.type} list ${fileName}`);
-        }else {
+        if (type != this.saftType) {
             this.toastService.addToast('', ToastType.good, ToastTime.medium,
-            'Du kan lese inn filen flere ganger dersom det skulle oppstå problemer');
+            `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`);
+        } else {
+            this.toastService.addToast('', ToastType.good, ToastTime.medium,
+                'Du kan lese inn filen flere ganger dersom det skulle oppstå problemer');
         }
     }
 

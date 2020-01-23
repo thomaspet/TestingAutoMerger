@@ -30,10 +30,10 @@ import {saveAs} from 'file-saver';
     templateUrl: './uniQueryDetails.html'
 })
 export class UniQueryDetails {
-    @ViewChild(AgGridWrapper)
+    @ViewChild(AgGridWrapper, { static: false })
     public table: AgGridWrapper;
 
-    @ViewChild(SaveQueryDefinitionModal)
+    @ViewChild(SaveQueryDefinitionModal, { static: true })
     public saveQueryDefinitionModal: SaveQueryDefinitionModal;
 
     // externalID is used when using this report from another component, e.g. as a sub component

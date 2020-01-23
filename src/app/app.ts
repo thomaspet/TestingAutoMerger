@@ -3,9 +3,9 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, UniTranslationService, StatisticsService} from './services/services';
+import {ErrorService, StatisticsService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
-import {UserDto, Company} from '@app/unientities';
+import {UserDto} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -34,12 +34,12 @@ const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 export class App {
     private licenseAgreementModalOpen: boolean;
     private userlicenseModalOpen: boolean;
+    private missingRolesModalOpen: boolean;
 
     isSrEnvironment = environment.isSrEnvironment;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
-    company: Company;
 
     constructor(
         private titleService: Title,
@@ -77,12 +77,6 @@ export class App {
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
-                this.statisticsService.GetAllUnwrapped('model=CompanySettings&select=OrganizationNumber as OrganizationNumber')
-                .subscribe(companySettings => {
-                    if (companySettings && companySettings.length) {
-                        this.company = companySettings[0];
-                    }
-                });
                 this.toastService.clear();
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
@@ -104,6 +98,20 @@ export class App {
                     }).onClose.subscribe(
                         () => this.licenseAgreementModalOpen = false
                     );
+                }
+
+                const permissions = authDetails.user['Permissions'];
+                if ((!permissions || !permissions.length) && !this.missingRolesModalOpen) {
+                    this.missingRolesModalOpen = true;
+                    this.modalService.confirm({
+                        header: 'Ingen roller i selskap',
+                        message: 'Det ser ikke ut som du har noen tilganger på dette selskapet.'
+                            + '<br>En administrator må tildele deg minimum en rolle under Innstillinger > Brukere.',
+                        buttonLabels: {},
+                    }).onClose.subscribe(() => {
+                        this.missingRolesModalOpen = false;
+                        console.log('dialog closed');
+                    });
                 }
 
                 if (!this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
@@ -147,10 +155,19 @@ export class App {
     goToExternalSignup() {
         if (this.isSrEnvironment) {
             let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
-            if (this.company && this.company.OrganizationNumber) {
-                url += `?bm-orgNumber=${this.company.OrganizationNumber}`;
-            }
-            window.open(url, '_blank');
+            this.statisticsService.GetAllUnwrapped(
+                'model=CompanySettings&select=OrganizationNumber as OrganizationNumber'
+            ).subscribe(
+                settings => {
+                    const orgNumber = settings && settings[0] && settings[0].OrganizationNumber;
+                    if (orgNumber) {
+                        url += `?bm-orgNumber=${orgNumber}`;
+                    }
+
+                    window.open(url, '_blank');
+                },
+                () => window.open(url, '_blank')
+            );
         }
     }
 

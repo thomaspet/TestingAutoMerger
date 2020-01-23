@@ -51,7 +51,7 @@ import * as moment from 'moment';
     `,
 })
 export class TimeentryImportModal implements IUniModal {
-    @ViewChild('fileInput') private fileInput: any;
+    @ViewChild('fileInput', { static: true }) private fileInput: any;
     @Output() public onClose: EventEmitter<any> = new EventEmitter();
 
     private fileSummary: { count: number };

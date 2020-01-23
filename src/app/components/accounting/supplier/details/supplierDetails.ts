@@ -69,10 +69,10 @@ export class SupplierDetails implements OnInit {
     @Output()
     public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
 
-    @ViewChild(UniForm)
+    @ViewChild(UniForm, { static: false })
     public form: UniForm;
 
-    @ViewChild(LedgerAccountReconciliation)
+    @ViewChild(LedgerAccountReconciliation, { static: false })
     private postpost: LedgerAccountReconciliation;
 
     public supplierID: number;
@@ -1197,7 +1197,7 @@ export class SupplierDetails implements OnInit {
                     FieldType: FieldType.CHECKBOX,
                     Label: 'Selvstendig næringsdrivende uten fast kontoradresse',
                     Tooltip: {
-                        Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapportering vil fungere fra og med inntektsår 2019.'
+                        Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapporteringen baserer seg på leverandørfakturaer til disse leverandørene.'
                     },
                 },
             ]

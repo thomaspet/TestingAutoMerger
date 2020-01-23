@@ -1,9 +1,10 @@
 import {Injectable} from '@angular/core';
-import {SubEntityService, ErrorService} from '../../../../services/services';
+import {SubEntityService, ErrorService, StatisticsService} from '../../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '../../../../../framework/uniToast/toastService';
 import {SubEntity} from '../../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, forkJoin, of} from 'rxjs';
+import { switchMap, filter, take } from 'rxjs/operators';
 
 @Injectable()
 export class SubEntitySettingsService {
@@ -12,7 +13,8 @@ export class SubEntitySettingsService {
         private subEntityService: SubEntityService,
         private modalService: UniModalService,
         private toastService: ToastService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private statisticsService: StatisticsService,
     ) {}
 
     public addSubEntitiesFromExternal(
@@ -22,7 +24,7 @@ export class SubEntitySettingsService {
         if (!orgno || orgno === '-') {
             return Observable.of([]);
         }
-        let subEntities$ = subEntities.length
+        const subEntities$ = subEntities.length
             ? Observable.of(subEntities)
             : this.subEntityService.GetAll('');
 
@@ -54,9 +56,10 @@ export class SubEntitySettingsService {
                         }
                     });
             })
-            .switchMap((choice: ConfirmActions) => choice === ConfirmActions.ACCEPT
-                ? subEntities$.switchMap(entities => this.saveAll(newSubEntities, entities))
-                : Observable.of(subEntities)
+            .pipe(
+                filter((choice: ConfirmActions) => choice === ConfirmActions.ACCEPT),
+                switchMap(() => forkJoin(this.subEntityService.editZonesIfNeeded(newSubEntities), subEntities$)),
+                switchMap(([newSubs, entities]) => this.saveAll(newSubs, entities)),
             )
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
@@ -64,9 +67,11 @@ export class SubEntitySettingsService {
     public getSubEntitiesFromBrregAndSaveAll(orgno: string) {
         return this.subEntityService
             .getFromEnhetsRegister(orgno)
-            .switchMap(subEntities => this.subEntityService
-                .GetAll('')
-                .switchMap(origSubEntities => this.saveAll(subEntities, origSubEntities)))
+            .pipe(
+                switchMap(subEntities => this.subEntityService.editZonesIfNeeded(subEntities)),
+                switchMap(subEntities => forkJoin(of(subEntities), this.subEntityService.GetAll(''))),
+                switchMap(([subEntities, origSubEntities]) => this.saveAll(subEntities, origSubEntities))
+            )
             .subscribe();
     }
 

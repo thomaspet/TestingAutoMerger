@@ -34,6 +34,7 @@ import {BarnepassProductsModal} from './modals/barnepassModals/barnepassProducts
 import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModal';
 import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
 import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
+import {UniNewRegulativeModal} from './modals/newRegulativeModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -71,6 +72,7 @@ export * from './modals/invoice-approval-modal/invoice-approval-modal';
 export * from './modals/wizard-settings-modal/wizard-settings-modal';
 export * from './modals/file-split-modal/file-split-modal';
 export * from './modals/tof-email-modal/tof-email-modal';
+export * from './modals/newRegulativeModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -109,5 +111,6 @@ export const MODALS = [
     BarnepassSenderModal,
     FileSplitModal,
     TofEmailModal,
+    UniNewRegulativeModal,
 ];
 

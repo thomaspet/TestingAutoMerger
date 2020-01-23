@@ -5,7 +5,7 @@ import 'rxjs/add/observable/forkJoin';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     Account, VatType, AccountGroup, VatDeductionGroup,
-    DimensionSettings, AccountMandatoryDimension
+    DimensionSettings, AccountMandatoryDimension, SaftMappingAccount
 } from '../../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 
@@ -41,6 +41,7 @@ export class AccountDetails implements OnInit {
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
     private vatDeductionGroups: any[];
+    private saftMappingAccounts: SaftMappingAccount[];
     public config$ = new BehaviorSubject({});
     public fields$ = new BehaviorSubject(this.getFormFields());
     public dimensionsConfig$ = new BehaviorSubject({});
@@ -80,7 +81,8 @@ export class AccountDetails implements OnInit {
             this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
             this.accountGroupService.GetAll('orderby=GroupNumber'),
-            this.vatDeductionGroupService.GetAll(null)
+            this.vatDeductionGroupService.GetAll(null),
+            this.accountService.getSaftMappingAccounts()
         ).subscribe(
             (dataset) => {
                 this.currencyCodes = dataset[0];
@@ -89,6 +91,7 @@ export class AccountDetails implements OnInit {
                     x => x.GroupNumber !== null && x.GroupNumber.toString().length === 3
                 );
                 this.vatDeductionGroups = dataset[3];
+                this.saftMappingAccounts = dataset[4];
 
                 this.extendFormConfig();
                 this.setDimensionsForm();
@@ -192,6 +195,14 @@ export class AccountDetails implements OnInit {
                 }
             }
         };
+
+        const saftMappingAccount: UniFieldLayout = fields.find(x => x.Property === 'SaftMappingAccountID');
+        saftMappingAccount.Options = {
+            source: this.saftMappingAccounts,
+            template: (data: SaftMappingAccount) => `${data.AccountID} - ${data.Description}`,
+            valueProperty: 'ID'
+        };
+
         this.setSynchronizeVisibility(account, fields);
         this.fields$.next(fields);
     }
@@ -510,6 +521,17 @@ export class AccountDetails implements OnInit {
                 Property: 'CurrencyCodeID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'SaftMappingAccountID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'SAF-T kobling',
+                Tooltip: {
+                    Text: 'Kobler kontoen til saf-t standard konto'
+                }
             },
             // Fieldset 2 (details)
             {

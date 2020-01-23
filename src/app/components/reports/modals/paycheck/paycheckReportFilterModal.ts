@@ -137,7 +137,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     template: `<uni-modal *ngIf="!inActive" [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class PayCheckReportFilterModal implements OnInit {
-    @ViewChild(UniModal)
+    @ViewChild(UniModal, { static: false })
     private modal: UniModal;
 
     public modalConfig: IModalConfig;

@@ -42,7 +42,7 @@ export class UniCostAllocation implements OnInit {
     currentCostAllocation = new CostAllocation();
     dimensionTypes: any[] = [];
 
-    @ViewChild('costAllocationList') costAllocationList: UniCostAllocationList;
+    @ViewChild('costAllocationList', { static: true }) costAllocationList: UniCostAllocationList;
 
     constructor(
         public toast: ToastService,
