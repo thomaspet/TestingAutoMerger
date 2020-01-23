@@ -1,10 +1,19 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate, CompanySalary, RegulativeGroup, RegulativeStep, AmeldingData, SalaryRegistry} from '../../../../unientities';
+import {
+    Employment,
+    Account,
+    Employee,
+    LocalDate,
+    CompanySalary,
+    RegulativeGroup,
+    RegulativeStep,
+    SalaryRegistry,
+    TypeOfEmployment,
+} from '@uni-entities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {TypeOfEmployment} from '@uni-entities';
 import {
     ErrorService,
     EmploymentService,
@@ -13,7 +22,7 @@ import {
     CompanySalaryService,
     RegulativeGroupService,
 } from '../../../../services/services';
-import {filter, take} from 'rxjs/operators';
+import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
@@ -50,7 +59,7 @@ export class EmploymentDetails implements OnChanges {
     private formReady: boolean;
     private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
-    private jobCodeInitValue: Observable<any>;
+    private jobCodeDefaultData: Observable<any>;
     private companySalarySettings: CompanySalary;
     private regulativeGroups: RegulativeGroup[];
     private regulativeSteps: RegulativeStep[];
@@ -105,7 +114,7 @@ export class EmploymentDetails implements OnChanges {
 
 
             if (this.employment && this.employment.JobCode) {
-                this.jobCodeInitValue = this.statisticsService
+                this.jobCodeDefaultData = this.statisticsService
                     .GetAll(
                         'model=STYRKCode&select=styrk as styrk,'
                         + 'tittel as tittel&filter=styrk eq '
@@ -114,7 +123,7 @@ export class EmploymentDetails implements OnChanges {
                     .map(res => res.Data)
                     .share();
             } else {
-                this.jobCodeInitValue = Observable.of([{ styrk: '', tittel: '' }]);
+                this.jobCodeDefaultData = Observable.of([{ styrk: '', tittel: '' }]);
             }
 
             this.employment$.next(change['employment'].currentValue);
@@ -139,7 +148,7 @@ export class EmploymentDetails implements OnChanges {
 
             const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
             jobCodeField.Options = {
-                getDefaultData: () => this.jobCodeInitValue,
+                getDefaultData: () => this.jobCodeDefaultData,
                 template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
                 search: (query: string) => {
                     if (this.searchCache[query]) {
@@ -255,6 +264,17 @@ export class EmploymentDetails implements OnChanges {
         this.fields$.next(allFields);
     }
 
+    public fillInJobName(employment: Employment): Observable<Employment> {
+        return this.getJobName(employment.JobCode)
+            .pipe(
+                tap(name => this.jobCodeDefaultData = Observable.of([{styrk: employment.JobCode, tittel: name}])),
+                map(name => {
+                    employment.JobName = name;
+                    return employment;
+                })
+            );
+    }
+
     public getJobName(styrk) {
         return this.statisticsService
             .GetAll(`top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel&filter=styrk eq '${styrk}'`)
@@ -278,21 +298,43 @@ export class EmploymentDetails implements OnChanges {
             this.employmentService.checkTypeOfEmployment(changes['TypeOfEmployment'].currentValue);
         }
 
-        if (changes['SubEntityID'] && changes['SubEntityID'].previousValue.ID) {
-            this.showAmeldingWarningIfNeeded(employment);
+        const subEntityIDChange = changes['SubEntityID'];
+        const previousSubEntityID = subEntityIDChange
+            && (isNaN(+subEntityIDChange.previousValue)
+                ? subEntityIDChange.previousValue.ID
+                : subEntityIDChange.previousValue);
+        if (changes['SubEntityID'] && previousSubEntityID) {
+            this.askUserAboutAmeldingIfNeeded(employment)
+                .subscribe((answer) => {
+                    if (answer === ConfirmActions.ACCEPT) {
+                        return;
+                    }
+                    employment.SubEntityID = previousSubEntityID;
+                    this.employment$.next(employment);
+                    this.employmentChange.next(employment);
+                });
         }
 
         if (changes['JobCode'] && employment.JobCode) {
-            this.getJobName(changes['JobCode'].currentValue).subscribe(jobName => {
-                employment.JobName = jobName;
-                this.jobCodeInitValue = Observable.of([{ styrk: employment.JobCode, tittel: employment.JobName }]);
-                this.employment$.next(employment);
-                this.employmentChange.emit(employment);
-            });
+            const confirmObs = changes['JobCode'].previousValue.styrk !== ''
+                ? this.askUserAboutAmeldingIfNeeded(employment)
+                : of(ConfirmActions.ACCEPT);
 
-            if (changes['JobCode'].previousValue.styrk !== '') {
-                this.showAmeldingWarningIfNeeded(employment);
-            }
+            confirmObs
+                .pipe(
+                    switchMap((answer) => {
+                        if (answer !== ConfirmActions.ACCEPT) {
+                            employment.JobCode = changes['JobCode'].previousValue.styrk;
+                            return of(employment);
+                        }
+                        return this.fillInJobName(employment);
+                    }),
+
+                )
+                .subscribe(empl => {
+                    this.employment$.next(empl);
+                    this.employmentChange.next(empl);
+                });
         } else {
             this.employmentChange.emit(this.employment$.getValue());
         }
@@ -380,29 +422,35 @@ export class EmploymentDetails implements OnChanges {
         }
     }
 
-    showAmeldingWarningIfNeeded(employment: Employment) {
-        if (!employment || !employment.ID) {
-            return;
+    askUserAboutAmeldingIfNeeded(employment: Employment, changes?: SimpleChanges) {
+        if (!employment || !employment.ID || (changes && !changes['JobCode'].previousValue)) {
+            return of(ConfirmActions.ACCEPT);
         }
-        this.statisticsService
+        return this.statisticsService
             .GetAll(
                 `model=ameldingData` +
                 `&select=year,period,log.key` +
                 `&expand=log` +
                 `&filter=log.registry eq ${SalaryRegistry.Employment} and log.key eq ${employment.ID}` +
                 `&distinct=true`)
-            .subscribe((res) => {
-            if (res.Data.length >= 2) {
-                this.modalService.open(UniConfirmModalV2, {
-                    header: 'Varsel ved endring av felter på arbeidsforhold',
-                    message: 'Ved endring av feltene Yrkeskode eller Virksomhet risikerer du at a-melding blir avvist.'
-                        + ' Vi anbefaler deg å avslutte arbeidsforholdet med sluttdato og opprette et nytt dersom du har sendt a-melding på denne ansatte.',
-                    buttonLabels: {
-                        accept: 'Ok',
+            .pipe(
+                switchMap(res => {
+                    if (res.Data.length < 2) {
+                        return of(ConfirmActions.ACCEPT);
                     }
-                });
-            }
-        });
+                    return this.modalService.open(UniConfirmModalV2, {
+                        header: 'Varsel ved endring av felter på arbeidsforhold',
+                        message: 'Ved endring av feltene Yrkeskode eller Virksomhet risikerer du at a-melding blir avvist.'
+                            + ' Vi anbefaler deg å avslutte arbeidsforholdet med sluttdato '
+                            + 'og opprette et nytt dersom du har sendt a-melding på denne ansatte.',
+                        buttonLabels: {
+                            accept: 'Ok',
+                            cancel: 'Avbryt',
+                        }
+                    })
+                    .onClose;
+                })
+            );
     }
 
     public onFormReady(value) {
