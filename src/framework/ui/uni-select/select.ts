@@ -111,19 +111,12 @@ export class UniSelect implements OnChanges, AfterViewInit {
             case KeyCodes.F4:
                 this.toggle();
             break;
-            case KeyCodes.SPACE:
-                event.preventDefault();
-                if (!this.expanded) {
-                    this.toggle();
-                }
-            break;
             case KeyCodes.UP_ARROW:
                 event.preventDefault();
                 if (this.expanded) {
                     let index = this.focusedIndex - 1;
                     if (index < 0) {
                         index = this.showNotSelectedOption ? -1 : 0;
-                        // index = 0;
                     }
 
                     this.focusedIndex = index;
