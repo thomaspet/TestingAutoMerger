@@ -407,7 +407,7 @@ export class UniTickerService {
                                     });
                                 });
                             } else {
-                                propValuePairs[0].value = selectedRows[0]['ID'];
+                                propValuePairs[0].value = selectedRows[0] && selectedRows[0]['ID'];
                             }
                         }
 

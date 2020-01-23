@@ -928,14 +928,16 @@ export class BillView implements OnInit {
 
     public onImageDeleted(file: any) {
         const index = this.files.findIndex(f => f.ID === file.ID);
-        // Remove file from all arrays holding it
-        this.files.splice(index, 1);
-        if (this.files.length === 0) {
-            this.resetDocuments();
-        } else {
-            this.unlinkedFiles = this.files.map(f => f.ID);
-            this.documentsInUse = this.unlinkedFiles;
-            this.numberOfDocuments--;
+        if (index >= 0) {
+            // Remove file from all arrays holding it
+            this.files.splice(index, 1);
+            if (this.files.length === 0) {
+                this.resetDocuments();
+            } else {
+                this.unlinkedFiles = this.files.map(f => f.ID);
+                this.documentsInUse = this.unlinkedFiles;
+                this.numberOfDocuments--;
+            }
         }
     }
 
@@ -2836,25 +2838,29 @@ export class BillView implements OnInit {
             this.UpdateSuppliersJournalEntry().then(result => {
                 current = this.current.value;
 
-                this.supplierInvoiceService.journal(current.ID).subscribe(x => {
-                    this.fetchInvoice(current.ID, false);
-                    resolve(result);
-                }, (err) => {
-                    this.errorService.handle(err);
-                    // Slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
-                    const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(x =>
-                        x.Account.AccountNumber === current.Supplier.SupplierNumber &&
-                        x.Description === 'fakturanr. ' + current.InvoiceNumber);
-                    if (autoCreatedDraftLines && autoCreatedDraftLines.length > 0) {
-                        autoCreatedDraftLines.forEach((line) => {
-                            line.Deleted = true;
+                this.supplierInvoiceService.journal(current.ID).subscribe(
+                    () => {
+                        this.fetchInvoice(current.ID, false);
+                        resolve(result);
+                    },
+                    (err) => {
+                        this.errorService.handle(err);
+                        // Slett draftline opprettet i UpdateSuppliersJournalEntry. Skal ikke opprettes dersom bokføring feiler
+                        const autoCreatedDraftLines = current.JournalEntry.DraftLines.filter(line => {
+                            return line.Account
+                                && line.Account.AccountNumber === current.Supplier.SupplierNumber
+                                && line.Description === 'fakturanr. ' + current.InvoiceNumber;
                         });
-                        this.supplierInvoiceService.Put(current.ID, current).subscribe(() => {
-                            this.fetchInvoice(this.currentID, false);
-                        });
+
+                        if (autoCreatedDraftLines && autoCreatedDraftLines.length > 0) {
+                            autoCreatedDraftLines.forEach(line => line.Deleted = true);
+                            this.supplierInvoiceService.Put(current.ID, current).subscribe(() => {
+                                this.fetchInvoice(this.currentID, false);
+                            });
+                        }
+                        reject(err);
                     }
-                    reject(err);
-                });
+                );
 
             }, (err) => {
                 reject(err);
@@ -4041,16 +4047,24 @@ export class BillView implements OnInit {
     }
 
     private tagFileStatus(fileID: number, flagFileStatus: number) {
-        this.fileService
-            .getStatistics('model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID)
-            .subscribe(tags => {
-                const file = this.files.find(x => x.ID === fileID);
-                const tagname = tags.Data.length
-                    ? tags.Data[0].tagname
-                    : this.supplierInvoiceService.isOCR(file)
-                        ? 'IncomingMail' : 'IncomingEHF';
-                this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(null, err => this.errorService.handle(err));
-            });
+        this.fileService.getStatistics(
+            'model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + fileID
+        ).subscribe(tags => {
+            let tagname;
+            if (tags.Data.length) {
+                tagname = tags.Data[0].tagname;
+            } else {
+                const file = this.files && this.files.find(f => f.ID === fileID);
+                tagname = file && this.supplierInvoiceService.isOCR(file) ? 'IncomingMail' : 'IncomingEHF';
+            }
+
+            if (tagname) {
+                this.fileService.tag(fileID, tagname, flagFileStatus).subscribe(
+                    () => {},
+                    err => this.errorService.handle(err)
+                );
+            }
+        });
     }
 
     private showErrMsg(msg: string, lookForMsg = false): string {

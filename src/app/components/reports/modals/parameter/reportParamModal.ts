@@ -69,7 +69,7 @@ import {environment} from 'src/environments/environment';
         </section>
     `
 })
-export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
+export class UniReportParamsModal implements IUniModal, OnInit {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
@@ -162,12 +162,6 @@ export class UniReportParamsModal implements IUniModal, OnInit, AfterViewInit {
         this.report = this.options.data;
         this.browserStorageItemKey = 'reportParamsForReportId:' + this.options.data.UniqueReportID;
         this.initForm();
-    }
-
-    ngAfterViewInit() {
-        setTimeout(function () {
-            document.getElementById('good_button_ok').focus();
-        });
     }
 
     onChangeEvent(changes: SimpleChanges) {

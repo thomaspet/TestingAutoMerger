@@ -7,8 +7,8 @@ import {UserService} from '../common/userService';
 import {HttpParams} from '@angular/common/http';
 import {toIso, capitalizeFirstLetter} from '../../components/common/utils/utils';
 import * as moment from 'moment';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {map} from 'rxjs/operators';
+import {AuthService} from '@app/authService';
 
 export enum ItemInterval {
     all = 0,
@@ -53,8 +53,8 @@ export class WorkerService extends BizHttp<Worker> {
 
     constructor(
         http: UniHttp,
+        private authService: AuthService,
         private userService: UserService,
-        private browserStorage: BrowserStorageService,
     ) {
         super(http);
         this.relativeURL = Worker.RelativeUrl;
@@ -91,7 +91,7 @@ export class WorkerService extends BizHttp<Worker> {
                 this.user.name = usr.DisplayName;
                 this.user.id = usr.ID;
                 this.user.guid = usr.GlobalIdentity;
-                this.user.company = this.browserStorage.getItem('activeCompany').Name;
+                this.user.company = this.authService.activeCompany && this.authService.activeCompany.Name;
                 resolve(usr.ID);
             }, err => {
                 reject(err.statusText);
