@@ -1,5 +1,5 @@
-import {Component, AfterViewInit} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {Component, AfterViewInit, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, forkJoin} from 'rxjs';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
@@ -23,7 +23,8 @@ import {
     UniActivateInvoicePrintModal,
     ProductPurchasesModal,
     UniAutobankAgreementModal,
-    MissingPurchasePermissionModal
+    MissingPurchasePermissionModal,
+    ConfirmActions
 } from '@uni-framework/uni-modal';
 
 import {environment} from 'src/environments/environment';
@@ -38,7 +39,7 @@ import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toast
     templateUrl: './marketplaceModules.html',
     styleUrls: ['./marketplaceModules.sass'],
 })
-export class MarketplaceModules implements AfterViewInit {
+export class MarketplaceModules implements OnInit, AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
     filteredExtensions: ElsaProduct[];
@@ -58,6 +59,7 @@ export class MarketplaceModules implements AfterViewInit {
         private elsaPurchaseService: ElsaPurchaseService,
         private errorService: ErrorService,
         private route: ActivatedRoute,
+        private router: Router,
         private modalService: UniModalService,
         private ehfService: EHFService,
         private paymentBatchService: PaymentBatchService,
@@ -68,11 +70,30 @@ export class MarketplaceModules implements AfterViewInit {
         });
     }
 
+    ngOnInit() {
+        this.companySettingsService.Get(1).subscribe(company => {
+            this.companySettings = company;
+            if (!company.OrganizationNumber) {
+                this.modalService.confirm({
+                    header: 'Kan ikke kjøpe produkter',
+                    message: 'Organisasjonsnummer mangler på selskapet. Du kan endre dette i firmainnstillinger.',
+                    buttonLabels: {
+                        accept: 'Gå til firmainnstillinger',
+                        reject: 'Avbryt'
+                    }
+                }).onClose.subscribe(res => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.router.navigateByUrl('/settings/company');
+                    }
+                });
+            }
+        });
+    }
+
     ngAfterViewInit() {
         const userID = this.authService.currentUser.ID;
 
         forkJoin(
-            this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()
                 .catch(() => Observable.of([])), // fail silently
 
@@ -81,10 +102,9 @@ export class MarketplaceModules implements AfterViewInit {
             this.userRoleService.hasAdminRole(userID),
         ).subscribe(
             res => {
-                this.companySettings = res[0];
-                this.autobankAgreements = res[1] || [];
+                this.autobankAgreements = res[0] || [];
 
-                const products = res[2] || [];
+                const products = res[1] || [];
                 this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
                 this.extensions = products
                     .filter(p => p.ProductType === ElsaProductType.Extension)
@@ -93,8 +113,8 @@ export class MarketplaceModules implements AfterViewInit {
                         return extension;
                     });
 
-                this.setPurchaseInfo(res[3]);
-                this.canPurchaseProducts = res[4];
+                this.setPurchaseInfo(res[2]);
+                this.canPurchaseProducts = res[3];
 
                 const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
                 tabs.unshift({ name: 'Alle', value: null });
@@ -165,7 +185,7 @@ export class MarketplaceModules implements AfterViewInit {
         return this.modalService.open(SubscribeModal, {
             data: {
                 product: product,
-                canPurchaseProducts: this.canPurchaseProducts
+                canPurchaseProducts: this.canPurchaseProducts,
             }
         });
     }
