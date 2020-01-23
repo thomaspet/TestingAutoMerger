@@ -3,13 +3,9 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import { SubEntity } from '@uni-entities';
 import { BehaviorSubject } from 'rxjs';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
+import { IMuniAGAZone } from '@app/services/services';
 
-export interface IMuniAGAZone {
-    ZoneName: string;
-    ZoneID: number;
-    MunicipalityNo: string;
-    MunicipalityName: string;
-}
+
 
 @Component({
     selector: 'uni-edit-aga-zone-modal',
@@ -32,18 +28,26 @@ export class EditSubEntityAgaZoneModal implements OnInit, IUniModal {
         this.forceCloseValueResolver = () => this.close();
     }
 
+    close() {
+        this.onClose.next(this.model$.getValue());
+    }
+
     private getFields(subEntities: SubEntity[], municipalAgaZones: IMuniAGAZone[]) {
         return subEntities
             .map((subEntity, i) =>
-                this.getField(
+                this.getFieldIfNeeded(
                     subEntity,
                     municipalAgaZones.filter(muni => muni.MunicipalityNo === subEntity.MunicipalityNo),
                     `[${i}].AgaZone`,
                 )
-            );
+            )
+            .filter(field => !!field);
     }
 
-    private getField(subEntity: SubEntity, municipalAgaZones: IMuniAGAZone[], name: string): UniFieldLayout {
+    private getFieldIfNeeded(subEntity: SubEntity, municipalAgaZones: IMuniAGAZone[], name: string): UniFieldLayout {
+        if (municipalAgaZones.length < 2) {
+            return null;
+        }
         const label = subEntity.BusinessRelationInfo && subEntity.BusinessRelationInfo.Name;
         return <UniFieldLayout>{
             Property: name,
@@ -53,12 +57,7 @@ export class EditSubEntityAgaZoneModal implements OnInit, IUniModal {
                 source: municipalAgaZones,
                 template: (muniAga: IMuniAGAZone) => `${muniAga.ZoneName}`,
                 valueProperty: `ZoneID`,
-                // displayProperty: 'ZoneName',
             }
         };
-    }
-
-    close() {
-        this.onClose.next(this.model$.getValue());
     }
 }

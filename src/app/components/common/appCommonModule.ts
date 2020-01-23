@@ -82,6 +82,7 @@ import { ImportTemplateModal } from '../import-central/modals/import-template/im
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
 import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
 import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
+import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 
 @NgModule({
     imports: [
@@ -174,6 +175,7 @@ import { ImportOrderModal } from '../import-central/modals/custom-component-moda
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
+        EditSubEntityAgaZoneModal,
     ],
     entryComponents: [
         AltinnAuthenticationModal,
@@ -201,7 +203,8 @@ import { ImportOrderModal } from '../import-central/modals/custom-component-moda
         NewTaskModal,
         ImportVoucherModal,
         ImportOrderModal,
-        BankInitModal
+        BankInitModal,
+        EditSubEntityAgaZoneModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -224,6 +227,7 @@ import { ImportOrderModal } from '../import-central/modals/custom-component-moda
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
         UniAutomarkModal,
+        EditSubEntityAgaZoneModal,
 
         ReminderSettings,
         UniReminderSettingsModal,

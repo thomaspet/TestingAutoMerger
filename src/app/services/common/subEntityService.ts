@@ -3,15 +3,26 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {SubEntity} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {CONTROLS_ENUM, UniFieldLayout, UniFormError} from '../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs';
+import {Observable, of, forkJoin} from 'rxjs';
 import {ModulusService} from '@app/services/common/modulusService';
-
+import { StatisticsService } from './statisticsService';
+import { switchMap, take } from 'rxjs/operators';
+import { UniModalService } from '@uni-framework/uni-modal/modalService';
+import { EditSubEntityAgaZoneModal } from '@app/components/common/modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
+export interface IMuniAGAZone {
+    ZoneName: string;
+    ZoneID: number;
+    MunicipalityNo: string;
+    MunicipalityName: string;
+}
 @Injectable()
 export class SubEntityService extends BizHttp<SubEntity> {
 
     constructor(
         protected http: UniHttp,
         private modulusService: ModulusService,
+        private statisticsService: StatisticsService,
+        private modalService: UniModalService,
     ) {
         super(http);
 
@@ -20,12 +31,68 @@ export class SubEntityService extends BizHttp<SubEntity> {
         this.DefaultOrderBy = null;
     }
 
+    public save(subEntity: SubEntity): Observable<SubEntity> {
+        return subEntity.ID
+            ? this.Put(subEntity.ID, subEntity)
+            : this.Post(subEntity);
+    }
+
+    public saveAll(subEntities: SubEntity[]) {
+        return forkJoin(subEntities.map(subEntity => this.save(subEntity)));
+    }
+
     public getMainOrganization() {
         return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
     }
 
     public getFromEnhetsRegister(orgno: string) {
-        return super.GetAction(null, 'sub-entities-from-brreg', 'orgno=' + orgno);
+        return super.GetAction(null, 'sub-entities-from-brreg', 'orgno=' + orgno.replace(/\s+/g, ''));
+    }
+
+    public getFromEnhetsRegisterAndCheckZones(orgno: string) {
+        return this.getFromEnhetsRegister(orgno)
+            .pipe(
+                switchMap(subEntities => this.editZonesIfNeeded(subEntities))
+            );
+    }
+
+    public checkZonesAndSaveFromEnhetsregisteret(orgno: string) {
+        return this.getFromEnhetsRegisterAndCheckZones(orgno)
+            .pipe(
+                switchMap(subEntities => this.saveAll(subEntities)),
+            );
+    }
+
+    getZonesOnSubEntities(subEntities: SubEntity[]): Observable<IMuniAGAZone[]> {
+        return this.statisticsService
+            .GetAllUnwrapped(
+                'Select=ZoneName as ZoneName,ID as ZoneID,' +
+                    'Municipal.MunicipalityNo as MunicipalityNo,Municipal.MunicipalityName as MunicipalityName&' +
+                `Model=AGAZone&` +
+                `Filter=${subEntities.map(sub => `municipalsOnZone.MunicipalityNo eq ${sub.MunicipalityNo}`).join(' or ')}&` +
+                `Join=MunicipalAGAZone.MunicipalityNo eq Municipal.MunicipalityNo as Municipal&` +
+                `Expand=municipalsOnZone`
+            );
+    }
+
+    editZonesIfNeeded(subEntities: SubEntity[]): Observable<SubEntity[]> {
+        return this.getZonesOnSubEntities(subEntities)
+            .pipe(
+                switchMap(muniZones => {
+                    if (subEntities.some(sub => muniZones.filter(zone => zone.MunicipalityNo === sub.MunicipalityNo).length > 1)) {
+                        return <Observable<SubEntity[]>>this.modalService
+                            .open(
+                                EditSubEntityAgaZoneModal,
+                                {data: {subEntities: subEntities, municipalAgaZones: muniZones}, closeOnClickOutside: false}
+                            )
+                            .onClose
+                            .pipe(
+                                take(1)
+                            );
+                    }
+                    return of(subEntities);
+                }),
+            );
     }
 
     private requiredValidation(warn: boolean = false): (value, field: UniFieldLayout) =>  UniFormError {
