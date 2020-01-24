@@ -1,11 +1,19 @@
 <section class="input-with-button">
     <input #input
         type="text"
-        (blur)="onBlur()"
         (focus)="onFocus()"
+        (change)="parseInput()"
         [formControl]="control"
         [readonly]="readOnly$ | async"
         [placeholder]="field?.Placeholder || ''"
+        tabindex="-1"
+    />
+
+    <!-- Hidden input for mat-datepicker, because we want custom parsing on the "text input" -->
+    <input
+        style="position: absolute; visibility: hidden; width: 0px; height: 0px"
+        [(ngModel)]="calendarDate"
+        (ngModelChange)="onCalendarDateChange()"
         [matDatepicker]="picker"
         tabindex="-1"
     />
