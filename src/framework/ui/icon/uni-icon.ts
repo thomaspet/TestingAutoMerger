@@ -7,13 +7,15 @@ import {theme} from 'src/themes/theme';
     styleUrls: ['./uni-icon.sass'],
     template: `
         <i *ngIf="matIcon" [class]="matIconClass || 'material-icons'">{{matIcon}}</i>
-        <svg *ngIf="svg" [outerHTML]="svg | keepHtml"></svg>
+        <svg *ngIf="svg" [class.set-fill]="theme.setFillOnIcons" [outerHTML]="svg | keepHtml"></svg>
     `
 })
 export class UniIcon {
     @Input() icon: string;
     @Input() matIconClass: string;
 
+
+    theme = theme;
     svg: string;
     matIcon: string;
 

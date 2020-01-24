@@ -34,6 +34,9 @@ export const theme = {
         }
     },
 
+    // TODO: find a better way to solve this!
+    setFillOnIcons: true,
+
     // tslint:disable
     icons: {
         home: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">&gt;<g class="sr-icon"><path d="M23.4 10.4l-3.2-2.5V2.5c0-.7-.6-1.3-1.3-1.3h-3.2c-.7 0-1.3.6-1.3 1.3v.6l-1.7-1.4c-.5-.4-1.2-.4-1.7 0L-.1 10.5c-.3.2-.4.7-.1.9l.2.2c.2.3.6.4.9.1l10.9-8.6L16 6.5V2.8h2.6v5.8l3.8 3c.3.2.7.2.9-.1l.2-.2c.2-.3.1-.7-.1-.9z"/><path d="M18.6 21.2h-14v-9.7L3 12.7v8.7c0 .7.6 1.3 1.3 1.3h14.6c.7 0 1.3-.6 1.3-1.3v-8.8l-1.7-1.3v9.9z"/></g></svg>`,

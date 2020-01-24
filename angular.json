@@ -349,6 +349,36 @@
                 ]
               }
             },
+            "ext02-serve": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext02.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext02"
+                ]
+              }
+            },
             "local": {
               "outputHashing": "all",
               "fileReplacements": [
@@ -393,6 +423,9 @@
             },
             "ext01-serve": {
               "browserTarget": "economy-frontend:build:ext01-serve"
+            },
+            "ext02-serve": {
+              "browserTarget": "economy-frontend:build:ext02-serve"
             },
             "local": {
               "browserTarget": "economy-frontend:build:local"

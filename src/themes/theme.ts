@@ -34,6 +34,9 @@ export const theme = {
         }
     },
 
+    // TODO: find a better way to solve this!
+    setFillOnIcons: true,
+
     // tslint:disable
     icons: {
         home: 'bar_chart',
