@@ -6,6 +6,7 @@ import {Employee} from '../../../../unientities';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { IUniTab } from '@uni-framework/uni-tabs';
 
 enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -32,9 +33,10 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     public table: AgGridWrapper;
 
     public employeeTableData: Employee[] = [];
-    public emailEmps: Employee[] = [];
-    public printEmps: Employee[] = [];
+    public employeesWithEmail: Employee[] = [];
+    public employeesWithoutEmail: Employee[] = [];
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    public tabs: IUniTab[];
 
     constructor(
         private reportDefinitionService: ReportDefinitionService,
@@ -43,6 +45,7 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     ) { }
 
     public ngOnInit() {
+        this.setupTableSections();
         this.setupTable();
     }
 
@@ -77,22 +80,24 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
         this.tableConfig$.next(config);
     }
 
-    onCellClick(clickEvent: ICellClickEvent) {
-        if (clickEvent && clickEvent.column && clickEvent.column.field === '_paycheckFormat') {
-            const newRow = clickEvent.row;
+    private setupTableSections(): void {
+        this.tabs = [
+            { name: 'Alle ansatte', onClick: () => this.setAllEmployees() },
+            { name: 'Med e-post', onClick: () => this.setEmployeessWithEmail(), count: 0},
+            { name: 'Uten e-post', onClick: () => this.setEmployeesWithoutEmail(), count: 0}
+        ];
+    }
 
-            if (newRow._paycheckFormat === PaycheckFormat.E_MAIL) {
-                newRow._paycheckFormat = PaycheckFormat.PRINT;
-            } else {
-                newRow._paycheckFormat = PaycheckFormat.E_MAIL;
-            }
-            this.employeeTableData.splice(newRow._originalIndex, 1, newRow);
-            // Re-filter the print/mail arrays
-            this.emailEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
-            this.printEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
-            // Force view update!
-            this.employeeTableData = [...this.employeeTableData];
-        }
+    setAllEmployees() {
+        this.employeeTableData = this.employees;
+    }
+
+    setEmployeessWithEmail() {
+        this.employeeTableData = this.employeesWithEmail;
+    }
+
+    setEmployeesWithoutEmail() {
+        this.employeeTableData = this.employeesWithoutEmail;
     }
 
     private resetRowSelection() {
@@ -115,18 +120,21 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     }
 
     private handleEmployees(employees: Employee[]) {
-        employees.forEach(emp => {
-            emp[PAYCHECK_FORMAT_KEY] = this.employeeHasAddress(emp)
+        employees.forEach(employee => {
+            employee[PAYCHECK_FORMAT_KEY] = this.employeeHasAddress(employee)
                 ? PaycheckFormat.E_MAIL
                 : PaycheckFormat.PRINT;
 
-            if (emp[PAYCHECK_FORMAT_KEY] === PaycheckFormat.E_MAIL) {
-                this.emailEmps.push(emp);
+            if (employee[PAYCHECK_FORMAT_KEY] === PaycheckFormat.E_MAIL) {
+                this.employeesWithEmail.push(employee);
             } else {
-                this.printEmps.push(emp);
+                this.employeesWithoutEmail.push(employee);
             }
 
-            return emp;
+            this.tabs[1].count = this.employeesWithEmail.length || 0;
+            this.tabs[2].count = this.employeesWithoutEmail.length || 0;
+
+            return employee;
         });
 
         return employees;

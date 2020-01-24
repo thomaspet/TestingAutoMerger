@@ -1,15 +1,7 @@
-<span style="font-size: 14px; padding: 0.5rem 0; display: inline-block;">
-    <i class="material-icons" style="font-size: 18px; vertical-align: middle; color: #628ab3;">info</i>
-    Trykk på Type-cellen på en rad for å endre mellom epost og utskrift.
-</span>
+<uni-tabs [tabs]="tabs"></uni-tabs>
 <ag-grid-wrapper
     class="transquery-grid-font-size"
     [resource]="employeeTableData"
     [config]="tableConfig$ | async"
-    (cellClick)="onCellClick($event)"
     (rowSelectionChange)="rowSelectionChange()">
 </ag-grid-wrapper>
-<section class="counters">
-    <p>Antall til e-post: {{emailEmps?.length}}</p>
-    <p>Antall til utskrift: {{printEmps?.length}}</p>
-</section>
