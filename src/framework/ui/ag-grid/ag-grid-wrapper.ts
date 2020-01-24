@@ -60,6 +60,7 @@ export class AgGridWrapper {
     @Input() public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
     @Input() public useSpinner = false;
     @Input() public resource: any[] | ((params: HttpParams) => Observable<any>);
+    @Input() public quickFilters: ITableFilter[];
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false); // double binding
 
     @Output() public columnsChange: EventEmitter<UniTableColumn[]> = new EventEmitter(false);
@@ -553,11 +554,14 @@ export class AgGridWrapper {
         };
     }
 
-    public onFiltersChange(event) {
+    setFilters(filters: ITableFilter[]) {
+        this.onFiltersChange({basicSearchFilters: [], advancedSearchFilters: filters});
+    }
+
+    public onFiltersChange(event: {basicSearchFilters: ITableFilter[]; advancedSearchFilters: ITableFilter[]}) {
         if (this.config.multiRowSelect) {
             this.rowSelectionChange.next([]);
         }
-
         if (this.config.isGroupingTicker) {
             this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters, false);
             this.filtersChangeWhileGroup.emit({filter: this.dataService.filterString});
@@ -565,7 +569,6 @@ export class AgGridWrapper {
         } else {
             this.dataService.setFilters(event.advancedSearchFilters, event.basicSearchFilters);
         }
-
         // TODO: refactor this once every table using it is over on ag-grid
         // Should just emit the filterString, not an object containing it
         this.filtersChange.emit({filter: this.dataService.filterString});

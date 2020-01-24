@@ -11,6 +11,7 @@
             [attr.aria-readonly]="readonly"
             (keydown)="onKeyDown($event)"
             (keydown.delete)="clear($event)"
+            (keydown.space)="$event.preventDefault(); toggle()"
             (keypress)="onKeyPress($event)"
             readonly
         />

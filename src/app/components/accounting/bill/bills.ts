@@ -79,6 +79,14 @@ export class BillsView implements OnInit {
     public previewVisible: boolean;
     private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense'];
     private inboxTagNamesFilter = '(' + this.inboxTagNames.map(tag => 'tagname eq \'' + tag + '\'').join(' or ') + ')';
+    unpaidQuickFilters = [{
+        field: 'StatusCode',
+        operator: 'eq',
+        value: StatusCodeSupplierInvoice.Journaled,
+        selectConfig: {options: [{ ID: 30104, Name: 'Bokført' }], valueField: 'ID', displayField: 'Name'},
+        label: 'Se bare bokførte'
+    }];
+    quickFilters = [];
 
 
     public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
@@ -369,7 +377,7 @@ export class BillsView implements OnInit {
             }
         }
 
-        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled) {
+        if (this.currentFilter.statusCode === StatusCodeSupplierInvoice.Journaled || this.currentFilter.name === 'unpaid') {
             if (showToPaymentMenu) {
                 this.saveActions.push({
                     label: `Til betalingsliste (${selectedRowCount} stk)`,
@@ -662,6 +670,12 @@ export class BillsView implements OnInit {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
 
+        if (this.currentFilter.name === 'unpaid') {
+            this.quickFilters = this.unpaidQuickFilters;
+        } else {
+            this.quickFilters = [];
+        }
+
         const obs = filter.route
             ? this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
@@ -676,7 +690,7 @@ export class BillsView implements OnInit {
             }
 
             this.tableConfig.setMultiRowSelect(!(
-                this.currentFilter.name === 'paid' || this.currentFilter.name === 'unpaid' || this.currentFilter.name === 'issenttopayment'
+                this.currentFilter.name === 'paid' || this.currentFilter.name === 'issenttopayment'
             ));
 
             this.loading$.next(false);
@@ -886,7 +900,6 @@ export class BillsView implements OnInit {
                     valueField: 'Code'
                 }),
             new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-                .setVisible(!!filter.showStatus)
                 .setAlignment('center')
                 .setTemplate((dataItem) => {
                     return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
@@ -942,6 +955,12 @@ export class BillsView implements OnInit {
         }
 
         this.currentFilter = filter;
+
+        if (this.currentFilter.name === 'unpaid') {
+            this.quickFilters = this.unpaidQuickFilters;
+        } else {
+            this.quickFilters = [];
+        }
 
         this.refreshList(filter, !this.hasQueriedTotals);
         this.pageStateService.setPageState('filter', filter.name);

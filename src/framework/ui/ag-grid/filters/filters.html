@@ -6,7 +6,7 @@
     </button>
 
     <ng-container *ngIf="savedSearches?.length">
-        <button #toggle class="saved-searches-toggle">
+        <button #toggle class="saved-searches-toggle secondary">
             Lagrede filter
             <i class="material-icons">keyboard_arrow_down</i>
         </button>
@@ -30,6 +30,9 @@
             </ng-template>
         </dropdown-menu>
     </ng-container>
+    <button class="c2a secondary" *ngFor="let filter of quickFilters" (click)="setFilters(filter)" title="Hurtigfilter - Trykk for å sette som filter">
+        {{ filter.label }}
+    </button>
 
 </section>
 
