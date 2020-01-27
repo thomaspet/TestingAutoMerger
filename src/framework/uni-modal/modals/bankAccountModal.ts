@@ -97,7 +97,8 @@ export class UniBankAccountModal implements IUniModal {
 
             this.formModel$.next(this.accountInfo);
             this.formFields$.next(this.getFormFields());
-            if (this.options && this.options.modalConfig && this.options.modalConfig.defaultAccountNumber) {
+            const modalConfig = this.options && this.options.modalConfig || {};
+            if (modalConfig.defaultAccountNumber && !this.accountInfo.AccountID) {
                 this.busy = true;
                 this.getDefaultAccountFromAccountNumber(this.options.modalConfig.defaultAccountNumber);
             } else {
