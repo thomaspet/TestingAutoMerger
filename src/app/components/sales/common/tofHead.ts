@@ -52,6 +52,7 @@ export class TofHead implements OnChanges {
         this.tabs = [
             {name: 'Detaljer', value: 'details'},
             {name: 'Betingelser og levering', value: 'delivery'},
+            {name: 'Kommentar', value: 'comment'},
             {name: 'Selgere', value: 'sellers'},
             {name: 'Dokumenter', value: 'attachments'},
             {name: 'Dimensjoner', value: 'dimensions'},
