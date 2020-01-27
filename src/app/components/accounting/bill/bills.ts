@@ -23,7 +23,8 @@ import {
     UserService,
     JournalEntryService,
     FileService,
-    ReInvoicingService
+    ReInvoicingService,
+    BrowserStorageService
 } from '../../../services/services';
 import {UniImage} from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
@@ -209,7 +210,8 @@ export class BillsView implements OnInit {
         private approvalService: ApprovalService,
         private journalEntryService: JournalEntryService,
         private fileService: FileService,
-        private reInvoicingService: ReInvoicingService
+        private reInvoicingService: ReInvoicingService,
+        private browserStorage: BrowserStorageService
     ) {
         this.tabService.addTab({
             name: 'NAVBAR.SUPPLIER_INVOICE',
@@ -967,7 +969,9 @@ export class BillsView implements OnInit {
         const index = this.filters.findIndex(f => f.name === filter.name);
         if (index >= 0) {
             this.activeFilterIndex = index;
+            this.browserStorage.setItem('bills.lastUsedFilterIndex', index);
         }
+
         this.tabService.currentActiveTab.url = this.pageStateService.getUrl();
         this.updateSaveActions();
     }
@@ -998,10 +1002,11 @@ export class BillsView implements OnInit {
 
         }
 
-        // Default-filter?
+
         if (!this.currentFilter) {
-            this.activeFilterIndex = 0;
-            this.currentFilter = this.filters[0];
+            const filterIndex = this.browserStorage.getItem('bills.lastUsedFilterIndex') || 0;
+            this.activeFilterIndex = filterIndex;
+            this.currentFilter = this.filters[filterIndex];
         }
     }
 
