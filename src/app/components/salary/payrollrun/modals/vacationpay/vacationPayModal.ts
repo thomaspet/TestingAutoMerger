@@ -515,7 +515,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
         this.fields$
             .next([vpRadioField, sixthWeekField, percentField, showAllEmployeesField]
-            .filter(f => this.runID || f.Property === 'VacationpayYear'));
+            .filter(f => this.runID || f.Property === 'VacationpayYear' || f.Property === 'ShowAllEmployees'));
     }
 
     private createTableConfig() {
