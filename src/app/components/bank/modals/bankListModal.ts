@@ -99,7 +99,7 @@ export class UniBankListModal implements IUniModal, OnInit {
         let statusText = '';
         switch (code) {
             case 700001:
-                statusText = 'Startet';
+                statusText = 'Avventer';
                 break;
             case 700002:
                 statusText = 'Venter på signering';

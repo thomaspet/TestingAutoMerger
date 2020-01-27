@@ -27,7 +27,7 @@ import {
     MatchSubAccountManualModal,
     MatchMainAccountModal
 } from './modals';
-import {File, Payment, PaymentBatch, LocalDate, CompanySettings} from '../../unientities';
+import {File, Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -443,18 +443,21 @@ export class BankComponent {
         this.actions = [];
 
         if (selectedTickerCode === 'payment_list') {
+            const hasActiveAgreement = this.agreements && this.agreements.length
+            && this.agreements.filter((agreement: BankIntegrationAgreement) =>
+            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
 
             this.actions.push({
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false),
-                main: this.agreements.length && this.canEdit && !this.rows.length,
-                disabled: !this.canEdit || !this.agreements.length || this.rows.length > 0
+                main: hasActiveAgreement && this.canEdit && !this.rows.length,
+                disabled: !this.canEdit || !hasActiveAgreement || this.rows.length > 0
             });
 
             this.actions.push({
                 label: 'Lag manuell betaling av alle',
                 action: (done) => this.payAll(done, true),
-                main: !this.agreements.length && this.canEdit && !this.rows.length,
+                main: !hasActiveAgreement && this.canEdit && !this.rows.length,
                 disabled: !this.canEdit || this.rows.length > 0
             });
 
@@ -477,7 +480,7 @@ export class BankComponent {
             this.actions.push({
                 label: 'Manuell betaling',
                 action: (done) => this.pay(done, true),
-                main: this.rows.length > 0 && !this.agreements.length,
+                main: this.rows.length > 0 && !hasActiveAgreement,
                 disabled: this.rows.length === 0 || !this.canEdit
             });
 
@@ -485,7 +488,7 @@ export class BankComponent {
                 label: 'Send til betaling',
                 action: (done) => this.pay(done, false),
                 main: this.rows.length > 0 && this.canEdit,
-                disabled: this.rows.length === 0 || !this.agreements.length || !this.canEdit
+                disabled: this.rows.length === 0 || !hasActiveAgreement || !this.canEdit
             });
 
             this.actions.push({
