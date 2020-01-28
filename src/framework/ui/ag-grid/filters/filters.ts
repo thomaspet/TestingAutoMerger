@@ -28,6 +28,7 @@ export class TableFilters {
     @Input() tableConfig: UniTableConfig;
     @Input() columns: UniTableColumn[];
     @Input() filters: ITableFilter[];
+    @Input() quickFilters: ITableFilter[] = [];
 
     @Output() filtersChange: EventEmitter<any> = new EventEmitter();
 
@@ -168,6 +169,9 @@ export class TableFilters {
         return filters;
     }
 
+    setFilters(filters: ITableFilter) {
+        this.filtersChange.emit({basicSearchFilters: [], advancedSearchFilters: [filters]});
+    }
 
     private emitFilters() {
         const lastUsedFilter = {

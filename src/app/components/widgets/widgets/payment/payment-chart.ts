@@ -222,7 +222,7 @@ export class PaymentWidget implements AfterViewInit {
                     {
                         label: 'Utbetalt',
                         data: [],
-                        backgroundColor: this.colors[0]
+                        backgroundColor: this.colors[1]
                     }
                 ]
             },
