@@ -67,7 +67,7 @@ export class SupplierEditModal implements IUniModal {
             },
             filterCheckboxes: [
                 { label: 'Selskaper', value: true },
-                { label: 'Privatpersoner', value: true }
+                { label: 'Privatpersoner', value: false }
             ],
             resultTableColumns: [
                 { header: 'Navn', field: 'Name' },
