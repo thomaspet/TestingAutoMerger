@@ -33,7 +33,7 @@ export interface EHFData {
     ourReference?: string;
     note?: string;
     paymentTerms?: string;
-
+    orderReference?: string;
     customer?: CompanyInfo;
     supplier?: CompanyInfo;
 

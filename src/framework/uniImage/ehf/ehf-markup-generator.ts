@@ -147,6 +147,12 @@ function getInvoiceDetailsMarkup(invoice: EHFData) {
                     <dd>${invoice.yourReference}</dd>
                 ` : ''
             }
+            ${
+                invoice.orderReference ? `
+                    <dt>Ordrereferanse</dt>
+                    <dd>${invoice.orderReference}</dd>
+                ` : ''
+            }
         </dl>
     `;
 }

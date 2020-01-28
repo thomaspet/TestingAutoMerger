@@ -53,7 +53,8 @@ function mapJsonToEHFData(data, isCreditNote): EHFData {
         amountSummary: getAmountSummary(data, isCreditNote),
         delivery: getDeliveryInfo(get(data, 'cac:Delivery', {})),
         invoiceLines: getInvoiceLines(data, isCreditNote),
-        taxSummary: getTaxSummary(get(data, 'cac:TaxTotal.cac:TaxSubtotal'), isCreditNote)
+        taxSummary: getTaxSummary(get(data, 'cac:TaxTotal.cac:TaxSubtotal'), isCreditNote),
+        orderReference: getOrderReference(data)
     };
 
     if (isCreditNote) {
@@ -87,6 +88,17 @@ function getYourReference(data) {
         const contact = get(data, 'cac:AccountingCustomerParty.cac:Party.cac:Contact.cbc:ID', '');
         return get(contact, '#text') || contact;
     }
+}
+
+function getOrderReference(data) {
+    const  orderRef = get(data, 'cac:OrderReference.#text') || get(data, 'cac:OrderReference', '');
+    if (orderRef) {
+        const value = get(orderRef, 'cbc:ID');
+        if (value) {
+            return value;
+        }
+    }
+    return '';
 }
 
 function getPriceText(amountData, invertNumber?: boolean) {
