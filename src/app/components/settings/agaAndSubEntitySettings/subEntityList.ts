@@ -149,7 +149,10 @@ export class SubEntityList implements OnInit {
         this.subEntitySettingsService
             .addSubEntitiesFromExternal(this.mainOrg.OrgNumber, true, this.allSubEntities)
             .finally(() => this.busy = false)
-            .subscribe();
+            .subscribe(subEntities => {
+                this.allSubEntities = subEntities;
+                this.currentSubEntity = subEntities.find(sub => sub.ID === this.currentSubEntity.ID);
+            });
     }
 
     public saveSubEntity() {

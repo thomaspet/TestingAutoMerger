@@ -23,13 +23,23 @@ export class EditSubEntityAgaZoneModal implements OnInit, IUniModal {
     constructor() { }
 
     ngOnInit() {
-        this.model$.next(this.options.data.subEntities);
+        this.model$.next(this.setDefaults(this.options.data.subEntities, this.options.data.municipalAgaZones));
         this.fields$.next(this.getFields(this.options.data.subEntities, this.options.data.municipalAgaZones));
         this.forceCloseValueResolver = () => this.close();
     }
 
     close() {
         this.onClose.next(this.model$.getValue());
+    }
+
+    private setDefaults(subEntities: SubEntity[], municipalAgaZones: IMuniAGAZone[]) {
+        return subEntities.map(subEntity => {
+            const defaultZone = municipalAgaZones.find(zone => zone.MunicipalityNo === subEntity.MunicipalityNo && zone.ZoneName === '1');
+            if (!!defaultZone) {
+                subEntity.AgaZone = defaultZone.ZoneID;
+            }
+            return subEntity;
+        });
     }
 
     private getFields(subEntities: SubEntity[], municipalAgaZones: IMuniAGAZone[]) {
