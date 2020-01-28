@@ -3418,6 +3418,15 @@ export class BillView implements OnInit {
 
         if (prop) {
             prop.ActualValue = value;
+        } else {
+            const newProp = {
+                OcrProperty: {
+                    PropertyType: propertyType
+                },
+                ActualValue: value
+            };
+
+            this.ocrData.InterpretedProperties.push(newProp);
         }
     }
 
