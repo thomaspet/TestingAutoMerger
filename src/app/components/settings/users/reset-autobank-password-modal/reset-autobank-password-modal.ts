@@ -14,7 +14,6 @@ export class ResetAutobankPasswordModal implements IUniModal {
     onClose: EventEmitter<any> = new EventEmitter();
 
     busy: boolean;
-    adminPassword: '';
 
     constructor(
         private toast: ToastService,
@@ -23,14 +22,13 @@ export class ResetAutobankPasswordModal implements IUniModal {
 
     resetPassword() {
         const user = this.options.data;
-        if (this.adminPassword && user) {
+        if (user) {
             this.busy = true;
 
             this.http
                 .asPOST()
                 .usingBusinessDomain()
                 .withEndPoint('users/' + user.ID + '?action=reset-autobank-password')
-                .withBody({Password: this.adminPassword})
                 .send()
                 .map(res => res.body)
                 .subscribe(
@@ -48,7 +46,7 @@ export class ResetAutobankPasswordModal implements IUniModal {
                         this.toast.addToast(
                             'Kunne ikke tilbakestille passord',
                             ToastType.bad, 10,
-                            'Vennligst påse at ditt autobank passord er fylt ut riktig'
+                            'Noe gikk galt ved tilbakestilling. Prøv å last inn bilde på nytt og prøv igjen'
                         );
                     },
                 );
