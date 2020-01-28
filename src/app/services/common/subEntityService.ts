@@ -6,7 +6,7 @@ import {CONTROLS_ENUM, UniFieldLayout, UniFormError} from '../../../framework/ui
 import {Observable, of, forkJoin} from 'rxjs';
 import {ModulusService} from '@app/services/common/modulusService';
 import { StatisticsService } from './statisticsService';
-import { switchMap, take } from 'rxjs/operators';
+import { switchMap, take, map } from 'rxjs/operators';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
 import { EditSubEntityAgaZoneModal } from '@app/components/common/modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 export interface IMuniAGAZone {
@@ -41,7 +41,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
         return forkJoin(subEntities.map(subEntity => this.save(subEntity)));
     }
 
-    public getMainOrganization() {
+    public getMainOrganization(): Observable<SubEntity[]> {
         return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
     }
 
@@ -49,27 +49,34 @@ export class SubEntityService extends BizHttp<SubEntity> {
         return super.GetAction(null, 'sub-entities-from-brreg', 'orgno=' + orgno.replace(/\s+/g, ''));
     }
 
-    public getFromEnhetsRegisterAndCheckZones(orgno: string) {
-        return this.getFromEnhetsRegister(orgno)
-            .pipe(
-                switchMap(subEntities => this.editZonesIfNeeded(subEntities))
-            );
-    }
-
     public checkZonesAndSaveFromEnhetsregisteret(orgno: string) {
-        return this.getFromEnhetsRegisterAndCheckZones(orgno)
+        return this.getMainOrganizationAndFromEnhetsRegister(orgno)
             .pipe(
+                switchMap(subEntities => this.editZonesIfNeeded(subEntities)),
                 switchMap(subEntities => this.saveAll(subEntities)),
             );
     }
 
+    public getMainOrganizationAndFromEnhetsRegister(orgno: string) {
+        return forkJoin(this.getFromEnhetsRegister(orgno), this.getMainOrganization())
+        .pipe(
+            map((subEntities: [SubEntity[], SubEntity[]]) => [...subEntities[0], ...subEntities[1]]),
+        );
+    }
+
     getZonesOnSubEntities(subEntities: SubEntity[]): Observable<IMuniAGAZone[]> {
+        if (!subEntities.some(sub => !!sub.MunicipalityNo)) {
+            return of([]);
+        }
         return this.statisticsService
             .GetAllUnwrapped(
                 'Select=ZoneName as ZoneName,ID as ZoneID,' +
                     'Municipal.MunicipalityNo as MunicipalityNo,Municipal.MunicipalityName as MunicipalityName&' +
                 `Model=AGAZone&` +
-                `Filter=${subEntities.map(sub => `municipalsOnZone.MunicipalityNo eq ${sub.MunicipalityNo}`).join(' or ')}&` +
+                `Filter=${subEntities
+                    .filter(sub => !!sub.MunicipalityNo)
+                    .map(sub => `municipalsOnZone.MunicipalityNo eq ${sub.MunicipalityNo}`)
+                    .join(' or ')}&` +
                 `Join=MunicipalAGAZone.MunicipalityNo eq Municipal.MunicipalityNo as Municipal&` +
                 `Expand=municipalsOnZone`
             );
@@ -83,7 +90,14 @@ export class SubEntityService extends BizHttp<SubEntity> {
                         return <Observable<SubEntity[]>>this.modalService
                             .open(
                                 EditSubEntityAgaZoneModal,
-                                {data: {subEntities: subEntities, municipalAgaZones: muniZones}, closeOnClickOutside: false}
+                                {
+                                    data: {
+                                        subEntities: subEntities,
+                                        municipalAgaZones: muniZones
+                                    },
+                                    closeOnClickOutside: false,
+                                    closeOnEscape: false
+                                }
                             )
                             .onClose
                             .pipe(

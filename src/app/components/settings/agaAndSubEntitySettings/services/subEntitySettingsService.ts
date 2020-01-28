@@ -76,8 +76,8 @@ export class SubEntitySettingsService {
     }
 
     private saveAll(subEntites: SubEntity[], existingSubEntities: SubEntity[] = []): Observable<SubEntity[]> {
-        let subEntities$: Observable<SubEntity>[] = subEntites.map(subEntity => {
-            let entity = existingSubEntities.find(x => x.OrgNumber === subEntity.OrgNumber);
+        const subEntities$: Observable<SubEntity>[] = subEntites.map(subEntity => {
+            const entity = existingSubEntities.find(x => x.OrgNumber === subEntity.OrgNumber);
             if (entity) {
                 subEntity.ID = entity.ID;
             }
