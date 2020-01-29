@@ -275,7 +275,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
         if (file.Extension && file.Extension === '.xml') { return false; }
 
-        const ocrformats = ['pdf', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
+        const ocrformats = ['pdf', 'docx', 'png', 'jpeg', 'jpg', 'gif', 'tiff'];
         const ending = file.Name.toLowerCase().split('.').pop();
 
         return ocrformats.indexOf(ending) >= 0 || ending.indexOf('pdf') >= 0;
