@@ -437,14 +437,21 @@ export class AuthService {
     }
 
     public hasUIPermission(user: UserDto, permission: string) {
-        if (!user || !user['Permissions'] || !user['Permissions'].length) {
+        if (!user) {
             return false;
+        }
+
+        const permissions = user['Permissions'] || [];
+
+        // Interpret no permissions as full access if PermissionHandling is set to SOFT
+        if (!permissions.length && user['PermissionHandling'] === 'SOFT') {
+            return true;
         }
 
         permission = permission.trim();
 
         // Check for direct match
-        let hasPermission = user['Permissions'].some(p => p === permission);
+        let hasPermission = permissions.some(p => p === permission);
 
         // Pop permission parts and check for * access
         if (!hasPermission) {
@@ -452,7 +459,7 @@ export class AuthService {
 
             while (permissionSplit.length && !hasPermission) {
                 const multiPermision = permissionSplit.join('_') + '_*';
-                if (user['Permissions'].some(p => p === multiPermision)) {
+                if (permissions.some(p => p === multiPermision)) {
                     hasPermission = true;
                 }
 
