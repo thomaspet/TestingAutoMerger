@@ -42,6 +42,14 @@ export class AccountService extends BizHttp<Account> {
             .map(res => res.body);
     }
 
+    public setSaftMappings(accountNumbers: number[] = null) {
+        return this.http.asPUT()
+            .withEndPoint(this.relativeURL + '?action=set-saftmappings')
+            .withBody(accountNumbers)
+            .send()
+            ;
+    }
+
     private mapStatisticsToAccountObjects(statisticsData: any[]): Account[] {
         const accounts = [];
 

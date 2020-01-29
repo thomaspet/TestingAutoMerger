@@ -1,0 +1,41 @@
+<section role="dialog" class="uni-modal" style="width:900px">
+    <header>{{options.header || 'SAF-T Export'}}</header>
+    <article>
+        <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true">
+            <mat-step label="Valg" [completed]="false">
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="formFields$"
+                    [model]="formModel$">
+                </uni-form>
+                <div class="bad" style="padding: 0 10px;">{{errorMessage}}</div>
+            </mat-step>
+            <mat-step label="Saf-t kobling" [completed]="false" [optional]="true">
+                <div class="warn">
+                    <p>{{fixAccounts.length}} hovedbokskontoer mangler SAF-T kobling.</p>
+                    <p>For å gjennomføre eksport må alle hovedbokskontoer ha SAF-T kobling. Du kan enten oppdatere SAF-T kobling manuelt (da fyller du ut verdi i feltet SAF-T kobling på Kontoplan) eller du kan fylle ut feltet automatisk basert på mapping av standard kontoplan.</p>
+                    <p>Hovedbokskontoer uten SAF-T kobling: {{fixAccounts}}</p>
+                </div>
+            </mat-step>
+            <mat-step label="Start eksport" [completed]="false">
+                <div>
+                    <p>Alle dine hovedbokskontoer har SAF-T kobling. Du er klar til å starte SAF-T eksport. Selve eksporten vil kjøre som en jobb. Store eksporter vil ta litt tid å fullføre.</p>
+                    <p>Dersom du krysser av for å få epost med SAF-T filen vil denne sendes til deg når eksporten er ferdig.</p>
+                    <p>Trykk på "Start eksport" for å gjennomføre eksporten.</p>
+                </div>
+                <uni-form
+                    [config]="formConfig$"
+                    [fields]="emailField$"
+                    [model]="formModel$">
+                </uni-form>
+            </mat-step>
+        </mat-horizontal-stepper>
+    </article>
+
+    <footer>
+        <button class="c2a" (click)="validate()" *ngIf="currentStep === 1" [attr.aria-busy]="busy">Videre</button>
+        <button class="good" (click)="fix()" *ngIf="currentStep === 2">Automatisk SAF-T kobling</button>
+        <button class="good" [disabled]="!isReady" (click)="close(true)" *ngIf="currentStep === 3">Start eksport</button>
+        <button class="bad" (click)="close(false)">Avbryt</button>
+    </footer>
+</section>

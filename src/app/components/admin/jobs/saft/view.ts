@@ -295,7 +295,8 @@ export class SaftExportView implements OnInit {
                 FromPeriod: 1,
                 ToPeriod: 12,
                 Anonymous: false,
-                SendEmail: true
+                SendEmail: true,
+                Validate: true
             }
             }).onClose.subscribe((resp) => {
                 if (resp) {
