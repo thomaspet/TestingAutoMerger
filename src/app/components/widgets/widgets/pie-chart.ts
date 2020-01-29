@@ -9,6 +9,7 @@ import {IUniWidget} from '../uniWidget';
 import {WidgetDataService} from '../widgetDataService';
 import * as Chart from 'chart.js';
 import {theme} from 'src/themes/theme';
+import {NumberFormat} from '@app/services/common/numberFormatService';
 
 @Component({
     selector: 'uni-pie-chart',
@@ -40,6 +41,7 @@ export class UniPieChartWidget {
 
     constructor(
         private widgetDataService: WidgetDataService,
+        private numberFormatService: NumberFormat,
         private cdr: ChangeDetectorRef
     ) {}
 
@@ -102,6 +104,20 @@ export class UniPieChartWidget {
                 legend: {
                     position: 'left',
                     labels: { usePointStyle: true, padding: 15 }
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem, data) => {
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const index = tooltipItem.index;
+                            const label = data.labels[index];
+                            const value = data.datasets[datasetIndex].data[index];
+                            const valueStr = this.numberFormatService.asMoney(value as number, {
+                                decimalLength: value.toString().indexOf('.') >= 0 ? 2 : 0
+                            });
+                            return label + ': ' + valueStr;
+                        }
+                    }
                 }
             },
         });
