@@ -24,7 +24,7 @@
     </dl>
 
     <strong *ngIf="invoiceInfoShow" class="totalSum">
-        Total sum: {{invoice?.TaxInclusiveAmount | unicurrency}}
+        Total sum: {{invoice?.TaxInclusiveAmountCurrency | unicurrency}}
         <strong *ngIf="showCurrency">
             {{invoice?.CurrencyCode.Code}}/{{invoice?.CurrencyCode?.ShortCode}}
         </strong>

@@ -5,6 +5,7 @@ import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
 import {environment} from 'src/environments/environment';
 import {InitService} from '@app/services/services';
+import {Subscription} from 'rxjs';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -27,6 +28,7 @@ interface RegistrationOption {
 })
 export class RegisterCompany {
     appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    tokenSubscription: Subscription;
 
     selectedCompanyType: string;
     busy: boolean;
@@ -46,8 +48,8 @@ export class RegisterCompany {
             this.selectedCompanyType = params.get('type') || undefined;
         });
 
-        this.authService.isAuthenticated().then(isAuthenticated => {
-            if (isAuthenticated) {
+        this.tokenSubscription = this.authService.token$.subscribe(token => {
+            if (token) {
                 this.initService.getContracts().subscribe(contracts => {
                     if (contracts && contracts[0]) {
                         this.contractID = contracts[0].ID;
@@ -60,6 +62,12 @@ export class RegisterCompany {
                 this.router.navigateByUrl('/init/login');
             }
         });
+    }
+
+    ngOnDestroy() {
+        if (this.tokenSubscription) {
+            this.tokenSubscription.unsubscribe();
+        }
     }
 
     onCompanyTypeSelected(type: string) {

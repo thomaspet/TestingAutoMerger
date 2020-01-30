@@ -540,6 +540,10 @@ export class BillView implements OnInit {
                 Label: 'Fakturadato',
                 Classes: 'bill-small-field',
                 Section: 0,
+                Options: {
+                    useSmartYear: true,
+                    useFinancialYear: true
+                }
             },
             <any> {
                 Property: 'PaymentDueDate',
@@ -547,6 +551,10 @@ export class BillView implements OnInit {
                 Label: 'Forfallsdato',
                 Classes: 'bill-small-field right',
                 Section: 0,
+                Options: {
+                    useSmartYear: true,
+                    useFinancialYear: true
+                }
             },
             <any> {
                 Property: 'DeliveryDate',
@@ -554,6 +562,10 @@ export class BillView implements OnInit {
                 Label: 'Leveringsdato',
                 Classes: 'bill-small-field',
                 Section: 0,
+                Options: {
+                    useSmartYear: true,
+                    useFinancialYear: true
+                }
             },
             <any> {
                 Property: 'InvoiceNumber',

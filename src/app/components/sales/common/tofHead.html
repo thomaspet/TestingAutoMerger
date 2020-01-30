@@ -52,6 +52,17 @@
             [paymentInfoTypes]="paymentInfoTypes">
         </tof-delivery-form>
 
+        <section class="comment-input" *ngIf="activeTab === 'comment'">
+            <label class="uni-label" *ngIf="data">
+                <span>
+                    <i class="material-icons">info_outline</i>
+                    Kommentar legges over varelinjetabell på fakturablanketten
+                </span>
+
+                <textarea [(ngModel)]="data.Comment" (change)="onDataChange()" placeholder="Kommentar"></textarea>
+            </label>
+        </section>
+
         <section class="tof-sellers" *ngIf="activeTab === 'sellers'">
             <seller-links
                 [readonly]="isReadOnly()"
@@ -102,7 +113,6 @@
         <section class="tof-reminders" *ngIf="activeTab === 'reminders'">
             <invoice-reminders [customerInvoice]="data"></invoice-reminders>
         </section>
-
     </section>
 
 </article>
