@@ -1,11 +1,12 @@
 import {Component, OnInit, Output, Input, ViewChild, EventEmitter, OnChanges} from '@angular/core';
 import {UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent} from '../../../../../framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs';
-import {ReportDefinitionService, ErrorService} from '../../../../services/services';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {Employee} from '../../../../unientities';
 import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { IUniTab } from '@uni-framework/uni-tabs';
+import { StatisticsService, ReportDefinitionService, ErrorService } from '@app/services/services';
 
 enum PaycheckFormat {
     E_MAIL = 'E-post',
@@ -32,22 +33,33 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     public table: AgGridWrapper;
 
     public employeeTableData: Employee[] = [];
-    public emailEmps: Employee[] = [];
-    public printEmps: Employee[] = [];
+    public employeesWithEmail: Employee[] = [];
+    public employeesWithoutEmail: Employee[] = [];
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
+    public tabs: IUniTab[];
+    private categoriesList: [{Number: number, EmployeeID: number, Name: string}];
 
     constructor(
         private reportDefinitionService: ReportDefinitionService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private statisticsService: StatisticsService
     ) { }
 
     public ngOnInit() {
+        this.setCategories().subscribe(res => {
+            this.categoriesList = res;
+            if ( this.categoriesList.length > 0) {
+                this.setupTable();
+            }
+        });
+        this.setupTableSections();
         this.setupTable();
     }
 
     public ngOnChanges() {
-        this.employeeTableData = [...this.handleEmployees(this.employees || [])];
+        this.employeeTableData = this.employees;
+        this.UpdateTable();
     }
 
     private setupTable() {
@@ -58,41 +70,68 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
             'E-post',
             UniTableColumnType.Text,
             false);
-
         const typeCol = new UniTableColumn('_paycheckFormat', 'Type', UniTableColumnType.Text,
             (row: Employee) => this.employeeHasAddress(row));
+        const categoryColumn = new UniTableColumn('_categories', 'Kategori').setWidth('12rem').setVisible(false);
 
         let pageSize = window.innerHeight - 520;
 
         pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34); // 34 = heigth of a single row
 
         const config = new UniTableConfig('salary.common.employee-report-picker-list', false, true, pageSize)
-            .setSearchable(false)
-            .setColumnMenuVisible(false)
+            .setSearchable(true)
+            .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol]);
+            .setColumns([employeenumberCol, employeenameCol, emailCol, typeCol, categoryColumn]);
 
         this.tableConfig$.next(config);
     }
 
-    onCellClick(clickEvent: ICellClickEvent) {
-        if (clickEvent && clickEvent.column && clickEvent.column.field === '_paycheckFormat') {
-            const newRow = clickEvent.row;
+    private setupTableSections(): void {
+        this.tabs = [
+            { name: 'Alle ansatte', onClick: () => this.setAllEmployees() },
+            { name: 'Med e-post', onClick: () => this.setEmployeessWithEmail(), count: 0},
+            { name: 'Uten e-post', onClick: () => this.setEmployeesWithoutEmail(), count: 0}
+        ];
+    }
 
-            if (newRow._paycheckFormat === PaycheckFormat.E_MAIL) {
-                newRow._paycheckFormat = PaycheckFormat.PRINT;
-            } else {
-                newRow._paycheckFormat = PaycheckFormat.E_MAIL;
-            }
-            this.employeeTableData.splice(newRow._originalIndex, 1, newRow);
-            // Re-filter the print/mail arrays
-            this.emailEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
-            this.printEmps = this.employeeTableData.filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
-            // Force view update!
-            this.employeeTableData = [...this.employeeTableData];
+    private setCategories(): Observable<any> {
+        const filter =
+                `model=EmployeeCategoryLink&select=EmployeeCategoryID as ` +
+                `Number,EmployeeCategoryLink.EmployeeID as EmployeeID,category.Name as Name` +
+                `&distinct=true` +
+                `&join=EmployeeCategoryLink.EmployeeID eq SalaryTransaction.EmployeeID` +
+                ` as trans and EmployeeCategoryLink.EmployeeCategoryID eq EmployeeCategory.ID as category`;
+
+        return this.statisticsService.GetAllUnwrapped(filter);
+    }
+
+    private linkCatagoriesWithEmployee(): void {
+        if (this.categoriesList && this.categoriesList.length) {
+            this.employees.forEach(employee => {
+                let string = '';
+                this.categoriesList.forEach(category => {
+                    if (category.EmployeeID === employee.ID) {
+                        string += string.length > 0 ? `, ${category.Number} - ${category.Name}` : `${category.Number} - ${category.Name}`;
+                    }
+                });
+                employee['_categories'] = string;
+            });
         }
+    }
+
+    private setAllEmployees(): void {
+        this.employeeTableData = this.employees;
+    }
+
+    private setEmployeessWithEmail(): void {
+        this.employeeTableData = this.employeesWithEmail;
+    }
+
+    private setEmployeesWithoutEmail(): void {
+        this.employeeTableData = this.employeesWithoutEmail;
     }
 
     private resetRowSelection() {
@@ -114,22 +153,24 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
             && row.BusinessRelationInfo.DefaultEmail.EmailAddress);
     }
 
-    private handleEmployees(employees: Employee[]) {
-        employees.forEach(emp => {
-            emp[PAYCHECK_FORMAT_KEY] = this.employeeHasAddress(emp)
+    private UpdateTable(): void {
+        this.linkCatagoriesWithEmployee();
+        this.employees.forEach(employee => {
+            employee[PAYCHECK_FORMAT_KEY] = this.employeeHasAddress(employee)
                 ? PaycheckFormat.E_MAIL
                 : PaycheckFormat.PRINT;
 
-            if (emp[PAYCHECK_FORMAT_KEY] === PaycheckFormat.E_MAIL) {
-                this.emailEmps.push(emp);
+            if (employee[PAYCHECK_FORMAT_KEY] === PaycheckFormat.E_MAIL) {
+                this.employeesWithEmail.push(employee);
             } else {
-                this.printEmps.push(emp);
+                this.employeesWithoutEmail.push(employee);
             }
 
-            return emp;
-        });
+            this.tabs[1].count = this.employeesWithEmail.length || 0;
+            this.tabs[2].count = this.employeesWithoutEmail.length || 0;
 
-        return employees;
+            return employee;
+        });
     }
 
     public resetRows() {
