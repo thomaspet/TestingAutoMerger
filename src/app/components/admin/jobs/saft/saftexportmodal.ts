@@ -34,7 +34,7 @@ export class SaftExportModal implements IUniModal {
     public errorMessage = '';
     private subscription: any;
     public isReady = false;
-    private fixAccounts = [];
+    public fixAccounts = [];
 
     constructor(private jobService: JobService,
         private accountService: AccountService,
