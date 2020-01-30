@@ -412,7 +412,7 @@ export class AuthService {
         this.activeCompany = undefined;
         this.setLoadIndicatorVisibility(false);
 
-        if (!this.router.url.includes('init/sign-up')) {
+        if (!this.router.url.includes('init')) {
             this.router.navigate(['/init/login']);
         }
     }

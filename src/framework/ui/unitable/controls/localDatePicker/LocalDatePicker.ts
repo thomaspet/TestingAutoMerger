@@ -1,6 +1,10 @@
 import {Component, Input, ElementRef, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {LocalDate} from '@uni-entities';
+import {autocompleteDate} from '@app/date-adapter';
+import * as moment from 'moment';
+import {FinancialYearService} from '@app/services/services';
+import {UniTableColumn} from '../../config/unitableColumn';
 
 @Component({
     selector: 'unidate-picker',
@@ -9,8 +13,16 @@ import {LocalDate} from '@uni-entities';
             <input #input
                 type="text"
                 [formControl]="inputControl"
-                [matDatepicker]="picker"
                 (keydown.space)="$event.preventDefault();picker.open()"
+            />
+
+            <!-- Hidden input for mat-datepicker, because we want custom parsing on the "text input" -->
+            <input
+                style="position: absolute; visibility: hidden; width: 0px; height: 0px"
+                [(ngModel)]="calendarDate"
+                (ngModelChange)="onCalendarDateChange()"
+                [matDatepicker]="picker"
+                tabindex="-1"
             />
 
             <button type="button" tabindex="-1" (click)="picker.open()">
@@ -25,8 +37,21 @@ export class  LocalDatePicker {
     @ViewChild('input', { static: true }) inputElement: ElementRef;
     @Input() inputControl: FormControl;
 
+    column;
+    calendarDate: Date;
+
+    constructor(private yearService: FinancialYearService) {}
+
     ngOnInit() {
         console.log(this.inputControl.value);
+        if (this.inputControl.value) {
+            this.calendarDate = autocompleteDate(this.inputControl.value);
+        }
+    }
+
+    onCalendarDateChange() {
+        this.inputControl.setValue(moment(this.calendarDate).format('L'));
+        this.inputControl.markAsDirty();
     }
 
     focus() {
@@ -38,7 +63,16 @@ export class  LocalDatePicker {
 
     getValue(): LocalDate {
         if (this.inputControl.dirty) {
-            return this.inputControl.value && new LocalDate(this.inputControl.value);
+            const options = this.column && this.column.get('options') || {};
+            const yearOverride = options.useFinancialYear && this.yearService.getActiveYear();
+
+            const parsed = this.inputControl.value && autocompleteDate(
+                this.inputControl.value,
+                yearOverride,
+                options.useSmartYear
+            );
+
+            return parsed && new LocalDate(parsed);
         }
     }
 }

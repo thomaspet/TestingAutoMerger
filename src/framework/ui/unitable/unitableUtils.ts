@@ -138,7 +138,8 @@ export class UniTableUtils {
         }
 
         if (columnType === UniTableColumnType.LocalDate && initValue) {
-            initValue = initValue.toDate ? initValue.toDate() : initValue;
+            const date = initValue.toDate ? initValue.toDate() : initValue;
+            initValue = moment(date).isValid() ? moment(date).format('L') : '';
         }
 
         if (columnType === UniTableColumnType.Number

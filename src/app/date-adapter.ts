@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { NativeDateAdapter } from '@angular/material';
+import {Injectable} from '@angular/core';
+import {NativeDateAdapter} from '@angular/material';
 import * as moment from 'moment';
 
 @Injectable()
@@ -62,19 +62,34 @@ export class UniDateAdapter extends NativeDateAdapter {
     }
 }
 
-export const autocompleteDate = (inputValue: string) => {
+export const autocompleteDate = (
+    inputValue: string,
+    yearOverride?: number,
+    useSmartYear?: boolean,
+) => {
     let day, month, year;
     const date = new Date();
+    if (yearOverride) {
+        date.setFullYear(yearOverride);
+
+        // Disable previous year parsing logic if we're already overriding the year
+        if (yearOverride !== new Date().getFullYear()) {
+            useSmartYear = false;
+        }
+    }
+
     const split = inputValue.split(/\/|\.|-|,/);
 
+    let yearSpecified = false;
     if (split.length > 1) {
         day = split[0];
         month = +split[1] - 1;
-        year = split[2] || date.getFullYear();
 
         if (split[2] && split[2].length === 2) {
+            yearSpecified = true;
             year = parseInt(date.getFullYear().toString().substr(0, 2) + split[2], 10);
         } else if (split[2] && split[2].length === 4) {
+            yearSpecified = true;
             year = parseInt(split[2], 10);
         } else {
             year = date.getFullYear();
@@ -107,6 +122,7 @@ export const autocompleteDate = (inputValue: string) => {
                 year = date.getFullYear();
                 break;
             case 6:
+                yearSpecified = true;
                 if (input.indexOf('20') >= 2) {
                     // input format: DMYYYY
                     day = parseInt(input[0], 10);
@@ -120,6 +136,7 @@ export const autocompleteDate = (inputValue: string) => {
                 }
                 break;
             case 8:
+                yearSpecified = true;
                 day = parseInt(input.slice(0, 2), 10);
                 month = parseInt(input.slice(2, 4), 10) - 1;
                 year = parseInt(input.slice(4), 10);
@@ -129,9 +146,20 @@ export const autocompleteDate = (inputValue: string) => {
         }
     }
 
+    // When a new year has started the user will in some contexts most likely
+    // want to use the previous year when setting a short-date at the end of the
+    // year, e.g. 1512 will normally mean 15.12.2018 when the current date is 25.01.2019.
+    const currentMonth = new Date().getMonth();
+    if (!yearSpecified && useSmartYear && currentMonth < 4) {
+        if (month > (12 - 4 + currentMonth)) {
+            year = year - 1;
+        }
+    }
+
     if (year < 1900) {
         return null;
     }
+
     if (month < 0 || month > 12) {
         return null;
     }
@@ -140,4 +168,4 @@ export const autocompleteDate = (inputValue: string) => {
         return null;
     }
     return new Date(year, month, day);
-}
+};

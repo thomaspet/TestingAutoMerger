@@ -175,7 +175,7 @@ export class TableUtils {
      *
      * @returns {string} displayValue
      */
-    public getColumnValue(rowModel: any, column: UniTableColumn, formatDate?: boolean): string {
+    public getColumnValue(rowModel: any, column: UniTableColumn): string {
         if (!rowModel) {
             return '';
         }
@@ -197,10 +197,8 @@ export class TableUtils {
             case UniTableColumnType.DateTime:
             case UniTableColumnType.LocalDate:
                 if (value) {
-                    value = value.toDate ? value.toDate() : value;
-                    if (formatDate) {
-                        value = moment(value).format(column.format || 'DD.MM.YYYY');
-                    }
+                    const date = value.toDate ? value.toDate() : value;
+                    value = moment(date).isValid() ? moment(date).format('L') : '';
                 }
             break;
 
