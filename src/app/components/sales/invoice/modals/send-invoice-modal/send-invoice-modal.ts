@@ -259,7 +259,7 @@ export class SendInvoiceModal implements IUniModal {
                 distributionRequest.subscribe(
                     () => {
                         this.toastService.toast({
-                            title: 'Faktura er lagt i utsendingskø',
+                            title: (this.invoice.InvoiceType === 1 ? 'Kreditnota' : 'Faktura') + ' er lagt i utsendingskø',
                             type: ToastType.good,
                             duration: 5
                         });
@@ -279,7 +279,7 @@ export class SendInvoiceModal implements IUniModal {
             ).subscribe(
                 () => {
                     this.toastService.toast({
-                        title: 'Faktura er lagt i utsendingskø',
+                        title: (this.invoice.InvoiceType === 1 ? 'Kreditnota' : 'Faktura') + ' er lagt i utsendingskø',
                         type: ToastType.good,
                         duration: 5
                     });
@@ -322,7 +322,7 @@ export class SendInvoiceModal implements IUniModal {
                         // TODO: Do we have to update printStatus?
                         // this.invoice.PrintStatus = 300;
                         this.toastService.toast({
-                            title: 'Faktura lagt i kø for EHF-utsendelse',
+                            title: (this.invoice.InvoiceType === 1 ? 'Kreditnota' : 'Faktura') + ' er lagt i kø for EHF-utsendelse',
                             type: ToastType.good,
                             duration: 5,
                         });
