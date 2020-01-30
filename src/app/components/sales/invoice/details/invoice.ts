@@ -1391,26 +1391,26 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 disabled: !status || status === StatusCodeCustomerInvoice.Draft,
                 main: status === StatusCodeCustomerInvoice.Paid && !this.isDirty
             });
+        }
 
-            if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced) {
-                this.saveActions.push({
-                    label: 'Send faktura',
-                    main: true,
-                    action: (done) => {
-                        this.modalService.open(SendInvoiceModal, {
-                            data: this.invoice
-                        }).onClose.subscribe(() => {
-                            setTimeout(() => {
-                                if (this.toolbar) {
-                                    this.toolbar.refreshSharingStatuses();
-                                }
-                            }, 500);
-                        });
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
+            this.saveActions.push({
+                label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
+                main: true,
+                action: (done) => {
+                    this.modalService.open(SendInvoiceModal, {
+                        data: this.invoice
+                    }).onClose.subscribe(() => {
+                        setTimeout(() => {
+                            if (this.toolbar) {
+                                this.toolbar.refreshSharingStatuses();
+                            }
+                        }, 500);
+                    });
 
-                        done();
-                    }
-                });
-            }
+                    done();
+                }
+            });
         }
 
         if (this.invoice.StatusCode) {
