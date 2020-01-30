@@ -5,6 +5,6 @@ export class UniAngularErrorHandler implements ErrorHandler {
     constructor(@Inject(ErrorService) private errorService: ErrorService) {}
 
     public handleError(err: any) {
-        this.errorService.handle(err);
+        this.errorService.handleJSError(err);
     }
 }
