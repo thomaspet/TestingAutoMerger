@@ -1,6 +1,7 @@
 <section class="save-buttons">
     <button type="button" *ngIf="main"
         class="good toolbar-save"
+        [class.has-toggle]="filteredActions?.length > 1"
         (click)="onSave(main)"
         [attr.aria-busy]="busy"
         [disabled]="main.disabled">

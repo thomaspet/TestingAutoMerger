@@ -15,4 +15,39 @@
             <tr><td>Build date:</td><td>{{backend.buildDate}}</td></tr>
         </tbody>
     </table>
+
+    <section class="button-row">
+        <button class="c2a">Test</button>
+        <button class="c2a" [attr.aria-busy]="true">Test</button>
+
+        <button class="good">Test</button>
+        <button class="good" [attr.aria-busy]="true">Test</button>
+
+        <button class="warn">Test</button>
+        <button class="warn" [attr.aria-busy]="true">Test</button>
+
+        <button class="bad">Test</button>
+        <button class="bad" [attr.aria-busy]="true">Test</button>
+    </section>
+
+    <section class="button-row">
+        <button class="secondary">Test</button>
+        <button class="secondary" [attr.aria-busy]="true">Test</button>
+
+        <button class="secondary good">Test</button>
+        <button class="secondary good" [attr.aria-busy]="true">Test</button>
+
+        <button class="secondary bad">Test</button>
+        <button class="secondary bad" [attr.aria-busy]="true">Test</button>
+    </section>
+
+    <section class="button-row">
+        <button class="tertiary c2a">Test</button>
+        <button class="tertiary c2a" [attr.aria-busy]="true">Test</button>
+
+        <button class="tertiary bad">Test</button>
+        <button class="tertiary bad" [attr.aria-busy]="true">Test</button>
+    </section>
+
+
 </section>

@@ -1,50 +1,87 @@
 // THEME FILE FOR EXT02 ENVIRONMENT
+@font-face
+    font-family: DNB
+    src: url(/themes/ext02/DNB-Regular.woff2) format("woff2")
+@font-face
+    font-family: DNB
+    src: url(/themes/ext02/DNB-Regular.woff2) format("woff2")
+    font-weight: 300
+@font-face
+    font-family: DNB
+    src: url(/themes/ext02/DNB-Medium.woff2) format("woff2")
+    font-weight: 500
+@font-face
+    font-family: DNB
+    src: url(/themes/ext02/DNB-Bold.woff2) format("woff2")
+    font-weight: 700
+@font-face
+    font-family: DNB
+    src: url(/themes/ext02/DNB-Bold.woff2) format("woff2")
+    font-weight: bold
+
+$btn-inversed-hover-state: true
+$secondary-btn-grey-border: false
+$theme-has-good-btn: false
+
 body
-    --font-family: 'Roboto', sans-serif, arial
-    --body-background: #f5f6f8
-    --border-color: #EDEDED
+    // --font-family: 'Roboto', sans-serif, arial
+    --font-family: DNB, arial, sans-serif
+    --body-background: #fff
+    --core-border: #EDEDED
+    --border-color: #A5E1D2
 
     --link-color: #007272
     --text-color: #333
-    --scale1: #808080
+    --scale1: #333
     --scale2: #c4c4c4
     --scale3: #e3e3e3
     --scale4: #F5F6F8
 
-    --logo-width: 9rem
+    --logo-width: 8rem
 
     --navbar-height: 82px
     --navbar-background: #fff
     --navbar-icon-color: #007272
 
-    --company-dropdown-border: 1px solid #A5E1D2
+    --company-dropdown-border: 1px solid #008484
     --company-dropdown-background: rgba(0, 0, 0, 0)
-    --company-dropdown-color: #333
+    --company-dropdown-color: #007272
 
     --tabstrip-background: #fff
     --tabstrip-color: #2b2b2b
     --tabstrip-link-color: #333333
     --tabstrip-active-link-color: #007272
 
-    --tab-color: #2B2B2B
-    --active-tab-color: #007272
+    --tab-color: #007272
+    --active-tab-color: #14555A
+    --scoped-tab-background: #F4FBF9
 
     --sidebar-background: #fff
     --sidebar-color: #2B2B2B
+    --sidebar-header-color: #007272
     --sidebar-icon-color: #007272
     --sidebar-hover-color: #007272
-    --sidebar-active-section-background: #D2F0E9
+    --sidebar-active-section-background: #F4FBF9
+    --sidebar-active-section-header-background: #D2F0E9
 
     --toolbar-background: #fff
-    --toolbar-border: 1px solid var(--border-color)
     --toolbar-header-color: #00343E
     --toolbar-icon-color: #007272
+    --toolbar-breadcrumb-color: #007272
 
-    --toolbar-button-border: 1px solid var(--border-color)
+    --toolbar-button-border: 1px solid #008484
     --toolbar-button-color: #007272
 
-    --button-radius: 3px
-    --section-radius: 3px
+    --button-radius: 25px
+    --section-radius: 4px
+
+    --input-border-width: 1px
+    --input-border-width-focus: 2px
+    --input-border-color: #008484
+    --input-border-color-focus: #008484
+    --input-icon-color: #14555A
+    --input-outline: none
+    --input-color: #14555A
 
     --color-c2a: #007272
     --color-c2a-dark: #005959
@@ -54,10 +91,17 @@ body
     --color-warn: #FF9E2C
     --color-warn-light: #fbbe11
 
-    --button-c2a: #007272
+    --primary-btn-font-weight: 500
+    --secondary-btn-border-width: 1px
+    --secondary-btn-focus-border-width: 2px
+
+    --btn-tertiary-color: #008484
+    --btn-tertiary-focus-color: #005959
+
+    --button-c2a: #008484
     --button-c2a-hover: #005959
 
-    --button-good: #007272
+    --button-good: #008484
     --button-good-hover: #005959
 
     --button-bad: #D63731
@@ -67,7 +111,7 @@ body
     --button-warn-hover: #ffa733
 
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
-    --dropdown-select-background: #DAEEFF
+    --dropdown-select-background: #D2F0E9
     --dropdown-select-color: #007272
 
     --checkbox-size: 18px
@@ -75,11 +119,15 @@ body
     --checkbox-checked-background: #007272
     --checkbox-checked-border: 1px solid #007272
 
-    --table-header-background: #fff
-    --table-header-color: #2B2B2B
-    --table-row-even-background: #fafafa
-    --table-row-odd-background: #fff
-    --table-row-select-background: #DAEEFF
+    --table-header-background: #D2F0E9
+    --table-header-color: #14555A
+    --table-row-even-background: #fff
+    --table-row-odd-background: #F4FBF9
+    --table-row-select-background: #F4FBF9
+    --table-icon-color: #007272
+    --table-border: unset
+    --row-border: 1px solid var(--core-color)
+    --cell-border: unset
 
     --alert-info: #DAEEFF
     --alert-good: #DAF0CD
@@ -99,7 +147,8 @@ body
     --toast-bad-text: #fff
 
     --widget-header-size: 16px
-    --widget-header-color: #2b2b2b
+    --widget-header-color: #00343E
     --widget-c2a: #007272
 
     --chat-header-background: #007272
+    --panel-header-background: #D2F0E9

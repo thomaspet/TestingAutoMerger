@@ -41,6 +41,8 @@ export class App {
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
 
+    confirmed: boolean;
+
     constructor(
         private titleService: Title,
         private authService: AuthService,
@@ -54,6 +56,13 @@ export class App {
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
     ) {
+        if (window.location.href.includes('localhost')) {
+            this.confirmed = true;
+        } else {
+            const pw = window.prompt('Kode');
+            this.confirmed = pw === 'bruno2020';
+        }
+
         if (!this.titleService.getTitle()) {
             const title = theme.appName;
             this.titleService.setTitle(title);
@@ -84,6 +93,30 @@ export class App {
                     this.isPendingApproval = true;
                     return;
                 }
+
+                // this.toastService.toast({
+                //     title: 'Testing av toastfarger',
+                //     type: ToastType.info,
+                //     duration: 0
+                // });
+
+                // this.toastService.toast({
+                //     title: 'Testing av toastfarger1',
+                //     type: ToastType.good,
+                //     duration: 0
+                // });
+
+                // this.toastService.toast({
+                //     title: 'Testing av toastfarger2',
+                //     type: ToastType.warn,
+                //     duration: 0
+                // });
+
+                // this.toastService.toast({
+                //     title: 'Testing av toastfarger3',
+                //     type: ToastType.bad,
+                //     duration: 0
+                // });
 
                 const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
                     && theme.theme !== THEMES.SR

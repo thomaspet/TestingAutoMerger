@@ -1,5 +1,5 @@
-import {Component, Input, ChangeDetectionStrategy, ElementRef} from '@angular/core';
-import {theme} from 'src/themes/theme';
+import {Component, Input, ChangeDetectionStrategy, ElementRef, HostBinding} from '@angular/core';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-icon',
@@ -7,17 +7,19 @@ import {theme} from 'src/themes/theme';
     styleUrls: ['./uni-icon.sass'],
     template: `
         <i *ngIf="matIcon" [class]="matIconClass || 'material-icons'">{{matIcon}}</i>
-        <svg *ngIf="svg" [class.set-fill]="theme.setFillOnIcons" [outerHTML]="svg | keepHtml"></svg>
+        <svg *ngIf="svg" [outerHTML]="svg | keepHtml"></svg>
     `
 })
 export class UniIcon {
     @Input() icon: string;
     @Input() matIconClass: string;
 
+    @HostBinding('class.set-fill') setFill = theme.theme === THEMES.SR;
 
     theme = theme;
     svg: string;
     matIcon: string;
+    // setFill = theme.theme === THEMES.SR; // temp fix until we refactor SR svg icons to use "currentColor"
 
     // ElementRef is used by dropdown-menu to attach a click listener if this component is used as a trigger
     constructor(public elementRef: ElementRef) {}

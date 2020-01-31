@@ -39,7 +39,7 @@ export class UniAvatar {
 
         this.style = {
             'background-color': '#D2DAE2', // this.getColorCode(),
-            'color': '#1565C0', // this.getColorCode(), // '#fff',
+            'color': 'var(--color-c2a)', // this.getColorCode(), // '#fff',
             'width': 'inherit',
             'height': '100%',
             'border-radius': this.isSquare ? '0' : '50%',

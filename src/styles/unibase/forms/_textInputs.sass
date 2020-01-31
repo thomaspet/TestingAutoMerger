@@ -17,13 +17,20 @@ textarea
     height: $input-height
     padding: 3px 10px
     background-color: #fff
-    border: 1px solid var(--border-color)
+    color: var(--input-color)
     border-radius: var(--section-radius)
     transition: box-shadow .3s ease
     overflow: hidden
     text-overflow: ellipsis
     box-sizing: border-box
     font-size: 15px
+    outline: var(--input-outline)
+    box-shadow: inset 0 0 0 var(--input-border-width) var(--input-border-color)
+    border: none
+
+    &:hover, &:focus
+        box-shadow: inset 0 0 0 var(--input-border-width-focus) var(--input-border-color-focus)
+
     @media screen and (max-width: 1300px)
         font-size: 14px
 
@@ -75,7 +82,7 @@ textarea
         width: 40px
         padding: 0
         background-color: unset
-        color: var(--text-color)
+        color: var(--input-icon-color)
         border: none
 
         &:focus

@@ -1,5 +1,5 @@
 <section class="init-header">
-    <img class="logo" src="themes/logo.svg">
+    <!-- <img class="logo" src="themes/logo.svg"> -->
 
     <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
     <a *ngIf="isAuthenticated" (click)="logout()">Logg ut</a>

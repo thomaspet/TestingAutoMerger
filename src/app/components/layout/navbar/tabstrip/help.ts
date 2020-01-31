@@ -48,7 +48,7 @@ import {theme, THEMES} from 'src/themes/theme';
 export class UniTabstripHelp {
     @ViewChild(BoostChat, { static: false }) boost: BoostChat;
 
-    isSrEnvironment = theme.theme === THEMES.SR;
+    isSrEnvironment = true; // theme.theme === THEMES.SR;
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {

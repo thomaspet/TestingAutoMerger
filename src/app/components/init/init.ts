@@ -20,6 +20,8 @@ export class UniInit {
 
     private onDestroy$ = new Subject();
 
+    confirmed: boolean = true;
+
     constructor(
         private router: Router,
         public authService: AuthService

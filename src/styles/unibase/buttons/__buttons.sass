@@ -4,21 +4,29 @@
     to
         transform: rotate(360deg)
 
-@mixin main-btn($type)
+@mixin primary-btn($type)
+    border: none
     color: #fff
     background-color: var(--button-#{$type})
-    border: none
-    &:hover, &:focus, &:active, &.test
-        background-color: var(--button-#{$type}-hover)
-        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2)
+    font-weight: var(--primary-btn-font-weight)
+
+    &:hover, &:focus, &:active
+        color: if($btn-inversed-hover-state, var(--button-#{$type}-hover), #fff)
+        background-color: if($btn-inversed-hover-state, #fff, var(--button-#{$type}-hover))
+        box-shadow: inset 0 0 0 2px var(--button-#{$type}-hover)
     &:before
         border-color: #fff
 
 @mixin secondary-btn-color($type)
     color: var(--button-#{$type})
+
+    $border-color: if($secondary-btn-grey-border, #ccc, var(--button-#{$type}-hover))
+    box-shadow: inset 0 0 0 var(--secondary-btn-border-width) $border-color
+
     &:hover, &:focus, &:active
         color: var(--button-#{$type}-hover)
-        border-color: var(--button-#{$type}-hover) // $color
+        box-shadow: inset 0 0 0 var(--secondary-btn-focus-border-width) var(--button-#{$type}-hover)
+
     &:before
         border-color: var(--button-#{$type}) !important
 
@@ -86,28 +94,25 @@ button, a.button
     // Main buttons
     &:not(.secondary):not(.tertiary)
         &.c2a
-            @include main-btn(c2a)
-
+            @include primary-btn(c2a)
         &.good
-            @include main-btn(good)
-
+            @include primary-btn(if($theme-has-good-btn, good, c2a))
         &.bad
-            @include main-btn(bad)
+            @include primary-btn(bad)
 
         &.warning, &.warn
-            @include main-btn(warn)
+            @include primary-btn(warn)
 
     // Secondary
     &.secondary
         background-color: #fff
-        border: 2px solid #ccc
         font-weight: 500
+        border: none
         @include secondary-btn-color(c2a)
         &.good
-            @include secondary-btn-color(good)
+            @include secondary-btn-color(if($theme-has-good-btn, good, c2a))
         &.bad
             @include secondary-btn-color(bad)
-
 
     // Tertiary
     &.tertiary

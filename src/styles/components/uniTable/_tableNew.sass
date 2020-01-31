@@ -6,7 +6,7 @@ ag-grid-wrapper
     &.contained
         background: #fff
         padding: 1rem 1rem 0
-        border: 1px solid var(--border-color)
+        border: var(--table-border)
         border-radius: 3px
 
     table-filters
@@ -44,18 +44,18 @@ ag-grid-wrapper
 // Borders
 ag-grid-wrapper
     .ag-header
-        border-bottom: 1px solid var(--border-color)
+        border-bottom: var(--table-border)
     .ag-row
-        border-bottom: 1px solid var(--border-color)
+        border-bottom: var(--row-border)
 
     &.borders ag-grid-angular:not(.editable)
         .ag-header
-            border: 1px solid var(--border-color)
+            border: var(--table-border)
             border-top-left-radius: 3px
             border-top-right-radius: 3px
         .ag-body
             background: #fff
-            border: 1px solid var(--border-color)
+            border: var(--table-border)
             border-top: none
             border-bottom-left-radius: 4px
             border-bottom-right-radius: 4px
@@ -63,14 +63,14 @@ ag-grid-wrapper
 
     ag-grid-angular.editable
         .ag-header
-            border-top: 1px solid var(--border-color)
+            border-top: var(--table-border)
         .ag-body-container .ag-cell,
         .ag-header-container .ag-header-cell
-            border-left: 1px solid var(--border-color)
+            border-left: 1px solid var(--table-border)
         .ag-pinned-right-header,
         .ag-pinned-right-cols-container
-            border-left: 1px solid var(--border-color)
-            border-right: 1px solid var(--border-color)
+            border-left: 1px solid var(--table-border)
+            border-right: 1px solid var(--table-border)
 
 ag-grid-angular
     width: 100%
@@ -85,7 +85,7 @@ ag-grid-angular
 
     span.expand-collapse-groups
         cursor: pointer
-        color: #1565c0
+        color: var(--color-c2a)
         position: absolute
         top: .6rem
         right: 1rem
@@ -160,7 +160,7 @@ ag-grid-angular
         padding: 0
         cursor: pointer
         justify-content: center
-        color: var(--scale1)
+        color: var(--table-icon-color)
 
     &.row-drag-cell
         .ag-cell-wrapper
@@ -174,7 +174,7 @@ ag-grid-angular
                 font-family: 'Material Icons'
                 content: 'unfold_more'
                 font-size: 24px
-                color: var(--scale1)
+                color: var(--table-icon-color)
 
         .ag-cell-value
             display: none

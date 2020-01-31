@@ -1,4 +1,5 @@
 export enum THEMES {
     UE = 'UE',
-    SR = 'SR'
+    SR = 'SR',
+    EXT02 = 'EXT02'
 }

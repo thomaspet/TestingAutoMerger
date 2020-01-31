@@ -71,7 +71,6 @@ import {
     ConfirmActions,
     IModalOptions,
 } from '../../../../../../framework/uni-modal';
-import {environment} from 'src/environments/environment';
 
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
@@ -84,6 +83,7 @@ import {JournalEntryMode} from '../../../../../services/accounting/journalEntryS
 import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -1067,7 +1067,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                         this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine).then(() => {
                         if (copyFromJournalEntryLine.currencyID !== this.companySettings.BaseCurrencyCodeID) {
-                            this.showAgioDialogPostPost(row);    
+                            this.showAgioDialogPostPost(row);
                         }
                         else {
                             this.updateJournalEntryLine(row);
@@ -1253,7 +1253,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
-                showResultAsTable: environment.isSrEnvironment,
+                showResultAsTable: theme.theme === THEMES.SR,
                 resultTableConfig: {
                     fields: [
                         {
@@ -2033,7 +2033,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData) : Promise<JournalEntryData>  {
-       
+
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
@@ -2063,7 +2063,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
             paymentModal.onClose.subscribe((payment) => {
                 if (payment) {
-    
+
                     this.customerInvoiceService.ActionWithBody(postPostJournalEntryLine.CustomerInvoiceID, payment, 'payInvoice').subscribe(
                         res => {
                             this.toastService.addToast(
@@ -2076,7 +2076,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.errorService.handle(err);
                         }
                     );
-                } 
+                }
             });
         });
     }

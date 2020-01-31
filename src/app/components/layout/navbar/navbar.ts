@@ -9,7 +9,8 @@ import {SmartSearchService} from '../smart-search/smart-search.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import * as moment from 'moment';
-import {environment} from 'src/environments/environment';
+
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-navbar',
@@ -23,7 +24,7 @@ export class UniNavbar {
 
     sidebarState: string;
 
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
     user: User;
     licenseRole: string;
