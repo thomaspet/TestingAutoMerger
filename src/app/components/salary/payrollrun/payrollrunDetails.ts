@@ -85,7 +85,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private activeYear: number;
     private emp: Employee;
     private browserStorageItemName: string = 'showFunctionsPayrollRunDetails';
-
+    private salaryBalanceLineIDs: any[];
     public creatingRun: boolean;
     public saving: boolean;
     private salaryTransactions: SalaryTransaction[];
@@ -151,6 +151,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         });
 
         this.route.params.subscribe(params => {
+            this.salaryBalanceLineIDs = undefined;
             this.journalEntry = undefined;
             let changedPayroll = true;
             this.payrollrunID = +params['id'];
@@ -681,6 +682,18 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                 super.updateState(SALARY_TRANS_KEY, response, response.some(trans => trans[DIRTY_KEY] || trans.Deleted)));
     }
 
+    private getSalaryBalanceLineIDs(): Observable<any> {
+        if (!this.salaryBalanceLineIDs) {
+            const salaryBalanceFilter =
+            `model=SalaryBalanceLine&select=SalaryTransactionID&filter=SalaryTransaction.PayrollRunID eq
+                    ${this.payrollrunID}&expand=SalaryTransaction`;
+            return this.statisticsService.GetAllUnwrapped(salaryBalanceFilter).pipe(
+                tap(salaryBalanceIDs => this.salaryBalanceLineIDs = salaryBalanceIDs)
+            );
+        }
+        return of(this.salaryBalanceLineIDs);
+    }
+
     private getSalaryTransactionsObservable(empID: number): Observable<SalaryTransaction[]> {
         if (!empID) {
             return of([]);
@@ -693,12 +706,12 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                     .GetAll(
                     'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
                     ['WageType.SupplementaryInformations', 'employment', 'Supplements'
-                        , 'Dimensions', 'Files', 'VatType.VatTypePercentages'])
-                    .do((transes: SalaryTransaction[]) => this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue())),
+                        , 'Dimensions', 'Files', 'VatType.VatTypePercentages']),
                 this.getProjectsObservable(),
-                this.getDepartmentsObservable())
-                .map((response: [SalaryTransaction[], Project[], Department[]]) => {
-                    const [transes, projects, departments] = response;
+                this.getDepartmentsObservable(),
+                this.getSalaryBalanceLineIDs())
+                .map((response: [SalaryTransaction[], Project[], Department[], any[]]) => {
+                    const [transes, projects, departments, salaryBalanceIDs] = response;
                     return transes.map(trans => {
 
                         if (trans.DimensionsID) {
@@ -717,9 +730,14 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
                         account.AccountNumber = trans.Account;
                         trans['_Account'] = account;
 
+                        trans['_isReadOnly'] = salaryBalanceIDs.some(line => line.SalaryBalanceLineSalaryTransactionID === trans.ID)
+                            || trans.IsRecurringPost;
+
                         return trans;
-                    });
+                    })
+                    .sort((x, y) => x['_isReadOnly'] === y['_isReadOnly'] ? -1 : 1);
                 })
+                .do((transes: SalaryTransaction[]) => this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue()))
             : Observable.of([]);
     }
 
@@ -848,7 +866,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     private toggleReadOnlyOnCategories(transes: SalaryTransaction[], run: PayrollRun) {
         transes = transes || [];
         const anyEditableTranses = transes
-            .some(trans => !trans.IsRecurringPost && trans.SystemType !== StdSystemType.HolidayPayDeduction && !trans.SalaryBalanceID);
+            .some(trans => !trans['_isReadOnly'] && trans.SystemType !== StdSystemType.HolidayPayDeduction);
             const runIsCalculated = run && run.StatusCode >= 1;
         this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
 
