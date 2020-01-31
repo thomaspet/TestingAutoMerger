@@ -2284,9 +2284,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
-    public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
+    public Employee: Employee;
     public Employment: Employment;
     public CustomFields: any;
 }
@@ -4400,6 +4400,7 @@ export class Status extends UniEntity {
     public Description: string;
     public EntityType: string;
     public ID: number;
+    public IsDepricated: boolean;
     public Order: number;
     public StatusCategoryID: number;
     public StatusCode: number;
@@ -5806,6 +5807,37 @@ export class CompanyAccess extends UniEntity {
     public Deleted: boolean;
     public GlobalIdentity: string;
     public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class CompanyBackup extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'CompanyBackup';
+
+    public _createguid: string;
+    public BackupStatus: BackupStatus;
+    public CloudBlobName: string;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public ContainerName: string;
+    public ContractID: number;
+    public ContractType: number;
+    public CopyFiles: boolean;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CustomerName: string;
+    public Deleted: boolean;
+    public DeletedAt: Date;
+    public Environment: string;
+    public ID: number;
+    public Message: string;
+    public OrgNumber: string;
+    public Reason: string;
+    public ScheduledForDeleteAt: Date;
+    public SchemaName: string;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -8265,6 +8297,7 @@ export class UserDto extends UniEntity {
     public ID: number;
     public IsAutobankAdmin: boolean;
     public LastLogin: Date;
+    public PermissionHandling: string;
     public PhoneNumber: string;
     public Protected: boolean;
     public StatusCode: number;
@@ -8342,11 +8375,6 @@ export class CreateBankUserDTO extends UniEntity {
     public IsAdmin: boolean;
     public Password: string;
     public Phone: string;
-}
-
-
-export class ResetAutobankPasswordDTO extends UniEntity {
-    public Password: string;
 }
 
 
@@ -8430,6 +8458,20 @@ export class A07Response extends UniEntity {
     public mainStatus: string;
     public Text: string;
     public Title: string;
+}
+
+
+export class SelfEmployed extends UniEntity {
+    public year: number;
+    public items: Array<SelfEmployedItem>;
+}
+
+
+export class SelfEmployedItem extends UniEntity {
+    public amount: number;
+    public name: string;
+    public number: string;
+    public supplierID: number;
 }
 
 
@@ -8720,6 +8762,17 @@ export class BankfileColumn extends UniEntity {
 }
 
 
+export class JournalSuggestion extends UniEntity {
+    public AccountID: number;
+    public Amount: number;
+    public BankStatementRuleID: number;
+    public Description: string;
+    public FinancialDate: LocalDate;
+    public MatchWithEntryID: number;
+    public Account: Account;
+}
+
+
 export class ReportRow extends UniEntity {
     public AccountName: string;
     public AccountNumber: number;
@@ -8924,6 +8977,25 @@ export class MarkingEntry extends UniEntity {
 export class MarkingReference extends UniEntity {
     public ID: number;
     public JournalEntryNumber: string;
+}
+
+
+export class SupplierInvoiceDetail extends UniEntity {
+    public AccountID: number;
+    public AccountName: string;
+    public AccountNumber: number;
+    public Amount: number;
+    public AmountCurrency: number;
+    public DeliveryDate: Date;
+    public Description: string;
+    public InvoiceDate: Date;
+    public InvoiceNumber: string;
+    public SupplierID: number;
+    public SupplierInvoiceID: number;
+    public VatCode: string;
+    public VatPercent: number;
+    public VatTypeID: number;
+    public VatTypeName: string;
 }
 
 
@@ -9632,6 +9704,12 @@ export enum TypeOfLogin{
     AltinnPin = 1,
     SMSPin = 2,
     TaxPin = 3,
+}
+
+
+export enum BackupStatus{
+    BackedUp = 1,
+    Restored = 2,
 }
 
 
