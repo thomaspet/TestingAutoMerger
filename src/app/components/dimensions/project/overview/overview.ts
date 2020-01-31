@@ -288,6 +288,20 @@ export class ProjectOverview {
                 title: {
                     display: true,
                     text: 'Ingen utgifter å vise'
+                },
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem, data) => {
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const index = tooltipItem.index;
+                            const label = data.labels[index];
+                            const value = data.datasets[datasetIndex].data[index];
+                            const valueStr = this.numberFormat.asMoney(value as number, {
+                                decimalLength: value.toString().indexOf('.') >= 0 ? 2 : 0
+                            });
+                            return label + ': ' + valueStr;
+                        }
+                    }
                 }
             };
         }

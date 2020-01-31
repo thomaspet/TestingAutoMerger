@@ -11,6 +11,7 @@ import {Chart, ChartConfiguration} from 'chart.js';
 import {IUniWidget} from '../../uniWidget';
 import {WidgetDataService} from '../../widgetDataService';
 import {theme} from 'src/themes/theme';
+import {NumberFormat} from '@app/services/common/numberFormatService';
 
 @Component({
     selector: 'balance-widget',
@@ -43,6 +44,7 @@ export class BalanceWidget {
 
     constructor(
         private dataService: WidgetDataService,
+        private numberFormatService: NumberFormat,
         private cdr: ChangeDetectorRef
     ) {}
 
@@ -100,6 +102,20 @@ export class BalanceWidget {
                 }]
             },
             options: {
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem, data) => {
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const index = tooltipItem.index;
+                            const label = data.labels[index];
+                            const value = data.datasets[datasetIndex].data[index];
+                            const valueStr = this.numberFormatService.asMoney(value as number, {
+                                decimalLength: value.toString().indexOf('.') >= 0 ? 2 : 0
+                            });
+                            return label + ': ' + valueStr;
+                        }
+                    }
+                },
                 responsive: true,
                 maintainAspectRatio: false,
                 animation: {
