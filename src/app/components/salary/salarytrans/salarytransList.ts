@@ -317,7 +317,8 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                     action: (row) => {
                         this.onRowDeleted(row);
                     },
-                    disabled: (row) => !this.payrollRun || this.payrollRun.StatusCode >= 1
+                    disabled: (row: SalaryTransaction) =>
+                        !this.payrollRun || this.payrollRun.StatusCode >= 1 || !!row['_isReadOnly'] || row['_isEmpty']
                 }
             ])
             .setColumns([
@@ -389,9 +390,9 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             .setIsRowReadOnly(
                 (rowModel: SalaryTransaction) => {
                     return rowModel.IsRecurringPost
-                        || !!rowModel.SalaryBalanceID
                         || rowModel.SystemType === StdSystemType.HolidayPayDeduction
-                        || !this.salarytransEmployeeTableConfig.editable;
+                        || !this.salarytransEmployeeTableConfig.editable
+                        || !!rowModel['_isReadOnly'];
                 }
             );
     }
