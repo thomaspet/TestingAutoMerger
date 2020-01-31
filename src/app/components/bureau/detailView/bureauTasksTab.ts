@@ -17,6 +17,7 @@ import {Company} from '../../../unientities';
 import {ErrorService} from '../../../services/common/errorService';
 import {UserService} from '../../../services/common/userService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
+import {theme, THEMES} from 'src/themes/theme';
 
 const BASE = environment.BASE_URL;
 
@@ -62,7 +63,7 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
     company: KpiCompany;
     accountingYear: number;
     viewData: any[];
-    inboxUrl: string = environment.isSrEnvironment ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
+    inboxUrl: string = theme.theme === THEMES.SR ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
 
     private subscription: Subscription;
     @HostBinding('class.no_access') public noAccess: boolean = false;

@@ -17,7 +17,6 @@ import {
     ApprovalService,
     SupplierInvoiceService,
     AssignmentDetails,
-    IStatTotal,
     ErrorService,
     PageStateService,
     UserService,
@@ -35,7 +34,7 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import { BillTransitionModal, BillMassTransition } from './bill-transition-modal/bill-transition-modal';
 import {ReInvoiceInfoModal} from './reinvoice-info-modal/reinvoice-info-modal';
-import {environment} from 'src/environments/environment';
+import {theme, THEMES} from 'src/themes/theme';
 
 interface IFilter {
     name: string;
@@ -196,8 +195,6 @@ export class BillsView implements OnInit {
         ]
     };
 
-    isSrEnvironment = environment.isSrEnvironment;
-
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -223,7 +220,7 @@ export class BillsView implements OnInit {
 
     public ngOnInit() {
         // Remove inbox from filters if SR-environment
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             this.filters.shift();
         }
 
@@ -943,7 +940,7 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             this.router.navigateByUrl('/accounting/inbox');
         } else {
             this.router.navigateByUrl('/accounting/bills/0');

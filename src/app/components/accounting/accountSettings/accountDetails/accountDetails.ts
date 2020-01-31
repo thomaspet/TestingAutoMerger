@@ -22,9 +22,9 @@ import {
 import { DimensionSettingsService } from '@app/services/common/dimensionSettingsService';
 import {getNewGuid} from '@app/components/common/utils/utils';
 import {RequestMethod} from '@uni-framework/core/http';
-import {environment} from 'src/environments/environment';
 
 import * as _ from 'lodash';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'account-details',
@@ -604,7 +604,7 @@ export class AccountDetails implements OnInit {
         ];
 
         // Only available on SR currently. Will be added to UE later
-        if (environment.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             fields.push(
                 {
                     FieldSet: 5,

@@ -1,9 +1,17 @@
 import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
 import {DASHBOARD_CONFIG} from './ext01/dashboard-config';
 
+import {THEMES} from './themes-enum';
+export * from './themes-enum';
+
 export const theme = {
+    theme: THEMES.SR,
+    appName: 'SR-Bank Regnskap',
+    appProvider: 'SR-Bank',
+
     translationOverrides: TRANSLATION_OVERRIDES,
     dashboardConfig: DASHBOARD_CONFIG,
+    showSignupLink: true,
 
     init: {
         illustration: 'themes/ext01/register-company-background.svg',

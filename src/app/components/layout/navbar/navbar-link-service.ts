@@ -8,7 +8,7 @@ import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {environment} from 'src/environments/environment';
+import {theme, THEMES} from 'src/themes/theme';
 
 export type SidebarState = 'collapsed' | 'expanded';
 
@@ -48,7 +48,9 @@ export class NavbarLinkService {
 
     public resetNavbar() {
         this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
-        if (!environment.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
+            this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
+        } else {
             const linkSections = this.getLinksFilteredByPermissions(this.user);
 
             this.getDimensionRouteSection(this.user).subscribe(
@@ -73,12 +75,8 @@ export class NavbarLinkService {
                         this.linkSections$.next(linkSections);
                     }
                 },
-                err => {
-                    this.linkSections$.next(linkSections);
-                }
+                () => this.linkSections$.next(linkSections)
             );
-        } else {
-            this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
         }
     }
 

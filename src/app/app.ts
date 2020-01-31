@@ -24,7 +24,7 @@ import {LicenseManager} from 'ag-grid-enterprise';
 import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
-import { environment } from 'src/environments/environment';
+import {theme, THEMES} from 'src/themes/theme';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -37,7 +37,6 @@ export class App {
     private userlicenseModalOpen: boolean;
     private missingRolesModalOpen: boolean;
 
-    isSrEnvironment = environment.isSrEnvironment;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
@@ -56,7 +55,7 @@ export class App {
         public chatBoxService: ChatBoxService,
     ) {
         if (!this.titleService.getTitle()) {
-            const title = this.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+            const title = theme.appName;
             this.titleService.setTitle(title);
         }
 
@@ -85,10 +84,11 @@ export class App {
                     this.isPendingApproval = true;
                     return;
                 }
-                const shouldShowLicenseDialog = !this.isSrEnvironment
-                    && !this.hasAcceptedCustomerLicense(authDetails.user)
+
+                const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
+                    && theme.theme !== THEMES.SR
                     && contractType !== 'Demo'
-                    && !this.licenseAgreementModalOpen;
+                    && !this.hasAcceptedCustomerLicense(authDetails.user);
 
                 if (shouldShowLicenseDialog) {
                     this.licenseAgreementModalOpen = true;
@@ -148,7 +148,7 @@ export class App {
     }
 
     goToExternalSignup() {
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
             this.statisticsService.GetAllUnwrapped(
                 'model=CompanySettings&select=OrganizationNumber as OrganizationNumber'

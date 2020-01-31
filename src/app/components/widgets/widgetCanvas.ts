@@ -19,7 +19,6 @@ import {ToastService, ToastType} from '../../../framework/uniToast/toastService'
 import {AuthService} from '../../authService';
 import {WidgetDataService} from './widgetDataService';
 import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-service';
-import {environment} from 'src/environments/environment';
 
 import {Chart} from 'chart.js';
 import 'chartjs-plugin-datalabels';
@@ -34,6 +33,7 @@ import {
     MISC_WIDGETS
 } from './configs/index';
 import {takeUntil, throttleTime, debounceTime, finalize} from 'rxjs/operators';
+import {theme, THEMES} from 'src/themes/theme';
 
 export {IUniWidget} from './uniWidget';
 
@@ -107,7 +107,7 @@ export class UniWidgetCanvas {
 
     canvasHeight: number;
 
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
     activeLinkLabel: string = 'Hjem';
 
     constructor(
@@ -514,7 +514,7 @@ export class UniWidgetCanvas {
 
     private initWidgetSelector() {
         const filter = widgets => {
-            if (environment.isSrEnvironment) {
+            if (this.isSrEnvironment) {
                 return widgets;
             } else {
                 return widgets.filter(w => !w.srOnly);

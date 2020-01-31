@@ -1,10 +1,17 @@
 import {TRANSLATION_OVERRIDES} from './ue/translation-overrides';
 import {DASHBOARD_CONFIG} from './ue/dashboard-config';
 
-export const icons: any = {};
+import {THEMES} from './themes-enum';
+export * from './themes-enum';
+
 export const theme = {
+    theme: THEMES.UE,
+    appName: 'Uni Economy',
+    appProvider: 'Uni Micro',
+
     translationOverrides: TRANSLATION_OVERRIDES,
     dashboardConfig: DASHBOARD_CONFIG,
+    showSignupLink: false,
 
     init: {
         illustration: 'themes/ue/init_bg.svg',

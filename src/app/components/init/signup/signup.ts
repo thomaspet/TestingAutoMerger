@@ -5,6 +5,7 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {environment} from 'src/environments/environment';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -12,7 +13,7 @@ import {environment} from 'src/environments/environment';
     styleUrls: ['./signup.sass']
 })
 export class Signup {
-    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    appName = theme.appName;
     confirmationCode: string;
     busy: boolean;
 

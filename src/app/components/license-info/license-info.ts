@@ -1,11 +1,11 @@
 import {Component, OnDestroy} from '@angular/core';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {environment} from 'src/environments/environment';
 import {ElsaCustomer, ElsaContract} from '@app/models/elsa-models';
 import {AuthService} from '@app/authService';
 import {ElsaCustomersService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'license-info',
@@ -16,8 +16,7 @@ import {BehaviorSubject} from 'rxjs';
 export class LicenseInfo implements OnDestroy {
     activeTabIndex = 0;
     customers: ElsaCustomer[];
-    isSrEnvironment: boolean = environment.isSrEnvironment;
-    public selectedContractID$: BehaviorSubject<number> = new BehaviorSubject(null);
+    selectedContractID$ = new BehaviorSubject<number>(null);
 
     tabs: IUniTab[] = [
         {name: 'Detaljer', path: 'details'},
@@ -28,7 +27,7 @@ export class LicenseInfo implements OnDestroy {
     constructor(tabService: TabService,
         private authService: AuthService,
         private elsaCustomersService: ElsaCustomersService) {
-        if (!this.isSrEnvironment) {
+        if (theme.theme === THEMES.UE) {
             this.tabs.push({name: 'Estimert forbruk', path: 'billing'});
         }
 

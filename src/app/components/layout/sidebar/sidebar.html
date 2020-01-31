@@ -17,7 +17,7 @@
                         <uni-icon
                             [icon]="section.icon"
                             [matIconClass]="'material-icons-outlined'"
-                            [ngClass]="{'ue-icon': !isSrEnvironment}"
+                            [ngClass]="{'ue-icon': isUEEnvironment}"
                             (click)="navigateToSectionUrl(section, $event)"
                             [matTooltip]="section.name | translate"
                             [matTooltipDisabled]="popover || state === 'expanded'"

@@ -73,6 +73,7 @@ import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { SubEntitySettingsService } from '../agaAndSubEntitySettings/services/subEntitySettingsService';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'settings',
@@ -108,7 +109,6 @@ export class CompanySettingsComponent implements OnInit {
     public config$ = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public reportSetupFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    isSrEnvironment: boolean = environment.isSrEnvironment;
 
     private roundingNumberOfDecimals: {Decimals: number, Label: string}[] = [
         {Decimals: 0, Label: 'Ingen desimaler'},
@@ -929,7 +929,7 @@ export class CompanySettingsComponent implements OnInit {
             defaultAccountNumber: bankAccountType === 'company' ? 1920 : bankAccountType === 'tax' ? 1950 : null,
         };
 
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             modalConfig.BICLock = {
                 BIC:  'SPRONO22',
                 BankName: 'SpareBank 1 SR-Bank'
@@ -1424,7 +1424,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.isSrEnvironment
+                Hidden: theme.theme === THEMES.SR
             },
             {
                 EntityType: 'CompanySettings',
@@ -1434,7 +1434,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues || this.isSrEnvironment,
+                Hidden: this.hideBankValues || theme.theme === THEMES.SR,
             },
             {
                 EntityType: 'CompanySettings',
@@ -1444,7 +1444,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideBankValues || this.isSrEnvironment
+                Hidden: this.hideBankValues || theme.theme === THEMES.SR
             },
             {
                 EntityType: 'CompanySettings',
@@ -1454,7 +1454,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.isSrEnvironment
+                Hidden: theme.theme === THEMES.SR
             },
             {
                 EntityType: 'CompanySettings',
@@ -1464,7 +1464,7 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 6,
                 Section: 1,
                 Sectionheader: 'Bankkontoer',
-                Hidden: this.hideXtraPaymentOrgXmlTagValue || this.isSrEnvironment
+                Hidden: this.hideXtraPaymentOrgXmlTagValue || theme.theme === THEMES.SR
             },
             {
                 EntityType: 'CompanySettings',

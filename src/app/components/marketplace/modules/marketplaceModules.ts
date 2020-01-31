@@ -33,6 +33,7 @@ import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -44,7 +45,6 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
     extensions: ElsaProduct[];
     filteredExtensions: ElsaProduct[];
     tabs: IUniTab[];
-    isSrEnvironment = environment.isSrEnvironment;
 
     private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
@@ -243,7 +243,7 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
     }
 
     openLinkInNewTab() {
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
         } else {
             window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');

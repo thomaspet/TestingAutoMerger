@@ -17,8 +17,8 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
-import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
-import {environment} from 'src/environments/environment';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -83,7 +83,6 @@ export class BureauDashboard {
     ];
 
     onDestroy$ = new Subject();
-    isSrEnvironment = environment.isSrEnvironment;
 
     constructor(
         private errorService: ErrorService,
@@ -392,7 +391,7 @@ export class BureauDashboard {
     }
 
     public onCompanyInboxClick(company: KpiCompany) {
-        const redirectUrl = this.isSrEnvironment ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
+        const redirectUrl = theme.theme === THEMES.SR ? '/accounting/inbox' : '/accounting/bills?filter=Inbox';
         this.redirectToCompanyUrl(company, redirectUrl);
         this.busy = true;
     }

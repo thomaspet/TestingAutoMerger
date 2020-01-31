@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
-import {environment} from 'src/environments/environment';
 import {BoostChat} from '@app/components/layout/boostChat/boostChat';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -48,7 +48,7 @@ import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 export class UniTabstripHelp {
     @ViewChild(BoostChat, { static: false }) boost: BoostChat;
 
-    isSrEnvironment: boolean = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {

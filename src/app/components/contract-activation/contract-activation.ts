@@ -18,6 +18,7 @@ import {
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {CompanyDetails} from './company-details-form/company-details-form';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'contract-activation',
@@ -27,7 +28,7 @@ import {TabService} from '../layout/navbar/tabstrip/tabService';
 export class ContractActivation {
     @HostBinding('class.overlay') trialExpired: boolean;
 
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
     lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
 
     headerText = this.isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktivering av kundeforhold';

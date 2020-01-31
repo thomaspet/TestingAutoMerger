@@ -3,8 +3,7 @@ import {Router, NavigationEnd} from '@angular/router';
 import {Subject} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {takeUntil} from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-init',
@@ -14,7 +13,7 @@ export class UniInit {
     isAuthenticated: boolean;
     showTryForFree = true;
 
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
     illustration: string;
     background: string;
     backgroundHeight = theme.init.backgroundHeight;

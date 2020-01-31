@@ -27,10 +27,10 @@ import {
     MatchSubAccountManualModal,
     MatchMainAccountModal
 } from './modals';
-import {File, Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement} from '../../unientities';
+import {Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
-import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
+import {AddPaymentModal} from '@app/components/common/modals/addPaymentModal';
 import {
     ErrorService,
     StatisticsService,
@@ -49,10 +49,10 @@ import {RequestMethod} from '@uni-framework/core/http';
 import {BookPaymentManualModal} from '@app/components/common/modals/bookPaymentManual';
 import {JournalingRulesModal} from '@app/components/common/modals/journaling-rules-modal/journaling-rules-modal';
 import {BankInitModal} from '@app/components/common/modals/bank-init-modal/bank-init-modal';
-import { MatchCustomerInvoiceManual } from '@app/components/bank/modals/matchCustomerInvoiceManual';
+import {MatchCustomerInvoiceManual} from '@app/components/bank/modals/matchCustomerInvoiceManual';
 import {ConfirmCreditedJournalEntryWithDate} from '../common/modals/confirmCreditedJournalEntryWithDate';
-import { AuthService } from '@app/authService';
-import { environment } from 'src/environments/environment';
+import {AuthService} from '@app/authService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-bank-component',
@@ -102,7 +102,6 @@ export class BankComponent {
     private agreements: any[] = [];
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
-    isSrEnvirnment = environment.isSrEnvironment;
     hasAccessToAutobank: boolean;
     filter: string = '';
     showInfo: boolean = false;
@@ -282,7 +281,7 @@ export class BankComponent {
         // Route all test clients to contract activation, Bank is not for demo use
         this.authService.authentication$.take(1).subscribe(auth => {
             if (auth.isDemo) {
-                const productName = environment.isSrEnvironment ? 'Bank + Regnskap' : 'bankmodulen';
+                const productName = theme.theme === THEMES.SR ? 'Bank + Regnskap' : 'bankmodulen';
                 this.toastService.toast({
                     title: `Du må ha en aktiv lisens for å ta i bruk ${productName}`,
                     type: ToastType.warn,
@@ -294,7 +293,7 @@ export class BankComponent {
             } else {
                 this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
                     this.companySettings = companySettings;
-                    if (this.isSrEnvirnment) {
+                    if (theme.theme === THEMES.SR) {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
                             if (!agreements || !agreements.length) {
                                 this.modalService.open(BankInitModal,
@@ -310,7 +309,7 @@ export class BankComponent {
                                 });
                             } else {
                                 this.agreements = agreements;
-                                this.hasAccessToAutobank = this.isSrEnvirnment;
+                                this.hasAccessToAutobank = true;
                                 this.initiateBank();
                             }
                         }, err => {
@@ -407,7 +406,7 @@ export class BankComponent {
         if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
 
-            if (!this.isSrEnvirnment) {
+            if (theme.theme !== THEMES.SR) {
                 items.push({
                     label: 'Ny autobankavtale',
                     action: () => this.openAutobankAgreementModal(),

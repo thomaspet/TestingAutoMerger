@@ -6,6 +6,7 @@ import {BehaviorSubject} from 'rxjs';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniTranslationService} from '@app/services/services';
 import {environment} from 'src/environments/environment';
+import {theme} from 'src/themes/theme';
 
 // The enum is numbered based on its parent app:
 //      1×× - Key figures
@@ -216,10 +217,9 @@ export class TabService {
         }
 
         // Set document title so browser history makes sense
-        const appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
         const documentTitle = this.currentActiveTab
             ? this.translateService.translate(this.currentActiveTab.name)
-            : appName;
+            : theme.appName;
 
         this.titleService.setTitle(documentTitle);
     }

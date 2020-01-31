@@ -5,8 +5,8 @@ import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Router} from '@angular/router';
 import {Company} from '@uni-entities';
-import {environment} from 'src/environments/environment';
 import {Subscription} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-login',
@@ -15,7 +15,7 @@ import {Subscription} from 'rxjs';
 })
 export class Login {
     @ViewChild(UniSelect, { static: false }) select: UniSelect;
-    @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
+    @HostBinding('class') class = theme.theme === THEMES.SR ? 'ext01-login' : 'ue-login';
 
     isAuthenticated: boolean;
     availableCompanies: any[];

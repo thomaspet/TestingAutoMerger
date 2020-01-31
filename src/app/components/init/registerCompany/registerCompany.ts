@@ -3,9 +3,9 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
-import {environment} from 'src/environments/environment';
 import {InitService} from '@app/services/services';
 import {Subscription} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -27,7 +27,7 @@ interface RegistrationOption {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
-    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    appName = theme.appName;
     tokenSubscription: Subscription;
 
     selectedCompanyType: string;
@@ -53,7 +53,9 @@ export class RegisterCompany {
                 this.initService.getContracts().subscribe(contracts => {
                     if (contracts && contracts[0]) {
                         this.contractID = contracts[0].ID;
-                        this.registrationOptions = environment.isSrEnvironment ? this.getSrOptions() : this.getUeOptions();
+                        this.registrationOptions = theme.theme === THEMES.SR
+                            ? this.getSrOptions()
+                            : this.getUeOptions();
                     } else {
                         this.missingContract = true;
                     }
