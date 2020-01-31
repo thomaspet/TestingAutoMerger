@@ -1,32 +1,45 @@
 var fs = require('fs');
 var request = require('sync-request');
+const readline = require("readline");
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+});
 
-var SERVER_URL = process.env.SERVER_URL;
+rl.question('Enter api url (leave blank for dev): \n> ', function(endpoint) {
+  endpoint = endpoint || 'https://devapi.unieconomy.no';
 
-var URL = [
-  SERVER_URL,
-  'api/metadata/typescriptentities'
-].join('/');
+  rl.question("\nEnter valid token (without Bearer): \n> ", function(token) {
+      rl.question("\nEnter CompanyKey: \n> ", function(key) {
+          if (token && key) {
+            token = token.replace(/"/g, '');
+            key = key.replace(/"/g, '');
 
-var CLIENT = process.env.UNI_CLIENT || 'jorgeas';
+            const url = `${endpoint}/api/metadata/typescriptentities`;
+            console.log(`\nGetting entities from ${url}\n`);
 
-if (!SERVER_URL) {
-  console.log('You need to specify the server url before the command:')
-  console.log('windows:       `set SERVER_URL=https://devapi.unieconomy.no&&yarn entities`');
-  console.log('git_bash/unix: `export SERVER_URL=https://devapi.unieconomy.no&&yarn entities`');
-  process.exit(1);
-}
+            try {
+              var response = request('GET', url, {
+                headers: {
+                  'Authorization': `Bearer ${token.trim()}`,
+                  'CompanyKey': key.trim()
+                }
+              });
 
-try {
-  var response = request('GET', URL, {
-    headers: {
-      'client': CLIENT
-    }
+              fs.writeFileSync('./src/app/unientities.ts', response.getBody('utf8'));
+            } catch(e) {
+              console.error('Error downloading unientities');
+              console.error(e);
+              process.exit(1);
+            }
+
+          }
+          rl.close();
+      });
   });
-  fs.writeFileSync('./src/app/unientities.ts', response.getBody('utf8'));
-} catch(e) {
-  console.error('Error downloading unientities');
-  console.error(e);
-  process.exit(1);
-}
-process.exit(0);
+
+})
+
+rl.on("close", function() {
+    process.exit(0);
+});
