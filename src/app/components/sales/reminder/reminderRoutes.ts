@@ -1,7 +1,7 @@
-import {ReminderList} from './list/reminderList';
-import {ReminderSending} from './sending/reminderSending';
-import {DebtCollection} from './debtCollection/debtCollection';
-import {SentToDebtCollection} from './sentToDebtCollection/sentToDebtCollection';
+import { ReminderList } from './list/reminderList';
+import { ReminderSending } from './sending/reminderSending';
+import { DebtCollection } from './debtCollection/debtCollection';
+import { SentToDebtCollection } from './sentToDebtCollection/sentToDebtCollection';
 
 export const routes = [
     {

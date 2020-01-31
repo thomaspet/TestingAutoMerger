@@ -1,15 +1,15 @@
-import {Component, Input, ViewChild} from '@angular/core';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
-import {ActivatedRoute} from '@angular/router';
-import {SendEmail} from '../../../../models/sendEmail';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {Observable} from 'rxjs';
-import {LocalDate, CustomerInvoiceReminder, ReportDefinition} from '../../../../unientities';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {BehaviorSubject} from 'rxjs';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {UniReminderSendingEditModal} from './reminderSendingEditModal';
+import { Component, Input, ViewChild, OnInit } from '@angular/core';
+import { ToastService, ToastType, ToastTime } from '../../../../../framework/uniToast/toastService';
+import { ActivatedRoute } from '@angular/router';
+import { SendEmail } from '../../../../models/sendEmail';
+import { IUniSaveAction } from '../../../../../framework/save/save';
+import { Observable, of } from 'rxjs';
+import { LocalDate, CustomerInvoiceReminder, ReportDefinition } from '../../../../unientities';
+import { UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { BehaviorSubject } from 'rxjs';
+import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { UniReminderSendingEditModal } from './reminderSendingEditModal';
 import {
     StatisticsService,
     ErrorService,
@@ -17,7 +17,8 @@ import {
     CustomerInvoiceReminderService,
     EmailService,
     ReportService,
-    StatusService
+    StatusService,
+    ElsaPurchaseService
 } from '../../../../services/services';
 import {
     UniTableColumn,
@@ -28,6 +29,7 @@ import {
 } from '../../../../../framework/ui/unitable/index';
 import { UniReminderSendingMethodModal } from './reminderSendingMethodModal';
 import { List } from 'immutable';
+import { catchError } from 'rxjs/operators';
 
 export interface IRunNumberData {
     RunNumber: number;
@@ -52,7 +54,8 @@ export interface CustomReminder extends CustomerInvoiceReminder {
     selector: 'reminder-sending',
     templateUrl: './reminderSending.html'
 })
-export class ReminderSending {
+export class ReminderSending implements OnInit {
+
     @Input() config: any;
     @Input() modalMode: boolean;
     @ViewChild(AgGridWrapper, { static: false })
@@ -87,18 +90,20 @@ export class ReminderSending {
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     saveactions: IUniSaveAction[] = [
-         {
+        {
             label: 'Utsendelse',
-            action: (done) => this.distributeReminders(done),
+            action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.distributeReminders(done),
             main: true,
             disabled: !!this.remindersAll
         },
         {
             label: 'Slett valgte',
-            action: (done) => this.deleteReminders(done),
+            action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.deleteReminders(done),
             disabled: !!this.remindersAll
         }
     ];
+
+    debtCollectionProductPurchased = false;
 
     constructor(
         private toastService: ToastService,
@@ -110,7 +115,8 @@ export class ReminderSending {
         private emailService: EmailService,
         private route: ActivatedRoute,
         private reportService: ReportService,
-        private statusService: StatusService
+        private statusService: StatusService,
+        private elsaPurchaseService: ElsaPurchaseService
     ) {
         route.queryParams.subscribe((params) => {
             const runNumber = +params['runNumber'];
@@ -120,6 +126,14 @@ export class ReminderSending {
 
             this.setupReminderTable();
         });
+    }
+
+    ngOnInit() {
+        this.elsaPurchaseService.getPurchaseByProductName('Kreditorforeningen')
+            .pipe(catchError(() => of(null)))
+            .subscribe(product => {
+                this.debtCollectionProductPurchased = !!product;
+            });
     }
 
     private deleteReminders(done) {
@@ -172,22 +186,22 @@ export class ReminderSending {
     private distributeReminders(done: (message: string) => void) {
         const selected = this.getSelected();
         if (selected.length === 0) {
-           this.toastService.addToast(
-               'Ingen rader er valgt',
-               ToastType.bad,
-               10,
-               'Vennligst velg hvilke purringer du vil sende, eller kryss av for alle'
-           );
-           done('Sending avbrutt');
-           return;
+            this.toastService.addToast(
+                'Ingen rader er valgt',
+                ToastType.bad,
+                10,
+                'Vennligst velg hvilke purringer du vil sende, eller kryss av for alle'
+            );
+            done('Sending avbrutt');
+            return;
         }
         let selectedWithDistribution = '';
         let selectedWithoutDistribution = [];
         const selectedIDs = [];
         let selectedIDsString = '';
         selected.forEach((item) => {
-           selectedIDs.push(item.ID);
-           selectedIDsString += item.ID + ',';
+            selectedIDs.push(item.ID);
+            selectedIDsString += item.ID + ',';
         })
         this.reportService.getEntitiesWithDistribution(selectedIDsString.slice(0, -1), this.distributeEntityType).subscribe((ids: List<number>) => {
             selectedIDs.forEach((id) => {
@@ -225,10 +239,9 @@ export class ReminderSending {
     printonly = true -> sendPrint to all selected
     */
     private sendReminders(done: (message: string) => void, printonly, selected = []) {
-        if (selected.length === 0)
-         {
-             selected = this.getSelected();
-         }
+        if (selected.length === 0) {
+            selected = this.getSelected();
+        }
         if (selected.length === 0) {
             this.toastService.addToast(
                 'Ingen rader er valgt',
@@ -254,23 +267,23 @@ export class ReminderSending {
 
     loadAll(): Promise<any> {
         return new Promise((resolve, reject) => {
-                Observable.forkJoin([
-                    this.reminderService.GetAll(
-                        'orderby=CustomerInvoiceID desc,ReminderNumber desc'
-                    )
-                ]).subscribe((res) => {
-                    const reminders = res[0];
+            Observable.forkJoin([
+                this.reminderService.GetAll(
+                    'orderby=CustomerInvoiceID desc,ReminderNumber desc'
+                )
+            ]).subscribe((res) => {
+                const reminders = res[0];
 
-                    if (reminders.length === 0) {
-                        resolve(false);
-                    } else {
-                        this.updateReminderList();
-                        resolve(true);
-                    }
-                }, (err) => {
+                if (reminders.length === 0) {
                     resolve(false);
-                });
-            }
+                } else {
+                    this.updateReminderList();
+                    resolve(true);
+                }
+            }, (err) => {
+                resolve(false);
+            });
+        }
         );
     }
 
@@ -281,8 +294,7 @@ export class ReminderSending {
             filter = `and (`;
             reminders.forEach(reminder => {
                 let id = reminder.ID;
-                if (!id)
-                {
+                if (!id) {
                     id = reminder.CustomerInvoiceReminderID;
                 }
                 filter += ' ID eq ' + id + ' or';
@@ -334,8 +346,8 @@ export class ReminderSending {
                 email.Message = `Vedlagt finner du purring ${reminder.ReminderNumber} for faktura ${reminder.InvoiceNumber}`;
 
                 const parameters = [
-                    {Name: 'CustomerInvoiceID', value: reminder.InvoiceID},
-                    {Name: 'ReminderNumber', value: reminder.ReminderNumber}
+                    { Name: 'CustomerInvoiceID', value: reminder.InvoiceID },
+                    { Name: 'ReminderNumber', value: reminder.ReminderNumber }
                 ];
 
                 this.reportDefinitionService.GetAll(`filter=name eq 'Purring'`).subscribe(rd => {
@@ -360,9 +372,9 @@ export class ReminderSending {
                     const invoiceFilterParam = printReminders.map(reminder => 'CustomerInvoice.ID eq ' + reminder.InvoiceID).join(' or ');
                     const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).reduce((a, b) => a > b ? a : b);
                     report['parameters'] = [
-                        {Name: 'CustomerInvoiceID', value: 0},
-                        {Name: 'ReminderFilter', value: invoiceFilterParam},
-                        {Name: 'ReminderNumber', value: reminderNumberParam}
+                        { Name: 'CustomerInvoiceID', value: 0 },
+                        { Name: 'ReminderFilter', value: invoiceFilterParam },
+                        { Name: 'ReminderNumber', value: reminderNumberParam }
                     ];
 
                     this.modalService.open(UniPreviewModal, {
@@ -458,7 +470,7 @@ export class ReminderSending {
         const sharingDateCol = new UniTableColumn('LastSharingDate', 'Siste utsendelsesdato', UniTableColumnType.LocalDate)
             .setVisible(false);
 
-            const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
+        const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
             .setFilterOperator('contains')
             .setVisible(false);
 
@@ -523,5 +535,14 @@ export class ReminderSending {
                 this.sendInvoicePrint(done, selected);
             }
         });
+    }
+
+    showProductPurchaseToast(done) {
+        this.toastService.addToast('Standard purrefunksjonalitet deaktivert',
+            ToastType.info,
+            10,
+            'Du har en aktiv integrasjon for purring/inkasso. Standardfunksjonaliteten for disse funksjonene er derfor deaktivert.');
+
+            done();
     }
 }

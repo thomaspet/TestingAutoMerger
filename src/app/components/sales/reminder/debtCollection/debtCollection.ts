@@ -1,15 +1,16 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ISummaryConfig} from '../../../common/summary/summary';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import { IUniSaveAction } from '../../../../../framework/save/save';
+import { ISummaryConfig } from '../../../common/summary/summary';
+import { UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     NumberFormat,
     CustomerInvoiceService,
     ErrorService,
-    CustomerInvoiceReminderService
+    CustomerInvoiceReminderService,
+    ElsaPurchaseService
 } from '../../../../services/services';
 import {
     UniTableColumn,
@@ -18,7 +19,10 @@ import {
     IContextMenuItem,
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
+import { Router, ActivatedRoute } from '@angular/router';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 declare const _;
 
@@ -59,10 +63,13 @@ export class DebtCollection implements OnInit {
     public saveactions: IUniSaveAction[] = [
         {
             label: 'Send purringer til inkasso',
-            action: (done) => this.sendRemindersToDebtCollect(done),
+            action: (done) => this.debtCollectionProductPurchased ?
+                this.showProductPurchaseToast(done) : this.sendRemindersToDebtCollect(done),
             disabled: !!this.remindersToDebtCollect
         }
     ];
+
+    debtCollectionProductPurchased = false;
 
     constructor(
         private toastService: ToastService,
@@ -72,7 +79,8 @@ export class DebtCollection implements OnInit {
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
         private tabService: TabService,
-    ) {}
+        private elsaPurchaseService: ElsaPurchaseService
+    ) { }
 
     public ngOnInit() {
         this.setupRemindersToDebtCollectTable();
@@ -82,6 +90,13 @@ export class DebtCollection implements OnInit {
             moduleID: UniModules.Reminders,
             active: true
         });
+
+
+        this.elsaPurchaseService.getPurchaseByProductName('Kreditorforeningen')
+            .pipe(catchError(() => of(null)))
+            .subscribe(product => {
+                this.debtCollectionProductPurchased = !!product;
+            });
     }
 
     public onRowSelected(data) {
@@ -252,8 +267,8 @@ export class DebtCollection implements OnInit {
         });
 
         const externalRefCol = new UniTableColumn('ExternalReference', 'Fakturaliste', UniTableColumnType.Text, false)
-        .setFilterOperator('contains')
-        .setVisible(false);
+            .setFilterOperator('contains')
+            .setVisible(false);
 
         // Context menu
         const contextMenuItems: IContextMenuItem[] = [];
@@ -273,7 +288,7 @@ export class DebtCollection implements OnInit {
                         this.errorService.handle(err);
                     });
             },
-            disabled: (item) =>  item.DontSendReminders
+            disabled: (item) => item.DontSendReminders
         });
 
         contextMenuItems.push({
@@ -292,7 +307,7 @@ export class DebtCollection implements OnInit {
                         this.errorService.handle(err);
                     });
             },
-            disabled: (item) =>  !item.DontSendReminders
+            disabled: (item) => !item.DontSendReminders
         });
 
         const configStoreKey = 'sales.reminders.reminderToDebtCollect';
@@ -308,5 +323,14 @@ export class DebtCollection implements OnInit {
                 invoiceDateCol, invoiceDueDateCol, reminderStoppCol, externalRefCol
             ])
             .setContextMenu(contextMenuItems);
+    }
+
+    showProductPurchaseToast(done) {
+        this.toastService.addToast('Standard purrefunksjonalitet deaktivert',
+            ToastType.info,
+            10,
+            'Du har en aktiv integrasjon for purring/inkasso. Standardfunksjonaliteten for disse funksjonene er derfor deaktivert.');
+
+        done();
     }
 }
