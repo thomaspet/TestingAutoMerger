@@ -1393,7 +1393,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         }
 
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced
+            || (this.invoice.InvoiceNumber && this.invoice.InvoiceType === InvoiceTypes.CreditNote)) {
             this.saveActions.push({
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
                 main: true,
