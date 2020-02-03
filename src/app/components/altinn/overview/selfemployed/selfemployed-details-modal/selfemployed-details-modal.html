@@ -1,0 +1,18 @@
+<section role="dialog" class="uni-modal large">
+    <header>{{ line?.name }} - {{ line?.name}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+        <ag-grid-wrapper style="height: 60vh"
+            [resource]="data"
+            [config]="tableConfig"
+            (dataLoaded)="onDataLoaded()">
+        </ag-grid-wrapper>
+    </article>
+    <footer>
+        <button (click)="close()" class="secondary">Avbryt</button>
+        <button (click)="submit()" class="c2a">Lagre</button>
+    </footer>
+</section>

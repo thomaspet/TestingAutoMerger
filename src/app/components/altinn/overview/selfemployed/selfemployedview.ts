@@ -9,6 +9,8 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { UniTableColumn, UniTableConfig, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {SelfEmployedDetailsModal} from '@app/components/altinn/overview/selfemployed/selfemployed-details-modal/selfemployed-details-modal';
 
 @Component({
     selector: 'selfemployed-view',
@@ -24,9 +26,7 @@ export class SelfEmployedView implements OnInit {
     public toolbarConfig: IToolbarConfig;
     public actions: IUniSaveAction[];
     public year: number;
-    public payments: ThirdPartyItem[];
-    // public invoices: SupplierInvoice[];
-    // public invoicesPerSupplier: SupplierInvoice[];
+    public payments: any[];
     public tableConfig: UniTableConfig;
 
     public infoConfig: IUniInfoConfig = {
@@ -40,7 +40,8 @@ export class SelfEmployedView implements OnInit {
         // private modalService: UniModalService,
         // private modulusService: ModulusService,
         private toastService: ToastService,
-        private supplierInvoiceService: SupplierInvoiceService
+        private supplierInvoiceService: SupplierInvoiceService,
+        private modalService: UniModalService
     ) {}
 
     ngOnInit(): void {
@@ -81,8 +82,34 @@ export class SelfEmployedView implements OnInit {
             .setSearchable(true)
             .setAutoAddNewRow(false)
             .setMultiRowSelect(true)
-            .setColumnMenuVisible(false)
-            ;
+            .setColumnMenuVisible(true)
+            .setContextMenu([{
+                label: 'Se detaljer',
+                action: line => this.openDetailsModal(line)
+            }]);
+    }
+
+    private stringToAmount(value: string) {
+        const amountString = value
+            .replace(/\s/g, '')
+            .replace(',', '.');
+        return parseFloat(amountString);
+    }
+
+    private openDetailsModal(line) {
+        this.modalService.open(SelfEmployedDetailsModal, {
+            data: {line: line, year: this.year}
+        }).onClose.subscribe(value => {
+            if (value !== null) {
+                const amount = this.stringToAmount(value);
+                this.payments.forEach(item => {
+                    if (item.supplierID === line.supplierID) {
+                        item.amount = amount;
+                    }
+                });
+                this.payments = [].concat(this.payments);
+            }
+        });
     }
 
     private updateSaveActions() {

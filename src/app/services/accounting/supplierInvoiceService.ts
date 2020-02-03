@@ -1,11 +1,12 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {SupplierInvoice, StatusCodeSupplierInvoice, Team, User, InvoicePaymentData} from '../../unientities';
+import {InvoicePaymentData, StatusCodeSupplierInvoice, SupplierInvoice, Team, User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {HttpParams} from '@angular/common/http';
 import {ErrorService} from '../common/errorService';
 import {StatusCode} from '../../../app/components/sales/salesHelper/salesEnums';
+import {RequestMethod} from '@uni-framework/core/http';
 
 @Injectable()
 export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
@@ -168,6 +169,14 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         return this.http.asGET().usingStatisticsDomain()
         .withEndPoint(route).send()
         .map(response => response.body.Data);
+    }
+
+    public getJournalEntyLinesBySupplierID(supplierID: number, year: number) {
+        return this.Action(null,
+            'get-supplierinvoices-details',
+            `id=null&supplierID=${supplierID}&fromdate=${year}-1-1&todate=${year}-12-31`,
+            RequestMethod.Get
+        );
     }
 
     public getInvoiceList(httpParams: HttpParams, userIDFilter: string = ''): Observable<any> {

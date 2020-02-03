@@ -21,6 +21,7 @@ import {
     MatTreeModule,
  } from '@angular/material';
 import { SelfEmployedView } from './overview/selfemployed/selfemployedview';
+import {SelfEmployedDetailsModal} from '@app/components/altinn/overview/selfemployed/selfemployed-details-modal/selfemployed-details-modal';
 
 @NgModule({
     imports: [
@@ -44,10 +45,11 @@ import { SelfEmployedView } from './overview/selfemployed/selfemployedview';
         AltinnOverviewDetailsComponent,
         AltinnSettings,
         BarnepassView,
-        SelfEmployedView
+        SelfEmployedView,
+        SelfEmployedDetailsModal
     ],
     entryComponents: [
-
+        SelfEmployedDetailsModal
     ],
     providers: [
         AltinnOverviewParser
