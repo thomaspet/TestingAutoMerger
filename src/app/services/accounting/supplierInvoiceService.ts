@@ -311,6 +311,10 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         }
         return select;
     }
+
+    finish(id: number) {
+        return this.Action(id, 'finish', null, RequestMethod.Post);
+    }
 }
 
 

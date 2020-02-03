@@ -1,83 +1,87 @@
-import {ViewChild, Component, SimpleChanges, OnInit} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import {Router, ActivatedRoute} from '@angular/router';
-import {Observable, forkJoin} from 'rxjs';
-import {ICommentsConfig, StatusIndicator, IToolbarConfig} from '../../../common/toolbar/toolbar';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {ActivatedRoute, Router} from '@angular/router';
+import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
+import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
+import {filterInput, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
-    safeInt,
-    roundTo,
-    safeDec,
-    filterInput,
-    trimLength
-} from '../../../common/utils/utils';
-import {
-    Supplier, SupplierInvoice, SupplierInvoiceItem, JournalEntry, JournalEntryLineDraft,
-    StatusCodeSupplierInvoice, BankAccount, LocalDate,
-    InvoicePaymentData, CurrencyCode, CompanySettings, Task,
-    User, ApprovalStatus, Approval,
-    UserRole,
-    TaskStatus,
+    Approval,
+    ApprovalStatus,
+    BankAccount,
+    CompanySettings,
+    CurrencyCode,
     Dimensions,
-    VatDeduction,
-    Payment, ValidationLevel
+    InvoicePaymentData,
+    JournalEntry,
+    JournalEntryLineDraft,
+    LocalDate,
+    Payment,
+    StatusCodeSupplierInvoice,
+    Supplier,
+    SupplierInvoice,
+    SupplierInvoiceItem,
+    Task,
+    User,
+    UserRole,
+    ValidationLevel,
+    VatDeduction
 } from '@uni-entities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
-import {UniForm, FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {IOcrServiceResult, OcrValuables, OcrPropertyType} from './ocr';
+import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform/index';
+import {IOcrServiceResult, OcrPropertyType, OcrValuables} from './ocr';
 import {billStatusflowLabels as workflowLabels} from './lang';
 import {UniImage} from '@uni-framework/uniImage/uniImage';
 import {BillAssignmentModal} from '../assignment-modal/assignment-modal';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {CommentService} from '@uni-framework/comments/commentService';
-import {JournalEntryData, NumberSeriesTaskIds, CostAllocationData, AccountingCostSuggestion} from '@app/models';
+import {AccountingCostSuggestion, CostAllocationData, JournalEntryData, NumberSeriesTaskIds} from '@app/models';
 import {JournalEntryManual} from '../../journalentry/journalentrymanual/journalentrymanual';
 import {
-    UniModalService,
-    UniBankAccountModal,
-    UniRegisterPaymentModal,
-    UniConfirmModalV2,
-    UniConfirmModalWithList,
-    IConfirmModalWithListReturnValue,
     ConfirmActions,
+    IConfirmModalWithListReturnValue,
     IModalOptions,
-    UniReinvoiceModal,
+    InvoiceApprovalModal,
+    UniBankAccountModal,
+    UniConfirmModalV2,
     UniConfirmModalWithCheckbox,
-    InvoiceApprovalModal
+    UniConfirmModalWithList,
+    UniModalService,
+    UniRegisterPaymentModal,
+    UniReinvoiceModal
 } from '@uni-framework/uni-modal';
 import {
-    SupplierInvoiceService,
-    SupplierService,
+    AssignmentDetails,
     BankAccountService,
+    BankService,
+    BrowserStorageService,
+    checkGuid,
+    CompanySettingsService,
     CurrencyCodeService,
     CurrencyService,
-    CompanySettingsService,
-    ErrorService,
-    PageStateService,
-    checkGuid,
-    EHFService,
-    UniSearchDimensionConfig,
-    ModulusService,
-    ProjectService,
+    CustomDimensionService,
     DepartmentService,
+    EHFService,
+    ErrorService,
+    FileService,
     JournalEntryService,
+    ModulusService,
+    PageStateService,
+    PaymentService,
+    ProjectService,
+    ReInvoicingService,
+    StatisticsService,
+    SupplierInvoiceService,
+    SupplierService,
+    UniFilesService,
+    UniSearchDimensionConfig,
     UserService,
     ValidationService,
-    UniFilesService,
-    BankService,
-    CustomDimensionService,
-    FileService,
-    VatDeductionService,
-    PaymentService,
-    BrowserStorageService,
-    ReInvoicingService,
-    AssignmentDetails,
-    StatisticsService
+    VatDeductionService
 } from '@app/services/services';
-import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
@@ -2266,6 +2270,13 @@ export class BillView implements OnInit {
                         );
                     }
 
+                    list.push({
+                        label: 'Arkiver',
+                        action: (done) => this.finish(done),
+                        main: false,
+                        disabled: false
+                    })
+
                     if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
                         list.push(
                             {
@@ -3708,6 +3719,18 @@ export class BillView implements OnInit {
             } else {
                 done();
             }
+        });
+    }
+
+    private finish(done) {
+        const bill = this.current.getValue();
+        this.supplierInvoiceService.finish(bill.ID).subscribe(() => {
+            this.toast.addToast('Leverandørfaktura arkivert', ToastType.good);
+            done();
+        }, (error) => {
+            console.log(error);
+            this.toast.addToast(error.error.Message, ToastType.bad);
+            done();
         });
     }
 
