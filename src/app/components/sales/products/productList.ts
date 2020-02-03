@@ -106,13 +106,11 @@ export class ProductList {
         const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva', UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('10%')
-            .setIsSumColumn(true)
             .setCls('column-align-right');
 
         const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva', UniTableColumnType.Money)
             .setFilterOperator('eq')
             .setWidth('10%')
-            .setIsSumColumn(true)
             .setCls('column-align-right');
 
         const departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
