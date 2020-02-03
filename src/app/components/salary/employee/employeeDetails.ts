@@ -741,21 +741,17 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getSubEntities() {
-        this.getSubEntitiesObservable().subscribe((response: SubEntity[]) => {
-            this.employmentService.setSubEntities(response);
-            super.updateState(SUB_ENTITIES_KEY, response, false);
-        }, err => this.errorService.handle(err));
+        this.getSubEntitiesObservable()
+            .subscribe(
+                (response: SubEntity[]) => super.updateState(SUB_ENTITIES_KEY, response, false),
+                err => this.errorService.handle(err)
+            );
     }
 
     private getSubEntitiesObservable(): Observable<SubEntity[]> {
         return this.subEntities
             ? Observable.of(this.subEntities)
-            : this.subEntityService.GetAll(null, ['BusinessRelationInfo'])
-                .map((subEntities: SubEntity[]) => {
-                    return subEntities.length > 1
-                        ? subEntities.filter(x => x.SuperiorOrganizationID > 0)
-                        : subEntities;
-                });
+            : this.employmentService.getAllAndCacheSubEntities(['BusinessRelationInfo']);
     }
 
     private getFinancialYearObs() {
