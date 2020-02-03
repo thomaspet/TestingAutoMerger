@@ -9,6 +9,7 @@ import {
     RegulativeStep,
     SalaryRegistry,
     TypeOfEmployment,
+    SubEntity,
 } from '@uni-entities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
@@ -21,6 +22,7 @@ import {
     StatisticsService,
     CompanySalaryService,
     RegulativeGroupService,
+    SubEntityService
 } from '../../../../services/services';
 import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -72,6 +74,7 @@ export class EmploymentDetails implements OnChanges {
         private modalService: UniModalService,
         private companySalaryService: CompanySalaryService,
         private regulativeGroupService: RegulativeGroupService,
+        private subEntityService: SubEntityService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
@@ -364,6 +367,32 @@ export class EmploymentDetails implements OnChanges {
         if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
             employment[UPDATE_RECURRING] = !!employment.ID;
             this.employmentChange.emit(employment);
+        }
+
+        if (changes['SubEntityID'] && !!this.employment.ID) {
+            const change = changes['SubEntityID'];
+            const prevSubEntity$: Observable<SubEntity> = isNaN(change.previousValue)
+                ? of(change.previousValue)
+                : this.subEntityService.Get(change.previousValue);
+            prevSubEntity$
+                .subscribe(prevSubEntity => {
+                    if (prevSubEntity && !prevSubEntity.SuperiorOrganizationID) {
+                        employment.SubEntityID = prevSubEntity.ID;
+                        this.employment$.next(employment);
+                        this.employmentChange.emit(employment);
+                        this.modalService.confirm({
+                            header: 'Kan ikke endre fra juridisk enhet',
+                            message: 'Feltet virksomhet kan ikke endres fordi arbeidsforholdet er knyttet til juridisk enhet.'
+                                + '<br/>'
+                                + 'Du må sette sluttdato på dette arbeidsforholdet '
+                                + 'og deretter opprette et nytt arbeidsforhold som du knytter til korrekt virksomhet.',
+                            buttonLabels: {
+                                accept: 'OK',
+                            }
+                        });
+                    }
+                });
+
         }
 
         if (changes['StartDate'] && this.employee.EndDateOtp) {

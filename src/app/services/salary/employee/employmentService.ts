@@ -11,11 +11,14 @@ import {FieldType, UniFieldLayout, UniFormError, UniField} from '../../../../fra
 import {CompanySalaryService} from '../companySalary/companySalaryService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import { StatisticsService } from '@app/services/common/statisticsService';
+import { SubEntityService } from '@app/services/common/subEntityService';
+import { map, tap } from 'rxjs/operators';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
 
-    private subEntities$: ReplaySubject<SubEntity[]> = new ReplaySubject(1);
+    private allSubEntities$: ReplaySubject<SubEntity[]> = new ReplaySubject(1);
+    private availableSubEntities$: ReplaySubject<SubEntity[]> = new ReplaySubject(1);
     private projects$: ReplaySubject<Project[]> = new ReplaySubject(1);
     private departments$: ReplaySubject<Department[]> = new ReplaySubject(1);
     private employment$: ReplaySubject<Employment> = new ReplaySubject(1);
@@ -73,6 +76,7 @@ export class EmploymentService extends BizHttp<Employment> {
         private companySalaryService: CompanySalaryService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
+        private subEntityService: SubEntityService
         ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
@@ -116,14 +120,23 @@ export class EmploymentService extends BizHttp<Employment> {
                         + ' for å kunne sette opp arbeidsforholdet korrekt'));
     }
     public clearCache() {
-        this.subEntities$ = new ReplaySubject(1);
+        this.availableSubEntities$ = new ReplaySubject(1);
+        this.allSubEntities$ = new ReplaySubject(1);
         this.departments$ = new ReplaySubject(1);
         this.projects$ = new ReplaySubject(1);
         this.employment$ = new ReplaySubject(1);
     }
 
-    public setSubEntities(subEntities: SubEntity[]) {
-        this.subEntities$.next(subEntities);
+    public getAllAndCacheSubEntities(expand: string[]): Observable<SubEntity[]> {
+        return this.subEntityService
+            .GetAll(null, expand)
+            .pipe(
+                tap(subEntities => this.allSubEntities$.next(subEntities)),
+                map((subEntities: SubEntity[]) => subEntities.length > 1
+                        ? subEntities.filter(x => x.SuperiorOrganizationID > 0)
+                        : subEntities),
+                tap(subEntities => this.availableSubEntities$.next(subEntities))
+            );
     }
 
     public setDepartments(departments: Department[]) {
@@ -212,9 +225,9 @@ export class EmploymentService extends BizHttp<Employment> {
                             valueProperty: 'ID',
                             debounceTime: 200,
                             getDefaultData: () => this.employment$
-                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.subEntities$.take(1)))
+                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.allSubEntities$.take(1)))
                                 .map((result: [Employment, SubEntity[]]) => result[1].filter(x => x.ID === result[0].SubEntityID)),
-                            search: (query: string) => this.subEntities$
+                            search: (query: string) => this.availableSubEntities$
                                 .map(subs =>
                                     subs.filter(sub =>
                                         sub.BusinessRelationInfo.Name.toLowerCase().includes(query.toLowerCase()) ||
