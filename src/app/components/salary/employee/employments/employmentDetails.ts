@@ -1,8 +1,8 @@
 import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
-import {Employment, Account, Employee, LocalDate, CompanySalary} from '../../../../unientities';
+import {Employment, Account, Employee, LocalDate, CompanySalary, SubEntity} from '../../../../unientities';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {TypeOfEmployment} from '@uni-entities';
 import {
@@ -10,7 +10,8 @@ import {
     EmploymentService,
     AccountService,
     StatisticsService,
-    CompanySalaryService
+    CompanySalaryService,
+    SubEntityService
 } from '../../../../services/services';
 import {filter, take} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
@@ -58,7 +59,8 @@ export class EmploymentDetails implements OnChanges {
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private companySalaryService: CompanySalaryService
+        private companySalaryService: CompanySalaryService,
+        private subEntityService: SubEntityService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
@@ -284,6 +286,32 @@ export class EmploymentDetails implements OnChanges {
         if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
             employment[UPDATE_RECURRING] = !!employment.ID;
             this.employmentChange.emit(employment);
+        }
+
+        if (changes['SubEntityID'] && !!this.employment.ID) {
+            const change = changes['SubEntityID'];
+            const prevSubEntity$: Observable<SubEntity> = isNaN(change.previousValue)
+                ? of(change.previousValue)
+                : this.subEntityService.Get(change.previousValue);
+            prevSubEntity$
+                .subscribe(prevSubEntity => {
+                    if (prevSubEntity && !prevSubEntity.SuperiorOrganizationID) {
+                        employment.SubEntityID = prevSubEntity.ID;
+                        this.employment$.next(employment);
+                        this.employmentChange.emit(employment);
+                        this.modalService.confirm({
+                            header: 'Kan ikke endre fra juridisk enhet',
+                            message: 'Feltet virksomhet kan ikke endres fordi arbeidsforholdet er knyttet til juridisk enhet.'
+                                + '<br/>'
+                                + 'Du må sette sluttdato på dette arbeidsforholdet '
+                                + 'og deretter opprette et nytt arbeidsforhold som du knytter til korrekt virksomhet.',
+                            buttonLabels: {
+                                accept: 'OK',
+                            }
+                        });
+                    }
+                });
+
         }
 
         if (changes['StartDate'] && this.employee.EndDateOtp) {
