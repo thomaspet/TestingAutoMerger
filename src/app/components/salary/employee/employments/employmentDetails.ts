@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, OnInit} from '@angular/core';
 import {
     Employment,
     Account,
@@ -28,6 +28,7 @@ import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
+import { AuthService } from '@app/authService';
 
 declare var _;
 const UPDATE_RECURRING = '_updateRecurringTranses';
@@ -45,7 +46,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
         </section>
     `
 })
-export class EmploymentDetails implements OnChanges {
+export class EmploymentDetails implements OnChanges, OnInit {
     @ViewChild(UniForm, { static: false }) private form: UniForm;
 
     @Input() public employment: Employment;
@@ -74,20 +75,28 @@ export class EmploymentDetails implements OnChanges {
         private modalService: UniModalService,
         private companySalaryService: CompanySalaryService,
         private regulativeGroupService: RegulativeGroupService,
-        private subEntityService: SubEntityService,
-    ) {
+        private authService: AuthService,
+        private subEntityService: SubEntityService
+    ) {}
+
+    ngOnInit() {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
             });
 
-        this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
-            this.employmentService.setRegulativeGroups(x);
-            if (this.employment && this.employment.RegulativeGroupID)
-                this.employmentService.setRegulativeSteps(x.filter((regulativeGroup: RegulativeGroup) => regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
-
-            this.regulativeGroups = x;
-        })
+            const hasAcessToRegulative = this.authService.hasUIPermission(this.authService.currentUser, 'ui_salary_regulative');
+            if (hasAcessToRegulative) {
+                this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
+                    this.employmentService.setRegulativeGroups(x);
+                    if (this.employment && this.employment.RegulativeGroupID) {
+                        this.employmentService.setRegulativeSteps(
+                            x.filter((regulativeGroup: RegulativeGroup) =>
+                            regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
+                    }
+                    this.regulativeGroups = x;
+                });
+            }
     }
 
     public ngOnChanges(change: SimpleChanges) {
