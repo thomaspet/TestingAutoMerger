@@ -211,6 +211,20 @@ export class SRUnpaidDoughnutChart implements AfterViewInit {
                 labels: []
             },
             options: {
+                tooltips: {
+                    callbacks: {
+                        label: (tooltipItem, data) => {
+                            const datasetIndex = tooltipItem.datasetIndex;
+                            const index = tooltipItem.index;
+                            const label = data.labels[index];
+                            const value = data.datasets[datasetIndex].data[index];
+                            const valueStr = this.numberFormatService.asMoney(value as number, {
+                                decimalLength: value.toString().indexOf('.') >= 0 ? 2 : 0
+                            });
+                            return label + ': ' + valueStr;
+                        }
+                    }
+                },
                 responsive: true,
                 maintainAspectRatio: false,
                 cutoutPercentage: 70,
