@@ -72,11 +72,7 @@ export class TableFilters {
                 // Get last used filter and update local vars.
                 // Don't emit any changes. Applying the filter is handled in data-service.
                 const lastUsedFilter = this.utils.getLastUsedFilter(tableName) || <any> {};
-                this.basicSearchFilters = lastUsedFilter.basicSearchFilters || [];
                 this.advancedSearchFilters = lastUsedFilter.advancedSearchFilters || [];
-
-                const searchText = lastUsedFilter.searchText || '';
-                this.searchControl.setValue(searchText, { emitEvent: false });
             }
 
             this.tableName = this.tableConfig.configStoreKey;

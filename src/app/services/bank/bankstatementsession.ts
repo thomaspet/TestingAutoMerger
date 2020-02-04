@@ -43,6 +43,7 @@ export class BankStatementSession {
 
     private _prevStartDate: Date;
     private _prevEndDate: Date;
+    private _reconcileStartDate: Date;
 
     constructor(
         private bankStatementEntryService: BankStatementEntryService,
@@ -51,19 +52,23 @@ export class BankStatementSession {
     ) {}
 
     reload() {
-        return this.load(this._prevStartDate, this._prevEndDate);
+        return this.load(this._prevStartDate, this._prevEndDate, undefined, this._reconcileStartDate);
     }
 
-    load(startDate: Date, endDate: Date, ledgerAccountID?: number) {
+    load(startDate: Date, endDate: Date, ledgerAccountID?: number, reconcileStartDate?: Date) {
         this.clear();
         this._prevStartDate = startDate;
         this._prevEndDate = endDate;
+        this._reconcileStartDate = reconcileStartDate;
         this.busy = true;
         this.ledgerAccountID = ledgerAccountID || this.ledgerAccountID;
 
         const fromDateString = moment(startDate).format('YYYY-MM-DD');
         const toDateString = moment(endDate).format('YYYY-MM-DD');
-        const startYear = new Date(startDate.getFullYear(), 0, 1);
+        let startYear = <Date>(this.firstOfMonth(reconcileStartDate) || new Date(startDate.getFullYear(), 0, 1));
+        if (startYear.getFullYear() < startDate.getFullYear()) {
+            startYear = new Date(startDate.getFullYear(), 0, 1);
+        }
         const startYearString = moment(startYear).format('YYYY-MM-DD');
 
         const journalEntryQuery = `model=journalentryline&select=ID as ID,JournalEntryNumber as JournalEntryNumber`
@@ -74,7 +79,6 @@ export class BankStatementSession {
             + ` and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
             + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
             + `&orderby=statuscode,financialdate&distinct=false`;
-
 
         const journalEntries$ = this.statisticsService.GetAllUnwrapped(journalEntryQuery);
         const bankEntries$ = this.bankStatementEntryService.getEntriesWithOpenHistory(this.ledgerAccountID, startDate, endDate);
@@ -409,5 +413,17 @@ export class BankStatementSession {
                 Closed: isClosed
             };
         });
+    }
+
+    private firstOfMonth(date) {
+        if (!date) { return date; }
+        if (date.getMonth) {
+            return new Date(date.getFullYear(), date.getMonth(), 1 );
+        }
+        const td = moment(date).toDate();
+        if (td.getMonth) {
+            return this.firstOfMonth(td);
+        }
+        return date;
     }
 }
