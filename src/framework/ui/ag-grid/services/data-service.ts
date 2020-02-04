@@ -61,7 +61,7 @@ export class TableDataService {
             const lastUsedFilter = this.utils.getLastUsedFilter(newConfig.configStoreKey) || <any> {};
             this.setFilters(
                 lastUsedFilter.advancedSearchFilters || newConfig.filters || [],
-                lastUsedFilter.basicSearchFilters || [],
+                [],
                 false
             );
         } else if (configFiltersChanged) {

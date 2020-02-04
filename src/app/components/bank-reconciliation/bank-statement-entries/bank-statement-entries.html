@@ -28,7 +28,7 @@
             </li>
         </ng-container>
 
-        <li *ngIf="(!showClosed) && closedEntries" class="closed">
+        <li *ngIf="closedEntries" class="closed" (click)="showClosed = !showClosed">
             <span class="description">{{closedEntries}} lukkede poster</span>
             <span class="amount" [ngClass]="closedSum >= 0 ? 'positive' : 'negative'">
                 {{closedSum | uninumberformat: 'money'}}

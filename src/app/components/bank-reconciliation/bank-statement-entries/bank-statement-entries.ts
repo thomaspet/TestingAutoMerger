@@ -54,7 +54,7 @@ export class BankStatementEntries {
     @Output() showClosedGroups = new EventEmitter();
 
     searchText: string;
-    showClosed: false;
+    showClosed = false;
     closedEntries = 0;
     closedSum = 0;
 
@@ -62,11 +62,12 @@ export class BankStatementEntries {
 
     ngOnChanges(changes) {
         if (changes.items) {
+            this.showClosed = false;
             const items = <IMatchEntry[]>changes.items.currentValue;
             if (Array.isArray(items)) {
                 const closed = items.filter( x => x.Closed );
                 this.closedSum = 0;
-                items.forEach( x => this.closedSum += x.Amount);
+                closed.forEach( x => this.closedSum += x.Amount);
                 this.closedEntries = closed.length;
             }
         }
