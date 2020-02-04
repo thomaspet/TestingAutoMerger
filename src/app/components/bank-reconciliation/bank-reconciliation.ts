@@ -26,6 +26,7 @@ export class BankReconciliation {
     selectedBankAccount: BankAccount;
     confirmedMatches: BankStatementMatch[] = [];
     bankPeriod: Date;
+    reconcileStartDate: Date;
     journalEntryPeriod: Date;
     autoSuggest = true;
     cleanUp = false;
@@ -222,10 +223,12 @@ export class BankReconciliation {
     }
 
     onAccountChange() {
+        this.reconcileStartDate = undefined;
         this.session.ledgerAccountID = this.selectedBankAccount.AccountID;
         const firstUnreconciledOdata = `model=BankStatementEntry`
-            + `&select=min(bookingdate) as FirstUnreconciled`
-            + `&filter=BankStatement.AccountID eq ${this.selectedBankAccount.AccountID} and isnull(StatusCode,48001) lt 48002`
+            + `&select=min(casewhen(isnull(StatusCode,48001) lt 48002,bookingdate,getdate())) as FirstUnreconciled`
+            + `,min(bookingdate) as FirstItem`
+            + `&filter=BankStatement.AccountID eq ${this.selectedBankAccount.AccountID}`
             + `&expand=BankStatement`;
 
         this.statisticsService.GetAllUnwrapped(firstUnreconciledOdata).pipe(
@@ -235,6 +238,7 @@ export class BankReconciliation {
                 const firstUnreconciled = res && res[0] && res[0].FirstUnreconciled;
                 const date = firstUnreconciled ? new Date(firstUnreconciled) : new Date();
                 date.setDate(1); // always use first day of period
+                this.reconcileStartDate = res && res[0] && res[0].FirstItem || date;
                 this.bankPeriod = date;
                 this.journalEntryPeriod = date;
                 this.onBankPeriodChange();
@@ -252,7 +256,7 @@ export class BankReconciliation {
                 const fromDate = moment(this.bankPeriod).startOf('month').toDate();
                 const toDate = moment(this.bankPeriod).endOf('month').toDate();
                 this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
-                this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID)
+                this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID, this.reconcileStartDate)
                     .finally( () => { this.cleanUp = false; this.loaded = true; } )
                     .subscribe(() => this.checkSuggest());
             }

@@ -350,7 +350,7 @@ export class BankJournalSession {
         if (Array.isArray(list) && list.length > 0) {
             this.series = list;
             if (this.series.length > 1 && keyWord) {
-                this.selectedSerie = this.series.find( x => x.Name.toLowerCase().indexOf(keyWord) >= 0);
+                this.selectedSerie = this.series.find( x => x.Name && x.Name.toLowerCase().indexOf(keyWord) >= 0);
             }
             this.selectedSerie = this.selectedSerie || this.series[0];
         }
