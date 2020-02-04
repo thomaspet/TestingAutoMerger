@@ -4,6 +4,7 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {EmployeeTaxCard, TaxCard, FreeAmountType} from '../../../unientities';
 import {Observable} from 'rxjs';
 import {FieldType} from '../../../../framework/ui/uniform/index';
+import { map } from 'rxjs/operators';
 
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 
@@ -42,7 +43,29 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             + '&orderby=Year DESC'
             + '&top=1'
             + '&expand=' + this.taxExpands())
-            .map(response => response[0]);
+            .pipe(
+                map((response: EmployeeTaxCard[]) => response[0]),
+                map((taxCard: EmployeeTaxCard) => this.CopyToNewYearIfNeeded(taxCard, activeYear))
+            );
+    }
+
+    private CopyToNewYearIfNeeded(employeeTaxCard: EmployeeTaxCard, year: number): EmployeeTaxCard {
+        if (employeeTaxCard.Year === year) {
+            return employeeTaxCard;
+        }
+        employeeTaxCard.ID = 0;
+        employeeTaxCard.Year = year;
+        const keys = Object.keys(employeeTaxCard);
+        keys
+            .filter(key => key.length > 2 && key.endsWith('ID') && !key.toLowerCase().startsWith('employee'))
+            .forEach(key => {
+                employeeTaxCard[key] = 0;
+                const  taxCard = employeeTaxCard[key.replace('ID', '')];
+                if (taxCard) {
+                    taxCard.ID = 0;
+                }
+            });
+        return employeeTaxCard;
     }
 
     public hasTaxCard(taxcard: EmployeeTaxCard, year: number): boolean {
