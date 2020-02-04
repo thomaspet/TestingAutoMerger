@@ -39,7 +39,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public createFinancialYear(year: number): Observable<FinancialYear> {
-        return this.GetAction(null, 'get-or-create-financial-year', `year=${year}`)
+        return this.GetAction(null, 'create-financial-year', `year=${year}`)
                 .switchMap(newYear => {
                     return Observable.of(newYear);
                 });

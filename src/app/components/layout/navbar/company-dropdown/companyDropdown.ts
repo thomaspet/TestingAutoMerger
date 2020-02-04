@@ -188,28 +188,34 @@ export class UniCompanyDropdown {
                     }, err => {
                         this.errorService.handle(err);
                         this.isCreatingNewYear = false;
-                    });
-                } else {
-                    if (previousSelectedYear !== newSelectedYear) {
-                        this.selectYear = this.getYearComboSelection(previousSelectedYear);
-                        this.activeYear = previousSelectedYear;
-
-                        const resetFinancialYear = new FinancialYear();
-                        resetFinancialYear.Year = previousSelectedYear;
-                        this.financialYearService.setActiveYear(resetFinancialYear);
-                    } else {
-                        const sortedYears = this.financialYears.sort((a, b) => a.Year > b.Year ? -1 : 1);
-                        const lastYear = sortedYears.length > 0 ? sortedYears[0] : null;
-
-                        if (lastYear) {
-                            this.selectYear = this.getYearComboSelection(lastYear.Year);
-                            this.activeYear = lastYear.Year;
-
-                            this.financialYearService.setActiveYear(lastYear);
-                        }
+                        this.cancelCreateNewYear(newSelectedYear, previousSelectedYear);
                     }
-                }
-            });
+                );
+            } else {
+                this.cancelCreateNewYear(newSelectedYear, previousSelectedYear);
+            }
+        });
+    }
+
+    private cancelCreateNewYear(newSelectedYear: number, previousSelectedYear: number) {
+        if (previousSelectedYear !== newSelectedYear) {
+            this.selectYear = this.getYearComboSelection(previousSelectedYear);
+            this.activeYear = previousSelectedYear;
+
+            const resetFinancialYear = new FinancialYear();
+            resetFinancialYear.Year = previousSelectedYear;
+            this.financialYearService.setActiveYear(resetFinancialYear);
+        } else {
+            const sortedYears = this.financialYears.sort((a, b) => a.Year > b.Year ? -1 : 1);
+            const lastYear = sortedYears.length > 0 ? sortedYears[0] : null;
+
+            if (lastYear) {
+                this.selectYear = this.getYearComboSelection(lastYear.Year);
+                this.activeYear = lastYear.Year;
+
+                this.financialYearService.setActiveYear(lastYear);
+            }
+        }
     }
 
     public openYearModal()  {
