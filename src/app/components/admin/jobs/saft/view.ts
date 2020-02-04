@@ -177,8 +177,11 @@ export class SaftExportView implements OnInit {
     private mapExportJob(list: Array<JobRun>): Array<ISaftFileInfo> {
         const retlist: Array<ISaftFileInfo> = [];
         let filter: string = '';
+        let previousJob: JobRun;
+        let skip = false;
         list.forEach(job => {
             const f: any = {};
+            skip = false;
             f.JobName = job.JobName;
             if (job.Output) {
                 const o = JSON.parse(job.Output);
@@ -192,7 +195,13 @@ export class SaftExportView implements OnInit {
             }
             filter += 'id eq ' + f.FileID;
             f.hasError = job.Exception === '';
-            retlist.push(f);
+            if (f.FileID === 0 && previousJob) {
+                skip = this.skipValidationJob(job, previousJob);
+            }
+            if (!skip) {
+                retlist.push(f);
+            }
+            previousJob = job;
         });
 
         this.fileService.getStatistics('model=File&select=file.*&filter=' + filter)
@@ -211,29 +220,27 @@ export class SaftExportView implements OnInit {
         return retlist;
     }
 
-    private mapValidationJob(list: Array<JobRun>): Array<ISaftFileInfo> {
-        const retlist: Array<ISaftFileInfo> = [];
-        let filter: string = '';
-        list.forEach(job => {
-            const f: any = {};
-            f.JobName = job.JobName;
-            if (job.Output) {
-                const o = JSON.parse(job.Output);
-                if (!!o) {
-                    f.HasError = o.HasError;
-                    f.Message = o.Message;
-                    f.CorrectionLines = o.CorrectionLines;
+    // ExportSaft runs Validation before export, which result in 2 rows in JobRun
+    // If both are executed, show only the actual export
+    // If user cancel after Validation, the validation will show
+    private skipValidationJob(validationJob: JobRun, exportJob: JobRun): boolean {
+        if (exportJob.ID === validationJob.ID + 1) {
+            return true;
+        } else if (exportJob.Created.substr(0, 10) === validationJob.Created.substr(0, 10)) {
+            // Created format: 2020-02-04T11:08:10.0605295+00:00
+            // same day
+            if (exportJob.Created.substr(11, 2) === validationJob.Created.substr(11, 2)) {
+                // same hour
+                return true;
+            } else {
+                const c1 = Number(exportJob.Created.substr(11, 2)) - Number(1);
+                if (c1 === Number(validationJob.Created.substr(11, 2))) {
+                    // within 1(2) hour(s)
+                    return true;
                 }
             }
-            if (filter) {
-                filter += ' or ';
-            }
-            filter += 'id eq ' + f.FileID;
-            f.hasError = job.Exception === '';
-            retlist.push(f);
-        });
-
-        return retlist;
+        }
+        return false;
     }
 
     private findJobIds(list: Array<ISaftFileInfo>): Array<ISaftFileInfo> {

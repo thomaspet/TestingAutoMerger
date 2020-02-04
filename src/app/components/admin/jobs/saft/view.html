@@ -51,7 +51,7 @@
                 <i class="material-icons bad" *ngIf="!file.disabled" (click)="onFileDeleteClick(file)" title="Slett fil"> delete_outline </i>
             </td>
             <td *ngIf="file.JobName === 'ExportSaft'">
-                <button *ngIf="file.FileID>=0" (click)="onDownloadExport(file)" class="secondary" style="margin: 0 !important">Last ned</button>
+                <button *ngIf="file.FileID>0" (click)="onDownloadExport(file)" class="secondary" style="margin: 0 !important">Last ned</button>
             </td>
         </tr>
     </tbody>
