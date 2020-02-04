@@ -456,6 +456,7 @@ export class AccountDetails implements OnInit {
                             this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
                             this.invalidateDimensionsCache = false;
                         }
+                        this.account$.next(response);
                         this.accountSaved.emit(account);
                     },
                     (err) => {
