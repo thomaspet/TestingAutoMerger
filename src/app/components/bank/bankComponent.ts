@@ -1442,13 +1442,12 @@ export class BankComponent {
         } else if (this.agreements.length) {
             this.modalService.open(UniSendPaymentModal, {
                 data: { PaymentIds: paymentIDs, hasTwoStage: this.companySettings.TwoStageAutobankEnabled }
-            }).onClose.subscribe(
-                res => {
+            }).onClose.subscribe(res => {
                 doneHandler(res);
-                if (res === 'Sendingen er fullført') {
-                    this.tickerContainer.getFilterCounts();
-                    this.tickerContainer.mainTicker.reloadData();
-                }
+
+                this.tickerContainer.getFilterCounts();
+                this.tickerContainer.mainTicker.reloadData();
+                this.tickerContainer.mainTicker.table.clearSelection();
             },
             err => doneHandler('Feil ved sending av autobank'));
         }
@@ -1471,7 +1470,7 @@ export class BankComponent {
             errorMessages.push(`Det er ${paymentsWithoutPaymentCode.length} rader som mangler type`);
         }
 
-        this.groupBy(this.rows, payment => payment.ToBankAccountAccountNumber).forEach(paymentsGroupedByAccountNumber => {
+        this.groupBy(selectedRows, payment => payment.ToBankAccountAccountNumber).forEach(paymentsGroupedByAccountNumber => {
             if (paymentsGroupedByAccountNumber.find(x => x.PaymentAmountCurrency < 0)) {
                 this.groupBy(paymentsGroupedByAccountNumber, x => x.PaymentDate).forEach(paymentsGroupedByDate => {
                     let sum = 0;
