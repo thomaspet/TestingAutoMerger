@@ -1,8 +1,11 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <a class="transquery-filter-hidden-message" *ngIf="useConfiguredFilter">
-        Vi har skjult søkefeltene og viser data basert på linken du kom fra. Trykk <strong (click)="resetConfiguredFilter()">her</strong> for å nullstille søket og vise alle feltene.
-    </a>
+    <section *ngIf="useConfiguredFilter" class="transquery-filter-hidden-message">
+        Vi har skjult søkefeltene og viser data basert på linken du kom fra.
+        <a (click)="resetConfiguredFilter()">Trykk her </a>
+        for å nullstille søket og vise alle feltene.
+    </section>
+
     <uni-form
         *ngIf="!useConfiguredFilter"
         class="transquery-filter-form"
@@ -21,7 +24,6 @@
     </mat-progress-bar>
 
     <ag-grid-wrapper
-        class="transquery-grid-font-size"
         [(resource)]="lookupFunction"
         [config]="uniTableConfig"
         [columnSumResolver]="columnSumResolver"
