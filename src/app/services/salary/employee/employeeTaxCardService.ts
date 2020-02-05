@@ -50,7 +50,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     }
 
     private CopyToNewYearIfNeeded(employeeTaxCard: EmployeeTaxCard, year: number): EmployeeTaxCard {
-        if (employeeTaxCard.Year === year) {
+        if (!employeeTaxCard || employeeTaxCard.Year === year) {
             return employeeTaxCard;
         }
         employeeTaxCard.ID = 0;
