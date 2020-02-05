@@ -42,7 +42,7 @@ export class SubEntityService extends BizHttp<SubEntity> {
     }
 
     public getMainOrganization(): Observable<SubEntity[]> {
-        return this.GetAll('SuperiorOrganization eq 0 or SuperiorOrganization eq null', ['BusinessRelationInfo']);
+        return this.GetAll('filter=SuperiorOrganizationID eq 0 or SuperiorOrganizationID eq null', ['BusinessRelationInfo']);
     }
 
     public getFromEnhetsRegister(orgno: string) {
