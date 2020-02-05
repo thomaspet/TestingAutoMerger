@@ -64,9 +64,9 @@ export class SubEntitySettingsService {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    public getSubEntitiesFromBrregAndSaveAll(orgno: string) {
+    public saveSubEntitiesFromMainOrgAndBrreg(orgno: string) {
         return this.subEntityService
-            .getFromEnhetsRegister(orgno)
+            .getMainOrganizationAndFromEnhetsRegister(orgno)
             .pipe(
                 switchMap(subEntities => this.subEntityService.editZonesIfNeeded(subEntities)),
                 switchMap(subEntities => forkJoin(of(subEntities), this.subEntityService.GetAll(''))),

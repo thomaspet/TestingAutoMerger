@@ -86,6 +86,7 @@ export class CompanySettingsComponent implements OnInit {
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
     private savedCompanyOrgValue: string;
+    private savedCompanyMunicipalValue: string;
 
     private companyTypes: Array<CompanyType> = [];
     private vatReportForms: Array<VatReportForm> = [];
@@ -257,6 +258,7 @@ export class CompanySettingsComponent implements OnInit {
 
                 this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
+                this.savedCompanyMunicipalValue = dataset[5].OfficeMunicipalityNo;
                 this.companyService.Get(this.authService.activeCompany.ID).subscribe(
                     company => {
                         const data = this.companySettings$.getValue();
@@ -610,9 +612,10 @@ export class CompanySettingsComponent implements OnInit {
             })
             .pipe(
                 tap((companySettings: CompanySettings) => {
-                    if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue) {
+                    if (companySettings.OrganizationNumber !== this.savedCompanyOrgValue
+                        || companySettings.OfficeMunicipalityNo !== this.savedCompanyMunicipalValue) {
                         this.subEntitySettingsService
-                            .getSubEntitiesFromBrregAndSaveAll(companySettings.OrganizationNumber);
+                            .saveSubEntitiesFromMainOrgAndBrreg(companySettings.OrganizationNumber);
                     }
                 })
             )
