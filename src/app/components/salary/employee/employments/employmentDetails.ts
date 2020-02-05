@@ -85,18 +85,19 @@ export class EmploymentDetails implements OnChanges, OnInit {
                 this.companySalarySettings = compsalarysettings;
             });
 
-            const hasAcessToRegulative = this.authService.hasUIPermission(this.authService.currentUser, 'ui_salary_regulative');
-            if (hasAcessToRegulative) {
-                this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
-                    this.employmentService.setRegulativeGroups(x);
-                    if (this.employment && this.employment.RegulativeGroupID) {
-                        this.employmentService.setRegulativeSteps(
-                            x.filter((regulativeGroup: RegulativeGroup) =>
-                            regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
-                    }
-                    this.regulativeGroups = x;
-                });
-            }
+            // QWER123
+            // const hasAcessToRegulative = this.authService.hasUIPermission(this.authService.currentUser, 'ui_salary_regulative');
+            // if (hasAcessToRegulative) {
+            //     this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
+            //         this.employmentService.setRegulativeGroups(x);
+            //         if (this.employment && this.employment.RegulativeGroupID) {
+            //             this.employmentService.setRegulativeSteps(
+            //                 x.filter((regulativeGroup: RegulativeGroup) =>
+            //                 regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
+            //         }
+            //         this.regulativeGroups = x;
+            //     });
+            // }
     }
 
     public ngOnChanges(change: SimpleChanges) {
