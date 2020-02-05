@@ -34,7 +34,7 @@ import {Subject} from 'rxjs';
                                 (valueChange)="onDepartmentSelect($event)"
                                 placeholder="Avdeling">
                                 <mat-option *ngFor="let dep of departments" [value]="dep">
-                                    {{ dep.Name }}
+                                    {{ dep?.Name }}
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>

@@ -37,8 +37,8 @@
                             [text]="previousPeriodsHelpText">
                         </uni-tooltip>
                         <a *ngIf="summaryItem.HasTaxBasis && !isHistoricData"
-                           href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}"
-                           [className]="summaryItem.SumTaxBasisAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'"
+                            (click)="goSomewhere(summaryItem)"
+                            [className]="summaryItem.SumTaxBasisAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'"
                         >
                             {{summaryItem.SumTaxBasisAmount * -1 | unicurrency:2}}
                         </a>
@@ -48,8 +48,9 @@
                         </span>
                     </td>
                     <td class="currency">
-                        <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData" href="#/accounting/transquery?showTaxBasisAmount={{summaryItem.HasTaxBasis}}&vatCodesAndAccountNumbers={{vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}}&vatFromDate={{currentVatReport?.TerminPeriod?.FromDate}}&vatToDate={{currentVatReport?.TerminPeriod?.ToDate}}&vatReportID={{currentVatReport?.ID}}"
-                           [className]="summaryItem.SumVatAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'">
+                        <a *ngIf="summaryItem.HasTaxAmount && !isHistoricData"
+                            (click)="goSomewhere(summaryItem)"
+                            [className]="summaryItem.SumVatAmount * -1 >= 0 ? 'positiveNumber' : 'negativeNumber'">
                             {{summaryItem.SumVatAmount * -1 | unicurrency:2}}
                         </a>
                         <span *ngIf="summaryItem.HasTaxAmount && isHistoricData"

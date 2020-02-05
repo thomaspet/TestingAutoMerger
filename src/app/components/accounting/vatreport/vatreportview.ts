@@ -829,6 +829,23 @@ export class VatReportView implements OnInit, OnDestroy {
         }
     }
 
+    goSomewhere(summaryItem) {
+        let url = '/accounting/transquery'
+            + `?showTaxBasisAmount=${summaryItem.HasTaxBasis}`
+            + `&vatCodesAndAccountNumbers=${this.vatReportSummaryToVatCodeAndAccountNumbers(summaryItem)}`;
+
+        if (this.currentVatReport) {
+            url += `&vatReportID=${this.currentVatReport.ID}`;
+            const period = this.currentVatReport.TerminPeriod;
+            if (period) {
+                url += `&vatFromDate=${period.FromDate}`;
+                url += `&vatToDate=${period.ToDate}`;
+            }
+        }
+
+        this.router.navigateByUrl(url);
+    }
+
     public vatReportSummaryToVatCodeAndAccountNumbers(vatReportSummary: VatReportSummary): string {
         const vatTypes = this.vatTypes;
 
@@ -837,11 +854,15 @@ export class VatReportView implements OnInit, OnDestroy {
 
         const vatCodesAndAccountNos: Array<string> = [];
         if (vatTypes) {
-            vatTypes.forEach(vt => {
-                const vatReportReferences = vt.VatReportReferences
-                    .filter(vatReport => vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID);
-                vatReportReferences
-                    .forEach(vrr => vatCodesAndAccountNos.push(`${vt.VatCode}|${vrr.Account.AccountNumber}`));
+            vatTypes.forEach(vatType => {
+                const vatReportReferences = vatType.VatReportReferences.filter(vatReport => {
+                    return vatReport.VatPost.VatCodeGroupID === vatReportSummary.VatCodeGroupID;
+                });
+                vatReportReferences.forEach(ref => {
+                    if (vatType.VatCode && ref.Account) {
+                        vatCodesAndAccountNos.push(`${vatType.VatCode}|${ref.Account.AccountNumber}`);
+                    }
+                });
             });
         }
 

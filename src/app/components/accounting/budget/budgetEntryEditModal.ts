@@ -21,7 +21,7 @@ import {
                         (valueChange)="onDepartmentFilterChange($event)"
                         placeholder="Velg avdeling">
                         <mat-option *ngFor="let department of departments" [value]="department">
-                            {{ department.Name }}
+                            {{ department?.Name }}
                         </mat-option>
                     </mat-select>
                 </mat-form-field>
