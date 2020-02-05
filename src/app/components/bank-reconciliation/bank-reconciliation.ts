@@ -216,7 +216,7 @@ export class BankReconciliation {
                 const account = this.bankAccounts.find(a => a.AccountID === importResult.AccountID);
                 if (account) {
                     this.selectedBankAccount = account;
-                    this.onBankPeriodChange();
+                    this.onAccountChange();
                 }
             }
         });
