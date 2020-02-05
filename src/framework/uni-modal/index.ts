@@ -35,6 +35,7 @@ import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModa
 import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
 import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
 import {UniNewRegulativeModal} from './modals/newRegulativeModal';
+import {MissingRolesModal} from './modals/missing-roles-modal/missing-roles-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -73,6 +74,7 @@ export * from './modals/wizard-settings-modal/wizard-settings-modal';
 export * from './modals/file-split-modal/file-split-modal';
 export * from './modals/tof-email-modal/tof-email-modal';
 export * from './modals/newRegulativeModal';
+export * from './modals/missing-roles-modal/missing-roles-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -112,5 +114,6 @@ export const MODALS = [
     FileSplitModal,
     TofEmailModal,
     UniNewRegulativeModal,
+    MissingRolesModal
 ];
 

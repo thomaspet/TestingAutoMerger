@@ -12,7 +12,8 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {
     UniModalService,
     UserLicenseAgreementModal,
-    LicenseAgreementModal
+    LicenseAgreementModal,
+    MissingRolesModal
 } from '@uni-framework/uni-modal';
 
 // Do not change this import! Since we don't use rx operators correctly
@@ -103,14 +104,8 @@ export class App {
                 const permissions = authDetails.user['Permissions'];
                 if ((!permissions || !permissions.length) && !this.missingRolesModalOpen) {
                     this.missingRolesModalOpen = true;
-                    this.modalService.confirm({
-                        header: 'Ingen roller i selskap',
-                        message: 'Det ser ikke ut som du har noen tilganger på dette selskapet.'
-                            + '<br>En administrator må tildele deg minimum en rolle under Innstillinger > Brukere.',
-                        buttonLabels: {},
-                    }).onClose.subscribe(() => {
+                    this.modalService.open(MissingRolesModal).onClose.subscribe(() => {
                         this.missingRolesModalOpen = false;
-                        console.log('dialog closed');
                     });
                 }
 
