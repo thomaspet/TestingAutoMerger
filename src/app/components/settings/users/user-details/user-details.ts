@@ -38,6 +38,7 @@ enum UserStatus {
 export class UserDetails {
     @Input() user: User;
     @Input() users: User[];
+    @Input() currentUserIsAdmin: boolean;
 
     @Output() activateUser: EventEmitter<any> = new EventEmitter();
     @Output() deactivateUser: EventEmitter<any> = new EventEmitter();

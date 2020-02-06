@@ -28,7 +28,7 @@ export class UserManagement {
     filteredUsers: User[] = [];
     selectedUser: User;
 
-    canPurchaseProducts: boolean;
+    isAdmin: boolean;
 
     constructor(
         private authService: AuthService,
@@ -40,7 +40,7 @@ export class UserManagement {
         private toastService: ToastService,
     ) {
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
-            .subscribe(isAdmin => this.canPurchaseProducts = isAdmin);
+            .subscribe(isAdmin => this.isAdmin = isAdmin);
 
         this.loadUsers();
         this.searchControl.valueChanges

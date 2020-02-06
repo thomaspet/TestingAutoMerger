@@ -2,8 +2,8 @@
 
     <!-- List -->
     <section class="user-list-container">
-        <section class="list-actions">
-            <button *ngIf="canPurchaseProducts" (click)="manageProductPurchases()">
+        <section *ngIf="isAdmin" class="list-actions">
+            <button (click)="manageProductPurchases()">
                 <i class="material-icons">grid_on</i>
                 Administrer produkttilganger
             </button>
@@ -44,6 +44,7 @@
     <user-details
         [user]="selectedUser"
         [users]="users"
+        [currentUserIsAdmin]="isAdmin"
         (activateUser)="activateUser()"
         (deactivateUser)="deactivateUser()"
         (resendInvite)="resendInvite($event)"

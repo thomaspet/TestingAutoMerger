@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal uni-redesign">
+<section role="dialog" class="uni-modal">
     <header>
         <i class="material-icons">info</i>
         For å kjøpe produkter må du ha rollen "Administrator"
@@ -8,18 +8,28 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section class="administrators">
-            <section class="header">Administratorer</section>
-            <ul>
-                <li *ngFor="let admin of administrators">
-                    <span>{{admin.DisplayName || admin.UserName}}</span>
-                    <span><a href="mailto:{{admin.Email}}">{{admin.Email}}</a></span>
-                </li>
-            </ul>
-        </section>
+        <table class="uni-html-table">
+            <thead>
+                <tr>
+                    <th>Administrator</th>
+                    <th>Epost</th>
+                    <th>Telefon</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let admin of administrators">
+                    <td>{{admin.DisplayName}}</td>
+                    <td>
+                        <a href="mailto:{{admin.Email}}">{{admin.Email}}</a>
+                    </td>
+                    <td>{{admin.PhoneNumber}}</td>
+                </tr>
+            </tbody>
+        </table>
     </article>
 
-    <section class="footer">
-        <button class="c2a rounded" (click)="onClose.emit()">Lukk</button>
-    </section>
+    <footer class="center">
+        <button class="c2a" (click)="onClose.emit()">Lukk</button>
+    </footer>
 </section>
