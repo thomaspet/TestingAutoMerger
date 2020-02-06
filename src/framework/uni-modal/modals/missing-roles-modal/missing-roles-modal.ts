@@ -1,8 +1,8 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IUniModal} from '@uni-framework/uni-modal';
-import {ElsaCustomersService} from '@app/services/services';
-import {AuthService} from '@app/authService';
-import {Router} from '@angular/router';
+import {UserService} from '@app/services/services';
+import {User} from '@uni-entities';
+import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({
     selector: 'missing-roles-modal',
@@ -12,32 +12,26 @@ import {Router} from '@angular/router';
 export class MissingRolesModal implements IUniModal {
     onClose = new EventEmitter();
 
-    userIsAdmin: boolean;
-    admins;
+    admins: User[];
+    scrollbar: PerfectScrollbar;
+    busy: boolean;
 
-    constructor(
-        private authService: AuthService,
-        private elsaCustomerService: ElsaCustomersService,
-        private router: Router
-    ) {}
+    constructor(private userService: UserService) {}
 
     ngOnInit() {
-        const user = this.authService.currentUser;
-        const contractID = user.License.Company.ContractID;
-        this.elsaCustomerService.getByContractID(contractID, 'Managers').subscribe(
-            customer => {
-                const admins = customer.Managers;
-                this.userIsAdmin = admins && admins.some(admin => admin.User && admin.User.Identity === user.GlobalIdentity);
-                if (!this.userIsAdmin) {
-                    this.admins = admins || [];
-                }
+        this.busy = true;
+        this.userService.getAdmins().subscribe(
+            admins => {
+                this.busy = false;
+                this.admins = admins || [];
+                setTimeout(() => {
+                    this.scrollbar = new PerfectScrollbar('#missing-roles-dialog-body');
+                });
             },
-            err => console.error(err)
+            err => {
+                console.error(err);
+                this.busy = false;
+            }
         );
-    }
-
-    goToSettings() {
-        this.router.navigateByUrl('/settings/users');
-        this.onClose.emit();
     }
 }

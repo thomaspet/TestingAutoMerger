@@ -1,9 +1,7 @@
-import { Component, EventEmitter } from '@angular/core';
-import { forkJoin } from 'rxjs';
-
-import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { UserRoleService, UserService } from '@app/services/services';
-import { User } from '@uni-entities';
+import {Component, EventEmitter} from '@angular/core';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {UserService} from '@app/services/services';
+import {User} from '@uni-entities';
 
 @Component({
     selector: 'missing-purchase-permission-modal',
@@ -17,27 +15,18 @@ export class MissingPurchasePermissionModal implements IUniModal {
     busy: boolean;
     administrators: User[];
 
-    constructor(
-        private userRoleService: UserRoleService,
-        private userService: UserService,
-    ) {
+    constructor(private userService: UserService) {
         this.busy = true;
 
-        forkJoin(
-            this.userService.GetAll(),
-            this.userRoleService.GetAll()
-        ).subscribe(
-            res => {
-                const [users, userRoles] = res;
-                this.administrators = users.filter(user => {
-                    return userRoles.some(role => {
-                        return role.UserID === user.ID
-                            && role.SharedRoleName === 'Administrator';
-                    });
-                });
+        this.userService.getAdmins().subscribe(
+            admins => {
+                this.administrators = admins;
+                this.busy = false;
             },
-            err => this.administrators = [],
-            () => this.busy = false
+            err => {
+                console.error(err);
+                this.busy = false;
+            }
         );
     }
 }

@@ -1,37 +1,43 @@
 <section class="uni-modal">
     <header>Brukeren din mangler roller</header>
 
-    <article>
-        <p>
-            Det ser ut som brukeren din er satt opp uten roller/tilganger i dette selskapet.
-            <br>I nær fremtid vil dette føre til at du mister tilgang til de fleste funksjonene i systemet.
-        </p>
+    <article id="missing-roles-dialog-body">
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
 
-        <p *ngIf="userIsAdmin">
-            Siden du er administrator på denne lisensen kan du sette opp produkter og roller
-            ved å gå til <a (click)="goToSettings()">brukerinnstillinger</a>.
-        </p>
+        <section class="alert warn dialog-warning">
+            <i class="material-icons">warning</i>
+            <section>
+                Det ser ut som brukeren din er satt opp uten roller/tilganger i dette selskapet.
+                <br>I nær fremtid vil dette føre til at du mister tilgang til de fleste funksjonene i systemet.
+            </section>
+        </section>
 
-        <ng-container *ngIf="!userIsAdmin && admins">
-            <p>Vennligst kontakt en lisensadministrator for å få tildelt riktig tilganger.</p>
+        <p>Vennligst kontakt en selskapsadministrator for å få tildelt riktig tilganger.</p>
 
-            <table *ngIf="admins?.length">
+        <table class="uni-html-table" *ngIf="admins?.length">
+            <thead>
                 <tr>
                     <th>Navn</th>
                     <th>Epost</th>
                     <th>Telefon</th>
                 </tr>
+            </thead>
 
+            <tbody>
                 <tr *ngFor="let admin of admins">
-                    <td>{{admin.User?.Name}}</td>
-                    <td>{{admin.User?.Email}}</td>
-                    <td>{{admin.User?.Phone}}</td>
+                    <td>{{admin.DisplayName}}</td>
+                    <td>
+                        <a href="mailto:{{admin.Email}}">{{admin.Email}}</a>
+                    </td>
+                    <td>{{admin.PhoneNumber}}</td>
                 </tr>
-            </table>
-        </ng-container>
+            </tbody>
+        </table>
     </article>
 
-    <footer>
-        <button (click)="onClose.emit()" class="secondary">Lukk</button>
+    <footer class="center">
+        <button (click)="onClose.emit()" class="c2a">Lukk</button>
     </footer>
 </section>

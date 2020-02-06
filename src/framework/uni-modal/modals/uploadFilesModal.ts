@@ -38,7 +38,7 @@ export enum EntityForFileUpload {
                     <ul class="file-selected-list-header">
                         <li>
                             <div style="display: flex;">
-                                <i class="material-icons" (click)="selectAll()" style="color: #0f4880">
+                                <i class="material-icons" (click)="selectAll()" style="color: var(--color-c2a)">
                                     {{ allFilesSelected ? 'check_box' : 'check_box_outline_blank' }}
                                 </i>
                                 <span> Filnavn  </span>
@@ -52,7 +52,7 @@ export enum EntityForFileUpload {
                     <ul class="file-selected-list" id="file-list">
                         <li *ngFor="let file of files; let i = index;">
                             <div style="display: flex;">
-                                <i class="material-icons" (click)="file.selected = !file.selected" style="color: #0f4880">
+                                <i class="material-icons" (click)="file.selected = !file.selected" style="color: var(--color-c2a)">
                                     {{ file.selected ? 'check_box' : 'check_box_outline_blank' }}
                                 </i>
                                 <span class="bank-file-name-span"> {{ file.Name }} </span>

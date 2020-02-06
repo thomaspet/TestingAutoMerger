@@ -25,7 +25,7 @@
         </section>
     </section>
 
-    <section class="right-side">
+    <section *ngIf="currentUserIsAdmin" class="right-side">
         <button class="tertiary c2a edit-roles-button" *ngIf="user && !busy" (click)="openRoleModal()">
             Roller og tilganger
         </button>
