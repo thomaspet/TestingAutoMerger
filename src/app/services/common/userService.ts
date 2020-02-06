@@ -43,6 +43,11 @@ export class UserService extends BizHttp<User> {
         );
     }
 
+    getAdmins(): Observable<User[]> {
+        return this.GetAction(null, 'adminusers').pipe(
+            map(users => (users || []).filter(u => u.StatusCode === 110001))
+        );
+    }
 
     // override bizhttp put with cache invalidation
     public Put(id: number, entity: any): Observable<any> {
