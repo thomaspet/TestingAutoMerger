@@ -51,7 +51,6 @@ import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/productgroups';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
@@ -176,7 +175,6 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
     providers: [
         TradeItemHelper,
         TofHelper,
-        CanDeactivateGuard,
     ],
     exports: [
         UniSales,

@@ -288,7 +288,6 @@ import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal
         RegulativeUploadModalComponent,
     ],
     providers: [
-        CanDeactivateGuard,
         PayrollRunDetailsService,
         WageTypeViewService,
         EmployeeDetailsService,

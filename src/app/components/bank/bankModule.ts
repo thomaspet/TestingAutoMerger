@@ -9,7 +9,6 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {WidgetModule} from '../widgets/widgetModule';
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 
 import {BankComponent} from './bankComponent';
 import {UniBank} from './bank';
@@ -70,9 +69,6 @@ import {
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,
         MatchMainAccountModal
-    ],
-    providers: [
-        CanDeactivateGuard
     ]
 })
 export class BankModule {}

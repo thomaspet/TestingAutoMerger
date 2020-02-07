@@ -7,7 +7,7 @@ import {ContractActivation} from './contract-activation';
 
 import {MatCheckboxModule, MatRadioModule, MatProgressSpinnerModule} from '@angular/material';
 import {CanDeactivateGuard} from '@app/canDeactivateGuard';
-import { CompanyDetailsForm } from './company-details-form/company-details-form';
+import {CompanyDetailsForm} from './company-details-form/company-details-form';
 
 const routes = [{
     path: '',

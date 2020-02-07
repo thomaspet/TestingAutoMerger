@@ -26,7 +26,6 @@ import {UniTimeEditModal} from './timeoff/timeEditModal';
 import {View as VacationView} from './timeentry/vacation/vacation';
 import {View as WorkBalancesView} from './worker/balances';
 import {SideMenu} from './sidemenu/sidemenu';
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniTemplateModal} from './components/newtemplatemodal';
 import {TeamworkReport} from './components/teamworkreport';
 import {TimeApproveModal} from './components/popupapprove';
@@ -88,7 +87,6 @@ import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular
         EditVacationModal
     ],
     providers: [
-        CanDeactivateGuard,
         ReportWorkflow,
     ],
     entryComponents: [
