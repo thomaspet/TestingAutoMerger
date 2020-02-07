@@ -9,6 +9,7 @@ import {ErrorService} from '@app/services/common/errorService';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {ITag} from '@app/components/common/toolbar/tags';
+import { SalarybalanceService } from '@app/services/salary/salarybalance/salarybalanceService';
 
 @Injectable()
 export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
@@ -18,6 +19,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
         private runsOnCategory: PayrollRunOnCategoryService,
         private errorService: ErrorService,
         private modalService: UniModalService,
+        private salaryBalanceService: SalarybalanceService,
     ) {
         super(http);
         this.entityType = EmployeeCategory.EntityType;
@@ -96,7 +98,7 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
             filter(result => result.action === ConfirmActions.ACCEPT),
             map(result => result.runs),
             switchMap((runs) => runs ? this.deleteTransesOnRuns(runs) : Observable.of([])),
-            switchMap(() => this.deleteAll(categoryID, empIDs))
+            switchMap(() => this.deleteAll(categoryID, empIDs)),
         );
     }
 
@@ -152,38 +154,45 @@ export class EmployeeOnCategoryService extends BizHttp<EmployeeCategory> {
     private getPayrollAndCategories(categoryID: number, empIDs: number[])
         : Observable<{ run: PayrollRun, categories: EmployeeCategory[] }[]> {
         this.relativeURL = PayrollRun.RelativeUrl;
-        return super
-            .GetAll(
-                `filter=(StatusCode eq null or StatusCode eq 0) and transactions.IsRecurringPost eq false ` 
-                    + `and transactions.SystemType ne ${StdSystemType.HolidayPayDeduction} `
-                    + `and (transactions.salaryBalanceID eq null or transactions.salaryBalanceID eq 0)`,
-                ['transactions']
+        return forkJoin(
+                super
+                    .GetAll(
+                        `filter=StatusCode eq null or StatusCode eq 0`,
+                        ['transactions']
+                    ),
+                this.salaryBalanceService.getOpenTransIDsOnSalaryBalances(),
             )
             .pipe(
+                map(([runs, salaryBalanceTransIDs]: [PayrollRun[], number[]]) => runs
+                        .map(run => this.cleanTransesOnRun(run, salaryBalanceTransIDs))
+                ),
                 switchMap((runs: PayrollRun[]) =>
                     forkJoin(
                         runs.map(run => this.runsOnCategory
                             .getAll(run.ID)
-                            .pipe(map((cats: EmployeeCategory[]) => ({run: run, categories: cats})))
+                            .pipe(
+                                map((cats: EmployeeCategory[]) => ({run: run, categories: cats}))
+                            )
                         )
                     )
-                    .pipe(
-                        map(runCats => runCats.map(runCat => ({
-                            run: this.cleanTransesOnRun(runCat.run),
-                            categories: runCat.categories.filter(cat => cat.ID === categoryID)
-                        }))),
-                        map(runCats => runCats.filter(runCat => (runCat.categories.length && runCat.run.transactions.length))),
-                    )
-                )
+                ),
+                map(runCats => runCats.map(runCat => ({
+                    run: runCat.run,
+                    categories: runCat.categories.filter(cat => cat.ID === categoryID)
+                }))),
+                map(runCats => runCats.filter(runCat => (runCat.categories.length && runCat.run.transactions.length))),
             );
     }
 
-    private cleanTransesOnRun(run: PayrollRun) {
+    private cleanTransesOnRun(run: PayrollRun, salaryBalanceTransIDs: number[]) {
         run.transactions = run.transactions
             .filter(trans =>
                 trans.SystemType !== StdSystemType.PercentTaxDeduction
                 && trans.SystemType !== StdSystemType.TableTaxDeduction
-                && trans.SystemType !== StdSystemType.AutoAdvance);
+                && trans.SystemType !== StdSystemType.AutoAdvance
+                && trans.SystemType !== StdSystemType.HolidayPayDeduction
+                && !trans.IsRecurringPost
+                && !salaryBalanceTransIDs.some(transID => trans.ID === transID));
         return run;
     }
 
