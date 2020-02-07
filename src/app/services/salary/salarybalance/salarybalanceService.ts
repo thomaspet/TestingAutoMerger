@@ -21,6 +21,8 @@ import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
 import { Type } from '@angular/compiler';
 import { EmploymentService } from '../employee/employmentService';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { tap, map } from 'rxjs/operators';
 
 interface IFieldFunc {
     prop: string;
@@ -59,6 +61,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         private employeeService: EmployeeService,
         private salarybalanceTemplateService: SalarybalanceTemplateService,
         private employmentService: EmploymentService,
+        private statisticsService: StatisticsService,
     ) {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
@@ -891,6 +894,23 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
 
     private isSalaryBalance(salBal: SalaryBalance | SalaryBalanceTemplate) {
         return 'EmployeeID' in salBal;
+    }
+
+    getOpenTransIDsOnSalaryBalances() {
+        const filter = `isnull(PayrollRun.StatusCode, 0) eq 0`;
+        return this.getTransIDsOnSalaryBalances(filter, 'SalaryTransaction.PayrollRun');
+    }
+
+    private getTransIDsOnSalaryBalances(filter?: string, expand?: string): Observable<number[]> {
+        const query = `model=SalaryBalanceLine`
+        + `&select=SalaryTransactionID as SalaryTransactionID`
+        + `&filter=isnull(SalaryTransactionID,0) ne 0${filter && ` and (${filter})`}`
+        + `&expand=SalaryTransaction${expand && (',' + expand)}`;
+        return this.statisticsService
+            .GetAllUnwrapped(query)
+            .pipe(
+                map(result => result.map(line => line['SalaryTransactionID']))
+            );
     }
 
     private isSalaryBalanceTemplate(salBal: SalaryBalance | SalaryBalanceTemplate) {
