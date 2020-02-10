@@ -35,9 +35,9 @@
                     (valueChange)="onSelectChange($event)">
                 </uni-select>
             </label>
-            <div class="notice">
+            <!-- <div class="notice">
                 <span><strong>NB!</strong> Vi opplever en midlertidig feil i lønnspost importen som gjør at lønnsposter med prosjekt og avdeling feiler i importen. Forventet rettetid er rett over nyttår.</span>
-            </div>
+            </div> -->
             <div class="missing-payroll" *ngIf="!operators?.length">
                 Det må opprettes en
                 <a [routerLink]="['/salary/payrollrun/0']" (click)="close()">
