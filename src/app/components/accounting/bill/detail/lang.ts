@@ -7,7 +7,7 @@ export const approvalStatusLabels = {
 export const billStatusflowLabels = {
     'smartbooking': 'Foreslå kontering',
     'journal': 'Bokfør',
-
+    'finish': 'Arkiver',
     'assign': 'Tildel',
     'cancelApprovement': 'Tilbakestill',
     'reAssign': 'Tildel på nytt',
