@@ -649,6 +649,9 @@ export class VatReportView implements OnInit, OnDestroy {
                                         }
                                     );
                                 }
+                            }, (errorResponse) => {
+                                this.errorService.handle(errorResponse);
+                                done(errorResponse.error.Message);
                             });
                     } else {
                         done('Signering avbrutt');
