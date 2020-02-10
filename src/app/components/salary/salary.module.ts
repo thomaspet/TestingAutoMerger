@@ -136,6 +136,8 @@ import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
 import { RegulativeComponent } from './regulative/regulative';
 import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal/regulative-upload-modal.component';
+import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
+import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
 
 @NgModule({
     imports: [
@@ -170,6 +172,8 @@ import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal
         AmeldingTypePickerModal,
         AmeldingPeriodSplitViewComponent,
         AmeldingPayrollsPeriodViewComponent,
+        StatusAMeldingModal,
+        MakeAmeldingPaymentModal,
 
         // Employee
         UniEmployee,
@@ -286,6 +290,8 @@ import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal
         UniSupplementEditModal,
         SyncWagetypesModalComponent,
         RegulativeUploadModalComponent,
+        StatusAMeldingModal,
+        MakeAmeldingPaymentModal
     ],
     providers: [
         PayrollRunDetailsService,

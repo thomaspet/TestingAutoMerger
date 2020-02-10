@@ -1,0 +1,55 @@
+<section role="dialog" class="uni-modal">
+    <header>Betal forskuddstrekk og arbeidsgiveravgift for periode {{period}}</header>
+    <article>
+        <h3>Lag betalings post for</h3>
+        <ul class="with-padding">
+            <li>
+                <span>Forskuddstrekk ({{totalFtrekkFeedbackStr}} kr)</span>
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="dto.payAga"
+                    [labelPosition]="'before'"
+                    [disableRipple]="true">
+                </mat-checkbox>
+            </li>
+            <li>
+                <span>Arbeidsgiverafgift ({{totalAGAFeedbackStr}} kr)</span>
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="dto.payTaxDraw"
+                    [labelPosition]="'before'"
+                    [disableRipple]="true">
+                </mat-checkbox>
+            </li>
+            <li *ngIf="showFinanceTax">
+                <span>Finansskatt ({{totalFinancialFeedbackStr}} kr)</span>
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="dto.payFinancialTax"
+                    [labelPosition]="'before'"
+                    [disableRipple]="true">
+                </mat-checkbox>
+            </li>
+        </ul>
+        <ul>
+           <li>
+               <span>Betalingsdato</span>
+               <uni-datepicker [(value)]="dto.payDate"></uni-datepicker>
+           </li>
+            <li>
+                <span>Korriger øredifferanser <i class="material-icons" [matTooltip]="tooltip">info</i></span>
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="dto.correctPennyDiff"
+                    [labelPosition]="'before'"
+                    [disableRipple]="true">
+                </mat-checkbox>
+            </li>
+        </ul>
+
+    </article>
+    <footer>
+        <button class="" (click)="close(false)">Avbryt</button>
+        <button class="good" (click)="close(true)">Lag betaling</button>
+    </footer>
+</section>

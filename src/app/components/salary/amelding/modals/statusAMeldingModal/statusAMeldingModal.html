@@ -1,0 +1,44 @@
+<section role="dialog" class="uni-modal"
+         (clickOutside)="close(false)"
+         (keydown.esc)="close(false)">
+    <header>Status a-meldingen - Periode {{period}}</header>
+    <article *ngIf="!received">
+        <p>
+            A-melding er levert inn med status {{altinnStatus}}.
+        </p>
+        <p>
+            Detaljer om avviket finner du på "Tilbakemelding"-arket. Korriger dataene som er feil og send deretter
+            inn en ny a-melding for perioden.
+        </p>
+    </article>
+    <article *ngIf="received">
+        <p>
+            Periode {{period}} er levert til Altinn med status {{altinnStatus}}.
+            <span *ngIf="withGuidelines">Vennligst sjekk at innleverte data er ok.</span>
+        </p>
+        <p *ngIf="!withGuidelines">
+            Ønsker du å lage utbetalingspost av skyldig forskuddstrekk og arbeidsgiveravgift?
+        </p>
+        <p *ngIf="withGuidelines">
+            Hvis innrapporterte data bør endres, gjør dine korrigeringer og lever a-melding på nytt.
+            Dersom innrapporterte data er korrekt, ønsker du å lage utbetalingspost av skyldig forskuddstrekk og
+            arbeidsgiveravgift?
+        </p>
+        <p>
+            Når du henter tilbakemelding tilbys du å opprette betalingspost, pass på at du ikke oppretter flere
+            betalingsposter for perioden dersom du har sendt a-melding og hentet tilbakemelding flere ganger for perioden.
+        </p>
+        <p>
+            Opprettelse av betalingspost tilbys per periode, altså per måned. Foreslått forfallsdato for perioden hentes
+            fra tilbakemeldingen.
+        </p>
+    </article>
+
+    <footer *ngIf="!received">
+        <button class="good" (click)="close(false)">Ok</button>
+    </footer>
+    <footer *ngIf="received">
+        <button class="" (click)="close(false)">Avbryt</button>
+        <button class="good" (click)="close(true)">Lag betaling</button>
+    </footer>
+</section>

@@ -1,24 +1,24 @@
 import {Component, OnInit} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
-import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {AmeldingData, CompanySalary, AmeldingType, InternalAmeldingStatus} from '../../../unientities';
+import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus} from '../../../unientities';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
-    PayrollrunService,
     AMeldingService,
-    ErrorService,
-    NumberFormat,
-    SalarySumsService,
-    FinancialYearService,
-    ReportDefinitionService,
     CompanySalaryService,
+    ErrorService,
+    FinancialYearService,
+    ITaxAndAgaSums,
+    NumberFormat,
     PageStateService,
-    ITaxAndAgaSums
+    PayrollrunService,
+    ReportDefinitionService,
+    SalarySumsService
 } from '../../../services/services';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
@@ -26,9 +26,12 @@ import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingType
 import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
-import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
-import { IUniTab } from '@uni-framework/uni-tabs';
-import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
+import {AltinnAuthenticationData} from '@app/models/AltinnAuthenticationData';
+import {IUniTab} from '@uni-framework/uni-tabs';
+import {PeriodAdminModalComponent} from './modals/period-admin-modal/period-admin-modal.component';
+import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
+import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
+import {RequestMethod} from '@uni-framework/core/http';
 
 @Component({
     selector: 'amelding-view',
@@ -96,7 +99,7 @@ export class AMeldingView implements OnInit {
                 this.getFeedbackFile();
             },
             disabled: () => {
-                return this.currentAMelding ? (this.currentAMelding.status <= 2 ? true : false) : true;
+                return this.currentAMelding ? this.currentAMelding.status <= 2 : true;
             }
         },
         {
@@ -114,6 +117,15 @@ export class AMeldingView implements OnInit {
         {
             label: 'Avansert periodebehandling',
             action: () => this.openAdminModal()
+        },
+        {
+            label: 'Betal f.trekk og aga',
+            action: () => this.openMakePaymentModal(),
+            disabled: () => {
+                return !this.currentAMelding
+                    || !this.currentAMelding.altinnStatus
+                    || !this.currentAMelding.altinnStatus.toLowerCase().includes('mottatt');
+            }
         }
     ];
 
@@ -705,7 +717,7 @@ export class AMeldingView implements OnInit {
                     this.getFeedback(done);
                 }
             },
-            disabled: this.currentAMelding ? (this.currentAMelding.status === 2 ? false : true) : true,
+            disabled: this.currentAMelding ? (this.currentAMelding.status !== 2) : true,
             main: this.submittedDate !== ''
         });
     }
@@ -728,12 +740,50 @@ export class AMeldingView implements OnInit {
                 if (response) {
                     this.replaceAmeldingInPeriod(response);
                     this.refresh(response);
+                    this.openBeforeMakePaymentModal(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
                     done('Feilet ved henting av tilbakemelding');
                 }
             });
+    }
+
+    private openBeforeMakePaymentModal(response: AmeldingData) {
+        this.modalService.open(StatusAMeldingModal, {
+            data: {
+                altinnStatus: response.altinnStatus,
+                period: this.currentPeriod
+            }
+        }).onClose.subscribe(result => {
+            if (result) {
+                this.openMakePaymentModal();
+            }
+        });
+    }
+    private openMakePaymentModal() {
+        const getSafePayDate = (currentAMelding) => {
+            return (currentAMelding
+                && currentAMelding.feedBack
+                && currentAMelding.feedBack.melding
+                && currentAMelding.feedBack.melding.Mottak
+                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
+                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato) || null;
+        };
+        this.modalService.open(MakeAmeldingPaymentModal, {
+            data: {
+                period: this.currentPeriod,
+                totalFtrekkFeedbackStr: this.totalFtrekkFeedbackStr,
+                totalAGAFeedbackStr: this.totalAGAFeedBackStr,
+                totalFinancialFeedbackStr: this.totalFinancialFeedbackStr,
+                showFinanceTax: this.showFinanceTax,
+                payDate: getSafePayDate(this.currentAMelding)
+            }
+        }).onClose.subscribe(dto => {
+            this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
+                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} betalt`);
+            }, (error) => this.errorService.handle(error));
+        });
     }
 
     private handleError(err, obs, done: (message: string) => void = null) {
