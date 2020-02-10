@@ -2167,7 +2167,7 @@ export class BillView implements OnInit {
             const list: IUniSaveAction[] = [];
             this.rootActions.forEach(x => list.push(x));
             const hasJournalEntry = (!!(it.JournalEntry && it.JournalEntry.JournalEntryNumber));
-            const filter = [];
+            const filter = ['finish'];
             let mainFirst = true;
 
             if (this.invoicePayments.length > 0) {
@@ -2175,6 +2175,7 @@ export class BillView implements OnInit {
                 mainFirst = false;
                 list.forEach(x => x.main = false);
             }
+
             if (hasJournalEntry) {
                 filter.push('journal');
             }
