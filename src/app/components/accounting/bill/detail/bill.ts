@@ -2178,7 +2178,8 @@ export class BillView implements OnInit {
             if (hasJournalEntry) {
                 filter.push('journal');
             }
-            this.addActions(it._links.transitions, list, mainFirst, ['journal', 'assign', 'approve', 'sendForPayment'], filter);
+
+            this.addActions(it._links.transitions, list, mainFirst, ['journal', 'assign', 'approve', 'sendForPayment', 'finish'], filter);
 
             // Reassign as admin
             if (!it._links.transitions.hasOwnProperty('reAssign')
@@ -2246,6 +2247,10 @@ export class BillView implements OnInit {
             ) {
                 if (it.PaymentStatus !== 30112) {
                     if (it.PaymentStatus !== 30110) {
+                        if (hasJournalEntry) {
+                            list.forEach(action => action.main = false);
+                        }
+
                         list.push({
                                 label: 'Legg til betaling',
                                 action: (done) => this.sendForPayment()
@@ -2256,6 +2261,7 @@ export class BillView implements OnInit {
                                 main: true,
                                 disabled: false
                             });
+
                         list.push(
                             {
                                 label: 'Legg til del-betaling',
