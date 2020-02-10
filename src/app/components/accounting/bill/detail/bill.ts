@@ -2276,13 +2276,6 @@ export class BillView implements OnInit {
                         );
                     }
 
-                    list.push({
-                        label: 'Arkiver',
-                        action: (done) => this.finish(done),
-                        main: false,
-                        disabled: false
-                    })
-
                     if (it.StatusCode === StatusCodeSupplierInvoice.Journaled) {
                         list.push(
                             {
@@ -3725,18 +3718,6 @@ export class BillView implements OnInit {
             } else {
                 done();
             }
-        });
-    }
-
-    private finish(done) {
-        const bill = this.current.getValue();
-        this.supplierInvoiceService.finish(bill.ID).subscribe(() => {
-            this.toast.addToast('Leverandørfaktura arkivert', ToastType.good);
-            done();
-        }, (error) => {
-            console.log(error);
-            this.toast.addToast(error.error.Message, ToastType.bad);
-            done();
         });
     }
 
