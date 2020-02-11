@@ -2012,7 +2012,8 @@ export class BillView implements OnInit {
             return;
         }
 
-        this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan).then((value: any) => {
+        this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan,
+            this.current.getValue().TaxInclusiveAmountCurrency).then((value: any) => {
             if (value.msg) {
                 if (this.smartBookingSettings.showNotification) {
                     this.toast.addToast('Smart bokføring', value.type, 10, value.msg);

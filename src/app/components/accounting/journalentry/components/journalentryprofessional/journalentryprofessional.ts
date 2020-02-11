@@ -118,6 +118,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Output() public showImageForJournalEntry: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowSelected: EventEmitter<JournalEntryData> = new EventEmitter<JournalEntryData>();
     @Output() public rowFieldChanged: EventEmitter<FieldAndJournalEntryData> = new EventEmitter<FieldAndJournalEntryData>();
+    @Output() public accountWithCostAllocationSelected: EventEmitter<any> = new EventEmitter();
 
     private predefinedDescriptions: Array<any>;
     private dimensionTypes: any[];
@@ -499,7 +500,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return row;
     }
 
-    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean ) {
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0 ) {
         const returnValue: any = {
             type: ToastType.warn
         };
@@ -551,6 +552,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                         this.journalEntryService.getAccountsFromSuggeestions(res.Suggestion.AccountNumber.toString().substr(0, 3))
                         .subscribe((accounts) => {
+
                             if (accounts.length) {
                                 let match = accounts.find(acc => acc.AccountNumber === res.Suggestion.AccountNumber);
                                 match = match ? match : accounts[0];
@@ -558,6 +560,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 let newLine;
 
                                 if (this.journalEntryLines && this.journalEntryLines.length === 1) {
+                                    this.journalEntryLines[0].Amount = amount;
+                                    this.journalEntryLines[0].AmountCurrency = amount;
                                     this.journalEntryLines[0].DebitAccount = match;
                                     this.journalEntryLines[0].DebitAccountID = match.ID;
                                     this.journalEntryLines[0]['_updateDescription'] = true;
@@ -573,7 +577,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         CreditAccount: null,
                                         CreditAccountID: null,
                                         Description: '',
-                                        FileIDs: []
+                                        FileIDs: [],
+                                        Amount: amount,
+                                        AmountCurrency: amount
                                     };
                                     if (match.VatTypeID) {
                                         newLine.DebitVatTypeID = match.VatTypeID;
@@ -584,6 +590,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 }
 
                                 this.journalEntryLines[0] = this.setDebitAccountProperties(this.journalEntryLines[0]);
+
+                                if (match.CostAllocationID) {
+                                    this.accountWithCostAllocationSelected.emit(this.journalEntryLines[0]);
+                                    returnValue.msg = 'Fant konto med fordelingsnøkkel. Sender videre.';
+                                    returnValue.type = ToastType.good;
+                                    returnValue.hasCostAllocation = true;
+                                    resolve(returnValue);
+                                    return;
+                                }
 
                                 returnValue.msg = res.Source === 1
                                     ? 'Kontoforslag på konteringslinje er lagt til basert på ditt firmas tidligere' +
