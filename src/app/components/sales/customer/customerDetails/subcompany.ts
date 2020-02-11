@@ -181,13 +181,15 @@ export class SubCompanyComponent implements OnInit {
                     FieldSet: 1,
                     Property: 'CompanyName',
                     FieldType: FieldType.TEXT,
+                    ReadOnly: true,
                     Label: 'Navn',
                 },
                 {
                     FieldSet: 1,
                     Property: 'CompanyKey',
                     FieldType: FieldType.TEXT,
-                    Label: 'Nøkkel',
+                    ReadOnly: true,
+                    Label: 'Selskapsnøkkel',
                 },
                 {
                     FieldSet: 1,
