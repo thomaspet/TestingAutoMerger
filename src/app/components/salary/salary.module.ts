@@ -38,7 +38,6 @@ import {EmployeeTax} from './employee/employeeTax/employeeTax';
 import {EmployeeSalarybalance} from './employee/employeeSalarybalances/employeeSalarybalance';
 import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
 
-import {VacationPayModal} from './payrollrun/modals/vacationpay/vacationPayModal';
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
@@ -194,7 +193,6 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         EmployeeOTP,
 
         // Payrollrun
-        VacationPayModal,
         ControlModal,
         PayrollrunDetails,
         PayrollrunList,
@@ -270,7 +268,6 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
     entryComponents: [
         TaxCardModal,
         TaxResponseModal,
-        VacationPayModal,
         ControlModal,
         PostingSummaryModal,
         AmeldingTypePickerModal,

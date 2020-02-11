@@ -1,13 +1,9 @@
-﻿// tslint:disable:max-line-length
+﻿﻿// tslint:disable:max-line-length
 import {Component} from '@angular/core';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
-import {SettingsService} from '../settings-service';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniField, FieldType} from '../../../../framework/ui/uniform/index';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../framework/ui/unitable/index';
-import {ErrorService, UserService, GuidService} from '../../../services/services';
+import {ErrorService, GuidService} from '../../../services/services';
 import {Team, User, TeamPosition} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
@@ -25,26 +21,23 @@ export class Teams {
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
 
-    public teamTableConfig: UniTableConfig;
-    public positionTableConfig: UniTableConfig;
+    teamTableConfig: UniTableConfig;
+    positionTableConfig: UniTableConfig;
+    saveactions: IUniSaveAction[] = [];
 
-    public formModel$: BehaviorSubject<Team> = new BehaviorSubject(null);
-    public formFields$: BehaviorSubject<UniField[]> = new BehaviorSubject([]);
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-
-    public saveactions: IUniSaveAction[] = [];
+    selectConfig = {
+        template: (item) => item ? item.Name : '',
+        searchable: false,
+        hideDeleteButton: true
+    };
 
     constructor(
-        private settingsService: SettingsService,
         private http: UniHttp,
-        private tabService: TabService,
-        private userService: UserService,
         private errorService: ErrorService,
         private guidService: GuidService,
         private modalService: UniModalService
     ) {
         this.initTableConfigs();
-        this.initFormConfigs();
         this.updateSaveActions();
         this.getData();
     }
@@ -59,7 +52,7 @@ export class Teams {
         return result;
     }
     public updateSaveActions() {
-        this.settingsService.setSaveActions([
+        this.saveactions = [
             {
                 label: 'Nytt team',
                 action: (done) => this.onAddNew(done),
@@ -78,7 +71,7 @@ export class Teams {
                 main: false,
                 disabled: !this.current
             }
-        ]);
+        ];
     }
 
     public onTeamSelected(event) {
@@ -118,14 +111,13 @@ export class Teams {
         if (t.Positions) {
             t.Positions.forEach( x => {
                 x['User'] = this.users.find( u => u.ID === x.UserID );
-                const pos = this.positionTypes.find( p => p.ID === x.Position  ) || { ID: 0, Name: 'Dont know!' };
+                const pos = this.positionTypes.find( p => p.ID === x.Position  ) || { ID: 0, Name: 'Ikke satt' };
                 x['PositionType'] = pos;
             });
         }
 
         this.deletables = [];
         this.current = t;
-        this.formModel$.next(this.current);
         this.hasUnsavedChanges = false;
         this.updateSaveActions();
     }
@@ -297,10 +289,6 @@ export class Teams {
         this.flagUnsavedChanges();
     }
 
-    public onFormInput(event) {
-        this.flagUnsavedChanges();
-    }
-
     private flagUnsavedChanges(reset: boolean = false) {
         this.hasUnsavedChanges = !reset;
         this.updateSaveActions();
@@ -348,20 +336,6 @@ export class Teams {
             return (item[idField].toString() === txt || item[nameField].toLowerCase().indexOf(lcaseText) >= 0); } );
         return Observable.from([sublist]);
      }
-
-    private initFormConfigs() {
-        this.formConfig$.next({});
-        this.formFields$.next([
-            <any> {
-                EntityType: 'Team',
-                Property: 'Name',
-                FieldType: FieldType.TEXT,
-                Label: 'Teamnavn',
-                Classes: ['half-width'],
-                Section: 0
-            }
-        ]);
-    }
 
     private getData() {
         Observable.forkJoin(this.requestTeams(), this.requestUsers()).subscribe((result) => {

@@ -1,0 +1,74 @@
+.main-container
+    margin: 1rem
+    width: calc(100% - 2rem)
+    background-color: white
+    padding: 1rem 0
+
+.settings-link-section
+    width: 100%
+    display: flex
+    justify-content: center
+    padding: 2rem 0 1rem
+
+    .main-links
+        margin: 0 3rem
+        list-style: none
+        min-width: 16rem
+
+        li.list-item
+            padding: 1rem 1rem
+            font-size: 15px
+            color: var(--link-color)
+            cursor: pointer
+            border-bottom: 1px solid var(--border-color)
+
+            &:last-of-type
+                border-bottom: none
+
+            &.isSearchMatch
+                background-color: var(--sidebar-active-section-background)
+                font-weight: bold
+
+            &:not(.open):hover
+                background-color: var(--sidebar-active-section-background)
+
+            &.open
+                font-weight: 600
+
+            .list-item-name-and-icon-container
+                display: flex
+
+                span
+                    flex: 1
+
+                i.material-icons
+                    font-size: 20px
+
+        li.list-header
+            font-size: 18px
+            font-weight: bold
+            color: var(--color-c2a)
+            padding-left: 0
+            cursor: default
+            margin-bottom: .75rem
+            &:hover
+                background-color: transparent
+
+    .sub-links
+        margin: 1rem 0 0 1rem
+        list-style-type: none
+        padding: 0
+
+        li
+            padding: 1rem 1rem
+            font-size: 14px
+            color: var(--link-color)
+            cursor: pointer
+            border-bottom: 1px solid var(--border-color)
+            font-weight: 400
+
+            &:hover
+                background-color: var(--sidebar-active-section-background)
+
+            &:last-of-type
+                border-bottom: none

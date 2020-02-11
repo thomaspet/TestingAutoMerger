@@ -8,7 +8,7 @@ import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal
         <section role="dialog" class="uni-modal">
             <header>{{options.header | translate}}</header>
 
-            <article>
+            <article [ngClass]="options?.class">
                 <section class="alert warn" *ngIf="options.warning" [innerHtml]="options.warning"></section>
                 <section [innerHtml]="options.message | translate"></section>
             </article>

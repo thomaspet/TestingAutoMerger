@@ -34,6 +34,7 @@ export class UniNavbar {
 
     settingsLinks: any[] = [];
     adminLinks: any[] = [];
+    toolLinks: any[] = [];
 
     onDestroy$ = new Subject();
 
@@ -97,10 +98,12 @@ export class UniNavbar {
         this.navbarService.settingsSection$.subscribe(linkSections => {
             this.settingsLinks = [];
             this.adminLinks = [];
+            this.toolLinks = [];
 
             try {
                 this.settingsLinks = linkSections[0].linkGroups[0].links;
-                this.adminLinks = linkSections[0].linkGroups[1].links;
+                this.toolLinks = linkSections[0].linkGroups[1].links;
+                this.adminLinks = linkSections[0].linkGroups[2].links;
             } catch (e) {/* dont care, just means the user doesnt have settings permissions */}
 
             this.cdr.markForCheck();

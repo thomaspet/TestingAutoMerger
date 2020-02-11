@@ -1,4 +1,6 @@
-<section class="splitview">
+<uni-toolbar [config]="{ title: 'Betingelser' }" [saveactions]="saveactions" ></uni-toolbar>
+
+<section class="splitview settings-view-container">
     <nav class ="splitview_list">
         <ag-grid-wrapper
             *ngIf="termsTypes"

@@ -1,9 +1,0 @@
-<uni-toolbar
-    [config]="toolbarconfig"
-    [saveactions]="settingsService.saveActions$ | async">
-</uni-toolbar>
-
-<article class="application">
-    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
-    <router-outlet></router-outlet>
-</article>

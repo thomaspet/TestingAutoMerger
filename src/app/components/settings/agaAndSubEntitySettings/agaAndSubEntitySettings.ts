@@ -25,9 +25,9 @@ import {
     CompanySalaryBaseOptions
 } from '../../../services/services';
 import {SettingsService} from '../settings-service';
-import {VacationPaySettingsModal} from '../../../components/salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {VacationPaySettingsModal} from '../../common/modals/vacationpay/vacationPaySettingsModal';
 import { ToastService } from '@uni-framework/uniToast/toastService';
-import {VacationPayModal} from '@app/components/salary/payrollrun/modals/vacationpay/vacationPayModal';
+import {VacationPayModal} from '@app/components/common/modals/vacationpay/vacationPayModal';
 declare var _;
 
 @Component({
@@ -55,12 +55,12 @@ export class AgaAndSubEntitySettings implements OnInit {
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 
-    public saveaction: IUniSaveAction = {
+    saveActions: IUniSaveAction[] = [{
         label: 'Lagre aga og virksomheter',
         action: this.saveAgaAndSubEntities.bind(this),
         main: true,
         disabled: false
-    };
+    }];
 
     public busy: boolean;
 
@@ -81,8 +81,6 @@ export class AgaAndSubEntitySettings implements OnInit {
                 1: { isOpen: true }
             }
         });
-
-        this.settingsService.setSaveActions([this.saveaction]);
     }
 
     public ngOnInit() {
@@ -574,11 +572,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.modalService.open(VacationPayModal);
     }
 
-    public saveButtonIsDisabled(isDisabled: boolean) {
-        this.saveaction.disabled = isDisabled;
-        this.settingsService.setSaveActions([this.saveaction]);
-    }
-
     public saveAgaAndSubEntities(done) {
         const saveObs: Observable<any>[] = [];
         const companySalary = this.companySalary$.getValue();
@@ -612,10 +605,6 @@ export class AgaAndSubEntitySettings implements OnInit {
             saveObs.push(mainOrgSave);
         }
         Observable.forkJoin(saveObs)
-            .finally(() => {
-                this.saveaction.disabled = false;
-                this.settingsService.setSaveActions([this.saveaction]);
-            })
             .subscribe((response: any) => {
                 const companySal = response[0];
                 companySal['_baseOptions'] = this.companySalaryService.getBaseOptions(companySal);

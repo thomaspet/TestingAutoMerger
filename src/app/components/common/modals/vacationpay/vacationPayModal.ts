@@ -1,19 +1,19 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../../framework/uni-modal';
-import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate, } from '../../../../../unientities';
-import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
+import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
+import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate, } from '../../../../unientities';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
-} from '../../../../../../framework/ui/unitable/index';
+} from '../../../../../framework/ui/unitable/index';
 import {
     BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService,
-} from '../../../../../../app/services/services';
-import {VacationPaySettingsModal, IVacationPaySettingsReturn} from '../../modals/vacationpay/vacationPaySettingsModal';
-import {ToastService, ToastType, ToastTime} from '../../../../../../framework/uniToast/toastService';
+} from '../../../../services/services';
+import {VacationPaySettingsModal, IVacationPaySettingsReturn} from './vacationPaySettingsModal';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
-import {IUniSaveAction} from '../../../../../../framework/save/save';
+import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
+import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';

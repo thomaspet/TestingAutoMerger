@@ -1,11 +1,9 @@
-<section class="application">
+<uni-toolbar [config]="{ title: 'Dimensjoner' }" [saveactions]="saveActions" ></uni-toolbar>
 
-    <h2>Egendefinerte dimensjoner</h2>
-
+<section class="application settings-view-container">
     <ag-grid-wrapper
-        class="transquery-grid-font-size"
+        class="transquery-grid-font-size borders"
         [resource]="data"
         [config]="tableConfig">
     </ag-grid-wrapper>
-
 </section>

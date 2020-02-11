@@ -1,16 +1,9 @@
+﻿﻿<uni-toolbar [config]="toolbarConfig"></uni-toolbar>
+
 <section class="distribution-container container-for-spinner">
 
     <section *ngIf="busy" class="modal-spinner">
         <mat-spinner class="c2a"></mat-spinner>
-    </section>
-
-    <section class="distribution-header-section">
-        <span> Utsendelse </span>
-        <i class="material-icons"
-            matTooltip="Oppsett for utsendelse. Her kan du definere prioriteringsrekkefølge for sending av entitene under. Sett en plan som standard for at den skal automatisk brukes på alle.
-            Slå på Automatisk utsendelse for å sende ut faktura automatisk.">
-            info
-        </i>
     </section>
 
     <section class="distribution-type-container" *ngFor="let type of entityTypes">
@@ -65,9 +58,9 @@
                                 </ng-container>
                             </ul>
                         </td>
-                        <td> <a (click)="onActionClick({ label: 'Administrer kunder', name: 'customer' }, plan, type)"> {{ plan._count }} kunder </a> </td>
+                        <td> <a (click)="onActionClick('customer', plan, type)"> {{ plan._count }} kunder </a> </td>
                         <td>
-                            <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Standard </span>
+                            <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Firmastandard </span>
                             <i #toggle class="material-icons">more_horiz</i>
                             <dropdown-menu [trigger]="toggle">
                                 <ng-template>

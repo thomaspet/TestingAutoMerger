@@ -1,15 +1,15 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {IUniModal, IModalOptions, UniModalService, ConfirmActions} from '../../../../../../framework/uni-modal';
-import {UniFieldLayout, FieldType} from '../../../../../../framework/ui/uniform/index';
+import {IUniModal, IModalOptions, UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
+import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     UniTableConfig, UniTableColumnType, UniTableColumn
-} from '../../../../../../framework/ui/unitable/index';
+} from '../../../../../framework/ui/unitable/index';
 import {
     CompanySalaryService, CompanyVacationRateService, AccountService, ErrorService, VacationpayLineService, FinancialYearService
-} from '../../../../../services/services';
+} from '../../../../services/services';
 import {
     CompanyVacationRate, Account, LocalDate, CompanySalary
-} from '../../../../../unientities';
+} from '../../../../unientities';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import * as moment from 'moment';

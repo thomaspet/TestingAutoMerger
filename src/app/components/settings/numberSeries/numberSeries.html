@@ -1,23 +1,54 @@
-<section class="application" style="background-color: #fff; padding: 1rem;">
-    <mat-form-field style="width: 25rem; margin: 1rem 1rem 0 0;">
-        <mat-select placeholder="Nummerserie" [value]="currentSerie" (valueChange)="onSerieSelected($event)">
-            <mat-option *ngFor="let serie of series" [value]="serie">
-                {{ serie.Name }}
-            </mat-option>
-        </mat-select>
-    </mat-form-field>
+<uni-toolbar [config]="toolbarConfig" [saveactions]="saveactions"></uni-toolbar>
+<section class="number-series-select">
+    <label class="uni-label label-left">
+        <span>Velg nummerserier</span>
+        <uni-select
+            [config]="selectConfig"
+            [items]="series"
+            [value]="currentSerie"
+            (valueChange)="onSerieSelected($event)">
+        </uni-select>
+    </label>
+</section>
+<section class="number-series-table-container">
+    <h4> {{ currentSerie.Name }} </h4>
+    <section class="button-section">
+        <mat-slide-toggle
+            style="margin-bottom: 1rem;"
+            [(ngModel)]="allYears"
+            (change)="toggleAllYears($event)"
+            [labelPosition]="'before'">
+            Vis alle regnskapsår
+        </mat-slide-toggle>
+        <span class="divider"></span>
+        <i class="material-icons" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Info om nummerserier">
+            info_outline
+        </i>
 
-    <mat-slide-toggle
-        style="margin-bottom: 1rem;"
-        [(ngModel)]="allYears"
-        (change)="toggleAllYears($event)"
-        [labelPosition]="'before'">
-        Vis alle regnskapsår
-    </mat-slide-toggle>
+        <mat-menu #contextMenu="matMenu" yPosition="below">
+            <div class="number-series-info-container">
+                <h2>Nummerserier</h2>
+                <p>
+                    Her finner du innstillinger for nummerserier. Funksjoner for hver serie finner du under "..." meny til høyre i tabellen.
+                    Tabellen kan redigeres, og du må da lagre mellom bytte av nummerserier, f.eks fra Regnskap til Salg.
+                </p>
+                <h2>Systemforslag</h2>
+                <p>
+                    Noen elementer i tabellen kan ligge uten nummer. Disse er forslag fra systemet. For å ta de i bruk, og redigere disse, klikk
+                    på raden, og du vil få spørsmål om du ønsker å ta den i bruk. Ingenting aktiveres før du selv lagrer.
+                </p>
+                <h2>Ny serie</h2>
+                <p>
+                    For å lage din egen nummerserie, finner du "Ny nummerserie"-knapp i toppen ved siden av lagreknapp
+                </p>
+            </div>
+        </mat-menu>
 
-    <uni-table
+    </section>
+
+    <ag-grid-wrapper
         [config]="listTableConfig"
-        [resource]="current"
-        (rowSelectionChanged)="onRowSelectionChange($event)">
-    </uni-table>
+        [(resource)]="current"
+        (rowClick)="onRowClicked($event)">
+    </ag-grid-wrapper>
 </section>

@@ -1,20 +1,25 @@
-﻿<section class="application teams-container">
-    <section style="background-color: #fff; padding: 1rem;">
-        <mat-form-field style="width: 25rem;">
-            <mat-select placeholder="Team" [value]="current" (valueChange)="setCurrent($event)">
-                <mat-option *ngFor="let team of teams" [value]="team">
-                    {{ team.Name }}
-                </mat-option>
-            </mat-select>
-        </mat-form-field>
+﻿
+﻿<uni-toolbar [config]="{ title: 'Teams' }" [saveactions]="saveactions"></uni-toolbar>
 
-        <uni-form
-            [config]="formConfig$"
-            [fields]="formFields$"
-            [model]="formModel$"
-            (changeEvent)="onFormChange($event)"
-            (inputEvent)="onFormInput($event)">
-        </uni-form>
+<section class="teams-select">
+    <label class="uni-label label-left">
+        <span>Velg team</span>
+        <uni-select
+            [config]="selectConfig"
+            [items]="teams"
+            [(value)]="current"
+            (valueChange)="setCurrent($event)">
+        </uni-select>
+    </label>
+</section>
+
+<section class="application teams-container">
+    <section style="background-color: #fff; padding: 1rem;">
+
+        <label class="uni-label" style="margin: 1rem 0 2rem;">
+            <span>Teamnavn</span>
+            <input type="text" [(ngModel)]="current.Name" (change)="onFormChange($event)">
+        </label>
 
         <ag-grid-wrapper
             [config]="positionTableConfig"

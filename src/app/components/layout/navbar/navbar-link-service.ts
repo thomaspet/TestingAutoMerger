@@ -82,7 +82,7 @@ export class NavbarLinkService {
         }
     }
 
-    private getSettingsFilteredByPermissions(user: UserDto): any[] {
+    public getSettingsFilteredByPermissions(user: UserDto): any[] {
         const settingsSections: INavbarLinkSection[] = cloneDeep(SETTINGS_LINKS);
         // Filter out links the user doesnt have access to for every section
         settingsSections.forEach(section => {

@@ -1,14 +1,18 @@
-<article class="collapsable" [ngClass]="{'-is-open': showIntegrationSection}">
-    <h4 (click)="showIntegrationSection = !showIntegrationSection">Integrasjoner</h4>
-    <div class="collapsable-content">
-        <apikey-component></apikey-component>
-    </div>
-</article>
-<article class="collapsable" [ngClass]="{'-is-open': showWebhooksSection}">
-    <h4 (click)="showWebhooksSection = !showWebhooksSection">Flyt</h4>
-    <div class="collapsable-content">
-        <div style="width: 100%">
-        <event-plans #eventplans></event-plans>
+<uni-toolbar [config]="{ title: 'Integrasjoner' }"></uni-toolbar>
+
+<section class="settings-view-container">
+    <article class="collapsable" [ngClass]="{'-is-open': showIntegrationSection}">
+        <h4 (click)="showIntegrationSection = !showIntegrationSection">Integrasjoner</h4>
+        <div class="collapsable-content">
+            <apikey-component></apikey-component>
         </div>
-    </div>
-</article>
+    </article>
+    <article class="collapsable" [ngClass]="{'-is-open': showWebhooksSection}">
+        <h4 (click)="showWebhooksSection = !showWebhooksSection">Flyt</h4>
+        <div class="collapsable-content">
+            <div style="width: 100%">
+            <event-plans #eventplans></event-plans>
+            </div>
+        </div>
+    </article>
+</section>

@@ -10,7 +10,7 @@ import {tap, take, switchMap, filter, finalize, map, catchError, takeUntil} from
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ControlModal} from './modals/controlModal';
 import {PostingSummaryModal} from './modals/postingSummaryModal';
-import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
+import {VacationPayModal} from '../../common/modals/vacationpay/vacationPayModal';
 import {TimeTransferComponent} from './modals/time-transfer/time-transfer.component';
 import {UniForm} from '../../../../framework/ui/uniform/index';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';

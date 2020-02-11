@@ -6,6 +6,7 @@ import {ErrorService, GuidService} from '../../../services/services';
 import {Terms, TermsType} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { IUniSaveAction } from '@uni-framework/save/save';
 
 @Component({
     selector: 'uni-terms',
@@ -30,6 +31,12 @@ export class UniTerms {
 
     public termsTypeTableConfig: UniTableConfig;
     public termsTableConfig: UniTableConfig;
+    saveactions: IUniSaveAction[] = [{
+        label: 'Lagre betingelser',
+        action: (done) => this.onSaveClicked(done),
+        main: true,
+        disabled: false
+    }];
 
     constructor(
         private settingsService: SettingsService,
@@ -40,7 +47,6 @@ export class UniTerms {
     ) {
         this.initTermsTypeTableConfig();
         this.initPaymentTermsTableConfig();
-        this.updateSaveActions();
         this.getTerms();
         setTimeout(x => {
             this.uniTables.first.focusRow(0);
@@ -57,15 +63,6 @@ export class UniTerms {
                 this.setCurrent(event);
             }
         });
-    }
-
-    public updateSaveActions() {
-        this.settingsService.setSaveActions([{
-            label: 'Lagre betingelser',
-            action: (done) => this.onSaveClicked(done),
-            main: true,
-            disabled: !this.hasUnsavedChanges
-        }]);
     }
 
     public onSaveClicked(done) {
@@ -96,7 +93,6 @@ export class UniTerms {
         }
         this.uniTables.last.refreshTableData();
         this.hasUnsavedChanges = false;
-        this.updateSaveActions();
     }
 
     public onTermDeleted(event) {
@@ -107,7 +103,6 @@ export class UniTerms {
             if (item && item.ID) {
                 item.Deleted = true;
                 this.hasUnsavedChanges = true;
-                this.updateSaveActions();
                 this.deletables.push(item);
                 this.uniTables.last.refreshTableData();
             }
@@ -140,7 +135,6 @@ export class UniTerms {
         }
 
         this.hasUnsavedChanges = true;
-        this.updateSaveActions();
 
         if (rowIndex >= this.currentTerms.length) {
             if (this.currentTermType.TermsType === TermsType.PaymentTerms) {
@@ -228,7 +222,6 @@ export class UniTerms {
                     .send().map(response => response.body)
                     .subscribe(result => {
                         this.hasUnsavedChanges = false;
-                        this.updateSaveActions();
                         this.getTerms();
                         resolve(true);
                     }, error => {

@@ -1,53 +1,56 @@
-﻿<article *ngIf="companySettings$ | async">
+﻿﻿<uni-toolbar [config]="{ title: 'Firmaoppsett' }" [saveactions]="saveActions"></uni-toolbar>
+<section class="settings-view-container">
+    <article *ngIf="companySettings$ | async">
 
-    <uni-form class="companySettings"
-              [config]="config$"
-              [fields]="fields$"
-              [model]="companySettings$"
-              (changeEvent)="companySettingsChange($event)"
-              (inputEvent)="onFormInputChange($event)"
-              (readyEvent)="onFormReady()">
-    </uni-form>
+        <uni-form class="companySettings"
+                  [config]="config$"
+                  [fields]="fields$"
+                  [model]="companySettings$"
+                  (changeEvent)="companySettingsChange($event)"
+                  (inputEvent)="onFormInputChange($event)"
+                  (readyEvent)="onFormReady()">
+        </uni-form>
 
-    <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
-        <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
-        <div class="collapsable-content">
-            <uni-image
-                [entity]="'companysettings'"
-                [entityID]="1"
-                [singleImage]="true"
-                (fileListReady)="logoFileChanged($event)"
-            ></uni-image>
-        </div>
+        <article class="company-logo collapsable" [ngClass]="{'-is-open': showImageSection}">
+            <h4 (click)="showImageSection = !showImageSection">Firmalogo</h4>
+            <div class="collapsable-content">
+                <uni-image
+                    [entity]="'companysettings'"
+                    [entityID]="1"
+                    [singleImage]="true"
+                    (fileListReady)="logoFileChanged($event)"
+                ></uni-image>
+            </div>
+        </article>
+
+        <article class="report-options collapsable" [ngClass]="{'-is-open': showReportOptionsSection}">
+            <h4 (click)="showReportOptionsSection = !showReportOptionsSection">Rapportoppsett</h4>
+            <div class="collapsable-content">
+                <uni-form class="companySettings"
+                    [config]="config$"
+                    [fields]="reportSetupFields$"
+                    [model]="reportModel$"
+                    (changeEvent)="companySettingsChange($event)"
+                    (inputEvent)="onFormInputChange($event)"
+                    (readyEvent)="onFormReady()">
+                </uni-form>
+            </div>
+        </article>
+
+        <article class="reminders collapsable" [ngClass]="{'-is-open': showReminderSection}">
+            <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
+            <div class="collapsable-content">
+                <reminder-settings [reminderSettings]="(companySettings$ | async)?.CustomerInvoiceReminderSettings"></reminder-settings>
+            </div>
+        </article>
     </article>
 
-    <article class="report-options collapsable" [ngClass]="{'-is-open': showReportOptionsSection}">
-        <h4 (click)="showReportOptionsSection = !showReportOptionsSection">Rapportoppsett</h4>
-        <div class="collapsable-content">
-            <uni-form class="companySettings"
-                [config]="config$"
-                [fields]="reportSetupFields$"
-                [model]="reportModel$"
-                (changeEvent)="companySettingsChange($event)"
-                (inputEvent)="onFormInputChange($event)"
-                (readyEvent)="onFormReady()">
-            </uni-form>
-        </div>
-    </article>
-
-    <article class="reminders collapsable" [ngClass]="{'-is-open': showReminderSection}">
-        <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
-        <div class="collapsable-content">
-            <reminder-settings [reminderSettings]="(companySettings$ | async)?.CustomerInvoiceReminderSettings"></reminder-settings>
-        </div>
-    </article>
-</article>
-
-<section style="display:none">
-    <br />
-    <i>Test knapper før opprettelse av klientdata er helt klart</i><br>
-    <button (click)="syncAll()">Synkroniser kontoplan og mva</button>
-    <button (click)="syncAS()">Synkroniser kontoplan</button>
-    <button (click)="syncVat()">Synkroniser mva</button>
-    <button (click)="syncCurrency()">Last ned valuta</button>
+    <section style="display:none">
+        <br />
+        <i>Test knapper før opprettelse av klientdata er helt klart</i><br>
+        <button (click)="syncAll()">Synkroniser kontoplan og mva</button>
+        <button (click)="syncAS()">Synkroniser kontoplan</button>
+        <button (click)="syncVat()">Synkroniser mva</button>
+        <button (click)="syncCurrency()">Last ned valuta</button>
+    </section>
 </section>

@@ -39,7 +39,7 @@ import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
 import {LinkMenu} from './linkMenu/linkMenu';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
-import {VacationPaySettingsModal} from '../salary/payrollrun/modals/vacationpay/vacationPaySettingsModal';
+import {VacationPaySettingsModal} from './modals/vacationpay/vacationPaySettingsModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLine} from './apikey/apikeyLine';
@@ -57,6 +57,7 @@ import {
 
 import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-rules-modal';
 import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
+import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 
 import {
     MatProgressBarModule,
@@ -134,6 +135,8 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         ReminderSettings,
         UniReminderSettingsModal,
         ReminderRules,
+        VacationPayModal,
+        VacationPaySettingsModal,
 
         ContactDetails,
         Contacts,
@@ -204,7 +207,9 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         ImportVoucherModal,
         ImportOrderModal,
         BankInitModal,
-        EditSubEntityAgaZoneModal
+        EditSubEntityAgaZoneModal,
+        VacationPayModal,
+        VacationPaySettingsModal,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -256,6 +261,8 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         WorkitemTransferWizardPreview,
         WorkitemTransferWizardProducts,
         InvoiceHours,
+        VacationPayModal,
+        VacationPaySettingsModal,
     ]
 })
 export class AppCommonModule {}

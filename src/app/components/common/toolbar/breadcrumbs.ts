@@ -41,7 +41,12 @@ export class UniBreadcrumbs {
         urlParts.pop();
 
         if (urlParts.length) {
-            this.navbarLinkService.linkSections$.subscribe(linkSections => {
+            let links = this.navbarLinkService.linkSections$;
+            if (urlParts[0] === 'settings') {
+                 links = this.navbarLinkService.settingsSection$;
+            }
+
+            links.subscribe(linkSections => {
                 const routeSections = [];
                 const parentSection = linkSections.find(section => section.url === '/' + urlParts[0]);
 

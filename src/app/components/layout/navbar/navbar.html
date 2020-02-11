@@ -73,6 +73,15 @@
                                 </a>
                             </section>
 
+                            <section *ngIf="toolLinks?.length" class="settings-links">
+                                <span class="dropdown-menu-header settings-header">Verktøy</span>
+                                <a class="dropdown-menu-item"
+                                    *ngFor="let link of toolLinks"
+                                    [routerLink]="link.url">
+                                    {{link.name | translate}}
+                                </a>
+                            </section>
+
                             <section *ngIf="adminLinks?.length" class="admin-links">
                                 <span class="dropdown-menu-header settings-header">Admin</span>
                                 <a class="dropdown-menu-item"
@@ -84,6 +93,10 @@
                         </section>
 
                     </ng-container>
+
+                    <section style="padding: 1rem; font-size: 14px; text-align: center;">
+                        <a routerLink="settings"> Oversikt innstillinger </a>
+                    </section>
                 </ng-template>
             </dropdown-menu>
         </section>

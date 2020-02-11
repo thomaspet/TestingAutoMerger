@@ -28,7 +28,6 @@ export class SubEntityList implements OnInit {
 
     @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
     @ViewChild(SubEntityDetails, { static: true }) private subEntityDetails: SubEntityDetails;
-    @Output() public saveIsDisabled: EventEmitter<boolean> = new EventEmitter<boolean>(true);
 
     actions: ComboButtonAction[] = [
         { label: 'Hent inn virksomheter fra enhetsregisteret', action: () => this.addSubEntitiesFromExternal() },

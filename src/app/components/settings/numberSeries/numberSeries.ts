@@ -1,16 +1,16 @@
-import {Component, ViewChildren, QueryList} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {SettingsService} from '../settings-service';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
-import {UniModalService, ConfirmActions, UniConfirmModalV2} from '../../../../framework/uni-modal';
+import {UniModalService, ConfirmActions, UniConfirmModalV2, IModalOptions} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
+import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
     UniTableConfig,
     UniTableColumn,
-    UniTableColumnType,
-    UniTable,
+    UniTableColumnType
 } from '../../../../framework/ui/unitable/index';
 import {
     ErrorService,
@@ -23,6 +23,7 @@ import {
     AccountService
 } from '../../../services/services';
 import {Account, NumberSeriesType} from '../../../unientities';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 declare var _;
 const MAXNUMBER = 2147483647;
@@ -30,15 +31,16 @@ const MININVOICENUMBER = 100000;
 
 @Component({
     selector: 'uni-number-series',
-    templateUrl: './numberSeries.html'
+    templateUrl: './numberSeries.html',
+    styleUrls: ['./number-series.sass']
 })
 export class NumberSeries {
-    @ViewChildren(UniTable)
-    private uniTables: QueryList<UniTable>;
+    @ViewChild(AgGridWrapper, { static: true })
+    private table: AgGridWrapper;
 
+    initial: boolean = true;
     public series: any[] = [];
     public current: any[] = [];
-    public currentNumberSeriesType: NumberSeriesType;
 
     private numberseries: any[] = [];
     private types: any[] = [];
@@ -52,6 +54,22 @@ export class NumberSeries {
     public hasUnsavedChanges: boolean = false;
     public busy: boolean = false;
     public allYears: boolean = false;
+
+    selectConfig = {
+        template: (item) => item ? item.Name : '',
+        searchable: false,
+        hideDeleteButton: true
+    };
+
+    toolbarConfig: IToolbarConfig = {
+        title: 'Nummerserier',
+        buttons: [
+            {
+                action: () => this.openNumberSeriesModal(),
+                label: 'Ny nummerserie'
+            }
+        ]
+    };
 
     public seriesTableConfig: UniTableConfig;
     public listTableConfig: UniTableConfig;
@@ -96,7 +114,7 @@ export class NumberSeries {
     }
 
     public updateSaveActions() {
-        this.settingService.setSaveActions([
+        this.saveactions = [
             {
                 label: 'Lagre nummerserier',
                 action: (done) => this.onSaveClicked(done),
@@ -109,7 +127,7 @@ export class NumberSeries {
                 main: false,
                 disabled: false
             }
-        ]);
+        ];
     }
 
     public onSaveClicked(done) {
@@ -182,9 +200,24 @@ export class NumberSeries {
         });
     }
 
+    openNumberSeriesModal() {
+        let row: any;
+        switch (this.currentSerie.ID) {
+            case 'JournalEntry':
+                row = {
+                    NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
+                    _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
+                    AccountYear: this.currentYear,
+                    _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
+                    _rowSelected: true
+                };
+        }
+        this.table.addRow(row);
+    }
+
     private setCurrent(t: any) {
-        if (this.uniTables) {
-            this.uniTables.last.blur();
+        if (this.table) {
+            this.table.finishEdit();
         }
 
         let current = [];
@@ -238,8 +271,14 @@ export class NumberSeries {
                 break;
         }
 
-        this.current = _.cloneDeep(current);
-        this.uniTables.last.refreshTableData();
+        this.current = _.cloneDeep(current.map(ns => {
+            if (ns.ID) {
+                ns._rowSelected = true;
+            }
+            return this.setPredefinedOrNot(ns);
+        }));
+
+        this.table.refreshTableData();
         this.hasUnsavedChanges = false;
     }
 
@@ -295,59 +334,48 @@ export class NumberSeries {
 
     private Save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
-            const all = this.uniTables.last.getVisibleTableData();
+            const IDS = [];
 
-            const numberSeriesTypeToPUTToServer: NumberSeriesType [] = [];
-
-            all
-                .filter(uniTableNumberSeriesRow => uniTableNumberSeriesRow._isDirty)
-                .forEach(uniTableNumberSeriesDirtyRow => {
-                    if (!uniTableNumberSeriesDirtyRow.AccountYear) {
-                        uniTableNumberSeriesDirtyRow.AccountYear = 0;
-                    }
-                    if (!numberSeriesTypeToPUTToServer
-                        .some(nstype => nstype.ID === uniTableNumberSeriesDirtyRow.NumberSeriesTypeID)) {
-                            numberSeriesTypeToPUTToServer.push(uniTableNumberSeriesDirtyRow.NumberSeriesType);
-                    }
-                });
-
-            // add numberseries to type
-            all.forEach(uniTableNumberSeriesRow => {
-                numberSeriesTypeToPUTToServer.forEach(numberSeriesType => {
-
-                    if (numberSeriesType.ID === uniTableNumberSeriesRow.NumberSeriesTypeID) {
-
-                        if (this.currentSerie &&
-                            this.currentSerie.ID === 'JournalEntry' &&
-                            !uniTableNumberSeriesRow._rowSelected) {
-                            return;
-                        }
-
-                        numberSeriesType.Series = numberSeriesType.Series || [];
-                        if (uniTableNumberSeriesRow._isDirty) {
-                            uniTableNumberSeriesRow.NumberSeriesType = null;
-                            if (this.currentSerie.ID === 'JournalEntry' || this.currentSerie.ID === 'Accounts') {
-                                uniTableNumberSeriesRow.MainAccount = null;
-                            }
-                        }
-
-                        if (!uniTableNumberSeriesRow.ID) {
-                            uniTableNumberSeriesRow['_createguid'] = this.numberSeriesService.getNewGuid();
-                        }
-
-                        numberSeriesType.Series.push(uniTableNumberSeriesRow);
-                    }
-                });
+            // Find the different NumberSeriesTypes that have been changed
+            this.current.forEach(ns => {
+                if (ns._isDirty && !IDS.includes(ns.NumberSeriesTypeID)) {
+                    IDS.push(ns.NumberSeriesTypeID);
+                }
             });
 
-            const saveTypeObservables: Observable<any>[] = numberSeriesTypeToPUTToServer.map(numberSeriesType => {
-                return this.numberSeriesTypeService.save(numberSeriesType);
+            // For some reason, when saving a numberseries, you have to put all the other series with same type
+            const typesForSave = IDS.map(id => {
+                const type = new NumberSeriesType();
 
+                type.ID = id;
+                type.Series = this.current.filter(ns => ns.NumberSeriesTypeID === id && ns._rowSelected).map(ns => {
+                    if (!ns.AccountYear) {
+                        ns.AccountYear = 0;
+                    }
+                    ns.NumberSeriesType = null;
+
+                    if (this.currentSerie.ID === 'JournalEntry' || this.currentSerie.ID === 'Accounts') {
+                        ns.MainAccount = null;
+                    }
+
+                    if (!ns.ID) {
+                        ns['_createguid'] = this.numberSeriesService.getNewGuid();
+                    }
+
+                    return ns;
+                });
+                return type;
             });
+
+            const saveTypeObservables: Observable<any>[] = [];
+
+            typesForSave.forEach(type => {
+                saveTypeObservables.push(this.numberSeriesTypeService.save(type));
+            });
+
             if (saveTypeObservables.length === 0) {
                 resolve(true);
             } else {
-
                 Observable.forkJoin(saveTypeObservables).subscribe(allSaved => {
                     this.toastService.addToast('Lagret', ToastType.good, 7, 'Nummerserier lagret.');
                     this.requestNumberSerie(); // Reload all
@@ -360,13 +388,8 @@ export class NumberSeries {
         });
     }
 
-    public onFormChange(event) {
-        this.hasUnsavedChanges = true;
-    }
-
     public onRowChanged(event) {
         this.hasUnsavedChanges = true;
-
 
         const row = event.rowModel;
         const index = this.current.findIndex(x => x._originalIndex === row._originalIndex);
@@ -462,8 +485,8 @@ export class NumberSeries {
     private initAccountingTableConfig() {
         this.listTableConfig = new UniTableConfig('settings.numberSeries.accountingList', true, true, 15)
             .setSearchable(false)
-            .setAutoAddNewRow(true)
-            .setMultiRowSelect(true)
+            .setAutoAddNewRow(false)
+            .setMultiRowSelect(false)
             .setColumns([
                 new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(row => {
@@ -558,6 +581,10 @@ export class NumberSeries {
                 {
                     label: 'Vis ledige numre i serien',
                     action: (serie) => {
+                        if (!serie.ID) {
+                            this.toastService.addToast('Kan ikke finne ledige numre for en ulagret serie', ToastType.warn, 5);
+                            return;
+                        }
                         this.numberSeriesService.getAvailableNumbersInNumberSeries(serie.ID)
                             .subscribe(
                                 numberIntervals =>
@@ -574,6 +601,10 @@ export class NumberSeries {
                 {
                     label: 'Finn neste ledige nr',
                     action: (serie) => {
+                        if (!serie.ID) {
+                            this.toastService.addToast('Kan ikke finne neste nummer for en ulagret serie', ToastType.warn, 5);
+                            return;
+                        }
                         this.numberSeriesService.findAndSetNextNumber(serie.ID)
                             .subscribe(() => {
                                     this.toastService.addToast('Neste nr', ToastType.good, 7, 'Neste nummer satt på nummerserie.');
@@ -585,7 +616,7 @@ export class NumberSeries {
             ])
             .setConditionalRowCls(
                 (serie) =>
-                    serie.Disabled ? 'numberseries-disabled-row' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
+                    serie.Disabled ? 'journal-entry-credited' : serie.IsDefaultForTask ? 'numberseries-isdefaultfortask-row' : '')
             .setDefaultRowData({
                 NumberSeriesTask: this.tasks.find(x => x.Name === 'Journal'),
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'JournalEntry'),
@@ -598,7 +629,7 @@ export class NumberSeries {
     private initSaleTableConfig() {
         this.listTableConfig = new UniTableConfig('settings.numberSeries.salesList', true, true, 15)
             .setSearchable(false)
-            .setAutoAddNewRow(true)
+            .setAutoAddNewRow(false)
             .setColumns([
 
                 new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
@@ -690,7 +721,7 @@ export class NumberSeries {
                     }
                 }
             ])
-            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'journal-entry-credited' : '')
             .setChangeCallback(event => this.onRowChanged(event))
             .setDefaultRowData({
                 DisplayName: '',
@@ -703,7 +734,7 @@ export class NumberSeries {
     private initAccountsTableConfig() {
         this.listTableConfig = new UniTableConfig('settings.numberSeries.accountList', true, true, 15)
             .setSearchable(false)
-            .setAutoAddNewRow(true)
+            .setAutoAddNewRow(false)
             .setColumns([
                 new UniTableColumn('DisplayName', 'Navn', UniTableColumnType.Text)
                     .setEditable(row => !row.ID)
@@ -736,7 +767,7 @@ export class NumberSeries {
                         let account;
                         if (row.MainAccount) {
                             account = row.MainAccount;
-                        } else if (row.ID) {
+                        } else if (row.ID && row._Register) {
                             switch (row._Register.EntityType) {
                                 case 'Customer':
                                     account = this.customerAccount;
@@ -797,7 +828,7 @@ export class NumberSeries {
                     }
                 ])
             .setChangeCallback(event => this.onRowChanged(event))
-            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'journal-entry-credited' : '')
             .setDefaultRowData({
                 _Register: this.numberSeriesService.registers.find(x => x.EntityType === 'Customer'),
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
@@ -865,7 +896,7 @@ export class NumberSeries {
                 }
             ])
             .setChangeCallback(event => this.onRowChanged(event))
-            .setConditionalRowCls((serie) =>  serie.Disabled ? 'numberseries-disabled-row' : '')
+            .setConditionalRowCls((serie) =>  serie.Disabled ? 'journal-entry-credited' : '')
             .setDefaultRowData({
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
             });
@@ -894,20 +925,27 @@ export class NumberSeries {
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
-    public onRowSelectionChange(event) {
-        if (!event) {
-            const tableRows = this.uniTables && this.uniTables.last.getTableData();
-            if (tableRows) {
-                this.current = tableRows.map(chosen => {
-                    return this.setPredefinedOrNot(chosen);
-                });
-            }
-        } else {
-            const chosen = this.setPredefinedOrNot(event.rowModel);
-            this.current[chosen._originalIndex] = chosen;
-        }
+    public onRowClicked(event) {
+        if (!event.ID && !event._rowSelected) {
 
-        this.current = _.cloneDeep(this.current);
+            const options: IModalOptions = {
+                header: 'Aktiver nummerserie',
+                message: `Ønsker du å bruke nummerserien <strong>${event.DisplayName}</strong> og åpne den for redigering? `
+                + `Ingenting vil bli aktivert før du lagrer.`,
+                buttonLabels: {
+                    accept: 'Åpne opp',
+                    cancel: 'Avbryt'
+                }
+            };
+
+            this.modalService.confirm(options).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    event._rowSelected = true;
+                    this.current.splice(this.current.findIndex(ns => ns.Name === event.Name), 1, this.setPredefinedOrNot(event));
+                    this.current = [...this.current];
+                }
+            });
+        }
     }
 
     private setPredefinedOrNot(chosen) {
@@ -926,16 +964,6 @@ export class NumberSeries {
         }
 
         return chosen;
-    }
-
-    public onEditChange(event) {
-        const value = event.rowModel[event.field];
-
-        if (!value) {
-            return event.rowModel;
-        }
-
-        this.hasUnsavedChanges = true;
     }
 
     public toggleAllYears(event) {

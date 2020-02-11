@@ -6,7 +6,6 @@ import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {settingsRoutes} from './settingsRoutes';
-import {Settings} from './settings';
 import {SettingsService} from './settings-service';
 
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
@@ -44,6 +43,8 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
 import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
 import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
+import {SettingsOverview} from './settings-overview/settings-overivew';
+import {AppPipesModule} from '@app/pipes/appPipesModule';
 
 
 import {
@@ -57,7 +58,6 @@ import {
     MatMenuModule,
     MatTooltipModule
 } from '@angular/material';
-import {SalaryModule} from '../salary/salary.module';
 
 @NgModule({
     imports: [
@@ -78,10 +78,9 @@ import {SalaryModule} from '../salary/salary.module';
         MatProgressSpinnerModule,
         MatMenuModule,
         MatTooltipModule,
-        SalaryModule,
+        AppPipesModule
     ],
     declarations: [
-        Settings,
         AgaAndSubEntitySettings,
         SubEntityDetails,
         SubEntityList,
@@ -108,6 +107,7 @@ import {SalaryModule} from '../salary/salary.module';
         EventPlans,
         EventPlansList,
         EventPlanDetails,
+        SettingsOverview
     ],
     entryComponents: [
         GrantModal,
@@ -123,7 +123,6 @@ import {SalaryModule} from '../salary/salary.module';
     ],
     exports: [
         RouterModule,
-        Settings,
 
         AgaAndSubEntitySettings,
         SubEntityDetails,

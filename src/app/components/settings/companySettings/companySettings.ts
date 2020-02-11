@@ -144,6 +144,12 @@ export class CompanySettingsComponent implements OnInit {
     private hideBankValues: boolean;
 
     public reportModel$: BehaviorSubject<any> = new BehaviorSubject({});
+    public saveActions = [{
+        label: 'Lagre firmainnstillinger',
+        action: (event) => this.saveSettings(event),
+        main: true,
+        disabled: false
+    }];
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -177,14 +183,7 @@ export class CompanySettingsComponent implements OnInit {
         private businessRelationService: BusinessRelationService,
         private reportTypeService: ReportTypeService,
         private subEntitySettingsService: SubEntitySettingsService,
-    ) {
-        this.settingsService.setSaveActions([{
-            label: 'Lagre firmainnstillinger',
-            action: (event) => this.saveSettings(event),
-            main: true,
-            disabled: false
-        }]);
-    }
+    ) { }
 
     public ngOnInit() {
         this.getDataAndSetupForm();

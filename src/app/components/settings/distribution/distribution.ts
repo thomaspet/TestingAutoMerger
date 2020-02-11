@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import {DistributionPlanModal} from './distribution-plan-modal';
 import {CustomerListModal} from './customer-list-modal';
 import {UniModalService, UniConfirmModalV2, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 
 declare const _; // lodash
 
@@ -27,6 +28,37 @@ export class UniDistributionSettings {
     active: boolean = true;
     busy: boolean = true;
     companySettings: CompanySettings;
+    toolbarConfig: IToolbarConfig = {
+        title: 'Utsendelse',
+        buttons: [
+            {
+                label: 'Lær mer om utsendelse',
+                action: () => {
+                    const options: IModalOptions = {
+                        header: 'Utsendelse i systemet',
+                        message: 'I dette bildet kan du definere oppsett for utsendelse. Her kan du sette prioriteringsrekkefølge '
+                        + 'for sending av faktura, ordre, tilbud og purring. '
+                        + 'Sett en plan som standard for at den skal automatisk brukes av alle kunder '
+                        + '(med mindre du spesifiserer en annen plan på kundekortet). <br/> <br/> '
+                        + '<strong>En plan fungerer slik:</strong><br/>'
+                        + 'En plan kan ha flere utsendelsesmetoder. Systemet vil begynne på punkt 1 og prøve å sende på denne måten. '
+                        + 'Hvis den ikke er mulig, f.eks ved sending av e-post og kundekort mangler e-postaddresse, vil systemet prøve '
+                        + 'den neste prioriteringen. Osv. <br/> <br/>'
+                        + 'Om det er satt en standardplan for firma, vil denne alltid bli satt automatisk på faktura, ordre og tilbud. '
+                        + 'Om det er satt på kundekortet, vil denne bli prioritert over firmaplan, da denne er satt spesifikt på kunde. '
+                        + '<br/><br/><strong>NB: Slå på Automatisk utsendelse for å sende ut faktura automatisk.</strong>',
+                        class: 'small-text-modal',
+                        buttonLabels: {
+                            reject: 'OK'
+                        }
+                    };
+
+                    this.modalService.open(UniConfirmModalV2, options);
+                }
+            }
+        ]
+    };
+
     entityTypes = [
         {
             value: 'Models.Sales.CustomerInvoice',

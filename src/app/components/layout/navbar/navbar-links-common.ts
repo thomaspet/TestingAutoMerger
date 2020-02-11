@@ -1,3 +1,4 @@
+// tslint:disable:max-line-length
 import {UniModules} from './tabstrip/tabService';
 export interface INavbarLink {
     name: string;
@@ -14,6 +15,7 @@ export interface INavbarLink {
     searchFields?: string[];
     expands?: string[];
     joins?: string[];
+    keyWords?: string[];
 }
 
 export interface INavbarLinkSection {
@@ -40,47 +42,45 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
         hidden: true,
         linkGroups: [
             {
-                name: '',
+                name: 'FIRMAINNSTILLINGER',
                 links: [
-                    {name: 'NAVBAR.COMPANY', activeInSidebar: false, url: '/settings/company'},
-                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution'},
-                    {name: 'NAVBAR.PAYROLL_SETTINGS', activeInSidebar: false, url: '/settings/aga-and-subentities'},
-                    {name: 'NAVBAR.INTEGRATION', activeInSidebar: false, url: '/settings/webhooks'},
-                    {name: 'NAVBAR.USERS', activeInSidebar: false, url: '/settings/users'},
-                    {name: 'NAVBAR.TEAMS', activeInSidebar: false, url: '/settings/teams'},
+                    {
+                        name: 'NAVBAR.COMPANY', activeInSidebar: false, url: '/settings/company',
+                        keyWords: ['Kontaktinformasjon', 'Organiasjonsnummer', 'Perioder', 'Avrunding', 'Factoring', 'Rapportoppsett', 'Logo']
+                    },
+                    {
+                        name: 'NAVBAR.PAYROLL_SETTINGS', activeInSidebar: false, url: '/settings/aga-and-subentities',
+                        keyWords: ['Virksomheter', 'Arbeidsgiveravgift', 'Aga', 'Fribeløp', 'Tilskudd', 'Rapportoppsett', 'Feriepenger', 'Finansskatt']
+                    },
+                    {name: 'NAVBAR.TEAMS', activeInSidebar: false, url: '/settings/teams', keyWords: ['Godkjenning', 'Tilgang']},
                     {name: 'NAVBAR.NUMBERSERIES', activeInSidebar: false, url: '/settings/numberseries'},
-                    {name: 'NAVBAR.TERMS', activeInSidebar: false, url: '/settings/terms'},
-                    {name: 'NAVBAR.DIMENSION_SETTINGS', activeInSidebar: false, url: '/settings/dimension'},
-                    {name: 'NAVBAR.RULES', activeInSidebar: false, url: '/approval-rules'},
+                    {name: 'NAVBAR.TERMS', activeInSidebar: false, url: '/settings/terms', keyWords: ['Leveringsbetingelser', 'Betalingsbetingelser']},
+                    {name: 'NAVBAR.DIMENSION_SETTINGS', activeInSidebar: false, url: '/settings/dimension', keyWords: ['Egendefinerte', 'Dimensjoner']},
+                ]
+            },
+            {
+                name: 'Verktøy',
+                links: [
+                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution'},
+                    {name: 'Jobber', url: '/admin/jobs', moduleID: UniModules.Jobs, activeInSidebar: false, keyWords: ['Export', 'SAF-T', 'SAFT']},
+                    {name: 'Importsentral', url: '/admin/import-central', activeInSidebar: false},
                     {name: 'NAVBAR.IMPORT_CENTRAL', activeInSidebar: true, url: '/import'},
+                    {
+                        name: 'Flyt', url: '/admin/flow', moduleID: UniModules.Flow, activeInSidebar: false,
+                        keyWords: ['Autotildeling', 'Leverandørsynkronisering', 'Automatisk bankavstemming', 'Automatikk']
+                    },
                 ]
             },
             {
                 name: 'Admin',
                 links: [
                     {
-                        name: 'Jobber',
-                        url: '/admin/jobs',
-                        moduleID: UniModules.Jobs,
-                        activeInSidebar: false
+                        name: 'NAVBAR.USERS', activeInSidebar: false, url: '/settings/users',
+                        keyWords: ['Inviter bruker', 'Produkttilgang', 'Roller', 'Tilgang', 'Deaktiver', 'Brukeroversikt', 'Bankbruker', 'Autobank']
                     },
-                    {
-                        name: 'GDPR',
-                        url: '/admin/gdpr',
-                        moduleID: UniModules.GDPRList,
-                        activeInSidebar: false
-                    },
-                    {
-                        name: 'Flyt',
-                        url: '/admin/flow',
-                        moduleID: UniModules.Flow,
-                        activeInSidebar: false
-                    },
-                    {
-                        name: 'Importsentral',
-                        url: '/admin/import-central',
-                        activeInSidebar: false
-                    }
+                    {name: 'NAVBAR.INTEGRATION', activeInSidebar: false, url: '/settings/webhooks'},
+                    {name: 'NAVBAR.RULES', activeInSidebar: false, url: '/approval-rules'},
+                    {name: 'GDPR', url: '/admin/gdpr', moduleID: UniModules.GDPRList, activeInSidebar: false, keyWords: ['Personopplysninger']},
                 ]
             }
         ]
