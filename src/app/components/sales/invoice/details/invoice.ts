@@ -1399,6 +1399,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
                 main: true,
                 action: (done) => {
+                    if (this.invoice.DistributionPlanID) {
+                        const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                        if (currentPlan && (!currentPlan.Elements || !currentPlan.Elements.length)) {
+                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                            'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
+                            + 'Fjern denne planen om du ønsker å sende ut faktura.');
+                            done('');
+                            return;
+                        }
+                    }
                     this.modalService.open(SendInvoiceModal, {
                         data: this.invoice
                     }).onClose.subscribe(() => {
@@ -1451,7 +1461,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                 );
                             }
                         }
-
                         done();
                     });
                 }
@@ -1820,14 +1829,30 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
                                 if (!isCreditNote && !this.aprilaOption.autoSellInvoice) {
                                     if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
-                                        this.toastService.toast({
-                                            title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
-                                            type: ToastType.good,
-                                            duration: 5
-                                        });
+                                        const currentPlan = this.distributionPlans
+                                            .find(plan => plan.ID === this.invoice.DistributionPlanID);
+
+                                        // Only show sending of invoice if plan has elementtypes
+                                        if (currentPlan && currentPlan.Elements && !currentPlan.Elements.length) {
+                                            this.toastService.toast({
+                                                title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
+                                                type: ToastType.good,
+                                                duration: 5
+                                            });
+                                        }
 
                                         onSendingComplete();
                                     } else {
+                                        if (this.invoice.DistributionPlanID) {
+                                            const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                                            if (p && (!p.Elements || !p.Elements.length)) {
+                                                this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
+                                                onSendingComplete();
+                                                return;
+                                            }
+                                        }
                                         this.modalService.open(SendInvoiceModal, {
                                             data: this.invoice
                                         }).onClose.subscribe(() => onSendingComplete());

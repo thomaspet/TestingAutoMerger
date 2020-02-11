@@ -93,7 +93,7 @@ export class ReportService extends BizHttp<string> {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint(`distributions?filter=StatusCode eq 30001 and EntityType eq '${entity}'`)
+            .withEndPoint(`distributions?filter=StatusCode eq 30001 and EntityType eq '${entity}'&expand=Elements,Elements.ElementType`)
             .send()
             .map(res => res.body);
     }
