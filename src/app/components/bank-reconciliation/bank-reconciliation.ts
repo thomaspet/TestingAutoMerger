@@ -11,6 +11,7 @@ import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
 import { BankStatementSettings } from './bank-statement-settings/bank-statement-settings';
+import {ClosedEntriesModal} from '../bank/modals/closed-entries-modal';
 import * as moment from 'moment';
 import {Observable, of} from 'rxjs';
 
@@ -106,6 +107,18 @@ export class BankReconciliation {
                 }
             }
         );
+    }
+
+    onItemSelect(item) {
+        if (item.Closed) {
+            this.modalService.open(ClosedEntriesModal, { data: item }).onClose.subscribe((response) => {
+                if (response) {
+                    this.session.reload().subscribe(() => this.checkSuggest());
+                }
+            });
+        } else {
+            this.session.checkOrUncheck(item);
+        }
     }
 
     initData() {

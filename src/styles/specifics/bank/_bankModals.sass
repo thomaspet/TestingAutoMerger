@@ -252,3 +252,66 @@
     border-width: 1px
     padding-left: 1rem
     margin-top: 2rem
+
+.closed-entries-modal
+    width: 75rem
+
+    ul
+        list-style: none
+        li
+            padding: .6rem
+            border: 1px solid #CCC
+            border-radius: 3px
+            margin-bottom: 1rem
+
+            &.selected
+                border: 2px solid var(--color-c2a)
+
+            .match-container
+                display: flex
+                align-items: center
+                font-size: 14px
+
+                span
+                    margin: 0 2rem 0 1rem
+
+                i
+                    margin: 0 1rem
+                    cursor: pointer
+                    &:hover
+                        color: var(--color-bad)
+
+                .info-container-middle
+                    flex: 1
+                    display: flex
+                    flex-direction: column
+                    overflow: hidden
+
+                    div
+                        overflow: hidden
+                        text-overflow: ellipsis
+                        white-space: nowrap
+                        display: flex
+
+                        .desc
+                            flex: 1
+                            overflow: hidden
+                            text-overflow: ellipsis
+                            white-space: nowrap
+                            max-width: 100%
+                            display: inline-block
+
+                        .leader-text
+                            font-weight: bold
+                            margin-right: .5rem
+                            display: inline-block
+                            width: 4rem
+
+                        .amount
+                            font-weight: bold
+                            margin-right: 3rem
+
+                            &.bad
+                                color: var(--color-bad)
+                            &.good
+                                color: var(--color-c2a)

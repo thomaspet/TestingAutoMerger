@@ -17,6 +17,7 @@ import {UniBankReconciliationList} from './reconciliation/reconciliation-list/re
 import {UniReconciliationReportView} from './reconciliation/reconciliation-report/reconciliation-report';
 import {BankStatement} from './reconciliation/bank-statement/bank-statement';
 import {BankReconciliationModule} from '../bank-reconciliation/bank-reconciliation.module';
+import {ClosedEntriesModal} from './modals/closed-entries-modal';
 
 import {
     UniPaymentEditModal,
@@ -60,7 +61,8 @@ import {
         MatchSubAccountManualModal,
         MatchMainAccountModal,
         UniReconciliationReportView,
-        BankStatement
+        BankStatement,
+        ClosedEntriesModal
     ],
     entryComponents: [
         UniPaymentEditModal,
@@ -68,6 +70,10 @@ import {
         MatchCustomerInvoiceManual,
         UniBankUserPasswordModal,
         MatchSubAccountManualModal,
+        MatchMainAccountModal,
+        ClosedEntriesModal
+    ],
+    providers: [
         MatchMainAccountModal
     ]
 })

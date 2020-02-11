@@ -82,7 +82,7 @@
                 [(loaded)]="loaded"
                 [items]="session.bankEntries"
                 [stageInfo]="session.stageInfo.bank"
-                (itemSelected)="session.checkOrUncheck($event)"
+                (itemSelected)="onItemSelect($event)"
                 (showClosedGroups)="closedGroupDetailsVisible = true"
                 (uploadSelected)="openImportModal()">
             </bank-statement-entries>
@@ -183,7 +183,7 @@
                 [showJournalEntryLink]="true"
                 [items]="session.journalEntries"
                 [stageInfo]="session.stageInfo.journal"
-                (itemSelected)="session.checkOrUncheck($event)"
+                (itemSelected)="onItemSelect($event)"
                 (showClosedGroups)="closedGroupDetailsVisible = true">
             </bank-statement-entries>
         </section>
