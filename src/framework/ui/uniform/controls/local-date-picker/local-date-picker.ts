@@ -8,14 +8,16 @@ import {get, set} from 'lodash';
 import {autocompleteDate} from '@app/date-adapter';
 import * as moment from 'moment';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
+import {KeyCodes} from '@app/services/common/keyCodes';
+import {MatDatepicker} from '@angular/material';
 
 @Component({
     selector: 'localdate-picker-input',
     templateUrl: './local-date-picker.html',
-    // styleUrls: ['./local-date-picker.sass']
 })
 export class LocalDatePickerInput extends BaseControl {
     @ViewChild('input', { static: true }) inputElement: ElementRef;
+    @ViewChild(MatDatepicker, { static: true }) datepicker: MatDatepicker;
 
     @Input() field: UniFieldLayout;
     @Input() model: any;
@@ -50,6 +52,9 @@ export class LocalDatePickerInput extends BaseControl {
                 this.initDate = value === '*' ? new Date() : new Date(value);
                 this.calendarDate = this.initDate;
                 this.control.setValue(moment(this.initDate).format('L'));
+            } else {
+                this.initDate = undefined;
+                this.calendarDate = undefined;
             }
         }
     }
@@ -81,10 +86,23 @@ export class LocalDatePickerInput extends BaseControl {
 
     selectDate(date: Date) {
         this.calendarDate = date;
-        this.control.setValue(moment(date).format('L'), { emitEvent: false });
 
-        set(this.model, this.field.Property, date && new LocalDate(date));
-        this.emitChange(new LocalDate(this.initDate), date && new LocalDate(date));
-        this.emitInstantChange(new LocalDate(this.initDate), date && new LocalDate(date));
+        const controlValue = date ? moment(date).format('L') : '';
+        const initValue = this.initDate && new LocalDate(this.initDate);
+        const newValue = date && new LocalDate(date);
+
+        this.control.setValue(controlValue, { emitEvent: false });
+
+        set(this.model, this.field.Property, newValue);
+        this.emitChange(initValue, newValue);
+        this.emitInstantChange(initValue, newValue);
+    }
+
+    onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+        if (key === KeyCodes.DOWN_ARROW || key === KeyCodes.F4 || key === KeyCodes.SPACE) {
+            event.preventDefault();
+            this.datepicker.open();
+        }
     }
 }
