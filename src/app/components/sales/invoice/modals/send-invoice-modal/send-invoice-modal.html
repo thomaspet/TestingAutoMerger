@@ -5,6 +5,11 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
+        <section *ngIf="invoice?.StatusCode === 42004" class="alert info already-paid">
+            <i class="material-icons">info_outline</i>
+            <span class="text">OBS: Denne fakturaen er allerede markert som betalt</span>
+        </section>
+
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">
                 <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>

@@ -1393,11 +1393,13 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             });
         }
 
-        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced
+        if ((this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced
+            || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid
+            || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid)
             || (this.invoice.InvoiceNumber && this.invoice.InvoiceType === InvoiceTypes.CreditNote)) {
             this.saveActions.push({
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
-                main: true,
+                main: this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced,
                 action: (done) => {
                     if (this.invoice.DistributionPlanID) {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
