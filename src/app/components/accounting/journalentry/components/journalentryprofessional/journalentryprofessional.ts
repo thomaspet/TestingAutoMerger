@@ -71,6 +71,7 @@ import {
     ConfirmActions,
     IModalOptions,
 } from '../../../../../../framework/uni-modal';
+import {environment} from 'src/environments/environment';
 
 import * as moment from 'moment';
 import {CurrencyCodeService} from '../../../../../services/common/currencyCodeService';
@@ -1252,6 +1253,34 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 lookupFunction: (searchValue) => {
                     return this.accountSearch(searchValue);
                 },
+                showResultAsTable: environment.isSrEnvironment,
+                resultTableConfig: {
+                    fields: [
+                        {
+                            header: 'Konto',
+                            key: 'AccountNumber',
+                            class: '',
+                            width: '100px'
+                        },
+                        {
+                            header: 'Navn',
+                            key: 'AccountName',
+                            class: '',
+                            width: '250px'
+                        },
+                        {
+                            header: 'Stikkord',
+                            key: 'Keywords',
+                            class: '',
+                            width: '150px'
+                        },
+                        {
+                            header: 'Beskrivelse',
+                            key: 'Description',
+                            class: '250px'
+                        }
+                    ],
+                },
                 addNewButton: {
                     label: 'Opprett ny reskontro',
                     action: text => this.openNewAccountModal(this.table.getCurrentRow(), text)
@@ -2266,9 +2295,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted} ) ` +
                 `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
         } else {
-
+            filter = `( contains(keywords,'${searchValue}') ) or `
             if (isNaN(parseInt(searchValue, 10))) {
-                filter = `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
+                filter += `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
                 `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
                 `or (contains(AccountName\,'${searchValue}') ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
@@ -2276,7 +2305,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `or (Account.AccountName eq '${searchValue}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             } else {
-                filter = `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
+                filter += `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
                 `or contains(AccountName\,'${searchValue}')  ) ` +
                 `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +

@@ -43,6 +43,7 @@ export class Expense implements OnInit {
 
     busy = true;
     fileIds: number[] = [];
+    dataLoaded: boolean = false;;
 
     saveActions: IUniSaveAction[] = [];
     toolbarConfig: IToolbarConfig;
@@ -68,6 +69,7 @@ export class Expense implements OnInit {
         this.companySettingsService.Get(1, null).subscribe((companySettings) => {
             this.companySettings = companySettings;
             this.route.queryParams.subscribe(params => {
+                this.dataLoaded = false;
                 if (params && params.fileid) {
                     this.fileIds = [...[+params.fileid]];
                 } else {
@@ -82,6 +84,7 @@ export class Expense implements OnInit {
                         this.setupToolbarConfig();
                         this.setUpSaveActions();
                         this.clear();
+                        this.dataLoaded = true;
                     });
 
                 this.tabService.addTab({

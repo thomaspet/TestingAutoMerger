@@ -14,6 +14,8 @@ import 'rxjs/add/operator/debounceTime';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/filter';
+import { get } from 'lodash';
+
 
 export interface IAutoCompleteOptions {
     lookupFunction: (searchValue: string) => Observable<any> | any[];
@@ -124,7 +126,7 @@ export class UnitableAutocomplete implements OnInit {
         .distinctUntilChanged()
         .subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
-                this.lookupResults = this.findExactMatch(results, query);
+                this.lookupResults = this.showExactMatchOnTop(results, query);
                 this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
                 if (this.groupConfig) {
                     this.formatGrouping();
@@ -160,24 +162,23 @@ export class UnitableAutocomplete implements OnInit {
         });
     }
 
-    private findExactMatch(result: any[], query: string): any[] {
+    private showExactMatchOnTop(result: any[], query: string): any[] {
         if (!this.options.showResultAsTable) {
             return result;
         }
+        // Attempt to find exact match and put that item first in the result table
+        const results = [].concat(result);
+        const key = this.options.resultTableConfig.fields[0].key;
+        const exactMatchIndex = results.findIndex(item => {
+            const value = get(item, key);
+            return value && value.toString().toLowerCase() === query.toLowerCase();
+        });
 
-        let exactMatch;
-        const myArray = [].concat(result);
-        for (let i = 0; i < myArray.length; i++) {
-            if (query.toLowerCase() === myArray[i][this.options.resultTableConfig.fields[0].key].toLowerCase()) {
-                exactMatch = myArray[i];
-                myArray.splice(i, 1);
-            }
-        }
-        if (exactMatch) {
-            myArray.unshift(exactMatch);
+        if (exactMatchIndex >= 0) {
+            results.unshift(results.splice(exactMatchIndex, 1)[0]);
         }
 
-        return myArray;
+        return results;
     }
 
     private addNewItem() {
@@ -238,7 +239,7 @@ export class UnitableAutocomplete implements OnInit {
         // User was "too quick"
         if (this.busy && this.inputControl.value) {
             return this.performLookup(this.inputControl.value).switchMap((res) => {
-                return Observable.of(this.findExactMatch(res, this.inputControl.value)[0]);
+                return Observable.of(this.showExactMatchOnTop(res, this.inputControl.value)[0]);
             });
         }
         return (this.selectedIndex >= 0)

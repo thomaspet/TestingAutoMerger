@@ -11,8 +11,8 @@
                 <header>Detaljer</header>
 
                 <section>
-                    <expense-prepaid *ngIf="session.payment.Mode === 1" [session]="session"></expense-prepaid>
-                    <expense-payable *ngIf="session.payment.Mode === 2" [session]="session"></expense-payable>
+                    <expense-prepaid *ngIf="session.payment.Mode === 1 && dataLoaded" [session]="session"></expense-prepaid>
+                    <expense-payable *ngIf="session.payment.Mode === 2 && dataLoaded" [session]="session"></expense-payable>
                 </section>
             </section>
 
