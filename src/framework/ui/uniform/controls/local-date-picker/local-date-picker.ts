@@ -17,7 +17,7 @@ import {MatDatepicker} from '@angular/material';
 })
 export class LocalDatePickerInput extends BaseControl {
     @ViewChild('input', { static: true }) inputElement: ElementRef;
-    @ViewChild(MatDatepicker, { static: true }) datepicker: MatDatepicker;
+    @ViewChild(MatDatepicker, { static: true }) datepicker: MatDatepicker<any>;
 
     @Input() field: UniFieldLayout;
     @Input() model: any;

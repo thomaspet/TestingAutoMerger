@@ -43,7 +43,6 @@ export class  LocalDatePicker {
     constructor(private yearService: FinancialYearService) {}
 
     ngOnInit() {
-        console.log(this.inputControl.value);
         if (this.inputControl.value) {
             this.calendarDate = autocompleteDate(this.inputControl.value);
         }
