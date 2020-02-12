@@ -165,16 +165,24 @@ export class TimeEntry {
                 this.projectService.Get(+paramMap.get('projectID')).subscribe(project => this.project = project);
             }
 
-            if (paramMap.has('mode') || 'Registrering') {
-                this.mode = paramMap.get('mode');
+            if (paramMap.has('mode')) {
+                this.mode = paramMap.get('mode') || 'Registrering';
                 if (paramMap.get('mode') === 'Totaler') {
                     this.getTotalsFromQueryParams = true;
                 } else {
                     const tempIndex = this.tabs.findIndex((tab) => {
                         return tab.name === paramMap.get('mode');
                     });
-                    this.activeTabIndex = tempIndex > 0 ? tempIndex : this.activeTabIndex;
+                    if (tempIndex !== -1) {
+                        this.activeTabIndex = tempIndex > 0 ? tempIndex : this.activeTabIndex;
+                    } else {
+                        this.mode = 'Registrering';
+                        this.activeTabIndex = 0;
+                    }
                 }
+            } else {
+                this.mode = 'Registrering';
+                this.activeTabIndex = 0;
             }
 
             this.updateTabUrl(this.mode);
