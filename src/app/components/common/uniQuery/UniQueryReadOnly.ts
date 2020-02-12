@@ -269,7 +269,7 @@ export class UniQueryReadOnly implements OnChanges {
 
             if (field.path && field.path !== '') {
                 if (field.path.indexOf('(') === -1) {
-                    if (!expands.find(x => field.path === x)) {
+                    if (field.path !== this.queryDefinition.MainModelName && !expands.find(x => field.path === x)) {
                         expands.push(field.path);
                     }
                 }
