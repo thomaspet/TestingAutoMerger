@@ -18,7 +18,7 @@ import {UniTableColumn} from '../../config/unitableColumn';
 
             <!-- Hidden input for mat-datepicker, because we want custom parsing on the "text input" -->
             <input
-                style="position: absolute; visibility: hidden; width: 0px; height: 0px"
+                style="position: absolute; visibility: hidden; width: 0px;"
                 [(ngModel)]="calendarDate"
                 (ngModelChange)="onCalendarDateChange()"
                 [matDatepicker]="picker"
@@ -43,7 +43,6 @@ export class  LocalDatePicker {
     constructor(private yearService: FinancialYearService) {}
 
     ngOnInit() {
-        console.log(this.inputControl.value);
         if (this.inputControl.value) {
             this.calendarDate = autocompleteDate(this.inputControl.value);
         }

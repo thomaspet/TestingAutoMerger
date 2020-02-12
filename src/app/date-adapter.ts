@@ -67,6 +67,10 @@ export const autocompleteDate = (
     yearOverride?: number,
     useSmartYear?: boolean,
 ) => {
+    if (!inputValue) {
+        return null;
+    }
+
     let day, month, year;
     const date = new Date();
     if (yearOverride) {

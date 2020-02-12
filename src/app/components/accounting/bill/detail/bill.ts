@@ -1642,7 +1642,7 @@ export class BillView implements OnInit {
         if (change['InvoiceDate']) {
             let creditdays = model.Supplier ? model.Supplier.CreditDays : null;
             if (!creditdays) { creditdays = this.companySettings.CustomerCreditDays; }
-            if (creditdays) {
+            if (creditdays && model.InvoiceDate) {
                 model.PaymentDueDate = <any>new LocalDate(
                     moment(model.InvoiceDate).add(creditdays, 'days').toDate());
                 this.current.next(model);
