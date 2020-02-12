@@ -735,7 +735,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
                         return trans;
                     })
-                    .sort((x, y) => x['_isReadOnly'] === y['_isReadOnly'] ? -1 : 1);
+                    .sort((x, y) => x['_isReadOnly'] > y['_isReadOnly'] ? -1 : 1);
                 })
                 .do((transes: SalaryTransaction[]) => this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue()))
             : Observable.of([]);
