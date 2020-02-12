@@ -82,7 +82,7 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     public ngOnInit() {
         this.config = this.options.modalConfig;
-        if (this.config.entityName === 'CustomerInvoice') { // temp disable for CustomerInvoice
+        if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'JournalEntryLine') { // temp disable for CustomerInvoice
             this.config.hideBankCharges = true;
         }
         const paymentData = this.options.data || {};
