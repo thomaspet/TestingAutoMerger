@@ -4,7 +4,7 @@
     <header>Status a-meldingen - Periode {{period}}</header>
     <article *ngIf="!received">
         <p>
-            A-melding er levert inn med status {{altinnStatus}}.
+            A-melding er levert inn med status {{periodStatus}}.
         </p>
         <p>
             Detaljer om avviket finner du på "Tilbakemelding"-arket. Korriger dataene som er feil og send deretter
@@ -13,7 +13,7 @@
     </article>
     <article *ngIf="received">
         <p>
-            Periode {{period}} er levert til Altinn med status {{altinnStatus}}.
+            Periode {{period}} er levert til Altinn med status {{periodStatus}}.
             <span *ngIf="withGuidelines">Vennligst sjekk at innleverte data er ok.</span>
         </p>
         <p *ngIf="!withGuidelines">

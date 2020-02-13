@@ -752,7 +752,7 @@ export class AMeldingView implements OnInit {
     private openBeforeMakePaymentModal(response: AmeldingData) {
         this.modalService.open(StatusAMeldingModal, {
             data: {
-                altinnStatus: response.altinnStatus,
+                periodStatus: this.periodStatus,
                 period: this.currentPeriod
             }
         }).onClose.subscribe(result => {
