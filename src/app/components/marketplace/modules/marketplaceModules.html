@@ -42,8 +42,17 @@
             <section class="product-info">
                 <img class="icon" [src]="extension.IconReference" />
                 <span>{{extension.Label}}</span>
-                <i *ngIf="extension._isBought && !extension._activationFunction" class="material-icons purchase-indicator">
+                <i 
+                    *ngIf="extension['_isBought'] && !extension['_activationFunction']" 
+                    class="material-icons purchase-indicator">
                     check_circle
+                </i>
+                <i 
+                    *ngIf="extension['_isBought'] && extension['_activationFunction']" 
+                    class="material-icons purchase-indicator"
+                    style="color: #F5A623 !important"
+                    title="Utvidelsen er kjøpt, men ikke aktivert">
+                    warning
                 </i>
             </section>
 

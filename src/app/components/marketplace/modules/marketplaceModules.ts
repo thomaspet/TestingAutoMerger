@@ -229,7 +229,12 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
                 ProductID: product.ID
             };
             this.elsaPurchaseService.massUpdate([purchase]).subscribe(
-                () => product['_isBought'] = true,
+                () => {
+                    product['_isBought'] = true;
+                    if (product['_activationFunction']) {
+                        product['_activationFunction'].click();
+                    }
+                },
                 err => this.errorService.handle(err)
             );
         } else {
