@@ -17,6 +17,7 @@
     "build.prod": "npm run prebuild && npm run high-memory-build -- build --configuration=prod",
     "build.ext01": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01",
     "build.ext01-rc": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-rc",
+    "build.ext01-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-dev",
     "start": "npm run start.dev",
     "start.dev": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=dev-serve --proxy-config proxy/dev.proxy.json",
     "start.test": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=test-serve --proxy-config proxy/test.proxy.json",
