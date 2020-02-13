@@ -53,6 +53,7 @@ export class ClosedEntriesModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<boolean> = new EventEmitter();
 
+    groupGuid: any;
     selectedPost: any;
     hasOpened: boolean = false;
     busy: boolean = true;
@@ -76,6 +77,7 @@ export class ClosedEntriesModal implements IUniModal {
     }
 
     reloadData() {
+        this.groupGuid = undefined;
         let getGroupFilter = `JournalEntryLineID eq ${this.selectedPost.ID}`;
 
         if (this.selectedPost.IsBankEntry) {
@@ -83,8 +85,8 @@ export class ClosedEntriesModal implements IUniModal {
         }
         this.statisticsService.GetAllUnwrapped(this.queryString + getGroupFilter).subscribe((response) => {
             if (response && response[0]) {
-                const groupGUID = response[0].BankStatementMatchGroup;
-                this.statisticsService.GetAllUnwrapped(this.matchQuery.replace('#GUID', groupGUID)).subscribe((matches) => {
+                this.groupGuid = response[0].BankStatementMatchGroup;
+                this.statisticsService.GetAllUnwrapped(this.matchQuery.replace('#GUID', this.groupGuid)).subscribe((matches) => {
                     this.matchList = matches.map(m => {
                         m._currentID = this.selectedPost.IsBankEntry
                             ? m.BankStatementMatchBankStatementEntryID
@@ -113,14 +115,11 @@ export class ClosedEntriesModal implements IUniModal {
     }
 
     openAll() {
+        if (!this.groupGuid) { return; }
+
         this.busy = true;
-        const deletes = [];
 
-        this.matchList.forEach(match => {
-            deletes.push(this.onDelete(match.ID));
-        });
-
-        Observable.forkJoin(deletes).subscribe(() => {
+        this.onDeleteGroup(this.groupGuid).subscribe(() => {
             this.toast.addToast('Alle koblinger fjernet', ToastType.good, 5);
             this.onClose.emit(true);
         }, err => {
@@ -134,6 +133,14 @@ export class ClosedEntriesModal implements IUniModal {
             .asDELETE()
             .usingBusinessDomain()
             .withEndPoint('bankstatementmatch/' + ID)
+            .send();
+    }
+
+    onDeleteGroup(groupGUID) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('bankstatementmatch?action=delete-group&group=' + groupGUID)
             .send();
     }
 
