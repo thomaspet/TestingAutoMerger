@@ -85,9 +85,12 @@ export class BankStatementJournalModal implements IUniModal {
     }
 
     public onEditChange(event) {
-        if (event.field && event.rowModel) {
+        if (event.field && event.rowModel && event.newValue) {
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
             return event.rowModel;
+        } else if (event.field) {
+            this.session.items[event.originalIndex][event.field] = event.newValue;
+            return;
         }
     }
 
