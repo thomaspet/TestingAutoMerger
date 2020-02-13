@@ -39,7 +39,6 @@ export class PublicDueDatesWidget {
 
     public ngAfterViewInit() {
         this.widgetDataService.getData('/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=30').subscribe((items) => {
-
             this.dataHolder = items.sort((a, b) => {
                 return a.Deadline > b.Deadline ? -1 : 1;
             });
@@ -144,14 +143,23 @@ export class PublicDueDatesWidget {
         this.ctx.strokeStyle = '#0071CD';
         this.ctx.lineCap = 'butt';
         this.ctx.lineWidth = 2;
+        let shouldUseFullLength: boolean = false;
+        let counter = 1;
 
         this.dataHolder.forEach((item, index) => {
 
             this.ctx.font = 'normal bold 13px MuseoSans, arial, sans-serif';
             this.ctx.fillStyle = '#2b2b2b';
 
+            if (counter === 3) {
+                counter = 1;
+                shouldUseFullLength = !shouldUseFullLength;
+            }
+
             // Make sure every other item goes up and down
-            const y = index % 2 === 0 ? this.canvas.nativeElement.height * 0.2 : this.canvas.nativeElement.height * 0.8;
+            const y = index % 2 === 0
+                ? (this.canvas.nativeElement.height * 0.2 - (shouldUseFullLength ? 0 : -30))
+                : (this.canvas.nativeElement.height * 0.8 - (shouldUseFullLength ? 0 : 30));
             // Tweak to place text
             const textAlignmentValue = index % 2 === 0 ? -8 : 12;
             // Draw line
@@ -185,6 +193,8 @@ export class PublicDueDatesWidget {
             this.ctx.font = 'normal bold 10px MuseoSans, arial, sans-serif';
             this.ctx.fillText('i', xValue, y + textAlignmentValue);
             this.infoPointPositions.push({ x: xValue, y: y + textAlignmentValue, item: item } );
+
+            counter++;
         });
     }
 }

@@ -29,7 +29,7 @@ export class AccountService extends BizHttp<Account> {
             `Account.LockManualPosts as AccountLockManualPosts,VatTypeID as VatTypeID,TopLevelAccountGroup.GroupNumber,` +
             `Account.CustomerID as AccountCustomerID,Account.SupplierID as AccountSupplierID,` +
             `Account.UseVatDeductionGroupID as AccountUseVatDeductionGroupID,Supplier.StatusCode as SupplierStatusCode,` +
-            `Customer.StatusCode as CustomerStatusCode`)
+            `Customer.StatusCode as CustomerStatusCode,Keywords as AccountKeywords,Description as AccountDescription`)
         .pipe(
                 map(x => x.Data ? x.Data : []),
                 map(x => this.mapStatisticsToAccountObjects(x))
@@ -59,6 +59,9 @@ export class AccountService extends BizHttp<Account> {
             account.Locked = data.AccountLocked;
             account.LockManualPosts = data.AccountLockManualPosts;
             account.StatusCode = data.SupplierStatusCode || data.CustomerStatusCode;
+
+            account['Keywords'] = data.AccountKeywords;
+            account['Description'] = data.AccountDescription;
 
             if (data.TopLevelAccountGroupGroupNumber) {
                 account.TopLevelAccountGroup = new AccountGroup();

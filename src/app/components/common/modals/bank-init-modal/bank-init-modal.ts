@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniBankAccountModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService} from '@app/services/services';
+import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService, ErrorService} from '@app/services/services';
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
@@ -67,7 +67,8 @@ export class BankInitModal implements IUniModal, OnInit {
         private toastService: ToastService,
         private bankService: BankService,
         private elsaPurchasesService: ElsaPurchaseService,
-        private elsaProductService: ElsaProductService
+        private elsaProductService: ElsaProductService,
+        private errorService: ErrorService
     ) {}
 
     ngOnInit() {
@@ -191,7 +192,7 @@ export class BankInitModal implements IUniModal, OnInit {
                 this.next();
             }, err => {
                 this.busy = false;
-                this.toastService.addToast('Klarte ikke opprette autobankavtale', ToastType.bad, 10);
+                this.errorService.handle(err);
             });
         } else {
             this.busy = false;
