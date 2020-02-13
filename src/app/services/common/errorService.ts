@@ -13,16 +13,6 @@ export class ErrorService {
         private toastService: ToastService
     ) {}
 
-    handleJSError(error: Error) {
-        // Don't toast JS errors in production, just log them
-        if (environment.useProdMode) {
-            console.error(error);
-            this.logger.log(error);
-        } else {
-            this.handle(error);
-        }
-    }
-
     public handle(error: any) {
         this.handleWithMessage(error, null);
     }
