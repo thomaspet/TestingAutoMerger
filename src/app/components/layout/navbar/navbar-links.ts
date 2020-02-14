@@ -579,7 +579,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'Innstillinger',
+                        name: 'Altinn - Innstillinger',
                         url: '/altinn/settings',
                         moduleID: UniModules.AltinnOverview,
                         activeInSidebar: true

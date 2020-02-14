@@ -5,6 +5,7 @@ import {DimensionSettingsService} from '../../../services/common/dimensionSettin
 import {UniModalService} from '../../../../framework/uni-modal';
 import {UniDimensionModal} from './dimensionModal';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-dimension-settings',
@@ -20,10 +21,18 @@ export class UniDimensionSettings implements OnInit {
         private service: DimensionSettingsService,
         private modalService: UniModalService,
         private router: Router,
-        private navbarService: NavbarLinkService
+        private navbarService: NavbarLinkService,
+        private tabService: TabService,
     ) {}
 
     public ngOnInit() {
+        this.tabService.addTab({
+            name: 'Dimensjonsinnstillinger',
+            url: '/settings/dimension',
+            moduleID: UniModules.Settings,
+            active: true
+       });
+
         this.service.GetAll(null).subscribe((res) => {
             this.data = res;
             this.setUpData();

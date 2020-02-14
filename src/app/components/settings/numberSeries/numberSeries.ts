@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {SettingsService} from '../settings-service';
-import {TabService} from '../../layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {UniModalService, ConfirmActions, UniConfirmModalV2, IModalOptions} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
@@ -91,6 +91,13 @@ export class NumberSeries {
         private modalService: UniModalService,
         private accountService: AccountService
     ) {
+        this.tabService.addTab({
+            name: 'Nummerserier',
+            url: '/settings/numberseries',
+            moduleID: UniModules.Settings,
+            active: true
+       });
+
         this.series = this.numberSeriesService.series;
         this.initTableConfigs();
         this.initAccountingTableConfig();

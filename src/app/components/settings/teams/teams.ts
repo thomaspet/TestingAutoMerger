@@ -7,6 +7,7 @@ import {Team, User, TeamPosition} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-teams',
@@ -35,8 +36,15 @@ export class Teams {
         private http: UniHttp,
         private errorService: ErrorService,
         private guidService: GuidService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private tabService: TabService,
     ) {
+        this.tabService.addTab({
+            name: 'Teams',
+            url: '/settings/teams',
+            moduleID: UniModules.Settings,
+            active: true
+       });
         this.initTableConfigs();
         this.updateSaveActions();
         this.getData();

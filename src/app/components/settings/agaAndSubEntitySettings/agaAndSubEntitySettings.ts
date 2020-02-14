@@ -28,6 +28,7 @@ import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../common/modals/vacationpay/vacationPaySettingsModal';
 import { ToastService } from '@uni-framework/uniToast/toastService';
 import {VacationPayModal} from '@app/components/common/modals/vacationpay/vacationPayModal';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 declare var _;
 
 @Component({
@@ -74,6 +75,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private modalService: UniModalService,
         private toastService: ToastService,
+        private tabService: TabService,
     ) {
         this.formConfig$.next({
             labelWidth: '15rem',
@@ -84,6 +86,12 @@ export class AgaAndSubEntitySettings implements OnInit {
     }
 
     public ngOnInit() {
+        this.tabService.addTab({
+            name: 'Lønnsinnstillinger',
+            url: '/settings/aga-and-subentities',
+            moduleID: UniModules.Settings,
+            active: true
+       });
         this.getDataAndSetupForm();
     }
 

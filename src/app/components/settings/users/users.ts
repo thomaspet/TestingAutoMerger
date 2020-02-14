@@ -14,6 +14,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 import {AuthService} from '@app/authService';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'user-management',
@@ -38,7 +39,14 @@ export class UserManagement {
         private userRoleService: UserRoleService,
         private uniHttp: UniHttp,
         private toastService: ToastService,
+        private tabService: TabService,
     ) {
+        this.tabService.addTab({
+            name: 'Brukere',
+            url: '/settings/users',
+            moduleID: UniModules.Settings,
+            active: true
+       });
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
             .subscribe(isAdmin => this.isAdmin = isAdmin);
 

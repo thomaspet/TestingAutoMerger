@@ -7,6 +7,7 @@ import {Terms, TermsType} from '../../../unientities';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniSaveAction } from '@uni-framework/save/save';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'uni-terms',
@@ -43,8 +44,16 @@ export class UniTerms {
         private http: UniHttp,
         private errorService: ErrorService,
         private guidService: GuidService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private tabService: TabService,
     ) {
+        this.tabService.addTab({
+            name: 'Betingelser',
+            url: '/settings/terms',
+            moduleID: UniModules.Settings,
+            active: true
+       });
+
         this.initTermsTypeTableConfig();
         this.initPaymentTermsTableConfig();
         this.getTerms();

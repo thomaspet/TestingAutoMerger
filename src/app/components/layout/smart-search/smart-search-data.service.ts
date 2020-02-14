@@ -359,6 +359,8 @@ export class SmartSearchDataService {
             }
         ];
 
+        let hasSettings = false;
+
         const querySplit = query.split(' ');
         if (querySplit[0] === 'ny' || querySplit[0] === 'nytt') {
             querySplit.shift();
@@ -371,9 +373,22 @@ export class SmartSearchDataService {
             if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1
                 || this.translate.translate(component._section).toLowerCase().indexOf(query) !== -1 ) {
                 component.type = 'link';
+                if (component.url.includes('settings')) {
+                    hasSettings = true;
+                }
+
                 results.push(component);
             }
         });
+
+        // Add the settings overview link to results
+        if (hasSettings) {
+            results.splice(1, 0, {
+                name: 'Innstillinger',
+                url: '/settings',
+                type: 'link'
+            });
+        }
 
         return results.length > 1 ? results : [];
     }

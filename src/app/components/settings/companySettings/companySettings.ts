@@ -72,6 +72,7 @@ import {environment} from 'src/environments/environment';
 import * as _ from 'lodash';
 import { tap } from 'rxjs/operators';
 import { SubEntitySettingsService } from '../agaAndSubEntitySettings/services/subEntitySettingsService';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'settings',
@@ -183,9 +184,11 @@ export class CompanySettingsComponent implements OnInit {
         private businessRelationService: BusinessRelationService,
         private reportTypeService: ReportTypeService,
         private subEntitySettingsService: SubEntitySettingsService,
+        private tabService: TabService,
     ) { }
 
     public ngOnInit() {
+        this.updateTabAndUrl();
         this.getDataAndSetupForm();
     }
 
@@ -196,6 +199,15 @@ export class CompanySettingsComponent implements OnInit {
         this.config$.complete();
         this.reportSetupFields$.complete();
         this.reportModel$.combineAll();
+    }
+
+    updateTabAndUrl() {
+        this.tabService.addTab({
+            name: 'Firmainnstillinger',
+            url: '/settings/company',
+            moduleID: UniModules.Settings,
+            active: true
+       });
     }
 
     private getDataAndSetupForm() {

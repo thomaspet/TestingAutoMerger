@@ -9,6 +9,7 @@ import {DistributionPlanModal} from './distribution-plan-modal';
 import {CustomerListModal} from './customer-list-modal';
 import {UniModalService, UniConfirmModalV2, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 declare const _; // lodash
 
@@ -99,10 +100,17 @@ export class UniDistributionSettings {
         private companySettingsService: CompanySettingsService,
         private route: ActivatedRoute,
         private toastService: ToastService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private tabService: TabService,
     ) { }
 
     public ngOnInit() {
+        this.tabService.addTab({
+            name: 'Utsendelse',
+            url: '/settings/distribution',
+            moduleID: UniModules.Settings,
+            active: true
+       });
         this.route.queryParams.subscribe((params) => {
             this.getDistributionPlans();
         });
