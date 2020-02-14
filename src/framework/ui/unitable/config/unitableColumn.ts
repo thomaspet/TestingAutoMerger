@@ -99,6 +99,7 @@ export interface IUniTableColumn {
     numberFormat?: INumberFormat;
     alignment?: string;
     width?: number|string;
+    maxWidth?: number;
     filterable: boolean;
     filterOperator?: string;
     filterSelectConfig?: {options: Array<any>, displayField: string, valueField: string};
@@ -115,6 +116,7 @@ export interface IUniTableColumn {
     checkboxConfig?: TableCheckboxConfig;
     maxLength?: number;
     resizeable?: boolean;
+    sizeToFit?: boolean;
     placeholder?: string | ((row) => string);
     statusMap?: TableStatusMap;
 }
@@ -146,6 +148,7 @@ export class UniTableColumn implements IUniTableColumn {
     public options: any;
     public editor: any;
     public width: number|string;
+    public maxWidth: number;
     public sortMode: UniTableColumnSortMode;
     public isSumColumn: boolean;
     public markedRowsSumCol: boolean;
@@ -160,6 +163,7 @@ export class UniTableColumn implements IUniTableColumn {
     public onCellClick: (rowModel) => void;
     public maxLength: number;
     public resizeable: boolean = true;
+    public sizeToFit: boolean = true;
     public rowGroup?: boolean;
     public enableRowGroup?: boolean;
     public enablePivot?: boolean;
@@ -202,13 +206,22 @@ export class UniTableColumn implements IUniTableColumn {
         return this;
     }
 
-    public setWidth(width: number|string, resizeable?: boolean) {
+    public setWidth(width: number|string, resizeable?: boolean, sizeToFit?: boolean) {
         this.width = width;
 
         if (typeof resizeable === 'boolean') {
             this.resizeable = resizeable;
         }
 
+        if (typeof sizeToFit === 'boolean') {
+            this.sizeToFit = sizeToFit;
+        }
+
+        return this;
+    }
+
+    public setMaxWidth(width: number) {
+        this.maxWidth = width;
         return this;
     }
 

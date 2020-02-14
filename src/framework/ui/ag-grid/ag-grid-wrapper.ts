@@ -822,6 +822,7 @@ export class AgGridWrapper {
                 agCol.suppressSorting = true;
             }
 
+            agCol.suppressSizeToFit = typeof col.sizeToFit === 'boolean' && !col.sizeToFit;
             if (!col.resizeable) {
                 agCol.suppressResize = true;
                 agCol.suppressSizeToFit = true;
@@ -862,6 +863,10 @@ export class AgGridWrapper {
 
             if (col.width >= 0) {
                 agCol.width = +col.width;
+            }
+
+            if (col.maxWidth) {
+                agCol.maxWidth = col.maxWidth;
             }
 
             if (!col.width || col.width >= 100) {
