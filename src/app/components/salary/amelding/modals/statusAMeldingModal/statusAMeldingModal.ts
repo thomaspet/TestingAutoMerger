@@ -19,10 +19,11 @@ export class StatusAMeldingModal implements OnInit, IUniModal {
     ngOnInit(): void {
         const options = this.options;
         this.period = options.data.period;
-        this.periodStatus = options.data.periodStatus;
+        this.periodStatus = options.data.periodStatus.toLowerCase().includes('øyeblikkelig') ? 'øyeblikkelig' : options.data.periodStatus;
         this.withGuidelines = this.periodStatus.toLowerCase().includes('mottatt')
             && this.periodStatus.toLowerCase().includes('retningslinje');
         this.received = this.periodStatus.toLowerCase().includes('mottatt')
+            && !this.periodStatus.toLowerCase().includes('øyeblikkelig')
             && !this.periodStatus.toLowerCase().includes('retningslinje');
     }
 

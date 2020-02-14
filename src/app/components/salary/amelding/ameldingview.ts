@@ -122,9 +122,10 @@ export class AMeldingView implements OnInit {
             label: 'Betal f.trekk og aga',
             action: () => this.openMakePaymentModal(),
             disabled: () => {
-                return !this.currentAMelding
-                    || !this.currentAMelding.altinnStatus
-                    || !this.currentAMelding.altinnStatus.toLowerCase().includes('mottatt');
+                return !this.periodStatus
+                    || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
+                    || this.periodStatus.toLowerCase().includes('øyeblikkelig')
+                    || this.periodStatus.toLowerCase().includes('avvist');
             }
         }
     ];
