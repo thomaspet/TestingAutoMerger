@@ -385,6 +385,7 @@ export class TradeItemTable {
         const productCol = new UniTableColumn('Product', 'Produkt', UniTableColumnType.Lookup)
             .setDisplayField('Product.PartName')
             .setJumpToColumn('NumberOfItems')
+            .setMaxWidth(200)
             .setPlaceholder(row => row && !row.ItemText ? 'Velg produkt' : '')
             .setOptions({
                 itemTemplate: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
@@ -469,14 +470,13 @@ export class TradeItemTable {
                 }
             });
 
-        const itemTextCol = new UniTableColumn('ItemText', 'Tekst')
-            .setMaxLength(255)
-            .setWidth('20%');
+        const itemTextCol = new UniTableColumn('ItemText', 'Tekst');
 
         const unitCol = new UniTableColumn('Unit', 'Enhet')
-            .setMaxLength(100);
+            .setWidth(120, true, false);
 
         const numItemsCol = new UniTableColumn('NumberOfItems', 'Antall', UniTableColumnType.Number)
+            .setMaxWidth(120)
             .setNumberFormat({
                 thousandSeparator: ' ',
                 decimalSeparator: ',',
@@ -485,6 +485,7 @@ export class TradeItemTable {
             });
 
         const exVatCol = new UniTableColumn('PriceExVatCurrency', 'Pris eks. mva', UniTableColumnType.Money)
+            .setMaxWidth(160)
             .setNumberFormat({
                 thousandSeparator: ' ',
                 decimalSeparator: ',',
@@ -492,6 +493,7 @@ export class TradeItemTable {
                 postfix: undefined
             });
         const incVatCol = new UniTableColumn('PriceIncVatCurrency', 'Pris ink. mva', UniTableColumnType.Money)
+            .setMaxWidth(160)
             .setVisible(false)
             .setNumberFormat({
                 thousandSeparator: ' ',
@@ -549,7 +551,7 @@ export class TradeItemTable {
             });
 
         const vatTypeCol = new UniTableColumn('VatType', 'Momskode', UniTableColumnType.Lookup)
-            .setWidth('15%')
+            .setMaxWidth(300)
             .setTemplate((row) => {
                 const vatType = row['VatType'];
                 return (vatType) ? `${row.VatPercent}% - ${vatType.Name}` : '';
@@ -613,6 +615,7 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent)
+            .setMaxWidth(100)
             .setTemplate(row => {
                 return row.DiscountPercent > 0 ? this.tradeItemHelper.round(row.DiscountPercent, 2).toString() : null;
             });
@@ -709,7 +712,7 @@ export class TradeItemTable {
 
         const sumTotalIncVatCol = new UniTableColumn(
             'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, true
-        );
+        ).setMaxWidth(160);
 
         const allCols = [
             sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
