@@ -123,6 +123,7 @@ export class AMeldingView implements OnInit {
             action: () => this.openMakePaymentModal(),
             disabled: () => {
                 return !this.periodStatus
+                    || this.periodStatus.toLowerCase().includes('må hentes')
                     || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
                     || this.periodStatus.toLowerCase().includes('øyeblikkelig')
                     || this.periodStatus.toLowerCase().includes('avvist');
