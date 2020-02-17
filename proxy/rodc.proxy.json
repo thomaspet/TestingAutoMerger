@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "http://rodc:82",
+        "secure": false,
+        "changeOrigin": true
+    }
+}
