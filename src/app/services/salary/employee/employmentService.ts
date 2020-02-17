@@ -4,15 +4,15 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction, NumberSeries, RegulativeGroup, RegulativeStep,
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction, NumberSeries, RegulativeGroup, RegulativeStep, Regulative,
 } from '../../../unientities';
-import {Observable, ReplaySubject} from 'rxjs';
+import {Observable, ReplaySubject, forkJoin, of} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError, UniField} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { SubEntityService } from '@app/services/common/subEntityService';
-import { map, tap } from 'rxjs/operators';
+import { map, tap, take, switchMap } from 'rxjs/operators';
 
 @Injectable()
 export class EmploymentService extends BizHttp<Employment> {
@@ -23,7 +23,6 @@ export class EmploymentService extends BizHttp<Employment> {
     private departments$: ReplaySubject<Department[]> = new ReplaySubject(1);
     private employment$: ReplaySubject<Employment> = new ReplaySubject(1);
     private regulativeGroups$: ReplaySubject<RegulativeGroup[]> = new ReplaySubject(1);
-    private regulativeSteps$: ReplaySubject<RegulativeStep[]> = new ReplaySubject(1);
 
     private typeOfEmployment: { ID: number, Name: string }[] = [
         { ID: 0, Name: 'Ikke valgt' },
@@ -151,8 +150,37 @@ export class EmploymentService extends BizHttp<Employment> {
         this.regulativeGroups$.next(regulativeGroups);
     }
 
-    public setRegulativeSteps(regulativeSteps: RegulativeStep[]) {
-        this.regulativeSteps$.next(regulativeSteps);
+    public clearRegulativeCache(): void {
+        this.regulativeGroups$.complete();
+        this.regulativeGroups$ = new ReplaySubject(1);
+    }
+
+    public getRegulativeStepsOnEmployment(): Observable<RegulativeStep[]> {
+        return this.regulativeGroups$
+            .pipe(
+                take(1),
+                switchMap(groups => this.getStepsOnEmployment(groups))
+            );
+    }
+
+    private getStepsOnEmployment(regulativeGroups: RegulativeGroup[]): Observable<RegulativeStep[]> {
+        return this.employment$
+            .pipe(
+                take(1),
+                map((employment) => {
+                    if (!employment.RegulativeGroupID || !regulativeGroups.length) {
+                        return [];
+                    }
+                    const regulatives =  regulativeGroups
+                        .filter(g => g.ID === employment.RegulativeGroupID)
+                        .reduce((acc: Regulative[], curr: RegulativeGroup) => [...acc, ...curr.Regulatives], [])
+                        .sort((regA: Regulative, regB: Regulative) => {
+                                const checkDate = regA.StartDate === regB.StartDate ? 'CreatedAt' :  'StartDate';
+                                return regA[checkDate] > regB[checkDate] ? -1 : 1;
+                        });
+                    return regulatives.length ? regulatives[0].Steps : [];
+                })
+            );
     }
 
     public updateDefaults(employment: Employment) {
@@ -163,360 +191,357 @@ export class EmploymentService extends BizHttp<Employment> {
     public layout(layoutID: string) {
         return this.companySalaryService
             .getCompanySalary()
-            .map(compSal => {return {
+            .pipe(
+                switchMap(compSal => forkJoin(
+                    this.getStandardFields(compSal),
+                    this.getRegulativeFields(compSal),
+                    this.getShipFields(compSal),
+                )),
+                map(fieldLists => fieldLists.reduce((acc, curr) => [...acc, ...curr], []))
+            )
+            .map(fields => {return {
                 Name: layoutID,
                 BaseEntity: 'Employment',
-                Fields: [
-                    {
-                        EntityType: 'Employment',
-                        Property: 'JobCode',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Yrkeskode',
-                        FieldSet: 1,
-                        Legend: 'Arbeidsforhold',
-                        Section: 0,
-                        Placeholder: 'Yrkeskode',
-                        Validations: [this.requiredValidation()]
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'JobName',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Yrkestittel',
-                        FieldSet: 1,
-                        Section: 0,
-                        Validations: [this.requiredValidation()]
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'WorkPercent',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Stillingsprosent',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            decimalLength: 2
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'StartDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Startdato',
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'EndDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Sluttdato',
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'SubEntityID',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Virksomhet',
-                        FieldSet: 1,
-                        Section: 0,
-                        Options: {
-                            valueProperty: 'ID',
-                            debounceTime: 200,
-                            getDefaultData: () => this.employment$
-                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.allSubEntities$.take(1)))
-                                .map((result: [Employment, SubEntity[]]) => result[1].filter(x => x.ID === result[0].SubEntityID)),
-                            search: (query: string) => this.availableSubEntities$
-                                .map(subs =>
-                                    subs.filter(sub =>
-                                        sub.BusinessRelationInfo.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                        sub.OrgNumber.startsWith(query))),
-                            template: (obj: SubEntity) =>
-                                obj && obj.BusinessRelationInfo
-                                ?
-                                obj.BusinessRelationInfo.Name
-                                    ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
-                                    : `${obj.OrgNumber}`
-                                : ''
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'Standard',
-                        FieldType: FieldType.CHECKBOX,
-                        Label: 'Standard',
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'TypeOfEmployment',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Arbeidsforhold',
-                        FieldSet: 2,
-                        Section: 0,
-                        Legend: 'A-meldingsinformasjon',
-                        Options: {
-                            source: this.typeOfEmployment,
-                            valueProperty: 'ID',
-                            displayProperty: 'Name'
-                        },
-                        hasLineBreak: true
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'RemunerationType',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Avlønningstype',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            source: this.remunerationType,
-                            valueProperty: 'ID',
-                            displayProperty: 'Name'
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'WorkingHoursScheme',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Arbeidstid',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            source: this.workingHoursScheme,
-                            valueProperty: 'ID',
-                            displayProperty: 'Name'
-                        },
-                        hasLineBreak: true
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'HoursPerWeek',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Timer pr uke full stilling',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            decimalLength: 1
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'SeniorityDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Ansiennitet',
-                        FieldSet: 2,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'LastSalaryChangeDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Lønnsjustering',
-                        FieldSet: 2,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'LastWorkPercentChangeDate',
-                        FieldType: FieldType.LOCAL_DATE_PICKER,
-                        Label: 'Sist endret %',
-                        FieldSet: 2,
-                        Section: 0,
-                        openByDefault: true
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'MonthRate',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Månedslønn',
-                        Legend: 'Ytelser',
-                        ReadOnly: this.rateFieldIsReadonly(),
-                        FieldSet: 3,
-                        Section: 0,
-                        Options: {
-                            decimalLength: 2,
-                            decimalSeparator: ',',
-                            thousandSeparator: ' ',
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'HourRate',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Timelønn',
-                        FieldSet: 3,
-                        Section: 0,
-                        ReadOnly: this.rateFieldIsReadonly(),
-                        Options: {
-                            decimalLength: 2,
-                            decimalSeparator: ',',
-                            thousandSeparator: ' '
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: '_yearlyRate',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Årslønn',
-                        FieldSet: 3,
-                        Section: 0,
-                        ReadOnly: true,
-                        Options: {
-                            decimalLength: 2,
-                            decimalSeparator: ',',
-                            thousandSeparator: ' ',
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'UserDefinedRate',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Fri sats',
-                        FieldSet: 3,
-                        Section: 0,
-                        Options: {
-                            format: 'money'
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'LedgerAccount',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Hovedbokskonto',
-                        FieldSet: 3,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'Dimensions.ProjectID',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Prosjekt',
-                        FieldSet: 4,
-                        Legend: 'Dimensjoner',
-                        Section: 0,
-                        Options: {
-                            valueProperty: 'ID',
-                            template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
-                            getDefaultData: () => this.employment$
-                                .switchMap(model => Observable.forkJoin(Observable.of(model), this.projects$.take(1)))
-                                .map((result: [Employment, Project[]]) =>
-                                    result[1].filter(p => result[0].Dimensions && p.ID === result[0].Dimensions.ProjectID)),
-                            search: (query: string) => this.projects$
-                                .map(projects =>
-                                    projects.filter(p =>
-                                        p.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                        p.ProjectNumber.startsWith(query)))
-                        }
-                    },
-                    {
-                        EntityType: 'Employment',
-                        Property: 'Dimensions.DepartmentID',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Avdeling',
-                        FieldSet: 4,
-                        Section: 0,
-                        Options: {
-                            valueProperty: 'ID',
-                            template: (department: Department) => department
-                                ? `${department.DepartmentNumber} - ${department.Name}`
-                                : '',
-                                getDefaultData: () => this.employment$
-                                    .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
-                                    .map((result: [Employment, Department[]]) =>
-                                    result[1].filter(d => result[0].Dimensions && d.ID === result[0].Dimensions.DepartmentID)),
-                                search: (query: string) => this.departments$
-                                    .map(deps =>
-                                        deps.filter(dep =>
-                                            dep.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                            dep.DepartmentNumber.startsWith(query)))
-                        }
-                    },
-                    ...this.getRegulativeFields(compSal),
-                    ...this.getShipFields(compSal),
-                ]
+                Fields: fields,
             };
         });
     }
 
-    rateFieldIsReadonly(): boolean {
-        let isReadOnly = false;
-        this.employment$.take(1).subscribe(res => isReadOnly = !!res.RegulativeStepNr || !!res.RegulativeGroupID);
-        return isReadOnly;
-    }
-
-    stepFieldIsReadonly(): boolean {
-        let isReadOnly = false;
-        this.employment$.take(1).subscribe(res => isReadOnly = !res.RegulativeGroupID);
-        return isReadOnly;
-    }
-
-    private getRegulativeFields(compSal: CompanySalary): UniFieldLayout[] {
-        let fields = [];
-        this.regulativeGroups$.take(1).subscribe(res => {
-            if (!res || !res.length) return;
-
-            fields = [
-                {
-                    EntityType: 'Employment',
-                    Property: 'RegulativeGroupID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Regulativnavn',
-                    FieldSet: 5,
-                    Legend: 'Regulativ',
-                    Section: 0,
-                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
-                    Options: {
-                        valueProperty: 'ID',
-                        template: (regulativeGroup: RegulativeGroup) => regulativeGroup ? `${regulativeGroup.ID} - ${regulativeGroup.Name}` : '',
-                        getDefaultData: () => this.employment$
-                            .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeGroups$.take(1)))
-                            .map((result: [Employment, RegulativeGroup[]]) =>
-                                result[1].filter(reg => reg.ID === result[0].RegulativeGroupID)),
-                        search: (query: string) => this.regulativeGroups$
-                            .map(
-                                regulativeGroup => regulativeGroup.filter(reg =>
-                                    reg.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                    reg.ID.toString().startsWith(query)
-                                )
-                            )
-                    },
-                },
-                {
-                    EntityType: 'Employment',
-                    Property: 'RegulativeStepNr',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Lønnstrinn',
-                    FieldSet: 5,
-                    Section: 0,
-                    Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
-                    ReadOnly: this.stepFieldIsReadonly(),
-                    Options: {
-                        valueProperty: 'Step',
-                        template: (step: RegulativeStep) => step
-                            ? `${step.Step}`
-                            : '',
-                        getDefaultData: () => this.employment$
-                            .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeSteps$.take(1)))
-                            .map((result: [Employment, RegulativeStep[]]) =>
-                                result[1].filter(reg => reg.Step === result[0].RegulativeStepNr)),
-                        search: (query: string) => this.regulativeSteps$
-                            .map(steps => steps.filter(step => step.Step.toString().startsWith(query)))
-                    }
+    private getStandardFields(compSal: CompanySalary): Observable<UniFieldLayout[]> {
+        return of(<UniFieldLayout[]>[
+            {
+                EntityType: 'Employment',
+                Property: 'JobCode',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Yrkeskode',
+                FieldSet: 1,
+                Legend: 'Arbeidsforhold',
+                Section: 0,
+                Placeholder: 'Yrkeskode',
+                Validations: [this.requiredValidation()]
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'JobName',
+                FieldType: FieldType.TEXT,
+                Label: 'Yrkestittel',
+                FieldSet: 1,
+                Section: 0,
+                Validations: [this.requiredValidation()]
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'WorkPercent',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Stillingsprosent',
+                FieldSet: 1,
+                Section: 0,
+                Options: {
+                    decimalLength: 2
                 }
-            ]
-        });
-
-        return fields;
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'StartDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Startdato',
+                FieldSet: 1,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'EndDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Sluttdato',
+                FieldSet: 1,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'SubEntityID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Virksomhet',
+                FieldSet: 1,
+                Section: 0,
+                Options: {
+                    valueProperty: 'ID',
+                    debounceTime: 200,
+                    getDefaultData: () => this.employment$
+                        .switchMap(model => Observable.forkJoin(Observable.of(model), this.allSubEntities$.take(1)))
+                        .map((result: [Employment, SubEntity[]]) => result[1].filter(x => x.ID === result[0].SubEntityID)),
+                    search: (query: string) => this.availableSubEntities$
+                        .map(subs =>
+                            subs.filter(sub =>
+                                sub.BusinessRelationInfo.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                sub.OrgNumber.startsWith(query))),
+                    template: (obj: SubEntity) =>
+                        obj && obj.BusinessRelationInfo
+                        ?
+                        obj.BusinessRelationInfo.Name
+                            ? `${obj.OrgNumber} - ${obj.BusinessRelationInfo.Name}`
+                            : `${obj.OrgNumber}`
+                        : ''
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'Standard',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Standard',
+                FieldSet: 1,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'TypeOfEmployment',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Arbeidsforhold',
+                FieldSet: 2,
+                Section: 0,
+                Legend: 'A-meldingsinformasjon',
+                Options: {
+                    source: this.typeOfEmployment,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                },
+                hasLineBreak: true
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'RemunerationType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avlønningstype',
+                FieldSet: 2,
+                Section: 0,
+                Options: {
+                    source: this.remunerationType,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'WorkingHoursScheme',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Arbeidstid',
+                FieldSet: 2,
+                Section: 0,
+                Options: {
+                    source: this.workingHoursScheme,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                },
+                hasLineBreak: true
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'HoursPerWeek',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Timer pr uke full stilling',
+                FieldSet: 2,
+                Section: 0,
+                Options: {
+                    decimalLength: 1
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'SeniorityDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Ansiennitet',
+                FieldSet: 2,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'LastSalaryChangeDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Lønnsjustering',
+                FieldSet: 2,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'LastWorkPercentChangeDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Sist endret %',
+                FieldSet: 2,
+                Section: 0,
+                openByDefault: true
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'MonthRate',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Månedslønn',
+                Legend: 'Ytelser',
+                FieldSet: 3,
+                Section: 0,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ',',
+                    thousandSeparator: ' ',
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'HourRate',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Timelønn',
+                FieldSet: 3,
+                Section: 0,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ',',
+                    thousandSeparator: ' '
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: '_yearlyRate',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Årslønn',
+                FieldSet: 3,
+                Section: 0,
+                ReadOnly: true,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ',',
+                    thousandSeparator: ' ',
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'UserDefinedRate',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Fri sats',
+                FieldSet: 3,
+                Section: 0,
+                Options: {
+                    format: 'money'
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'LedgerAccount',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Hovedbokskonto',
+                FieldSet: 3,
+                Section: 0
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'Dimensions.ProjectID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Prosjekt',
+                FieldSet: 4,
+                Legend: 'Dimensjoner',
+                Section: 0,
+                Options: {
+                    valueProperty: 'ID',
+                    template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
+                    getDefaultData: () => this.employment$
+                        .switchMap(model => Observable.forkJoin(Observable.of(model), this.projects$.take(1)))
+                        .map((result: [Employment, Project[]]) =>
+                            result[1].filter(p => result[0].Dimensions && p.ID === result[0].Dimensions.ProjectID)),
+                    search: (query: string) => this.projects$
+                        .map(projects =>
+                            projects.filter(p =>
+                                p.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                p.ProjectNumber.startsWith(query)))
+                }
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'Dimensions.DepartmentID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Avdeling',
+                FieldSet: 4,
+                Section: 0,
+                Options: {
+                    valueProperty: 'ID',
+                    template: (department: Department) => department
+                        ? `${department.DepartmentNumber} - ${department.Name}`
+                        : '',
+                        getDefaultData: () => this.employment$
+                            .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
+                            .map((result: [Employment, Department[]]) =>
+                            result[1].filter(d => result[0].Dimensions && d.ID === result[0].Dimensions.DepartmentID)),
+                        search: (query: string) => this.departments$
+                            .map(deps =>
+                                deps.filter(dep =>
+                                    dep.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                    dep.DepartmentNumber.startsWith(query)))
+                }
+            }]);
     }
 
-    private getShipFields(compSal: CompanySalary): any[] {
+    private getRegulativeFields(compSal: CompanySalary): Observable<UniFieldLayout[]> {
+        return this.regulativeGroups$
+            .pipe(
+                take(1),
+                map(res => {
+                    if (!res || !res.length) {
+                        return [];
+                    }
+
+                    return <UniFieldLayout[]>[
+                        {
+                            EntityType: 'Employment',
+                            Property: 'RegulativeGroupID',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Regulativnavn',
+                            FieldSet: 5,
+                            Legend: 'Regulativ',
+                            Section: 0,
+                            Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
+                            Options: {
+                                valueProperty: 'ID',
+                                template: (regulativeGroup: RegulativeGroup) => regulativeGroup ? `${regulativeGroup.ID} - ${regulativeGroup.Name}` : '',
+                                getDefaultData: () => this.employment$
+                                    .switchMap(model => Observable.forkJoin(Observable.of(model), this.regulativeGroups$.take(1)))
+                                    .map((result: [Employment, RegulativeGroup[]]) =>
+                                        result[1].filter(reg => reg.ID === result[0].RegulativeGroupID)),
+                                search: (query: string) => this.regulativeGroups$
+                                    .map(
+                                        regulativeGroup => regulativeGroup.filter(reg =>
+                                            reg.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                            reg.ID.toString().startsWith(query)
+                                        )
+                                    )
+                            },
+                        },
+                        {
+                            EntityType: 'Employment',
+                            Property: 'RegulativeStepNr',
+                            FieldType: FieldType.AUTOCOMPLETE,
+                            Label: 'Lønnstrinn',
+                            FieldSet: 5,
+                            Section: 0,
+                            Classes: !compSal.Base_SpesialDeductionForMaritim ? 'less-than-half' : '',
+                            Options: {
+                                valueProperty: 'Step',
+                                template: (step: RegulativeStep) => step
+                                    ? `${step.Step}`
+                                    : '',
+                                getDefaultData: () => this.employment$
+                                    .switchMap(model => Observable.forkJoin(Observable.of(model), this.getRegulativeStepsOnEmployment()))
+                                    .map((result: [Employment, RegulativeStep[]]) =>
+                                        result[1].filter(reg => reg.Step === result[0].RegulativeStepNr)),
+                                search: (query: string) => this.getRegulativeStepsOnEmployment()
+                                    .map(steps => steps.filter(step => step.Step.toString().startsWith(query)))
+                            }
+                        }
+                    ];
+                }),
+            );
+    }
+
+    private getShipFields(compSal: CompanySalary): Observable<UniFieldLayout[]> {
         if (!compSal.Base_SpesialDeductionForMaritim) {
-            return [];
+            return of([]);
         }
-        return [
+        return of(<UniFieldLayout[]>[
             {
                 EntityType: 'Employment',
                 Property: 'ShipReg',
@@ -557,7 +582,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     displayProperty: 'Name'
                 },
             },
-        ];
+        ]);
     }
 
     public searchEmployments(query: string, employeeID?: number): Observable<{ID: number, JobName: string}[]> {
