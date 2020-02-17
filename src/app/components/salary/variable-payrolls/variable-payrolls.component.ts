@@ -270,7 +270,8 @@ export class VariablePayrollsComponent {
 
             let filterString = params.get('filter') || '';
             filterString += filterString ? ' and ' : '';
-            filterString += `(PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq 'false' and isnull(SalaryBalanceID,0) eq 0 and`
+            filterString += `(PayrollRunID eq ${this.payrollRunID} and IsRecurringPost eq 'false' and`
+            + ` isnull(SalaryBalanceLine.SalaryTransactionID,0) eq 0 and`
             + ` (SystemType eq 0 or SystemType eq 5 or SystemType eq 6))`;
 
             params = params.set('model', 'SalaryTransaction');
@@ -285,7 +286,8 @@ export class VariablePayrollsComponent {
 
             params = params.set('join',
                 'Employee.BusinessRelationID eq BusinessRelation.ID as bs'
-                + ' and SalaryTransaction.ID eq FileEntityLink.EntityID as FileEntityLink');
+                + ' and SalaryTransaction.ID eq FileEntityLink.EntityID as FileEntityLink'
+                + ' and SalaryTransaction.ID eq SalaryBalanceLine.SalaryTransactionID');
 
             params = params.set('expand', 'Employee,Supplements,Wagetype,Dimensions,Dimensions.Project,Dimensions.Department,VatType,Employment');
 
@@ -711,7 +713,7 @@ export class VariablePayrollsComponent {
         rowModel.PayrollRunID = this.payrollRunID;
         return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
             this.filteredTransactions = this.salaryTransService.updateDataSource(this.filteredTransactions, transes);
-                
+
             return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
         });
     }
