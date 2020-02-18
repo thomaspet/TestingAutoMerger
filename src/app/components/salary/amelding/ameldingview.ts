@@ -118,7 +118,7 @@ export class AMeldingView implements OnInit {
             label: 'Avansert periodebehandling',
             action: () => this.openAdminModal()
         },
-        {
+        /*{
             label: 'Betal f.trekk og aga',
             action: () => this.openMakePaymentModal(),
             disabled: () => {
@@ -128,7 +128,7 @@ export class AMeldingView implements OnInit {
                     || this.periodStatus.toLowerCase().includes('øyeblikkelig')
                     || this.periodStatus.toLowerCase().includes('avvist');
             }
-        }
+        }*/
     ];
 
     constructor(
@@ -742,7 +742,7 @@ export class AMeldingView implements OnInit {
                 if (response) {
                     this.replaceAmeldingInPeriod(response);
                     this.refresh(response);
-                    this.openBeforeMakePaymentModal(response);
+                    // this.openBeforeMakePaymentModal(response);
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
