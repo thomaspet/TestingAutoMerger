@@ -427,7 +427,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public createInvoicePaymentDataObjects(data: JournalEntryData[] ):
-    {id: number, payment: InvoicePaymentData, numberSeriesTaskID: number}[] {
+    {id: number, payment: InvoicePaymentData, numberSeriesID: number}[] {
         const dataToConvert = data.filter(line => !!line.InvoiceNumber);
 
         return dataToConvert.map(line => {
@@ -440,7 +440,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     CurrencyCodeID: line.CurrencyID,
                     CurrencyExchangeRate: line.CurrencyExchangeRate,
                 },
-                numberSeriesTaskID: line.NumberSeriesTaskID
+                numberSeriesID: line.NumberSeriesID
             };
         });
     }
