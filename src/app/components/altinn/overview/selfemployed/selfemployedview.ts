@@ -93,7 +93,7 @@ export class SelfEmployedView implements OnInit {
         const amountString = value
             .replace(/\s/g, '')
             .replace(',', '.');
-        return parseFloat(amountString);
+        return Math.round(parseFloat(amountString));
     }
 
     private openDetailsModal(line) {
