@@ -133,11 +133,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         ],
                         expands: ['customer']
                     },
-                    // {
-                    //     name: 'NAVBAR.BATCH_INVOICE',
-                    //     url: '/sales/batch-invoices',
-                    //     activeInSidebar: true,
-                    // },
+                    {
+                        name: 'NAVBAR.BATCH_INVOICE',
+                        url: '/sales/batch-invoices',
+                        activeInSidebar: true,
+                    },
                     {
                         name: 'NAVBAR.REMINDER',
                         url: '/sales/reminders',
