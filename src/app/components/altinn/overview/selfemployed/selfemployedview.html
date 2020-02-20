@@ -4,19 +4,15 @@
 </uni-toolbar>
 
 <section class="application">
-    <table>
-    <tr>
-      <td width="45%">
-        <article style="margin-top: 50px;">
-            <h3>Selvstendig næringsdrivende uten fast kontoradresse</h3>
+    <h3>Selvstendig næringsdrivende uten fast kontoradresse</h3>
+    <section class="self-employed-view-container">
+        <section class="self-employed-list">
             <ag-grid-wrapper
                 [resource]="payments"
                 [config]="tableConfig"
                 (dataLoaded)="onDataLoaded()">
             </ag-grid-wrapper>
-        </article>
-      </td>
-      <td>
+        </section>
         <uni-information [config]="infoConfig" class="infoNote">
             <p>
                 Alle næringsdrivende oppdragsgivere som har kjøpt tjenester fra selvstendig næringsdrivende uten fast forretningssted i inntektsåret skal rapportere det fakturerte beløpet, ekskl. mva.
@@ -31,8 +27,6 @@
             <p>
                 Innleveringsfrist for ordinære oppgaver er 15. februar året etter inntektsåret.
             </p>
-          </uni-information>
-      </td>
-    </tr>
-    </table>
+        </uni-information>
+    </section>
 </section>

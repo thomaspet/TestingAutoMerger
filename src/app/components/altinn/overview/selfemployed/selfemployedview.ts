@@ -55,14 +55,20 @@ export class SelfEmployedView implements OnInit {
 
         this.getPayments().subscribe((payments) => {
             this.payments = payments;
+
+            /**
+             * This hack makes sum column be next to data if data is to small that
+             * it doesn't overflows. In case of data overflows it is added virtual scroll
+             * this is not the best way but I couldn't find a good way using CSS
+             * Desired behaviour is the one we can see in uniticker. But I could not
+             * reproduce it. Lots of nested styles that I wasn't able to reproduce.
+             * Since style is from ag-grid I don't want to touch it because it can have
+             * collateral behaviours as it is a transversal used component.
+             */
+            if (this.payments.length > 7) {
+                this.tableConfig = this.tableConfig.setVirtualScroll(true);
+            }
         });
-/*
-        this.getInvoices().subscribe((invoices) => {
-            this.invoices = invoices;
-        });
-        this.getSupplierInvoice(755).subscribe((invoices) => {
-            this.invoicesPerSupplier = invoices;
-        });*/
     }
 
     public onDataLoaded() {
