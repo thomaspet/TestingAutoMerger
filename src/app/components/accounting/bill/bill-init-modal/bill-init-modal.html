@@ -1,26 +1,33 @@
-<section role="dialog" class="uni-modal">
+<section role="dialog" class="uni-modal large">
     <header> {{ 'ACCOUNTING.SUPPLIER_INVOICE.NEW' | translate }} </header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
+        <section class="inbox-container"*ngIf="!busy">
+            <section class="inbox" *ngIf="inboxFiles?.length">
+                <section class="header">Fra innboks</section>
 
-        <section class="inbox" *ngIf="inboxFiles?.length">
-            <section class="header">Fra innboks</section>
-
-            <section class="file-list">
-                <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
-                    Ingen dokumenter i innboks
+                <section class="file-list">
+                    <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
+                        Ingen dokumenter i innboks
+                    </section>
+                    <section class="list-item"
+                        *ngFor="let file of inboxFiles"
+                        (click)="selectedFile = file;preview(file);">
+                        <span>{{file.Name}}</span>
+                        <span class="date">{{file.CreatedAt | date: 'dd.MM.yyyy'}}</span>
+                    </section>
                 </section>
-
-                <section class="list-item"
-                    *ngFor="let file of inboxFiles"
-                    (click)="onClose.emit(file.ID)">
-
-                    <span>{{file.Name}}</span>
-                    <span class="date">{{file.CreatedAt | date: 'dd.MM.yyyy'}}</span>
-                </section>
+            </section>
+            <section class="image-preview" *ngIf="selectedFile">
+                <uni-image
+                   [singleImage]="true"
+                   [readonly]="true"
+                   [uploadWithoutEntity]="true"
+                   [fileIDs]="[selectedFile.ID]">
+                </uni-image>
             </section>
         </section>
 
@@ -35,6 +42,7 @@
     </article>
 
     <footer>
+        <button class="good" (click)="onClose.emit(selectedFile.ID)">Velg</button>
         <button class="secondary" (click)="onClose.emit()">Lukk</button>
     </footer>
 </section>
