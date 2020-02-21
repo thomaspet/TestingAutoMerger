@@ -27,7 +27,7 @@
     <section class="navbar-right">
         <section *ngIf="isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
             {{demoText}}
-            <a>Aktiver nå</a>
+            <a>{{isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktiver nå'}}</a>
         </section>
 
         <section *ngIf="isDemo && demoExpired" class="demo-company-notifier expired">

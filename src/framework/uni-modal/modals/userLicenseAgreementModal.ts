@@ -28,13 +28,11 @@ import {environment} from 'src/environments/environment';
                 </ng-container>
 
                 <ng-container *ngIf="isSrEnvironment">
-                    Ny personlovgivning, med utg.pkt. i EU sin nye personvernforordning er nå innført i Norge. Prinsippet er at alle «eier» sine egne personopplysninger, og nå har fått utvidede rettigheter knyttet til egne personopplysninger. På samme måte har alle som behandler (herunder lagrer) slike opplysninger fått utvidede plikter.
+                    EUs personvernforordning trådte i kraft i Norge sommeren 2018. Gjennom personvernforordningen fikk behandlere av personopplysninger utvidede plikter.
                     <br><br>
-                    SpareBank 1 SR-Bank ASA leverer m.a. løsninger for å føre regnskap, fakturere og utbetale lønn – som er underlagt ulike lover/regler knyttet til dette – men som samtidig vil inneholde personopplysninger.
+                    SpareBank 1 SR-Bank ASA ("SR-Bank") leverer blant annet regnskapssystem igjennom SR-Bank Regnskap. I den utstrekning SR-Bank Regnskap gjør det mulig for kunden og kundens brukere å lagre personopplysninger i systemet, vil dette innebære at SR-Bank ved oppbevaring av personopplysninger for kunden opptrer som en databehandler. Kunden er, som eieren av dataene, behandlingsansvarlig.
                     <br><br>
-                    Når SpareBank 1 SR-Bank ASA da etter nytt lovverk kan sies å «behandle» personopplysninger, f.eks. gjennom at vi tilbyr løsninger hvor vi tar ansvar for å lagre data (SR Regnskap), eller får tilgang til kunders data for å utføre feilsøking, eller på annen måte bistår våre brukere (skjemdeling o.l) – så vil SpareBank 1 SR-Bank ASA pr. definisjon være en «databehandler» etter personlovgivningen. Den behandlingsansvarlige vil være den virksomheten som «eier» dataene.
-                    <br><br>
-                    Personlovgivningen krever da at det skal finnes en avtale mellom «Databehandler» og «Behandlingsansvarlig», som regulerer behandlingen av personopplysninger. En slik «Databehandleravtale» er nå utformet, og innføres for alle som benytter SR Regnskap.
+                    I henhold til personvernforordningen skal det inngås en avtale mellom databehandler og behandlingsansvarlig som regulerer behandlingen av personopplysninger. Slik avtale inngår som punkt 11 i Brukeravtalen for SR-Bank Regnskap og aksepteres således av kunden når Brukeravtalen inngås. SR-Bank oppfordrer kunden, som behandlingsansvarlig, til å særskilt sette seg inn i de nevnte reguleringer og ta kontakt med SR-Bank ved spørsmål.
                     <br><br>
                     Du kan lese mer om dette på
                     <a href="https://www.sparebank1.no/nb/sr-bank/om-oss/personvern.html" target="_blank">
