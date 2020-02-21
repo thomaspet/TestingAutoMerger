@@ -172,6 +172,7 @@ export class ImportCentralPage implements OnInit {
 
   //checks with disclaimer agreement
   public openImportTemplateModal(templateType: TemplateType) {
+    if (templateType !== TemplateType.Saft) {
     this.userService.getCurrentUser().subscribe(res => {
       if (res) {
         if (res.HasAgreedToImportDisclaimer) {
@@ -189,7 +190,13 @@ export class ImportCentralPage implements OnInit {
     },
       err => this.errorService.handle('En feil oppstod, vennligst prøv igjen senere')
     );
-
+  } else {
+    this.router.navigate(['admin', 'jobs'], {
+      queryParams: {
+        tab: 'saft-t'
+      }
+    });
+  }
   }
 
   //
@@ -347,13 +354,20 @@ export class ImportCentralPage implements OnInit {
         data = { StandardUniFormat: '', StandardizedExcelFormat: '' }
         break;
     }
-
+    if (templateType !== TemplateType.Saft) {
     this.modalService.open(DownloadTemplateModal,
       {
         header: header,
         message: 'Inkluder eksisterende',
         data: data
       });
+    } else {
+      this.router.navigate(['admin', 'jobs'], {
+        queryParams: {
+          tab: 'saft-t'
+        }
+      });
+    }
   }
 
   navigateToLogs(type) {
