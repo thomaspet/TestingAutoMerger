@@ -161,13 +161,4 @@ export class SelfEmployedView implements OnInit {
     private getPayments(): Observable<any> {
         return this.supplierInvoiceService.Action(null, 'get-selfemployed-payments', 'year=' + this.year, RequestMethod.Get);
     }
-
-    private getInvoices(): Observable<any> {
-        return this.supplierInvoiceService.Action(null, 'get-selfemployed-invoices', 'year=' + this.year, RequestMethod.Get);
-    }
-
-    private getSupplierInvoice(supplierID: number): Observable<any> {
-        return this.supplierInvoiceService.GetAction(supplierID, 'get-supplierinvoices&year=' + this.year);
-    }
-
 }
