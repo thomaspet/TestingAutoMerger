@@ -1064,16 +1064,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     // if no lines are found: dont do anything else
                     if (rows.length === 1) {
                         const copyFromJournalEntryLine = rows[0];
-
                         this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine).then(() => {
-                        if (copyFromJournalEntryLine.currencyID !== this.companySettings.BaseCurrencyCodeID) {
-                            this.showAgioDialogPostPost(row);    
-                        }
-                        else {
                             this.updateJournalEntryLine(row);
-                        }});
+
+                            if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                this.showAgioDialogPostPost(row)
+                                    .then((res) => {
+                                        // reset focus after modal closes
+                                        this.table.focusRow(row['_originalIndex']);
+                                    });
+                            }
+                        });
                     } else if (rows.length > 1) {
                         // if multiple lines are found: show modal with lines that can be selected
+
                         this.modalService.open(SelectJournalEntryLineModal, { data: { journalentrylines: rows } })
                         .onClose
                         .subscribe((selectedLine) => {
@@ -1081,19 +1085,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 return;
                             }
                             this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine).then(() => {
-                            if (selectedLine.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                this.showAgioDialogPostPost(row)
-                            } else {
+                                this.updateJournalEntryLine(row);
 
-                                    this.updateJournalEntryLine(row);
+                                if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                    this.showAgioDialogPostPost(row)
+                                        .then((res) => {
+                                            // reset focus after modal closes
+                                            this.table.focusRow(row['_originalIndex']);
+                                        });
+                                } else {
+                                    // reset focus after modal closes
                                     this.table.focusRow(row['_originalIndex']);
-                                }});
+                                }
+                            });
                         });
                     }
                 }, err => {
                     this.errorService.handle(err);
-            });
+                });
         }
+
     }
 
     private setRowValuesBasedOnExistingJournalEntryLine(
@@ -2032,8 +2043,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
-    public showAgioDialogPostPost(journalEntryRow: JournalEntryData) : Promise<JournalEntryData>  {
-       
+    public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
@@ -2048,6 +2058,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 BankChargeAccountID: 0,
                 AgioAmount: 0
             };
+
             const title = `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber}, `
                 + `${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
             const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
