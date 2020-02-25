@@ -84,15 +84,7 @@ export class TradeItemTable {
     productExpands = [
         'Account',
         'Account.MandatoryDimensions',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10'
+        'Dimensions.Info'
     ];
 
     constructor(
@@ -828,6 +820,10 @@ export class TradeItemTable {
         if (event.field === 'Product') {
             if (!event.newValue) {
                 noProduct = true;
+            } else if (updatedRow.Product && updatedRow.Product.Dimensions && updatedRow.Product.Dimensions.Info) {
+                updatedRow.Dimensions = updatedRow.Product.Dimensions;
+                updatedRow.Dimensions = this.mapDimensions(updatedRow.Dimensions);
+                triggerChangeDetection = true;
             } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
@@ -850,6 +846,32 @@ export class TradeItemTable {
             triggerChangeDetection = true;
         }
         return triggerChangeDetection;
+    }
+
+    private mapDimensions(dims) {
+        const info = dims.Info[0];
+        if (dims.ProjectID) {
+            dims.Project = {
+                ProjectNumber: info.ProjectNumber,
+                Name: info.ProjectName
+            };
+        }
+        if (dims.DepartmentID) {
+            dims.Department = {
+                DepartmentNumber: info.DepartmentNumber,
+                Name: info.DepartmentName
+            };
+        }
+
+        for (let i = 5; i <= 10; i++) {
+            if (dims[`Dimension${i}ID`]) {
+                dims[`Dimension${i}`] = {
+                    Number: info[`Dimension${i}Number`],
+                    Name: info[`Dimension${i}Name`]
+                };
+            }
+        }
+        return dims;
     }
 
     public onRowChange(event: IRowChangeEvent) {
