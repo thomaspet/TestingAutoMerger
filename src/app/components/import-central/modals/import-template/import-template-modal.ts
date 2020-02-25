@@ -79,7 +79,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                 hideDeleteButton: true
             };
             this.operators = [];
-            this.payrollService.getAll(`orderby=ID desc`, true).subscribe(
+            this.payrollService.getAll(`filter=StatusCode eq 0 or StatusCode eq null&orderby=ID desc`, true).subscribe(
                 res => {
                     res.forEach(pay => {
                         this.operators.push({ name: pay.Description, id: pay.ID });
