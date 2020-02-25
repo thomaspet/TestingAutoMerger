@@ -317,12 +317,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
-                {
-                    name: 'NAVBAR.BANK_RECONCILIATION',
-                    url: '/bank/reconciliation',
-                    moduleID: UniModules.BankReconciliation,
-                    activeInSidebar: true
-                }
+                // {
+                //     name: 'NAVBAR.BANK_RECONCILIATION',
+                //     url: '/bank/reconciliation',
+                //     moduleID: UniModules.BankReconciliation,
+                //     activeInSidebar: true
+                // }
             ]
         }]
     },

@@ -1,10 +1,21 @@
 <section role="dialog" class="uni-modal">
     <header>Legg til nøkkel</header>
+
     <article>
-        <apikeyline (keySaved)="close(true)"></apikeyline>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <uni-form
+            [config]="{}"
+            [fields]="fields$"
+            [model]="model$"
+            (changeEvent)="onFormChange($event)">
+        </uni-form>
     </article>
+
     <footer>
-        <button class="good" (click)="saveApikeyLine()">Lagre</button>
-        <button class="bad" (click)="close(false)">Lukk</button>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="save()">Lagre</button>
     </footer>
 </section>
