@@ -5,12 +5,14 @@ import {environment} from 'src/environments/environment';
 import {Altinn} from '../../unientities';
 import {BusinessRelationSearch} from '../../models/Integration/BusinessRelationSearch';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {HttpClient} from '@angular/common/http';
 
 @Injectable()
 export class IntegrationServerCaller {
 
     constructor(
         protected http: UniHttp,
+        private httpClient: HttpClient,
         private browserStorage: BrowserStorageService,
     ) {}
 
@@ -84,4 +86,15 @@ export class IntegrationServerCaller {
             .map(response => response.body);
     }
 
+    public getTravelTextPurchases(): Observable<any[]> {
+        return this.httpClient.get<any[]>(environment.BASE_URL_INTEGRATION + 'api/traveltext/persons');
+    }
+
+    public purchaseTravelText(payload: any) {
+        return this.httpClient.post(environment.BASE_URL_INTEGRATION + 'api/traveltext/register', payload);
+    }
+
+    public inviteUsersTravelText(payload: any) {
+        return this.httpClient.put(environment.BASE_URL_INTEGRATION + 'api/traveltext/persons', payload);
+    }
 }

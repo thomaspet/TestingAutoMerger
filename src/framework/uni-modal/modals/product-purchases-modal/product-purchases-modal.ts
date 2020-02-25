@@ -11,7 +11,7 @@ import {
 } from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {User, UserRole, Role} from '@uni-entities';
-import {ElsaProduct, ElsaPurchase} from '@app/models';
+import {ElsaProduct, ElsaPurchase, ElsaProductType} from '@app/models';
 
 @Component({
     selector: 'product-purchases-modal',
@@ -71,7 +71,7 @@ export class ProductPurchasesModal implements IUniModal {
                 this.users = res[0];
                 this.purchases = res[1];
                 this.products = (res[2] || []).filter(product => {
-                    return product.ProductTypeName === 'Module'
+                    return product.ProductType === ElsaProductType.Module
                         && product.IsPerUser
                         && product.Name !== 'Complete';
                 });

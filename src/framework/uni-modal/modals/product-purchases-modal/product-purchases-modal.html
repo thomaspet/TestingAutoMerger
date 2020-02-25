@@ -18,8 +18,8 @@
         <mat-selection-list *ngIf="singleProductMode && purchasesMatrix">
             <mat-list-option *ngFor="let entry of purchasesMatrix"
                 [checkboxPosition]="'before'"
-                [selected]="entry.purchases[0]._active"
-                (click)="entry.purchases[0]._active = !entry.purchases[0]._active">
+                [selected]="entry.purchases[0]['_active']"
+                (click)="entry.purchases[0]['_active'] = !entry.purchases[0]['_active']">
                 {{entry.userDisplayName}}
             </mat-list-option>
         </mat-selection-list>
@@ -39,15 +39,14 @@
                     <td>{{entry.userDisplayName}}</td>
                     <td *ngFor="let purchase of entry.purchases">
                         <i class="material-icons"
-                            [ngClass]="{'active': purchase._active}"
-                            (click)="purchase._active = !purchase._active">
-                            {{purchase._active ? 'check_box' : 'check_box_outline_blank'}}
+                            [ngClass]="{'active': purchase['_active']}"
+                            (click)="purchase['_active'] = !purchase['_active']">
+                            {{purchase['_active'] ? 'check_box' : 'check_box_outline_blank'}}
                         </i>
                     </td>
                 </tr>
             </tbody>
         </table>
-
     </article>
 
     <footer>
