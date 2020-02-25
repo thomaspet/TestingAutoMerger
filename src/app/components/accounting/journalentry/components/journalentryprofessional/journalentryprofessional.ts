@@ -2071,24 +2071,93 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
                 }
             });
+            paymentModal.onClose.subscribe((paymentData) => {
+                if (!paymentData) {
+                    resolve(journalEntryRow);
+                    return;
+                }
 
-            paymentModal.onClose.subscribe((payment) => {
-                if (payment) {
-    
-                    this.customerInvoiceService.ActionWithBody(postPostJournalEntryLine.CustomerInvoiceID, payment, 'payInvoice').subscribe(
-                        res => {
-                            this.toastService.addToast(
-                                'Faktura er betalt. Betalingsnummer: ' + res.JournalEntryNumber,
-                                ToastType.good,
-                                5
-                            );
-                        },
-                        err => {
-                            this.errorService.handle(err);
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
+
+                // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
+                // calculate the Amount that was paid in the base currency - the diff between this and
+                // what is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                const higherPrecisionExchangeRate = Math.abs(postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency);
+                journalEntryRow.Amount = UniMath.round(
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate
+                );
+
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CurrencyExchangeRate = higherPrecisionExchangeRate;
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
+                    if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
+                        journalEntryRow.CreditAccount = null;
+                        journalEntryRow.CreditAccountID = null;
+                        oppositeRow.DebitAccount = null;
+                        oppositeRow.DebitAccountID = null;
+                        oppositeRow.CreditAccount = this.defaultAccountPayments;
+                        oppositeRow.CreditAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                        journalEntryRow.DebitAccount = null;
+                        journalEntryRow.DebitAccountID = null;
+                        oppositeRow.CreditAccount = null;
+                        oppositeRow.CreditAccountID = null;
+                        oppositeRow.DebitAccount = this.defaultAccountPayments;
+                        oppositeRow.DebitAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    }
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
+
+                        if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                            agioSign *= -1;
                         }
-                    );
-                } 
+
+                        journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+                        this.updateJournalEntryLine(journalEntryRow);
+                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        resolve(journalEntryRow);
+                    });
+                } else {
+                    if (journalEntryRow.DebitAccount
+                        && journalEntryRow.DebitAccount.UsePostPost
+                        && !journalEntryRow.CreditAccount
+                    ) {
+                        journalEntryRow.CreditAccount = this.defaultAccountPayments;
+                        journalEntryRow.CreditAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    } else if (journalEntryRow.CreditAccount
+                        && journalEntryRow.CreditAccount.UsePostPost
+                        && !journalEntryRow.DebitAccount
+                    ) {
+                        journalEntryRow.DebitAccount = this.defaultAccountPayments;
+                        journalEntryRow.DebitAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    }
+
+                    this.updateJournalEntryLine(journalEntryRow);
+                    resolve(journalEntryRow);
+                }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        this.addJournalEntryLines([bankChargesRow]);
+                        resolve(journalEntryRow);
+                    });
+                }
             });
+
         });
     }
 
