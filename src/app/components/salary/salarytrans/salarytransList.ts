@@ -68,10 +68,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
     ) {
         super(router.url, cacheService);
+    }
 
-        route.params.subscribe((params) => {
+    public ngOnInit() {
+        this.route.params.subscribe((params) => {
             this.payrollRunID = +params['id'];
-            super.updateCacheKey(router.url);
+            super.updateCacheKey(this.router.url);
             this.salaryTransactions = [];
 
             const payrollRunSubject = super.getStateSubject('payrollRun').takeUntil(this.destroy$);
@@ -115,14 +117,19 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
 
             if (!this.salarytransEmployeeTableConfig) {
                 super.updateState(BUSY_KEY, true, false);
-                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
-                    payrollRunSubject)
-                    .take(1).subscribe((response) => {
-                        this.createTableConfig();
-                        super.updateState(BUSY_KEY, false, false);
-                    });
+                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject, payrollRunSubject)
+                .take(1).subscribe((response) => {
+                    this.createTableConfig();
+                    super.updateState(BUSY_KEY, false, false);
+                });
             }
         });
+        super.getStateSubject(BUSY_KEY)
+            .pipe(
+                tap(busy => this.busy = busy),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
     }
 
     public ngOnChanges() {
@@ -135,15 +142,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         } else {
             this.filteredTranses = [];
         }
-    }
-
-    public ngOnInit() {
-        super.getStateSubject(BUSY_KEY)
-            .pipe(
-                tap(busy => this.busy = busy),
-                takeUntil(this.destroy$)
-            )
-            .subscribe();
     }
 
     public ngOnDestroy() {
