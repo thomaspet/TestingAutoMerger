@@ -42,7 +42,6 @@ import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from './modals/vacationpay/vacationPaySettingsModal';
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {ApiKeyComponent} from './apikey/apikeys';
-import {ApikeyLine} from './apikey/apikeyLine';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
 import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {
@@ -152,7 +151,6 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         VacationPaySettingsModal,
 
         ApiKeyComponent,
-        ApikeyLine,
         ApikeyLineModal,
 
         ImportCentralTemplateModal,
@@ -251,7 +249,6 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         LinkMenu,
 
         ApiKeyComponent,
-        ApikeyLine,
         ApikeyLineModal,
 
         WorkEditor,

@@ -529,7 +529,7 @@ export class UniBankAccountModal implements IUniModal {
                 Property: 'Label',
                 FieldType: FieldType.TEXT,
                 ReadOnly: false,
-                Label: 'Label',
+                Label: 'Beskrivelse',
             }
         ];
     }
