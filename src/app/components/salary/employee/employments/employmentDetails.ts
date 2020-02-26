@@ -5,14 +5,12 @@ import {
     Employee,
     LocalDate,
     CompanySalary,
-    RegulativeGroup,
     RegulativeStep,
     SalaryRegistry,
     TypeOfEmployment,
     SubEntity,
 } from '@uni-entities';
-import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {
@@ -23,7 +21,7 @@ import {
     CompanySalaryService,
     RegulativeGroupService,
     SubEntityService
-} from '../../../../services/services';
+} from '@app/services/services';
 import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
@@ -64,8 +62,6 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     private searchCache: any[] = [];
     private jobCodeDefaultData: Observable<any>;
     private companySalarySettings: CompanySalary;
-    private regulativeGroups: RegulativeGroup[];
-    private regulativeSteps: RegulativeStep[];
 
     constructor(
         private employmentService: EmploymentService,
@@ -80,20 +76,15 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.companySalaryService.getCompanySalary()
+        this.companySalaryService
+            .getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
             });
 
-            const hasAcessToRegulative = this.authService.hasUIPermission(this.authService.currentUser, 'ui_salary_regulative');
-            if (hasAcessToRegulative) {
-                this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
-                    this.employmentService.setRegulativeGroups(x);
-                    this.regulativeGroups = x;
-                });
-            } else {
-                this.employmentService.setRegulativeGroups([]);
-            }
+        this.regulativeGroupService
+            .getAll('', ['regulatives.steps'])
+            .subscribe(x => this.employmentService.setRegulativeGroups(x));
     }
 
     public ngOnChanges(change: SimpleChanges) {
