@@ -124,11 +124,26 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     // Check if the selected file is in .xlsx file formal
     private isValidFormat(fileName: string): boolean {
+
         const type = fileName.split(/[.]+/).pop();
         // removed txt file type since it is not in the mockup
-        if (type === 'txt' || type === 'xlsx' || type === 'xml') {
+        if (type === 'txt' || type === 'xlsx' || type === 'csv') {
             this.isValidFileFormat = true;
-            this.fileType = type === 'txt' ? ImportFileType.StandardUniFormat : ImportFileType.StandardizedExcelFormat;
+
+            switch (type) {
+                case 'txt':
+                    this.fileType = ImportFileType.StandardUniFormat;
+                    break;
+                case 'xlsx':
+                    this.fileType = ImportFileType.StandardizedExcelFormat;
+                    break;
+                case 'csv':
+                    this.fileType = ImportFileType.StandardizedCSVFormat;
+                    break;
+                default:
+                    this.fileType = ImportFileType.StandardizedExcelFormat;
+            }
+
             return true;
         }
         this.isValidFileFormat = false;

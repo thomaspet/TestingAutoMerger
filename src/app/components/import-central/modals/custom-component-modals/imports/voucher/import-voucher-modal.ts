@@ -122,15 +122,25 @@ export class ImportVoucherModal implements OnInit, IUniModal {
 
     // Check if the selected file is in .xlsx file formal
     private isValidFormat(fileName: string): boolean {
+
         const type = fileName.split(/[.]+/).pop();
         // removed txt file type since it is not in the mockup
-        if (type === 'txt' || type === 'xlsx') {
+        if (type === 'txt' || type === 'xlsx' || type === 'csv') {
             this.isValidFileFormat = true;
-            if (type === 'txt') {
-                this.isVatEnabled = false;
-                this.fileType = ImportFileType.StandardUniFormat;
-            } else {
-                this.fileType = ImportFileType.StandardizedExcelFormat;
+
+            switch (type) {
+                case 'txt':
+                    this.isVatEnabled = false;
+                    this.fileType = ImportFileType.StandardUniFormat;
+                    break;
+                case 'xlsx':
+                    this.fileType = ImportFileType.StandardizedExcelFormat;
+                    break;
+                case 'csv':
+                    this.fileType = ImportFileType.StandardizedCSVFormat;
+                    break;
+                default:
+                    this.fileType = ImportFileType.StandardizedExcelFormat;
             }
             return true;
         }
