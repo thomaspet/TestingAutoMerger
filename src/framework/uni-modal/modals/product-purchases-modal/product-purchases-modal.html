@@ -15,14 +15,25 @@
             Justering av tilgangsnivå gjøres i Innstillinger > Brukere, ved å klikke på "Roller og tilganger".
         </small>
 
-        <mat-selection-list *ngIf="singleProductMode && purchasesMatrix">
-            <mat-list-option *ngFor="let entry of purchasesMatrix"
-                [checkboxPosition]="'before'"
-                [selected]="entry.purchases[0]['_active']"
-                (click)="entry.purchases[0]['_active'] = !entry.purchases[0]['_active']">
-                {{entry.userDisplayName}}
-            </mat-list-option>
-        </mat-selection-list>
+
+        <ng-container *ngIf="singleProductMode && purchasesMatrix">
+            <input type="search" [formControl]="filterControl" placeholder="Filtrer" style="width: 17rem;">
+    
+            <section class="check-all">
+                <mat-checkbox (click)="onCheckAllChange()">
+                    <span style="font-size: 15px !important">Velg alle <strong *ngIf="purchasesMatrix?.length">({{purchasesMatrix?.length}})</strong></span>
+                </mat-checkbox>
+            </section>
+    
+            <mat-selection-list>
+                <mat-list-option *ngFor="let entry of purchasesMatrix"
+                    [checkboxPosition]="'before'"
+                    [selected]="entry.purchases[0]._active"
+                    (click)="entry.purchases[0]._active = !entry.purchases[0]._active">
+                    {{entry.userDisplayName}}
+                </mat-list-option>
+            </mat-selection-list>
+        </ng-container>
 
         <table *ngIf="!singleProductMode && purchasesMatrix" class="purchases-matrix">
             <thead>

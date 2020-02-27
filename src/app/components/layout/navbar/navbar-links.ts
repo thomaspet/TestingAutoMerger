@@ -611,6 +611,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
                     },
+                    {
+                        name: 'NAVBAR.PURCHASES',
+                        url: '/marketplace/purchases',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    },
                 ]
             },
         ]

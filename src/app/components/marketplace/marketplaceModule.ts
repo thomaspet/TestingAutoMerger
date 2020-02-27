@@ -10,6 +10,7 @@ import {MarketplaceIntegrations, FilterIntegrationsPipe} from './integrations/ma
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
 import {MatTooltipModule} from '@angular/material';
+import {ProductPurchases} from './product-purchases/productPurchases';
 
 @NgModule({
     imports: [
@@ -27,7 +28,8 @@ import {MatTooltipModule} from '@angular/material';
         MarketplaceModules,
         MarketplaceIntegrations,
         SubscribeModal,
-        FilterIntegrationsPipe
+        FilterIntegrationsPipe,
+        ProductPurchases,
     ],
     entryComponents: [
         SubscribeModal,

@@ -100,7 +100,6 @@ export class MarketplaceModules implements AfterViewInit {
                     });
                 }
                 this.autobankAgreements = res[1] || [];
-
                 const products = res[2] || [];
                 this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
                 this.extensions = products
