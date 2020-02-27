@@ -349,40 +349,6 @@
                 ]
               }
             },
-            "ext02-rc": {
-              "aot": false,
-              "optimization": false,
-              "buildOptimizer": false,
-              "outputHashing": "all",
-              "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
-              "namedChunks": true,
-              "vendorChunk": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/themes/logo.svg",
-                  "with": "src/themes/ext02/logo.svg"
-                },
-                {
-                  "replace": "src/themes/navbar_logo.svg",
-                  "with": "src/themes/ext02/logo.svg"
-                },
-                {
-                  "replace": "src/themes/theme.ts",
-                  "with": "src/themes/theme.ext02.ts"
-                },
-                {
-                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
-                }
-              ],
-              "stylePreprocessorOptions": {
-                "includePaths": [
-                  "src/themes/ext02"
-                ]
-              }
-            },            
             "ext02": {
               "aot": false,
               "optimization": false,
@@ -417,6 +383,44 @@
                 ]
               }
             },
+            "ext02-rc": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext02-rc.ts"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext02.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext02"
+                ]
+              }
+            },            
             "ext02-serve": {
               "aot": false,
               "optimization": false,
@@ -428,6 +432,10 @@
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext02-rc.ts"
+                },
                 {
                   "replace": "src/themes/logo.svg",
                   "with": "src/themes/ext02/logo.svg"
