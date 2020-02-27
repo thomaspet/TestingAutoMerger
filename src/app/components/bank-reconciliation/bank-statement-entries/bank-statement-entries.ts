@@ -86,8 +86,8 @@ export class BankStatementEntries {
 
     openFileModal(entry) {
         const modalOptions = {
-            entity: 'JournalEntry',
-            entityID: entry.JournalEntryID,
+            entity: entry.JournalEntryID ? 'JournalEntry' : 'BankStatementEntry',
+            entityID: entry.JournalEntryID || entry.ID,
             singleImage: false,
             fileIDs: []
         };

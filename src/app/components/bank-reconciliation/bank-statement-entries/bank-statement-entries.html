@@ -26,7 +26,7 @@
                     </i>
 
                     <i class="material-icons go-to-journal-icon"
-                        *ngIf="showJournalEntryLink && entry?.JournalEntryID"
+                        *ngIf="(showJournalEntryLink && entry?.JournalEntryID) || (!showJournalEntryLink && entry.ID)"
                         (click)="$event.stopPropagation(); openFileModal(entry)"
                         title="Legg dokument til bilag {{ entry.JournalEntryNumber }}"> attach_file
                     </i>
