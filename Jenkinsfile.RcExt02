@@ -18,7 +18,7 @@ pipeline {
 
           //Ensure we only proccess branches that we want to actually deploy somewhere
           BRANCH_NAME = env.GIT_BRANCH
-          PUBLISH_NAME = "Bruno.unieconomy.no"
+          PUBLISH_NAME = "rcext02.unieconomy.no"
           YARN_BUILD = "build.ext02"
 
           echo "Branch  name:" + BRANCH_NAME
