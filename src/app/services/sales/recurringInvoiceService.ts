@@ -23,14 +23,7 @@ export class RecurringInvoiceService extends BizHttp<RecurringInvoice> {
         const expand = [
             'Product.VatType',
             'VatType',
-            'Dimensions.Project',
-            'Dimensions.Department',
-            'Dimensions.Dimension5',
-            'Dimensions.Dimension6',
-            'Dimensions.Dimension7',
-            'Dimensions.Dimension8',
-            'Dimensions.Dimension9',
-            'Dimensions.Dimension10',
+            'Dimensions.Info',
             'Account',
         ].join(',');
 

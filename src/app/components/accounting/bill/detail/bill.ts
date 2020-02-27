@@ -1909,7 +1909,7 @@ export class BillView implements OnInit {
         if (lines && lines.length) {
             lines.forEach(line => {
                 line.CurrencyCodeID = current.CurrencyCodeID;
-                line.CurrencyCode = current.CurrencyCode;
+                line.CurrencyCode = this.currencyCodes.find(code => code.ID === current.CurrencyCodeID);
                 if (!line.CurrencyCodeID || line.CurrencyCodeID === this.companySettings.BaseCurrencyCodeID) {
                     line.CurrencyExchangeRate = 1;
                 } else {
@@ -2671,7 +2671,7 @@ export class BillView implements OnInit {
             modalConfig: {
                 entityName: 'SupplierInvoice',
                 supplierID: bill.SupplierID,
-                currencyCode: bill.CurrencyCode.Code,
+                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID),
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 isSendForPayment: true
             }
@@ -2908,15 +2908,8 @@ export class BillView implements OnInit {
         return new Promise((resolve, reject) => {
             const invoiceGET = this.supplierInvoiceService.Get(id, [
                 'Supplier.Info.BankAccounts',
-                'JournalEntry.DraftLines.Account',
-                'JournalEntry.DraftLines.VatType',
-                'JournalEntry.DraftLines.Accrual.Periods',
-                'JournalEntry.Lines',
-                'CurrencyCode',
                 'BankAccount',
-                'DefaultDimensions',
-                'DefaultDimensions.Project',
-                'DefaultDimensions.Department',
+                'DefaultDimensions.Info',
                 'ReInvoice'
             ], true);
 
@@ -2932,30 +2925,50 @@ export class BillView implements OnInit {
                     if (flagBusy) { this.busy = false; }
                     if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
-                    this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
-                    this.sumOfPayments = sumOfPayments[0];
+                    let obs = Observable.of(true);
 
-                    this.current.next(invoice);
-                    this.currentFreeTxt = invoice.FreeTxt;
-                    this.detailsTabs[1].tooltip = this.currentFreeTxt;
-
-                    if (invoice.Supplier) {
-                        this.orgNumber = invoice.Supplier.OrgNumber;
+                    if (invoice.JournalEntryID) {
+                        obs = this.journalEntryService.Get(invoice.JournalEntryID,
+                            ['DraftLines.Account', 'DraftLines.VatType', 'DraftLines.Accrual.Periods', 'Lines']);
                     }
-                    this.setupToolbar();
-                    this.addTab(+id);
-                    this.flagActionBar(actionBar.delete, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
-                    this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
-                    this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
-                    this.loadActionsFromEntity();
-                    this.checkLockStatus();
 
-                    // set diff to null until the journalentry is loaded, the data is calculated correctly
-                    // through the onJournalEntryManualDataLoaded event
-                    this.sumVat = null;
-                    this.sumRemainder = null;
+                    const setupInvoice = () => {
+                        this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
+                        this.sumOfPayments = sumOfPayments[0];
 
-                    resolve('');
+                        this.current.next(invoice);
+                        this.currentFreeTxt = invoice.FreeTxt;
+                        this.detailsTabs[1].tooltip = this.currentFreeTxt;
+
+                        if (invoice.Supplier) {
+                            this.orgNumber = invoice.Supplier.OrgNumber;
+                        }
+                        this.setupToolbar();
+                        this.addTab(+id);
+                        this.flagActionBar(actionBar.delete, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
+                        this.flagActionBar(actionBar.ocr, invoice.StatusCode <= StatusCodeSupplierInvoice.Draft);
+                        this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
+                        this.loadActionsFromEntity();
+                        this.checkLockStatus();
+
+                        // set diff to null until the journalentry is loaded, the data is calculated correctly
+                        // through the onJournalEntryManualDataLoaded event
+                        this.sumVat = null;
+                        this.sumRemainder = null;
+
+                        resolve('');
+                    };
+
+                    obs.subscribe((response) => {
+                        if (response) {
+                            invoice.JournalEntry = response;
+                        }
+                        setupInvoice();
+                    }, err => {
+                        this.toast.addToast('Klarte ikke hente bilagslinjer', ToastType.warn, 5,
+                        'Noe gikk galt ved henting av bilagslinjer. Det kan være lurt å åpne bildet på nytt.');
+                        setupInvoice();
+                    });
                 },
                 err => {
                     this.errorService.handle(err);
@@ -3685,7 +3698,7 @@ export class BillView implements OnInit {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
-                currencyCode: bill.CurrencyCode.Code,
+                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID),
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 entityID: bill.SupplierID,
                 supplierID: bill.SupplierID,
