@@ -209,15 +209,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'VatType',
         'Account',
         'Account.MandatoryDimensions',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10',
+        'Dimensions.Info',
     ];
 
     constructor(
@@ -503,7 +495,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         ).pipe(
             switchMap(res => {
                 const invoice: CustomerInvoice = res[0];
-                const invoiceItems: CustomerInvoiceItem[] = res[1];
+                const invoiceItems: CustomerInvoiceItem[] = res[1].map(item => {
+                    if (item.Dimensions) {
+                        item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                    }
+                    return item;
+                });
 
                 invoice.Items = invoiceItems;
 
@@ -1582,9 +1579,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const navigateAfterSave = !this.invoice.ID;
+
         const saveRequest = (this.invoice.ID > 0)
             ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             : this.customerInvoiceService.Post(this.invoice);
+
 
         return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
             if (canSave) {

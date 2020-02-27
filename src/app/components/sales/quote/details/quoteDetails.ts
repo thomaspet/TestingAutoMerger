@@ -178,15 +178,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
         'Product.VatType',
         'VatType',
         'Account',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10',
+        'Dimensions.Info'
     ];
 
     constructor(
@@ -408,7 +400,12 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             )
         ).map(res => {
             const quote: CustomerQuote = res[0];
-            const quoteItems: CustomerQuoteItem[] = res[1];
+            const quoteItems: CustomerQuoteItem[] = res[1].map(item => {
+                if (item.Dimensions) {
+                    item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                }
+                return item;
+            });
 
             quote.Items = quoteItems;
             return quote;
