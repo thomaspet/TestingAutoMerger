@@ -14,6 +14,7 @@ export interface IMatchEntry {
     StageGroupKey?: string;
     Tagged?: boolean;
     TagSum?: number;
+    JournalEntryID?: number;
 }
 
 export class BankStatmentMatchDto {
