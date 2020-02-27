@@ -828,6 +828,12 @@ export class TradeItemTable {
         if (event.field === 'Product') {
             if (!event.newValue) {
                 noProduct = true;
+            } else if (updatedRow.Product && updatedRow.Product.Dimensions && updatedRow.Product.Dimensions.Info) {
+                // Set row to use product dimensions and reset ID
+                updatedRow.Dimensions = updatedRow.Product.Dimensions;
+                updatedRow.DimensionsID = 0;
+                updatedRow.Dimensions = this.customDimensionService.mapDimensions(updatedRow.Dimensions);
+                triggerChangeDetection = true;
             } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
