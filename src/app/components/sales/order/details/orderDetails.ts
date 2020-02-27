@@ -194,15 +194,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     private orderItemExpands: string[] = [
         'Product.VatType',
         'VatType',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10',
+        'Dimensions.Info',
         'Account',
         'Dimensions.Project.ProjectTasks',
     ];
@@ -469,7 +461,12 @@ export class OrderDetails implements OnInit, AfterViewInit {
             )
         ).map(res => {
             const order: CustomerOrder = res[0];
-            const orderItems: CustomerOrderItem[] = res[1];
+            const orderItems: CustomerOrderItem[] = res[1].map(item => {
+                if (item.Dimensions) {
+                    item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                }
+                return item;
+            });
 
             order.Items = orderItems;
             return order;

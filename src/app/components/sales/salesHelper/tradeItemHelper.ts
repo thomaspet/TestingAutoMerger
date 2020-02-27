@@ -33,6 +33,7 @@ export class TradeItemHelper  {
 
                 if (item.Dimensions && !item.Dimensions.ID) {
                     item.Dimensions['_createguid'] = this.guidService.guid();
+                    item.Dimensions.Project = null;
                 }
 
                 // ID is enough
@@ -63,6 +64,16 @@ export class TradeItemHelper  {
 
                 if (!item.DiscountPercent) {
                     item.DiscountPercent = 0; // backend doesnt want this to be null
+                }
+
+                // Remove objects before save!
+                if (item.Dimensions) {
+                    item.Dimensions.Project = null;
+                    item.Dimensions.Department = null;
+
+                    for (let i = 5; i <= 10; i++) {
+                        item.Dimensions[`Dimension${i}`] = null;
+                    }
                 }
 
                 return item;
