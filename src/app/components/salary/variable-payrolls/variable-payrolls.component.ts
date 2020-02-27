@@ -30,6 +30,7 @@ import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
+import { map } from 'rxjs/operators';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -130,19 +131,7 @@ export class VariablePayrollsComponent {
     private saveVariablePayrolls(done: (message: string) => void) {
         this.table.finishEdit();
         this.selectedPayrollrun.transactions = this.filteredTransactions
-        .map(trans => {
-            if (trans.Dimensions) {
-                trans.Dimensions._createguid = this.payrollrunService.getNewGuid();
-            }
-            if (trans.Supplements) {
-                trans.Supplements.map(x => x._createguid = this.payrollrunService.getNewGuid());
-            }
-            trans.EmploymentID = trans.EmploymentID || 0;
-            trans.Employee = null;
-            trans.Wagetype = null;
-            trans.employment = null;
-
-            return trans; })
+        .map(trans => this.salaryTransViewService.prepareTransForSave(trans))
         .filter(row => !row['_isEmpty']);
 
         this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
@@ -348,6 +337,10 @@ export class VariablePayrollsComponent {
                 this.mapAccountToTrans(row);
                 this.mapVatToTrans(row);
                 obs = this.suggestVatType(row);
+            }
+
+            if (event.field.startsWith('Dimensions')) {
+                row.Dimensions = row.Dimensions || new Dimensions();
             }
 
             if (event.field === 'Dimensions.Project') {
@@ -711,11 +704,14 @@ export class VariablePayrollsComponent {
 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
         rowModel.PayrollRunID = this.payrollRunID;
-        return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
-            this.filteredTransactions = this.salaryTransService.updateDataSource(this.filteredTransactions, transes);
+        return this.salaryTransService.completeTrans(rowModel)
+            .pipe(
+                map((transes: SalaryTransaction[]) => {
+                    this.filteredTransactions = this.salaryTransService.updateDataSource(this.filteredTransactions, transes);
 
-            return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
-        });
+                    return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
+                })
+            );
     }
 
     private mapEmploymentToTrans(rowModel: any) {
@@ -723,7 +719,6 @@ export class VariablePayrollsComponent {
         rowModel['EmploymentID'] = (employment) ? employment.ID : null;
 
         if (employment && employment.Dimensions) {
-
             rowModel.Dimensions = rowModel.Dimensions || {};
 
             if (employment.Dimensions.DepartmentID) {
@@ -737,7 +732,7 @@ export class VariablePayrollsComponent {
             }
         } else {
             rowModel.Dimensions = null;
-            rowModel.DimensionsID = 0;
+            rowModel.DimensionsID = null;
         }
     }
 
@@ -799,10 +794,6 @@ export class VariablePayrollsComponent {
                 event.rowModel._createguid = this.salaryTransService.getNewGuid();
             }
             this.updateSaveActions();
-        }
-
-        if (!row.DimensionsID && !row.Dimensions) {
-            row.Dimensions = new Dimensions();
         }
     }
 

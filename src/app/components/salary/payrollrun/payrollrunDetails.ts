@@ -12,7 +12,7 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
 import {
     PayrollRun, Employee, SalaryTransaction, WageType, Project, Department,
     EmployeeCategory, JournalEntry, SubEntity, Account, CompanySalary,
-    TaxDrawFactor, StdSystemType, SalaryTransactionSupplement
+    TaxDrawFactor, StdSystemType
     } from '@uni-entities';
 import {
     PayrollRunPaymentStatus, IEmployee, PayrollrunService, UniCacheService,
@@ -35,6 +35,7 @@ import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModa
 import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/services/payrollRunDetailsService';
 import { PostingSummaryModal } from '@app/components/salary/payrollrun/modals/postingSummaryModal';
 import { PaycheckSenderModal } from '@app/components/salary/payrollrun/sending/paycheckSenderModal';
+import { SalaryTransViewService } from '@app/components/salary/sharedServices/salaryTransViewService';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -141,6 +142,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private browserStorage: BrowserStorageService,
         private employeeService: EmployeeService,
+        private transViewService: SalaryTransViewService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -1266,36 +1268,10 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         }
 
         if (payrollRun.ID) {
-            payrollRun.transactions = _.cloneDeep(this.salaryTransactions
-                .filter(x => !x['_isEmpty'] && (x['_isDirty'] || x.Deleted)));
-            payrollRun.transactions.map((trans: SalaryTransaction) => {
-                if (!trans.Deleted) {
-                    if (!trans.ID) {
-                        trans['_createguid'] = this._salaryTransactionService.getNewGuid();
-                    }
-                    if (trans.Supplements) {
-                        trans.Supplements
-                            .filter(x => !x.ID)
-                            .forEach((supplement: SalaryTransactionSupplement) => {
-                                supplement['_createguid'] = this._salaryTransactionService.getNewGuid();
-                            });
-                    }
-                    if (!trans.DimensionsID && trans.Dimensions) {
-                        if (Object.keys(trans.Dimensions)
-                            .filter(x => x.indexOf('ID') > -1)
-                            .some(key => trans.Dimensions[key])) {
-                            trans.Dimensions['_createguid'] = this._salaryTransactionService.getNewGuid();
-                        } else {
-                            trans.Dimensions = null;
-                        }
-                    }
-                } else {
-                    trans.Supplements = null;
-                }
-                trans.Wagetype = null;
-                trans.Employee = null;
-                return trans;
-            });
+            payrollRun.transactions = this.salaryTransactions
+                .filter(x => !x['_isEmpty'] && (x['_isDirty'] || x.Deleted))
+                .map(trans => ({...trans}))
+                .map(trans => this.transViewService.prepareTransForSave(trans));
         }
 
         return this.payrollrunService
