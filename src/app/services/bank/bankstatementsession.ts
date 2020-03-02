@@ -73,7 +73,7 @@ export class BankStatementSession {
 
         const journalEntryQuery = `model=journalentryline&select=ID as ID,JournalEntryNumber as JournalEntryNumber`
             + `,FinancialDate as Date,InvoiceNumber as InvoiceNumber,Description as Description,Amount as Amount`
-            + ',RestAmount as OpenAmount'
+            + ',RestAmount as OpenAmount,JournalEntryID as JournalEntryID'
             + `,StatusCode as StatusCode`
             + `&filter=AccountID eq ${this.ledgerAccountID}`
             + ` and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
@@ -394,7 +394,8 @@ export class BankStatementSession {
                 JournalEntryNumber: x.JournalEntryNumber || '',
                 IsBankEntry: false,
                 Checked: false,
-                Closed: isClosed
+                Closed: isClosed,
+                JournalEntryID: x.JournalEntryID
             };
         });
     }

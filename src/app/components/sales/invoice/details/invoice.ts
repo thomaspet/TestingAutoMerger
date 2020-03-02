@@ -708,7 +708,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.invoice = invoice;
+        this.invoice = {...invoice};
         this.updateSaveActions();
     }
 

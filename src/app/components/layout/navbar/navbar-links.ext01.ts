@@ -538,7 +538,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: false
                     },
                     {
-                        name: 'Dimensjoner',
+                        name: 'NAVBAR.DIMENSION',
                         url: '/dimensions/overview/1',
                         moduleID: UniModules.UniQuery,
                         activeInSidebar: false

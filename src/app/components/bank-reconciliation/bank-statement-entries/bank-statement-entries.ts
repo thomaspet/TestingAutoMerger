@@ -2,6 +2,8 @@ import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, SimpleChang
 import {Router} from '@angular/router';
 import {IMatchEntry} from '@app/services/services';
 import {trigger, style, transition, animate, group} from '@angular/animations';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {ImageModal} from '../../common/modals/ImageModal';
 
 @Pipe({name: 'reconciliationItemFilter', pure: true})
 export class FilterPipe implements PipeTransform {
@@ -58,7 +60,7 @@ export class BankStatementEntries {
     closedEntries = 0;
     closedSum = 0;
 
-    constructor (private router: Router) {}
+    constructor (private router: Router, private modalService: UniModalService) {}
 
     ngOnChanges(changes) {
         if (changes.items) {
@@ -80,5 +82,16 @@ export class BankStatementEntries {
         const url = `/accounting/transquery?JournalEntryNumber=${number}&AccountYear=${year}&ShowCreditedLines=false`;
 
         this.router.navigateByUrl(url);
+    }
+
+    openFileModal(entry) {
+        const modalOptions = {
+            entity: entry.JournalEntryID ? 'JournalEntry' : 'BankStatementEntry',
+            entityID: entry.JournalEntryID || entry.ID,
+            singleImage: false,
+            fileIDs: []
+        };
+
+        this.modalService.open(ImageModal, {data: modalOptions});
     }
 }
