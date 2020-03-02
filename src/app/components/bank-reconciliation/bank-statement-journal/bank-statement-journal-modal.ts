@@ -7,6 +7,7 @@ import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import { IVatType } from '@uni-framework/interfaces/interfaces';
 import { tap } from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
@@ -137,7 +138,7 @@ export class BankStatementJournalModal implements IUniModal {
     public createLookupColumn(
         name: string, label: string, expandCol: string, lookupFn?: any,
         expandKey = 'ID', expandLabel = 'Name', forceDisplay?: string): UniTableColumn {
-        return new UniTableColumn(name, label, UniTableColumnType.Lookup)
+        const col = new UniTableColumn(name, label, UniTableColumnType.Lookup)
             .setDisplayField(forceDisplay || `${expandCol}.${expandLabel}`)
             .setOptions({
                 itemTemplate: (item) => {
@@ -145,7 +146,47 @@ export class BankStatementJournalModal implements IUniModal {
                 },
                 lookupFunction: lookupFn,
                 debounceTime: 180
-        });
+            });
+
+        if (name === 'Debet' || name === 'Credit') {
+            col.setOptions({
+                itemTemplate: (selectedItem) => {
+                    return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
+                },
+                lookupFunction: (searchValue) => {
+                    return this.lookupAccountByQuery(searchValue);
+                },
+                showResultAsTable: environment.isSrEnvironment,
+                resultTableConfig: {
+                    fields: [
+                        {
+                            header: 'Konto',
+                            key: 'AccountNumber',
+                            class: '',
+                            width: '100px'
+                        },
+                        {
+                            header: 'Navn',
+                            key: 'AccountName',
+                            class: '',
+                            width: '250px'
+                        },
+                        {
+                            header: 'Stikkord',
+                            key: 'Keywords',
+                            class: '',
+                            width: '150px'
+                        },
+                        {
+                            header: 'Beskrivelse',
+                            key: 'Description',
+                            class: '250px'
+                        }
+                    ],
+                },
+            });
+        }
+        return col;
     }
 
     private filterInputAllowPercent(v: string) {
@@ -165,10 +206,11 @@ export class BankStatementJournalModal implements IUniModal {
         if (isNumeric > 0) {
             filter = `startswith(accountnumber,'${lcaseText}')`;
         } else {
-            filter = `contains(accountname,'${lcaseText}')`;
+            filter = `( contains(keywords,'${lcaseText}') or contains(Description,'${lcaseText}')`
+            + ` or contains(accountname,'${lcaseText}') )`;
         }
         return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID'
+            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description'
                 , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
                 .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
     }
