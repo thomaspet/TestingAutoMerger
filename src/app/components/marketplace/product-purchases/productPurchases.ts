@@ -77,10 +77,6 @@ export class ProductPurchases implements OnInit {
             name: 'Produktkjøp', url: '/marketplace/purchases', moduleID: UniModules.Marketplace, active: true
         });
 
-        if (this.isSrEnvironment) {
-            this.tabs.push({name: 'Bank', value: ElsaProductType.BankProduct, count: 0});
-        }
-
         this.filterControl.valueChanges
             .debounceTime(200)
             .distinctUntilChanged()
