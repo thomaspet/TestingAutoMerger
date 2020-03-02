@@ -562,7 +562,8 @@ export class UniImage {
             );
         }
 
-        if (this.currentFile.Pages > 1 && this.currentFile.Name.toLowerCase().endsWith('.pdf')) {
+        const isPDF = this.currentFile.ContentType === 'application/pdf' || this.currentFile.Name.toLowerCase().endsWith('.pdf');
+        if (this.currentFile.Pages > 1 && isPDF) {
             if (this.splitAllowed && !this.readonly) {
                 items.push({
                     label: 'Del fil i to fra denne siden',
