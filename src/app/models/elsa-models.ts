@@ -34,9 +34,9 @@ export interface ElsaCompanyLicense {
     StatusCode: ElsaCompanyLicenseStatus;
     EndDate: string;
     IsDeleted: boolean;
-    DeletedAt: Date;
-    DeletedBy: string;
-    DeletedByEmail: string;
+    UpdatedAt: Date;
+    UpdatedBy: string;
+    UpdatedByEmail: string;
 }
 
 export interface ElsaPurchase {
