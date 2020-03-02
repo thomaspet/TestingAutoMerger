@@ -2925,7 +2925,7 @@ export class BillView implements OnInit {
                     if (flagBusy) { this.busy = false; }
                     if (!invoice.Supplier) { invoice.Supplier = new Supplier(); }
 
-                    let obs = Observable.of(true);
+                    let obs = Observable.of(null);
 
                     if (invoice.JournalEntryID) {
                         obs = this.journalEntryService.Get(invoice.JournalEntryID,
