@@ -75,5 +75,6 @@ export const TRANSLATION_OVERRIDES = {
         'EXPENSE': 'Utgift',
         'BANK_PRODUCTS': 'Bankprodukter',
         'PURCHASES': 'Produktkjøp',
+        'DIMENSION': 'Prosjekt og avdeling'
     }
 };
