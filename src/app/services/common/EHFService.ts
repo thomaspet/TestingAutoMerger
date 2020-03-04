@@ -51,7 +51,7 @@ export class EHFService extends BizHttp<EHFLog> {
     }
 
     public updateActivated() {
-        this.companySettingsService.Get(1, ['APOutgoing']).subscribe(settings => {
+        this.companySettingsService.Get(1, ['APOutgoing', 'APIncomming']).subscribe(settings => {
             this.companySettings$.next(settings);
         });
     }
@@ -68,9 +68,18 @@ export class EHFService extends BizHttp<EHFLog> {
     isEHFActivated(companySettings?: CompanySettings): boolean {
         const settings = companySettings || this.companySettings$.getValue();
         if (settings) {
-            return settings.APActivated && settings.APOutgoing && settings.APOutgoing.some(format => {
-                return format.Name === AP_NAME_EHF;
-            });
+            return settings.APActivated && this.activatedOutgoingOrIncomming(settings, AP_NAME_EHF);
         }
+    }
+
+    activatedOutgoingOrIncomming(settings: CompanySettings, AccessPointName: string): boolean {
+        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name === AccessPointName)) {
+            return true;
+        }
+
+        if (settings.APIncomming && settings.APIncomming.some(format => format.Name === AccessPointName)) {
+            return true;
+        }
+        return false;
     }
 }
