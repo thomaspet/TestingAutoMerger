@@ -2910,7 +2910,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (text === null) {
                         return completeCallback('');
                     }
-                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text)
+                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text, this.selectedNumberSeries.ID)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
 
