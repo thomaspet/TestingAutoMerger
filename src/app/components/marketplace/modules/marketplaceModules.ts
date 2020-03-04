@@ -151,9 +151,9 @@ export class MarketplaceModules implements AfterViewInit {
         const name = product && product.Name && product.Name.toLowerCase();
         let activationModal;
 
-        if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated(this.companySettings)) {
+        if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
             activationModal = UniActivateInvoicePrintModal;
-        } else if (name === 'ehf' && !this.ehfService.isEHFActivated(this.companySettings)) {
+        } else if (name === 'ehf' && !this.ehfService.isEHFActivated()) {
             activationModal = UniActivateAPModal;
         } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
             activationModal = ActivateOCRModal;
