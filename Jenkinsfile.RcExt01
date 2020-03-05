@@ -77,6 +77,7 @@ pipeline {
             )
           ]
         )
+        jiraSendDeploymentInfo environmentId: BRANCH_NAME, environmentName: BRANCH_NAME, environmentType: "production", site: 'unimicro.atlassian.net'
       }
     }
   }
