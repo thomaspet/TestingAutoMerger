@@ -139,6 +139,8 @@ import { RegulativeGroupListComponent } from './regulative/regulative-group-list
 import { RegulativeGroupComponent } from './regulative/regulative-group/regulative-group.component';
 import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
+import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
+import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
 
 @NgModule({
     imports: [
@@ -203,6 +205,8 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         PaycheckSenderModal,
         TimeTransferComponent,
         VariablePayrollsComponent,
+        NegativeSalaryComponent,
+        NegativeSalaryModalComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -292,7 +296,8 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         SyncWagetypesModalComponent,
         RegulativeUploadModalComponent,
         StatusAMeldingModal,
-        MakeAmeldingPaymentModal
+        MakeAmeldingPaymentModal,
+        NegativeSalaryModalComponent,
     ],
     providers: [
         PayrollRunDetailsService,
