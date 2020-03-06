@@ -1,0 +1,148 @@
+<section role="dialog" class="uni-modal">
+    <ng-container *ngIf="!isBought">
+        <ng-container *ngIf="step === 1">
+            <header>Aktiver {{productName}}</header>
+            <article>
+                Opplysningene under vil oversendes {{productName}} for aktivering av programmet.
+                Vennligst se over at opplysningene er riktige før du fortsetter.
+                Eventuelle endringer gjøres under firmainnstillinger.
+            </article>
+            <article style="padding-top: 2rem;">
+                <label class="uni-label label-left">
+                    <span>Organisasjonsnummer</span>
+                    <input type="text" [(ngModel)]="model.OrgNumber" readonly>
+                </label>
+                <label class="uni-label label-left">
+                    <span>Firmanavn</span>
+                    <input type="text" [(ngModel)]="model.CompanyName" readonly>
+                </label>
+                <label class="uni-label label-left">
+                    <span>Kontakt e-post</span>
+                    <input type="text" [(ngModel)]="model.CompanyEmail" readonly>
+                </label>
+                <label class="uni-label label-left">
+                    <span>Adresse</span>
+                    <input type="text" [(ngModel)]="model.Address" readonly>
+                </label>
+                <label class="uni-label label-left">
+                    <span>Postnummer</span>
+                    <input type="text" [(ngModel)]="model.Zip" readonly>
+                </label>
+                <label class="uni-label label-left">
+                    <span>Poststed</span>
+                    <input type="text" [(ngModel)]="model.City" readonly>
+                </label>
+                <a (click)="openLinkInNewTab(isSrEnvironment ? 'https://reise.sr-bank.no/eula' : 'https://client.traveltext.no/eula')">Les betingelser</a>
+            </article>
+        </ng-container>
+    
+        <ng-container *ngIf="step === 2 && !busy">
+            <header>Opprett administratorbruker i {{productName}}</header>
+            <article>
+                Når du har fylt ut dette skjemaet vil du motta brukernavn og passord til
+                {{productName}} på epost og kan selv
+                invitere nye brukere inn til programmet.
+            </article>
+            <article style="padding-top: 2rem;">
+                <label class="uni-label label-left">
+                    <span>Navn*</span>
+                    <input type="text" [(ngModel)]="model.UserName">
+                </label>
+                <label class="uni-label label-left">
+                    <span>Epost*</span>
+                    <input type="text" [(ngModel)]="model.UserEmail">
+                </label>
+                <label class="uni-label label-left">
+                    <span>Mobilnummer*</span>
+                    <input type="text" [(ngModel)]="model.UserPhoneNumber">
+                </label>
+                <p *ngIf="invalidInputErrorMsg?.length" style="color: red;">{{invalidInputErrorMsg}}</p>
+            </article>
+        </ng-container>
+    
+        <ng-container *ngIf="busy">
+            <header style="padding-bottom: 8rem;">Oppretter selskap og bruker i {{productName}}...</header>
+            <section class="modal-spinner-no-opacity">
+                <mat-spinner class="c2a"></mat-spinner>
+            </section>
+        </ng-container>
+    
+        <ng-container *ngIf="step === 3">
+            <header>Velkommen som bruker av {{productName}}</header>
+            <article>
+                {{productName}} er nå aktivert.
+                <br><br>Du kan logge deg på web eller vår app med brukernavn og passord du
+                mottar på epost. Dine godkjente reiser og utlegg vil automatisk bli overført til
+                {{ isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy' }}.
+                <br><br>Logg inn på web: 
+                <a (click)="openLinkInNewTab(isSrEnvironment ? 'https://reise.sr-bank.no' : 'https://client.traveltext.no')">
+                    {{ isSrEnvironment ? 'https://reise.sr-bank.no' : 'https://client.traveltext.no' }}
+                </a>
+                <br>Last ned vår {{productName}} app:
+                <a href="">Google Play</a> eller <a href="">App Store</a>
+            </article>
+        </ng-container>
+    
+        <ng-container *ngIf="!busy">
+            <footer>
+                <button *ngIf="step < 3" class="secondary pull-left" (click)="close()">
+                    Avbryt
+                </button>
+                
+                <button *ngIf="step === 1" class="c2a" (click)="step2()">
+                    Neste
+                </button>
+
+                <button *ngIf="step === 2" class="secondary" (click)="step = 1">
+                    Tilbake
+                </button>
+        
+                <button *ngIf="step === 2" class="c2a" (click)="checkInputs()">
+                    Aktiver
+                </button>
+        
+                <button *ngIf="step === 3" class="secondary" (click)="close()">
+                    Lukk
+                </button>
+
+                <button *ngIf="step === 3" class="c2a" (click)="goToChooseUsers()">
+                    Velg brukere
+                </button>
+            </footer>
+        </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="isBought">
+        <header>{{productName}} - velg brukere</header>
+        <article>
+            Valgte brukere vil automatisk motta brukernavn og passord til {{productName}} på epost.
+            <small><br>Merk at brukere som allerede finnes under et annet selskap i {{productName}} ikke kan bli lagt til.</small>
+        </article>
+
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <article style="padding-top: 2rem;">
+            <mat-selection-list>
+                <mat-list-option *ngFor="let user of users"
+                    [checkboxPosition]="'before'"
+                    [selected]="user['_selected']"
+                    (click)="user['_selected'] = !user['_selected']">
+                    <div class="row">
+                        {{user.DisplayName}}
+                        <span class="pull-right">{{user.Email}}</span>
+                    </div>
+                </mat-list-option>
+            </mat-selection-list>
+        </article>
+        <footer *ngIf="!busy">
+            <button class="secondary" (click)="close()">
+                Avbryt
+            </button>
+            <button class="c2a" (click)="inviteUsers()">
+                Lagre endringer
+            </button>
+        </footer>
+    </ng-container>
+</section>

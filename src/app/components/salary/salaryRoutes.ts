@@ -36,7 +36,8 @@ import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls
 import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
 import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
 import {OTPExportComponent} from './otpexport/otpexport.component';
-import {RegulativeComponent} from './regulative/regulative';
+import {RegulativeGroupListComponent} from './regulative/regulative-group-list/regulative-group-list.component';
+import { RegulativeGroupComponent } from './regulative/regulative-group/regulative-group.component';
 
 export const salaryRoutes: Routes = [
     {
@@ -145,6 +146,10 @@ export const salaryRoutes: Routes = [
     },
     {
         path: 'regulative',
-        component: RegulativeComponent,
+        component: RegulativeGroupListComponent,
     },
+    {
+        path: 'regulative/:id',
+        component: RegulativeGroupComponent
+    }
 ];

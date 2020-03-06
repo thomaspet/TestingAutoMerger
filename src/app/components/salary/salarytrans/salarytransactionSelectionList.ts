@@ -138,6 +138,21 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
         });
     }
 
+    public ngOnInit() {
+        this.searchControl.valueChanges
+            .debounceTime(150)
+            .pipe(
+                takeUntil(this.destroy$),
+            )
+            .subscribe(query => {
+                this.filteredEmployees = this.getFilteredEmployees();
+                setTimeout(() => {
+                    this.scrollbar.update();
+                    this.addTab();
+                });
+            });
+    }
+
     private setupState(key: string) {
         super.updateCacheKey(key);
         super.getStateSubject(REFRESH_EMPS_ACTION)
@@ -189,21 +204,6 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                         tap(() => this.taxCards = {})
                     )
                     .subscribe(() => this.updateErrors(this.employees));
-    }
-
-    public ngOnInit() {
-        this.searchControl.valueChanges
-            .debounceTime(150)
-            .pipe(
-                takeUntil(this.destroy$),
-            )
-            .subscribe(query => {
-                this.filteredEmployees = this.getFilteredEmployees();
-                setTimeout(() => {
-                    this.scrollbar.update();
-                    this.addTab();
-                });
-            });
     }
 
     public ngAfterViewInit() {

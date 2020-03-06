@@ -427,7 +427,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public createInvoicePaymentDataObjects(data: JournalEntryData[] ):
-    {id: number, payment: InvoicePaymentData, numberSeriesTaskID: number}[] {
+    {id: number, payment: InvoicePaymentData, numberSeriesID: number}[] {
         const dataToConvert = data.filter(line => !!line.InvoiceNumber);
 
         return dataToConvert.map(line => {
@@ -440,7 +440,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     CurrencyCodeID: line.CurrencyID,
                     CurrencyExchangeRate: line.CurrencyExchangeRate,
                 },
-                numberSeriesTaskID: line.NumberSeriesTaskID
+                numberSeriesID: line.NumberSeriesID
             };
         });
     }
@@ -797,15 +797,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             let currentSumDebit: number = 0;
             let currentSumCredit: number = 0;
             let lastJournalEntryFinancialDate: LocalDate;
+            let hasForeignCurrency: boolean = false;
 
             sortedJournalEntries.forEach(entry => {
                 if (doValidateBalance) {
                     if (lastJournalEntryNo !== entry.JournalEntryNo) {
                         const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
-                        if (diff !== 0) {
+                        if (diff !== 0 && !hasForeignCurrency) {
                             const message = new ValidationMessage();
                             message.Level = ValidationLevel.Error;
-                            message.Message = `Bilag ${lastJournalEntryNo || ''} går ikke i balanse.`
+                            message.Message = `Bilag ${lastJournalEntryNo || ''} går ikke i balanse. `
                                 + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
                             result.Messages.push(message);
                         }
@@ -814,6 +815,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         currentSumCredit = 0;
                         currentSumDebit = 0;
                         lastJournalEntryFinancialDate = null;
+                        hasForeignCurrency = false;
                     }
                 }
 
@@ -879,6 +881,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     }
                 }
 
+                if (entry.CurrencyID !== companySettings.BaseCurrencyCodeID) {
+                    hasForeignCurrency = true;
+                }
+
                 if (
                     (entry.DebitAccount && entry.CreditAccount)
                     || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)
@@ -934,7 +940,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             if (doValidateBalance) {
                 const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
-                if (diff !== 0) {
+                if (diff !== 0 && !hasForeignCurrency) {
                     const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo || ''}

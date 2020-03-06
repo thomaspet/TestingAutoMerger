@@ -423,12 +423,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.VariablePayrolls,
                         activeInSidebar: true
                     },
-                    // { QWER123
-                    //     name: 'NAVBAR.REGULATIVE',
-                    //     url: '/salary/regulative',
-                    //     moduleID: UniModules.Regulative,
-                    //     activeInSidebar: true
-                    // }
+                    {
+                        name: 'NAVBAR.REGULATIVE',
+                        url: '/salary/regulative',
+                        moduleID: UniModules.Regulative,
+                        activeInSidebar: true
+                    }
                 ]
             },
             {
@@ -608,6 +608,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.INTEGRATION',
                         url: '/marketplace/integrations',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    },
+                    {
+                        name: 'NAVBAR.PURCHASES',
+                        url: '/marketplace/purchases',
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
                     },

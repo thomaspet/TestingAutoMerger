@@ -2115,6 +2115,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             ? this.defaultAccountPayments.ID
                             : null;
                     }
+                    
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
                         let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
 
@@ -2125,7 +2126,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
                         journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
-                        this.addJournalEntryLines([oppositeRow, agioRow]);
+                        this.addJournalEntryLines([oppositeRow]);
                         resolve(journalEntryRow);
                     });
                 } else {
@@ -2373,15 +2374,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             filter = `Visible eq 'true' and ( isnull(AccountID,0) eq 0 ) ` +
                 `or ( ( isnull(AccountID,0) eq 0 ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted} ) ` +
-                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
+                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
         } else {
-            filter = `( contains(keywords,'${searchValue}') ) or `
+            filter = `( contains(keywords,'${searchValue}') ) or `;
             if (isNaN(parseInt(searchValue, 10))) {
                 filter += `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
                 `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
                 `or (contains(AccountName\,'${searchValue}') ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
-                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountName eq '${searchValue}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             } else {
@@ -2390,7 +2391,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
-                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountNumber eq '${parseInt(searchValue, 10)}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             }
