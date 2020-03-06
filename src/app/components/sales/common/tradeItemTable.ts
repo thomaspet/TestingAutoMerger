@@ -446,8 +446,8 @@ export class TradeItemTable {
                         return new Promise(resolve => {
                             this.modalService.open(UniProductDetailsModal, {}).onClose.subscribe(item => {
                                 if (item) {
-                                    this.productService.Get(item.ID, this.productExpands).subscribe(
-                                        product => resolve(product),
+                                    this.productService.GetAll(`filter=ID eq ${item.ID}`, this.productExpands).subscribe(
+                                        product => resolve(product && product[0]),
                                         err => {
                                             this.errorService.handle(err);
                                             resolve(null);
@@ -456,7 +456,7 @@ export class TradeItemTable {
                                 } else {
                                     resolve(null);
                                 }
-                            })
+                            });
                         });
                     }
                 }
