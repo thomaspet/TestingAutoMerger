@@ -48,7 +48,7 @@ export class BankStatementService extends BizHttp<BankStatement> {
         return this.GetAction(null, 'templates');
     }
 
-    previewImport(template: any, accountID: number, fileID: number, maxLines: number = 20) {
+    previewImport(template: any, accountID: number, fileID: number, maxLines: number = 35) {
         let params = `accountid=${accountID}&fileID=${fileID}`;
         if (maxLines) {
             params += `&maxLines=${maxLines}`;
