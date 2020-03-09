@@ -451,14 +451,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     // check if the invoice has files with unsupported formats
                     if (this.canSendEHF && invoice.StatusCode === 42001) {
                         this.customerInvoiceService.getFileList(invoice.ID).subscribe((files) => {
-                            let hasMisMatch = false;
-                            files.forEach(file => {
-                                hasMisMatch = !this.validEHFFileTypes.some(type => file.Name.includes(type));
+                            const hasMismatch = files.some(file => {
+                                const fileNameLowerCase = (file.Name || '').toLowerCase();
+                                return !this.validEHFFileTypes.some(type => fileNameLowerCase.includes(type.toLowerCase()));
                             });
 
-                            if (hasMisMatch) {
+                            if (hasMismatch) {
                                 this.toastService.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
-                                    'Denne fakturakladd har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
+                                    'Denne fakturakladden har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
                                     'lagt til som vedlegg om du velger utsendelse via EHF. ' +
                                     'Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
                             }
