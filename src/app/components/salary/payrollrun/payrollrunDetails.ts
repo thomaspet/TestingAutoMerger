@@ -1,4 +1,4 @@
-import {Observable, BehaviorSubject, Subject, of} from 'rxjs';
+import {Observable, BehaviorSubject, Subject, of, forkJoin, pipe} from 'rxjs';
 import {tap, take, switchMap, filter, finalize, map, catchError, takeUntil} from 'rxjs/operators';
 import {Component, ViewChild, OnDestroy, SimpleChanges, OnInit} from '@angular/core';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
@@ -36,6 +36,7 @@ import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/serv
 import { PostingSummaryModal } from '@app/components/salary/payrollrun/modals/postingSummaryModal';
 import { PaycheckSenderModal } from '@app/components/salary/payrollrun/sending/paycheckSenderModal';
 import { SalaryTransViewService } from '@app/components/salary/sharedServices/salaryTransViewService';
+import { SalaryHelperMethods } from '@app/components/salary/helperMethods/salaryHelperMethods';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -143,7 +144,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private browserStorage: BrowserStorageService,
         private employeeService: EmployeeService,
-        private transViewService: SalaryTransViewService
+        private transViewService: SalaryTransViewService,
+        private salaryHelperMethods: SalaryHelperMethods
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -298,7 +300,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
             super.getStateSubject(REFRESH_SUMS_KEY)
                 .pipe(takeUntil(this.destroy$))
-                .subscribe(() => this.getAllEmployeesWithNegativeSalary());
+                .subscribe(() => this.setNegativeSalaryCount());
 
             this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(count => {
                 this.accountsWithMandatoryDimensionsIsUsed = count > 0;
@@ -324,16 +326,24 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
             {
                 label: 'Nullstill lønnsavregning',
                 action: () => {
-                    this.busy = true;
-                    this.payrollRunDetailsService
-                    .resetRun(this.payrollrun$.getValue())
-                    .finally(() => this.busy = false)
-                    .subscribe(refresh => {
-                        if (refresh) {
-                            this.getData();
-                            this.updateState(REFRESH_SUMS_KEY, true, false);
-                        }
-                    });
+
+                    const resetRunConfirm$ = (!this.categories || !this.categories.length)
+                        ? of(ConfirmActions.ACCEPT)
+                        : this.checkIfEmployeesAreRemovedFromCategory(this.payrollrunID);
+                    resetRunConfirm$
+                        .pipe(
+                            filter(response => response === ConfirmActions.ACCEPT),
+                            tap(() => this.busy = true),
+                            switchMap(() => this.payrollRunDetailsService.resetRun(this.payrollrun$.getValue())),
+                            finalize(() => this.busy = false),
+                        )
+                        .subscribe(refresh => {
+                            if (refresh) {
+                                this.getData();
+                                this.updateState(REFRESH_SUMS_KEY, true, false);
+                                super.updateState(REFRESH_EMPS_ACTION, null, false);
+                            }
+                        });
                 },
                 disabled: (rowModel) => {
                     if (this.payrollrun$.getValue()) {
@@ -375,6 +385,35 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         });
     }
 
+    private checkIfEmployeesAreRemovedFromCategory(runID: number): Observable<ConfirmActions> {
+        return forkJoin(
+            this.employeeService.getEmployeeIDsAndNumbersFromSalarytransactions(runID),
+            this.employeeService.getEmployeeIDsAndNumbersFromCategories(runID)
+        )
+        .pipe(
+            map((employeeLists: [any[], any[]]) => {
+                return employeeLists[0].filter(empTrans => !employeeLists[1].some(empCat => empCat.ID === empTrans.ID));
+            }),
+            switchMap(missingEmployees => {
+                return (!missingEmployees.length) ? of(ConfirmActions.ACCEPT)
+                : this.employeesRemovedFromCategoryConfirmModal(missingEmployees.map(e => e.EmployeeNumber));
+            }));
+        }
+
+    private employeesRemovedFromCategoryConfirmModal(employeeNumbers: number[]): Observable<ConfirmActions> {
+        return this.modalService.confirm({
+            header: 'Ansatte uten kategori',
+            message: 'Du har ansatte som ikke lenger hører til en ' +
+            'kategori i denne lønnsavregningen, disse vil bli fjernet og poster til disse vil bli slettet. ' +
+            'Gjelder ansattnr ' +
+            this.salaryHelperMethods.idListString(employeeNumbers),
+            buttonLabels: {
+                accept: 'Gå videre',
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
+
     private onEmpChange(emp: Employee) {
         super.getStateSubject(SALARY_TRANS_KEY)
             .pipe(
@@ -411,7 +450,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
        this.openVacationPayModal();
     }
 
-    private getAllEmployeesWithNegativeSalary() {
+    private setNegativeSalaryCount() {
         const negativeSalaryFilter =  `model=SalaryTransaction` +
                         `&select=EmployeeID as ID,EmployeeNumber as EmployeeNumber,BusinessRelationInfo.Name as Name,sum(Sum) as Sum` +
                         `&filter=PayrollRunID eq ${this.payrollrunID} and Wagetype.Base_Payment eq 1` +
@@ -642,7 +681,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         this.getWageTypes();
         this.getPayrollRun();
         this.refreshTranses();
-        this.getEmployeeCategories();
+        this.setEmployeeCategories();
     }
 
     private getSubEntities() {
@@ -671,7 +710,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         );
     }
 
-    private getEmployeeCategories() {
+    private setEmployeeCategories() {
         this.payrollrunService
             .getCategoriesOnRun(this.payrollrunID)
             .subscribe(categories => super.updateState(CATEGORIES_KEY, categories, false));
@@ -1350,6 +1389,7 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
 
     public filterChange(tags: any[]) {
         this.refreshTranses();
-        this.getEmployeeCategories();
+        this.setEmployeeCategories();
+        super.updateState(REFRESH_EMPS_ACTION, null, false);
     }
 }
