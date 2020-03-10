@@ -2,7 +2,7 @@ import { BizHttp, UniHttp } from '@uni-framework/core/http';
 import { RegulativeGroup } from '@uni-entities';
 import { Injectable } from '@angular/core';
 import { ElsaPurchaseService } from '@app/services/elsa/elsaPurchasesService';
-import { switchMap } from 'rxjs/operators';
+import { switchMap, catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 
 @Injectable()
@@ -20,6 +20,7 @@ export class RegulativeGroupService extends BizHttp<RegulativeGroup> {
         return this.elsaPurchaseService
             .getPurchaseByProductName('LONN_UTVIDET')
             .pipe(
+                catchError((err, obs) => of(null)),
                 switchMap(p => !p
                     ? of([])
                     : super.GetAll(query, expands)
