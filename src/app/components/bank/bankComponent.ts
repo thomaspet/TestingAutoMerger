@@ -1234,14 +1234,15 @@ export class BankComponent {
             });
         } else {
             this.modalService.open(UniSendPaymentModal, {
-                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true , count: count}
-            }).onClose.subscribe( res => {
-                doneHandler(res);
-                if (res === 'Sendingen er fullført') {
-                    // this.toastService.addToast('Jobb startet.', ToastType.good, ToastTime.long,
-                    // 'Utbetaling satt igang, resten skjer automatisk. Dette kan ta litt tid, avhengig av antall betalinger.');
+                closeOnClickOutside: false,
+                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true, count: count}
+            }).onClose.subscribe( (res: boolean) => {
+                if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    doneHandler('');
+                } else {
+                    doneHandler('Sending avbrutt.');
                 }
             },
             err => doneHandler('Feil ved sending av autobank'));
@@ -1441,15 +1442,17 @@ export class BankComponent {
         // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
         } else if (this.agreements.length) {
             this.modalService.open(UniSendPaymentModal, {
+                closeOnClickOutside: false,
                 data: { PaymentIds: paymentIDs, hasTwoStage: this.companySettings.TwoStageAutobankEnabled }
             }).onClose.subscribe(res => {
-                doneHandler(res);
-
-                this.tickerContainer.getFilterCounts();
-                this.tickerContainer.mainTicker.reloadData();
-                this.tickerContainer.mainTicker.table.clearSelection();
-            },
-            err => doneHandler('Feil ved sending av autobank'));
+                if (res) {
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+                    doneHandler('');
+                } else {
+                    doneHandler('Sending avbrutt.');
+                }
+            });
         }
     }
 
