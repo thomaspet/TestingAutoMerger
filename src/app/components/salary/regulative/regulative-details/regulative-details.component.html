@@ -1,0 +1,21 @@
+<header>
+    <i class="material-icons regulative-close-icon" (click)="closeRegulativeDetail()">close</i>
+    <section><h2>Hovedlønnstabell</h2></section>
+    <uni-toolbar-validation [validationMessages]="validationMessages"></uni-toolbar-validation>
+    <button class="good" (click)="closeRegulativeDetail(true)">Oppdater regulativ</button>
+</header>
+<article>
+    <uni-form class="regulative-form" [fields]="fields$" [config]="config$" [model]="model$" (changeEvent)="formChange($event)"></uni-form>
+    <section *ngIf="(model$ | async).ID" class="regulative-step-table">
+        <button (click)="exportRegulative()"
+            class="regulative-export secondary c2a"
+                [attr.aria-busy]="exporting">
+                <i class="material-icons">save_alt</i>
+                Export
+        </button>
+        <ag-grid-wrapper
+            [config]="tableConfig"
+            [resource]="lookupFunction">
+        </ag-grid-wrapper>
+    </section>
+</article>
