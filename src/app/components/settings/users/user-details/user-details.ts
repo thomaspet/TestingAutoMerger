@@ -9,7 +9,7 @@ import {UniRoleModal} from '../role-modal/role-modal';
 import {AuthService} from '@app/authService';
 import {ActivateAutobankModal} from '../activate-autobank-modal/activate-autobank-modal';
 import {ResetAutobankPasswordModal} from '../reset-autobank-password-modal/reset-autobank-password-modal';
-import {ElsaProduct, ElsaPurchase} from '@app/models';
+import {ElsaProduct, ElsaPurchase, ElsaProductType} from '@app/models';
 import {
     RoleService,
     UserRoleService,
@@ -194,7 +194,7 @@ export class UserDetails {
         }
 
         const filteredProducts = this.products.filter(product => {
-            return product.ProductTypeName === 'Module' && product.Name !== 'Complete';
+            return product.ProductType === ElsaProductType.Module && product.Name !== 'Complete';
         });
 
         // This can be removed when Complete is gone as a product in prod
