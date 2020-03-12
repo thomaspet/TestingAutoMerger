@@ -2671,7 +2671,7 @@ export class BillView implements OnInit {
         }
 
         paymentData['_accounts'] = this.companySettings.BankAccounts.filter(acc => acc.BankAccountType === 'company');
-        paymentData['FromBankAccouctID'] = this.companySettings.CompanyBankAccountID;
+        paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
             header: 'Legg til i betalingsliste for leverandør-faktura: ' + (bill.InvoiceNumber || ''),
