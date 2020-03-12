@@ -29,6 +29,8 @@ const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the
 const BUSY_KEY = 'transes_busy';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
 const DIRTY_FLAG: string = '_isDirty';
+const PROJECT_FIELD: string = '_Project';
+const DEPARTMENT_FIELD: string = '_Department';
 
 @Component({
     selector: 'salary-transactions-employee',
@@ -476,20 +478,25 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
 
     private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction[]> {
         const index = this.getTransIndex(rowModel);
-
         rowModel.PayrollRunID = rowModel.PayrollRunID || this.payrollRunID;
         rowModel.EmployeeID = rowModel.EmployeeID || this.employeeID;
         return this.salaryTransService
             .completeTrans(rowModel)
             .pipe(
                 map(transes => {
-                    transes.forEach(trans => trans[DIRTY_FLAG] = true);
+                    transes.forEach(trans => this.transferFrontendFieldsAndMarkDirty(rowModel, trans));
                     this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
                     return index < 0
                         ? [...transes]
                         : [...transes.slice(1)];
                 })
             );
+    }
+
+    private transferFrontendFieldsAndMarkDirty(from: SalaryTransaction, to: SalaryTransaction): void {
+        to[DIRTY_FLAG] = true;
+        to[PROJECT_FIELD] = from[PROJECT_FIELD];
+        to[DEPARTMENT_FIELD] = from[DEPARTMENT_FIELD];
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction): void {
