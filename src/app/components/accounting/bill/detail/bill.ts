@@ -2270,7 +2270,7 @@ export class BillView implements OnInit {
 
                         list.push(
                             {
-                                label: 'Legg til del-betaling',
+                                label: 'Tilpasset betaling',
                                 action: (done) => this.addPayment(done),
                                 main: roundTo(this.current.getValue().RestAmount) > this.sumOfPayments.Amount,
                                 disabled: false
@@ -2670,13 +2670,16 @@ export class BillView implements OnInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
+        paymentData['_accounts'] = this.companySettings.BankAccounts.filter(acc => acc.BankAccountType === 'company');
+        paymentData['FromBankAccouctID'] = this.companySettings.CompanyBankAccountID;
+
         const modal = this.modalService.open(UniRegisterPaymentModal, {
             header: 'Legg til i betalingsliste for leverandør-faktura: ' + (bill.InvoiceNumber || ''),
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
                 supplierID: bill.SupplierID,
-                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID),
+                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID).Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 isSendForPayment: true
             }
@@ -3712,7 +3715,7 @@ export class BillView implements OnInit {
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
-                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID),
+                currencyCode: this.currencyCodes.find(code => code.ID === bill.CurrencyCodeID).Code,
                 currencyExchangeRate: bill.CurrencyExchangeRate,
                 entityID: bill.SupplierID,
                 supplierID: bill.SupplierID,
