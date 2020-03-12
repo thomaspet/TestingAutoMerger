@@ -163,7 +163,12 @@ export class UniAttachments {
         const data = new FormData();
 
         if (this.canSendEHF) {
-            if (!this.validEHFFileTypes.some(type => file['name'].includes(type))) {
+            const invalidFileType = !this.validEHFFileTypes.some(type => {
+                const fileName = (file['name'] || '').toLowerCase();
+                return fileName.includes(type.toLowerCase());
+            });
+
+            if (invalidFileType) {
                 this.toast.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
                 'Du har valgt en fil som ikke er godkjent som vedlegg for EHF, og vil ikke bli lagt til som vedlegg ' +
                 'om du velger utsendelse via EHF. Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
