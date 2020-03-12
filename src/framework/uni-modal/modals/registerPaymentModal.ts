@@ -68,7 +68,8 @@ export class UniRegisterPaymentModal implements IUniModal {
     private companySettings: CompanySettings;
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
-    public isRegisterButtonDisabled: boolean = false;
+    isRegisterButtonDisabled: boolean = false;
+    accounts: any[] = [];
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -86,6 +87,8 @@ export class UniRegisterPaymentModal implements IUniModal {
             this.config.hideBankCharges = true;
         }
         const paymentData = this.options.data || {};
+
+        this.accounts = paymentData._accounts || [];
 
         if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'SupplierInvoice' ||
             this.config.entityName === 'JournalEntryLine') {
@@ -395,6 +398,23 @@ export class UniRegisterPaymentModal implements IUniModal {
                     decimalLength: 2,
                     decimalSeparator: ','
                 }
+            },
+            <any> {
+                EntityType: 'InvoicePaymentData',
+                Property: 'FromBankAccountID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Betaling fra konto',
+                Hidden: !this.config.isSendForPayment,
+                Options: {
+                    source: this.accounts,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item && item.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name) : '';
+                    },
+                    debounceTime: 200,
+                    hideDeleteButton: true,
+                    addEmptyValue: true
+                },
             },
             <any> {
                 EntityType: 'InvoicePaymentData',
