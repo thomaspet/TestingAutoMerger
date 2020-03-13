@@ -409,7 +409,9 @@ export class UniRegisterPaymentModal implements IUniModal {
                     source: this.accounts,
                     valueProperty: 'ID',
                     template: (item) => {
-                        return item && item.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name) : '';
+                        return item && item.Label
+                        ? (item.AccountNumber + ' - ' + item.Label)
+                        : item && item.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name) : '';
                     },
                     debounceTime: 200,
                     hideDeleteButton: true,
