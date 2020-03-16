@@ -569,7 +569,12 @@ export class TableDataService {
                     filterString += (`${filter.operator}(${filter.field},'${filterValue}')`);
                 } else {
                     // Logical operator
-                    filterString += `${this.getFieldValue(filter.field, filter.operator)} ${filter.operator} '${filterValue}'`;
+                    if (!filter.isDate) {
+                        filterString += `${this.getFieldValue(filter.field, filter.operator)} ${filter.operator} '${filterValue}'`;
+                    } else {
+                        // Because some fields like CreatedAt has time in the value
+                        filterString += this.getDateFilterString(filter, filterValue);
+                    }
                 }
             }
         });
@@ -582,8 +587,13 @@ export class TableDataService {
         if (filterString !== '') {
             filterString = `( ${filterString} )`;
         }
-
         return filterString;
+    }
+
+    private getDateFilterString(filter, filterValue) {
+        const date1 = moment(filterValue, 'YYYY-MM-DD');
+        const date2 = moment(filterValue, 'YYYY-MM-DD').add(1, 'days');
+        return `(${filter.field} ge '${date1.format('YYYY-MM-DD')}' and ${filter.field} lt '${date2.format('YYYY-MM-DD')}')`;
     }
 
     private getFieldValue(field, operator) {

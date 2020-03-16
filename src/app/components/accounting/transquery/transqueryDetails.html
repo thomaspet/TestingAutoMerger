@@ -5,7 +5,7 @@
         <a (click)="resetConfiguredFilter()">Trykk her </a>
         for å nullstille søket og vise alle feltene.
     </section>
-
+    <button (click)="toExcel()" class="c2a" style="float: right">Eksporter til excel</button>
     <uni-form
         *ngIf="!useConfiguredFilter"
         class="transquery-filter-form"
