@@ -829,7 +829,7 @@ export class TransqueryDetails implements OnInit {
     public toExcel() {
         this.loading$.next(true);
         let urlParams = new HttpParams();
-        const filtersFromUniTable = urlParams.get('filter');
+        const filtersFromUniTable = this.table.getFilterString();
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
         const searchParams = _.cloneDeep(this.searchParams$.getValue());
         // Find the searchvalue
