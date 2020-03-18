@@ -15,7 +15,8 @@ import {BankStatementJournalModal} from './bank-statement-journal/bank-statement
 import {ClosedReconciliations} from './closed-reconciliations/closed-reconciliations';
 import {BankFileEditor} from './bank-statement-upload-modal/bank-file-editor';
 import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
-import { MatCheckboxModule } from '@angular/material';
+import {BankStatementRulesModal} from './bank-statement-rules/bank-statement-rules';
+import {QueryBuilder, QueryBuilderItem} from './bank-statement-rules/query-builder/query-builder';
 
 @NgModule({
     imports: [
@@ -27,7 +28,6 @@ import { MatCheckboxModule } from '@angular/material';
         UniFrameworkModule,
         AppCommonModule,
         AppPipesModule,
-        MatCheckboxModule
     ],
     declarations: [
         BankReconciliation,
@@ -38,11 +38,15 @@ import { MatCheckboxModule } from '@angular/material';
         BankStatementJournalModal,
         BankFileEditor,
         ClosedReconciliations,
-        BankStatementSettings
+        BankStatementSettings,
+        BankStatementRulesModal,
+        QueryBuilder,
+        QueryBuilderItem
     ],
     entryComponents: [
         BankStatementUploadModal,
         BankStatementJournalModal,
+        BankStatementRulesModal,
         BankFileEditor,
         BankStatementSettings
     ]

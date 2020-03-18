@@ -1,13 +1,20 @@
 .uni-modal
     min-width: 90vw
 
-    header label
-        font-weight: 400
-        font-size: 15px
-        color: var(--text-color)
-        margin-left: 2rem
-        select
-            margin-left: 1rem
+    header
+        label
+            font-weight: 400
+            font-size: 15px
+            color: var(--text-color)
+            margin-left: 2rem
+            select
+                margin-left: 1rem
+
+        .rules-dropdown
+            margin-left: auto
+
+        ::ng-deep .close-button
+            margin-left: 2rem
 
 footer
     mat-checkbox

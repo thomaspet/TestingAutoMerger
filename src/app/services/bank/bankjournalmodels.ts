@@ -1,4 +1,5 @@
 export class DebitCreditEntry {
+    public EntryID: number;
     public FinancialDate: Date;
 
     public Debet: IAccount;

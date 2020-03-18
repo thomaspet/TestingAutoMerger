@@ -247,11 +247,8 @@ export class AuthService {
                             });
                         },
                         () => {
-                            this.storage.removeOnUser(
-                                'lastActiveCompanyKey'
-                            );
-                            this.clearAuthAndGotoLogin();
-                            this.setLoadIndicatorVisibility(false);
+                            this.storage.removeOnUser('lastActiveCompanyKey');
+                            this.idsLogout();
                         }
                     );
                 }
@@ -408,8 +405,9 @@ export class AuthService {
     public cleanStorageAndRedirect() {
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
-        this.jwt = undefined;
         this.activeCompany = undefined;
+        this.jwt = undefined;
+        this.token$.next(undefined);
         this.setLoadIndicatorVisibility(false);
 
         if (!this.router.url.includes('init')) {

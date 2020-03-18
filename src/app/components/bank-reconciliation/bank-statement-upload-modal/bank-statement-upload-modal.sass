@@ -9,40 +9,29 @@ footer
     button.c2a, button.good
         min-width: 8rem
 
-.bank-statement-upload
-    display: flex
-    align-items: center
-    width: 8rem
-    height: 36px
-    cursor: pointer
-    margin-left: 1rem
-    padding: 0 16px 0 14px
-    border-radius: 3px
-    color: #fff
-    background: #1565c0
-    &:hover
-        background: lighten(#1565c0, 10%)
-    i.material-icons
-        font-size: 20px
-        margin-right: 5px
+.uni-label
     span
-        margin-left: 5px
-    input
-        visibility: hidden
-        width: 0px
-        height: 0px
+        width: 9rem
+
+    .upload-button
+        display: inline-flex
+        align-items: center
+        justify-content: flex-end
+        color: var(--color-c2a)
+        font-weight: 500
+        font-size: 15px
+        cursor: pointer
+        margin-right: .5rem
+        i.material-icons
+            margin-right: .5rem
+        input
+            visibility: hidden
+            width: 0px
+            height: 0px
 
 .file-select
-    border-top: 1px solid #cccccc
+    border-top: 1px solid var(--border-color)
     padding-top: 1rem
-
-    .button-section
-        display: flex
-        align-items: center
-        margin-bottom: 1rem
-
-        .select-file-label
-            flex: 1
 
 ul
     max-height: 25rem
@@ -79,11 +68,6 @@ ul
         &.selected
             background: rgba(0,145,255,0.15)
             color: #1565C0
-
-label.uni-label
-    display: inline-flex
-    span
-        width: 9rem
 
 .invalid-format
     margin-top: 1rem
