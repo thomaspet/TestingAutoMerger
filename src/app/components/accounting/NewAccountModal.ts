@@ -36,13 +36,13 @@ declare const _; // lodash
 
             </article>
             <footer>
-                <button (click)="createNewAccountAndCloseModal('Customer')" class="good" [disabled]="!selectedItem">
+                <button (click)="close()" class="secondary">Avbryt</button>
+                <button (click)="createNewAccountAndCloseModal('Customer')" class="c2a" [disabled]="!selectedItem">
                     Opprett som kunde
                 </button>
-                <button (click)="createNewAccountAndCloseModal('Supplier')" class="good" [disabled]="!selectedItem">
+                <button (click)="createNewAccountAndCloseModal('Supplier')" class="c2a" [disabled]="!selectedItem">
                     Opprett som leverandør
                 </button>
-                <button (click)="close()" class="bad">Avbryt</button>
             </footer>
         </section>
     `
