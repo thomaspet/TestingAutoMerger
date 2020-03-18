@@ -41,9 +41,8 @@ declare const module;
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearchAttr implements OnInit, OnChanges {
-    @ViewChild('container', { static: false })
-    private container: ElementRef;
-
+    @ViewChild('container', { static: false }) container: ElementRef;
+    @ViewChild('resultList', { static: false }) resultListElement: ElementRef;
     @Input()
     public config: IUniSearchConfig;
 
@@ -307,6 +306,7 @@ export class UniSearchAttr implements OnInit, OnChanges {
                     this.openSearchResult();
                     return;
                 }
+
                 if (this.selectedIndex < (this.lookupResults.length - 1)) {
                     this.selectedIndex++;
                     this.scrollToListItem(this.selectedIndex);
@@ -356,23 +356,17 @@ export class UniSearchAttr implements OnInit, OnChanges {
     }
 
     private scrollToListItem(index: number) {
-        const topPadding = this.heightOfNewButtonPadding;
-        const box = this.container.nativeElement;
-        const tableBody = box.querySelector('tbody');
-        const currItem = <HTMLElement>tableBody.children[index];
-        const borderBottomOfList = 1;
-        const bottomOfList = box.scrollTop + box.offsetHeight - currItem.offsetHeight + borderBottomOfList;
-        const topOfList = box.scrollTop;
-        const topOfCurrentItem = currItem.offsetTop + topPadding;
-        const bottomOfCurrentItem = currItem.offsetTop + currItem.offsetHeight + topPadding;
-        const heightOfList = box.offsetHeight;
+        try {
+            const list = this.resultListElement.nativeElement;
+            const item: HTMLElement = list.children[index];
+            item.scrollIntoView({
+                block: 'nearest'
+            });
 
-        if (topOfCurrentItem <= topOfList) {
-            box.scrollTop = topOfCurrentItem;
-        } else if (bottomOfCurrentItem > bottomOfList) {
-            box.scrollTop = bottomOfCurrentItem - heightOfList;
+            this.changeDetector.markForCheck();
+        } catch (e) {
+            console.error(e);
         }
-        this.changeDetector.markForCheck();
     }
 
     private openSearchResult() {

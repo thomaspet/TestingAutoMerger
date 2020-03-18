@@ -402,6 +402,8 @@ export class UniFormAutocomplete extends BaseControl {
             return;
         }
 
-        currItem.scrollIntoView(false);
+        currItem.scrollIntoView({
+            block: 'nearest'
+        });
     }
 }

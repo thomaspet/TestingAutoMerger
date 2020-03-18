@@ -28,9 +28,9 @@
             <mat-spinner [diameter]="35"></mat-spinner>
         </section>
 
-        <section *ngIf="!(loading$ | async)" class="result-container" #optionContainer>
+        <section *ngIf="!(loading$ | async)" class="result-container">
             <!-- List view -->
-            <section *ngIf="!options.resultTableColumns" class="results">
+            <section *ngIf="!options.resultTableColumns" #optionContainer class="results">
                 <section *ngFor="let item of lookupResults; let idx = index"
                     (click)="select(item, true)"
                     class="dropdown-menu-item"

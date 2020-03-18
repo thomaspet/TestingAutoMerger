@@ -351,11 +351,12 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     private scrollToListItem() {
-        if (this.itemDropdown && this.itemDropdown.nativeElement) {
-            const item = this.itemDropdown.nativeElement.children[this.focusedIndex];
-            if (item) {
-                item.scrollIntoView({block: 'nearest'});
-            }
+        try {
+            const index = this.showNotSelectedOption ? this.focusedIndex + 1 : this.focusedIndex;
+            const item = this.itemDropdown.nativeElement.children[index];
+            item.scrollIntoView({block: 'nearest'});
+        } catch (e) {
+            console.error(e);
         }
     }
 
