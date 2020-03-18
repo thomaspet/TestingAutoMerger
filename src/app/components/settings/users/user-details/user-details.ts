@@ -124,21 +124,21 @@ export class UserDetails {
 
         if (this.user.StatusCode === UserStatus.Active) {
             if (this.companyHasAutobank) {
-                if (this.user.BankIntegrationUserName) {
-                    const authenticatedUser = this.authService.currentUser;
-                    if (authenticatedUser && authenticatedUser.IsAutobankAdmin) {
+                const authenticatedUser = this.authService.currentUser;
+                if (authenticatedUser && authenticatedUser.IsAutobankAdmin) {
+                    if (this.user.BankIntegrationUserName) {
                         actions.push({
                             label: 'Tilbakestill autobank passord',
                             action: (user: User) => {
                                 this.modalService.open(ResetAutobankPasswordModal, {data: this.user});
                             }
                         });
+                    } else {
+                        actions.push({
+                            label: 'Registrer som bankbruker',
+                            action: () => this.registerBankUser()
+                        });
                     }
-                } else {
-                    actions.push({
-                        label: 'Registrer som bankbruker',
-                        action: () => this.registerBankUser()
-                    });
                 }
             }
 
