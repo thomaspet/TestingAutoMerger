@@ -548,6 +548,15 @@ export class BankComponent {
                 disabled: false,
                 main: true
             });
+
+            this.actions.push({
+                label: 'Endre status til bokført og betalt',
+                action: (done, file) => {
+                    done('Status oppdatert');
+                    this.updatePaymentStatusToPaid(done);
+                },
+                disabled: this.rows.length === 0
+            });
         }
     }
 
