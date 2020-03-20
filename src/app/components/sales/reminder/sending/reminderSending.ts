@@ -521,6 +521,10 @@ export class ReminderSending implements OnInit {
             .setContextMenu([{
                 action: (rows) => this.openEditModal(rows),
                 label: 'Rediger linje',
+            },
+            {
+                action: (rows) => this.openReport(rows),
+                label: 'Forhåndsvis',
             }])
             .setColumns([
                 jobNumberCol, reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol,
@@ -575,5 +579,31 @@ export class ReminderSending implements OnInit {
             'Du har en aktiv integrasjon for purring/inkasso. Standardfunksjonaliteten for disse funksjonene er derfor deaktivert.');
 
             done();
+    }
+
+    private openReport(reminder: any) {
+        this.reportDefinitionService
+            .getReportByName('Purring')
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((report) => {
+                report.parameters = [
+                    {
+                        Name: 'CustomerInvoiceID',
+                        value: reminder.InvoiceID
+                    },
+                    {
+                        Name: 'ReminderNumber',
+                        value: reminder.ReminderNumber
+                    },
+                    {
+                        Name: 'ReminderFilter',
+                        value: '0 eq 1'
+                    }
+                ];
+
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                });
+        });
     }
 }
