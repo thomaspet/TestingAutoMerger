@@ -18,6 +18,7 @@ import {
     EmailService,
     ReportService,
     StatusService,
+    CompanySettingsService,
     ElsaPurchaseService
 } from '../../../../services/services';
 import {
@@ -71,9 +72,9 @@ export class ReminderSending implements OnInit {
         + 'CustomerInvoice.CustomerID as CustomerID,CustomerInvoice.CustomerName as CustomerName,'
         + 'CustomerInvoiceReminder.EmailAddress as EmailAddress,'
         + 'add(isnull(restamountcurrency,0),customerinvoice.restamountcurrency) as _RestAmountCurrency,'
-        + "getlatestsharingtype('CustomerInvoiceReminder',ID) as LastSharingType,"
-        + "getlatestsharingstatus('CustomerInvoiceReminder',ID) as LastSharingStatus,"
-        + "getlatestsharingdate('CustomerInvoiceReminder',ID) as LastSharingDate,"
+        + `getlatestsharingtype('CustomerInvoiceReminder',ID) as LastSharingType,`
+        + `getlatestsharingstatus('CustomerInvoiceReminder',ID) as LastSharingStatus,`
+        + `getlatestsharingdate('CustomerInvoiceReminder',ID) as LastSharingDate,`
         + 'CustomerInvoice.TaxInclusiveAmountCurrency as TaxInclusiveAmountCurrency,'
         + 'Customer.CustomerNumber as CustomerNumber,CurrencyCode.Code as _CurrencyCode,'
         + 'CustomerInvoice.ExternalReference as ExternalReference'
@@ -85,23 +86,14 @@ export class ReminderSending implements OnInit {
     currentRunNumber: number = 0;
     private distributeEntityType: string = 'Models.Sales.CustomerInvoiceReminder';
 
+    public reportId: number;
+    public report: ReportDefinition;
+
     searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
     config$: BehaviorSubject<any> = new BehaviorSubject({});
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    saveactions: IUniSaveAction[] = [
-        {
-            label: 'Utsendelse',
-            action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.distributeReminders(done),
-            main: true,
-            disabled: !!this.remindersAll
-        },
-        {
-            label: 'Slett valgte',
-            action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.deleteReminders(done),
-            disabled: !!this.remindersAll
-        }
-    ];
+    saveactions: IUniSaveAction[] = null;
 
     debtCollectionProductPurchased = false;
 
@@ -111,6 +103,7 @@ export class ReminderSending implements OnInit {
         private statisticsService: StatisticsService,
         private reminderService: CustomerInvoiceReminderService,
         private reportDefinitionService: ReportDefinitionService,
+        private companySettingsService: CompanySettingsService,
         private modalService: UniModalService,
         private emailService: EmailService,
         private route: ActivatedRoute,
@@ -118,6 +111,8 @@ export class ReminderSending implements OnInit {
         private statusService: StatusService,
         private elsaPurchaseService: ElsaPurchaseService
     ) {
+        this.setupSaveActions();
+
         route.queryParams.subscribe((params) => {
             const runNumber = +params['runNumber'];
             if (runNumber) {
@@ -134,6 +129,44 @@ export class ReminderSending implements OnInit {
             .subscribe(product => {
                 this.debtCollectionProductPurchased = !!product;
             });
+
+        // get DefaultCustomerInvoiceReminderReportID from companysettings or fallback to getting report named 'Purring'
+        this.companySettingsService.getCompanySettings()
+            .subscribe(companySettings => {
+                if (companySettings.DefaultCustomerInvoiceReminderReportID) {
+                    this.reportDefinitionService.getReportByID(companySettings.DefaultCustomerInvoiceReminderReportID).subscribe(rd => {
+                        this.report = rd;
+                        this.reportId = companySettings.DefaultCustomerInvoiceReminderReportID;
+
+                        this.setupSaveActions();
+                    });
+                } else {
+                    this.reportDefinitionService.getReportByName('Purring').subscribe(rd => {
+                        this.report = rd;
+                        this.reportId = rd.ID;
+
+                        this.setupSaveActions();
+                    });
+                }
+            });
+    }
+
+    setupSaveActions() {
+        this.saveactions = [
+            {
+                label: 'Utsendelse',
+                action: (done) => this.debtCollectionProductPurchased ?
+                                    this.showProductPurchaseToast(done)
+                                    : this.distributeReminders(done),
+                main: true,
+                disabled: !this.remindersAll || !this.report
+            },
+            {
+                label: 'Slett valgte',
+                action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.deleteReminders(done),
+                disabled: !this.remindersAll || !this.report
+            }
+        ];
     }
 
     private deleteReminders(done) {
@@ -311,6 +344,7 @@ export class ReminderSending implements OnInit {
                 } else {
                     this.remindersAll = remindersAll;
                 }
+                this.setupSaveActions();
             }
         );
     }
@@ -333,8 +367,9 @@ export class ReminderSending implements OnInit {
         }
 
         if (emailReminders.length === 0) { return; }
+
         this.reminderService.sendAction(emailReminders.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll();//Kan skippes..?
+            this.loadAll(); // Kan skippes..?
 
             emailReminders.forEach(reminder => {
                 const email = new SendEmail();
@@ -350,10 +385,8 @@ export class ReminderSending implements OnInit {
                     { Name: 'ReminderNumber', value: reminder.ReminderNumber }
                 ];
 
-                this.reportDefinitionService.GetAll(`filter=name eq 'Purring'`).subscribe(rd => {
-                    this.emailService.sendEmailWithReportAttachment(
-                        'Models.Sales.CustomerInvoiceReminder', rd[0].ID, email, parameters, doneHandler);
-                });
+                this.emailService.sendEmailWithReportAttachment(
+                    'Models.Sales.CustomerInvoiceReminder', this.reportId, email, parameters, doneHandler);
             });
         });
     }
@@ -365,23 +398,21 @@ export class ReminderSending implements OnInit {
 
         if (printReminders.length === 0) { return; }
         this.reminderService.sendAction(printReminders.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll(); //Er det nødvendig å hente data etter Print? Ingen data er endret. Valgte rader blir u-valgt, det er vel den eneste forskjellen
+            this.loadAll(); // Er det nødvendig å hente data etter Print? Ingen data er endret. Valgte rader blir u-valgt, det er vel den eneste forskjellen
 
-            this.reportDefinitionService.getReportByName('Purring').subscribe((report: ReportDefinition) => {
-                if (report) {
-                    const invoiceFilterParam = printReminders.map(reminder => 'CustomerInvoice.ID eq ' + reminder.InvoiceID).join(' or ');
-                    const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).reduce((a, b) => a > b ? a : b);
-                    report['parameters'] = [
-                        { Name: 'CustomerInvoiceID', value: 0 },
-                        { Name: 'ReminderFilter', value: invoiceFilterParam },
-                        { Name: 'ReminderNumber', value: reminderNumberParam }
-                    ];
+            if (this.report) {
+                const invoiceFilterParam = printReminders.map(reminder => 'CustomerInvoice.ID eq ' + reminder.InvoiceID).join(' or ');
+                const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).reduce((a, b) => a > b ? a : b);
+                this.report['parameters'] = [
+                    { Name: 'CustomerInvoiceID', value: 0 },
+                    { Name: 'ReminderFilter', value: invoiceFilterParam },
+                    { Name: 'ReminderNumber', value: reminderNumberParam }
+                ];
 
-                    this.modalService.open(UniPreviewModal, {
-                        data: report
-                    });
-                }
-            }, err => this.errorService.handle(err));
+                this.modalService.open(UniPreviewModal, {
+                    data: this.report
+                });
+            }
         });
     }
 
@@ -402,7 +433,7 @@ export class ReminderSending implements OnInit {
         }
         if (done) { done('Sender purringer til print'); }
         this.reminderService.sendInvoicePrintAction(selected.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll(); //Kan skippes..?
+            this.loadAll(); // Kan skippes..?
         });
     }
 

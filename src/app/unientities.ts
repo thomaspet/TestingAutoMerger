@@ -3708,6 +3708,7 @@ export class CompanySettings extends UniEntity {
     public CustomerInvoiceReminderSettingsID: number;
     public DefaultAddressID: number;
     public DefaultCustomerInvoiceReportID: number;
+    public DefaultCustomerInvoiceReminderReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
     public DefaultDistributionsID: number;
