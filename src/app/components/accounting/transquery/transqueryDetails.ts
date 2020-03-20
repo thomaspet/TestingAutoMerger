@@ -268,7 +268,7 @@ export class TransqueryDetails implements OnInit {
         }
 
         let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,ReferenceCreditPostID as ReferenceCreditPostID,'
-            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments,TerminPeriod.AccountYear';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -648,7 +648,7 @@ export class TransqueryDetails implements OnInit {
                 .setVisible(false)
                 .setTemplate(line => line.JournalEntryTypeDisplayName),
             new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
-                .setTemplate(line => line.TerminPeriodNo ? 'Ja' : 'Nei')
+                .setTemplate(line => line.TerminPeriodNo ? `${line.TerminPeriodNo}-${line.TerminPeriodAccountYear}` : 'Nei')
                 .setFilterable(false)
                 .setVisible(false),
             new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
