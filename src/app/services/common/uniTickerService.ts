@@ -573,11 +573,15 @@ export class UniTickerService {
         if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitytype')) {
             const model = this.modelService.getModel(data[column.Alias]);
             if (model) {
-                let linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
-                if (ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
-                    linkNavigationPropertyAlias = 'SharingEntityDisplayValue';
-                }
+                const linkNavigationPropertyAlias = column.LinkNavigationProperty.replace('.', '');
                 formattedFieldValue = `${model.TranslatedName} #${data[linkNavigationPropertyAlias]}`;
+            }
+        }
+
+        if (column.SelectableFieldName.toLocaleLowerCase().endsWith('entitydisplayvalue')) {
+            const model = this.modelService.getModel(data['SharingEntityType']);
+            if (model) {
+                formattedFieldValue = `${model.TranslatedName} ${fieldValue}`;
             }
         }
 
@@ -640,9 +644,11 @@ export class UniTickerService {
 
                     return linkUrl;
                 } else {
-                    const modelName = column.ExternalModel.startsWith(':field')
-                        ? data[column.Alias]
-                        : column.ExternalModel;
+                    let modelName = column.ExternalModel;
+
+                    if (column.Field === 'EntityDisplayValue' && ticker.Code === 'sharings_list') {
+                        modelName = data['SharingEntityType'];
+                    }
 
                     const externalModel = this.modelService.getModel(modelName);
 
