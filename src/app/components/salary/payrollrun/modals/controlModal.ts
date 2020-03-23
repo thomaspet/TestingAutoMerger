@@ -1,15 +1,16 @@
 import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
 import {
     SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService, NumberFormat, VacationpayLineService, StatisticsService
-} from '../../../../services/services';
-import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '../../../../unientities';
-import {BehaviorSubject, Subject, ReplaySubject} from 'rxjs';
+} from '@app/services/services';
+import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '@uni-entities';
+import {BehaviorSubject, Subject, ReplaySubject, Observable, of} from 'rxjs';
 import {ISummaryConfig} from '@app/components/common/summary/summary';
-import {switchMap, finalize} from 'rxjs/operators';
+import {switchMap, finalize, tap} from 'rxjs/operators';
 import {UniMath} from '@uni-framework/core/uniMath';
+import { PayrollRunDataService } from '@app/components/salary/payrollrun/services/payrollrun-data.service';
+import { IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
+import { UniTableConfig, UniTableColumnType, UniTableColumn } from '@uni-framework/ui/unitable';
 
 interface PaylistSection {
     employeeInfo: {
@@ -49,20 +50,25 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
     public model$: BehaviorSubject<IControlSumModel> = new BehaviorSubject({ sums: null, vacationLines: [], vacationBases: [] });
     public tableConfig: UniTableConfig;
     public payrollrunIsSettled: boolean;
+    private negativeSalaryCount: number;
+
     constructor(
-        private _salaryTransactionService: SalaryTransactionService,
-        private _payrollRunService: PayrollrunService,
-        private _router: Router,
+        private salaryTransactionService: SalaryTransactionService,
+        private payrollRunService: PayrollrunService,
+        private router: Router,
         private errorService: ErrorService,
         private salarySumsService: SalarySumsService,
         private numberFormat: NumberFormat,
         private vacationPayService: VacationpayLineService,
         private statisticsService: StatisticsService,
+        private payrollRunDataService: PayrollRunDataService,
+        private modalService: UniModalService
     ) {
         this.description$ = new ReplaySubject<string>(1);
      }
 
     public ngOnInit() {
+        this.setNegativeSalaryCount(this.options.data.ID);
         this.getData(this.options.data.ID);
         this.generateTableConfigs();
         this.model$
@@ -76,10 +82,10 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
 
     private getData(runID: number) {
         this.busy = true;
-        this._payrollRunService
+        this.payrollRunService
             .controlPayroll(runID)
             .pipe(
-                switchMap(() => this._salaryTransactionService
+                switchMap(() => this.salaryTransactionService
                 .GetAll(
                 `filter=PayrollRunID eq ${runID}`
                 + `&orderby=EmployeeNumber, Sum desc&nofilter=true`
@@ -88,7 +94,7 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
             )
             .subscribe(transes => this.transes = transes);
 
-        this._payrollRunService
+        this.payrollRunService
             .Get(runID)
             .subscribe(payrollrun => this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`));
 
@@ -200,31 +206,38 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
 
     public runSettling() {
         this.busy = true;
-        const runID: number = this.options.data.ID;
-        this._payrollRunService
-            .runSettling(runID)
-            .finally(() => this.busy = false)
-            .do(response => this.payrollrunIsSettled = response)
-            .subscribe((response: boolean) => {
-                if (response) {
-                    const config = this.options.modalConfig;
-                    if (config && config.update) {
-                        config.update();
-                    }
+        const canRunSettling$ = !!this.negativeSalaryCount ?
+            this.openNegativeSalaryConfirmModal() : of(ConfirmActions.ACCEPT);
+
+        canRunSettling$.pipe(
+            finalize(() => this.busy = false),
+            switchMap((res) => {
+                if (res === ConfirmActions.ACCEPT) {
+                    return this.payrollRunService.runSettling(this.options.data.ID);
                 }
-            },
-            (err) => {
-                this.errorService.handle(err);
-            });
+                return of(false);
+            }),
+            tap(response => this.payrollrunIsSettled = response)
+        ).subscribe((response: boolean) => {
+            if (response) {
+                const config = this.options.modalConfig;
+                if (config && config.update) {
+                    config.update();
+                }
+            }
+        },
+        (err) => {
+            this.errorService.handle(err);
+        });
     }
 
     public sendPayments() {
         this.busy = true;
         const runID: number = this.options.data.ID;
-        this._payrollRunService
+        this.payrollRunService
             .sendPaymentList(runID)
             .subscribe((response: boolean) => {
-                this._router.navigateByUrl('/bank/ticker?code=payment_list');
+                this.router.navigateByUrl('/bank/ticker?code=payment_list');
                 this.close();
             },
             (err) => {
@@ -235,5 +248,19 @@ export class ControlModal implements OnInit, IUniModal, OnDestroy {
 
     public close() {
         this.onClose.next(false);
+    }
+
+    private setNegativeSalaryCount(payrollRunID: Number) {
+        this.payrollRunDataService.getNegativeSalaryTransactionCount(
+            payrollRunID).subscribe( count => this.negativeSalaryCount = count);
+    }
+
+    public openNegativeSalaryConfirmModal(): Observable<any> {
+        return this.modalService.open(UniConfirmModalV2, {
+            header: 'Negativ lønn',
+            message: `${this.negativeSalaryCount} ansatte har negativ lønn. ` +
+            `Disse beløpene vil bli opprettet som autogenererte forskudd dersom du avregner.`,
+            buttonLabels: {accept: 'Avregn', cancel: 'Avbryt'}
+        }).onClose;
     }
 }

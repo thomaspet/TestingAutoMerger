@@ -32,11 +32,12 @@ import { UniPreviewModal } from '@app/components/reports/modals/preview/previewM
 import { ControlModal } from '@app/components/salary/payrollrun/modals/controlModal';
 import { SalaryTransactionSelectionList } from '@app/components/salary/salarytrans/salarytransactionSelectionList';
 import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModal';
-import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/services/payrollRunDetailsService';
+import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/services/payrollrun-details.service';
 import { PostingSummaryModal } from '@app/components/salary/payrollrun/modals/postingSummaryModal';
 import { PaycheckSenderModal } from '@app/components/salary/payrollrun/sending/paycheckSenderModal';
 import { SalaryTransViewService } from '@app/components/salary/sharedServices/salaryTransViewService';
 import { SalaryHelperMethods } from '@app/components/salary/helperMethods/salaryHelperMethods';
+import { PayrollRunDataService } from '@app/components/salary/payrollrun/services/payrollrun-data.service';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -145,7 +146,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
         private browserStorage: BrowserStorageService,
         private employeeService: EmployeeService,
         private transViewService: SalaryTransViewService,
-        private salaryHelperMethods: SalaryHelperMethods
+        private salaryHelperMethods: SalaryHelperMethods,
+        private payrollrunDataService: PayrollRunDataService
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -451,16 +453,8 @@ export class PayrollrunDetails extends UniView implements OnDestroy {
     }
 
     private setNegativeSalaryCount() {
-        const negativeSalaryFilter =  `model=SalaryTransaction` +
-                        `&select=EmployeeID as ID,EmployeeNumber as EmployeeNumber,BusinessRelationInfo.Name as Name,sum(Sum) as Sum` +
-                        `&filter=PayrollRunID eq ${this.payrollrunID} and Wagetype.Base_Payment eq 1` +
-                        `&having=sum(Sum) lt 0` +
-                        `&expand=Employee.BusinessRelationInfo,WageType`;
-
-        this.statisticsService.GetAllUnwrapped(negativeSalaryFilter).subscribe(salaryTransaction => {
-            this.negativeSalaryTransactionsCount = salaryTransaction.length;
-        });
-
+        this.payrollrunDataService.getNegativeSalaryTransactionCount(this.payrollrunID)
+            .subscribe(negativeSalaryCount => this.negativeSalaryTransactionsCount = negativeSalaryCount);
     }
 
     private setCategory = (runID: number, category: EmployeeCategory) => {

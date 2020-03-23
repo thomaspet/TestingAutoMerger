@@ -41,7 +41,7 @@ import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
-import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsService';
+import {PayrollRunDetailsService} from './payrollrun/services/payrollrun-details.service';
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
@@ -142,6 +142,7 @@ import { NewRegulativeModalComponent } from './modals/new-regulative-modal/new-r
 import { RegulativeDetailsComponent } from './regulative/regulative-details/regulative-details.component';
 import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
 import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
+import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.service';
 
 @NgModule({
     imports: [
@@ -304,6 +305,7 @@ import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negat
     ],
     providers: [
         PayrollRunDetailsService,
+        PayrollRunDataService,
         WageTypeViewService,
         EmployeeDetailsService,
         SalaryBalanceViewService,
