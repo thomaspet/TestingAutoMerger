@@ -175,13 +175,13 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         this.companySalaryService.getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
-                this.childRoutes = this.getPaths();
             });
 
         this.activeYear$.next(this.financialYearService.getActiveYear());
 
         this.route.params.subscribe((params) => {
             this.employeeID = +params['id'];
+            this.childRoutes = this.getPaths();
             this.tagConfig.readOnly = !this.employeeID;
 
             // Update cache key and clear data variables when employee ID is changed
@@ -378,14 +378,15 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     }
 
     private getPaths(): any[] {
+        const disabled = this.employeeID === 0;
         const paths = [
             {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Skatt', path: 'employee-tax'},
-            {name: 'Arbeidsforhold', path: 'employments'},
-            {name: 'Faste poster', path: 'recurring-post'},
-            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
-            {name: 'Permisjon', path: 'employee-leave'},
-            {name: 'Historiske poster', path: 'employee-trans-ticker'}
+            {name: 'Skatt', path: 'employee-tax', disabled: disabled},
+            {name: 'Arbeidsforhold', path: 'employments', disabled: disabled},
+            {name: 'Faste poster', path: 'recurring-post', disabled: disabled},
+            {name: 'Forskudd/trekk', path: 'employee-salarybalances', disabled: disabled},
+            {name: 'Permisjon', path: 'employee-leave', disabled: disabled},
+            {name: 'Historiske poster', path: 'employee-trans-ticker', disabled: disabled}
         ];
         if (this.companySalarySettings && this.companySalarySettings.OtpExportActive) {
             paths.push({name: 'OTP', path: 'employee-otp'});

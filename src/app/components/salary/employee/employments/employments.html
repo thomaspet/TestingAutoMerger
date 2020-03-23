@@ -15,7 +15,6 @@
                 [(resource)]="employments"
                 (rowClick)="onRowSelected($event)">
             </ag-grid-wrapper>
-            <br><small *ngIf="employee?.ID === 0">Ansatt må lagres før arbeidsforhold kan registreres</small>
         </article>
     </nav>
     <main class="splitview_detail" *ngIf="employments">

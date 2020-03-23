@@ -34,7 +34,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
 @Component({
     selector: 'employment-details',
     template: `
-        <section *ngIf="employment" [attr.aria-busy]="busy">
+        <section *ngIf="employment">
             <uni-form [config]="config$"
                       [fields]="fields$"
                       [model]="employment$"
@@ -58,7 +58,7 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
-    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
+    public employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeDefaultData: Observable<any>;
     private companySalarySettings: CompanySalary;
