@@ -33,7 +33,7 @@ interface ITabContextMenuData {
 
             <dropdown-menu *ngIf="tabs.length > 1" [trigger]="trigger">
                 <ng-template>
-                    <section *ngFor="let tab of tabs" (click)="activateTab(idx)" class="dropdown-menu-item">
+                    <section *ngFor="let tab of tabs; let idx = index" (click)="activateTab(idx)" class="dropdown-menu-item">
                         {{tab?.name | translate}}
                     </section>
                 </ng-template>
