@@ -8,7 +8,8 @@ import {
     Department,
     CompanySettings,
     VatType,
-    LocalDate
+    LocalDate,
+    StatusCodeCustomerOrderItem
 } from '../../../unientities';
 import * as _ from 'lodash';
 
@@ -434,6 +435,14 @@ export class TradeItemHelper  {
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {
+        if (rowModel.StatusCode === StatusCodeCustomerOrderItem.TransferredToInvoice) {
+            return;
+            /*
+            Quick-fix: SumTotalExVat m.fl. avrundes til 2 desimaler backend.
+            Dersom man endrer Ordre (legger til Item) etter at Item er overført, får man feilmelding dersom beløpet har >2 desimaler med verdi
+            ettersom dette tolkes som en endring, og backend tillater ikke endring på overførte orderitems (kun tekst og status)
+            */
+        }
         const discountExVat  = this.round(
             (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100, 4
         );
