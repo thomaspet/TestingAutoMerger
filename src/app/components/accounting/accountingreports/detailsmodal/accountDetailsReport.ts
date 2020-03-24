@@ -2,7 +2,7 @@ import {Component, Input, ViewChild} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import {PeriodFilter} from '../periodFilter/periodFilter';
+import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
 import {
     UniTableColumn,
     UniTableConfig,
@@ -110,6 +110,7 @@ export class AccountDetailsReport {
         ShowPercentOfBudget: false
     });
     filter = this.filter$.getValue();
+    periodFilter: PeriodFilter;
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
@@ -123,7 +124,8 @@ export class AccountDetailsReport {
         private router: Router,
         private pageStateService: PageStateService,
         private projectService: ProjectService,
-        private departmentService: DepartmentService
+        private departmentService: DepartmentService,
+        private periodFilterHelper: PeriodFilterHelper
     ) {
         this.config = {
             close: () => {},
@@ -142,6 +144,14 @@ export class AccountDetailsReport {
         this.setupTransactionsTable();
 
         this.activeFinancialYear = this.financialYearService.getActiveFinancialYear();
+        const subscription = this.route.queryParams.subscribe(params => {
+            this.periodFilter = this.periodFilterHelper.getFilter(12, <PeriodFilter>{
+                year: this.activeFinancialYear.Year + 1,
+                fromPeriodNo: params.fromDate ? moment(params.fromDate, 'YYYY-MM-DD').month() + 1 : 1,
+                toPeriodNo: params.toDate ? moment(params.toDate, 'YYYY-MM-DD').month() + 1 : 12,
+                name: ''
+            }, this.activeFinancialYear.Year, false);
+        });
 
         Observable.forkJoin(
             this.financialYearService.GetAll('orderby=Year desc')
@@ -231,6 +241,24 @@ export class AccountDetailsReport {
 
             this.loadData();
         }
+    }
+
+    public onPeriodFilterChanged(event: PeriodFilter) {
+        this.activeYear = event.year;
+        this.selectYear = this.getYearComboSelection(this.activeYear);
+
+        this.fromDate = {
+            Date: moment(moment(`${this.activeYear}-${event.fromPeriodNo}-15`).startOf('month'))
+        };
+
+        this.toDate = {
+            Date: moment(moment(`${this.activeYear}-${event.toPeriodNo}-15`).endOf('month'))
+        };
+
+        this.setupLookupTransactions();
+        this.tabIndex = 0;
+        this.addTab();
+        this.periodFilter = Object.assign({}, event);
     }
 
     public showCreditedChange() {

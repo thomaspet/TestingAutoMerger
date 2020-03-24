@@ -82,6 +82,8 @@ export class DistributionPeriodReportPart implements OnChanges {
     @Input() private dimensionId: number;
     @Input() private includeIncomingBalance: boolean = false;
     @Input() filter: any;
+    @Input() toPeriod: any;
+    @Input() fromPeriod: any;
 
     @Output() private periodSelected: EventEmitter<Period> = new EventEmitter();
     @Output() private yearChange: EventEmitter<boolean> = new EventEmitter();
@@ -131,6 +133,13 @@ export class DistributionPeriodReportPart implements OnChanges {
     }
 
     public ngOnChanges() {
+        if (!this.fromPeriod) {
+            this.fromPeriod = 1;
+        }
+        if (!this.toPeriod) {
+            this.fromPeriod = 12;
+        }
+
         if (this.filter) {
             this.numberFormat.decimalLength = this.filter.Decimals ? this.filter.Decimals : 0;
             this.showPercent = this.filter.ShowPercent;
@@ -153,6 +162,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             this.loadData();
         }
     }
+
 
     public loadData() {
         // Angular needs to load the component before setting up
@@ -196,6 +206,7 @@ export class DistributionPeriodReportPart implements OnChanges {
 
             const periodQuery = 'model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,Dimensions'
                 + `&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter}${creditedFilter} and `
+                + `(Period.No ge ${this.fromPeriod} and Period.No le ${this.toPeriod}) and `
                 + `(Period.AccountYear eq ${this.accountYear1} or Period.AccountYear eq ${this.accountYear2})`
                 + `&orderby=Period.AccountYear,Period.No&select=Period.AccountYear as PeriodAccountYear,`
                 + `Period.No as PeriodNo,sum(JournalEntryLine.Amount) as SumAmount`;
@@ -233,7 +244,8 @@ export class DistributionPeriodReportPart implements OnChanges {
                 subject = Observable.forkJoin(
                     this.statisticsService.GetAll(periodQuery),
                     this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,'
-                    + `Dimensions&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter}`
+                    + `Dimensions&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter} `
+                    + `and (Period.No ge ${this.fromPeriod} and Period.No le ${this.toPeriod})`
                     + `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,`
                     + `JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear `
                     + `lt ${this.accountYear2}\\,JournalEntryLine.Amount\\,0)) as SumIBPeriod2`),                   //
