@@ -590,7 +590,7 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
                 .setLinkResolver(row => `/accounting/transquery?SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
-                .setVisible(false)
+                .setVisible(true)
                 .setWidth('90px')
                 .setFilterable(false),
             new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
@@ -654,7 +654,7 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
                 .setCls('column-align-right')
                 .setFilterable(false)
-                .setVisible(false)
+                .setVisible(true)
                 .setTemplate(line => line.JournalEntryLineInvoiceNumber),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
                 .setTemplate(line => line.JournalEntryLineDueDate)
@@ -972,8 +972,8 @@ export class TransqueryDetails implements OnInit {
                     EntityType: 'JournalEntryLine',
                     Property: 'SubAccountNumber',
                     FieldType: FieldType.TEXT,
-                    Label: 'RestKontro',
-                    Placeholder: 'Restkontro'
+                    Label: 'RestKontronr',
+                    Placeholder: 'Restkontronr'
                 },
                 {
                     EntityType: 'JournalEntryLine',
