@@ -358,7 +358,6 @@ export class DistributionPeriodReportPart implements OnChanges {
                             : this.numberFormatService.asPercentage((item.amountPeriodYear2 / item.budgetPeriodYear2) * 100, {decimalLength: 2});
                     return item;
                 });
-                console.log(distributionPeriodData);
                 this.distributionPeriodData = distributionPeriodData;
 
                 this.setupDistributionPeriodChart();

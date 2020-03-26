@@ -93,6 +93,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     newQuoteItem: CustomerQuoteItem;
     quote: CustomerQuote;
     quoteItems: CustomerQuoteItem[];
+    lastListOfItems: CustomerQuoteItem[] = [];
     readonly: boolean;
     recalcDebouncer: EventEmitter<CustomerQuoteItem[]> = new EventEmitter<CustomerQuoteItem[]>();
     saveActions: IUniSaveAction[] = [];
@@ -1369,6 +1370,44 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     public onTradeItemsChange($event) {
         this.quote.Items = this.quoteItems;
         this.quote = cloneDeep(this.quote);
+        this.updateDimensionsOnTradeItems(this.quoteItems);
         this.recalcDebouncer.emit($event);
+    }
+
+    updateDimensionsOnTradeItems(quoteItems: CustomerQuoteItem[]) {
+        if (this.lastListOfItems.length === 0) {
+            this.lastListOfItems = [...quoteItems];
+            return quoteItems;
+        }
+        const newItems = quoteItems
+            .filter(x => !this.lastListOfItems
+                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
+        const newItemsWithDimensionsFromUser = newItems.map(item => {
+            this.tradeItemTable.mapDimensionsToEntity(this.quote.DefaultDimensions, item);
+            this.updateDimensionObjects(item);
+            return item;
+        });
+        const invoiceItemsUpdatedWithDimensionsFromUser  = quoteItems.map(item => {
+            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
+            if (newItem) {
+                return newItem;
+            }
+            return item;
+        });
+        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
+        return invoiceItemsUpdatedWithDimensionsFromUser;
+    }
+
+    updateDimensionObjects(item) {
+        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
+        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
+        console.log(this.dimensionTypes, this.quote.DefaultDimensions)
+        for (let i = 5; i < 11; i++) {
+            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
+            if (!dim) {
+                continue;
+            }
+            item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.quote.DefaultDimensions[`Dimension${i}ID`]);
+        }
     }
 }
