@@ -37,12 +37,12 @@
             [departments]="departments"
             [vatTypes]="vatTypes"
             [vatDate]="invoice.InvoiceDate"
-            [(items)]="invoiceItems"
+            [items]="invoiceItems"
             [dimensionTypes]="dimensionTypes"
             [currencyCodeID]="currencyCodeID"
             [currencyExchangeRate]="currencyExchangeRate"
             [defaultTradeItem]="newInvoiceItem"
-            (itemsChange)="onTradeItemsChange()">
+            (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
         <section class="freetext-and-summary">
