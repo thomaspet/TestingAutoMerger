@@ -1375,7 +1375,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
     }
 
     updateDimensionsOnTradeItems(quoteItems: CustomerQuoteItem[]) {
-        if (this.lastListOfItems.length === 0) {
+        if (this.lastListOfItems.length === 0 && quoteItems.length === 0) {
             this.lastListOfItems = [...quoteItems];
             return quoteItems;
         }
