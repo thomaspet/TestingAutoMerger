@@ -810,7 +810,7 @@ export class AMeldingView implements OnInit {
             }
         }).onClose.subscribe(dto => {
             this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
-                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} betalt`);
+                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
             }, (error) => this.errorService.handle(error));
         });
     }
