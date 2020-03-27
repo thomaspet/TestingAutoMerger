@@ -2193,7 +2193,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     }
 
     updateDimensionsOnTradeItems(invoiceItems: CustomerInvoiceItem[]) {
-        if (this.lastListOfItems.length === 0) {
+        if (this.lastListOfItems.length === 0 && invoiceItems.length === 0) {
             this.lastListOfItems = [...invoiceItems];
             return invoiceItems;
         }
