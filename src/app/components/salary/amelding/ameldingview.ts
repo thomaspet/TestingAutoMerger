@@ -792,12 +792,29 @@ export class AMeldingView implements OnInit {
     }
     private openMakePaymentModal() {
         const getSafePayDate = (currentAMelding) => {
-            return (currentAMelding
-                && currentAMelding.feedBack
-                && currentAMelding.feedBack.melding
-                && currentAMelding.feedBack.melding.Mottak
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato) || null;
+            return (
+                    currentAMelding
+                    && currentAMelding.feedBack
+                    && currentAMelding.feedBack.melding
+                    && currentAMelding.feedBack.melding.Mottak
+                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
+                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
+                )
+                ||
+                (
+                    currentAMelding
+                    && currentAMelding.feedBack
+                    && currentAMelding.feedBack.melding
+                    && currentAMelding.feedBack.melding.Mottak
+                    && currentAMelding.feedBack.melding.Mottak.length
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
+                            .innbetalingsinformasjon.forfallsdato
+                )
+                ||
+                null
+                ;
         };
         this.modalService.open(MakeAmeldingPaymentModal, {
             data: {
