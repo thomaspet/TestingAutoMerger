@@ -360,6 +360,12 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
             this.employeeChange.emit(this.employee);
         }
 
+        if (changes['RegulativeGroupID'] && !employment.RegulativeGroupID){
+            employment.RegulativeStepNr = 0;
+            this.employment$.next(employment);
+            this.employmentChange.emit(employment);
+        }
+
         if (changes['RegulativeGroupID'] || changes['RegulativeStepNr']) {
             fields.find(f => f.Property === 'RegulativeStepNr').ReadOnly = !employment.RegulativeGroupID;
             fields.find(f => f.Property === 'MonthRate').ReadOnly = !!employment.RegulativeStepNr;
@@ -463,7 +469,7 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     }
 
     getRegulativeMonthRate(employment: Employment) {
-        if (!employment.RegulativeStepNr) {
+        if (!employment.RegulativeStepNr || !employment.RegulativeGroupID) {
             return of(0);
         }
         return this.employmentService
