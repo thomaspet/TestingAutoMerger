@@ -572,7 +572,8 @@ export class WageTypeService extends BizHttp<WageType> {
                                 : ''
                         }
                     },
-                    ...this.getShipFields(compSal)
+                    ...this.getShipFields(compSal),
+                    ...this.getMacroFields()
                 ]
             };
         });
@@ -592,6 +593,25 @@ export class WageTypeService extends BizHttp<WageType> {
                 FieldSet: 3,
                 Section: 0,
             },
+        ];
+    }
+
+    private getMacroFields() {
+        return [
+            {
+                EntityType: 'WageType',
+                Legend: 'Makro',
+                FieldType: FieldType.TEXTAREA,
+                Property: 'SpecialTaxHandling',
+                Label:'Skattebehandling',
+                FieldSet: 4,
+                Section: 0,
+                Tooltip: {
+                    Type: 'info',
+                    Text: `Bør kun brukes i helt spesielle tilfeller`,
+                },          
+            }
+
         ];
     }
 }
