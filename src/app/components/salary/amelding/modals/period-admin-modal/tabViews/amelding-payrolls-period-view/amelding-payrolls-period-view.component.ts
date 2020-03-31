@@ -45,7 +45,7 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
     const typeCol = new UniTableColumn('PayrollrunPaydate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
     const sentCol = new UniTableColumn('AmeldingSentdate', 'Sendt a-melding', UniTableColumnType.Text)
         .setTemplate((x: PayrollRunInAmeldingPeriod) => {
-            return moment(x.AmeldingSentdate).format('DD.MM.YYYY HH:mm');
+            return x.AmeldingSentdate ? moment(x.AmeldingSentdate).format('DD.MM.YYYY HH:mm') : '';
         });
     this.tableConfig = new UniTableConfig('amelding.period.payrolls.data', false, false)
       .setColumns([idCol, typeCol, sentCol])

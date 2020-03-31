@@ -1,0 +1,27 @@
+.application
+    display: flex
+    flex-direction: column
+    height: calc(100vh - 12rem)
+    width: 100%
+    position: relative
+
+    uni-regulative-details
+        flex: 1
+        overflow: hidden
+
+.regulative-import
+    max-width: 50rem
+
+$regulative-top: var(--navbar-height)
+uni-regulative-details
+    position: fixed
+    top: $regulative-top
+    right: 0
+    height: calc(100vh - #{$regulative-top})
+    box-shadow: -1px 0px 1px 0 rgba(0, 0, 0, 0.14)
+    width: 40vw
+    min-width: 45rem
+    z-index: 500
+    background-color: var(--toolbar-background)
+    padding: .5rem .5rem 1rem
+    overflow: auto

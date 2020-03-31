@@ -64,8 +64,9 @@
         "Group": "Utsendelse",
         "Model": "Sharing",
         "Expand": "",
-        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity and Sharing.ID eq #(model=Sharing&$select=Entityid as Entityid,Entitytype as Entitytype,max(id) as lastid,count(id) as numberofSharings&$groupby=entityid,entitytype).lastid as subq",
         "OrderBy": "ID DESC",
+        "Filter": "subq.lastid gt 0",
         "Columns": [
             {
                 "Header": "Dato",
@@ -75,46 +76,59 @@
                 "Format": "DateWithTime"
             },
             {
+                "Field": "EntityDisplayValue",
                 "Header": "Kilde",
-                "Field": "EntityType",
                 "Type": "link",
-                "ExternalModel": ":field",
                 "LinkNavigationProperty": "EntityID",
-                "Width": "8rem"
+                "FilterOperator": "contains",
+                "ExternalModel": "EntityType"
             },
             {
                 "Header": "Sendt via",
                 "Field": "Type",
-                "Width": "150px"
+                "Width": "150px",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Sendt av",
                 "Field": "User.DisplayName",
+                "Width": "150px",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Antall sendinger",
+                "Field": "subq.numberofSharings",
+                "Alias": "numberofSharings",
                 "Width": "150px"
             },
             {
                 "Header": "Tittel",
                 "Field": "Subject",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Fra",
                 "Field": "From",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Til",
                 "Field": "To",
-                "Width": "15rem"
+                "Width": "15rem",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Melding",
-                "Field": "ExternalMessage"
+                "Field": "ExternalMessage",
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Ekstern refereanse",
                 "Field": "ExternalReference",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Forløp",
@@ -134,7 +148,8 @@
                 "Header": "Jobb nr.",
                 "Field": "JobRunID",
                 "Type": "text",
-                "DefaultHidden": true
+                "DefaultHidden": true,
+                "FilterOperator": "eq"
             }
         ],
         "Actions": [
@@ -156,6 +171,7 @@
                 }
             }
         ],
+        "SubTickersCodes": ["sharing_list"],
         "Filters": [
             {
                 "Name": "Alle",
@@ -352,6 +368,86 @@
             "Value": "ID"
         }
     },
+
+    {
+        "Name": "Utsendelse",
+        "Code": "sharing_list",
+        "Type": "Table",
+        "IsTopLevelTicker": false,
+        "Group": "Salg",
+        "Model": "Sharing",
+        "Joins": "Sharing.CreatedBy eq User.GlobalIdentity",
+        "OrderBy": "ID DESC",
+        "Columns": [
+            {
+                "Header": "Dato",
+                "Field": "CreatedAt",
+                "Width": "130px",
+                "Type": "datetime",
+                "Format": "DateWithTime"
+            },
+            {
+                "Header": "Sendt via",
+                "Field": "Type",
+                "Width": "100px"
+            },
+            {
+                "Header": "Sendt av",
+                "Field": "User.DisplayName",
+                "Width": "150px"
+            },
+            {
+                "Header": "Tittel",
+                "Field": "Subject",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Fra",
+                "Field": "From",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Til",
+                "Field": "To"
+            },
+            {
+                "Header": "Melding",
+                "Field": "ExternalMessage",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Ekstern refereanse",
+                "Field": "ExternalReference",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forløp",
+                "Field": "StatusCode",
+                "Alias": "ShareStatus",
+                "Format": "SharingStatus"
+            },
+            {
+                "Header": "Sendes",
+                "Field": "DistributeAt",
+                "Width": "4rem",
+                "Type": "datetime",
+                "Format": "DateWithTime",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Jobb nr.",
+                "Field": "JobRunID",
+                "Type": "text",
+                "DefaultHidden": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "EntityID",
+            "Operator": "eq",
+            "Value": "EntityID"
+        }
+    },
+
     {
         "Name": "Utsendelse",
         "Code": "order_sharing",

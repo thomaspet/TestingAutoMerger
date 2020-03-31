@@ -1541,10 +1541,16 @@ export class CustomerDetails implements OnInit {
                     Legend: 'Avtaler faktura',
                     Section: 0,
                     Tooltip: {
-                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at utsendelsesplanen for faktura (enten på' +
-                        ' Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse' +
-                        ' som prioritet 2. Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer' +
-                        ' sendes med valget i prioritet 2'
+                        Text: (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                            'Kun repeterende fakturaer vil sendes som AvtaleGiro. ' :
+                            '') +
+                         'Husk at utsendelsesplanen for faktura (enten på Innstillinger eller evt denne kunden) ' +
+                         'må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse som prioritet 2. ' +
+                        (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                            'Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer ' +
+                            'sendes med valget i prioritet 2' :
+                            ''
+                        )
                     }
                 },
                 {

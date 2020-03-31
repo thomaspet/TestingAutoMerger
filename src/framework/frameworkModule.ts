@@ -51,6 +51,7 @@ import {
     MatChipsModule,
     MatTabsModule
 } from '@angular/material';
+import {DragDropModule} from '@angular/cdk/drag-drop';
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
@@ -93,6 +94,7 @@ import {UniIcon} from './ui/icon/uni-icon';
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
+        DragDropModule,
     ],
     declarations: [
         UniComponentLoader,
@@ -168,7 +170,9 @@ import {UniIcon} from './ui/icon/uni-icon';
         ScrollingModule,
         MatDatepickerModule,
         MatSlideToggleModule,
-        MatChipsModule
+        MatChipsModule,
+        MatTooltipModule,
+        DragDropModule,
     ]
 })
 export class UniFrameworkModule {}

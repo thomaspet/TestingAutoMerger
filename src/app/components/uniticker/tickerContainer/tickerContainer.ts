@@ -191,11 +191,18 @@ export class UniTickerContainer {
             return `sum(casewhen(${filterString}\\,1\\,0)) as FilterCount${index}`;
         });
 
-
         if (selectQueries.length) {
-            const query = `model=${this.ticker.Model}`
+            let query = `model=${this.ticker.Model}`
                 + `&select=${selectQueries.join(',')}`
                 + `&expand=${this.ticker.CountExpand || this.ticker.Expand}`;
+
+            if (this.ticker.Model === 'Sharing' && this.ticker.Filter) {
+                query += `&filter=${this.ticker.Filter}`;
+            }
+
+            if (this.ticker.Model === 'Sharing' && this.ticker.Joins) {
+                query += `&join=${encodeURIComponent(this.ticker.Joins)}`;
+            }
 
             this.statisticsService.GetAll(query).subscribe(
                 res => {

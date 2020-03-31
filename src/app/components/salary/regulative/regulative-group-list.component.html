@@ -1,0 +1,20 @@
+<uni-toolbar
+        [config]="toolbarConfig"
+        [saveactions]="saveActions"
+        class="regulativeToolbar">
+</uni-toolbar>
+<article class="application">
+    <section [attr.aria-busy]="busy">
+        <section class="uni-container" *ngIf="regulativeGroups.length">
+            <ag-grid-wrapper
+                [resource]="regulativeGroups"
+                [config]="tableConfig"
+                (rowClick)="rowSelected($event)">
+            </ag-grid-wrapper>
+        </section>
+        <section class="uni-container regulative-import" *ngIf="!regulativeGroups.length">
+            <uni-regulative-import (newRegulativeGroup)="import()" [heading]="'Velkommen som ny bruker av regulativ'"></uni-regulative-import>
+        </section>
+    </section>
+    <uni-regulative-details [regulativeGroup]="openRegulativeGroup" *ngIf="openRegulativeGroup" (close)="closeRegulativeDetails($event)"></uni-regulative-details>
+</article>

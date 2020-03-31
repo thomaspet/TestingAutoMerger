@@ -230,11 +230,11 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
     }
 
     public getInvoiceListGroupedPaymentTotals(status: string = ''): Observable<Array<any>> {
-        let route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30109';
+        let route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30109 and (statuscode ne 40001 and statuscode ne 40000)';
         if (status === 'betalt') {
-            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30112';
+            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30112 and (statuscode ne 40001 and statuscode ne 40000)';
         } else if (status === 'betalingsliste') {
-            route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30110 OR PaymentStatus eq 30111';
+            route = '?model=supplierinvoice&select=count(id)&filter=(PaymentStatus eq 30110 OR PaymentStatus eq 30111) and (statuscode ne 40001 and statuscode ne 40000)';
         }
         return this.http
             .asGET()

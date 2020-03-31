@@ -1,14 +1,17 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry} from '@app/services/services';
-import {BankAccount} from '@uni-entities';
+import {BankAccount, BankStatementRule, JournalEntryLine} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/index';
 import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
-import { IVatType } from '@uni-framework/interfaces/interfaces';
-import { tap } from 'rxjs/operators';
+import {IVatType} from '@uni-framework/interfaces/interfaces';
+import {tap} from 'rxjs/operators';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {BankStatementRulesModal} from '../bank-statement-rules/bank-statement-rules';
+import {BankStatementRuleService} from '@app/services/bank/bankStatementRuleService';
 import {environment} from 'src/environments/environment';
-import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -28,26 +31,16 @@ export class BankStatementJournalModal implements IUniModal {
     cachedQuery = {};
     settings = { journalAsDraft: false };
 
+    matchEntries: IMatchEntry[];
+    bankStatementRules: BankStatementRule[];
+
     constructor(
+        private modalService: UniModalService,
         private errorService: ErrorService,
+        private ruleService: BankStatementRuleService,
         public session: BankJournalSession
-    ) {}
-
-    public closeEditor() {
-        return this.table.finishEdit();
-    }
-
-    import() {
-        this.closeEditor().then( () => this.save() );
-    }
-
-    save() {
-        this.busy = true;
-        this.session.save(this.settings.journalAsDraft)
-            .finally( () => this.busy = false)
-            .subscribe( x => {
-            this.onClose.emit(x);
-        }, err => this.errorService.handle(err));
+    ) {
+        this.loadRules();
     }
 
     ngOnInit() {
@@ -55,14 +48,15 @@ export class BankStatementJournalModal implements IUniModal {
         this.bankAccounts = data.bankAccounts;
         this.selectedAccountID = data.selectedAccountID;
 
-        const input: IMatchEntry[] = data.entries || [];
+        this.matchEntries = data.entries || [];
 
         this.busy = true;
         this.session.initialize(0, this.selectedAccountID, 'bank').subscribe(
-            res => {
-                for (let i = 0; i < input.length; i++) {
-                    this.session.addRow(this.selectedAccountID, input[i].Amount, input[i].Date, input[i].Description);
-                }
+            () => {
+                this.matchEntries.forEach(entry => {
+                    this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
+                });
+
                 this.session.ensureRowCount(5);
                 this.resetTableLayout();
                 this.busy = false;
@@ -74,11 +68,53 @@ export class BankStatementJournalModal implements IUniModal {
         );
     }
 
-    public resetTableLayout() {
-        this.tableConfig = this.createTableConfig();
+    public closeEditor() {
+        return this.table.finishEdit();
     }
 
-    public onRowSelected(event: any) {
+    private loadRules() {
+        this.ruleService.GetAll().subscribe(
+            rules => this.bankStatementRules = rules,
+            err => console.error(err)
+        );
+    }
+
+    openJournalingRulesModal() {
+        this.modalService.open(BankStatementRulesModal).onClose.subscribe(rulesChanged => {
+            if (rulesChanged) {
+                this.loadRules();
+            }
+        });
+    }
+
+    runRule(rule: BankStatementRule) {
+        this.ruleService.run(rule.ID, <any> this.matchEntries).subscribe(
+            lines => this.session.addJournalingLines(lines),
+            err => console.error(err)
+        );
+    }
+
+    runAllRules() {
+        this.ruleService.runAll(<any> this.matchEntries).subscribe(
+            lines => this.session.addJournalingLines(lines),
+            err => console.error(err)
+        );
+    }
+
+    save() {
+        this.closeEditor().then(() => {
+            this.busy = true;
+            this.session.save(this.settings.journalAsDraft).subscribe(
+                res => this.onClose.emit(res),
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                });
+        });
+    }
+
+    public resetTableLayout() {
+        this.tableConfig = this.createTableConfig();
     }
 
     public onRowDeleted(event: any) {

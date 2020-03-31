@@ -38,6 +38,9 @@
                     <i class="material-icons">attach_money</i>
                     Beløp til utbetaling: <strong>{{paymentSum | uninumberformat: 'money'}}</strong>
                 </span>
+                <span>
+                    <uni-negative-salary [payrollRunID]=payrollrunID [salaryTransactionCount]=negativeSalaryTransactionsCount></uni-negative-salary>
+                </span>
             </section>
 
             <section class="link-list-section">

@@ -76,7 +76,7 @@ export class AMeldingView implements OnInit {
     private activeYear: number;
     private companySalary: CompanySalary;
     public showFinanceTax: boolean;
-
+    public triggerForOpenBeforeMakePaymentModalResolver = null;
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary')},
@@ -605,6 +605,9 @@ export class AMeldingView implements OnInit {
     private setStatusForPeriod() {
         if (this.aMeldingerInPeriod.length === 1) {
             this.setPeriodStatusFromAmeldingStatus(this.currentAMelding);
+            if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                this.triggerForOpenBeforeMakePaymentModalResolver();
+            }
         } else {
             this.getLastSentAmeldingWithFeedback();
         }
@@ -617,6 +620,9 @@ export class AMeldingView implements OnInit {
             if (this.aMeldingerInPeriod[i].status === 2) {
                 ameld = this.aMeldingerInPeriod[i];
                 this.setPeriodStatusFromAmeldingStatus(ameld);
+                if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                    this.triggerForOpenBeforeMakePaymentModalResolver();
+                }
                 return;
             }
             if (this.aMeldingerInPeriod[i].altinnStatus === 'mottatt') {
@@ -629,8 +635,11 @@ export class AMeldingView implements OnInit {
                 .getAMeldingWithFeedback(ameld.ID)
                 .subscribe((amld: AmeldingData) => {
                     this.setPeriodStatusFromAmeldingStatus(amld);
+                    if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                        this.triggerForOpenBeforeMakePaymentModalResolver();
+                    }
                 });
-            return;
+                return;
         }
         // 3. if none with status 'sent' OR altinnstatus 'mottatt' then find the last one with status
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
@@ -641,12 +650,24 @@ export class AMeldingView implements OnInit {
                         .getAMeldingWithFeedback(amelding.ID)
                         .subscribe((amldWithFeedback: AmeldingData) => {
                             this.setPeriodStatusFromAmeldingStatus(amldWithFeedback);
+                            if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                                this.triggerForOpenBeforeMakePaymentModalResolver();
+                            }
                         });
                 } else {
                     this.setPeriodStatusFromAmeldingStatus(this.currentAMelding);
+                    if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                        this.triggerForOpenBeforeMakePaymentModalResolver();
+                    }
+                }
+                if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+                    this.triggerForOpenBeforeMakePaymentModalResolver();
                 }
                 return;
             }
+        }
+        if (this.triggerForOpenBeforeMakePaymentModalResolver) {
+            this.triggerForOpenBeforeMakePaymentModalResolver();
         }
     }
 
@@ -741,8 +762,14 @@ export class AMeldingView implements OnInit {
             .subscribe((response: AmeldingData) => {
                 if (response) {
                     this.replaceAmeldingInPeriod(response);
+                    const refreshPromise = new Promise((resolve) => {
+                        this.triggerForOpenBeforeMakePaymentModalResolver = resolve;
+                    });
                     this.refresh(response);
-                    // this.openBeforeMakePaymentModal(response);
+                    refreshPromise.then(() => {
+                        this.openBeforeMakePaymentModal();
+                        this.triggerForOpenBeforeMakePaymentModalResolver = null;
+                    });
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
                 } else {
@@ -751,7 +778,7 @@ export class AMeldingView implements OnInit {
             });
     }
 
-    private openBeforeMakePaymentModal(response: AmeldingData) {
+    private openBeforeMakePaymentModal() {
         this.modalService.open(StatusAMeldingModal, {
             data: {
                 periodStatus: this.periodStatus,
@@ -765,12 +792,29 @@ export class AMeldingView implements OnInit {
     }
     private openMakePaymentModal() {
         const getSafePayDate = (currentAMelding) => {
-            return (currentAMelding
-                && currentAMelding.feedBack
-                && currentAMelding.feedBack.melding
-                && currentAMelding.feedBack.melding.Mottak
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato) || null;
+            return (
+                    currentAMelding
+                    && currentAMelding.feedBack
+                    && currentAMelding.feedBack.melding
+                    && currentAMelding.feedBack.melding.Mottak
+                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
+                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
+                )
+                ||
+                (
+                    currentAMelding
+                    && currentAMelding.feedBack
+                    && currentAMelding.feedBack.melding
+                    && currentAMelding.feedBack.melding.Mottak
+                    && currentAMelding.feedBack.melding.Mottak.length
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
+                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
+                            .innbetalingsinformasjon.forfallsdato
+                )
+                ||
+                null
+                ;
         };
         this.modalService.open(MakeAmeldingPaymentModal, {
             data: {
@@ -783,7 +827,7 @@ export class AMeldingView implements OnInit {
             }
         }).onClose.subscribe(dto => {
             this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
-                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} betalt`);
+                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
             }, (error) => this.errorService.handle(error));
         });
     }

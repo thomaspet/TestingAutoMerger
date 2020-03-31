@@ -5,6 +5,7 @@ def PUBLISH_NAME
 def OUT_FILE
 def ENV_PATH
 def ENV_NODE
+def ENV_TYPE
 
 pipeline {
   agent any
@@ -25,36 +26,44 @@ pipeline {
               case "deploytest":
                   PUBLISH_NAME = "prod-unieconomy"
                   YARN_BUILD = "build.prod"
+                  ENV_TYPE = "production"
                   break; 
               case "develop":
                   PUBLISH_NAME = "dev-unieconomy"
                   YARN_BUILD = "build.dev"
+                  ENV_TYPE = "development"
                   //Nightly build runs from branch develop, but should be considered "test"
                   if(env.JOB_BASE_NAME.toLowerCase().reverse().substring(0,7).reverse() == "nightly") {
                     echo "Branch is 'develop' but Jenkins-project name ends with 'nightly' so using test-parameters instead of dev..."
                     PUBLISH_NAME = "test-unieconomy"
                     YARN_BUILD = "build.test"
+                    ENV_TYPE = "testing"
                   }
                   break; 
               case "test":
                   PUBLISH_NAME = "test-unieconomy"
                   YARN_BUILD = "build.test"
+                  ENV_TYPE = "testing"
                   break; 
               case "rc":
                   PUBLISH_NAME = "rc-unieconomy"
                   YARN_BUILD = "build.rc"
+                  ENV_TYPE = "staging"
                   break; 
               case "ext01":
                   PUBLISH_NAME = "ext01-unieconomy.no"
                   YARN_BUILD = "build.ext01"
+                  ENV_TYPE = "production"
                   break; 
               case "pilot":
                   PUBLISH_NAME = "pilot-unieconomy"
                   YARN_BUILD = "build.prod"
+                  ENV_TYPE = "production"
                   break; 
               case "master":
                   PUBLISH_NAME = "pilot-unieconomy"
                   YARN_BUILD = "build.prod"
+                  ENV_TYPE = "production"
                   break; 
               default:
                   error("Forcing pipeline failure, only specific named branches of the frontend are allowed to run as a pipeline!")
@@ -116,6 +125,7 @@ pipeline {
             )
           ]
         )
+        jiraSendDeploymentInfo environmentId: BRANCH_NAME, environmentName: BRANCH_NAME, environmentType: ENV_TYPE, site: 'unimicro.atlassian.net'
       }
     }
   }

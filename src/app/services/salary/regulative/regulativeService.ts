@@ -48,4 +48,13 @@ export class RegulativeService extends BizHttp<Regulative> {
         this.getTemplateFile()
             .subscribe(blob => saveAs(blob, 'regulativ.xlsx'));
     }
+
+    getActive(groupID: number, expand?: string[]): Observable<Regulative> {
+        return this.GetAll(`filter=RegulativeGroupID eq ${groupID}&${this.standardOrderby()}&top=1`, expand)
+            .pipe(map(regulatives => regulatives[0]));
+    }
+
+    standardOrderby() {
+        return 'orderby=StartDate desc,CreatedAt desc';
+    }
 }

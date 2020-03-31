@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { StatisticsService } from '../common/statisticsService';
-import { forkJoin } from 'rxjs';
-import { tap, finalize } from 'rxjs/operators';
-import { BankUtil } from './bankStatmentModels';
-import { safeDec, toIso } from '@app/components/common/utils/utils';
+import {Injectable} from '@angular/core';
+import {StatisticsService} from '../common/statisticsService';
+import {forkJoin} from 'rxjs';
+import {tap, finalize} from 'rxjs/operators';
+import {BankUtil, IMatchEntry} from './bankStatmentModels';
+import {safeDec, toIso} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
-import { FinancialYearService } from '../accounting/financialYearService';
-import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
+import {FinancialYearService} from '../accounting/financialYearService';
+import {DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode} from './bankjournalmodels';
 export * from './bankjournalmodels';
 
 @Injectable()
@@ -292,6 +292,33 @@ export class BankJournalSession {
         }
     }
 
+    public addRowFromMatchEntry(accountID: number, entry: IMatchEntry) {
+        const item = new DebitCreditEntry();
+        const account = this.accounts.find( x => x.ID === accountID );
+        if (account) {
+            if (entry.Amount > 0) {
+                item.DebetAccountID = accountID;
+                item.Debet = account;
+            } else {
+                item.CreditAccountID = accountID;
+                item.Credit = account;
+            }
+
+            if (account.VatTypeID) {
+                item.VatType = this.vatTypes.find( x => x.ID === account.VatTypeID);
+            }
+        }
+
+        item.Amount = Math.abs(entry.Amount);
+        item.FinancialDate = entry.Date;
+        item.Description = entry.Description;
+        item.EntryID = entry.ID;
+
+        this.items.push(item);
+        this.balance = this.calcTotal();
+        return item;
+    }
+
     public addRow(debetAccountID: number, amount: number, date: Date, text = '', virtual = false) {
         const item = new DebitCreditEntry();
         const acc = this.accounts.find( x => x.ID === debetAccountID );
@@ -317,6 +344,27 @@ export class BankJournalSession {
         return item;
     }
 
+    addJournalingLines(lines: any[]) {
+        if (!lines || !lines.length) {
+            return;
+        }
+
+        lines.forEach(line => {
+            if (line && line.Account) {
+                const itemIndex = this.items.findIndex(item => item.EntryID === line.MatchWithEntryID);
+                if (itemIndex >= 0) {
+                    const item = this.items[itemIndex];
+                    if (item.DebetAccountID && !item.CreditAccountID) {
+                        this.setValue('Credit', line.Account, itemIndex);
+                    } else if (item.CreditAccountID && !item.DebetAccountID) {
+                        this.setValue('Debet', line.Account, itemIndex);
+                    }
+                }
+            }
+        });
+
+        this.items = [...this.items];
+    }
 
     public setValue(fieldName: string, newValue: any, rowIndex: number, row?: DebitCreditEntry) {
         const match = this.items[(rowIndex === undefined ? this.items.indexOf(row) : rowIndex)];

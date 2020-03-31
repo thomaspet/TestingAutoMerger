@@ -42,7 +42,7 @@ import {BehaviorSubject, Subject} from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { UniJournalEntryLineModal } from '@uni-framework/uni-modal/modals/JournalEntryLineModal';
-
+import {saveAs} from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -52,6 +52,8 @@ interface ISearchParams {
     AccountNumber?: number;
     Amount?: number;
     ShowCreditedLines?: boolean;
+    SubAccountNumber?: number;
+    InvoiceNumber?: string;
 }
 
 @Component({
@@ -137,12 +139,20 @@ export class TransqueryDetails implements OnInit {
                     searchParams.AccountNumber = routeParams['AccountNumber'];
                 }
 
+                if (routeParams['SubAccountNumber']) {
+                    searchParams.SubAccountNumber = routeParams['SubAccountNumber'];
+                }
+
                 if (routeParams['JournalEntryNumber']) {
                     searchParams.JournalEntryNumber = routeParams['JournalEntryNumber'];
                 }
 
                 if (routeParams['Amount']) {
                     searchParams.Amount = routeParams['Amount'];
+                }
+
+                if (routeParams['InvoiceNumber']) {
+                    searchParams.InvoiceNumber = routeParams['InvoiceNumber'];
                 }
 
                 if (routeParams['ShowCreditedLines']) {
@@ -217,7 +227,15 @@ export class TransqueryDetails implements OnInit {
             }
 
             if (searchParams.AccountNumber && !isNaN(searchParams.AccountNumber)) {
-                filters.push(`Account.AccountNumber eq ${searchParams.AccountNumber}`);
+                filters.push(`(Account.AccountNumber eq ${searchParams.AccountNumber} or SubAccount.AccountNumber eq ${searchParams.AccountNumber})`);
+            }
+
+            if (searchParams.SubAccountNumber && !isNaN(searchParams.SubAccountNumber)) {
+                filters.push(`SubAccount.AccountNumber eq ${searchParams.SubAccountNumber}`);
+            }
+
+            if (searchParams.InvoiceNumber) {
+                filters.push(`InvoiceNumber eq ${searchParams.InvoiceNumber}`);
             }
 
             let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
@@ -250,7 +268,7 @@ export class TransqueryDetails implements OnInit {
         }
 
         let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,ReferenceCreditPostID as ReferenceCreditPostID,'
-            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments,TerminPeriod.AccountYear';
         let expandString = '';
 
         // Loop the columns in unitable to only get the data for the once visible!
@@ -277,8 +295,8 @@ export class TransqueryDetails implements OnInit {
 
         if (isSum) {
             urlParams = urlParams.set('select', 'sum(Amount) as JournalEntryLineAmount');
+            urlParams = urlParams.set('join', 'Journalentryline.createdby eq user.globalidentity');
             urlParams = urlParams.delete('orderby');
-            urlParams = urlParams.delete('join');
             return this.statisticsService.GetAllByHttpParams(urlParams)
                 .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
@@ -336,6 +354,8 @@ export class TransqueryDetails implements OnInit {
         this.pageStateService.setPageState('Amount', form.Amount ? form.Amount + '' : '');
         this.pageStateService.setPageState('AccountYear', form.AccountYear + '');
         this.pageStateService.setPageState('ShowCreditedLines', form.ShowCreditedLines + '');
+        this.pageStateService.setPageState('SubAccountNumber', form.SubAccountNumber ? form.SubAccountNumber + '' : '');
+        this.pageStateService.setPageState('InvoiceNumber', form.InvoiceNumber ?  form.InvoiceNumber + '' : '');
 
         this.tabService.addTab({
             name: 'Søk på bilag',
@@ -361,6 +381,14 @@ export class TransqueryDetails implements OnInit {
             if (input['Amount']) {
                 form['Amount'] = input['Amount'].currentValue;
                 input['Amount'].currentValue = input['Amount'].currentValue.replace(',', '.');
+            }
+
+            if (input['SubAccountNumber']) {
+                form['SubAccountNumber'] = input['SubAccountNumber'].currentValue;
+            }
+
+            if (input['InvoiceNumber']) {
+                form['InvoiceNumber'] = input['InvoiceNumber'].currentValue;
             }
 
             this.searchParams$.next(form);
@@ -562,7 +590,7 @@ export class TransqueryDetails implements OnInit {
             new UniTableColumn('SubAccount.AccountNumber', 'Reskontronr.', UniTableColumnType.Link)
                 .setDisplayField('SubAccountAccountNumber')
                 .setLinkResolver(row => `/accounting/transquery?SubAccount_AccountNumber=${row.SubAccountAccountNumber}`)
-                .setVisible(false)
+                .setVisible(true)
                 .setWidth('90px')
                 .setFilterable(false),
             new UniTableColumn('SubAccount.AccountName', 'Reskontro', UniTableColumnType.Text)
@@ -620,13 +648,13 @@ export class TransqueryDetails implements OnInit {
                 .setVisible(false)
                 .setTemplate(line => line.JournalEntryTypeDisplayName),
             new UniTableColumn('TerminPeriod.No', 'MVA rapportert', UniTableColumnType.Text)
-                .setTemplate(line => line.JournalEntryLineVatReportID ? line.JournalEntryLineVatReportID : 'Nei')
+                .setTemplate(line => line.TerminPeriodNo ? `${line.TerminPeriodNo}-${line.TerminPeriodAccountYear}` : 'Nei')
                 .setFilterable(false)
                 .setVisible(false),
             new UniTableColumn('InvoiceNumber', 'Fakturanr.', UniTableColumnType.Text)
                 .setCls('column-align-right')
                 .setFilterable(false)
-                .setVisible(false)
+                .setVisible(true)
                 .setTemplate(line => line.JournalEntryLineInvoiceNumber),
             new UniTableColumn('DueDate', 'Forfall', UniTableColumnType.LocalDate)
                 .setTemplate(line => line.JournalEntryLineDueDate)
@@ -798,6 +826,112 @@ export class TransqueryDetails implements OnInit {
         this.table.refreshTableData();
     }
 
+    public toExcel() {
+        this.loading$.next(true);
+        let urlParams = new HttpParams();
+        const filtersFromUniTable = this.table.getFilterString();
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
+        const searchParams = _.cloneDeep(this.searchParams$.getValue());
+        // Find the searchvalue
+        const splitted = filters[0].split(`'`);
+        let searchValue;
+        if (splitted.length > 1 && splitted[1] !== undefined) {
+            searchValue = splitted[1];
+        }
+        // This is only used when linking from the MVA-Melding view.. This filter is to specific to mix
+        if (!this.useConfiguredFilter) {
+            if (searchParams.AccountYear) {
+                filters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
+            }
+            if (searchParams.JournalEntryNumber && !isNaN(searchParams.JournalEntryNumber)) {
+                filters.push(`JournalEntryNumberNumeric eq ${searchParams.JournalEntryNumber}`);
+            }
+            if (searchParams.AccountNumber && !isNaN(searchParams.AccountNumber)) {
+                filters.push(`(Account.AccountNumber eq ${searchParams.AccountNumber} or SubAccount.AccountNumber eq ${searchParams.AccountNumber})`);
+            }
+            if (searchParams.SubAccountNumber && !isNaN(searchParams.SubAccountNumber)) {
+                filters.push(`SubAccount.AccountNumber eq ${searchParams.SubAccountNumber}`);
+            }
+            if (searchParams.InvoiceNumber) {
+                filters.push(`InvoiceNumber eq ${searchParams.InvoiceNumber}`);
+            }
+            let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
+            amount = amount.replace(',', '.');
+            if (amount && !isNaN(+amount)) {
+                filters.push(`Amount eq ${amount}`);
+            }
+            // Always allow user to show/hide credited lines!
+            if (!searchParams.ShowCreditedLines) {
+                filters.push('isnull(StatusCode,0) ne 31004');
+            }
+        }
+
+        // remove empty first filter - this is done if we have multiple filters but the first one is
+        // empty (this would generate an invalid filter clause otherwise)
+        if (filters[0] === '') {
+            filters.shift();
+        }
+
+        // Fix filter from unitable! Uses displaynames, causes errors!
+        if (filters && filters[0]) {
+            filters[0] = filters[0].replace(/JournalEntryLine/g, '');
+            filters[0] = filters[0].replace('AccountA', 'Account.A');
+        }
+
+        if (filters.length > 1) {
+            filters[0] = '( ' + filters[0] + ' )';
+        }
+        let selectString = 'ID as ID,JournalEntryID as JournalEntryID,StatusCode as StatusCode,JournalEntryNumber as JournalEntryNumber,ReferenceCreditPostID as ReferenceCreditPostID,'
+            + 'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments';
+        let expandString = '';
+
+        // Loop the columns in unitable to only get the data for the once visible!
+        this.table.columns.forEach((col) => {
+            selectString += col.visible ? ',' + col.field : '';
+            if (col.field.indexOf('Dimension') !== -1 && col.visible) {
+                selectString += ',Dimension' + parseInt(col.field.substr(9, 3), 10) + '.Number';
+                expandString += ',Dimensions.Dimension' + parseInt(col.field.substr(9, 3), 10);
+            } else if (col.field.indexOf('Department') !== -1 && col.visible) {
+                selectString += ',Department.DepartmentNumber';
+            } else if (col.field.indexOf('Project') !== -1 && col.visible) {
+                selectString += ',Project.ProjectNumber';
+            }
+        });
+
+        urlParams = urlParams.set('model', 'JournalEntryLine');
+        urlParams = urlParams.set(
+            'expand',
+            'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
+            + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode,JournalEntryType'
+            + expandString
+        );
+        urlParams = urlParams.set('filter', filters.join(' and '));
+        urlParams = urlParams.set('select', selectString );
+        urlParams = urlParams.set('join',
+            'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
+        urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
+        this.statisticsService.GetExportedExcelFileFromUrlParams(urlParams)
+            .finally(() => this.loading$.next(false))
+            .subscribe((result) => {
+                    let filename = '';
+                    // Get filename with filetype from headers
+                    if (result.headers) {
+                        const fromHeader = result.headers.get('content-disposition');
+                        if (fromHeader) {
+                            filename = fromHeader.split('=')[1];
+                        }
+                    }
+
+                    if (!filename || filename === '') {
+                        filename = 'export.xlsx';
+                    }
+
+                    const blob = new Blob([result.body], { type: 'text/csv' });
+                    // download file so the user can open it
+                    saveAs(blob, filename);
+                }, err => this.errorService.handle(err));
+    }
+
     private getLayout() {
         return {
             Name: 'TransqueryList',
@@ -833,7 +967,22 @@ export class TransqueryDetails implements OnInit {
                     FieldType: FieldType.TEXT,
                     Label: 'Kontonr',
                     Placeholder: 'Kontonr'
-                },                {
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'SubAccountNumber',
+                    FieldType: FieldType.TEXT,
+                    Label: 'RestKontronr',
+                    Placeholder: 'Restkontronr'
+                },
+                {
+                    EntityType: 'JournalEntryLine',
+                    Property: 'InvoiceNumber',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Fakturanr',
+                    Placeholder: 'Fakturanr'
+                },
+                {
                     EntityType: 'JournalEntryLine',
                     Property: 'Amount',
                     FieldType: FieldType.TEXT,

@@ -1357,7 +1357,7 @@ export class BillView implements OnInit {
 
     public onUseWord(event) {
         const invoice = this.current.getValue();
-        if (invoice.StatusCode && invoice.StatusCode !== StatusCodeSupplierInvoice.Draft) {
+        if (invoice.StatusCode && invoice.StatusCode > StatusCodeSupplierInvoice.ForApproval) {
             return;
         }
 

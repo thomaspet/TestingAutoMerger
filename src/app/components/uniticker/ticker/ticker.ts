@@ -564,7 +564,7 @@ export class UniTicker {
         }
 
         if (this.selectedFilter) {
-            const uniTableFilter = urlParams.get('filter');
+            const uniTableFilter = params.get('filter');
             let tickerFilter = this.ticker.Filter;
 
             if (this.selectedFilter.Filter) {
@@ -1011,8 +1011,8 @@ export class UniTicker {
                     }
                 }
 
-                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
-                    selects.push('EntityDisplayValue');
+                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityDisplayValue') {
+                    selects.push('EntityType');
                 }
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {

@@ -1,13 +1,12 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {PayrollrunService, ErrorService, FinancialYearService} from '../../../../services/services';
+import {PayrollrunService, ErrorService, FinancialYearService} from '@app/services/services';
 import {Observable} from 'rxjs';
-import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval} from '../../../../unientities';
+import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval, PaymentInterval, SalaryTransaction} from '@uni-entities';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {observable} from 'rxjs';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
 
 @Injectable()
 export class PayrollRunDetailsService {

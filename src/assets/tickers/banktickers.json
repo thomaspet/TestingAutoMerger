@@ -5,6 +5,7 @@
         "RequiredUIPermissions": ["ui_bank"],
         "Type": "Table",
         "IsTopLevelTicker": true,
+        "MultiRowSelect": true,
         "Group": "Bank",
         "Model": "Payment",
         "OrderBy":"ID desc",
@@ -165,6 +166,7 @@
                 "Name": "Innbetalt ingen match",
                 "Code": "incomming_without_match",
                 "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
                 "tooltipClass": "bad",
                 "tooltip": "Du har innbetalinger vi ikke har klart å koble mot faktura, vennligst behandle disse her",
                 "hideTooltipWithoutCount": true,
@@ -263,6 +265,15 @@
             {
                 "Name": "Krediter bilag på betaling",
                 "Code": "credit_journal_entry",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
+                "Name": "Endre status til bokført og betalt",
+                "Code": "set_to_paid",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
                 "DisplayInContextMenu": true,
