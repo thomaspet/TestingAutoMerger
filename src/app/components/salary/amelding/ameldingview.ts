@@ -118,17 +118,17 @@ export class AMeldingView implements OnInit {
             label: 'Avansert periodebehandling',
             action: () => this.openAdminModal()
         },
-        {
-            label: 'Betal f.trekk og aga',
-            action: () => this.openMakePaymentModal(),
-            disabled: () => {
-                return !this.periodStatus
-                    || this.periodStatus.toLowerCase().includes('må hentes')
-                    || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
-                    || this.periodStatus.toLowerCase().includes('øyeblikkelig')
-                    || this.periodStatus.toLowerCase().includes('avvist');
-            }
-        }
+        // {
+        //     label: 'Betal f.trekk og aga',
+        //     action: () => this.openMakePaymentModal(),
+        //     disabled: () => {
+        //         return !this.periodStatus
+        //             || this.periodStatus.toLowerCase().includes('må hentes')
+        //             || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
+        //             || this.periodStatus.toLowerCase().includes('øyeblikkelig')
+        //             || this.periodStatus.toLowerCase().includes('avvist');
+        //     }
+        // }
     ];
 
     constructor(
@@ -786,7 +786,7 @@ export class AMeldingView implements OnInit {
             }
         }).onClose.subscribe(result => {
             if (result) {
-                this.openMakePaymentModal();
+                // this.openMakePaymentModal();
             }
         });
     }
