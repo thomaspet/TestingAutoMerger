@@ -114,7 +114,7 @@ export class UserManagement {
             return [];
         }
 
-        return users.map(user => {
+        return users.filter(user => !user.Protected).map(user => {
             switch (user.StatusCode) {
                 case 110000:
                     user['_statusText'] = 'Invitert';
