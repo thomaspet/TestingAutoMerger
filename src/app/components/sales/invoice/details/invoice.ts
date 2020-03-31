@@ -2224,7 +2224,9 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (!dim) {
                 continue;
             }
-            item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
+            }
         }
     }
 
