@@ -1407,7 +1407,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             if (!dim) {
                 continue;
             }
-            item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.quote.DefaultDimensions[`Dimension${i}ID`]);
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.quote.DefaultDimensions[`Dimension${i}ID`]);
+            }
         }
     }
 }
