@@ -361,6 +361,12 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
         }
 
         if (changes['RegulativeGroupID'] && !employment.RegulativeGroupID){
+            this.modalService.confirm({
+                header: 'Fjerne regulativ',
+                message: 'Sats i feltet månedslønn/timelønn endres ikke selv om kobling mot regulativ fjernes. ' +
+                'Endringen av satser må skje ved å endre direkte i felt for måneds- og timelønn',
+                buttonLabels: { accept: 'Ok' },
+            });
             employment.RegulativeStepNr = 0;
             this.employment$.next(employment);
             this.employmentChange.emit(employment);
