@@ -1606,7 +1606,9 @@ export class OrderDetails implements OnInit, AfterViewInit {
             if (!dim) {
                 continue;
             }
-            item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.order.DefaultDimensions[`Dimension${i}ID`]);
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.order.DefaultDimensions[`Dimension${i}ID`]);
+            }
         }
     }
 }
