@@ -113,7 +113,7 @@ export class RegulativeGroupListComponent implements OnInit {
             .onClose
             .pipe(
                 filter(result => result === NewRegulativeActions.IMPORT),
-                switchMap(() => this.import$()),
+                switchMap(() => this.import$(done)),
                 tap(result => this.toastService
                     .addToast(
                         `Regulativet ${result.regulativeGroup.Name} er opprettet og lagt til listen`,
@@ -145,12 +145,20 @@ export class RegulativeGroupListComponent implements OnInit {
             .subscribe(result => this.regulativeGroups.push(result.regulativeGroup));
     }
 
-    import$(regulativeGroup: RegulativeGroup = new RegulativeGroup()): Observable<IRegulativeUploadResult> {
+    import$(
+        done?: (message: string) => void,
+        regulativeGroup: RegulativeGroup = new RegulativeGroup()
+    ): Observable<IRegulativeUploadResult> {
         return this.uniModalService
             .open(RegulativeUploadModalComponent, {header: 'Regulativ import', data: regulativeGroup})
             .onClose
             .pipe(
                 map(result => <IRegulativeUploadResult>result),
+                tap(result => {
+                    if (result.confirmAction !== ConfirmActions.ACCEPT && done) {
+                        done('Regulativimport avbrutt');
+                    }
+                }),
                 filter(result => result.confirmAction === ConfirmActions.ACCEPT),
             );
     }
@@ -161,7 +169,7 @@ export class RegulativeGroupListComponent implements OnInit {
 
     closeRegulativeDetails(needsImport: boolean) {
         if (needsImport) {
-            this.import$({...this.openRegulativeGroup})
+            this.import$(null, {...this.openRegulativeGroup})
                 .pipe(
                     tap((result) => this.toastService
                         .addToast(`Oppdatering av ${result.regulativeGroup.Name} er fullført`, ToastType.good, ToastTime.medium)),
