@@ -155,6 +155,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
+    lastListOfItems: CustomerInvoiceItem[] = [];
     isDistributable = false;
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
@@ -278,7 +279,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             this.commentsConfig = {
                 entityType: 'CustomerInvoice',
                 entityID: !hasCopyParam ? this.invoiceID : 0
-            }; 
+            };
 
             if (this.invoiceID === 0) {
                 Observable.forkJoin(
@@ -2178,16 +2179,55 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    onTradeItemsChange() {
+    onTradeItemsChange(items) {
         setTimeout(() => {
+            this.invoiceItems = items;
             if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
                 this.isDirty = true;
             }
-
+            this.invoiceItems = this.updateDimensionsOnTradeItems(this.invoiceItems);
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
         });
+    }
+
+    updateDimensionsOnTradeItems(invoiceItems: CustomerInvoiceItem[]) {
+        if (this.lastListOfItems.length === 0 && invoiceItems.length === 0) {
+            this.lastListOfItems = [...invoiceItems];
+            return invoiceItems;
+        }
+        const newItems = invoiceItems
+            .filter(x => !this.lastListOfItems
+                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
+        const newItemsWithDimensionsFromUser = newItems.map(item => {
+            this.tradeItemTable.mapDimensionsToEntity(this.invoice.DefaultDimensions, item);
+            this.updateDimensionObjects(item);
+            return item;
+        });
+        const invoiceItemsUpdatedWithDimensionsFromUser  = invoiceItems.map(item => {
+            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
+            if (newItem) {
+                return newItem;
+            }
+            return item;
+        });
+        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
+        return invoiceItemsUpdatedWithDimensionsFromUser;
+    }
+
+    updateDimensionObjects(item) {
+        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
+        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
+        for (let i = 5; i < 11; i++) {
+            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
+            if (!dim) {
+                continue;
+            }
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
+            }
+        }
     }
 
     sellInvoiceToAprila(done) {
