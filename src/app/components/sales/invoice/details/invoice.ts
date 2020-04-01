@@ -104,7 +104,7 @@ export enum CollectorStatus {
 export class InvoiceDetails implements OnInit, AfterViewInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 

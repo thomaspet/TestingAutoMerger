@@ -11,7 +11,7 @@ import {SupplierInvoice} from '@uni-entities';
 export class BillPreviousView {
     @Input() public supplierID: number;
     @Input() public supplierInvoiceID: number;
-    @ViewChild(UniForm, { static: false }) private uniForm: UniForm;
+    @ViewChild(UniForm) private uniForm: UniForm;
 
     public uniformConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     public uniformFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

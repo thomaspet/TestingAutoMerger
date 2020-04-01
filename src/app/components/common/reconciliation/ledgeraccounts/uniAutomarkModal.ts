@@ -133,7 +133,7 @@ export class UniAutomarkModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UniTable, { static: false })
+    @ViewChild(UniTable)
     private table: UniTable;
 
     constructor(

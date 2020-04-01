@@ -18,8 +18,8 @@ import { PushMessage, BusinessObject } from '@app/models';
 export class ChatBoxComponent implements OnInit {
     @Input() businessObject: BusinessObject;
 
-    @ViewChild('inputElement', { static: false }) private inputElement: ElementRef;
-    @ViewChild('chatContainer', { static: false }) private chatContainer: ElementRef;
+    @ViewChild('inputElement') private inputElement: ElementRef;
+    @ViewChild('chatContainer') private chatContainer: ElementRef;
 
     comments: Comment[];
     filteredUsers: User[] = [];

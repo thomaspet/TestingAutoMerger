@@ -85,7 +85,7 @@ import {switchMap, tap, catchError, map} from 'rxjs/operators';
 })
 export class OrderDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() orderID: any;
 

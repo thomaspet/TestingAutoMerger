@@ -64,7 +64,7 @@ export class TransqueryDetails implements OnInit {
     @ViewChild(AgGridWrapper, { static: true })
     private table: AgGridWrapper;
 
-    @ViewChild(UniForm, { static: false })
+    @ViewChild(UniForm)
     private uniForm: UniForm;
 
     summaryData: TransqueryDetailsCalculationsSummary;

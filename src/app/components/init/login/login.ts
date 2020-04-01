@@ -14,7 +14,7 @@ import {Subscription} from 'rxjs';
     styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild(UniSelect, { static: false }) select: UniSelect;
+    @ViewChild(UniSelect) select: UniSelect;
     @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
 
     isAuthenticated: boolean;

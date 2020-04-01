@@ -13,7 +13,7 @@ export * from './elsa/elsaPurchasesService';
 
 @NgModule()
 export class AdminServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<AdminServicesModule> {
         return {
             ngModule: AdminServicesModule,
             providers: [

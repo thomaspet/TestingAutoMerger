@@ -3,14 +3,13 @@ import {ActivatedRoute} from '@angular/router';
 import {FormControl} from '@angular/forms';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {BudgetService, NumberFormat, ReportDefinitionService, DepartmentService, PageStateService} from '@app/services/services';
-import {UniModalService, ConfirmActions, IModalOptions, UniConfirmModalV2} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions, IModalOptions, UniConfirmModalV2, UniPreviewModal} from '@uni-framework/uni-modal';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {Budget} from '@app/unientities';
 import {UniBudgetEntryEditModal} from './budgetEntryEditModal';
 import {UniBudgetEditModal} from './budgetEditModal';
 import * as Chart from 'chart.js';
 import {Observable} from 'rxjs';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {saveAs} from 'file-saver';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -22,7 +21,7 @@ import PerfectScrollbar from 'perfect-scrollbar';
 
 export class UniBudgetView {
 
-    @ViewChild('chart', { static: false })
+    @ViewChild('chart')
     private chart: ElementRef;
 
     displayData;

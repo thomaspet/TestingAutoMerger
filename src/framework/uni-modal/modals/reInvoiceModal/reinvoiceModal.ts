@@ -13,7 +13,7 @@ import {
     SupplierInvoice, StatusCodeReInvoice, Tracelink
 } from '@app/unientities';
 import { CustomerService } from '@app/services/sales/customerService';
-import { MatRadioChange } from '@angular/material';
+import { MatRadioChange } from '@angular/material/radio';
 import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService';
 
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';

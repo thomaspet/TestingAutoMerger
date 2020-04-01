@@ -54,22 +54,22 @@ export class TimeEntry {
     @ViewChild(RegtimeTotals, { static: true })
     private regtimeTotals: RegtimeTotals;
 
-    @ViewChild(TimeTableReport, { static: false })
+    @ViewChild(TimeTableReport)
     private timeTable: TimeTableReport;
 
     @ViewChild(RegtimeBalance, { static: true })
     private regtimeBalance: RegtimeBalance;
 
-    @ViewChild(WorkEditor, { static: false })
+    @ViewChild(WorkEditor)
     private workEditor: WorkEditor;
 
-    @ViewChild(SideMenu, { static: false })
+    @ViewChild(SideMenu)
     private sideMenu: SideMenu;
 
-    @ViewChild(TeamworkReport, { static: false })
+    @ViewChild(TeamworkReport)
     private teamreport: TeamworkReport;
 
-    @ViewChild(Vacation, { static: false })
+    @ViewChild(Vacation)
     private vacation: Vacation;
 
     public preSaveConfig: IPreSaveConfig = {

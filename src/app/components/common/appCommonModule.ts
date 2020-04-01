@@ -1,7 +1,4 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {RouterModule} from '@angular/router';
 import {ContextMenu} from './contextMenu/contextMenu';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AltinnAuthenticationModal} from './modals/AltinnAuthenticationModal';
@@ -43,7 +40,6 @@ import {VacationPaySettingsModal} from './modals/vacationpay/vacationPaySettings
 import {ConfirmCreditedJournalEntryWithDate} from './modals/confirmCreditedJournalEntryWithDate';
 import {ApiKeyComponent} from './apikey/apikeys';
 import {ApikeyLineModal} from './apikey/modals/apikey-modal';
-import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {
     WorkEditor,
     UniTimeModal,
@@ -58,20 +54,6 @@ import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-r
 import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 
-import {
-    MatProgressBarModule,
-    MatMenuModule,
-    MatCheckboxModule,
-    MatSelectModule,
-    MatSlideToggleModule,
-    MatRadioModule,
-    MatTooltipModule,
-    MatFormFieldModule,
-    MatExpansionModule,
-    MatProgressSpinnerModule,
-    MatListModule
-} from '@angular/material';
-
 import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
@@ -83,27 +65,12 @@ import {SelectDistributionPlanModal} from './modals/select-distribution-plan-mod
 import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
 import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
 import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule,
+        LibraryImportsModule,
         UniFrameworkModule,
-        AppPipesModule,
-
-        MatProgressBarModule,
-        MatMenuModule,
-        MatCheckboxModule,
-        MatSelectModule,
-        MatSlideToggleModule,
-        MatRadioModule,
-        MatTooltipModule,
-        MatFormFieldModule,
-        MatExpansionModule,
-        MatProgressSpinnerModule,
-        MatListModule,
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -177,37 +144,6 @@ import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/ed
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
-    ],
-    entryComponents: [
-        AltinnAuthenticationModal,
-        ConfirmCreditedJournalEntryWithDate,
-        UniReminderSettingsModal,
-        ReminderSettings,
-        AddPaymentModal,
-        AccrualModal,
-        ImageModal,
-        BookPaymentManualModal,
-        VacationPaySettingsModal,
-        ApikeyLineModal,
-        UniAutomarkModal,
-        UniTimeModal,
-        UniMarkingDetailsModal,
-        WorkitemTransferWizard,
-        GrantAccessModal,
-        GrantSelfAccessModal,
-        UniNewCompanyModal,
-        ImportCentralTemplateModal,
-        JournalingRulesModal,
-        SelectDistributionPlanModal,
-        DisclaimerModal,
-        ImportTemplateModal,
-        NewTaskModal,
-        ImportVoucherModal,
-        ImportOrderModal,
-        BankInitModal,
-        EditSubEntityAgaZoneModal,
-        VacationPayModal,
-        VacationPaySettingsModal,
     ],
     exports: [
         PredefinedDescriptionList,

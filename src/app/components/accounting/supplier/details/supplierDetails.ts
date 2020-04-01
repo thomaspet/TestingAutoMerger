@@ -1,7 +1,6 @@
 import {Component, Input, ViewChild, Output, EventEmitter, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/forkJoin';
+import {Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
 import {IReference} from '../../../../models/iReference';
 import {IUniSaveAction} from '../../../../../framework/save/save';
@@ -10,10 +9,8 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
 import {IToolbarConfig, ICommentsConfig, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
-import {BehaviorSubject} from 'rxjs';
 import {
     Supplier,
-    Contact,
     Email,
     Phone,
     Address,
@@ -69,10 +66,10 @@ export class SupplierDetails implements OnInit {
     @Output()
     public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
 
-    @ViewChild(UniForm, { static: false })
+    @ViewChild(UniForm)
     public form: UniForm;
 
-    @ViewChild(LedgerAccountReconciliation, { static: false })
+    @ViewChild(LedgerAccountReconciliation)
     private postpost: LedgerAccountReconciliation;
 
     public supplierID: number;
@@ -494,7 +491,7 @@ export class SupplierDetails implements OnInit {
         if (!this.formIsInitialized) {
             this.fields$.next(this.getComponentLayout().Fields);
 
-            Observable.forkJoin(
+            forkJoin(
                 supplierRequest,
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),

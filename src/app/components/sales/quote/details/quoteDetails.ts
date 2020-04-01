@@ -77,7 +77,7 @@ import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 })
 export class QuoteDetails implements OnInit, AfterViewInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() quoteID: number;
 

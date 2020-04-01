@@ -48,7 +48,7 @@ import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
     `
 })
 export class TradeItemTable {
-    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;

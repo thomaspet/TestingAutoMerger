@@ -1,15 +1,8 @@
-import {Component, OnInit} from '@angular/core';
-import {Router} from '@angular/router';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {Component} from '@angular/core';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
-import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinitionService} from '@app/services/services';
 import {ToastService} from '@uni-framework/uniToast/toastService';
-
-import {
-    ReportService
-} from '../../../services/services';
 
 interface IReportInfo {
     name: string;
@@ -17,7 +10,6 @@ interface IReportInfo {
     comment?: string;
     icon: string;
 }
-
 
 @Component({
     selector: 'accounting-reports',

@@ -1,9 +1,9 @@
 import {Observable, BehaviorSubject, Subject, of, forkJoin, pipe} from 'rxjs';
 import {tap, take, switchMap, filter, finalize, map, catchError, takeUntil} from 'rxjs/operators';
-import {Component, ViewChild, OnDestroy, SimpleChanges, OnInit} from '@angular/core';
+import {Component, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
 import * as _ from 'lodash';
-import { UniModalService, ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
+import { UniModalService, ConfirmActions, UniConfirmModalV2, UniPreviewModal } from '@uni-framework/uni-modal';
 import { IContextMenuItem } from '@uni-framework/ui/unitable';
 import { UniView } from '@uni-framework/core/uniView';
 import { UniForm } from '@uni-framework/ui/uniform';
@@ -28,7 +28,6 @@ import { ITag, IUniTagsConfig } from '@app/components/common/toolbar/tags';
 import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/statustrack';
 import { VacationPayModal } from '@app/components/common/modals/vacationpay/vacationPayModal';
 import { TimeTransferComponent } from '@app/components/salary/payrollrun/modals/time-transfer/time-transfer.component';
-import { UniPreviewModal } from '@app/components/reports/modals/preview/previewModal';
 import { ControlModal } from '@app/components/salary/payrollrun/modals/controlModal';
 import { SalaryTransactionSelectionList } from '@app/components/salary/salarytrans/salarytransactionSelectionList';
 import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModal';
@@ -63,9 +62,9 @@ interface IFromToFilter {
 })
 
 export class PayrollrunDetails extends UniView implements OnDestroy {
-    @ViewChild(ControlModal, { static: false }) public controlModal: ControlModal;
+    @ViewChild(ControlModal) public controlModal: ControlModal;
     @ViewChild(SalaryTransactionSelectionList, { static: true }) private selectionList: SalaryTransactionSelectionList;
-    @ViewChild(UniForm, { static: false }) public uniform: UniForm;
+    @ViewChild(UniForm) public uniform: UniForm;
 
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);

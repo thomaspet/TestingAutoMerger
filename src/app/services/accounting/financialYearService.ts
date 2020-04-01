@@ -1,12 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {FinancialYear, CompanySettings} from '../../unientities';
-import {ErrorService} from '../common/errorService';
-import {CompanySettingsService} from '../common/companySettingsService';
+import {FinancialYear} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
-import {ReplaySubject} from 'rxjs';
-import 'rxjs/add/observable/of';
+import {Observable, ReplaySubject} from 'rxjs';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 
 @Injectable()
@@ -14,12 +10,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     private ACTIVE_FINANCIAL_YEAR_LOCALSTORAGE_KEY: string = 'activeFinancialYear';
     public lastSelectedFinancialYear$: ReplaySubject<FinancialYear> = new ReplaySubject<FinancialYear>(1);
 
-    constructor(
-        http: UniHttp,
-        private companySettingsService: CompanySettingsService,
-        private errorService: ErrorService,
-        private browserStorage: BrowserStorageService,
-    ) {
+    constructor(http: UniHttp, private browserStorage: BrowserStorageService) {
         super(http);
 
         this.relativeURL = FinancialYear.RelativeUrl;
@@ -39,10 +30,7 @@ export class FinancialYearService extends BizHttp<FinancialYear> {
     }
 
     public createFinancialYear(year: number): Observable<FinancialYear> {
-        return this.GetAction(null, 'create-financial-year', `year=${year}`)
-                .switchMap(newYear => {
-                    return Observable.of(newYear);
-                });
+        return this.GetAction(null, 'create-financial-year', `year=${year}`);
     }
 
     public setActiveYear(financialYear: FinancialYear) {

@@ -59,7 +59,7 @@ import {theme} from 'src/themes/theme';
 })
 
 export class SRUnpaidDoughnutChart implements AfterViewInit {
-    @ViewChild('unpaidDoughnutChartSR', { static: false })
+    @ViewChild('unpaidDoughnutChartSR')
     private unpaidDoughnutChart: ElementRef;
 
     widget: IUniWidget;

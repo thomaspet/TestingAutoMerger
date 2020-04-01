@@ -15,7 +15,7 @@ export * from './timetracking/invoice-hours.service';
     ]
 })
 export class TimeTrackingServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<TimeTrackingServicesModule> {
         return {
             ngModule: TimeTrackingServicesModule,
             providers: [

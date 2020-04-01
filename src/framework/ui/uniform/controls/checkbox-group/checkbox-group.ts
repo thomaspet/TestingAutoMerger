@@ -10,10 +10,9 @@ import {
     ViewChildren,
     QueryList
 } from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {UniFieldLayout} from '../../interfaces';
 import {BaseControl} from '../baseControl';
-import {MatCheckbox} from '@angular/material';
+import {MatCheckbox} from '@angular/material/checkbox';
 import * as _ from 'lodash';
 
 @Component({

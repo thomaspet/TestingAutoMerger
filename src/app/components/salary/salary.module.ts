@@ -1,13 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {WidgetModule} from '../widgets/widgetModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {salaryRoutes} from './salaryRoutes';
 import {UniSalary} from './salary';
 import {AMeldingView} from './amelding/ameldingview';
@@ -83,7 +81,6 @@ import {SalaryBalanceLineModal} from './salarybalance/modals/salBalLineModal';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import {UniSupplementEditModal} from './salaryTransactionSupplement/editValueModal';
 
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import { AnnualStatementSenderComponent } from './annualStatement/annual-statement-sender/annual-statement-sender.component';
 import { EmployeeReportPickerListComponent } from './common/employee-report-picker-list/employee-report-picker-list.component';
 import {
@@ -101,9 +98,6 @@ import { TravelDetailsComponent } from './travel/travel-details/travel-details.c
 import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
-import {MatTooltipModule} from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
@@ -146,12 +140,7 @@ import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.ser
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatTooltipModule,
-        MatSlideToggleModule,
-        MatSelectModule,
+        LibraryImportsModule,
         UniTickerModule,
 
         RouterModule.forChild(salaryRoutes),
@@ -160,7 +149,6 @@ import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.ser
         WidgetModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
         ReportsModule
     ],
     declarations: [
@@ -275,33 +263,6 @@ import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.ser
         RegulativeImportComponent,
         NewRegulativeModalComponent,
         RegulativeDetailsComponent,
-    ],
-    entryComponents: [
-        TaxCardModal,
-        TaxResponseModal,
-        ControlModal,
-        PostingSummaryModal,
-        AmeldingTypePickerModal,
-        SalarybalanceLine,
-        PaycheckSenderModal,
-        SalaryTransSupplementsModal,
-        SalaryBalanceLineModal,
-        UniSalaryTransactionModal,
-        ReconciliationModalComponent,
-        ReconciliationResponseModalComponent,
-        TimeTransferComponent,
-        TravelRejectModal,
-        OtpFilterModalComponent,
-        PeriodAdminModalComponent,
-        OtpPeriodWagetypeModalComponent,
-        UniFindEmployeeModal,
-        UniSupplementEditModal,
-        SyncWagetypesModalComponent,
-        RegulativeUploadModalComponent,
-        StatusAMeldingModal,
-        MakeAmeldingPaymentModal,
-        NewRegulativeModalComponent,
-        NegativeSalaryModalComponent,
     ],
     providers: [
         PayrollRunDetailsService,

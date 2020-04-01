@@ -76,7 +76,7 @@ declare const _;
 })
 export class UniRecurringInvoice implements OnInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 

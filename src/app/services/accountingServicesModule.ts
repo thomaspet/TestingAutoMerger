@@ -64,7 +64,7 @@ export * from './accounting/accountMandatoryDimensionService';
 
 @NgModule()
 export class AccountingServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<AccountingServicesModule> {
         return {
             ngModule: AccountingServicesModule,
             providers: [

@@ -1,7 +1,4 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniModal} from './modals/modal';
 import {UniSave} from './save/save';
 import {UniImage, EHFViewer} from './uniImage/uniImage';
@@ -9,10 +6,9 @@ import {AuthImg} from './uniImage/auth-img/auth-img';
 import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
-import {UniPipesModule} from './pipes/pipesModule';
+import {UniPipesModule} from './pipes/pipes.module';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
-import {AppPipesModule} from '../app/pipes/appPipesModule';
 import {UniMultiLevelSelect} from './controls/multiLevelSelect';
 
 import {UniAvatar} from './avatar/uniAvatar';
@@ -36,51 +32,17 @@ import {AgGridWrapperModule} from './ui/ag-grid/ag-grid.module';
 import {DropdownMenuModule} from './ui/dropdown-menu/dropdown-menu';
 import {ComboButtonModule} from './ui/combo-button/combo-button';
 
-import {
-    MatCheckboxModule,
-    MatRadioModule,
-    MatTooltipModule,
-    MatInputModule,
-    MatMenuModule,
-    MatProgressSpinnerModule,
-    MatProgressBarModule,
-    MatStepperModule,
-    MatListModule,
-    MatDatepickerModule,
-    MatSlideToggleModule,
-    MatChipsModule,
-    MatTabsModule
-} from '@angular/material';
-import {DragDropModule} from '@angular/cdk/drag-drop';
-import {ScrollingModule} from '@angular/cdk/scrolling';
 import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
 import {UniIcon} from './ui/icon/uni-icon';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        RouterModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        MatRadioModule,
-        MatTooltipModule,
-        MatInputModule,
-        MatMenuModule,
-        MatProgressSpinnerModule,
-        MatProgressBarModule,
-        MatStepperModule,
-        MatListModule,
-        ScrollingModule,
-        MatDatepickerModule,
-        MatSlideToggleModule,
-        MatChipsModule,
-
+        LibraryImportsModule,
         ClickOutsideModule,
-        AppPipesModule,
         UniPipesModule,
         UniSearchModule,
         UniTooltipModule,
@@ -89,12 +51,10 @@ import {UniIcon} from './ui/icon/uni-icon';
         UniTableModule,
         AgGridWrapperModule,
         NgSelectModule,
-        MatTabsModule,
         DropdownMenuModule,
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
-        DragDropModule,
     ],
     declarations: [
         UniComponentLoader,
@@ -114,7 +74,6 @@ import {UniIcon} from './ui/icon/uni-icon';
         UniIcon,
         ...MODALS
     ],
-    entryComponents: [...MODALS],
     providers: [
         UniModalService,
         UniHttp,
@@ -124,10 +83,8 @@ import {UniIcon} from './ui/icon/uni-icon';
         StimulsoftReportWrapper,
     ],
     exports: [
-        FormsModule,
-        ReactiveFormsModule,
-
         // Modules
+        LibraryImportsModule,
         UniPipesModule,
         UniSearchModule,
         UniFormModule,
@@ -158,21 +115,6 @@ import {UniIcon} from './ui/icon/uni-icon';
         UniComponentLoader,
         UniTabs,
         UniIcon,
-
-        // Material
-        MatCheckboxModule,
-        MatRadioModule,
-        MatInputModule,
-        MatMenuModule,
-        MatProgressSpinnerModule,
-        MatStepperModule,
-        MatListModule,
-        ScrollingModule,
-        MatDatepickerModule,
-        MatSlideToggleModule,
-        MatChipsModule,
-        MatTooltipModule,
-        DragDropModule,
     ]
 })
 export class UniFrameworkModule {}

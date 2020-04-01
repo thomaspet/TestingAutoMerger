@@ -1,6 +1,6 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {ErrorService, NumberFormat, CompanySettingsService} from '../services/services';
-import {CompanySettings} from '../unientities';
+import {ErrorService, NumberFormat, CompanySettingsService} from '@app/services/services';
+import {CompanySettings} from '@uni-entities';
 import {AuthService} from '@app/authService';
 
 @Pipe({name: 'uninumberformat'})

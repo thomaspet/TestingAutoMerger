@@ -87,7 +87,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Output() public dataChanged: EventEmitter<any> = new EventEmitter<any>();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter<any>();
 
-    @ViewChild(UniTable, { static: false }) private openPostsTable: UniTable;
+    @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional, { static: true })
 
     public journalEntryProfessional: JournalEntryProfessional;

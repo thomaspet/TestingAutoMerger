@@ -1,7 +1,5 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
-import {Observable} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import 'rxjs/add/observable/forkJoin';
+import {Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     Account, VatType, AccountGroup, VatDeductionGroup,
@@ -77,7 +75,7 @@ export class AccountDetails implements OnInit {
 
     private setup() {
 
-        Observable.forkJoin(
+        forkJoin(
             this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
             this.accountGroupService.GetAll('orderby=GroupNumber'),

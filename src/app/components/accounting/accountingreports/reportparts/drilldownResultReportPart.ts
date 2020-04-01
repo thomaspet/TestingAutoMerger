@@ -61,7 +61,7 @@ export class DrilldownResultReportPart implements OnChanges {
     @Input() private dimensionId: number;
     @Input() private filter: any;
 
-    @ViewChild('chartElement1', { static: false })
+    @ViewChild('chartElement1')
     private chartElement1: ElementRef;
     private treeSummaryList: ResultSummaryData[] = [];
 

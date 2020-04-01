@@ -1,8 +1,9 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {DateAdapter} from '@angular/material';
+import { Component, Input, Output, EventEmitter, Injectable } from '@angular/core';
+import { DateAdapter } from '@angular/material/core';
 import {UniDateAdapter} from '@app/date-adapter';
 import * as moment from 'moment';
 
+@Injectable()
 export class CustomDateAdapter extends UniDateAdapter {
     format(date: Date): string {
         return moment(date).format('MMMM YYYY');

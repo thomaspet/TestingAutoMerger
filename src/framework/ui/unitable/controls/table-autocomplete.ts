@@ -67,7 +67,7 @@ export interface IGroupConfig {
 })
 export class UnitableAutocomplete implements OnInit {
     @ViewChild('input', { static: true }) public inputElement: ElementRef;
-    @ViewChild('dropdown', { static: false }) private dropdown: ElementRef;
+    @ViewChild('dropdown') private dropdown: ElementRef;
 
     @Input()
     public column: any;

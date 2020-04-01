@@ -1,8 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
-import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinition, ReportParameter, StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '@uni-entities';
-import {IUniModal, IModalOptions, UniModalService} from '@uni-framework/uni-modal';
+import {IUniModal, IModalOptions, UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import {
     ReportTypeService,

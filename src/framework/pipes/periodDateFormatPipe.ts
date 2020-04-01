@@ -1,12 +1,10 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {Period} from '../unientities';
-import {ErrorService} from '../services/services';
+import {Period} from '@uni-entities';
 import * as moment from 'moment';
 
 @Pipe({name: 'periodDateFormat'})
 export class PeriodDateFormatPipe implements PipeTransform {
-    constructor(private errorService: ErrorService) {}
-    public transform(period?: Period): string {
+    transform(period?: Period): string {
         try {
             if (!period) {
                 return '';
@@ -22,7 +20,8 @@ export class PeriodDateFormatPipe implements PipeTransform {
                 return from.format('YYYY');
             }
         } catch (err) {
-            this.errorService.handle(err);
+            console.error(err);
+            return <any> period;
         }
     }
 

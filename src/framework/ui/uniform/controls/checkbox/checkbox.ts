@@ -2,19 +2,16 @@ import {
     Component,
     Input,
     Output,
-    ElementRef,
     EventEmitter,
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     ViewChild,
-    OnChanges,
     SimpleChanges
 } from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {BaseControl} from '../baseControl';
 import * as _ from 'lodash';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces';
-import {MatCheckbox} from '@angular/material';
+import {MatCheckbox} from '@angular/material/checkbox';
 
 @Component({
     selector: 'uni-checkbox-input',
@@ -22,7 +19,7 @@ import {MatCheckbox} from '@angular/material';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniCheckboxInput extends BaseControl {
-    @ViewChild(MatCheckbox, { static: false }) public checkbox: MatCheckbox;
+    @ViewChild(MatCheckbox) public checkbox: MatCheckbox;
 
     @Input() public field: UniFieldLayout;
     @Input() public model: any;

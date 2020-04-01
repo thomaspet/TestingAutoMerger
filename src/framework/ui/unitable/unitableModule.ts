@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {AppPipesModule} from '../../../app/pipes/appPipesModule';
+import {LibraryImportsModule} from '@app/library-imports.module';
+import {UniPipesModule} from '../../pipes/pipes.module';
 
 import {UniTable} from './unitable';
 import {UniTableUtils} from './unitableUtils';
@@ -26,18 +25,14 @@ import {ColumnMenuModal} from './columnMenu/columnMenuModal';
 import {ColumnTooltipPipe} from './columnTooltipPipe';
 import {UniTableHeader} from './header/unitable-header';
 
-import {MatMenuModule, MatDatepickerModule, DateAdapter} from '@angular/material';
+import {DateAdapter} from '@angular/material/core';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 import {UniDateAdapter} from '@app/date-adapter';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatMenuModule,
-        MatDatepickerModule,
-        AppPipesModule,
+        LibraryImportsModule,
+        UniPipesModule,
         InputDropdownModule
     ],
     declarations: [
@@ -63,16 +58,6 @@ import {UniDateAdapter} from '@app/date-adapter';
         ColumnMenuModal,
 
         UniTableHeader
-    ],
-    entryComponents: [
-        UnitableTextInput,
-        UnitableAutocomplete,
-        UnitableTypeahead,
-        UnitableNumberInput,
-        UnitableDateTimepicker,
-        UnitableSelect,
-        LocalDatePicker,
-        ColumnMenuModal
     ],
     providers: [
         UniTableUtils,

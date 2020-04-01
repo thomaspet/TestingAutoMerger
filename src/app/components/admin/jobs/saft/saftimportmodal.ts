@@ -3,7 +3,7 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
 import { BehaviorSubject, timer as observableTimer } from 'rxjs';
-import { MatStepper } from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import { JobService, CompanySettingsService, AccountService } from '@app/services/services';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { CompanySettings, Account } from '@uni-entities';

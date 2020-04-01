@@ -1,6 +1,5 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {ClickOutsideModule} from '../../click-outside/click-outside.module';
 
 import {UniForm} from './uniform/uniform';
@@ -29,29 +28,14 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {UniSelectModule} from '@uni-framework/ui/uni-select/select.module';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 import {UniDateAdapter} from '@app/date-adapter';
-
-import {
-    MatCheckboxModule,
-    MatRadioModule,
-    MatSlideToggleModule,
-    MatTooltipModule,
-    MatDatepickerModule,
-    DateAdapter
-} from '@angular/material';
+import {DateAdapter} from '@angular/material/core';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
+        LibraryImportsModule,
         UniSearchModule,
         UniTooltipModule,
         NgSelectModule,
-        MatCheckboxModule,
-        MatRadioModule,
-        MatSlideToggleModule,
-        MatTooltipModule,
-        MatDatepickerModule,
         UniSelectModule,
         InputDropdownModule,
         ClickOutsideModule

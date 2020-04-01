@@ -1,15 +1,14 @@
 import {Component, OnInit, ViewChild, Type, Input, OnDestroy, SimpleChange} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, ReportDefinitionParameter} from '../../../../unientities';
+import {UniModal} from '@uni-framework/modals/modal';
+import {ReportDefinition, ReportDefinitionParameter} from '@uni-entities';
 import {
     ReportDefinitionParameterService,
     ErrorService,
     PayrollrunService,
     BrowserStorageService
-} from '../../../../services/services';
-import {UniModalService} from '../../../../../framework/uni-modal';
-import {UniPreviewModal} from '../preview/previewModal';
-import {UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
+} from '@app/services/services';
+import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
+import {UniFieldLayout, FieldType, UniFormError} from '@uni-framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
@@ -157,7 +156,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     `
 })
 export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestroy {
-    @ViewChild(UniModal, { static: false })
+    @ViewChild(UniModal)
     private modal: UniModal;
 
     modalConfig: ModalConfig;

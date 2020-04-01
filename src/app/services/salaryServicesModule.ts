@@ -66,7 +66,7 @@ export * from './salary/regulative/regulativeService';
 
 @NgModule({})
 export class SalaryServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<SalaryServicesModule> {
         return {
             ngModule: SalaryServicesModule,
             providers: [

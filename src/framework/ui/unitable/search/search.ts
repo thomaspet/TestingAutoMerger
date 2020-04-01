@@ -113,7 +113,7 @@ interface IUniTableSearchOperator {
 // REVISIT: Saving filters needs a serious revisit
 // Last minute release stuff..
 export class UniTableSearch implements OnChanges {
-    @ViewChild('savedSearchesElem', { static: false }) private savedSearchesElement: ElementRef;
+    @ViewChild('savedSearchesElem') private savedSearchesElement: ElementRef;
     @ViewChild('advancedSearchElem', { static: true }) private advancedSearchElement: ElementRef;
 
     @Input() public columns: Immutable.List<any>;

@@ -52,7 +52,7 @@ export class UnitableSelect {
     @ViewChild('inputElement', { static: true })
     public inputElement: ElementRef;
 
-    @ViewChild('dropdown', { static: false })
+    @ViewChild('dropdown')
     private dropdown: ElementRef;
 
     column: any;

@@ -31,7 +31,7 @@
                 <input type="tel" placeholder="Telefonnummer" formControlName="PhoneNumber" />
             </label>
 
-            <re-captcha class="recaptcha" formControlName="RecaptchaResponse"></re-captcha>
+            <uni-recaptcha (reCaptchaCode)="reCaptchaCode = $event"></uni-recaptcha>
 
             <small class="privacy-info">
                 Ved registrering godtar du lagring og bruk av dine data.
@@ -41,7 +41,7 @@
                 type="submit"
                 class="c2a init-submit-button"
                 [attr.aria-busy]="busy"
-                [disabled]="busy || !step1?.form?.valid">
+                [disabled]="busy || !step1?.form?.valid || !reCaptchaCode">
                 Start registrering
             </button>
         </form>

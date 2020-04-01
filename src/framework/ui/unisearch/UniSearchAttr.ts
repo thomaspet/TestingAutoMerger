@@ -41,13 +41,11 @@ declare const module;
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSearchAttr implements OnInit, OnChanges {
-    @ViewChild('container', { static: false }) container: ElementRef;
-    @ViewChild('resultList', { static: false }) resultListElement: ElementRef;
-    @Input()
-    public config: IUniSearchConfig;
+    @ViewChild('container') container: ElementRef;
+    @ViewChild('resultList') resultListElement: ElementRef;
 
-    @Output()
-    public changeEvent: EventEmitter<any> = new EventEmitter<any>();
+    @Input() config: IUniSearchConfig;
+    @Output() changeEvent = new EventEmitter();
 
     private initialDisplayValue: string;
     public selectedIndex: number = -1;

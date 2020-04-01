@@ -56,7 +56,7 @@
     <query-item
         class="sibling"
         *ngFor="let sibling of item.siblings; let idx = index"
-        [(item)]="sibling"
+        [(item)]="item.siblings[idx]"
         [fields]="fields"
         [operators]="operators"
         (remove)="removeSibling(idx)"

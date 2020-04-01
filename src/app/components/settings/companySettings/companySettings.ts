@@ -79,10 +79,10 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
     templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
-    @ViewChild(UniForm, { static: false })
+    @ViewChild(UniForm)
     public form: UniForm;
 
-    @ViewChild(ReminderSettings, { static: false })
+    @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);

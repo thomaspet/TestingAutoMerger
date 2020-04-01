@@ -21,7 +21,7 @@ import {AccountMandatoryDimensionService} from '@app/services/services';
 })
 export class TofHead implements OnChanges {
     @ViewChild(TofCustomerCard, { static: true }) private customerCard: TofCustomerCard;
-    @ViewChild(TofDetailsForm, { static: false }) detailsForm: TofDetailsForm;
+    @ViewChild(TofDetailsForm) detailsForm: TofDetailsForm;
 
     @Input() entityName: string;
     @Input() readonly: boolean;

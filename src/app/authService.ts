@@ -9,7 +9,6 @@ import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
 import { UserManager, WebStorageStateStore } from 'oidc-client';
 import * as moment from 'moment';
-import * as $ from 'jquery';
 
 export interface IAuthDetails {
     activeCompany: Company;
@@ -171,11 +170,19 @@ export class AuthService {
     }
 
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
-        if (visible) {
-            $('#app-spinner').fadeIn(0);
-            $('#app-spinner-text').text(() => isLogout ? 'Logger ut' : 'Laster selskapsdata');
-        } else {
-            $('#app-spinner').fadeOut(250);
+        const spinner = document.getElementById('app-spinner');
+        if (spinner) {
+            if (visible) {
+                // spinner.style.display = 'flex';
+                fadeIn(spinner, 'flex');
+                const textElement = document.getElementById('app-spinner-text');
+                if (textElement) {
+                    textElement.innerText = isLogout ? 'Logger ut' : 'Laster selskapsdata';
+                }
+            } else {
+                fadeOut(spinner);
+                // spinner.style.display = 'none';
+            }
         }
 
         // #chat-container is added by boost, so it wont show up
@@ -509,4 +516,30 @@ export class AuthService {
 
         return false;
     }
+}
+
+
+function fadeOut(el) {
+    el.style.opacity = 1;
+
+    (function fade() {
+        if ((el.style.opacity -= .1) < 0) {
+            el.style.display = 'none';
+        } else {
+            requestAnimationFrame(fade);
+        }
+    })();
+}
+
+function fadeIn(el, display) {
+    el.style.opacity = 0;
+    el.style.display = display || 'block';
+
+    (function fade() {
+        let val = parseFloat(el.style.opacity);
+        if (!((val += .1) > 1)) {
+            el.style.opacity = val;
+            requestAnimationFrame(fade);
+        }
+    })();
 }

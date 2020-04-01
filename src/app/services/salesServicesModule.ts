@@ -38,7 +38,7 @@ export * from './sales/recurringInvoiceService';
 
 @NgModule({})
 export class SalesServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<SalesServicesModule> {
         return {
             ngModule: SalesServicesModule,
             providers: [

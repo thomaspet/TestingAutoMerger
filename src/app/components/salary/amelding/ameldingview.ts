@@ -2,10 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus} from '../../../unientities';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {IUniSaveAction} from '../../../../framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {IUniSaveAction} from '@uni-framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
@@ -19,9 +19,8 @@ import {
     PayrollrunService,
     ReportDefinitionService,
     SalarySumsService
-} from '../../../services/services';
-import {UniModalService} from '../../../../framework/uni-modal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+} from '@app/services/services';
+import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
