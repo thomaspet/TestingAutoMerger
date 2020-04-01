@@ -1600,13 +1600,14 @@ export class OrderDetails implements OnInit, AfterViewInit {
     updateDimensionObjects(item) {
         item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
         item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
-        console.log(this.dimensionTypes, this.order.DefaultDimensions)
         for (let i = 5; i < 11; i++) {
             const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
             if (!dim) {
                 continue;
             }
-            item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.order.DefaultDimensions[`Dimension${i}ID`]);
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.order.DefaultDimensions[`Dimension${i}ID`]);
+            }
         }
     }
 }
