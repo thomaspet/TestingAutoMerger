@@ -175,7 +175,8 @@ export class BillView implements OnInit {
         'Info.BankAccounts',
         'Info.DefaultBankAccount',
         'CurrencyCode',
-        'CostAllocation'
+        'CostAllocation',
+        'Dimensions'
     ];
 
     public activeTabIndex: number = 0;
@@ -1985,6 +1986,11 @@ export class BillView implements OnInit {
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
+        current.DefaultDimensions.ProjectID = result.Dimensions.ProjectID;
+        current.DefaultDimensions.DepartmentID = result.Dimensions.DepartmentID;
+        for (let i = 5; i <= 10; i++) {
+            current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
+        }
         this.current.next(current);
 
         this.setupToolbar();
