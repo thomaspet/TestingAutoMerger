@@ -30,6 +30,7 @@ export class RegulativeUploadModalComponent implements OnInit, IUniModal {
     regulativeConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     regulativeFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     regulativeModel$: BehaviorSubject<Regulative> = new BehaviorSubject(new Regulative());
+    importDisabled: boolean;
 
     busy: boolean;
     errorMessage: string;
@@ -71,6 +72,23 @@ export class RegulativeUploadModalComponent implements OnInit, IUniModal {
                 Property: 'StartDate',
                 Label: 'Startdato',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
+                Validations: [
+                    (value: LocalDate, field: UniFieldLayout) => {
+                        const today = new LocalDate();
+                        if (!value || value.month <= today.month || value.year < today.year) {
+                            this.importDisabled = false;
+                            return;
+                        }
+                        this.importDisabled = true;
+
+                        return {
+                            field: field,
+                            value: value,
+                            errorMessage: 'Startdato kan bare vere i måneden man står i eller tidligere',
+                            isWarning: false
+                        };
+                        }
+                ]
             }
         ];
     }

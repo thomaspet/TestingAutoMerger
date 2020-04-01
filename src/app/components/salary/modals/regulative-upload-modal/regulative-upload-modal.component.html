@@ -20,6 +20,6 @@
     </article>
     <footer>
         <button class="secondary" (click)="close()">Avbryt</button>
-        <button class="c2a" (click)="import()" [attr.aria-busy]="busy">Importer</button>
+        <button class="c2a" (click)="import()" [attr.aria-busy]="busy" [disabled]="importDisabled">Importer</button>
     </footer>
 </section>
