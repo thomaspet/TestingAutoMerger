@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, EventEmitter, Output, ViewChild, OnInit, OnDestroy} from '@angular/core';
+import {Component, Input, OnChanges, ViewChild, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable, Subject, forkJoin} from 'rxjs';
 import {
@@ -12,19 +12,18 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     WageType, PayrollRun, SalaryTransaction, Project, Department,
     WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Valuetype, StdSystemType
-} from '../../../unientities';
+} from '@uni-entities';
 import {
     AccountService, UniCacheService,
     ErrorService, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService, IEmployee
-} from '../../../services/services';
+} from '@app/services/services';
 
-import {UniView} from '../../../../framework/core/uniView';
-import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal';
-import {UniModalService} from '../../../../framework/uni-modal';
-import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
 import {tap, takeUntil, map} from 'rxjs/operators';
-import { isArray } from 'rxjs/internal/util/isArray';
-declare var _;
+import { UniView } from '@uni-framework/core/uniView';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { SalaryTransViewService } from '@app/components/salary/sharedServices/salaryTransViewService';
+import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals/ImageModal';
+
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 const BUSY_KEY = 'transes_busy';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -485,10 +484,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             .pipe(
                 map(transes => {
                     transes.forEach(trans => this.transferFrontendFieldsAndMarkDirty(rowModel, trans));
-                    this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
                     return index < 0
-                        ? [...transes]
-                        : [...transes.slice(1)];
+                    ? [...transes]
+                    : [this.salaryTransService.fillInRowmodel(rowModel, transes[0])
+                        , ...transes.slice(1)];
+
                 })
             );
     }
@@ -497,6 +497,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         to[DIRTY_FLAG] = true;
         to[PROJECT_FIELD] = from[PROJECT_FIELD];
         to[DEPARTMENT_FIELD] = from[DEPARTMENT_FIELD];
+        this.refresh = true;
     }
 
     private mapAccountToTrans(rowModel: SalaryTransaction): void {
