@@ -9,7 +9,7 @@
         "Model": "JournalEntryLine",
         "OrderBy": "ID desc",
         "Expand": "JournalEntryType",
-        "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
+        "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and JournalEntryLine.CreatedBy eq User.GlobalIdentity",
         "Columns": [
             {
                 "Header": "Bnr.",
@@ -239,6 +239,22 @@
             {
                 "Header": "KID",
                 "Field": "PaymentID",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Bilagstype",
+                "Field": "JournalEntryType.DisplayName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utført av",
+                "Field": "User.UserName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Reg Dato",
+                "Field": "CreatedAt",
+                "Type": "date",
                 "DefaultHidden": true
             },
             {
