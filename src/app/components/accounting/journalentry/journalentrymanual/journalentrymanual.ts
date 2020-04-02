@@ -350,13 +350,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public onFileListReady(files) {
-        if (this.journalEntryID > 0) {
-            // don't look for changes if this is a presaved journalentry - we wont
-            // persist the changes anyway, it this analysis could cause incorrect
-            // dirty checking if the API is slow or the user really fast
-            return;
-        }
-
         const fileIds: number[] = [];
 
         files.forEach(file => {
