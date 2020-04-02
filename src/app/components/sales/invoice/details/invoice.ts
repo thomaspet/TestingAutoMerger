@@ -1835,12 +1835,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             .find(plan => plan.ID === this.invoice.DistributionPlanID);
 
                                         // Only show sending of invoice if plan has elementtypes
-                                        if (currentPlan && currentPlan.Elements && !currentPlan.Elements.length) {
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
                                             this.toastService.toast({
                                                 title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
                                                 type: ToastType.good,
                                                 duration: 5
                                             });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
                                         }
 
                                         onSendingComplete();
