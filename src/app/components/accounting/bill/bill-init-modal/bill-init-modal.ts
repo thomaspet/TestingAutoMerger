@@ -2,6 +2,9 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ErrorService, UniFilesService, SupplierInvoiceService} from '@app/services/services';
 import {finalize, take} from 'rxjs/operators';
+import {FileExtended} from '@uni-framework/uniImage/uniImage';
+import {environment} from '../../../../../environments/environment';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'bill-init-modal',
@@ -14,11 +17,14 @@ export class BillInitModal implements IUniModal {
 
     busy: boolean;
     inboxFiles;
+    imgUrl: string;
+    selectedFile: FileExtended;
 
     constructor(
         private errorService: ErrorService,
         private supplierInvoiceService: SupplierInvoiceService,
         private uniFilesService: UniFilesService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
@@ -47,5 +53,23 @@ export class BillInitModal implements IUniModal {
             res => this.onClose.emit(res.ExternalId),
             err => this.errorService.handle(err)
         );
+    }
+
+    preview(file: FileExtended) {
+        this.imgUrl = this.generateImageUrl(file, 1000);
+    }
+
+    private generateImageUrl(file: FileExtended, width: number): string {
+        const baseUrl: string = environment.BASE_URL_FILES;
+        const cacheBuster = performance.now();
+        console.log({file});
+        const url = `${baseUrl}/api/image`
+            + `?key=${this.authService.activeCompany.Key}`
+            + `&id=${file.StorageReference}`
+            + `&width=${width}`
+            + `&page=1`
+            + `&t=${cacheBuster}`;
+
+        return encodeURI(url);
     }
 }

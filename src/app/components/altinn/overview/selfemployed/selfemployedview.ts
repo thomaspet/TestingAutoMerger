@@ -55,14 +55,20 @@ export class SelfEmployedView implements OnInit {
 
         this.getPayments().subscribe((payments) => {
             this.payments = payments;
+
+            /**
+             * This hack makes sum column be next to data if data is to small that
+             * it doesn't overflows. In case of data overflows it is added virtual scroll
+             * this is not the best way but I couldn't find a good way using CSS
+             * Desired behaviour is the one we can see in uniticker. But I could not
+             * reproduce it. Lots of nested styles that I wasn't able to reproduce.
+             * Since style is from ag-grid I don't want to touch it because it can have
+             * collateral behaviours as it is a transversal used component.
+             */
+            if (this.payments.length > 7) {
+                this.tableConfig = this.tableConfig.setVirtualScroll(true);
+            }
         });
-/*
-        this.getInvoices().subscribe((invoices) => {
-            this.invoices = invoices;
-        });
-        this.getSupplierInvoice(755).subscribe((invoices) => {
-            this.invoicesPerSupplier = invoices;
-        });*/
     }
 
     public onDataLoaded() {
@@ -93,7 +99,7 @@ export class SelfEmployedView implements OnInit {
         const amountString = value
             .replace(/\s/g, '')
             .replace(',', '.');
-        return parseFloat(amountString);
+        return Math.round(parseFloat(amountString));
     }
 
     private openDetailsModal(line) {
@@ -155,13 +161,4 @@ export class SelfEmployedView implements OnInit {
     private getPayments(): Observable<any> {
         return this.supplierInvoiceService.Action(null, 'get-selfemployed-payments', 'year=' + this.year, RequestMethod.Get);
     }
-
-    private getInvoices(): Observable<any> {
-        return this.supplierInvoiceService.Action(null, 'get-selfemployed-invoices', 'year=' + this.year, RequestMethod.Get);
-    }
-
-    private getSupplierInvoice(supplierID: number): Observable<any> {
-        return this.supplierInvoiceService.GetAction(supplierID, 'get-supplierinvoices&year=' + this.year);
-    }
-
 }

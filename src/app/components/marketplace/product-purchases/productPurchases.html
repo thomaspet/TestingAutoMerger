@@ -1,0 +1,78 @@
+<section class="purchases-container">
+    <section class="header">
+        <h1>Produktkjøp</h1>
+    </section>
+
+    <ng-container *ngIf="!isAdmin && !busy">
+        <section class="not-admin">
+            Denne siden er kun for administratorer på selskapet
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="isAdmin && !busy">
+        <section class="tabs">
+            <uni-tabs [tabs]="tabs" [activeIndex]="0" (tabClick)="onTabChange($event)"></uni-tabs>
+        </section>
+        <div class="col">
+            <div style="width: 55rem; margin: 0 auto">
+                <section class="input-with-button" style="width: 100%; margin-bottom: 1rem">
+                    <input type="text" [formControl]="filterControl" style="width: 80%" placeholder="Søk på produkter"/>
+                    <button
+                        type="button"
+                        tabindex="-1">
+                        <i class="material-icons">search</i>
+                    </button>
+                    <label class="results-label">Resultater: {{filteredProducts?.length}}</label>
+                </section>
+                <section class="product-card" *ngFor="let product of filteredProducts">
+                    <section class="product-card-header">
+                        <img class="icon" [src]="product.IconReference" />
+                        <span>{{product.Label}}</span>
+                    </section>
+                    <section class="product-warning" *ngIf="product['_activationFunction']">
+                        <i class="material-icons">error_outline</i>
+                        <span>Du har ikke fullført aktiveringen av dette produktet</span>
+                        <button class="tertiary c2a" (click)="product['_activationFunction'].click()">
+                            Fullfør aktivering
+                            <i class="material-icons">launch</i>
+                        </button>
+                    </section>
+                    <section class="info-table">
+                        <div class="header-row">
+                            <div class="col-3">Navn</div>
+                            <div class="col-2">Type</div>
+                            <div class="col-2">Dato</div>
+                            <div class="col-3">Kjøpt av</div>
+                            <div class="col-2">Status</div>
+                        </div>
+                        <div class="data-row">
+                            <div class="col-3 name-col">{{product.Label}}</div>
+                            <div class="col-2">{{product.CategoryName || ""}}</div>
+                            <div class="col-2">Dato</div>
+                            <div class="col-3 name-col">Kjøpt av</div>
+                            <div class="col-2">
+                                <i 
+                                class="material-icons status-indicator"
+                                [ngStyle]="{'color': product['_purchaseStatus'] === 1 ? 'var(--color-good)' : 'var(--color-warn)'}"
+                                >
+                                    {{product['_purchaseStatus'] === 1 ? 'check_circle' : 'timer'}}
+                                </i>
+                                {{product['_purchaseStatus'] | productpurchasestatus}}
+                            </div>
+                        </div>
+                    </section>
+                    <section class="footer">
+                        <span>
+                            <i class="material-icons">power</i>
+                            {{product.ProductType | producttype}}
+                        </span>
+    
+                        <button class="secondary" (click)="deactivatePurchase(product)">
+                            {{product.ProductType === 0 ? 'Administrer brukere' : 'Deaktiver'}}
+                        </button>
+                    </section>
+                </section>
+            </div>
+        </div>
+    </ng-container>
+</section>

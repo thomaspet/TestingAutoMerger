@@ -87,6 +87,7 @@ export const EN = {
         'PAYMENT_AND_DELIVERY': 'Payment and delivery terms',
         'SHOW_ALL_NAVBAR': 'Show complete menu',
         'MODULES': 'Modules',
-        'WEBINAR': 'Webinar'
+        'WEBINAR': 'Webinar',
+        'PURCHASES': 'Purchases',
     }
 };

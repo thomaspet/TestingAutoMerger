@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import { switchMap, map, take, tap, finalize, flatMap } from 'rxjs/operators';
+import { switchMap, map, take, tap, finalize, flatMap, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -155,6 +155,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
+    lastListOfItems: CustomerInvoiceItem[] = [];
     isDistributable = false;
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
@@ -303,7 +304,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg')
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     this.currentUser = res[1];
@@ -390,7 +391,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg')
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
                 ).subscribe((res) => {
                     const invoice = res[0];
 
@@ -1285,7 +1286,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer etter denne');
             }
-        }, err => this.errorService.handle(err) );
+        }, err => this.errorService.handle(err));
     }
 
     private previousInvoice() {
@@ -1295,7 +1296,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer før denne');
             }
-        }, err => this.errorService.handle(err) );
+        }, err => this.errorService.handle(err));
     }
 
     private getToolbarSubheads() {
@@ -1402,8 +1403,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
                         if (currentPlan && (!currentPlan.Elements || !currentPlan.Elements.length)) {
                             this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
-                            'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
-                            + 'Fjern denne planen om du ønsker å sende ut faktura.');
+                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
+                                + 'Fjern denne planen om du ønsker å sende ut faktura.');
                             done('');
                             return;
                         }
@@ -1848,8 +1849,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
                                             if (p && (!p.Elements || !p.Elements.length)) {
                                                 this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
-                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
-                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
+                                                    'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                    + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
                                                 onSendingComplete();
                                                 return;
                                             }
@@ -1867,8 +1868,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             this.errorService.handle(err);
                             if (isCreditNote) {
                                 const isAprilaInvoice = this.invoice.InvoiceReference &&
-                                this.invoice.InvoiceReference["CustomValues"] &&
-                                this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
+                                    this.invoice.InvoiceReference["CustomValues"] &&
+                                    this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
                                 if (isAprilaInvoice) {
                                     this.openAprilaCreditNoteModal('ERROR');
                                 }
@@ -2006,7 +2007,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.customerInvoiceService.invalidateCache();
                     this.getInvoice(this.invoice.ID).subscribe(
                         invoice => this.refreshInvoice(invoice),
-                        () => {}
+                        () => { }
                     );
 
                     this.modalService.open(UniReminderSendingModal, { data: reminders });
@@ -2078,7 +2079,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         });
 
-        const invoicePaymentData = <InvoicePaymentData> {
+        const invoicePaymentData = <InvoicePaymentData>{
             Amount: amount,
             AmountCurrency: amountCurrency,
             BankChargeAmount: 0,
@@ -2178,16 +2179,55 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    onTradeItemsChange() {
+    onTradeItemsChange(items) {
         setTimeout(() => {
+            this.invoiceItems = items;
             if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
                 this.isDirty = true;
             }
-
+            this.invoiceItems = this.updateDimensionsOnTradeItems(this.invoiceItems);
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
         });
+    }
+
+    updateDimensionsOnTradeItems(invoiceItems: CustomerInvoiceItem[]) {
+        if (this.lastListOfItems.length === 0 && invoiceItems.length === 0) {
+            this.lastListOfItems = [...invoiceItems];
+            return invoiceItems;
+        }
+        const newItems = invoiceItems
+            .filter(x => !this.lastListOfItems
+                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
+        const newItemsWithDimensionsFromUser = newItems.map(item => {
+            this.tradeItemTable.mapDimensionsToEntity(this.invoice.DefaultDimensions, item);
+            this.updateDimensionObjects(item);
+            return item;
+        });
+        const invoiceItemsUpdatedWithDimensionsFromUser  = invoiceItems.map(item => {
+            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
+            if (newItem) {
+                return newItem;
+            }
+            return item;
+        });
+        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
+        return invoiceItemsUpdatedWithDimensionsFromUser;
+    }
+
+    updateDimensionObjects(item) {
+        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
+        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
+        for (let i = 5; i < 11; i++) {
+            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
+            if (!dim) {
+                continue;
+            }
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
+            }
+        }
     }
 
     sellInvoiceToAprila(done) {

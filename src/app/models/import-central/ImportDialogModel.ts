@@ -8,7 +8,8 @@ export class ImportDialogModel {
 
 export enum ImportFileType {
     StandardizedExcelFormat,
-    StandardUniFormat
+    StandardUniFormat,
+    StandardizedCSVFormat
 }
 
 export enum ImportOption {

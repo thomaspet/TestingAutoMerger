@@ -182,6 +182,23 @@
                 }
               ]
             },
+            "rodc": {
+              "aot": false,
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.rodc.ts"
+                }
+              ]
+            },
             "ext01": {
               "aot": true,
               "optimization": true,
@@ -396,6 +413,9 @@
             },
             "local": {
               "browserTarget": "economy-frontend:build:local"
+            },
+            "rodc": {
+              "browserTarget": "economy-frontend:build:rodc"
             }
           }
         },

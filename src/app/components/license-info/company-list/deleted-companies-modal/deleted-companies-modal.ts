@@ -27,11 +27,11 @@ export class DeletedCompaniesModal implements IUniModal, OnInit {
         },
         {
             header: 'Slettet dato',
-            field: 'DeletedAt'
+            field: 'UpdatedAt'
         },
         {
             header: 'Slettet av',
-            field: 'DeletedByEmail'
+            field: 'UpdatedByEmail'
         },
     ];
     contextMenu = [

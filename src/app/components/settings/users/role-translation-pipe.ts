@@ -18,6 +18,7 @@ const ROLE_TRANSLATIONS = {
     'Payroll.Travel': 'Reiseregning',
     'Payroll.HR': 'Personalannsvar - lønn',
     'Payroll.Payroll': 'Personalannsvar - lønn',
+    'Payrollplus.Admin': 'Full tilgang lønn utvidet',
 
     'Timetracking.Admin': 'Full tilgang timer',
     'Timetracking.HR': 'Personalansvar - timer',

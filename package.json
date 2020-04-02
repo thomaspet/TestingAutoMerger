@@ -18,6 +18,7 @@
     "build.ext01": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01",
     "build.ext01-rc": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-rc",
     "build.ext01-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-dev",
+    "build.rodc": "npm run prebuild && npm run high-memory-build -- build --configuration=rodc",
     "start": "npm run start.dev",
     "start.dev": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=dev-serve --proxy-config proxy/dev.proxy.json",
     "start.test": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=test-serve --proxy-config proxy/test.proxy.json",
@@ -26,7 +27,8 @@
     "start.ext01": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext01-serve --proxy-config proxy/ext01.proxy.json",
     "start.local": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=local --proxy-config proxy/local.proxy.json",
     "start.faster": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=dev-serve-faster --sourceMap=false --proxy-config proxy/dev.proxy.json",
-    "check-aot": "npm run high-memory-build -- build --configuration=aot-error-check"
+    "check-aot": "npm run high-memory-build -- build --configuration=aot-error-check",
+    "start.rodc": "npm run prebuild && npm run high-memory-build -- serve --port=80 --configuration=rodc --proxy-config proxy/rodc.proxy.json --host rodc"
   },
   "dependencies": {
     "@angular/animations": "~8.2.9",

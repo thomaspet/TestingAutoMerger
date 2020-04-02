@@ -10,6 +10,8 @@ import {UniTranslatePipe} from './uniTranslatePipe';
 import {EntitytypeTranslationPipe} from './entitytype-translation.pipe';
 import {UniStatusCodePipe} from './StatusCodePipe';
 import {ElsaContractTypePipe} from './elsaContractTypePipe';
+import {ProductPurchaseStatusPipe} from './productPurchaseStatusPipe';
+import {ProductTypePipe} from './productTypePipe';
 
 @NgModule({
     imports: [
@@ -26,6 +28,8 @@ import {ElsaContractTypePipe} from './elsaContractTypePipe';
         EntitytypeTranslationPipe,
         UniStatusCodePipe,
         ElsaContractTypePipe,
+        ProductPurchaseStatusPipe,
+        ProductTypePipe,
     ],
     providers: [
         SkipSanitizationPipe,
@@ -37,6 +41,8 @@ import {ElsaContractTypePipe} from './elsaContractTypePipe';
         UniTranslatePipe,
         EntitytypeTranslationPipe,
         ElsaContractTypePipe,
+        ProductPurchaseStatusPipe,
+        ProductTypePipe,
     ],
     exports: [
         SkipSanitizationPipe,
@@ -50,6 +56,8 @@ import {ElsaContractTypePipe} from './elsaContractTypePipe';
         EntitytypeTranslationPipe,
         UniStatusCodePipe,
         ElsaContractTypePipe,
+        ProductPurchaseStatusPipe,
+        ProductTypePipe,
     ]
 })
 export class AppPipesModule { }

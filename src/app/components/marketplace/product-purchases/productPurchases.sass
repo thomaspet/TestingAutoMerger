@@ -1,0 +1,133 @@
+@import '../marketplaceSharedStyles.sass'
+@import '~src/styles/unibase/helpers/_multiline-ellipsis.sass'
+
+$default-margin: 2rem
+
+.purchases-container
+    background-color: $bg-color
+    color: $dark-text-color
+    display: flex
+    flex-flow: row wrap
+
+.material-icons
+    vertical-align: middle
+
+.header
+    display: flex
+    background-color: white
+    width: 100%
+    padding-left: $default-margin
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
+
+    h1
+        font-weight: 600
+        display: inline-block
+
+    button.tertiary
+        margin: auto 2rem auto auto
+
+.tabs
+    display: flex
+    flex-flow: row wrap
+    justify-content: flex-start
+    align-content: flex-start
+    padding: 1rem $default-margin 0
+    width: 100%
+
+.results-label
+    margin: auto 0 auto auto
+    color: var(--scale1)
+
+.product-card
+    display: flex
+    flex-direction: column
+    padding: 0 1.5rem
+    background-color: white
+    width: 100%
+    min-height: 17rem
+    max-height: 21rem
+    margin: 0 auto 1rem
+    position: relative
+    border: 1px solid var(--border-color)
+    border-radius: 4px
+    .product-card-header
+        font-weight: 500
+        margin: 1rem 0
+        > *
+            vertical-align: middle
+
+        .icon
+            height: 2rem
+            width: 2rem
+            margin-right: 1rem
+        span
+            font-size: 18px
+    .product-warning
+        background-color: rgba(255, 235, 213, 0.5) //var(--alert-warn)
+        padding: 15px 10px 13px
+        font-size: 14px
+        font-weight: 500
+        border-radius: 1px
+        i
+            font-size: 30px !important
+            color: var(--color-warn)
+            margin-right: 1rem
+        > button
+            float: right
+            padding: 0
+            margin-top: 2px
+            height: 0
+            > i
+                color: inherit
+                font-size: 22px !important
+
+    .info-table
+        padding-top: 1rem
+        font-size: 14px
+        .header-row
+            padding: 10px 0
+            font-weight: 500
+            display: flex
+            flex-wrap: wrap
+            background-color: var(--body-background)
+        .data-row
+            padding: 10px 0
+            display: flex
+            flex-wrap: wrap
+            border-bottom: 3px solid var(--body-background)
+            overflow: hidden
+            .name-col
+                overflow: hidden
+                text-overflow: ellipsis
+                white-space: nowrap
+            .status-indicator
+                font-size: 20px
+                margin: 0 5px 2px 0
+
+    .footer
+        margin: 2rem 0 1.5rem
+        span
+            color: var(--scale1)
+            vertical-align: -webkit-baseline-middle
+        button
+            float: right
+
+    .content
+        margin: auto 0
+    .info
+        font-weight: 500
+        > *
+            vertical-align: middle
+        span
+            font-size: 22px
+        span + span
+            float: right
+
+.not-admin
+    margin: auto
+    padding-top: 4rem
+
+.ellipsis-on-3-lines
+    @include multiline-ellipsis(3)
+
+

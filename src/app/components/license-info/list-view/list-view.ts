@@ -21,7 +21,7 @@ export class CellValuePipe implements PipeTransform {
 
     transform(row: any, column: ListViewColumn) {
         const value = get(row, column.field, '');
-        if (column.field === 'DeletedAt') {
+        if (column.field === 'UpdatedAt') {
             if (value) {
                 return new DatePipe('en-US').transform(value, 'dd.MM.yyyy');
             }

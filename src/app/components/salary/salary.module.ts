@@ -133,10 +133,14 @@ import {
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
-import { RegulativeComponent } from './regulative/regulative';
 import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal/regulative-upload-modal.component';
+import { RegulativeEmptyStateComponent } from './regulative/regulative-empty-state/regulative-empty-state.component';
+import { RegulativeGroupListComponent } from './regulative/regulative-group-list/regulative-group-list.component';
+import { RegulativeGroupComponent } from './regulative/regulative-group/regulative-group.component';
 import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
+import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
+import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
 
 @NgModule({
     imports: [
@@ -201,6 +205,8 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         PaycheckSenderModal,
         TimeTransferComponent,
         VariablePayrollsComponent,
+        NegativeSalaryComponent,
+        NegativeSalaryModalComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -262,8 +268,10 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         OtpPeriodWagetypeModalComponent,
 
         // Regulation
-        RegulativeComponent,
         RegulativeUploadModalComponent,
+        RegulativeEmptyStateComponent,
+        RegulativeGroupListComponent,
+        RegulativeGroupComponent,
     ],
     entryComponents: [
         TaxCardModal,
@@ -288,7 +296,8 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         SyncWagetypesModalComponent,
         RegulativeUploadModalComponent,
         StatusAMeldingModal,
-        MakeAmeldingPaymentModal
+        MakeAmeldingPaymentModal,
+        NegativeSalaryModalComponent,
     ],
     providers: [
         PayrollRunDetailsService,

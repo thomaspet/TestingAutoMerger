@@ -1,0 +1,15 @@
+<uni-toolbar
+        [config]="toolbarConfig"
+        class="regulativeToolbar">
+</uni-toolbar>
+<article class="application">
+    <h2 *ngIf="regulativeGroups.length">Oversikt over regulativ</h2>
+    <section class="uni-container" [attr.aria-busy]="busy">
+        <ag-grid-wrapper
+            [resource]="regulativeGroups"
+            [config]="tableConfig"
+            *ngIf="regulativeGroups.length">
+        </ag-grid-wrapper>
+        <uni-regulative-empty-state (newRegulativeGroup)="import()" *ngIf="!regulativeGroups.length"></uni-regulative-empty-state>
+    </section>
+</article>

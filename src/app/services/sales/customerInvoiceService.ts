@@ -179,15 +179,15 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     public payInvoice(id: number, payment: InvoicePaymentData): Observable<JournalEntry> {
         return this.ActionWithBody(id, payment, 'payInvoice');
     }
-    public payInvoiceWithNumberSeriesTaskID(id: number, payment: InvoicePaymentData, taskID: number) {
-        return this.ActionWithBody(id, payment, 'pay-invoice-with-number-series-task-id', RequestMethod.Put,
-            taskID != null ? 'numberseriestaskid=' + taskID.toString() : null);
+    public payInvoiceWithNumberSeriesID(id: number, payment: InvoicePaymentData, numberSeriesID: number) {
+        return this.ActionWithBody(id, payment, 'pay-invoice-with-number-series-id', RequestMethod.Put,
+            numberSeriesID != null ? 'numberseriesid=' + numberSeriesID : null);
     }
 
-    public payInvoices(data: { id: number, payment: InvoicePaymentData, numberSeriesTaskID: number }[]): Observable<JournalEntry[]> {
+    public payInvoices(data: { id: number, payment: InvoicePaymentData, numberSeriesID: number }[]): Observable<JournalEntry[]> {
         if (!data.length) { return Observable.of([]); }
 
-        return Observable.forkJoin(data.map(d => this.payInvoiceWithNumberSeriesTaskID(d.id, d.payment, d.numberSeriesTaskID)));
+        return Observable.forkJoin(data.map(d => this.payInvoiceWithNumberSeriesID(d.id, d.payment, d.numberSeriesID)));
     }
 
     public onCheckCreateCreditNoteDisabled(selectedRow: any): boolean {

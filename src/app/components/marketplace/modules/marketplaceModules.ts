@@ -24,6 +24,7 @@ import {
     ProductPurchasesModal,
     UniAutobankAgreementModal,
     MissingPurchasePermissionModal,
+    PurchaseTraveltextModal,
     ConfirmActions
 } from '@uni-framework/uni-modal';
 
@@ -99,7 +100,6 @@ export class MarketplaceModules implements AfterViewInit {
                     });
                 }
                 this.autobankAgreements = res[1] || [];
-
                 const products = res[2] || [];
                 this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
                 this.extensions = products
@@ -202,7 +202,10 @@ export class MarketplaceModules implements AfterViewInit {
 
     manageUserPurchases(product: ElsaProduct) {
         if (this.canPurchaseProducts) {
-            this.modalService.open(ProductPurchasesModal, {
+            const purchaseModal = product.Name.trim().toLowerCase() === 'traveltext'
+                ? PurchaseTraveltextModal
+                : ProductPurchasesModal;
+            this.modalService.open(purchaseModal, {
                 data: {
                     product: product
                 }
@@ -244,6 +247,5 @@ export class MarketplaceModules implements AfterViewInit {
         } else {
             window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');
         }
-
     }
 }

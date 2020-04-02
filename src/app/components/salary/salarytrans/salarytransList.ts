@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, EventEmitter, Output, ViewChild, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable, Subject} from 'rxjs';
+import {Observable, Subject, forkJoin} from 'rxjs';
 import {
     UniTableColumnType,
     UniTableColumn,
@@ -22,11 +22,15 @@ import {UniView} from '../../../../framework/core/uniView';
 import {ImageModal, IUpdatedFileListEvent} from '../../common/modals/ImageModal';
 import {UniModalService} from '../../../../framework/uni-modal';
 import {SalaryTransViewService} from '../sharedServices/salaryTransViewService';
-import {tap, takeUntil} from 'rxjs/operators';
+import {tap, takeUntil, map} from 'rxjs/operators';
+import { isArray } from 'rxjs/internal/util/isArray';
 declare var _;
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 const BUSY_KEY = 'transes_busy';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
+const DIRTY_FLAG: string = '_isDirty';
+const PROJECT_FIELD: string = '_Project';
+const DEPARTMENT_FIELD: string = '_Department';
 
 @Component({
     selector: 'salary-transactions-employee',
@@ -68,10 +72,12 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
     ) {
         super(router.url, cacheService);
+    }
 
-        route.params.subscribe((params) => {
+    public ngOnInit() {
+        this.route.params.subscribe((params) => {
             this.payrollRunID = +params['id'];
-            super.updateCacheKey(router.url);
+            super.updateCacheKey(this.router.url);
             this.salaryTransactions = [];
 
             const payrollRunSubject = super.getStateSubject('payrollRun').takeUntil(this.destroy$);
@@ -103,6 +109,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             salaryTransactionsSubject.subscribe((transes: SalaryTransaction[]) => {
                 if (!this.salaryTransactions
                     || !this.salaryTransactions.length
+                    || !this.filteredTranses.length
                     || this.refresh
                     || !transes.some(x => x['_isDirty'] || x.Deleted)) {
                     this.salaryTransactions = transes;
@@ -115,14 +122,19 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
 
             if (!this.salarytransEmployeeTableConfig) {
                 super.updateState(BUSY_KEY, true, false);
-                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject,
-                    payrollRunSubject)
-                    .take(1).subscribe((response) => {
-                        this.createTableConfig();
-                        super.updateState(BUSY_KEY, false, false);
-                    });
+                Observable.combineLatest(salaryTransactionsSubject, wagetypesSubject, payrollRunSubject)
+                .take(1).subscribe((response) => {
+                    this.createTableConfig();
+                    super.updateState(BUSY_KEY, false, false);
+                });
             }
         });
+        super.getStateSubject(BUSY_KEY)
+            .pipe(
+                tap(busy => this.busy = busy),
+                takeUntil(this.destroy$)
+            )
+            .subscribe();
     }
 
     public ngOnChanges() {
@@ -135,15 +147,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         } else {
             this.filteredTranses = [];
         }
-    }
-
-    public ngOnInit() {
-        super.getStateSubject(BUSY_KEY)
-            .pipe(
-                tap(busy => this.busy = busy),
-                takeUntil(this.destroy$)
-            )
-            .subscribe();
     }
 
     public ngOnDestroy() {
@@ -331,7 +334,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
             .setPageable(false)
             .setChangeCallback((event) => {
                 const row: SalaryTransaction = event.rowModel;
-                let obs: Observable<SalaryTransaction> = null;
+                let suggestions$: Observable<SalaryTransaction[]> = null;
 
                 if (event.field === 'Wagetype') {
                     this.mapWagetypeToTrans(row);
@@ -353,7 +356,6 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 if (event.field === '_Account') {
                     this.mapAccountToTrans(row);
                     this.mapVatToTrans(row);
-                    obs = this.suggestVatType(row);
                 }
 
                 if (event.field === '_Project') {
@@ -369,20 +371,26 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
                 }
 
                 if ((event.field === 'Wagetype' || event.field === 'employment')) {
-                    obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
+                    suggestions$ = suggestions$
+                        ? suggestions$.switchMap( rows => this.fillInAll(rows))
+                        : this.fillIn(row);
                 }
 
                 if (event.field === '_Account' || event.field === 'Wagetype') {
-                    obs = obs ? obs.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
+                    suggestions$ = suggestions$
+                        ? suggestions$.switchMap(trans => this.suggestVatTypes(trans))
+                        : this.suggestVatTypes([row]);
                 }
 
-                if (obs) {
-                    obs
+                if (suggestions$) {
+                    suggestions$
                         .take(1)
-                        .map(trans => this.calcItem(trans))
-                        .subscribe(trans => this.updateSalaryChanged(trans, true));
+                        .pipe(
+                            map((transes: SalaryTransaction[]) => this.calcItems(transes)),
+                        )
+                        .subscribe((transes: SalaryTransaction[]) => this.updateTransStateBasedOnChanges(transes, true));
                 } else {
-                    this.updateSalaryChanged(row);
+                    this.updateTransStateBasedOnChange(row);
                 }
 
                 return row;
@@ -403,7 +411,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         }
     }
 
-    private suggestVatType(trans: SalaryTransaction): Observable<SalaryTransaction> {
+    private suggestVatTypes(transes: SalaryTransaction[]): Observable<SalaryTransaction[]> {
+        return forkJoin(transes.map(trans => this.suggestSingleVatType(trans)));
+    }
+
+    private suggestSingleVatType(trans: SalaryTransaction): Observable<SalaryTransaction> {
         return this.salaryTransSuggestedValues
             .suggestVatType(trans)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
@@ -457,17 +469,37 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         }
     }
 
-    private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction> {
-        rowModel.PayrollRunID = this.payrollRunID;
-        rowModel.EmployeeID = this.employeeID;
-        return this.salaryTransService.completeTrans(rowModel).map((transes: SalaryTransaction[]) => {
-            this.salaryTransactions = this.salaryTransService.updateDataSource(this.salaryTransactions, transes);
-
-            return this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
-        });
+    private fillInAll(rowModels: SalaryTransaction[]): Observable<SalaryTransaction[]> {
+        return forkJoin(rowModels.map(rowModel => this.fillIn(rowModel)))
+            .pipe(
+                map(transResult => transResult.reduce((acc, curr) => [...acc, ...curr], [])),
+            );
     }
 
-    private mapAccountToTrans(rowModel: SalaryTransaction) {
+    private fillIn(rowModel: SalaryTransaction): Observable<SalaryTransaction[]> {
+        const index = this.getTransIndex(rowModel);
+        rowModel.PayrollRunID = rowModel.PayrollRunID || this.payrollRunID;
+        rowModel.EmployeeID = rowModel.EmployeeID || this.employeeID;
+        return this.salaryTransService
+            .completeTrans(rowModel)
+            .pipe(
+                map(transes => {
+                    transes.forEach(trans => this.transferFrontendFieldsAndMarkDirty(rowModel, trans));
+                    this.salaryTransService.fillInRowmodel(rowModel, transes[0]);
+                    return index < 0
+                        ? [...transes]
+                        : [...transes.slice(1)];
+                })
+            );
+    }
+
+    private transferFrontendFieldsAndMarkDirty(from: SalaryTransaction, to: SalaryTransaction): void {
+        to[DIRTY_FLAG] = true;
+        to[PROJECT_FIELD] = from[PROJECT_FIELD];
+        to[DEPARTMENT_FIELD] = from[DEPARTMENT_FIELD];
+    }
+
+    private mapAccountToTrans(rowModel: SalaryTransaction): void {
         const account: Account = rowModel['_Account'];
         if (!account) {
             rowModel.Account = null;
@@ -501,6 +533,11 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         return rowModel;
     }
 
+    private calcItems(rowModels: SalaryTransaction[]): SalaryTransaction[] {
+        rowModels.forEach(rowModel => this.calcItem(rowModel));
+        return rowModels;
+    }
+
     private checkDates(rowModel) {
         const fromDate: LocalDate = new LocalDate(rowModel['FromDate'].toString());
         const toDate: LocalDate = new LocalDate(rowModel['ToDate'].toString());
@@ -519,18 +556,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
 
     public onSupplementModalClose(trans: SalaryTransaction) {
         if (trans && trans.Supplements && trans.Supplements.length) {
-            this.updateSalaryChanged(trans, true);
-        }
-    }
-
-    public updateSingleSalaryTransaction(trans: SalaryTransaction) {
-        if (trans) {
-            const rows: SalaryTransaction[] = this.table.getTableData();
-            const row: SalaryTransaction = rows.find(x => x.ID === trans.ID);
-            if (row) {
-                row.Supplements = trans.Supplements;
-                this.updateSalaryChanged(row, true);
-            }
+            this.updateTransStateBasedOnChange(trans, true);
         }
     }
 
@@ -559,33 +585,42 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
         }
     }
 
-    private updateSalaryChanged(row, updateTable = false) {
-        row['_isDirty'] = true;
-        const transIndex = this.getTransIndex(row);
-
-        if (transIndex !== -1) {
-            this.salaryTransactions[transIndex] = row;
-        } else {
-            this.salaryTransactions.push(row);
-        }
-        if (updateTable) {
-            this.table.updateRow(row['_originalIndex'], row);
-        }
-        super.updateState('salaryTransactions', this.salaryTransactions, true);
+    private updateTransStateBasedOnChange(row: SalaryTransaction, updateTable = false) {
+        this.updateTransStateBasedOnChanges([row], updateTable);
     }
 
-    private getTransIndex(row) {
-        let transIndex = null;
+    private updateTransStateBasedOnChanges(rows: SalaryTransaction[], updateTable = false) {
+        rows.forEach(row => {
+            const transIndex = this.getTransIndex(row);
+
+            if (transIndex !== -1) {
+                this.salaryTransactions[transIndex] = row;
+            } else {
+                this.salaryTransactions.push(row);
+            }
+            if (updateTable && (transIndex < 0)) {
+                this.refresh = true;
+            }
+        });
+        super.updateState(SALARY_TRANS_KEY, this.salaryTransactions, true);
+    }
+
+    private getTransIndex(row: SalaryTransaction) {
+        let transIndex = -1;
 
         if (row['ID']) {
             transIndex = this.salaryTransactions.findIndex(x => x.ID === row.ID);
         } else {
-            row['EmployeeID'] = this.employeeID;
-            row['PayrollRunID'] = this.payrollRunID;
-            row['IsRecurringPost'] = false;
-            transIndex = this.salaryTransactions.findIndex(
-                x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID
-            );
+            row.EmployeeID = row.EmployeeID || this.employeeID;
+            row.PayrollRunID = row.PayrollRunID || this.payrollRunID;
+            row.IsRecurringPost = false;
+
+            if (row['_guid']) {
+                transIndex = this.salaryTransactions.findIndex(
+                    x => x['_guid'] === row['_guid'] && x.EmployeeID === this.employeeID
+                );
+            }
+
         }
 
         return transIndex;

@@ -3,6 +3,7 @@ import { Regulative } from '@uni-entities';
 import { Injectable } from '@angular/core';
 import { of, Observable } from 'rxjs';
 import { switchMap, map, tap } from 'rxjs/operators';
+import { saveAs } from 'file-saver';
 
 @Injectable()
 export class RegulativeService extends BizHttp<Regulative> {
@@ -28,8 +29,23 @@ export class RegulativeService extends BizHttp<Regulative> {
             .withEndPoint(`regulatives/${from.ID}?action=export`)
             .send({responseType: 'blob'})
             .pipe(
-                tap(res => console.log(res)),
                 map(res => new Blob([res.body]))
             );
+    }
+
+    getTemplateFile(): Observable<Blob> {
+        return this.http
+        .usingBusinessDomain()
+        .asGET()
+        .withEndPoint(`regulatives?action=template`)
+        .send({responseType: 'blob'})
+        .pipe(
+            map(res => new Blob([res.body])),
+        );
+    }
+
+    downloadTemplateFile(): void {
+        this.getTemplateFile()
+            .subscribe(blob => saveAs(blob, 'regulativ.xlsx'));
     }
 }
