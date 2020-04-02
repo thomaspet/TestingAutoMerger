@@ -23,7 +23,7 @@ export class MissingRolesModal implements IUniModal {
         this.userService.getAdmins().subscribe(
             admins => {
                 this.busy = false;
-                this.admins = (admins || []).filter(admin => admin.UserName !== 'SystemUser');
+                this.admins = (admins || []).filter(admin => !admin.Protected);
                 setTimeout(() => {
                     this.scrollbar = new PerfectScrollbar('#missing-roles-dialog-body');
                 });
