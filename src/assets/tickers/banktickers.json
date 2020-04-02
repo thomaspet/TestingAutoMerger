@@ -999,15 +999,15 @@
             {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
-                "FilterOperator": "contains",
-                "SumColumn": true
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
                 "FilterOperator": "contains",
                 "Alias": "Amount",
-                "DisplayField": "Amount"
+                "DisplayField": "Amount",
+                "SumColumn": true
             },
             {
                 "Header": "Betalingsdato",
