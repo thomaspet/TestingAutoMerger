@@ -42,8 +42,7 @@
             },
             {
                 "Header": "Reskontronr.",
-                "Field": "SubAccount.AccountNumber",
-                "DefaultHidden": true
+                "Field": "SubAccount.AccountNumber"
             },
             {
                 "Header": "Reskontro",
@@ -114,13 +113,11 @@
             },
             {
                 "Header": "Mva rapportert",
-                "Field": "VatReport.TerminPeriod.No",
-                "DefaultHidden": true
+                "Field": "VatReport.TerminPeriod.No"
             },
             {
                 "Header": "Fakturanr.",
-                "Field": "InvoiceNumber",
-                "DefaultHidden": true
+                "Field": "InvoiceNumber"
             },
             {
                 "Header": "Forfall",
@@ -147,7 +144,7 @@
             {
                 "Header": "Prosjektnr.",
                 "Field": "Dimensions.Project.ProjectNumber",
-                "DefaultHidden": false
+                "DefaultHidden": true
             },
             {
                 "Header": "Prosjektnavn",
@@ -157,7 +154,7 @@
             {
                 "Header": "Avdelingsnr.",
                 "Field": "Dimensions.Department.DepartmentNumber",
-                "DefaultHidden": false
+                "DefaultHidden": true
             },
             {
                 "Header": "Avdelingsnavn",
