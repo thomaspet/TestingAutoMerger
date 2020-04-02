@@ -27,7 +27,7 @@ import {
     MatchSubAccountManualModal,
     MatchMainAccountModal
 } from './modals';
-import {Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement} from '../../unientities';
+import {Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, File} from '../../unientities';
 import {saveAs} from 'file-saver';
 import {UniPaymentEditModal} from './modals/paymentEditModal';
 import {AddPaymentModal} from '@app/components/common/modals/addPaymentModal';
@@ -42,6 +42,7 @@ import {
     CustomerInvoiceService,
     ElsaPurchaseService,
     CompanySettingsService,
+    JobService,
 } from '../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -275,6 +276,7 @@ export class BankComponent {
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private authService: AuthService,
+        private jobService: JobService
     ) {
         this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
 
@@ -316,6 +318,9 @@ export class BankComponent {
                             this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
                             this.router.navigateByUrl('/');
                         });
+                    } else if (theme.theme === THEMES.EXT02) {
+                        this.hasAccessToAutobank = true; //this is a temp fix until onboarding works for ext02
+                        this.initiateBank();
                     } else {
                         Observable.forkJoin(
                             this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
@@ -444,7 +449,8 @@ export class BankComponent {
         if (selectedTickerCode === 'payment_list') {
             const hasActiveAgreement = this.agreements && this.agreements.length
             && this.agreements.filter((agreement: BankIntegrationAgreement) =>
-            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
+            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0
+            || theme.theme === THEMES.EXT02; //this is a temp fix until onboarding works for ext02
 
             this.actions.push({
                 label: 'Send alle til betaling',
@@ -1180,7 +1186,7 @@ export class BankComponent {
             this.cdr.markForCheck();
             return;
         }
-        if (isManualPayment && count) {
+        if ((isManualPayment || theme.theme === THEMES.EXT02) && count) { //temp workarround for ext02 until bankid is implemented
             this.paymentService.createPaymentBatchForAll().subscribe((result) => {
                 if (result && result.ProgressUrl) {
                     // runs as hangfire job (decided by back-end)
@@ -1194,7 +1200,11 @@ export class BankComponent {
                                     this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(fileJobResponse => {
                                         if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
                                             && fileJobResponse.Result.ID > 0) {
+                                            if (isManualPayment) {
                                                 return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
+                                            } else {
+                                                return this.SendAsPaymentJob(doneHandler, fileJobResponse.Result.ID, batchJobResponse.Result.ID);
+                                            }
                                         } else {
                                             this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                                 fileJobResponse.Result);
@@ -1215,14 +1225,22 @@ export class BankComponent {
                             this.paymentBatchService.waitUntilJobCompleted(fileResult.Value.ID).subscribe(fileJobResponse => {
                                 if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
                                     && fileJobResponse.Result.ID > 0) {
-                                        return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
+                                        if (isManualPayment) {
+                                            return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
+                                        } else {
+                                            return this.SendAsPaymentJob(doneHandler, fileJobResponse.Result.ID, result.ID);
+                                        }
                                 } else {
                                     this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                         fileJobResponse.Result);
                                 }
                             });
                         } else {
-                            return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
+                            if (isManualPayment) {
+                                return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
+                            } else {
+                                return this.SendAsPaymentJob(doneHandler, fileResult.PaymentFileID, result.ID);
+                            }
                         }
                     });
                 }
@@ -1268,6 +1286,39 @@ export class BankComponent {
                 doneHandler('Feil ved henting av utbetalingsfil');
                 this.errorService.handle(err);
             });
+    }
+
+    /*
+    * Important !!!!
+    * In future this method should be removed from the frontend and use the normal paymentService, that will call a simular function on the backend or on the integration server.
+    * (after all back-end checks / user authentication are ok.)
+    * This is only used for a simple ext02 POC
+    */
+    private SendAsPaymentJob(doneHandler: (status: string) => any, fileID: number, paymentBatchID: number) {
+        this.toastService.addToast(
+            'Utbetalingsfil laget, sender fil...',
+            ToastType.good, 5
+        );
+        this.updateSaveActions(this.selectedTicker.Code);
+
+        this.fileService.Get(fileID).subscribe((file: File) => {
+            const orgnumber = ('00000000000'+this.companySettings.OrganizationNumber).slice(-11);
+            const divisionumber = "003"; //temp hardcoded since this value does not exist yet in out system.
+            const body = {
+                StorageReference: file.StorageReference,
+                FileName: "P."+orgnumber+"."+divisionumber+".P001."+fileID+".XML",
+                PaymentBatchID: paymentBatchID};
+            this.jobService.startJob("BrunoSendJob", 0, body).subscribe(res => {
+
+                doneHandler('Utbetalingsfil sendt');
+            }, err => {
+                doneHandler('Feil ved sending av utbetalingsfil');
+                this.errorService.handle(err);
+            })
+        }, err => {
+            doneHandler('Feil ved henting av utbetalingsfildetaljer');
+            this.errorService.handle(err);
+        });
     }
 
     private creditJournalEntry(rows) {
@@ -1382,7 +1433,7 @@ export class BankComponent {
         });
 
         // User selected manual payment!
-        if (isManualPayment) {
+        if (isManualPayment || theme.theme === THEMES.EXT02) {//temp workarround until bankid is implemented for ext02
         // Create action to generate batch for n paymetns
         this.paymentService.createPaymentBatch(paymentIDs, isManualPayment)
         .subscribe((paymentBatch: PaymentBatch) => {
@@ -1398,26 +1449,11 @@ export class BankComponent {
             this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
             .subscribe((updatedPaymentBatch: PaymentBatch) => {
                 if (updatedPaymentBatch.PaymentFileID) {
-                    this.toastService.addToast(
-                        'Utbetalingsfil laget, henter fil...',
-                        ToastType.good, 5
-                    );
-                    this.updateSaveActions(this.selectedTicker.Code);
-
-                    this.fileService
-                        .downloadXml(updatedPaymentBatch.PaymentFileID)
-                        .subscribe((blob) => {
-                            doneHandler('Utbetalingsfil hentet');
-
-                            // Download file so the user can open it
-                            saveAs(blob, `payments_${updatedPaymentBatch.ID}.xml`);
-                            this.tickerContainer.getFilterCounts();
-                            this.tickerContainer.mainTicker.reloadData();
-                        },
-                        err => {
-                            doneHandler('Feil ved henting av utbetalingsfil');
-                            this.errorService.handle(err);
-                        });
+                    if (isManualPayment) {
+                        this.DownloadFile(doneHandler, updatedPaymentBatch.PaymentFileID);
+                    } else {
+                        this.SendAsPaymentJob(doneHandler, updatedPaymentBatch.PaymentFileID, paymentBatch.ID);
+                    }
                 } else {
                     this.toastService.addToast(
                         'Fant ikke utbetalingsfil, ingen PaymentFileID definert',
@@ -1558,4 +1594,3 @@ export class BankComponent {
             + `20eq%20%27false%27)%5C,1%5C,0))%20as%20NonJournaledPayments&filter=${filter}`);
     }
 }
-
