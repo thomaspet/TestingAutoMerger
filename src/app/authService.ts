@@ -173,15 +173,23 @@ export class AuthService {
         const spinner = document.getElementById('app-spinner');
         if (spinner) {
             if (visible) {
-                // spinner.style.display = 'flex';
-                fadeIn(spinner, 'flex');
+                spinner.style.opacity = '1';
+                spinner.style.display = 'flex';
                 const textElement = document.getElementById('app-spinner-text');
                 if (textElement) {
                     textElement.innerText = isLogout ? 'Logger ut' : 'Laster selskapsdata';
                 }
             } else {
-                fadeOut(spinner);
-                // spinner.style.display = 'none';
+                let opacity = 1;
+                const interval = setInterval(() => {
+                    if (opacity <= 0.2) {
+                        spinner.style.display = 'none';
+                        clearInterval(interval);
+                    } else {
+                        spinner.style.opacity = opacity.toString();
+                        opacity = opacity - 0.2;
+                    }
+                }, 50);
             }
         }
 
@@ -516,30 +524,4 @@ export class AuthService {
 
         return false;
     }
-}
-
-
-function fadeOut(el) {
-    el.style.opacity = 1;
-
-    (function fade() {
-        if ((el.style.opacity -= .1) < 0) {
-            el.style.display = 'none';
-        } else {
-            requestAnimationFrame(fade);
-        }
-    })();
-}
-
-function fadeIn(el, display) {
-    el.style.opacity = 0;
-    el.style.display = display || 'block';
-
-    (function fade() {
-        let val = parseFloat(el.style.opacity);
-        if (!((val += .1) > 1)) {
-            el.style.opacity = val;
-            requestAnimationFrame(fade);
-        }
-    })();
 }
