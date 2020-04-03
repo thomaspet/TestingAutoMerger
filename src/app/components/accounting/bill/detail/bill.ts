@@ -2709,6 +2709,9 @@ export class BillView implements OnInit {
     }
 
     private journal(ask: boolean, href: string): Observable<boolean> {
+
+        // Call update summary to make sure sums and remainders are up to date
+        this.updateSummary(this.journalEntryManual.getJournalEntryData());
         const current = this.current.getValue();
 
         if (this.sumRemainder !== 0) {
