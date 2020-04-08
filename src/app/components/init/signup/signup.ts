@@ -5,6 +5,7 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {environment} from 'src/environments/environment';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -27,6 +28,10 @@ export class Signup {
     step2Successful: boolean;
     invalidConfirmationCode: boolean;
     userExists: boolean;
+
+    //
+    background = theme.init.background;
+    illustration = theme.init.illustration;
 
     constructor(
         public authService: AuthService,

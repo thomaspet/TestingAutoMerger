@@ -1,35 +1,43 @@
-﻿<article class="authentication-component">
-    <h1>Registrer bruker</h1>
-    <small class="alert error" *ngIf="errorMessage">{{errorMessage}}</small>
+﻿<section class="background" [ngStyle]="{'background': background}"></section>
 
-    <form #f="ngForm" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()">
-        <label class="uni-label">
-            <span>Fullt navn</span>
-            <input type="text" autofocus formControlName="Name" [disabled]="!validInvite" />
-        </label>
+<section class="content">
+    <section class="illustration-wrapper">
+        <img *ngIf="illustration" [src]="illustration">
+    </section>
 
-        <label class="uni-label">
-            <span>Passord</span>
-            <input type="password" formControlName="Password" [disabled]="!validInvite" autocomplete="new-password" />
-        </label>
+    <article class="authentication-component" style="margin-bottom: auto;">
+        <h1>Registrer bruker</h1>
+        <small class="alert error" *ngIf="errorMessage">{{errorMessage}}</small>
 
-        <label class="uni-label">
-            <span>Bekreft passord</span>
-            <input type="password" formControlName="ConfirmPassword" [disabled]="!validInvite" autocomplete="new-password" />
-        </label>
+        <form #f="ngForm" [formGroup]="confirmInviteForm" (ngSubmit)="submitUser()">
+            <label class="uni-label">
+                <span>Fullt navn</span>
+                <input type="text" autofocus formControlName="Name" [disabled]="!validInvite" />
+            </label>
 
-        <uni-password-guide
-            *ngIf="confirmInviteForm?.controls"
-            [passwordControl]="confirmInviteForm.controls.Password">
-        </uni-password-guide>
+            <label class="uni-label">
+                <span>Passord</span>
+                <input type="password" formControlName="Password" [disabled]="!validInvite" autocomplete="new-password" />
+            </label>
 
-        <button type="submit"
-            class="c2a init-submit-button"
-            [attr.aria-busy]="busy"
-            [disabled]="busy || !f.form.valid || !validInvite">
-            Registrer bruker
-        </button>
-    </form>
+            <label class="uni-label">
+                <span>Bekreft passord</span>
+                <input type="password" formControlName="ConfirmPassword" [disabled]="!validInvite" autocomplete="new-password" />
+            </label>
 
-    <a class="init-link" [routerLink]="['/init/login']">Tilbake til innlogging</a>
-</article>
+            <uni-password-guide
+                *ngIf="confirmInviteForm?.controls"
+                [passwordControl]="confirmInviteForm.controls.Password">
+            </uni-password-guide>
+
+            <button type="submit"
+                class="c2a init-submit-button"
+                [attr.aria-busy]="busy"
+                [disabled]="busy || !f.form.valid || !validInvite">
+                Registrer bruker
+            </button>
+        </form>
+
+        <a class="init-link" [routerLink]="['/init/login']">Tilbake til innlogging</a>
+    </article>
+</section>

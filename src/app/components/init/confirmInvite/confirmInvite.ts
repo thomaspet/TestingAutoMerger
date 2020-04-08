@@ -3,6 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {FormControl, Validators, FormGroup, FormBuilder} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-confirm-invite',
@@ -15,6 +16,9 @@ export class ConfirmInvite {
     busy: boolean = false;
 
     private verificationCode: string;
+
+    background = theme.init.background;
+    illustration = theme.init.illustration;
 
     constructor(
         private uniHttp: UniHttp,
