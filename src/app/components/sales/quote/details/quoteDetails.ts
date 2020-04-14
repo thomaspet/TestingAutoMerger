@@ -83,7 +83,7 @@ export class QuoteDetails implements OnInit, AfterViewInit {
 
     private companySettings: CompanySettings;
     private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
 
     private distributeEntityType: string = 'Models.Sales.CustomerQuote';
 

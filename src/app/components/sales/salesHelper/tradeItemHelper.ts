@@ -2,10 +2,7 @@ import {Injectable} from '@angular/core';
 import {GuidService, NumberFormat} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
-    Project,
     Product,
-    ProjectTask,
-    Department,
     CompanySettings,
     VatType,
     LocalDate,
@@ -133,9 +130,8 @@ export class TradeItemHelper  {
             newRow.Dimensions._createguid = this.guidService.guid();
         }
 
-
-
         if (event.field === 'Product') {
+            newRow.CostPrice = null;
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
 
@@ -530,8 +526,14 @@ export class TradeItemHelper  {
         sum.SumDiscountCurrency = 0;
         sum.DecimalRoundingCurrency = 0;
 
+        sum.DekningsGrad = 0;
+
         if (items) {
+            let totalCostPrice = 0;
+
             items.forEach((item) => {
+                totalCostPrice += ((item.CostPrice || item.Product && item.Product.CostPrice) || 0) * item.NumberOfItems;
+
                 sum.SumDiscount += item.Discount || 0;
                 sum.SumTotalExVat += item.SumTotalExVat || 0;
                 sum.SumTotalIncVat += item.SumTotalIncVat || 0;
@@ -553,6 +555,8 @@ export class TradeItemHelper  {
             roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
+
+            sum.DekningsGrad = ((sum.SumTotalExVat - totalCostPrice) * 100) / sum.SumTotalExVat;
         }
 
         return sum;
@@ -562,7 +566,7 @@ export class TradeItemHelper  {
         return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
-    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number) : number {
+    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number): number {
         if (currencyCodeID && currencyCodeID !== 1) {
             return 2;
         }

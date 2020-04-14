@@ -90,7 +90,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     @Input() orderID: any;
 
     private companySettings: CompanySettings;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
