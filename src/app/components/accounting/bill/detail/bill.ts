@@ -226,7 +226,9 @@ export class BillView implements OnInit {
 
     validationMessage: ValidationMessage = null;
     accountsWithMandatoryDimensionsIsUsed = false;
-
+    lastJournalEntryData: JournalEntryData[];
+    projects = [];
+    departments = [];
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -310,6 +312,12 @@ export class BillView implements OnInit {
         this.current.subscribe((invoice) => {
             this.tryUpdateCostAllocationData(invoice);
         });
+
+        forkJoin([this.projectService.GetAll(null), this.departmentService.GetAll(null)])
+            .subscribe(([projects, departments]) => {
+                this.projects = projects;
+                this.departments = departments;
+            });
     }
 
     ngOnDestroy() {
@@ -1014,6 +1022,7 @@ export class BillView implements OnInit {
         setTimeout(() => {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                this.lastJournalEntryData = this.journalEntryManual.getJournalEntryData();
                 const current = this.current.getValue();
                 if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
@@ -1986,10 +1995,10 @@ export class BillView implements OnInit {
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
-        current.DefaultDimensions.ProjectID = result.Dimensions.ProjectID;
-        current.DefaultDimensions.DepartmentID = result.Dimensions.DepartmentID;
+        current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
+        current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
-            current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
+            current.DefaultDimensions[`Dimension${i}ID`] = result?.Dimensions[`Dimension${i}ID`];
         }
         this.current.next(current);
 
@@ -2930,12 +2939,12 @@ export class BillView implements OnInit {
                 'ReInvoice'
             ], true);
 
-            forkJoin(
+            forkJoin([
                 invoiceGET,
                 this.bankService.getBankPayments(id),
                 this.bankService.getRegisteredPayments(id),
                 this.bankService.getSumOfPayments(id)
-            ).pipe(
+            ]).pipe(
                 finalize(() => this.flagUnsavedChanged(true))
             ).subscribe(
                 ([invoice, bankPayments, registeredPayments, sumOfPayments]) => {
@@ -3012,10 +3021,37 @@ export class BillView implements OnInit {
         this.sumVat = sumVatAmountCurrency;
     }
 
+    public updateDimensions(lines) {
+        if (lines.length > this.lastJournalEntryData.length) { // new line at the end
+            const newLine = lines[lines.length - 1];
+            const dimensions = this.current?.getValue().DefaultDimensions;
+            const projectId = dimensions?.ProjectID;
+            const departmentId = dimensions?.DepartmentID;
+            if (projectId) {
+                newLine.Dimensions.ProjectID = projectId;
+                newLine.Dimensions.Project = this.projects.find(x => x.ID === projectId);
+            }
+            if (departmentId) {
+                newLine.Dimensions.DepartmentID = departmentId;
+                newLine.Dimensions.Department = this.departments.find(x => x.ID === projectId);
+            }
+            for (let i = 5; i < 11; i++) {
+                const dimensionID = dimensions[`Dimension${i}ID`];
+                if (dimensionID) {
+                    newLine.Dimensions[`Dimension${i}ID`] = dimensionID;
+                    newLine.Dimensions[`Dimension${i}`] = this.customDimensions
+                        .find(dimMetadata => dimMetadata.Dimension === i).Data.find(x => x.ID === dimensionID);
+                }
+            }
+        }
+        this.lastJournalEntryData = [...lines];
+        this.journalEntryManual.setJournalEntryData(this.lastJournalEntryData);
+    }
+
     public onJournalEntryManualChange(lines) {
         let changes = false;
-
         this.updateSummary(lines);
+        this.updateDimensions(lines);
         let supplierInvoice = this.current.getValue();
         if (supplierInvoice.TaxExclusiveAmountCurrency) {
             supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
@@ -3024,10 +3060,9 @@ export class BillView implements OnInit {
         let previousLine = null;
 
         lines.map(line => {
-            const supplierInvoice = this.current.value;
-
+            const currentSupplierInvoice = this.current.value;
             if (!line.VatDate) {
-                line.VatDate = supplierInvoice.InvoiceDate;
+                line.VatDate = currentSupplierInvoice.InvoiceDate;
 
                 line = this.setVatDeductionPercent(line);
             }
@@ -3036,7 +3071,7 @@ export class BillView implements OnInit {
                 if (previousLine && previousLine.FinancialDate) {
                     line.FinancialDate = previousLine.FinancialDate;
                 } else {
-                    line.FinancialDate = supplierInvoice.DeliveryDate || supplierInvoice.InvoiceDate;
+                    line.FinancialDate = currentSupplierInvoice.DeliveryDate || currentSupplierInvoice.InvoiceDate;
                 }
             }
 
@@ -3049,29 +3084,29 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
-            line.CurrencyCodeID = supplierInvoice.CurrencyCodeID;
-            line.CurrencyCode = supplierInvoice.CurrencyCode;
-            line.CurrencyExchangeRate = supplierInvoice.CurrencyExchangeRate;
+            line.CurrencyCodeID = currentSupplierInvoice.CurrencyCodeID;
+            line.CurrencyCode = currentSupplierInvoice.CurrencyCode;
+            line.CurrencyExchangeRate = currentSupplierInvoice.CurrencyExchangeRate;
 
-            if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
-                line.Dimensions.Project = supplierInvoice.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = supplierInvoice.DefaultDimensions.ProjectID;
+            if (!line.Dimensions.Project && currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Project) {
+                line.Dimensions.Project = currentSupplierInvoice.DefaultDimensions.Project;
+                line.Dimensions.ProjectID = currentSupplierInvoice.DefaultDimensions.ProjectID;
             }
 
-            if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
-                line.Dimensions.Department = supplierInvoice.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = supplierInvoice.DefaultDimensions.DepartmentID;
+            if (!line.Dimensions.Department && !!currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Department) {
+                line.Dimensions.Department = currentSupplierInvoice.DefaultDimensions.Department;
+                line.Dimensions.DepartmentID = currentSupplierInvoice.DefaultDimensions.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {
                 if (!line.Dimensions['Dimension' + dimension.Dimension]
-                    && supplierInvoice.DefaultDimensions
-                    && supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension]) {
+                    && currentSupplierInvoice.DefaultDimensions
+                    && currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension]) {
 
                     line.Dimensions['Dimension' + dimension.Dimension] =
-                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension];
+                        currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension];
                     line.Dimensions['Dimension' + dimension.Dimension + 'ID'] =
-                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
+                        currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
                 }
             });
 
