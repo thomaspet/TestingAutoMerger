@@ -48,7 +48,6 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     AccrualService,
-    createGuid,
     AccountMandatoryDimensionService,
     ElsaPurchaseService
 } from '@app/services/services';
@@ -110,7 +109,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
 
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
     private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private askedAboutSettingDimensionsOnItems: boolean;

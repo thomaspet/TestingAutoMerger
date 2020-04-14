@@ -6,6 +6,7 @@ import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {environment} from 'src/environments/environment';
 import {UniRecaptcha} from './recaptcha';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -30,6 +31,9 @@ export class Signup {
     invalidConfirmationCode: boolean;
     userExists: boolean;
     reCaptchaCode;
+
+    background = theme.init.background;
+    illustration = theme.init.illustration;
 
     constructor(
         public authService: AuthService,

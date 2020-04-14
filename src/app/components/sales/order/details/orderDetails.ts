@@ -90,7 +90,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     @Input() orderID: any;
 
     private companySettings: CompanySettings;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     private isDirty: boolean;
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
@@ -1574,7 +1574,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
     }
 
     updateDimensionsOnTradeItems(orderItems: CustomerOrderItem[]) {
-        if (this.lastListOfItems.length === 0 || orderItems.length === 0) {
+        if (this.lastListOfItems.length === 0 && orderItems.length === 0) {
             this.lastListOfItems = [...orderItems];
             return orderItems;
         }

@@ -7,6 +7,7 @@ import {Router} from '@angular/router';
 import {Company} from '@uni-entities';
 import {environment} from 'src/environments/environment';
 import {Subscription} from 'rxjs';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-login',
@@ -15,10 +16,14 @@ import {Subscription} from 'rxjs';
 })
 export class Login {
     @ViewChild(UniSelect) select: UniSelect;
-    @HostBinding('class') class = environment.isSrEnvironment ? 'ext01-login' : 'ue-login';
+    @HostBinding('class.sr-login') srLogin = environment.isSrEnvironment;
 
     isAuthenticated: boolean;
     availableCompanies: any[];
+
+    background = theme.init.login_background || theme.init.background;
+    backgroundHeight = theme.init.login_background_height;
+    illustration = environment.isSrEnvironment ? undefined : theme.init.illustration;
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',

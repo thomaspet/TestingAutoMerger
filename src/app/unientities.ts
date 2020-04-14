@@ -560,6 +560,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public AccountingCost: string;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
@@ -792,6 +793,7 @@ export class CustomerOrderItem extends UniEntity {
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
@@ -930,6 +932,7 @@ export class CustomerQuoteItem extends UniEntity {
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;

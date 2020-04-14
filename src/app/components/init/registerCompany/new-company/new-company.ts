@@ -18,6 +18,7 @@ import {SignalRService} from '@app/services/common/signal-r.service';
 export class NewCompany {
     @ViewChild('companyNameInput') companyNameInput: ElementRef;
     @Input() contractID: number;
+    @Input() isTest: boolean;
 
     creatingCompany: boolean;
     busy: boolean;
@@ -118,10 +119,6 @@ export class NewCompany {
 
         this.busy = true;
         this.initService.getTemplates().subscribe(templates => {
-            if (!templates || !templates.length) {
-                // TODO: do we need to abort here?
-            }
-
             const filteredTemplates = templates.filter(template => {
                 if (template.IsTest) {
                     return false;
@@ -160,17 +157,12 @@ export class NewCompany {
                 ContractID: this.contractID,
                 CompanySettings: this.company,
                 ProductNames: 'SrBundle',
-                TemplateCompanyKey: filteredTemplates[0] && filteredTemplates[0].Key
+                TemplateCompanyKey: filteredTemplates[0] && filteredTemplates[0].Key,
+                IsTest: this.isTest || false
             };
 
             this.initService.createCompany(body).subscribe(
                 () => {
-                    this.signalRService.pushMessage$.subscribe(message => {
-                        console.log('==== SIGNAL R ====');
-                        console.log(message);
-                        console.log('==================');
-                    });
-
                     this.busy = false;
                     this.creatingCompany = true;
                     this.checkCreationStatus();
