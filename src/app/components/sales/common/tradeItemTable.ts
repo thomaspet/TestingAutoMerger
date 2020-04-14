@@ -720,7 +720,7 @@ export class TradeItemTable {
             .setMaxWidth(140)
             .setVisible(false);
 
-        const costPriceCol = new UniTableColumn('CostPrice', 'Kostpris', UniTableColumnType.Money)
+        const costPriceCol = new UniTableColumn('CostPrice', 'Innpris', UniTableColumnType.Money)
             .setMaxWidth(140)
             .setVisible(false)
             .setTemplate(row => row.CostPrice || row.Product && row.Product.CostPrice);
