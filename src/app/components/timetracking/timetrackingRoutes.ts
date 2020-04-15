@@ -16,6 +16,7 @@ import {TimeEntry} from './timeentry/timeentry';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {TimetrackingDashboard} from './timetracking-dashboard';
 import { InvoiceHours } from '@app/components/common/timetrackingCommon';
+import { HourTotals } from './hourtotals/hourtotals';
 
 export const timetrackingRoutes: Routes = [
     {
@@ -63,6 +64,11 @@ export const timetrackingRoutes: Routes = [
     {
         path: 'worktimeoff',
         component: UniWorkTimeOff,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'hourtotals',
+        component: HourTotals,
         canDeactivate: [CanDeactivateGuard]
     }
 ];

@@ -34,6 +34,7 @@ import {TimetrackingDashboard} from './timetracking-dashboard';
 import {WidgetModule} from '../widgets/widgetModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {EditVacationModal} from './timeentry/vacation/edit-vacation-modal';
+import {HourTotals} from './hourtotals/hourtotals';
 
 @NgModule({
     imports: [
@@ -73,7 +74,8 @@ import {EditVacationModal} from './timeentry/vacation/edit-vacation-modal';
         ReportWorkflow,
         UniApproveTaskModal,
         TimetrackingDashboard,
-        EditVacationModal
+        EditVacationModal,
+        HourTotals
     ],
     providers: [
         ReportWorkflow,

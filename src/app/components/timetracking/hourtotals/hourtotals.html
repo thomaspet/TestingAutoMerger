@@ -1,0 +1,66 @@
+<uni-toolbar
+    [config]="{title: 'TIMETRACKING.HOURTOTALS'}"
+    [saveactions]="saveactions">
+</uni-toolbar>
+
+<section class="application">
+
+    <section class="toolbar">
+        <mat-form-field>
+            <mat-select [value]="activeFilter" (valueChange)="onActiveFilterChange($event)" placeholder="Fordeling">
+                <mat-option *ngFor="let filter of filters" [value]="filter">
+                    {{ filter.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isFilteredByInvoicable">
+            Fakturerbart
+        </mat-checkbox>
+
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isFilteredByTransfer">
+            Ikke overført
+        </mat-checkbox>
+
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isMoney">
+            Vis pris/verdi
+        </mat-checkbox>
+
+    </section>
+
+    <div [attr.aria-busy]="busy">
+
+        <p *ngIf="report?.length == 0 || (!report)">
+            Ingen timer funnet med aktivt utvalg. Gå til 'Registrere timer' for å legge inn timer.
+        </p>
+
+        <div *ngFor="let group of report">
+            <table class="report">
+                <thead><tr>
+                    <th>{{activeFilter.label}} i {{group.title}}</th>
+                    <th>Sum</th>
+                    <th class="prc">%</th>
+                    <th *ngFor="let hc of group.columns">{{hc}}</th>
+                </tr></thead>
+                <tr *ngFor="let row of group.rows">
+                    <td>{{row.title}}</td>
+                    <td [class.right]="isMoney">{{row.sum|min2hours:numberFormat}}</td>
+                    <td class="prc">{{row.prc|numpipe:'0'}}</td>
+                    <td [class.right]="isMoney" *ngFor="let col of row.items">{{col.tsum | min2hours:numberFormat}}</td>
+                </tr>
+                <tr>
+                    <td>Sum {{group.title}}</td>
+                    <td class="left" colspan="14">{{group.sum|min2hours:numberFormat2}}</td>
+                </tr>
+            </table>
+            <br/>
+        </div>
+
+    </div>
+</section>
