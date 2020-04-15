@@ -142,7 +142,7 @@ export class TradeItemHelper  {
                     newRow.VatTypeID = foreignVatType.ID;
                     overrideVatType = foreignVatType;
                 }
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType);
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType, companySettings);
 
             } else {
                 newRow['ProductID'] = null;
@@ -281,7 +281,14 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings, overrideVatType: VatType) {
+    public mapProductToQuoteItem(
+        rowModel,
+        currencyExchangeRate: number,
+        vatTypes: Array<VatType>,
+        settings: CompanySettings,
+        overrideVatType: VatType,
+        companySettings: CompanySettings
+    ) {
         const product: Product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -294,13 +301,21 @@ export class TradeItemHelper  {
         rowModel.PricingSource = 0;
         rowModel.TimeFactor = 0;
 
-        let productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
-        if (overrideVatType) { productVatType = overrideVatType; }
+        let productVatType = product.VatTypeID
+            ? vatTypes.find(x => x.ID === product.VatTypeID)
+            : vatTypes.find(x => x.ID === companySettings?.DefaultSalesAccount?.VatTypeID);
+
+        product.Account = product.Account || companySettings.DefaultSalesAccount;
+
+        if (overrideVatType) {
+            productVatType = overrideVatType;
+        }
 
         if (settings.TaxMandatoryType === 1) {
             // company does not use VAT/MVA
             rowModel.VatTypeID = null;
             rowModel.VatType = null;
+            rowModel.Account = product.Account;
         } else if (settings.TaxMandatoryType === 2) {
             // company will use VAT when configured limit is passed - validations will be run
             // when saving the invoice to see
@@ -311,22 +326,17 @@ export class TradeItemHelper  {
                     const vatType6 = vatTypes.find(x => x.VatCode === '6');
                     rowModel.VatType = vatType6;
                     rowModel.VatTypeID = vatType6.ID;
+                    rowModel.Account = product.Account;
                 } else {
                     rowModel.VatTypeID = productVatType.ID;
                     rowModel.VatType = productVatType;
-
-                    if (!rowModel.VatTypeID && product.Account) {
-                        rowModel.VatTypeID = product.Account.VatTypeID;
-                    }
+                    rowModel.Account = product.Account;
                 }
             }
         } else {
             rowModel.VatTypeID = productVatType ? productVatType.ID : product.VatTypeID;
             rowModel.VatType = productVatType || product.VatType;
-
-            if (!rowModel.VatTypeID && product.Account) {
-                rowModel.VatTypeID = product.Account.VatTypeID;
-            }
+            rowModel.Account = product.Account;
         }
 
         // if vat is not used/not defined, set PriceIncVat to PriceExVat
