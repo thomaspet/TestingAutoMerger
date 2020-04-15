@@ -1998,7 +1998,9 @@ export class BillView implements OnInit {
         current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
         current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
-            current.DefaultDimensions[`Dimension${i}ID`] = result?.Dimensions[`Dimension${i}ID`];
+            if (result?.Dimensions) {
+                current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
+            }
         }
         this.current.next(current);
 
