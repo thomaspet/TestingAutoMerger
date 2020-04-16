@@ -23,12 +23,4 @@ export class EmployeeLeaveService extends BizHttp<EmployeeLeave> {
     public getOnlyNewTypes() {
         return this.leaveTypes.filter(x => x.ID !== Leavetype.Leave);
     }
-
-    public leaveTypeToText(type: number) {
-        return this.typeToText(this.leaveTypes.find(x => x.ID === type));
-    }
-
-    private typeToText(obj: {ID: number, text: string}) {
-        return obj && obj.text;
-    }
 }

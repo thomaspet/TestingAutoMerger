@@ -19,10 +19,9 @@ import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
 import { SupplierService } from '@app/services/accounting/supplierService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
-import { Type } from '@angular/compiler';
 import { EmploymentService } from '../employee/employmentService';
 import { StatisticsService } from '@app/services/common/statisticsService';
-import { tap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 interface IFieldFunc {
     prop: string;
@@ -303,11 +302,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         } else {
             return null;
         }
-    }
-
-    public getNameForInstalmentType(instalmentType: SalBalType): string {
-        const ret = this.instalmentTypes.find(x => x.ID === instalmentType);
-        return ret && ret.Name;
     }
 
     public getSalarybalance(id: number | string, expand: string[] = null): Observable<SalaryBalance> {
@@ -915,9 +909,5 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .pipe(
                 map(result => result.map(line => line['SalaryTransactionID']))
             );
-    }
-
-    private isSalaryBalanceTemplate(salBal: SalaryBalance | SalaryBalanceTemplate) {
-        return !this.isSalaryBalance(salBal);
     }
 }

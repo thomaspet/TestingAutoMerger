@@ -208,7 +208,6 @@
             {
                 "Header": "Yrkeskode",
                 "Field": "JobCode",
-                "Alignment": "right",
                 "Width": "7rem"
             },
             {
@@ -244,13 +243,11 @@
             },
             {
                 "Header": "StartDato",
-                "Field": "StartDate",
-                "Alignment": "right"
+                "Field": "StartDate"
             },
             {
                 "Header": "SluttDato",
-                "Field": "EndDate",
-                "Alignment": "right"
+                "Field": "EndDate"
             },
             {
                 "Header": "Virksomhet org.nr",
@@ -291,14 +288,12 @@
             {
                 "Header": "Ansiennitet",
                 "Field": "SeniorityDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Lønnsjustering",
                 "Field": "LastSalaryChangeDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Sist endret %",

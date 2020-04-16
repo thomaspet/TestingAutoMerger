@@ -1,9 +1,5 @@
 import { Component } from '@angular/core';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import {
-    ITickerActionOverride,
-    ITickerColumnOverride
-} from '../../../../services/common/uniTickerService';
 import { Router } from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
@@ -18,9 +14,6 @@ import { ImportTemplateModal } from '@app/components/import-central/modals/impor
     templateUrl: './supplierList.html'
 })
 export class SupplierList {
-
-    public columnOverrides: Array<ITickerColumnOverride> = [];
-    public actionOverrides: Array<ITickerActionOverride> = [];
     private supplierPermissions: ImportUIPermission;
 
     public toolbarActions = [{

@@ -32,9 +32,9 @@ import {CompanySettings} from '../../unientities';
 import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
-import { ReturnStatement } from '@angular/compiler';
-import { ReportTypeEnum } from '@app/models';
-declare const _; // lodash
+
+import {cloneDeep} from 'lodash';
+import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
 
 @Injectable()
 export class UniTickerService {
@@ -138,7 +138,7 @@ export class UniTickerService {
                                         if (t.Model && t.Model !== '') {
                                             model = this.modelService.getModel(t.Model);
                                             if (model) {
-                                                model = _.cloneDeep(model);
+                                                model = cloneDeep(model);
                                                 model.RelatedModels = [];
                                                 model.Relations.forEach(rel => {
                                                     const relatedModel = this.modelService.getModel(rel.RelatedModel);
@@ -146,7 +146,7 @@ export class UniTickerService {
                                                         model.RelatedModels.push(
                                                             {
                                                                 RelationName: rel.Name,
-                                                                Model: _.cloneDeep(relatedModel)
+                                                                Model: cloneDeep(relatedModel)
                                                             });
                                                     } else {
                                                         console.log('rel not found:', rel);
@@ -236,7 +236,7 @@ export class UniTickerService {
                                                 if (!t.SubTickers.find(x => x.Code === subTickerCode)) {
                                                     const subTicker = tickers.find(x => x.Code === subTickerCode);
                                                     if (subTicker) {
-                                                        t.SubTickers.push(_.cloneDeep(subTicker));
+                                                        t.SubTickers.push(cloneDeep(subTicker));
                                                     } else {
                                                         console.log('SubTicker ' + subTickerCode + ' not found in loadTickerCache');
                                                     }
@@ -526,8 +526,14 @@ export class UniTickerService {
         return groups;
     }
 
-    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker, columnOverrides: Array<ITickerColumnOverride>) {
+    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker, columnOverrides: ITickerColumnOverride[]) {
         let fieldValue: any = this.getFieldValueInternal(column, data);
+
+        const templateOverrides = ColumnTemplateOverrides[ticker.Code] || {};
+        const templateOverride = templateOverrides[column.Field];
+        if (templateOverride) {
+            fieldValue = templateOverride(data, column);
+        }
 
         if (columnOverrides) {
             const columnOverride = columnOverrides.find(x => x.Field === column.Field);

@@ -47,28 +47,6 @@ export class WageTypeService extends BizHttp<WageType> {
         { ID: SpecialTaxAndContributionsRule.TaxFreeOrganization, Name: 'Skattefri organisasjon'}
     ];
 
-    private taxType: {ID: TaxType, Name: string}[] = [
-        { ID: TaxType.Tax_None, Name: 'Ingen' },
-        { ID: TaxType.Tax_Table, Name: 'Tabelltrekk' },
-        { ID: TaxType.Tax_Percent, Name: 'Prosenttrekk' },
-        { ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk' }
-    ];
-
-    private stdWageType: {ID: StdWageType, Name: string}[] = [
-        { ID: StdWageType.None, Name: 'Ingen' },
-        { ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk' },
-        { ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk' },
-        { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
-        { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
-        { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
-        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' },
-        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
-        { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
-        { ID: StdWageType.Garnishment, Name: 'Utleggstrekk skatt' },
-        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' },
-        { ID: StdWageType.SourceTaxPension, Name: 'Forskuddstrekk kildeskatt på pensjon' }
-    ];
-
     constructor(
         protected http: UniHttp,
         private accountService: AccountService,
@@ -233,11 +211,6 @@ export class WageTypeService extends BizHttp<WageType> {
                     ToastType.warn, ToastTime.medium,
                     `Dersom du lagrer lønnsarten med disse endringene vil ikke systemleverandør oppdatere lønnsarten lenger.`);
         }
-    }
-
-    public getNameForTaxType(type: TaxType): string {
-        const ret = this.taxType.find(t => t.ID === type);
-        return ret && ret.Name;
     }
 
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
@@ -434,16 +407,6 @@ export class WageTypeService extends BizHttp<WageType> {
             });
     }
 
-    public GetNameForStandardWageTypeFor(type: StdWageType) {
-        const ret = this.stdWageType.find(t => t.ID === type);
-        return ret && ret.Name;
-    }
-
-    public getNameForSpecialTaxAndContributionRule(rule: SpecialTaxAndContributionsRule) {
-        const ret = this.specialTaxAndContributionsRule.find(r => r.ID === rule);
-        return ret && ret.Name;
-    }
-
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
         return [
                 this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard),
@@ -609,7 +572,7 @@ export class WageTypeService extends BizHttp<WageType> {
                 Tooltip: {
                     Type: 'info',
                     Text: `Bør kun brukes i helt spesielle tilfeller`,
-                },          
+                },
             }
 
         ];

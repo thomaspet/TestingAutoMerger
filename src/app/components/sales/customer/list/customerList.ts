@@ -2,15 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
 import {
-    ITickerActionOverride, ITickerColumnOverride
-} from '../../../../services/common/uniTickerService';
-import {
     CustomerInvoiceService,
     CustomerQuoteService,
     CustomerOrderService,
     UserService,
     ImportCentralService,
-    ErrorService
+    ErrorService,
+    ITickerActionOverride
 } from '../../../../services/services';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { environment } from 'src/environments/environment';
@@ -81,8 +79,6 @@ export class CustomerList implements OnInit {
             AfterExecuteActionHandler: (selectedRows) => this.customerOrderService.onAfterPrintOrder(selectedRows)
         }
     ];
-
-    public columnOverrides: Array<ITickerColumnOverride> = [];
 
     public tickercode: string = 'customer_list';
     public toolbarActions = [{
