@@ -1511,7 +1511,12 @@ export class BillView implements OnInit {
     public onFormChanged(change: SimpleChanges) {
 
         const model = this.current.getValue();
-        const lines = this.journalEntryManual.getJournalEntryData() || [];
+        let lines = this.journalEntryManual.getJournalEntryData() || [];
+
+        lines = lines.map(line => {
+            line.Dimensions = line.Dimensions || new Dimensions;
+            return line;
+        });
 
         if (!model) { return; }
 

@@ -25,7 +25,7 @@ import { StatusCodePaymentInfoType } from '@uni-entities';
             </article>
 
             <footer>
-                <button class="good" [disabled]="!selectedID" (click)="close(selectedID)">Bøkfor valgt rad</button>
+                <button class="good" [disabled]="!selectedID" (click)="close(selectedID)">Bokfør valgt rad</button>
                 <button class="bad" (click)="close(null)">Avbryt</button>
             </footer>
         </section>
