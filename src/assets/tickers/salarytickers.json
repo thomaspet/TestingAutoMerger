@@ -1233,6 +1233,11 @@
                 "Header": "Avdeling",
                 "Field": "Dimensions.Department.Name",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "Mva-kode",
+                "Field": "VatType.VatCode",
+                "DefaultHidden": true
             }
         ],
         "Actions": [],
