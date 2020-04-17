@@ -671,8 +671,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
             }
-
         }
+
+        invoice.CurrencyCodeID = invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
+        this.currencyCodeID = invoice.CurrencyCodeID;
 
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
@@ -726,19 +728,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
-        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
-        // or from customer
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected or from customer
         if ((!this.currencyCodeID && invoice.CurrencyCodeID) || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 
-        if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
+        if (this.invoice && this.invoice.CurrencyCodeID && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
 
-        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
+        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001)
+            || this.invoice.InvoiceType === InvoiceTypes.CreditNote
+        ) {
             shouldGetCurrencyRate = false;
         }
 

@@ -537,6 +537,9 @@ export class QuoteDetails implements OnInit, AfterViewInit {
             quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
         }
 
+        quote.CurrencyCodeID = quote.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
+        this.currencyCodeID = quote.CurrencyCodeID;
+
         this.updateCurrency(quote, shouldGetCurrencyRate);
 
         if (
