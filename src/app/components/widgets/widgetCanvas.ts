@@ -381,8 +381,7 @@ export class UniWidgetCanvas {
         }
         event.preventDefault();
         const srcElement = <HTMLElement> (event.srcElement || event.target);
-        const widgetElement = srcElement.closest('uni-widget')[0];
-
+        const widgetElement = srcElement.closest('uni-widget');
         const elemBounds = widgetElement.getBoundingClientRect();
         const canvasBounds = this.canvas.nativeElement.getBoundingClientRect();
 
