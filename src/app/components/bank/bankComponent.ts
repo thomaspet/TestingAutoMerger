@@ -59,29 +59,32 @@ import { environment } from 'src/environments/environment';
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
         <section class="ticker-overview">
-            <i class="material-icons bank-info-button" *ngIf="showInfo" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu">
-                info_outline
-            </i>
-
-            <mat-menu #contextMenu="matMenu" yPosition="below">
-                <div class="bank-ticker-info-container">
-                    <h2>Innbetalinger uten match</h2>
-                    <p>
-                        Dette er en feilliste. Når det ligger poster her, er det viktig å behandle disse så raskt som mulig.
-                        Disse postene er autobokført av programmet som innbetalinger på hovedbokskonto for bank,
-                        ofte konto <strong>1920</strong>. Vi har dessverre ikke funnet hvilken kunde eller konto som innbetalingen gjelder.
-                        Denne er derfor ført mot en interrimskonto, ofte konto <strong>2996</strong>.
-                    </p>
-                    <p>
-                        Gjelder innbetalingen en kundefaktura, klikker du på de 3 prikkene borte til høyre, bruker funksjonen <br/>
-                        <strong>"Velg faktura manuelt"</strong>, finner den riktige fakturaen og fullfører. Vet du bare hvilken kunde
-                        dette gjelder, bruker du <br/> <strong>"Velg kunde manuelt</strong>. Da vil innbetalingsbilaget bli endret slik at
-                        bokføringen vil gå mot riktig kunde, i stedet for mot interrimskonto og posten vil bli fjernet fra denne listen.
-                    </p>
-                </div>
-            </mat-menu>
 
             <section class="overview-ticker-section">
+                <section *ngIf="showNoMatchInfo" class="no-match-info">
+                    <a #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu">
+                        Informasjon om "Betalt ingen match"
+                    </a>
+
+                    <mat-menu #contextMenu="matMenu" yPosition="below">
+                        <div class="bank-ticker-info-container">
+                            <h2>Innbetalinger uten match</h2>
+                            <p>
+                                Dette er en feilliste. Når det ligger poster her, er det viktig å behandle disse så raskt som mulig.
+                                Disse postene er autobokført av programmet som innbetalinger på hovedbokskonto for bank,
+                                ofte konto <strong>1920</strong>. Vi har dessverre ikke funnet hvilken kunde eller konto som innbetalingen gjelder.
+                                Denne er derfor ført mot en interrimskonto, ofte konto <strong>2996</strong>.
+                            </p>
+                            <p>
+                                Gjelder innbetalingen en kundefaktura, klikker du på de 3 prikkene til høyre, bruker funksjonen <br/>
+                                <strong>"Velg faktura manuelt"</strong>, finner den riktige fakturaen og fullfører. Vet du bare hvilken kunde
+                                dette gjelder, bruker du <br/> <strong>"Velg kunde manuelt</strong>. Da vil innbetalingsbilaget bli endret slik at
+                                bokføringen vil gå mot riktig kunde, i stedet for mot interrimskonto og posten vil bli fjernet fra denne listen.
+                            </p>
+                        </div>
+                    </mat-menu>
+                </section>
+
                 <uni-ticker-container
                     [ticker]="selectedTicker"
                     [actionOverrides]="actionOverrides"
@@ -105,7 +108,7 @@ export class BankComponent {
     isSrEnvirnment = environment.isSrEnvironment;
     hasAccessToAutobank: boolean;
     filter: string = '';
-    showInfo: boolean = false;
+    showNoMatchInfo: boolean = false;
     failedFiles: any[] = [];
     tickerGroups: TickerGroup[];
     selectedTicker: Ticker;
@@ -366,7 +369,7 @@ export class BankComponent {
                 }
 
                 this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
-                this.showInfo = params['filter'] === 'incomming_without_match';
+                this.showNoMatchInfo = params['filter'] === 'incomming_without_match';
 
                 if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code || this.filter !== params['filter']) {
                     this.selectedTicker = ticker;
