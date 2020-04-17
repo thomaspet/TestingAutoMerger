@@ -550,7 +550,7 @@ export class BankComponent {
                 action: (done) => {
                     this.fileUploaded(done);
                 },
-                disabled: false,
+                disabled: this.rows.length > 0 && (this.filter === "incomming_without_match"),
                 main: this.rows.length === 0 || this.filter !== "incomming_without_match" 
             });            
 
@@ -560,7 +560,7 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
-                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match" 
+                disabled: this.rows.length !== 1 || this.filter !== "incomming_without_match" 
             });
             
             this.actions.push({
