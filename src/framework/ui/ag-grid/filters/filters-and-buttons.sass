@@ -1,33 +1,46 @@
 \:host
     display: block
-    margin-bottom: 10px
 
-.filter-inputs
+.wrapper
     display: flex
+    flex-wrap: wrap-reverse
+    padding-top: 2px
 
-    input
-        height: 2.5rem
-        width: 15rem
-        border-top-right-radius: 0
-        border-bottom-right-radius: 0
+    .freetext-and-advanced-filters
+        flex: 0 0 auto
+        display: flex
+        align-items: center
+        margin: 0 14px 14px 0
 
-    .icon-button
-        background: #fff
-        border: 1px solid var(--border-color)
-        border-left: none
-        border-top-left-radius: 0
-        border-bottom-left-radius: 0
+        input
+            height: 2.5rem
+            width: 15rem
+            border-top-right-radius: 0
+            border-bottom-right-radius: 0
 
-    button.saved-searches-toggle
-        border-color: var(--border-color)
-        padding-right: .5rem
-        margin-right: 1rem
-        i.material-icons
-            color: var(--link-color)
+        .icon-button
+            background: #fff
+            border: 1px solid var(--border-color)
+            border-left: none
+            border-top-left-radius: 0
+            border-bottom-left-radius: 0
+
+        button.saved-searches-toggle
+            border-color: var(--border-color)
+            padding-right: .5rem
+            i.material-icons
+                color: var(--link-color)
+
+    .quick-filters-and-buttons
+        flex: 1 0 auto
+        display: flex
+        max-width: 100%
+        .button-container
+            flex: 0 0 auto
 
 .active-filters-display
     display: flex
-    margin-top: 10px
+    margin-bottom: 10px
 
     > i.material-icons
         margin: 0 5px

@@ -12,23 +12,22 @@ import { takeUntil, debounceTime } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import { UniModalService } from '@uni-framework/uni-modal';
-import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, QuickFilter } from '@uni-framework/ui/unitable';
 import { AdvancedFilters } from './advanced-filters/advanced-filters';
 import { ITableFilter, ISavedSearch } from '../interfaces';
 import { TableUtils } from '../services/table-utils';
 
 @Component({
-    selector: 'table-filters',
-    templateUrl: './filters.html',
-    styleUrls: ['./filters.sass'],
-    host: {class: 'uni-redesign'},
+    selector: 'table-filters-and-buttons',
+    templateUrl: './filters-and-buttons.html',
+    styleUrls: ['./filters-and-buttons.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TableFilters {
+export class TableFiltersAndButtons {
     @Input() tableConfig: UniTableConfig;
     @Input() columns: UniTableColumn[];
     @Input() filters: ITableFilter[];
-    @Input() quickFilters: ITableFilter[] = [];
+    @Input() quickFilters: QuickFilter[];
 
     @Output() filtersChange: EventEmitter<any> = new EventEmitter();
 
@@ -52,7 +51,6 @@ export class TableFilters {
             takeUntil(this.onDestroy$),
             debounceTime(250)
         ).subscribe(value => {
-
             this.basicSearchFilters = this.getBasicSearchFilters(value);
             this.emitFilters();
         });
@@ -61,20 +59,10 @@ export class TableFilters {
     ngOnChanges(changes) {
         if (this.filters && this.columns) {
             this.visibleColumns = this.columns.filter(col => col.visible);
-
-            // cloneDeep?
             this.advancedSearchFilters = this.setDisplayTextOnFilters(this.filters);
         }
 
         if (changes['tableConfig'] && this.tableConfig) {
-            const tableName = this.tableConfig.configStoreKey;
-            if (tableName !== this.tableName) {
-                // Get last used filter and update local vars.
-                // Don't emit any changes. Applying the filter is handled in data-service.
-                const lastUsedFilter = this.utils.getLastUsedFilter(tableName) || <any> {};
-                this.advancedSearchFilters = lastUsedFilter.advancedSearchFilters || [];
-            }
-
             this.tableName = this.tableConfig.configStoreKey;
             this.getSavedSearches();
         }
@@ -165,22 +153,23 @@ export class TableFilters {
         return filters;
     }
 
-    setFilters(filters: ITableFilter) {
-        this.filtersChange.emit({basicSearchFilters: [], advancedSearchFilters: [filters]});
-    }
+    emitFilters() {
+        const quickFilterValues = <any> {};
+        this.quickFilters?.forEach(filter => quickFilterValues[filter.field] = filter.value);
 
-    private emitFilters() {
         const lastUsedFilter = {
             searchText: this.searchControl.value || '',
             basicSearchFilters: this.basicSearchFilters,
-            advancedSearchFilters: this.advancedSearchFilters
+            advancedSearchFilters: this.advancedSearchFilters,
+            quickFilterValues: quickFilterValues
         };
 
         this.utils.setLastUsedFilter(this.tableName, lastUsedFilter);
 
         this.filtersChange.emit({
             basicSearchFilters: this.basicSearchFilters,
-            advancedSearchFilters: this.advancedSearchFilters
+            advancedSearchFilters: this.advancedSearchFilters,
+            quickFilters: this.quickFilters
         });
     }
 

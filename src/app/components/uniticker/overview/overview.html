@@ -17,24 +17,14 @@
             <span class="ticker-title">{{tickerTitle || 'Oversikt' | translate}}</span>
 
             <section class="ticker-actions pull-right">
-                <!-- <span class="ticker-create-new" *ngIf="createNewAction" (click)="onCreateNewClick()">
-                    <i class="material-icons">add_circle</i>
-                    Opprett ny
-                </span>
-
-                <span class="ticker-export" (click)="exportToExcel()">
-                    <i class="material-icons">cloud_download</i>
-                    Eksporter til excel
-                </span> -->
                 <button class="tertiary" (click)="turnGroupingOnOff()">
-                    <i class="material-icons">apps</i>
                     Slå av/på gruppering
                 </button>
 
-                <button class="" *ngIf="createNewAction" (click)="onCreateNewClick()">
-                    <i class="material-icons">add</i>
+                <button class="secondary" *ngIf="createNewAction" (click)="onCreateNewClick()">
                     Opprett ny
                 </button>
+
                 <button class="c2a" (click)="exportToExcel()">Eksporter til excel</button>
             </section>
         </section>

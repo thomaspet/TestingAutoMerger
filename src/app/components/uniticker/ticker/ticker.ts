@@ -50,7 +50,9 @@ import {saveAs} from 'file-saver';
 import { map, catchError } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
+
 import {ColumnTemplateOverrides} from './column-template-overrides';
+import {TickerTableConfigOverrides} from './table-config-overrides';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -457,32 +459,9 @@ export class UniTicker {
                 filter = this.ticker.Filter;
             }
 
-            if (this.ticker.DefaultTableFilter) {
-                // Use the default filter when checkbox 'active' and 'useWhenActive' have same value.
-                // Both false or both true
-                const use =
-                    (this.ticker.DefaultTableFilter.active && this.ticker.DefaultTableFilter.useWhenActive) ||
-                    (!this.ticker.DefaultTableFilter.active && !this.ticker.DefaultTableFilter.useWhenActive);
-                if (use) {
-                    filter = !!filter ? (filter + ` and ${this.ticker.DefaultTableFilter.filter}`) : this.ticker.DefaultTableFilter.filter;
-                }
-            }
-
             if (filter.indexOf(':currentaccountingyear') >= 0) {
                 this.setCurrentAccountingYearInFilter(filter, params);
             } else {
-                params = params.set('filter', filter);
-            }
-        } else if (this.ticker.DefaultTableFilter) {
-            let filter = urlParams.get('filter');
-
-            // Use the default filter when checkbox 'active' and 'useWhenActive' have same value.
-            // Both false or both true
-            const use =
-                (this.ticker.DefaultTableFilter.active && this.ticker.DefaultTableFilter.useWhenActive) ||
-                (!this.ticker.DefaultTableFilter.active && !this.ticker.DefaultTableFilter.useWhenActive);
-            if (use) {
-                filter = !!filter ? (filter + ` and ${this.ticker.DefaultTableFilter.filter}`) : this.ticker.DefaultTableFilter.filter;
                 params = params.set('filter', filter);
             }
         }
@@ -1346,13 +1325,12 @@ export class UniTicker {
             });
         }
 
-        const config = new UniTableConfig(configStoreKey, false, false, this.parentModel ? 5 : 30)
+        let config = new UniTableConfig(configStoreKey, false, false, this.parentModel ? 5 : 30)
             .setColumns(columns)
             .setEntityType(this.ticker.Model)
             .setAllowGroupFilter(true)
             .setColumnMenuVisible(true)
             .setMultiRowSelect(this.isMultiRowSelect())
-            .setSearchListVisible(true)
             .setContextMenu(contextMenuItems, true, false)
             .setShowTotalRowCount(true)
             .setSearchable(true)
@@ -1363,6 +1341,12 @@ export class UniTicker {
                 return this.ticker.ReadOnlyCases
                     .some(readOnlyField => row[readOnlyField.Key] === readOnlyField.Value);
             });
+
+
+        const overrideFn = TickerTableConfigOverrides[this.ticker.Code];
+        if (overrideFn) {
+            config = overrideFn(config, this.ticker, !!this.parentTicker);
+        }
 
         if (this.groupingIsOn && this.ticker.IsTopLevelTicker) {
             config.setRowGroupPanelShow('always')

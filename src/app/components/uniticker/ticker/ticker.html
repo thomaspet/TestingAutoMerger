@@ -40,20 +40,11 @@
         </header>
     </ng-template>
 
-    <mat-checkbox
-        class="ticker-default-filter"
-        *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label && (!ticker.DefaultTableFilter.useOnlyOnFilter || ticker.DefaultTableFilter.useOnlyOnFilter == selectedFilter.Code)"
-        (change)="setupTableConfig()"
-        [(ngModel)]="this.ticker.DefaultTableFilter.active">
-        {{ this.ticker.DefaultTableFilter.label }}
-    </mat-checkbox>
-
     <ag-grid-wrapper *ngIf="ticker.Type === 'table' && !groupingIsOn"
         class="borders"
         [resource]="lookupFunction"
         [columnSumResolver]="columnSumResolver"
         [config]="tableConfig"
-        [useSpinner]="true"
         (columnsChange)="onColumnsChange($event)"
         (rowSelectionChange)="onRowSelectionChange($event)"
         (rowClick)="onRowClick($event)">

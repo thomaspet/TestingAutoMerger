@@ -18,7 +18,7 @@
 
     <unitable-contextmenu [items]="config.contextMenu.items"></unitable-contextmenu>
 
-    <thead *ngIf="config.headerVisible">
+    <thead>
         <tr unitable-header
             *ngIf="config && tableColumns"
             [config]="config"

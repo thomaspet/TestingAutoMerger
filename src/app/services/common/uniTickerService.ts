@@ -7,9 +7,8 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
-import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
+import {ApiModelService, ApiModel} from './apiModelService';
 import {
-    WageType,
     Leavetype,
     LimitType,
     SpecialTaxAndContributionsRule,
@@ -35,13 +34,13 @@ import * as moment from 'moment';
 
 import {cloneDeep} from 'lodash';
 import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
+import {QuickFilter} from '@uni-framework/ui/unitable';
 
 @Injectable()
 export class UniTickerService {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
     private tickers: Array<Ticker>;
-    private models: Array<any>;
     private companySettings: CompanySettings;
 
     constructor(
@@ -73,7 +72,6 @@ export class UniTickerService {
 
     private invalidateCache() {
         this.tickers = null;
-        this.models = null;
         this.companySettings = null;
     }
 
@@ -1195,6 +1193,13 @@ export class TickerGroup {
     public Tickers: Array<Ticker>;
 }
 
+export interface TickerQuickFilter extends QuickFilter {
+    checkBoxValues?: {
+        true: string;
+        false: string;
+    };
+}
+
 export class Ticker {
     public Name: string;
     public Code: string;
@@ -1219,6 +1224,7 @@ export class Ticker {
     public SubTickersCodes?: Array<string>;
     public Filter?: string;
     public Filters?: Array<TickerFilter>;
+    public QuickFilters?: TickerQuickFilter[];
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;
     public Pagesize?: number;
@@ -1227,7 +1233,6 @@ export class Ticker {
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
     public DefaultTabIndex?: number;
-    public DefaultTableFilter?: any;
 }
 
 export class TickerFieldFilter {

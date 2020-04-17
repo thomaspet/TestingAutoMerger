@@ -141,16 +141,6 @@
                 "ExternalModel": "JournalEntry"
             }
         ],
-        "DefaultTableFilter": {
-            "field": "StatusCode",
-            "operator": "ne",
-            "value": "44020",
-            "label": "Vis skjulte betalinger",
-            "filter": "isnull(StatusCode,0) ne 44020",
-            "active": false,
-            "useWhenActive": false,
-            "useOnlyOnFilter": "incomming_without_match"
-        },
         "Filters": [
             {
                 "Name": "Alle",
