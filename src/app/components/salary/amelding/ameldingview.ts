@@ -767,7 +767,7 @@ export class AMeldingView implements OnInit {
                     });
                     this.refresh(response);
                     refreshPromise.then(() => {
-                        this.openBeforeMakePaymentModal();
+                        // this.openBeforeMakePaymentModal();
                         this.triggerForOpenBeforeMakePaymentModalResolver = null;
                     });
                     this.activeTabIndex = 2;
