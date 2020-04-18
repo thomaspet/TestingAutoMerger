@@ -8,11 +8,11 @@ export const environment = {
 
     BASE_URL_INIT: '',
     BASE_URL: '',
-    BASE_URL_INTEGRATION: 'https://rcext02-integration.unieconomy.no/',
-    BASE_URL_FILES: 'https://rcext02-files.unieconomy.no',
-    UNI_JOB_SERVER_URL: 'https://rcext02-jobserver.unieconomy.no/api/',
-    ELSA_SERVER_URL: 'https://rcext02-admin.unieconomy.no',
-    SIGNALR_PUSHHUB_URL: 'https://rcext02-signal.unieconomy.no/pushHub',
+    BASE_URL_INTEGRATION: 'https://integration.bruno.dnbbank.no/',
+    BASE_URL_FILES: 'https://files.bruno.dnbbank.no',
+    UNI_JOB_SERVER_URL: 'https://jobserver.bruno.dnbbank.no/api/',
+    ELSA_SERVER_URL: 'https://admin.bruno.dnbbank.no',
+    SIGNALR_PUSHHUB_URL: 'https://signal.bruno.dnbbank.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',

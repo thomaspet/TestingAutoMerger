@@ -1,6 +1,6 @@
 {
     "/api": {
-        "target": "https://rcext02-api.unieconomy.no",
+        "target": "https://api.bruno.dnbbank.no",
         "secure": false,
         "changeOrigin": true
     }
