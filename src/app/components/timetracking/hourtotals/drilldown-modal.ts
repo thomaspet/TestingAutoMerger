@@ -3,7 +3,21 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'hourtotals-drilldown-modal',
-    template: `<h3>Hello modal!</h3>`
+    template: `
+    <section role="dialog" class="uni-modal">
+        <header>
+            Detaljer
+        </header>
+        <article>
+            <hourtotals></hourtotals>
+
+        </article>
+
+        <footer>
+            <button class="secondary" (click)="onClose.emit()">Lukk</button>
+        </footer>
+    </section>`,
+    styleUrls: ['drilldown-modal.sass']
 })
 export class HourTotalsDrilldownModal implements IUniModal {
     @Input() options: IModalOptions = {};
