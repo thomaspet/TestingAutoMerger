@@ -9,6 +9,8 @@ import {
 import * as moment from 'moment';
 import {Subject} from 'rxjs';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import {UniModalService} from '@uni-framework/uni-modal';
+import { HourTotalsDrilldownModal } from './drilldown-modal';
 
 interface IPageState {
     projectID?: string;
@@ -90,6 +92,7 @@ export class HourTotals {
         private pageState: PageStateService,
         private http: UniHttp,
         private financialYearService: FinancialYearService,
+        private modalService: UniModalService,
         tabService: TabService
     ) {
         tabService.addTab({
@@ -314,6 +317,13 @@ export class HourTotals {
 
             resolve(true);
         });
+    }
+
+    openDrilldownModal(row, col, index) {
+        const modalOptions = {
+        };
+
+        this.modalService.open(HourTotalsDrilldownModal, {data: modalOptions});
     }
 
 }
