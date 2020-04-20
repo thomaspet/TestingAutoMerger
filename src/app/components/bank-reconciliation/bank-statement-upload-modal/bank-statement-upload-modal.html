@@ -1,7 +1,7 @@
-<section role="dialog" class="uni-modal uni-redesign uni-statement-upload-modal" [ngClass]="currentStep === 'custom' ? 'large-mode' : ''">
+<section role="dialog" class="uni-modal uni-statement-upload-modal" [ngClass]="currentStep === 'custom' ? 'large-mode' : ''">
     <header>Importer bankdata</header>
 
-    <article class="scrollable">
+    <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
@@ -19,15 +19,15 @@
             </label>
 
             <section class="file-select">
-                <section class="button-section">
-                    <span class="select-file-label">Velg fil</span>
+                <label class="uni-label label-left">
+                    <span>Velg fil</span>
 
-                    <label class="bank-statement-upload">
+                    <section class="upload-button">
                         <i class="material-icons">cloud_upload</i>
-                        <span>Last opp</span>
+                        Last opp fil
                         <input type="file" accept=".bck,.csv,.xml,.txt" (change)="uploadFile($event)" />
-                    </label>
-                </section>
+                    </section>
+                </label>
 
                 <ul *ngIf="files?.length" class="selectable file-selection-list">
                     <li *ngFor="let file of files"

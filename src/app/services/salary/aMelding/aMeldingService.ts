@@ -153,7 +153,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .map(response => response.body);
     }
 
-    public postAMelding(period: number, amldType: number, currYear: number, runID: number = null, replaceThis: string = null) {
+    public postAMelding(period: number, amldType: number, currYear: number, runID: number = null, replacesID = 0) {
         super.invalidateCache();
         return this.http
             .asPOST()
@@ -163,8 +163,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
                 'year': currYear,
                 'type': amldType,
                 'PayrollRunID': runID,
-                'replacesID': 0,
-                'replaceThis': replaceThis,
+                'replacesID': replacesID,
             })
             .withEndPoint(this.relativeURL)
             .send()

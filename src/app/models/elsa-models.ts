@@ -34,9 +34,9 @@ export interface ElsaCompanyLicense {
     StatusCode: ElsaCompanyLicenseStatus;
     EndDate: string;
     IsDeleted: boolean;
-    DeletedAt: Date;
-    DeletedBy: string;
-    DeletedByEmail: string;
+    UpdatedAt: Date;
+    UpdatedBy: string;
+    UpdatedByEmail: string;
 }
 
 export interface ElsaPurchase {
@@ -44,6 +44,13 @@ export interface ElsaPurchase {
     ProductID: number;
     GlobalIdentity?: string;
     Deleted?: boolean;
+    PurchaseStatus?: ElsaPurchaseStatus;
+}
+
+export enum ElsaPurchaseStatus {
+    Accepted = 1,
+    Rejected = 5,
+    Pending = 10,
 }
 
 export interface ElsaContract {
@@ -117,6 +124,7 @@ export enum ElsaProductStatusCode {
 }
 
 export enum ElsaProductType {
+    All = -1,
     Module = 0,
     Bundle = 1,
     Integration = 2,

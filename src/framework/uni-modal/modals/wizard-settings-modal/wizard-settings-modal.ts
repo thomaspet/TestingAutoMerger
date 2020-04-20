@@ -1,5 +1,5 @@
 import {Component, Input, Output, ViewChild, EventEmitter} from '@angular/core';
-import {MatStepper} from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import {forkJoin, BehaviorSubject} from 'rxjs';
 import {CompanySettings, Address, Email, BankAccount, CompanySalary} from '../../../../app/unientities';
 import {FieldType} from '@uni-framework/ui/uniform/index';
@@ -30,7 +30,7 @@ enum SETTINGS_STEPS {
 })
 export class WizardSettingsModal implements IUniModal {
 
-    @ViewChild(MatStepper, { static: false })
+    @ViewChild(MatStepper)
     stepper: MatStepper;
 
     @Input()

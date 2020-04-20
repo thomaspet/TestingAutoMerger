@@ -1,18 +1,17 @@
 import {ViewChild, Component} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {FormControl} from '@angular/forms';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {IToolbarConfig, IAutoCompleteConfig} from './../../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {LedgerAccountReconciliation, LedgerTableEmitValues} from '../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
 import {exportToFile, arrayToCsv} from '../../common/utils/utils';
-import {Observable} from 'rxjs';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {UniAutomarkModal} from '../../common/reconciliation/ledgeraccounts/uniAutomarkModal';
 import {Customer, Supplier, Account, StatusCodeJournalEntryLine} from '../../../unientities';
 import {StatisticsService, NumberFormat, PageStateService} from '../../../services/services';
-import { IUniTab } from '@uni-framework/uni-tabs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 @Component({

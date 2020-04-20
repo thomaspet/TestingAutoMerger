@@ -1,0 +1,7 @@
+
+<section *ngIf="salaryTransactionCount != null && salaryTransactionCount > 0"
+    class="negative-salary-section"
+    (click)='openNegativeSalaryModal()'>
+    <i class="material-icons bad" title={{WARNINGTEXT}}> warning </i>
+    {{salaryTransactionCount}} ansatte med negativ lønn
+</section>

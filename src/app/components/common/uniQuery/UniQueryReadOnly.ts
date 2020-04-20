@@ -25,7 +25,7 @@ export class UniQueryReadOnly implements OnChanges {
     @Input() supplierID: number;
     @Input() projectID: number;
 
-    @ViewChild(AgGridWrapper, { static: false })
+    @ViewChild(AgGridWrapper)
     public table: AgGridWrapper;
 
     public tableConfig: UniTableConfig;

@@ -4,6 +4,7 @@ import { PayrollRunInAmeldingPeriod, AmeldingType } from '@uni-entities';
 import { AMeldingService, ErrorService } from '@app/services/services';
 import { Observable, pipe, of } from 'rxjs';
 import { tap, finalize, switchMap, catchError } from 'rxjs/operators';
+import * as moment from 'moment';
 
 @Component({
   selector: 'uni-amelding-payrolls-period-view',
@@ -42,7 +43,10 @@ export class AmeldingPayrollsPeriodViewComponent implements OnInit {
         return `${rowmodel.PayrollrunID} - ${rowmodel.PayrollrunDescription}`;
       });
     const typeCol = new UniTableColumn('PayrollrunPaydate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
-    const sentCol = new UniTableColumn('AmeldingSentdate', 'Sendt a-melding', UniTableColumnType.LocalDate);
+    const sentCol = new UniTableColumn('AmeldingSentdate', 'Sendt a-melding', UniTableColumnType.Text)
+        .setTemplate((x: PayrollRunInAmeldingPeriod) => {
+            return x.AmeldingSentdate ? moment(x.AmeldingSentdate).format('DD.MM.YYYY HH:mm') : '';
+        });
     this.tableConfig = new UniTableConfig('amelding.period.payrolls.data', false, false)
       .setColumns([idCol, typeCol, sentCol])
       .setSearchable(false)

@@ -140,7 +140,7 @@ export * from './common/initService';
 
 @NgModule({})
 export class CommonServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<CommonServicesModule> {
         return {
             ngModule: CommonServicesModule,
             providers: [

@@ -14,11 +14,15 @@ import {theme, THEMES} from 'src/themes/theme';
     styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild(UniSelect, { static: false }) select: UniSelect;
-    @HostBinding('class') class = theme.theme === THEMES.SR ? 'ext01-login' : 'ue-login';
+    @ViewChild(UniSelect) select: UniSelect;
+    @HostBinding('class.sr-login') srLogin = theme.theme === THEMES.SR;
 
     isAuthenticated: boolean;
     availableCompanies: any[];
+
+    background = theme.init.login_background || theme.init.background;
+    backgroundHeight = theme.init.login_background_height;
+    illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',

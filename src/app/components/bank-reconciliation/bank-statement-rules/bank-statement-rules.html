@@ -1,0 +1,69 @@
+<section role="dialog" class="uni-modal large">
+    <header>{{options.header || 'Bokføringsregler'}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="list-section">
+            <section cdkDropList class="rule-list" (cdkDropListDropped)="onRuleMoved($event)">
+                <section *ngFor="let rule of rules" (click)="onRuleSelected(rule)" class="rule" [class.selected]="rule === activeRule" cdkDrag>
+                    <mat-checkbox class="is-active-checkbox"
+                        [(ngModel)]="rule.IsActive"
+                        (ngModelChange)="markActiveRuleDirty()"
+                        (click)="$event.stopPropagation()">
+                    </mat-checkbox>
+
+                    <span>{{rule.Name}}</span>
+                    <i *ngIf="rule['_error']" [matTooltip]="rule['_error']" class="material-icons error">error</i>
+                    <i role="button" (click)="deleteRule(rule)" class="material-icons delete">close</i>
+                </section>
+            </section>
+
+            <button (click)="addRule()" class="new-rule tertiary c2a">Legg til regel</button>
+
+            <section class="info-section" *ngIf="rules?.length > 1">
+                Avkrysningboksen ved hver regel bestemmer om den skal kjøres når man velger "Kjør alle regler".
+                Regler som ikke er avkrysset vil likevel kunne kjøres manuelt dersom man ønsker det.
+                <br><br>
+                Du kan endre prioriteringsrekkefølge på reglene ved å dra elementene i listen opp eller ned.
+            </section>
+        </section>
+
+        <section *ngIf="activeRule" class="details">
+            <section class="input-row">
+                <label class="uni-label">
+                    <span>Navn på regel</span>
+                    <input [(ngModel)]="activeRule.Name" (ngModelChange)="markActiveRuleDirty()" type="text">
+                </label>
+
+                <label class="uni-label">
+                    <span>Føres på konto</span>
+                    <autocomplete
+                        [options]="autocompleteOptions"
+                        [(value)]="activeRule['_account']"
+                        (valueChange)="onAccountChange()">
+                    </autocomplete>
+                </label>
+
+            </section>
+
+            <section class="rule-container">
+                <span>Betingelser for automatisk føring</span>
+
+                <query-builder
+                    [(query)]="queryItems"
+                    (queryChange)="onQueryChange()"
+                    [fields]="fields">
+                </query-builder>
+            </section>
+        </section>
+
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(ruleDeleted)">Avbryt</button>
+        <button class="c2a" (click)="save()">Lagre</button>
+    </footer>
+</section>

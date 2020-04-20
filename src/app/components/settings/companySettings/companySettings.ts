@@ -80,10 +80,10 @@ import {theme, THEMES} from 'src/themes/theme';
     templateUrl: './companySettings.html'
 })
 export class CompanySettingsComponent implements OnInit {
-    @ViewChild(UniForm, { static: false })
+    @ViewChild(UniForm)
     public form: UniForm;
 
-    @ViewChild(ReminderSettings, { static: false })
+    @ViewChild(ReminderSettings)
     public reminderSettings: ReminderSettings;
 
     public companySettings$: BehaviorSubject<CompanySettings> = new BehaviorSubject(null);
@@ -136,6 +136,7 @@ export class CompanySettingsComponent implements OnInit {
     private quoteFormList: ReportDefinition[];
     private orderFormList: ReportDefinition[];
     private invoiceFormList: ReportDefinition[];
+    private invoiceReminderFormList: ReportDefinition[];
 
     private invoiceTemplate: CampaignTemplate;
     private orderTemplate: CampaignTemplate;
@@ -226,7 +227,8 @@ export class CompanySettingsComponent implements OnInit {
             this.campaignTemplateService.getQuoteTemplateText(),
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
-            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE)
+            this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+            this.reportTypeService.getFormType(ReportTypeEnum.REMINDER)
         ).subscribe(
             (dataset) => {
                 this.companyTypes = dataset[0];
@@ -266,6 +268,7 @@ export class CompanySettingsComponent implements OnInit {
                 this.quoteFormList = dataset[12];
                 this.orderFormList = dataset[13];
                 this.invoiceFormList = dataset[14];
+                this.invoiceReminderFormList = dataset[15];
 
                 this.companySettings$.next(this.setupMultivalueData(dataset[5]));
                 this.savedCompanyOrgValue = dataset[5].OrganizationNumber;
@@ -1801,6 +1804,21 @@ export class CompanySettingsComponent implements OnInit {
                 FieldSet: 4,
                 Section: 0,
             },
+            {
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Blankett',
+                Property: 'company.DefaultCustomerInvoiceReminderReportID',
+                Options: {
+                    source: this.invoiceReminderFormList,
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: false,
+                    searchable: false,
+                },
+                Section: 0,
+                FieldSet: 5,
+                Legend: 'Purring',
+            }
         ]);
     }
 

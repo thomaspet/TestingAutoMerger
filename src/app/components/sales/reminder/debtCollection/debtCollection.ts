@@ -3,14 +3,15 @@ import { ToastService, ToastType } from '../../../../../framework/uniToast/toast
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import { IUniSaveAction } from '../../../../../framework/save/save';
 import { ISummaryConfig } from '../../../common/summary/summary';
-import { UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { UniModalService, ConfirmActions, UniPreviewModal } from '../../../../../framework/uni-modal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     NumberFormat,
     CustomerInvoiceService,
     ErrorService,
     CustomerInvoiceReminderService,
-    ElsaPurchaseService
+    ElsaPurchaseService,
+    ReportDefinitionService
 } from '../../../../services/services';
 import {
     UniTableColumn,
@@ -20,7 +21,6 @@ import {
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
@@ -35,7 +35,7 @@ export class DebtCollection implements OnInit {
     @Input()
     public config: any;
 
-    @ViewChild(AgGridWrapper, { static: false })
+    @ViewChild(AgGridWrapper)
     private table: AgGridWrapper;
 
     public remindersToDebtCollect: any;
@@ -79,7 +79,8 @@ export class DebtCollection implements OnInit {
         private numberFormatService: NumberFormat,
         private modalService: UniModalService,
         private tabService: TabService,
-        private elsaPurchaseService: ElsaPurchaseService
+        private elsaPurchaseService: ElsaPurchaseService,
+        private reportDefinitionService: ReportDefinitionService
     ) { }
 
     public ngOnInit() {
@@ -310,6 +311,13 @@ export class DebtCollection implements OnInit {
             disabled: (item) => !item.DontSendReminders
         });
 
+        contextMenuItems.push({
+            label: 'Forhåndsvis',
+            action: (rowModel) => {
+                this.openReport(rowModel);
+            }
+        });
+
         const configStoreKey = 'sales.reminders.reminderToDebtCollect';
         this.reminderToDebtCollectTable = new UniTableConfig(configStoreKey, false, true, 25)
             .setSearchable(false)
@@ -332,5 +340,31 @@ export class DebtCollection implements OnInit {
             'Du har en aktiv integrasjon for purring/inkasso. Standardfunksjonaliteten for disse funksjonene er derfor deaktivert.');
 
         done();
+    }
+
+    private openReport(reminder: any) {
+        this.reportDefinitionService
+            .getReportByName('Purring')
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe((report) => {
+                report.parameters = [
+                    {
+                        Name: 'CustomerInvoiceID',
+                        value: reminder.CustomerInvoiceID
+                    },
+                    {
+                        Name: 'ReminderNumber',
+                        value: reminder.ReminderNumber
+                    },
+                    {
+                        Name: 'ReminderFilter',
+                        value: '0 eq 1'
+                    }
+                ];
+
+                this.modalService.open(UniPreviewModal, {
+                    data: report
+                });
+        });
     }
 }

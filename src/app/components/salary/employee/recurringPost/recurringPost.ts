@@ -24,7 +24,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     templateUrl: './recurringPost.html'
 })
 export class RecurringPost extends UniView {
-    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private employeeID: number;
     public tableConfig: UniTableConfig;
@@ -33,7 +33,7 @@ export class RecurringPost extends UniView {
     private wagetypes: WageType[] = [];
     private projects: Project[] = [];
     private departments: Department[] = [];
-    private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private refresh: boolean;
 
     constructor(
@@ -157,7 +157,8 @@ export class RecurringPost extends UniView {
         const payoutCol = new UniTableColumn('_BasePayment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate((dataItem: SalaryTransaction) => {
 
-                const wagetype: WageType = dataItem.Wagetype || (this.wagetypes && this.wagetypes.find(x => x.WageTypeNumber === dataItem.WageTypeNumber));
+                const wagetype: WageType = dataItem.Wagetype ||
+                    (this.wagetypes && this.wagetypes.find(x => x.WageTypeNumber === dataItem.WageTypeNumber));
 
                 if (!wagetype) {
                     return;

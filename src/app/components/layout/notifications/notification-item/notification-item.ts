@@ -2,7 +2,7 @@ import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {Notification} from '@uni-entities';
 import * as moment from 'moment';
 import { isNullOrUndefined } from 'util';
-import { EntitytypeTranslationPipe } from '@app/pipes/entitytype-translation.pipe';
+import { EntitytypeTranslationPipe } from '@uni-framework/pipes/entitytype-translation.pipe';
 
 @Component({
     selector: 'notification-item',

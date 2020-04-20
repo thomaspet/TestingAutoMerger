@@ -12,7 +12,7 @@ import {UniForm} from '@uni-framework/ui/uniform';
 })
 export class SupplierEditModal implements IUniModal {
     @ViewChild(UniForm, { static: true }) form: UniForm;
-    @ViewChild(Autocomplete, { static: false }) autocomplete: Autocomplete;
+    @ViewChild(Autocomplete) autocomplete: Autocomplete;
 
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();

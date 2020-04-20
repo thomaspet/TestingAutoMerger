@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostBinding} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
@@ -15,10 +15,14 @@ export interface CompanyInfo {
 
 interface RegistrationOption {
     header: string;
+    priceTag?: string;
     textSections: string[];
-    buttonLabel: string;
-    buttonClass?: string;
-    action: () => void;
+    footerText?: string;
+    buttons: {
+        label: string;
+        class?: string;
+        action: () => void;
+    }[];
 }
 
 @Component({
@@ -31,12 +35,16 @@ export class RegisterCompany {
     tokenSubscription: Subscription;
 
     selectedCompanyType: string;
+    isTest: boolean;
     busy: boolean;
     missingContract = false;
     contractID: number;
     contracts: Contract[];
 
     registrationOptions: RegistrationOption[];
+    illustration = theme.init.illustration;
+
+    @HostBinding('style.background') background = theme.init.background || '#fff';
 
     constructor(
         private initService: InitService,
@@ -45,6 +53,7 @@ export class RegisterCompany {
         private authService: AuthService,
     ) {
         this.route.queryParamMap.subscribe(params => {
+            this.isTest = params.get('isTest') === 'true' || false;
             this.selectedCompanyType = params.get('type') || undefined;
         });
 
@@ -72,33 +81,48 @@ export class RegisterCompany {
         }
     }
 
-    onCompanyTypeSelected(type: string) {
-        this.router.navigateByUrl('/init/register-company?type=' + type);
+    navigate(url: string) {
+        this.router.navigateByUrl(url);
     }
 
     // tslint:disable
     getSrOptions() {
         return [
             {
-
-                header: 'Prøv SR-Bank Regnskap',
+                header: 'Bestill Bank + Regnskap',
+                priceTag: '199,- per måned',
                 textSections: [
-                    'For at du skal få best mulig inntrykk av systemet gir vi deg mulighet til å prøve en demo inntil 30 dager. Demobedriften er en fiktiv bedrift og inneholder ingen reelle data. Fakturaer vil ikke bli sendt noe sted, og du kan naturligvis ikke betale regninger eller lønn heller.',
-                    'Når du er klar for å bestille Bank+Regnskap og ta i bruk SR-Bank Regnskap for fullt trykker du "Aktiver nå" øverst til høyre i skjermbildet.',
+                    '0,- i etablering',
+                    '1 måneds oppsigelsestid',
                 ],
-                buttonLabel: 'Start demoperiode',
-                action: () => this.router.navigateByUrl('/init/register-company?type=demo')
+                footerText: 'Registrer deg i dag og få første måned gratis',
+                buttons: [{
+                    label: 'Bestill Bank + Regnskap',
+                    class: 'good',
+                    action: () => this.router.navigateByUrl('/init/register-company?type=company')
+                }]
             },
-            // {
-            //     header: 'Prøv med din egen bedrift',
-            //     textSections: [
-            //         'For å få et best mulig inntrykk av systemet kan du i demoperioden bruke din egen bedrift.',
-            //         'Når du er klar for å ta i bruk systemet trykker du "Aktiver" øverst til høyre i skjermbildet. Ved aktivering vil data fra demoperioden følge med',
-            //     ],
-            //     buttonLabel: 'Start demoperiode',
-            //     buttonClass: 'c2a',
-            //     action: () => this.router.navigateByUrl('/init/register-company?type=company')
-            // }
+
+            {
+                header: 'Prøv gratis demo i 30 dager',
+                textSections: [
+                    'Med demo har du mulighet til å bli kjent med systemet før du bestemmer deg. Her kan du teste funksjoner uten at fakturaer faktisk blir sendt og lønn blir utbetalt.',
+                    'Du kan prøve demo med fiktive data, eller demo hvor du bruker data fra din egen bedrift'
+                ],
+                buttons: [
+                    {
+                        label: 'Start demo med fiktiv bedrift',
+                        class: 'secondary',
+                        action: () => this.router.navigateByUrl('/init/register-company?type=demo')
+                    },
+                    {
+                        label: 'Start demo med din bedrift',
+                        class: 'c2a',
+                        action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
+                    }
+                ]
+            },
+
         ];
     }
 
@@ -109,21 +133,25 @@ export class RegisterCompany {
                 textSections: [
                     'Et demoselskap innneholder fiktive data og lar deg bli kjent med systemet før du registrerer din egen bedrift.',
                     'Fakturaer vil kun sendes til din epost adresse, og du kan naturligvis ikke betale regninger eller lønn.',
-                    'Du kan når som helst i demoperioden velge å registrere din bedrift og begynne å jobbe med reelle data.'
+                    'Du kan når som helst i demoperioden velge å registrere din bedrift og begynne å jobbe med reelle data.',
                 ],
-                buttonLabel: 'Opprett demoselskap',
-                action: () => this.router.navigateByUrl('/init/register-company?type=demo')
+                buttons: [{
+                    label: 'Opprett demoselskap',
+                    action: () => this.router.navigateByUrl('/init/register-company?type=demo')
+                }]
             },
             {
                 header: 'Registrer din egen bedrift',
                 textSections: [
                     'Registrer din egen bedrift her for å starte opp med Uni Economy i dag.',
                     'Prøveperioden vil fremdeles være gratis, men du kan begynne å jobbe med reelle data umiddelbart.',
-                    'Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.'
+                    'Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.',
                 ],
-                buttonLabel: 'Registrer din bedrift',
-                buttonClass: 'c2a',
-                action: () => this.router.navigateByUrl('/init/register-company?type=company')
+                buttons: [{
+                    label: 'Registrer din bedrift',
+                    class: 'c2a',
+                    action: () => this.router.navigateByUrl('/init/register-company?type=company')
+                }]
             }
         ];
     }

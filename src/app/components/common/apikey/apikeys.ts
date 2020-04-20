@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { UniTableConfig, UniTableColumn,UniTableColumnType } from '@uni-framework/ui/unitable';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { ApiKeyService, ErrorService } from '@app/services/services';
 import { ApiKey } from '@uni-entities';
 import { ApikeyLineModal } from './modals/apikey-modal';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'apikey-component',
@@ -62,7 +63,7 @@ export class ApiKeyComponent implements OnInit {
 
     private getData() {
         this.apikeyService.getApiKeys().subscribe(keys => {
-            this.apikeys = keys.filter(x => !x.Deleted);
+            this.apikeys = cloneDeep(keys.filter(x => !x.Deleted));
             this.setupTable();
         });
     }

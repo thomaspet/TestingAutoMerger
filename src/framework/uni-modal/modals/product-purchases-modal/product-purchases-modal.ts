@@ -11,7 +11,8 @@ import {
 } from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {User, UserRole, Role} from '@uni-entities';
-import {ElsaProduct, ElsaPurchase} from '@app/models';
+import {ElsaProduct, ElsaPurchase, ElsaProductType} from '@app/models';
+import {FormControl} from '@angular/forms';
 
 @Component({
     selector: 'product-purchases-modal',
@@ -26,13 +27,17 @@ export class ProductPurchasesModal implements IUniModal {
     busy: boolean;
     users: User[];
 
+    checkAll: boolean;
+    filterControl: FormControl = new FormControl('');
+    purchasesMatrix: any[];
+
     singleProductMode: boolean;
     products: ElsaProduct[];
     purchases: ElsaPurchase[];
     userRoles: UserRole[];
     roles: Role[];
 
-    purchasesMatrix: {
+    allPurchasesMatrix: {
         userID: number,
         userDisplayName: string,
         purchases: ElsaPurchase[]
@@ -46,7 +51,12 @@ export class ProductPurchasesModal implements IUniModal {
         private productService: ElsaProductService,
         private userRoleService: UserRoleService,
         private roleService: RoleService,
-    ) {}
+    ) {
+        this.filterControl.valueChanges
+            .debounceTime(200)
+            .distinctUntilChanged()
+            .subscribe(value => this.filterItems(value));
+    }
 
     ngOnInit() {
         this.busy = true;
@@ -68,10 +78,10 @@ export class ProductPurchasesModal implements IUniModal {
             this.roleService.GetAll()
         ).subscribe(
             res => {
-                this.users = res[0];
+                this.users = res[0].filter(user => user.Email && user.StatusCode !== 110000);
                 this.purchases = res[1];
                 this.products = (res[2] || []).filter(product => {
-                    return product.ProductTypeName === 'Module'
+                    return product.ProductType === ElsaProductType.Module
                         && product.IsPerUser
                         && product.Name !== 'Complete';
                 });
@@ -182,7 +192,7 @@ export class ProductPurchasesModal implements IUniModal {
     }
 
     private buildProductMatrix() {
-        this.purchasesMatrix = this.users.filter(user => user.StatusCode !== 110000).map(user => {
+        this.purchasesMatrix = this.allPurchasesMatrix = this.users.map(user => {
             const entry = {
                 userID: user.ID,
                 userDisplayName: user.DisplayName || user.Email,
@@ -211,6 +221,19 @@ export class ProductPurchasesModal implements IUniModal {
             });
 
             return entry;
+        });
+    }
+
+    onCheckAllChange() {
+        this.checkAll = !this.checkAll;
+        this.purchasesMatrix.forEach(item => item.purchases[0]['_active'] = this.checkAll);
+    }
+
+
+    private filterItems(filterText: string) {
+        const filterLowerCase = filterText.toLowerCase();
+        this.purchasesMatrix = this.allPurchasesMatrix.filter(item => {
+            return item.userDisplayName.toLowerCase().includes(filterLowerCase);
         });
     }
 }

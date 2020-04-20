@@ -37,12 +37,12 @@
             [departments]="departments"
             [vatTypes]="vatTypes"
             [vatDate]="invoice.InvoiceDate"
-            [(items)]="invoiceItems"
+            [items]="invoiceItems"
             [dimensionTypes]="dimensionTypes"
             [currencyCodeID]="currencyCodeID"
             [currencyExchangeRate]="currencyExchangeRate"
             [defaultTradeItem]="newInvoiceItem"
-            (itemsChange)="onTradeItemsChange()">
+            (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
         <section class="freetext-and-summary">
@@ -55,7 +55,12 @@
             </section>
 
             <section class="tof-summary">
-                <span class="currency-info">{{currencyInfo}}</span>
+                <section class="currency-and-db">
+                    <span>{{currencyInfo}}</span>
+                    <span *ngIf="itemsSummaryData?.DekningsGrad">
+                        DG: {{itemsSummaryData?.DekningsGrad | uninumberformat:'percent'}}%
+                    </span>
+                </section>
 
                 <section class="vertical-summary" *ngIf="summaryLines?.length">
                     <section class="summary-line"

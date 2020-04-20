@@ -1,6 +1,7 @@
-import {ErrorHandler, Inject} from '@angular/core';
+import { ErrorHandler, Inject, Injectable } from '@angular/core';
 import {ErrorService} from './services/services';
 
+@Injectable()
 export class UniAngularErrorHandler implements ErrorHandler {
     constructor(@Inject(ErrorService) private errorService: ErrorService) {}
 

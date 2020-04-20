@@ -24,6 +24,12 @@
                         (click)="$event.stopPropagation(); goToJournalEntryView(entry)"
                         title="Gå til bilag {{ entry.JournalEntryNumber }}"> open_in_new
                     </i>
+
+                    <i class="material-icons go-to-journal-icon"
+                        *ngIf="(showJournalEntryLink && entry?.JournalEntryID) || (!showJournalEntryLink && entry.ID)"
+                        (click)="$event.stopPropagation(); openFileModal(entry)"
+                        title="Legg dokument til bilag {{ entry.JournalEntryNumber }}"> attach_file
+                    </i>
                 </span>
             </li>
         </ng-container>

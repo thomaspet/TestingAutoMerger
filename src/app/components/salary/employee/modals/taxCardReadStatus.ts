@@ -1,10 +1,11 @@
 import {Component, OnInit, Input, SimpleChanges, OnChanges, ChangeDetectionStrategy} from '@angular/core';
 import {
     IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig
-} from '../../../../../framework/ui/unitable';
-import {TaxCardReadStatus, Employee, EmployeeStatus} from '../../../../unientities';
-import {EmployeeService, ErrorService} from '../../../../services/services';
+} from '@uni-framework/ui/unitable';
+import {TaxCardReadStatus, EmployeeStatus} from '@uni-entities';
+import {ErrorService, StatisticsService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 
 @Component({
     selector: 'tax-card-read-status',
@@ -23,8 +24,8 @@ export class TaxCardReadStatusComponent implements OnInit, OnChanges {
     public mainStatus: string;
 
     constructor(
-        private employeeService: EmployeeService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private statisticsService: StatisticsService,
     ) {}
 
     public ngOnInit() {
@@ -63,27 +64,36 @@ export class TaxCardReadStatusComponent implements OnInit, OnChanges {
             return;
         }
 
-        const filter = status.employeestatus.map(emp => `ID eq ${emp.employeeID}`).join(' or ');
-        this.employeeService
-            .GetAll(`filter=${filter}`, ['BusinessRelationInfo'])
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .map((emps: Employee[]) => {
-                status.employeestatus.forEach(empStat => {
-                    const emp = emps.find(x => x.ID === empStat.employeeID);
-                    if (!emp) {
-                        return;
-                    }
+        this.statisticsService
+            .GetAllUnwrapped(
+                `select=ID as ID,EmployeeNumber as EmployeeNumber,BusinessRelationInfo.Name as Name` +
+                `&model=Employee` +
+                `&filter=ID ge ${Math.min(...status.employeestatus.map(emp => emp.employeeID))} ` +
+                    `and ID le ${Math.max(...status.employeestatus.map(emp => emp.employeeID))}` +
+                `&expand=BusinessRelationInfo`
+            )
+            .pipe(
+                map((emps: {ID: number, EmployeeNumber: number, Name: string}[]) => {
+                    status.employeestatus.forEach(empStat => {
+                        const emp = emps.find(x => x.ID === empStat.employeeID);
+                        if (!emp) {
+                            return;
+                        }
 
-                    const empInfo = (emp.BusinessRelationInfo && emp.BusinessRelationInfo.Name)
-                        ? ['' + emp.EmployeeNumber, emp.BusinessRelationInfo.Name]
-                        : ['' + emp.EmployeeNumber];
+                        const empInfo = emp.Name
+                            ? ['' + emp.EmployeeNumber, emp.Name]
+                            : ['' + emp.EmployeeNumber];
 
-                    empStat['_empInfo'] = empInfo.join(' - ');
-                    empStat['_sortIndex'] = emp.EmployeeNumber;
-                });
-                return status.employeestatus;
-            })
-            .subscribe(empStat => this.tableModel$.next(empStat.sort(this.empSort)));
+                        empStat['_empInfo'] = empInfo.join(' - ');
+                        empStat['_sortIndex'] = emp.EmployeeNumber;
+                    });
+                    return status.employeestatus;
+                })
+            )
+            .subscribe(
+                empStat => this.tableModel$.next(empStat.sort(this.empSort)),
+                error => this.errorService.handle(error)
+            );
     }
 
     private empSort(empA: EmployeeStatus, empB: EmployeeStatus) {

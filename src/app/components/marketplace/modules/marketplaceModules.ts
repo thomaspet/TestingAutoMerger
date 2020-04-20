@@ -1,4 +1,4 @@
-import {Component, AfterViewInit, OnInit} from '@angular/core';
+import {Component, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, forkJoin} from 'rxjs';
 
@@ -24,6 +24,7 @@ import {
     ProductPurchasesModal,
     UniAutobankAgreementModal,
     MissingPurchasePermissionModal,
+    PurchaseTraveltextModal,
     ConfirmActions
 } from '@uni-framework/uni-modal';
 
@@ -40,7 +41,7 @@ import {theme, THEMES} from 'src/themes/theme';
     templateUrl: './marketplaceModules.html',
     styleUrls: ['./marketplaceModules.sass'],
 })
-export class MarketplaceModules implements OnInit, AfterViewInit {
+export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
     filteredExtensions: ElsaProduct[];
@@ -70,30 +71,11 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
         });
     }
 
-    ngOnInit() {
-        this.companySettingsService.Get(1).subscribe(company => {
-            this.companySettings = company;
-            if (!company.OrganizationNumber) {
-                this.modalService.confirm({
-                    header: 'Kan ikke kjøpe produkter',
-                    message: 'Organisasjonsnummer mangler på selskapet. Du kan endre dette i firmainnstillinger.',
-                    buttonLabels: {
-                        accept: 'Gå til firmainnstillinger',
-                        reject: 'Avbryt'
-                    }
-                }).onClose.subscribe(res => {
-                    if (res === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/settings/company');
-                    }
-                });
-            }
-        });
-    }
-
     ngAfterViewInit() {
         const userID = this.authService.currentUser.ID;
 
         forkJoin(
+            this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()
                 .catch(() => Observable.of([])), // fail silently
 
@@ -102,9 +84,23 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
             this.userRoleService.hasAdminRole(userID),
         ).subscribe(
             res => {
-                this.autobankAgreements = res[0] || [];
-
-                const products = res[1] || [];
+                this.companySettings = res[0];
+                if (!this.companySettings.OrganizationNumber) {
+                    this.modalService.confirm({
+                        header: 'Kan ikke kjøpe produkter',
+                        message: 'Organisasjonsnummer mangler på selskapet. Du kan endre dette i firmainnstillinger.',
+                        buttonLabels: {
+                            accept: 'Gå til firmainnstillinger',
+                            reject: 'Avbryt'
+                        }
+                    }).onClose.subscribe((action: ConfirmActions) => {
+                        if (action === ConfirmActions.ACCEPT) {
+                            this.router.navigateByUrl('/settings/company');
+                        }
+                    });
+                }
+                this.autobankAgreements = res[1] || [];
+                const products = res[2] || [];
                 this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
                 this.extensions = products
                     .filter(p => p.ProductType === ElsaProductType.Extension)
@@ -113,8 +109,8 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
                         return extension;
                     });
 
-                this.setPurchaseInfo(res[2]);
-                this.canPurchaseProducts = res[3];
+                this.setPurchaseInfo(res[3]);
+                this.canPurchaseProducts = res[4];
 
                 const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
                 tabs.unshift({ name: 'Alle', value: null });
@@ -155,9 +151,9 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
         const name = product && product.Name && product.Name.toLowerCase();
         let activationModal;
 
-        if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated(this.companySettings)) {
+        if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
             activationModal = UniActivateInvoicePrintModal;
-        } else if (name === 'ehf' && !this.ehfService.isEHFActivated(this.companySettings)) {
+        } else if (name === 'ehf' && !this.ehfService.isEHFActivated()) {
             activationModal = UniActivateAPModal;
         } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
             activationModal = ActivateOCRModal;
@@ -206,7 +202,10 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
 
     manageUserPurchases(product: ElsaProduct) {
         if (this.canPurchaseProducts) {
-            this.modalService.open(ProductPurchasesModal, {
+            const purchaseModal = product.Name.trim().toLowerCase() === 'traveltext'
+                ? PurchaseTraveltextModal
+                : ProductPurchasesModal;
+            this.modalService.open(purchaseModal, {
                 data: {
                     product: product
                 }
@@ -248,6 +247,5 @@ export class MarketplaceModules implements OnInit, AfterViewInit {
         } else {
             window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');
         }
-
     }
 }

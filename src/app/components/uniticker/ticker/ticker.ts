@@ -31,23 +31,18 @@ import {TableUtils} from '@uni-framework/ui/ag-grid/services/table-utils';
 import {
     StatisticsService,
     StatusService,
-    EmployeeLeaveService,
     FinancialYearService,
     CompanySettingsService,
     ReportDefinitionParameterService,
     CustomDimensionService,
-    WageTypeService,
     EmployeeTaxCardService,
-    SalarybalanceService
 } from '../../../services/services';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import { Observable, empty, forkJoin } from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {UniModalService} from '../../../../framework/uni-modal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {UniModalService, UniPreviewModal} from '../../../../framework/uni-modal';
 import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
-import {EmploymentStatuses} from '../../../models/employmentStatuses';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
 
 import * as moment from 'moment';
@@ -55,6 +50,7 @@ import {saveAs} from 'file-saver';
 import { map, catchError } from 'rxjs/operators';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
+import {ColumnTemplateOverrides} from './column-template-overrides';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -87,7 +83,7 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper, { static: false }) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
     public model: any;
 
@@ -128,14 +124,11 @@ export class UniTicker {
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private tableUtils: TableUtils,
-        private employeeLeaveService: EmployeeLeaveService,
         private financialYearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
         private reportDefinitionParameterService: ReportDefinitionParameterService,
         private customDimensionService: CustomDimensionService,
-        private wageTypeService: WageTypeService,
         private taxService: EmployeeTaxCardService,
-        private salaryBalanceService: SalarybalanceService,
     ) {
         this.lookupFunction = (urlParams: HttpParams) => {
             this.publicParams = urlParams;
@@ -330,75 +323,6 @@ export class UniTicker {
                                     return x.CustomerCustomerNumber;
                                 });
                             }
-
-                            const getRateFromCol = this.tableConfig.columns.find(x => x.header === 'Sats hentes fra');
-                            const getRateFrom = ['Lønnsart', 'Månedslønn ansatt', 'Timelønn ansatt', 'Frisats ansatt'];
-                            if (getRateFromCol) {
-                                getRateFromCol.setTemplate(x => {
-                                    if (x.WageTypeGetRateFrom || x.WageTypeGetRateFrom === 0) {
-                                        return getRateFrom[x.WageTypeGetRateFrom];
-                                    }
-                                    return '';
-                                });
-                            }
-
-                            const otpStatusCol = this.tableConfig.columns.find(x => x.header === 'OTP status');
-                            const otpStatuses = ['Aktiv', 'Syk', 'Permittert', 'Lovfestet permisjon', 'Avtalt permisjon'];
-                            if (otpStatusCol) {
-                                otpStatusCol.setTemplate(x => {
-                                    if (x.EmployeeOtpStatus || x.EmployeeOtpStatus === 0) {
-                                        return otpStatuses[x.EmployeeOtpStatus];
-                                    }
-                                    return otpStatuses[0];
-                                });
-                            }
-
-                            const limitTypeCol = this.tableConfig.columns.find(x => x.header === 'Grenseverdi type');
-                            const limitTypes = ['Ingen', 'Antall', 'Beløp'];
-                            if (limitTypeCol) {
-                                limitTypeCol.setTemplate(x => {
-                                    if (x.WageTypeLimit_type || x.WageTypeLimit_type === 0) {
-                                        return `${x.WageTypeLimit_type} - ${limitTypes[x.WageTypeLimit_type]}`;
-                                    }
-                                    return '';
-                                });
-                            }
-
-                            const typeOfPaymentOtpCol = this.tableConfig.columns.find(x => x.header === 'Avlønningsform');
-                            const typesOfPaymentOtp = ['Fast', 'Time', 'Provisjon'];
-                            if (typeOfPaymentOtpCol) {
-                                typeOfPaymentOtpCol.setTemplate(x => {
-                                    if (x.EmployeeTypeOfPaymentOtp || x.EmployeeTypeOfPaymentOtp === 0) {
-                                        return typesOfPaymentOtp[x.EmployeeTypeOfPaymentOtp];
-                                    }
-                                    return typesOfPaymentOtp[0];
-                                });
-                            }
-
-                            const internationalIDTypeCol = this.tableConfig.columns
-                                .find(x => x.header === 'Internasjonal ID (type - land)');
-                            const internationalIDType = ['Ikke valgt', 'Passnr', 'Social sec. nr', 'Tax identit. nr', 'Value added nr'];
-                            if (internationalIDTypeCol) {
-                                internationalIDTypeCol.setTemplate(x => {
-                                    if (x.EmployeeInternasjonalIDType || x.EmployeeInternasjonalIDType === 0) {
-                                        const country = x.EmployeeInternasjonalIDCountry ? ' - ' + x.EmployeeInternasjonalIDCountry : '';
-                                        return internationalIDType[x.EmployeeInternasjonalIDType] + country;
-                                    }
-                                    return '';
-                                });
-                            }
-
-                            const genderCol = this.tableConfig.columns
-                                .find(x => x.header === 'Kjønn');
-                            const gender = ['Ikke satt', 'Kvinne', 'Mann'];
-                            if (genderCol) {
-                                genderCol.setTemplate(x => {
-                                    if (x.EmployeeSex || x.EmployeeSex === 0) {
-                                        return gender[x.EmployeeSex];
-                                    }
-                                    return '';
-                                });
-                            }
                         }
                         if (this.groupingIsOn) {
                             this.getGroupingData();
@@ -564,7 +488,7 @@ export class UniTicker {
         }
 
         if (this.selectedFilter) {
-            const uniTableFilter = urlParams.get('filter');
+            const uniTableFilter = params.get('filter');
             let tickerFilter = this.ticker.Filter;
 
             if (this.selectedFilter.Filter) {
@@ -1011,8 +935,8 @@ export class UniTicker {
                     }
                 }
 
-                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
-                    selects.push('EntityDisplayValue');
+                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityDisplayValue') {
+                    selects.push('EntityType');
                 }
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {
@@ -1087,7 +1011,8 @@ export class UniTicker {
                 }
 
                 const columnOverride = this.columnOverrides.find(x => x.Field === column.Field);
-                if (columnOverride) {
+                const templateOverrides = ColumnTemplateOverrides[this.ticker.Code] || {};
+                if (columnOverride || templateOverrides[column.Field]) {
                     col.setTemplate(row => {
                         // use the tickerservice to get and format value based on override template
                         return this.uniTickerService
@@ -1115,42 +1040,6 @@ export class UniTicker {
                         col.template = (rowModel) => this.sharingTypeToText(rowModel[column.Alias]);
                     }
 
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.typeofemployment')) {
-                        col.template = (rowModel) => EmploymentStatuses.employmentTypeToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.remunerationtype')) {
-                        col.template = (rowModel) => EmploymentStatuses.remunerationTypeToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.workinghoursscheme')) {
-                        col.template = (rowModel) => EmploymentStatuses.workingHoursSchemeToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shiptype')) {
-                        col.template = (rowModel) => EmploymentStatuses.shipTypeToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.shipreg')) {
-                        col.template = (rowModel) => EmploymentStatuses.shipRegToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employment.tradearea')) {
-                        col.template = (rowModel) => EmploymentStatuses.tradeAreaToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('employeeleave.leavetype')) {
-                        col.template = (rowModel) => this.employeeLeaveService.leaveTypeToText(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.taxtype')) {
-                        col.template = (rowModel) => this.wageTypeService.getNameForTaxType(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.specialtaxandcontributionsrule')) {
-                        col.template = (rowModel) => this.wageTypeService.getNameForSpecialTaxAndContributionRule(rowModel[column.Alias]);
-                    }
-
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('worktype.systemtype')) {
                         col.template = (rowModel) => {
                             const list = <Array<{ ID: number, Name: string }>>this.uniTickerService
@@ -1160,16 +1049,8 @@ export class UniTicker {
                         };
                     }
 
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('wagetype.standardwagetypefor')) {
-                        col.template = (rowModel) => this.wageTypeService.GetNameForStandardWageTypeFor(rowModel[column.Alias]);
-                    }
-
                     if (column.SelectableFieldName.toLocaleLowerCase().endsWith('.freeamounttype')) {
                         col.template = (rowModel) => this.taxService.getNameFromFreeAmountType(rowModel[column.Alias]);
-                    }
-
-                    if (column.SelectableFieldName.toLocaleLowerCase().endsWith('salarybalance.instalmenttype')) {
-                        col.template = (rowModel) => this.salaryBalanceService.getNameForInstalmentType(rowModel[column.Alias]);
                     }
                 }
 
@@ -1192,6 +1073,7 @@ export class UniTicker {
                     if (column.Type === 'mailto') {
                         col.cls = (col.cls || '') + ' ticker-mailto-col';
                     }
+
 
                 } else if (column.SubFields && column.SubFields.length > 0) {
                     col.setTemplate(row => {

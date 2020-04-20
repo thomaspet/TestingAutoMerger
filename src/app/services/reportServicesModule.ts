@@ -13,7 +13,7 @@ export * from './reports/reportTypeService';
 
 @NgModule({})
 export class ReportServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<ReportServicesModule> {
         return {
             ngModule: ReportServicesModule,
             providers: [

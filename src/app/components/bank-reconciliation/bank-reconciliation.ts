@@ -155,6 +155,7 @@ export class BankReconciliation {
 
         const openModal = () => {
             this.modalService.open(BankStatementJournalModal, {
+                closeOnEscape: false,
                 data: {
                     bankAccounts: this.bankAccounts,
                     selectedAccountID: this.selectedBankAccount.AccountID,

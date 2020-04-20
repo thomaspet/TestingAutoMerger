@@ -67,6 +67,8 @@ export class PaymentService extends BizHttp<Payment> {
                 return 'Ingen match';
             case 44019:
                 return 'Slette forespørsel';
+            case 44020:
+                return 'Skjult';
             default:
                 return 'Ukjent status: ' + statusCode;
         }
@@ -78,6 +80,17 @@ export class PaymentService extends BizHttp<Payment> {
             .usingBusinessDomain()
             .withEndPoint('/payments?action=batch-cancel-payment-claims')
             .withBody(ids)
+            .send()
+            .map(response => response.body);
+    }
+
+    public updatePaymentsToIgnore(paymentIDs: number[]) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(paymentIDs)
+            .withEndPoint('payments?action=update-payments-to-ignored')
             .send()
             .map(response => response.body);
     }

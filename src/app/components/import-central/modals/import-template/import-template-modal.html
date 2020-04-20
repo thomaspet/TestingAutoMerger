@@ -65,12 +65,12 @@
                     <span>
                         Dra og slipp eller <span class="browse-link">bla i</span> dine filer
                     </span>
-                    <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt, .xml">
+                    <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt, .csv">
                 </div>
             </div>
 
             <p class="error-msg" *ngIf='!isValidFileFormat'>
-                Vennligst legg til en fil (.xlsx, .txt eller .xml) for å kunne importere {{options.data.type}}.
+                Vennligst legg til en fil (.xlsx, .txt eller .csv) for å kunne importere {{options.data.type}}.
             </p>
         </div>
 

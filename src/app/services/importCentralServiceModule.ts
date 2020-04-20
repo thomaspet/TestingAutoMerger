@@ -5,7 +5,7 @@ export * from './import-central/importCentralService'
 
 @NgModule()
 export class ImportCentralServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<ImportCentralServicesModule> {
         return {
             ngModule: ImportCentralServicesModule,
             providers: [

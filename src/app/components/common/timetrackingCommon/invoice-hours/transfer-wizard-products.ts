@@ -9,7 +9,7 @@ import { ErrorService, InvoiceHourService } from '@app/services/services';
     </uni-table>`
 })
 export class WorkitemTransferWizardProducts {
-    @ViewChild(UniTable, { static: false }) private uniTable: UniTable;
+    @ViewChild(UniTable) private uniTable: UniTable;
     @Input() options: IWizardOptions;
 
     busy = true;

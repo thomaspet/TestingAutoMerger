@@ -1,11 +1,12 @@
 ﻿import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
-import {Observable} from 'rxjs';
+import {Observable, throwError} from 'rxjs';
 import 'rxjs/add/operator/catch';
 
 import {environment} from 'src/environments/environment';
 import {RequestMethod} from './request-method';
 import {AuthService} from '../../../app/authService';
+import {catchError, take} from 'rxjs/operators';
 
 export interface IUniHttpRequest {
     baseUrl?: string;
@@ -213,14 +214,17 @@ export class UniHttp {
         this.method = undefined;
         this.body = undefined;
 
-        return httpRequest.catch((err) => {
-            if (err.status === 401) {
-                this.authService.clearAuthAndGotoLogin();
-                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
-            }
+        return httpRequest.pipe(
+            take(1),
+            catchError(err => {
+                if (err.status === 401) {
+                    this.authService.clearAuthAndGotoLogin();
+                    return throwError('Sesjonen din er utløpt, vennligst logg inn på ny');
+                }
 
-            return Observable.throw(err);
-        });
+                return throwError(err);
+            })
+        );
     }
 
     public send(request: IUniHttpRequest = {}, searchParams: HttpParams = null, addCompanyKeyHeader: boolean = true): Observable<any> {
@@ -281,14 +285,17 @@ export class UniHttp {
             break;
         }
 
-        return httpRequest.catch((err) => {
-            if (err.status === 401) {
-                this.authService.clearAuthAndGotoLogin();
-                return Observable.throw('Sesjonen din er utløpt, vennligst logg inn på ny');
-            }
+        return httpRequest.pipe(
+            take(1),
+            catchError(err => {
+                if (err.status === 401) {
+                    this.authService.clearAuthAndGotoLogin();
+                    return throwError('Sesjonen din er utløpt, vennligst logg inn på ny');
+                }
 
-            return Observable.throw(err);
-        });
+                return throwError(err);
+            })
+        );
     }
 
     public multipleRequests(requests: IUniHttpRequest[]) {

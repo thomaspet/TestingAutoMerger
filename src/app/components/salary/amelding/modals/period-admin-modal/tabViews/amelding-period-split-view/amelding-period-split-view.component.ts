@@ -80,7 +80,7 @@ export class AmeldingPeriodSplitViewComponent implements OnInit, AfterViewInit {
                             .pipe(
                                 this.switchMapLoadAndClose(() =>
                                     this.ameldingService
-                                        .postAMelding(row.period, AmeldingType.Nullstilling, row.year, null, row.messageID)),
+                                        .postAMelding(row.period, AmeldingType.Nullstilling, row.year, null, row.ID)),
                             )
                             .subscribe(),
                     disabled: (row: AmeldingData) => row.type === AmeldingType.Nullstilling

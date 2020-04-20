@@ -1,13 +1,10 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {MatSelectModule} from '@angular/material';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {ReportsModule} from '../reports/reportsModule';
 
 import {Project} from './project/project';
 import {ProjectOverview} from './project/overview/overview';
@@ -19,23 +16,15 @@ import {ProjectHourTotals} from './project/hours/hourtotals';
 import {ProjectSupplierInvoiceList} from './project/lists/supplier-invoice-list/supplier-invoice-list';
 
 import {UniDimensionView} from './custom/dimension';
-
-
+import {dimensionsRoutes} from './dimensionsRoutes';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule,
-
+        RouterModule.forChild(dimensionsRoutes),
+        LibraryImportsModule,
         UniFrameworkModule,
         LayoutModule,
-        MatSelectModule,
-
-        // TODO: see if we really need these
         AppCommonModule,
-        ReportsModule,
     ],
     declarations: [
         Project,

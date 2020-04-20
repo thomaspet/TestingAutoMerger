@@ -51,7 +51,12 @@
             </section>
 
             <section class="tof-summary">
-                <span class="currency-info">{{currencyInfo}}</span>
+                <section class="currency-and-db">
+                    <span>{{currencyInfo}}</span>
+                    <span *ngIf="itemsSummaryData?.DekningsGrad">
+                        DG: {{itemsSummaryData?.DekningsGrad | uninumberformat:'percent'}}%
+                    </span>
+                </section>
 
                 <section class="vertical-summary" *ngIf="summaryLines?.length">
                     <section class="summary-line"

@@ -40,7 +40,7 @@ declare const _;
     templateUrl: './sellerDetails.html',
 })
 export class SellerDetails {
-    @ViewChild(UniForm, { static: false })
+    @ViewChild(UniForm)
     public form: UniForm;
 
     public sellerID: number;

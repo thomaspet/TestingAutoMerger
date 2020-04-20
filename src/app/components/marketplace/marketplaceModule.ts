@@ -1,36 +1,28 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {ReactiveFormsModule, FormsModule} from '@angular/forms';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {Marketplace} from './marketplace';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {MarketplaceIntegrations, FilterIntegrationsPipe} from './integrations/marketplaceIntegrations';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
-import {MatTooltipModule} from '@angular/material';
+import {ProductPurchases} from './product-purchases/productPurchases';
 
 @NgModule({
     imports: [
-        CommonModule,
+        LibraryImportsModule,
         UniFrameworkModule,
-        ReactiveFormsModule,
-        AppPipesModule,
         RouterModule,
         LayoutModule,
-        MatTooltipModule,
-        FormsModule,
     ],
     declarations: [
         Marketplace,
         MarketplaceModules,
         MarketplaceIntegrations,
         SubscribeModal,
-        FilterIntegrationsPipe
-    ],
-    entryComponents: [
-        SubscribeModal,
-    ],
+        FilterIntegrationsPipe,
+        ProductPurchases,
+    ]
 })
 export class MarketplaceModule {}

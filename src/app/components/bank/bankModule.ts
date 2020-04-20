@@ -1,12 +1,10 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {WidgetModule} from '../widgets/widgetModule';
 
@@ -18,34 +16,23 @@ import {UniReconciliationReportView} from './reconciliation/reconciliation-repor
 import {BankStatement} from './reconciliation/bank-statement/bank-statement';
 import {BankReconciliationModule} from '../bank-reconciliation/bank-reconciliation.module';
 import {ClosedEntriesModal} from './modals/closed-entries-modal';
-
 import {
     UniPaymentEditModal,
     UniBankListModal,
     MatchCustomerInvoiceManual,
     MatchSubAccountManualModal,
-    MatchMainAccountModal
+    MatchMainAccountModal,
+    UniBankUserPasswordModal
 } from './modals';
-import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
-
-import {
-    MatCheckboxModule,
-    MatSelectModule
-} from '@angular/material';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatCheckboxModule,
-        MatSelectModule,
+        LibraryImportsModule,
         RouterModule.forChild(bankRoutes),
 
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
         UniTickerModule,
         WidgetModule,
         BankReconciliationModule
@@ -62,15 +49,6 @@ import {
         MatchMainAccountModal,
         UniReconciliationReportView,
         BankStatement,
-        ClosedEntriesModal
-    ],
-    entryComponents: [
-        UniPaymentEditModal,
-        UniBankListModal,
-        MatchCustomerInvoiceManual,
-        UniBankUserPasswordModal,
-        MatchSubAccountManualModal,
-        MatchMainAccountModal,
         ClosedEntriesModal
     ],
     providers: [

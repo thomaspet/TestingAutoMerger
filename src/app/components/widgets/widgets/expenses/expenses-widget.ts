@@ -44,7 +44,7 @@ import {NumberFormat} from '@app/services/common/numberFormatService';
 })
 
 export class ExpensesWidget {
-    @ViewChild('canvas', { static: false }) canvas: ElementRef;
+    @ViewChild('canvas') canvas: ElementRef;
 
     widget: IUniWidget;
     chartRef: any;

@@ -1,17 +1,14 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {AppCommonModule} from '@app/components/common/appCommonModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {UniWidgetCanvas} from './widgetCanvas';
 import {UniWidget, WidgetContainer} from './uniWidget';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetDataService} from './widgetDataService';
 import {UNI_WIDGETS} from './widgets/barrel';
 import {CanvasHelper} from '@app/components/widgets/canvasHelper';
 
 import {SelectReportsModal} from './widgets/report-list/select-reports-modal';
-import {MatExpansionModule, MatMenuModule} from '@angular/material';
 import {ReportsModule} from '../reports/reportsModule';
 import {NewsfeedWidget} from './newsfeed/newsfeed';
 import {PublicDuedatesModal} from './widgets/public-duedates-widget/public-duedate-modal';
@@ -19,13 +16,9 @@ import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-moda
 
 @NgModule({
     imports: [
-        CommonModule,
-        RouterModule,
-        MatExpansionModule,
-        MatMenuModule,
+        LibraryImportsModule,
         UniFrameworkModule,
         AppCommonModule,
-        AppPipesModule,
         ReportsModule,
     ],
     declarations: [
@@ -37,13 +30,6 @@ import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-moda
         PublicDuedatesModal,
         CustomPaymentModal,
         ...UNI_WIDGETS
-    ],
-    entryComponents: [
-        ...UNI_WIDGETS,
-        UniWidgetCanvas,
-        SelectReportsModal,
-        PublicDuedatesModal,
-        CustomPaymentModal
     ],
     providers: [
         WidgetDataService,

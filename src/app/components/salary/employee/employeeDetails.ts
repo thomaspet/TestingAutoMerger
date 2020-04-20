@@ -66,7 +66,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
     private url: string = '/salary/employees/';
     public childRoutes: any[];
     private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
-    private companySalarySettings: CompanySalary;
 
     private employeeID: number;
     private employee: Employee;
@@ -145,7 +144,6 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private employeeLeaveService: EmployeeLeaveService,
         private employmentService: EmploymentService,
         private salaryTransService: SalaryTransactionService,
-        private subEntityService: SubEntityService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private toastService: ToastService,
@@ -167,21 +165,20 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         private salaryBalanceLineService: SalaryBalanceLineService,
         private payrollRunService: PayrollrunService,
         private employeeOnCategoryService: EmployeeOnCategoryService,
-        private companySalaryService: CompanySalaryService,
         private pageStateService: PageStateService
     ) {
         super(router.url, cacheService);
 
-        this.companySalaryService.getCompanySalary()
-            .subscribe((compsalarysettings: CompanySalary) => {
-                this.companySalarySettings = compsalarysettings;
-                this.childRoutes = this.getPaths();
-            });
-
         this.activeYear$.next(this.financialYearService.getActiveYear());
 
-        this.route.params.subscribe((params) => {
-            this.employeeID = +params['id'];
+        this.route
+            .params
+            .pipe(
+                map(params => +params['id']),
+                tap(id => this.refreshPaths(id)),
+            )
+            .subscribe((id) => {
+            this.employeeID = id;
             this.tagConfig.readOnly = !this.employeeID;
 
             // Update cache key and clear data variables when employee ID is changed
@@ -297,7 +294,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
 
             // If employee ID was changed by next/prev button clicks employee has been
             // pre-loaded. No need to clear and refresh in these cases
-            if (this.employee && this.employee.ID === +params['id']) {
+            if (this.employee && this.employee.ID === id) {
                 super.updateState(EMPLOYEE_KEY, this.employee, false);
             } else {
                 this.employee = undefined;
@@ -377,17 +374,24 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             }));
     }
 
-    private getPaths(): any[] {
+    private refreshPaths(employeeID: number) {
+        this.employeeDetailsService
+            .getCompanySalary()
+            .subscribe(companySalary => this.childRoutes = this.getPaths(employeeID, companySalary));
+    }
+
+    private getPaths(employeeID: number, companySalary: CompanySalary): any[] {
+        const disabled = employeeID === 0;
         const paths = [
             {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Skatt', path: 'employee-tax'},
-            {name: 'Arbeidsforhold', path: 'employments'},
-            {name: 'Faste poster', path: 'recurring-post'},
-            {name: 'Forskudd/trekk', path: 'employee-salarybalances'},
-            {name: 'Permisjon', path: 'employee-leave'},
-            {name: 'Historiske poster', path: 'employee-trans-ticker'}
+            {name: 'Skatt', path: 'employee-tax', disabled: disabled},
+            {name: 'Arbeidsforhold', path: 'employments', disabled: disabled},
+            {name: 'Faste poster', path: 'recurring-post', disabled: disabled},
+            {name: 'Forskudd/trekk', path: 'employee-salarybalances', disabled: disabled},
+            {name: 'Permisjon', path: 'employee-leave', disabled: disabled},
+            {name: 'Historiske poster', path: 'employee-trans-ticker', disabled: disabled}
         ];
-        if (this.companySalarySettings && this.companySalarySettings.OtpExportActive) {
+        if (companySalary && companySalary.OtpExportActive) {
             paths.push({name: 'OTP', path: 'employee-otp'});
         }
         return paths;
@@ -431,6 +435,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
         this.employeeID = undefined;
         this.subscriptions.forEach(sub => sub.unsubscribe());
         this.employmentService.clearCache();
+        this.employeeDetailsService.cleanUp();
     }
 
     public canDeactivate(): Observable<boolean> {
@@ -536,7 +541,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
             if (canDeactivate) {
                 this.employeeService.get(0).subscribe((emp: Employee) => {
                     this.employee = emp;
-                    this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then(() => this.childRoutes = this.getPaths());
+                    this.router.navigateByUrl(this.url + emp.ID + '/personal-details');
                 }, err => this.errorService.handle(err));
             }
         });

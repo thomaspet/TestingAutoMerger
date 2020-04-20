@@ -12,20 +12,20 @@
         <h3>Moduler</h3>
         <section class="product-card" *ngFor="let module of modules">
             <section class="product-content">
-            <section class="product-info">
-                <img class="icon" [src]="module.IconReference" />
-                <span>{{module.Label}}</span>
-                <i *ngIf="module._isBought" class="material-icons purchase-indicator">check_circle</i>
-            </section>
+                <section class="product-info">
+                    <img class="icon" [src]="module.IconReference" />
+                    <span>{{module.Label}}</span>
+                    <i *ngIf="module['_isBought']" class="material-icons purchase-indicator">check_circle</i>
+                </section>
 
-            <section class="subscribe">
-                <button
-                    class="c2a subscribe-button"
-                    (click)="manageUserPurchases(module)">
-                    {{module._isBought ? 'Velg brukere' : 'Abonner'}}
-                </button>
+                <section class="subscribe">
+                    <button
+                        class="c2a subscribe-button"
+                        (click)="manageUserPurchases(module)">
+                        {{module['_isBought'] ? 'Velg brukere' : 'Abonner'}}
+                    </button>
+                </section>
             </section>
-        </section>
             <a (click)="openSubscribeModal(module)" class="read-more">Les mer</a>
         </section>
     </section>
@@ -60,7 +60,7 @@
                 <!-- Buy -->
                 <button
                     class="c2a subscribe-button"
-                    *ngIf="!extension._isBought"
+                    *ngIf="!extension['_isBought']"
                     (click)="purchaseExtension(extension)">
                     Kjøp
                 </button>
@@ -68,9 +68,9 @@
                 <!-- Activate -->
                 <button
                     class="c2a subscribe-button"
-                    *ngIf="extension._isBought && extension?._activationFunction"
-                    (click)="extension._activationFunction.click()">
-                    {{extension?._activationFunction?.label}}
+                    *ngIf="extension['_isBought'] && extension['_activationFunction']"
+                    (click)="extension['_activationFunction'].click()">
+                    {{extension['_activationFunction']?.label}}
                 </button>
             </section>
 

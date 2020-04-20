@@ -19,10 +19,9 @@ import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
 import { SupplierService } from '@app/services/accounting/supplierService';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
 import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
-import { Type } from '@angular/compiler';
 import { EmploymentService } from '../employee/employmentService';
 import { StatisticsService } from '@app/services/common/statisticsService';
-import { tap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 interface IFieldFunc {
     prop: string;
@@ -305,11 +304,6 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         }
     }
 
-    public getNameForInstalmentType(instalmentType: SalBalType): string {
-        const ret = this.instalmentTypes.find(x => x.ID === instalmentType);
-        return ret && ret.Name;
-    }
-
     public getSalarybalance(id: number | string, expand: string[] = null): Observable<SalaryBalance> {
         if (!id) {
             if (expand) {
@@ -426,7 +420,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
             && (salaryBalance.InstalmentType !== SalBalType.Outlay)
             && (salaryBalance.InstalmentType !== SalBalType.Other)
-            && (salaryBalance.InstalmentType !== SalBalType.Union);
+            && (salaryBalance.InstalmentType !== SalBalType.Union)
+            && (salaryBalance.InstalmentType !== SalBalType.Garnishment);
     }
 
     public resetFields(salaryBalance: SalaryBalance | SalaryBalanceTemplate): SalaryBalance | SalaryBalanceTemplate {
@@ -435,7 +430,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public resetCreatePayment(salaryBalance: SalaryBalance | SalaryBalanceTemplate): SalaryBalance | SalaryBalanceTemplate {
-        salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance) && salaryBalance.CreatePayment;
+        salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance)
+            && salaryBalance.InstalmentType !== SalBalType.Garnishment
+            && salaryBalance.CreatePayment;
+
         return salaryBalance;
     }
 
@@ -852,7 +850,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     Section: 0,
                     Placement: 12,
                     Options: {},
-                    Hidden: this.isHiddenByInstalmentType(salBal)
+                    Hidden: this.isHiddenByInstalmentType(salBal) || salBal.InstalmentType === SalBalType.Garnishment,
                 }
             ];
 
@@ -911,9 +909,5 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             .pipe(
                 map(result => result.map(line => line['SalaryTransactionID']))
             );
-    }
-
-    private isSalaryBalanceTemplate(salBal: SalaryBalance | SalaryBalanceTemplate) {
-        return !this.isSalaryBalance(salBal);
     }
 }

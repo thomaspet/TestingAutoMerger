@@ -23,9 +23,9 @@ export interface ISelectConfig {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniSelect implements OnChanges, AfterViewInit {
-    @ViewChild('searchInput', { static: false }) public searchInput: ElementRef;
-    @ViewChild('valueInput', { static: false }) public valueInput: ElementRef;
-    @ViewChild('itemDropdown', { static: false }) public itemDropdown: ElementRef;
+    @ViewChild('searchInput') public searchInput: ElementRef;
+    @ViewChild('valueInput') public valueInput: ElementRef;
+    @ViewChild('itemDropdown') public itemDropdown: ElementRef;
 
     @Input() public items: any[];
     @Input() public readonly: boolean;
@@ -351,11 +351,12 @@ export class UniSelect implements OnChanges, AfterViewInit {
     }
 
     private scrollToListItem() {
-        if (this.itemDropdown && this.itemDropdown.nativeElement) {
-            const item = this.itemDropdown.nativeElement.children[this.focusedIndex];
-            if (item) {
-                item.scrollIntoView({block: 'nearest'});
-            }
+        try {
+            const index = this.showNotSelectedOption ? this.focusedIndex + 1 : this.focusedIndex;
+            const item = this.itemDropdown.nativeElement.children[index];
+            item.scrollIntoView({block: 'nearest'});
+        } catch (e) {
+            console.error(e);
         }
     }
 

@@ -18,7 +18,7 @@ import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticatio
 import {ReceiptVat} from './receipt/receipt';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
-import {PeriodDateFormatPipe} from '../../../pipes/periodDateFormatPipe';
+import {PeriodDateFormatPipe} from '@uni-framework/pipes/periodDateFormatPipe';
 import {
     ErrorService,
     VatReportService,
@@ -35,7 +35,7 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 })
 export class VatReportView implements OnInit, OnDestroy {
     @ViewChild(CreateCorrectedVatReportModal, { static: true }) private createCorrectedVatReportModal: CreateCorrectedVatReportModal;
-    @ViewChild(ReceiptVat, { static: false }) private receiptVat: ReceiptVat;
+    @ViewChild(ReceiptVat) private receiptVat: ReceiptVat;
 
     public internalComment: FormControl = new FormControl();
     public externalComment: FormControl = new FormControl();
@@ -84,7 +84,7 @@ export class VatReportView implements OnInit, OnDestroy {
         private router: Router,
         private statisticsService: StatisticsService
     ) {
-        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
+        this.periodDateFormat = new PeriodDateFormatPipe();
         this.tabService.addTab({
             name: 'MVA melding',
             url: '/accounting/vatreport',

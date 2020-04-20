@@ -11,12 +11,9 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {RegisterCompany} from './registerCompany/registerCompany';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
-import {RECAPTCHA_SETTINGS, RecaptchaModule, } from 'ng-recaptcha';
-import {RecaptchaFormsModule} from 'ng-recaptcha';
-import {environment} from 'src/environments/environment';
-import { MatTooltipModule, MatRadioModule } from '@angular/material';
 import {NewCompany} from './registerCompany/new-company/new-company';
 import {NewDemo} from './registerCompany/new-demo/new-demo';
+import {UniRecaptcha} from './signup/recaptcha';
 
 @NgModule({
     imports: [
@@ -25,13 +22,9 @@ import {NewDemo} from './registerCompany/new-demo/new-demo';
         ReactiveFormsModule,
         RouterModule,
 
-        MatTooltipModule,
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        RecaptchaModule.forRoot(),
-        RecaptchaFormsModule,
-        MatRadioModule
     ],
     declarations: [
         UniPasswordGuide,
@@ -40,20 +33,9 @@ import {NewDemo} from './registerCompany/new-demo/new-demo';
         ConfirmInvite,
         RegisterCompany,
         Signup,
+        UniRecaptcha,
         NewCompany,
         NewDemo
-    ],
-    exports: [
-        UniInit,
-        Login,
-        RegisterCompany,
-        ConfirmInvite
-    ],
-    providers: [
-        {
-            provide: RECAPTCHA_SETTINGS,
-            useValue: { siteKey: environment.SITE_KEY },
-        }
-    ],
+    ]
 })
 export class InitModule {}

@@ -44,7 +44,7 @@ import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 })
 
 export class UniUnpaidDoughnutChart implements AfterViewInit {
-    @ViewChild('unpaidDoughnutChart', { static: false }) unpaidDoughnutChart: ElementRef;
+    @ViewChild('unpaidDoughnutChart') unpaidDoughnutChart: ElementRef;
 
     widget: IUniWidget;
     dataLoaded = new EventEmitter<boolean>();

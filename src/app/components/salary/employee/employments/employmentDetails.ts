@@ -1,18 +1,16 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, OnInit, OnDestroy} from '@angular/core';
 import {
     Employment,
     Account,
     Employee,
     LocalDate,
     CompanySalary,
-    RegulativeGroup,
     RegulativeStep,
     SalaryRegistry,
     TypeOfEmployment,
     SubEntity,
 } from '@uni-entities';
-import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {UniFieldLayout} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {
@@ -23,7 +21,7 @@ import {
     CompanySalaryService,
     RegulativeGroupService,
     SubEntityService
-} from '../../../../services/services';
+} from '@app/services/services';
 import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
@@ -36,7 +34,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
 @Component({
     selector: 'employment-details',
     template: `
-        <section *ngIf="employment" [attr.aria-busy]="busy">
+        <section *ngIf="employment">
             <uni-form [config]="config$"
                       [fields]="fields$"
                       [model]="employment$"
@@ -46,8 +44,8 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
         </section>
     `
 })
-export class EmploymentDetails implements OnChanges, OnInit {
-    @ViewChild(UniForm, { static: false }) private form: UniForm;
+export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
+    @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
     @Input() private employee: Employee;
@@ -60,12 +58,10 @@ export class EmploymentDetails implements OnChanges, OnInit {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
-    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
+    public employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeDefaultData: Observable<any>;
     private companySalarySettings: CompanySalary;
-    private regulativeGroups: RegulativeGroup[];
-    private regulativeSteps: RegulativeStep[];
 
     constructor(
         private employmentService: EmploymentService,
@@ -80,34 +76,25 @@ export class EmploymentDetails implements OnChanges, OnInit {
     ) {}
 
     ngOnInit() {
-        this.companySalaryService.getCompanySalary()
+        this.companySalaryService
+            .getCompanySalary()
             .subscribe((compsalarysettings: CompanySalary) => {
                 this.companySalarySettings = compsalarysettings;
             });
 
-            // QWER123
-            // const hasAcessToRegulative = this.authService.hasUIPermission(this.authService.currentUser, 'ui_salary_regulative');
-            // if (hasAcessToRegulative) {
-            //     this.regulativeGroupService.GetAll('expand=regulatives.steps').subscribe(x => {
-            //         this.employmentService.setRegulativeGroups(x);
-            //         if (this.employment && this.employment.RegulativeGroupID) {
-            //             this.employmentService.setRegulativeSteps(
-            //                 x.filter((regulativeGroup: RegulativeGroup) =>
-            //                 regulativeGroup.ID === this.employment.RegulativeGroupID)[0].Regulatives[0].Steps);
-            //         }
-            //         this.regulativeGroups = x;
-            //     });
-            // }
+        this.regulativeGroupService
+            .getAll('', ['regulatives.steps'])
+            .subscribe(x => this.employmentService.setRegulativeGroups(x));
     }
 
     public ngOnChanges(change: SimpleChanges) {
-        if (!this.formReady) {
-            this.buildForm();
-        }
-
         if (change['employeeID'] && !change['employeeID'].currentValue) {
             this.employment = null;
             this.formReady = false;
+        }
+
+        if (!this.formReady) {
+            this.buildForm();
         }
 
         if (change['employment'] && change['employment'].currentValue) {
@@ -145,9 +132,14 @@ export class EmploymentDetails implements OnChanges, OnInit {
                 .pipe(
                     filter(fields => !!fields && !!fields.length),
                     take(1),
+                    map(fields => this.checkReadOnlyOnForm(change['employment'].currentValue, fields)),
                 )
                 .subscribe(fields => this.updateAmeldingTooltips(change['employment'].currentValue, fields));
         }
+    }
+
+    public ngOnDestroy() {
+        this.employmentService.clearRegulativeCache();
     }
 
     private buildForm() {
@@ -194,8 +186,20 @@ export class EmploymentDetails implements OnChanges, OnInit {
                 template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
             };
             this.fields$.next(layout.Fields);
-            this.formReady = true;
         }, err => this.errorService.handle(err));
+        this.formReady = true;
+    }
+
+    private checkReadOnlyOnForm(employment: Employment, fields: UniFieldLayout[]) {
+        const monthRateField = this.getField('MonthRate', fields);
+        const hourRateField = this.getField('HourRate', fields);
+        const stepField = this.getField('RegulativeStepNr', fields);
+        monthRateField.ReadOnly = !!employment.RegulativeStepNr || !!employment.RegulativeGroupID;
+        hourRateField.ReadOnly = monthRateField.ReadOnly;
+        if (stepField) {
+            stepField.ReadOnly = !employment.RegulativeGroupID;
+        }
+        return fields;
     }
 
     public updateAmeldingTooltips(employment: Employment, fields: any[]) {
@@ -303,7 +307,6 @@ export class EmploymentDetails implements OnChanges, OnInit {
     }
 
     public onFormChange(changes: SimpleChanges) {
-
         const employment = this.employment$.getValue();
         const fields = this.fields$.value;
 
@@ -357,21 +360,31 @@ export class EmploymentDetails implements OnChanges, OnInit {
             this.employeeChange.emit(this.employee);
         }
 
-        if (changes['RegulativeGroupID']) {
-            fields.find(f => f.Property === 'RegulativeStepNr').ReadOnly = false;
-
-            this.regulativeSteps = this.regulativeGroups.filter((regulativeGroup: RegulativeGroup) => regulativeGroup.ID === changes['RegulativeGroupID'].currentValue)[0].Regulatives[0].Steps;
-            this.employmentService.setRegulativeSteps(this.regulativeSteps);
-        }
-
-        if (changes['RegulativeStepNr']) {
-            fields.find(f => f.Property === 'MonthRate').ReadOnly = true;
-            fields.find(f => f.Property === 'HourRate').ReadOnly = true;
-            this.fields$.next(fields);
-
-            employment.MonthRate = this.regulativeSteps.filter((step: RegulativeStep) => step.Step === changes['RegulativeStepNr'].currentValue)[0].Amount / 12;
+        if (changes['RegulativeGroupID'] && !employment.RegulativeGroupID){
+            this.modalService.confirm({
+                header: 'Fjerne regulativ',
+                message: 'Sats i feltet månedslønn/timelønn endres ikke selv om kobling mot regulativ fjernes. ' +
+                'Endringen av satser må skje ved å endre direkte i felt for måneds- og timelønn',
+                buttonLabels: { accept: 'Ok' },
+            });
+            employment.RegulativeStepNr = 0;
             this.employment$.next(employment);
             this.employmentChange.emit(employment);
+        }
+
+        if (changes['RegulativeGroupID'] || changes['RegulativeStepNr']) {
+            fields.find(f => f.Property === 'RegulativeStepNr').ReadOnly = !employment.RegulativeGroupID;
+            fields.find(f => f.Property === 'MonthRate').ReadOnly = !!employment.RegulativeStepNr;
+            fields.find(f => f.Property === 'HourRate').ReadOnly = !!employment.RegulativeStepNr;
+            this.getRegulativeMonthRate(employment)
+                .pipe(filter(monthRate => !!monthRate))
+                .subscribe(monthRate => {
+                    employment.MonthRate = monthRate;
+                    this.employment$.next(employment);
+                    this.employmentChange.emit(employment);
+                });
+
+            this.fields$.next(fields);
         }
 
         if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
@@ -459,6 +472,18 @@ export class EmploymentDetails implements OnChanges, OnInit {
                 }
             }
         }
+    }
+
+    getRegulativeMonthRate(employment: Employment) {
+        if (!employment.RegulativeStepNr || !employment.RegulativeGroupID) {
+            return of(0);
+        }
+        return this.employmentService
+        .getRegulativeStepsOnEmployment()
+        .pipe(
+            map(steps => steps
+                .filter((step: RegulativeStep) => step.Step === employment.RegulativeStepNr)[0].Amount / 12),
+        );
     }
 
     askUserAboutAmeldingIfNeeded(employment: Employment, changes?: SimpleChanges) {

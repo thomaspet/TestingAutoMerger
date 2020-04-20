@@ -46,7 +46,7 @@ import {theme, THEMES} from 'src/themes/theme';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTabstripHelp {
-    @ViewChild(BoostChat, { static: false }) boost: BoostChat;
+    @ViewChild(BoostChat) boost: BoostChat;
 
     isSrEnvironment = true; // theme.theme === THEMES.SR;
 

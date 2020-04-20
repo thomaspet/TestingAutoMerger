@@ -52,7 +52,7 @@ export interface ITypeaheadOptions {
 })
 export class UnitableTypeahead implements OnInit {
     @ViewChild('input', { static: true }) inputElement: ElementRef;
-    @ViewChild('dropdown', { static: false }) dropdown: ElementRef;
+    @ViewChild('dropdown') dropdown: ElementRef;
 
     @Input()
     private column: any;

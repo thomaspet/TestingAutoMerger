@@ -317,12 +317,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     moduleID: UniModules.Payment,
                     activeInSidebar: true
                 },
-                {
-                    name: 'NAVBAR.BANK_RECONCILIATION',
-                    url: '/bank/reconciliation',
-                    moduleID: UniModules.BankReconciliation,
-                    activeInSidebar: true
-                }
+                // {
+                //     name: 'NAVBAR.BANK_RECONCILIATION',
+                //     url: '/bank/reconciliation',
+                //     moduleID: UniModules.BankReconciliation,
+                //     activeInSidebar: true
+                // }
             ]
         }]
     },
@@ -538,7 +538,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: false
                     },
                     {
-                        name: 'Dimensjoner',
+                        name: 'NAVBAR.DIMENSION',
                         url: '/dimensions/overview/1',
                         moduleID: UniModules.UniQuery,
                         activeInSidebar: false
@@ -594,7 +594,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/marketplace/integrations?products=bank',
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
-                    }
+                    },
+                    {
+                        name: 'NAVBAR.PURCHASES',
+                        url: '/marketplace/purchases',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    },
                 ]
             },
         ]

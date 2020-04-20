@@ -1,16 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {UniDatepicker} from './datepicker';
-import {MatDatepickerModule, DateAdapter} from '@angular/material';
-import {FormsModule} from '@angular/forms';
+import {DateAdapter} from '@angular/material/core';
 import {UniDateAdapter} from '@app/date-adapter';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        MatDatepickerModule,
-        FormsModule
-    ],
+    imports: [LibraryImportsModule],
     declarations: [UniDatepicker],
     providers: [{provide: DateAdapter, useClass: UniDateAdapter}],
     exports: [UniDatepicker]

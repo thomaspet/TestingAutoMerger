@@ -7,7 +7,7 @@ export * from './assignments/approvalService';
 
 @NgModule()
 export class AssignmentServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<AssignmentServicesModule> {
         return {
             ngModule: AssignmentServicesModule,
             providers: [

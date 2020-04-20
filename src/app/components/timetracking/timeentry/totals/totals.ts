@@ -22,7 +22,7 @@ interface IStatSource {
     templateUrl: './totals.html'
 })
 export class RegtimeTotals {
-    @ViewChild('worktypeChart', { static: false })
+    @ViewChild('worktypeChart')
     private chartElement: ElementRef;
 
     @Input()

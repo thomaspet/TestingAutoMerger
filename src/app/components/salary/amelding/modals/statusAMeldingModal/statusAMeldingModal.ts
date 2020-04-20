@@ -23,6 +23,7 @@ export class StatusAMeldingModal implements OnInit, IUniModal {
         this.withGuidelines = this.periodStatus.toLowerCase().includes('mottatt')
             && this.periodStatus.toLowerCase().includes('retningslinje');
         this.received = this.periodStatus.toLowerCase().includes('mottatt')
+            && !this.periodStatus.toLowerCase().includes('øyeblikkelig')
             && !this.periodStatus.toLowerCase().includes('retningslinje');
     }
 

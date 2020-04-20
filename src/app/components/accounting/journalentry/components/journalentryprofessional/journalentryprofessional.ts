@@ -105,7 +105,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeries: NumberSeries;
     @Input() public orgNumber: string;
 
-    @ViewChild(UniTable, { static: false }) table: UniTable;
+    @ViewChild(UniTable) table: UniTable;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
@@ -1064,16 +1064,20 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     // if no lines are found: dont do anything else
                     if (rows.length === 1) {
                         const copyFromJournalEntryLine = rows[0];
-
                         this.setRowValuesBasedOnExistingJournalEntryLine(row, copyFromJournalEntryLine).then(() => {
-                        if (copyFromJournalEntryLine.currencyID !== this.companySettings.BaseCurrencyCodeID) {
-                            this.showAgioDialogPostPost(row);
-                        }
-                        else {
                             this.updateJournalEntryLine(row);
-                        }});
+
+                            if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                this.showAgioDialogPostPost(row)
+                                    .then((res) => {
+                                        // reset focus after modal closes
+                                        this.table.focusRow(row['_originalIndex']);
+                                    });
+                            }
+                        });
                     } else if (rows.length > 1) {
                         // if multiple lines are found: show modal with lines that can be selected
+
                         this.modalService.open(SelectJournalEntryLineModal, { data: { journalentrylines: rows } })
                         .onClose
                         .subscribe((selectedLine) => {
@@ -1081,19 +1085,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 return;
                             }
                             this.setRowValuesBasedOnExistingJournalEntryLine(row, selectedLine).then(() => {
-                            if (selectedLine.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                this.showAgioDialogPostPost(row)
-                            } else {
+                                this.updateJournalEntryLine(row);
 
-                                    this.updateJournalEntryLine(row);
+                                if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
+                                    this.showAgioDialogPostPost(row)
+                                        .then((res) => {
+                                            // reset focus after modal closes
+                                            this.table.focusRow(row['_originalIndex']);
+                                        });
+                                } else {
+                                    // reset focus after modal closes
                                     this.table.focusRow(row['_originalIndex']);
-                                }});
+                                }
+                            });
                         });
                     }
                 }, err => {
                     this.errorService.handle(err);
-            });
+                });
         }
+
     }
 
     private setRowValuesBasedOnExistingJournalEntryLine(
@@ -2032,8 +2043,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
-    public showAgioDialogPostPost(journalEntryRow: JournalEntryData) : Promise<JournalEntryData>  {
-
+    public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
@@ -2048,6 +2058,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 BankChargeAccountID: 0,
                 AgioAmount: 0
             };
+
             const title = `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber}, `
                 + `${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
             const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2060,24 +2071,94 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
                 }
             });
+            paymentModal.onClose.subscribe((paymentData) => {
+                if (!paymentData) {
+                    resolve(journalEntryRow);
+                    return;
+                }
 
-            paymentModal.onClose.subscribe((payment) => {
-                if (payment) {
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
 
-                    this.customerInvoiceService.ActionWithBody(postPostJournalEntryLine.CustomerInvoiceID, payment, 'payInvoice').subscribe(
-                        res => {
-                            this.toastService.addToast(
-                                'Faktura er betalt. Betalingsnummer: ' + res.JournalEntryNumber,
-                                ToastType.good,
-                                5
-                            );
-                        },
-                        err => {
-                            this.errorService.handle(err);
+                // we use the amount paid * the original journalentryline's CurrencyExchangeRate to
+                // calculate the Amount that was paid in the base currency - the diff between this and
+                // what is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                const higherPrecisionExchangeRate = Math.abs(postPostJournalEntryLine.Amount / postPostJournalEntryLine.AmountCurrency);
+                journalEntryRow.Amount = UniMath.round(
+                    paymentData.AmountCurrency * higherPrecisionExchangeRate
+                );
+
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CurrencyExchangeRate = higherPrecisionExchangeRate;
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
+                    if (journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost) {
+                        journalEntryRow.CreditAccount = null;
+                        journalEntryRow.CreditAccountID = null;
+                        oppositeRow.DebitAccount = null;
+                        oppositeRow.DebitAccountID = null;
+                        oppositeRow.CreditAccount = this.defaultAccountPayments;
+                        oppositeRow.CreditAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    } else if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                        journalEntryRow.DebitAccount = null;
+                        journalEntryRow.DebitAccountID = null;
+                        oppositeRow.CreditAccount = null;
+                        oppositeRow.CreditAccountID = null;
+                        oppositeRow.DebitAccount = this.defaultAccountPayments;
+                        oppositeRow.DebitAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    }
+
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
+
+                        if (journalEntryRow.CreditAccount && journalEntryRow.CreditAccount.UsePostPost) {
+                            agioSign *= -1;
                         }
-                    );
+
+                        journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+                        this.updateJournalEntryLine(journalEntryRow);
+                        this.addJournalEntryLines([oppositeRow]);
+                        resolve(journalEntryRow);
+                    });
+                } else {
+                    if (journalEntryRow.DebitAccount
+                        && journalEntryRow.DebitAccount.UsePostPost
+                        && !journalEntryRow.CreditAccount
+                    ) {
+                        journalEntryRow.CreditAccount = this.defaultAccountPayments;
+                        journalEntryRow.CreditAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    } else if (journalEntryRow.CreditAccount
+                        && journalEntryRow.CreditAccount.UsePostPost
+                        && !journalEntryRow.DebitAccount
+                    ) {
+                        journalEntryRow.DebitAccount = this.defaultAccountPayments;
+                        journalEntryRow.DebitAccountID = this.defaultAccountPayments
+                            ? this.defaultAccountPayments.ID
+                            : null;
+                    }
+
+                    this.updateJournalEntryLine(journalEntryRow);
+                    resolve(journalEntryRow);
+                }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        this.addJournalEntryLines([bankChargesRow]);
+                        resolve(journalEntryRow);
+                    });
                 }
             });
+
         });
     }
 
@@ -2293,15 +2374,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             filter = `Visible eq 'true' and ( isnull(AccountID,0) eq 0 ) ` +
                 `or ( ( isnull(AccountID,0) eq 0 ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted} ) ` +
-                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
+                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
         } else {
-            filter = `( contains(keywords,'${searchValue}') ) or `
+            filter = `( contains(keywords,'${searchValue}') ) or `;
             if (isNaN(parseInt(searchValue, 10))) {
                 filter += `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
                 `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
                 `or (contains(AccountName\,'${searchValue}') ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
-                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountName eq '${searchValue}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             } else {
@@ -2310,7 +2391,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
                 `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
                 `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
-                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
                 `or (Account.AccountNumber eq '${parseInt(searchValue, 10)}' ` +
                 `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
             }
@@ -2829,7 +2910,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (text === null) {
                         return completeCallback('');
                     }
-                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text)
+                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text, this.selectedNumberSeries.ID)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
 

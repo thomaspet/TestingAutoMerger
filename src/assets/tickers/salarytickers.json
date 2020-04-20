@@ -198,6 +198,7 @@
         "Group": "Lønn",
         "Model": "Employment",
         "Expand": "",
+        "Joins": "Employment.RegulativeGroupID eq RegulativeGroup.ID as RegulativeGroup",
         "Columns": [
             {
                 "Header": "Nr.",
@@ -207,7 +208,6 @@
             {
                 "Header": "Yrkeskode",
                 "Field": "JobCode",
-                "Alignment": "right",
                 "Width": "7rem"
             },
             {
@@ -243,13 +243,11 @@
             },
             {
                 "Header": "StartDato",
-                "Field": "StartDate",
-                "Alignment": "right"
+                "Field": "StartDate"
             },
             {
                 "Header": "SluttDato",
-                "Field": "EndDate",
-                "Alignment": "right"
+                "Field": "EndDate"
             },
             {
                 "Header": "Virksomhet org.nr",
@@ -258,6 +256,12 @@
             {
                 "Header": "Månedslønn",
                 "Field": "MonthRate"
+            },
+            {
+                "Header": "Årslønn",
+                "Field": "multiply(MonthRate,12)",
+                "Alias": "YearSalary",
+                "Type": "money"
             },
             {
                 "Header": "Arbeidsforhold",
@@ -284,14 +288,12 @@
             {
                 "Header": "Ansiennitet",
                 "Field": "SeniorityDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Lønnsjustering",
                 "Field": "LastSalaryChangeDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Sist endret %",
@@ -350,6 +352,17 @@
             {
                 "Header": "Hovedbokskonto",
                 "Field": "LedgerAccount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Regulativ",
+                "Field": "RegulativeGroup.Name",
+                "Alias": "RegulativeGroupName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Regulativtrinn",
+                "Field": "RegulativeStepNr",
                 "DefaultHidden": true
             },
             {
@@ -1215,6 +1228,11 @@
                 "Header": "Avdeling",
                 "Field": "Dimensions.Department.Name",
                 "DefaultHidden": true
+            },
+            {
+                "Header": "Mva-kode",
+                "Field": "VatType.VatCode",
+                "DefaultHidden": true
             }
         ],
         "Actions": [],
@@ -1860,5 +1878,100 @@
                 "Type": "text"
             }
         ]
+    },
+    {
+        "Name": "Regulativ",
+        "Code": "regulative_list",
+        "RequiredUIPermissions": ["ui_salary"],
+        "Type": "Table",
+        "Group": "Lønn",
+        "Model": "Regulative",
+        "OrderBy": "StartDate desc",
+        "Distinct": true,
+        "Select": "Group.Name as GroupName,StartDate as StartDate,max(ID) as ID",
+        "Joins":"Regulative.RegulativeGroupID eq RegulativeGroup.ID as Group",
+        "AvoidAutoExpand": true,
+        "Columns": [
+            {
+                "Header": "Navn",
+                "Field": "Group.Name",
+                "Alias": "GroupName",
+                "Type": "text"
+            },
+            {
+                "Header": "Gyldig",
+                "Field": "StartDate",
+                "Alias": "StartDate",
+                "Type": "localdate"
+            }
+        ],
+        "Actions": [
+            {
+                "Name": "Eksporter",
+                "Code": "export_regulative",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            }
+        ],
+        "SubTickersCodes": [
+            "regulative_details",
+            "regulative_step_list"
+        ]
+    },
+    {
+        "Name": "Regulativ",
+        "Code": "regulative_details",
+        "Type": "Details",
+        "Group": "Lønn",
+        "Model": "Regulative",
+        "Joins":"Regulative.RegulativeGroupID eq RegulativeGroup.ID as Group",
+        "Expand": "",
+        "Columns": [
+            {
+                "Header": "Regulativ",
+                "Field": "Group.Name",
+                "Type": "text"
+            },
+            {
+                "Header": "Gyldig fra",
+                "Field": "StartDate",
+                "Alias": "StartDate",
+                "Type": "localdate"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "ID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
+    },
+    {
+        "Name": "Regulativ steg",
+        "Code": "regulative_step_list",
+        "Type": "Table",
+        "Group": "Lønn",
+        "Model": "RegulativeStep",
+        "Expand": "",
+        "OrderBy": "Step",
+        "Columns": [
+            {
+                "Header": "Lønnstrinn",
+                "Field": "Step",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Årslønn",
+                "Field": "Amount",
+                "FilterOperator": "startswith"
+            }
+        ],
+        "ParentFilter": {
+            "Field": "RegulativeID",
+            "Operator": "eq",
+            "Value": "ID"
+        }
     }
 ]

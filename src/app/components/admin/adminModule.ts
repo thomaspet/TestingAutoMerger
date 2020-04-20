@@ -1,12 +1,10 @@
-// Angular imports
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
+
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {UniQueryModule} from '../uniquery/uniqueryModule';
 import {JobList} from './jobs/list/jobList';
 import {JobDetails} from './jobs/details/jobDetails';
@@ -17,35 +15,50 @@ import {UniGdprPeopleList} from '@app/components/admin/gdpr/gdpr-people-list.com
 import {PeopleService} from '@app/components/admin/gdpr/people.service';
 import {GdprFileWriter} from '@app/components/admin/gdpr/gdpr-file-writer';
 import {SaftExportModal} from './jobs/saft/saftexportmodal';
-import {MatAutocompleteModule} from '@angular/material';
 
-import {FlowSettings} from './flow/flowSettings';
+import {FlowSettings, FLOW_ROUTES} from './flow/flowSettings';
 import {FlowModal} from './flow/flow-modal/flow-modal';
 import {FlowList} from './flow/flow-list/flow-list';
 import {FlowTemplates} from './flow/templates/templates';
 import {FlowTemplateModal} from './flow/flow-template-modal/flow-template-modal';
 import {UniCompanySaftAccountModal} from './jobs/saft/companySaftAccountModal/companySaftAccountModal';
+import {CanDeactivateGuard} from '@app/canDeactivateGuard';
+
+const routes = [
+    {
+        path: 'jobs',
+        component: JobList
+    },
+    {
+        path: 'job-details',
+        component: JobDetails,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'job-logs',
+        component: JobLog,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'gdpr',
+        component: UniGdprPeopleList
+    },
+    {
+        path: 'flow',
+        component: FlowSettings,
+        canDeactivate: [CanDeactivateGuard],
+        children: FLOW_ROUTES,
+    }
+];
 
 @NgModule({
-    entryComponents: [
-        UniCompanySaftAccountModal,
-        SaftImportModal,
-        SaftExportModal,
-        FlowTemplateModal,
-        FlowModal
-    ],
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule,
-        FormsModule,
+        LibraryImportsModule,
+        RouterModule.forChild(routes),
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
         UniQueryModule,
-        MatAutocompleteModule,
     ],
     declarations: [
         JobList,
@@ -66,12 +79,6 @@ import {UniCompanySaftAccountModal} from './jobs/saft/companySaftAccountModal/co
     providers: [
         PeopleService,
         GdprFileWriter,
-    ],
-    exports: [
-        JobList,
-        JobDetails,
-        JobLog,
-        UniGdprPeopleList,
     ]
 })
 export class AdminModule {}

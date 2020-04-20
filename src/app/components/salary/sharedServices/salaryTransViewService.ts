@@ -235,4 +235,34 @@ export class SalaryTransViewService {
             .onClose
             .subscribe((trans: SalaryTransaction) => onClose(trans));
     }
+
+    public prepareTransForSave(trans: SalaryTransaction): SalaryTransaction {
+        if (!trans.Deleted) {
+            if (!trans.ID) {
+                trans['_createguid'] = this.supplementService.getNewGuid();
+            }
+            if (trans.Supplements) {
+                trans.Supplements
+                    .filter(x => !x.ID)
+                    .forEach((supplement: SalaryTransactionSupplement) => {
+                        supplement['_createguid'] = this.supplementService.getNewGuid();
+                    });
+            }
+            if (!trans.DimensionsID && trans.Dimensions) {
+                if (Object.keys(trans.Dimensions)
+                    .filter(x => x.indexOf('ID') > -1)
+                    .some(key => trans.Dimensions[key])) {
+                    trans.Dimensions['_createguid'] = this.supplementService.getNewGuid();
+                } else {
+                    trans.Dimensions = null;
+                }
+            }
+        } else {
+            trans.Supplements = null;
+        }
+        trans.Wagetype = null;
+        trans.Employee = null;
+        trans.employment = null;
+        return trans;
+    }
 }

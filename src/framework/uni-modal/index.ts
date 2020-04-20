@@ -34,8 +34,10 @@ import {BarnepassProductsModal} from './modals/barnepassModals/barnepassProducts
 import {BarnepassSenderModal} from './modals/barnepassModals/barnepassSenderModal';
 import {FileSplitModal} from './modals/file-split-modal/file-split-modal';
 import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
+import {PurchaseTraveltextModal} from './modals/purchase-traveltext-modal/purchase-traveltext-modal';
 import {UniNewRegulativeModal} from './modals/newRegulativeModal';
 import {MissingRolesModal} from './modals/missing-roles-modal/missing-roles-modal';
+import {UniPreviewModal} from './modals/previewModal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -73,8 +75,10 @@ export * from './modals/invoice-approval-modal/invoice-approval-modal';
 export * from './modals/wizard-settings-modal/wizard-settings-modal';
 export * from './modals/file-split-modal/file-split-modal';
 export * from './modals/tof-email-modal/tof-email-modal';
+export * from './modals/purchase-traveltext-modal/purchase-traveltext-modal';
 export * from './modals/newRegulativeModal';
 export * from './modals/missing-roles-modal/missing-roles-modal';
+export * from './modals/previewModal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -113,7 +117,9 @@ export const MODALS = [
     BarnepassSenderModal,
     FileSplitModal,
     TofEmailModal,
+    PurchaseTraveltextModal,
     UniNewRegulativeModal,
-    MissingRolesModal
+    MissingRolesModal,
+    UniPreviewModal,
 ];
 

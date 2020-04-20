@@ -25,7 +25,7 @@ export class UniTextInput extends BaseControl implements OnChanges {
     @Output() public focusEvent: EventEmitter<UniTextInput> = new EventEmitter<UniTextInput>(true);
 
 
-    @ViewChild('input', { static: false }) private inputElement: ElementRef;
+    @ViewChild('input') private inputElement: ElementRef;
 
     private lastControlValue: string;
 

@@ -5,18 +5,8 @@
     <a *ngIf="isAuthenticated" (click)="logout()">Logg ut</a>
 </section>
 
-<section class="init-main" [ngClass]="isSrEnvironment ? 'ext01-init' : 'ue-init'">
-    <section class="init-bg"
-        [ngStyle]="{'background': background, height: backgroundHeight}">
-    </section>
-
-    <section class="illustration-container">
-        <img *ngIf="illustration" [src]="illustration">
-    </section>
-
-    <section class="content-container">
-        <router-outlet></router-outlet>
-    </section>
+<section class="init-content">
+    <router-outlet></router-outlet>
 </section>
 
 <section class="init-footer">

@@ -10,11 +10,7 @@ import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
 
 import {aboutRoutes} from './components/about/aboutRoutes';
-import {adminRoutes} from './components/admin/adminRoutes';
-import {assignmentRoutes} from './components/assignments/assignmentsRoutes';
-import {bureauRoutes} from './components/bureau/bureauRoutes';
 import {currencyRoutes} from './components/currency/currencyRoutes';
-import {dimensionsRoutes} from './components/dimensions/dimensionsRoutes';
 import {marketplaceRoutes} from './components/marketplace/marketplaceRoutes';
 import {uniQueryRoutes} from './components/uniquery/uniQueriesRoutes';
 
@@ -55,42 +51,42 @@ const routes = [
 
     // Non lazy modules
     ...aboutRoutes,
-    ...adminRoutes,
-    ...assignmentRoutes,
-    ...bureauRoutes,
     ...currencyRoutes,
-    ...dimensionsRoutes,
     ...marketplaceRoutes,
     ...uniQueryRoutes,
 
     // Lazy modules
     {
         path: 'accounting',
-        loadChildren: () => import('./components/accounting/accountingModule').then(m => m.AccountingModule),
+        loadChildren: () => import('./components/accounting/accountingModule').then(m => m.AccountingModule)
     },
     {
         path: 'salary',
-        loadChildren: () => import('./components/salary/salary.module').then(m => m.SalaryModule),
+        loadChildren: () => import('./components/salary/salary.module').then(m => m.SalaryModule)
     },
     {
         path: 'sales',
-        loadChildren: () => import('./components/sales/salesModule').then(m => m.SalesModule),
+        loadChildren: () => import('./components/sales/salesModule').then(m => m.SalesModule)
     },
     {
         path: 'timetracking',
-        loadChildren: () => import('./components/timetracking/timetrackingModule').then(m => m.TimetrackingModule),
+        loadChildren: () => import('./components/timetracking/timetrackingModule').then(m => m.TimetrackingModule)
     },
     {
         path: 'settings',
-        loadChildren: () => import('./components/settings/settingsModule').then(m => m.SettingsModule),
+        loadChildren: () => import('./components/settings/settingsModule').then(m => m.SettingsModule)
+    },
+    {
+        path: 'admin',
+        loadChildren: () => import('./components/admin/adminModule').then(m => m.AdminModule)
     },
     {
         path: 'bank',
-        loadChildren: () => import('./components/bank/bankModule').then(m => m.BankModule),
+        loadChildren: () => import('./components/bank/bankModule').then(m => m.BankModule)
     },
     {
         path: 'altinn',
-        loadChildren: () => import('./components/altinn/altinnModule').then(m => m.AltinnModule),
+        loadChildren: () => import('./components/altinn/altinnModule').then(m => m.AltinnModule)
     },
     {
         path: 'contract-activation',
@@ -102,11 +98,23 @@ const routes = [
     },
     {
         path: 'approval-rules',
-        loadChildren: () => import('./components/approval-rules/approval-rules.module').then(m => m.ApprovalRulesModule),
+        loadChildren: () => import('./components/approval-rules/approval-rules.module').then(m => m.ApprovalRulesModule)
     },
     {
         path: 'import',
-        loadChildren: () => import('./components/import-central/import-central.module').then(m => m.ImportCentralModule),
+        loadChildren: () => import('./components/import-central/import-central.module').then(m => m.ImportCentralModule)
+    },
+    {
+        path: 'dimensions',
+        loadChildren: () => import('./components/dimensions/dimensionsModule').then(m => m.DimensionsModule)
+    },
+    {
+        path: 'assignments',
+        loadChildren: () => import('./components/assignments/assignmentsModule').then(m => m.AssignmentsModule)
+    },
+    {
+        path: 'bureau',
+        loadChildren: () => import('./components/bureau/bureauModule').then(m => m.BureauModule)
     },
 
     // WILDCARD ROUTE. ALWAYS KEEP THIS AT THE BOTTOM!

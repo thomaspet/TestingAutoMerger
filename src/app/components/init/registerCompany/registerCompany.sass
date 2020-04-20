@@ -1,31 +1,72 @@
-.content
+\:host
+    position: relative
     display: flex
-    align-items: center
+    height: 100%
+    padding: 2rem 0
 
-.select-type-of-company
-    display: flex
-    @media screen and (max-width: 700px)
-        flex-direction: column
-        .authentication-component
-            width: 85vw !important
-            margin: 0 0 1rem !important
+    .wrapper
+        display: flex
+        flex-wrap: wrap
+        justify-content: center
+        width: 100%
+        margin: auto 0
 
-    .authentication-component
+        img
+            max-height: 40vh
+            max-width: 30vw
+            margin: auto 5rem auto 0
+            @media screen and (max-width: 1200px)
+                display: none
+
+    .registration-card
         display: flex
         flex-direction: column
-        width: 23rem
-        min-height: 28rem
-        margin: 0 0 auto
+        text-align: center
+        font-size: 15px
+        width: 24rem
+        padding: 1rem 2rem 1.5rem
 
-        h1
-            margin: 0 0 .5rem
+        @media screen and (max-width: 800px)
+            width: 100%
+            margin: 0 2rem
+            & + .registration-card
+                margin-top: 2rem
 
-        p
-            margin-top: 0
 
-        & + .authentication-component
+        & + .registration-card
             margin-left: 2rem
 
-        button
-            margin: auto auto 1rem
-            min-width: 12rem
+        h1
+            margin: 0
+            color: var(--color-c2a-dark)
+            font-weight: 500
+            font-size: 20px
+            margin-bottom: 1rem
+
+        .content
+            display: flex
+            flex-direction: column
+            margin: auto 0
+
+            section
+                margin-bottom: .5rem
+
+            .price-tag
+                font-weight: 500
+                font-size: 20px
+                margin-bottom: 1.5rem
+
+
+        .footer
+            margin-top: 2rem
+
+            .footer-text
+                font-size: 15px
+                font-weight: 500
+                color: var(--color-c2a-dark)
+                margin-bottom: 1rem
+
+
+            button
+                width: 100%
+                margin: 0 0 .5rem

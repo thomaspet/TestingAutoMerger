@@ -60,7 +60,7 @@ interface ISearchParams {
     templateUrl: './bills.html'
 })
 export class BillsView implements OnInit {
-    @ViewChild(UniImage, { static: false }) public uniImage: UniImage;
+    @ViewChild(UniImage) public uniImage: UniImage;
 
     public loading$: Subject<boolean> = new Subject();
 
@@ -822,17 +822,17 @@ export class BillsView implements OnInit {
 
                 if (data[1]) {
                     const ix = this.filters.findIndex(y => y.name === 'unpaid');
-                    if (ix >= 0) { this.filters[ix].count += data[1][0].countid; }
+                    if (ix >= 0) { this.filters[ix].count = data[1][0].countid; }
                 }
 
                 if (data[2]) {
                     const ix = this.filters.findIndex(y => y.name === 'issenttopayment');
-                    if (ix >= 0) { this.filters[ix].count += data[2][0].countid; }
+                    if (ix >= 0) { this.filters[ix].count = data[2][0].countid; }
                 }
 
                 if (data[3]) {
                     const ix = this.filters.findIndex(y => y.name === 'paid');
-                    if (ix >= 0) { this.filters[ix].count += data[3][0].countid; }
+                    if (ix >= 0) { this.filters[ix].count = data[3][0].countid; }
                 }
                 const ixAll = this.filters.findIndex(x => x.name === 'All');
                 this.filters[ixAll].count = count;

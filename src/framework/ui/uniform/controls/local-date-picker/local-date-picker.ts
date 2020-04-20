@@ -9,7 +9,7 @@ import {autocompleteDate} from '@app/date-adapter';
 import * as moment from 'moment';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {KeyCodes} from '@app/services/common/keyCodes';
-import {MatDatepicker} from '@angular/material';
+import {MatDatepicker} from '@angular/material/datepicker';
 
 @Component({
     selector: 'localdate-picker-input',

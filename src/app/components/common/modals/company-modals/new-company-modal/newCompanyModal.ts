@@ -1,6 +1,6 @@
 import {Component, ViewChild, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {forkJoin} from 'rxjs';
-import {MatStepper} from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import {HttpClient} from '@angular/common/http';
 import {environment} from 'src/environments/environment';
 

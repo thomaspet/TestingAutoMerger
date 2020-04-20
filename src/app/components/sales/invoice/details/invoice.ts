@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import { switchMap, map, take, tap, finalize, flatMap } from 'rxjs/operators';
+import { switchMap, map, take, tap, finalize, flatMap, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -48,7 +48,6 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     AccrualService,
-    createGuid,
     AccountMandatoryDimensionService,
     ElsaPurchaseService
 } from '@app/services/services';
@@ -104,13 +103,13 @@ export enum CollectorStatus {
 export class InvoiceDetails implements OnInit, AfterViewInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
     private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private askedAboutSettingDimensionsOnItems: boolean;
@@ -155,6 +154,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
+    lastListOfItems: CustomerInvoiceItem[] = [];
     isDistributable = false;
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
@@ -209,15 +209,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         'VatType',
         'Account',
         'Account.MandatoryDimensions',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10',
+        'Dimensions.Info',
     ];
 
     constructor(
@@ -311,7 +303,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg')
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     this.currentUser = res[1];
@@ -398,7 +390,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg')
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
                 ).subscribe((res) => {
                     const invoice = res[0];
 
@@ -459,14 +451,14 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     // check if the invoice has files with unsupported formats
                     if (this.canSendEHF && invoice.StatusCode === 42001) {
                         this.customerInvoiceService.getFileList(invoice.ID).subscribe((files) => {
-                            let hasMisMatch = false;
-                            files.forEach(file => {
-                                hasMisMatch = !this.validEHFFileTypes.some(type => file.Name.includes(type));
+                            const hasMismatch = files.some(file => {
+                                const fileNameLowerCase = (file.Name || '').toLowerCase();
+                                return !this.validEHFFileTypes.some(type => fileNameLowerCase.includes(type.toLowerCase()));
                             });
 
-                            if (hasMisMatch) {
+                            if (hasMismatch) {
                                 this.toastService.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
-                                    'Denne fakturakladd har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
+                                    'Denne fakturakladden har et dokument tilknyttet som ikke er godkjent som vedlegg for EHF, og vil ikke bli ' +
                                     'lagt til som vedlegg om du velger utsendelse via EHF. ' +
                                     'Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
                             }
@@ -503,7 +495,12 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         ).pipe(
             switchMap(res => {
                 const invoice: CustomerInvoice = res[0];
-                const invoiceItems: CustomerInvoiceItem[] = res[1];
+                const invoiceItems: CustomerInvoiceItem[] = res[1].map(item => {
+                    if (item.Dimensions) {
+                        item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                    }
+                    return item;
+                });
 
                 invoice.Items = invoiceItems;
 
@@ -674,8 +671,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
             }
-
         }
+
+        invoice.CurrencyCodeID = invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
+        this.currencyCodeID = invoice.CurrencyCodeID;
 
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
@@ -711,7 +710,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         }
 
-        this.invoice = invoice;
+        this.invoice = {...invoice};
         this.updateSaveActions();
     }
 
@@ -729,19 +728,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
-        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
-        // or from customer
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected or from customer
         if ((!this.currencyCodeID && invoice.CurrencyCodeID) || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 
-        if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
+        if (this.invoice && this.invoice.CurrencyCodeID && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
 
-        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
+        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001)
+            || this.invoice.InvoiceType === InvoiceTypes.CreditNote
+        ) {
             shouldGetCurrencyRate = false;
         }
 
@@ -1288,7 +1288,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer etter denne');
             }
-        }, err => this.errorService.handle(err) );
+        }, err => this.errorService.handle(err));
     }
 
     private previousInvoice() {
@@ -1298,7 +1298,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             } else {
                 this.toastService.addToast('Warning', ToastType.warn, 0, 'Ikke flere fakturaer før denne');
             }
-        }, err => this.errorService.handle(err) );
+        }, err => this.errorService.handle(err));
     }
 
     private getToolbarSubheads() {
@@ -1405,8 +1405,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
                         if (currentPlan && (!currentPlan.Elements || !currentPlan.Elements.length)) {
                             this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
-                            'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
-                            + 'Fjern denne planen om du ønsker å sende ut faktura.');
+                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at faktura blir sendt. '
+                                + 'Fjern denne planen om du ønsker å sende ut faktura.');
                             done('');
                             return;
                         }
@@ -1593,9 +1593,11 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
 
         const navigateAfterSave = !this.invoice.ID;
+
         const saveRequest = (this.invoice.ID > 0)
             ? this.customerInvoiceService.Put(this.invoice.ID, this.invoice)
             : this.customerInvoiceService.Post(this.invoice);
+
 
         return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
             if (canSave) {
@@ -1835,12 +1837,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             .find(plan => plan.ID === this.invoice.DistributionPlanID);
 
                                         // Only show sending of invoice if plan has elementtypes
-                                        if (currentPlan && currentPlan.Elements && !currentPlan.Elements.length) {
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
                                             this.toastService.toast({
                                                 title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
                                                 type: ToastType.good,
                                                 duration: 5
                                             });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
                                         }
 
                                         onSendingComplete();
@@ -1849,8 +1855,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
                                             if (p && (!p.Elements || !p.Elements.length)) {
                                                 this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
-                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
-                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
+                                                    'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                    + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
                                                 onSendingComplete();
                                                 return;
                                             }
@@ -1868,8 +1874,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                             this.errorService.handle(err);
                             if (isCreditNote) {
                                 const isAprilaInvoice = this.invoice.InvoiceReference &&
-                                this.invoice.InvoiceReference["CustomValues"] &&
-                                this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
+                                    this.invoice.InvoiceReference["CustomValues"] &&
+                                    this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
                                 if (isAprilaInvoice) {
                                     this.openAprilaCreditNoteModal('ERROR');
                                 }
@@ -2007,7 +2013,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                     this.customerInvoiceService.invalidateCache();
                     this.getInvoice(this.invoice.ID).subscribe(
                         invoice => this.refreshInvoice(invoice),
-                        () => {}
+                        () => { }
                     );
 
                     this.modalService.open(UniReminderSendingModal, { data: reminders });
@@ -2079,7 +2085,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             }
         });
 
-        const invoicePaymentData = <InvoicePaymentData> {
+        const invoicePaymentData = <InvoicePaymentData>{
             Amount: amount,
             AmountCurrency: amountCurrency,
             BankChargeAmount: 0,
@@ -2179,16 +2185,55 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         }
     }
 
-    onTradeItemsChange() {
+    onTradeItemsChange(items) {
         setTimeout(() => {
+            this.invoiceItems = items;
             if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
                 this.isDirty = true;
             }
-
+            this.invoiceItems = this.updateDimensionsOnTradeItems(this.invoiceItems);
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
         });
+    }
+
+    updateDimensionsOnTradeItems(invoiceItems: CustomerInvoiceItem[]) {
+        if (this.lastListOfItems.length === 0 && invoiceItems.length === 0) {
+            this.lastListOfItems = [...invoiceItems];
+            return invoiceItems;
+        }
+        const newItems = invoiceItems
+            .filter(x => !this.lastListOfItems
+                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
+        const newItemsWithDimensionsFromUser = newItems.map(item => {
+            this.tradeItemTable.mapDimensionsToEntity(this.invoice.DefaultDimensions, item);
+            this.updateDimensionObjects(item);
+            return item;
+        });
+        const invoiceItemsUpdatedWithDimensionsFromUser  = invoiceItems.map(item => {
+            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
+            if (newItem) {
+                return newItem;
+            }
+            return item;
+        });
+        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
+        return invoiceItemsUpdatedWithDimensionsFromUser;
+    }
+
+    updateDimensionObjects(item) {
+        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
+        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
+        for (let i = 5; i < 11; i++) {
+            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
+            if (!dim) {
+                continue;
+            }
+            if (dim.Data.length) {
+                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
+            }
+        }
     }
 
     sellInvoiceToAprila(done) {

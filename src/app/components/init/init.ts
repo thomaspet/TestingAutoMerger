@@ -12,15 +12,9 @@ import {theme, THEMES} from 'src/themes/theme';
 export class UniInit {
     isAuthenticated: boolean;
     showTryForFree = true;
-
-    isSrEnvironment = theme.theme === THEMES.SR;
-    illustration: string;
-    background: string;
-    backgroundHeight = theme.init.backgroundHeight;
+    confirmed: boolean = true;
 
     private onDestroy$ = new Subject();
-
-    confirmed: boolean = true;
 
     constructor(
         private router: Router,
@@ -28,16 +22,8 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-                if (event.url.includes('login') && theme.init.login_background) {
-                    this.background = theme.init.login_background;
-                    this.illustration = undefined;
-                } else {
-                    this.background = theme.init.background;
-                    this.illustration = theme.init.illustration;
-                }
-
                 // Only showing the link in SR env for now. Might also be made visible for UE users later.
-                this.showTryForFree = this.isSrEnvironment && !event.url.includes('sign-up');
+                this.showTryForFree = theme.theme !== THEMES.UE && !event.url.includes('sign-up');
             }
         });
 

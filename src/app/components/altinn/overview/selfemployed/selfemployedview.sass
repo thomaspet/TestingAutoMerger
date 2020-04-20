@@ -1,7 +1,32 @@
-.infoNote
-    float: right
-    width: 90%
-    margin: 0
+.application
+    height: 100%
+.self-employed-view-container
+    display: flex
+    flex-direction: row
+    align-items: flex-start
+    position: relative
+    height: 70%
+    overflow: hidden
+    @media(max-width: 500px)
+        width: 100%
+        display: block
+    .self-employed-list
+        width: 45vw
+        flex: 1
+        margin-right: 2vw
+        height: 100%
+        @media(max-width: 500px)
+            width: 100%
+        ag-grid-wrapper
+            height: 100%
+            width: 45vw
+    .infoNote
+        flex: 1
+        width: 45vw
+        margin: 3rem 0 0
+        @media(max-width: 500px)
+            width: 100%
+            display: block
 
-.list
-    list-style: none
+    .list
+        list-style: none

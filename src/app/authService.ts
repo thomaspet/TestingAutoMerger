@@ -9,7 +9,6 @@ import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
 import { UserManager, WebStorageStateStore } from 'oidc-client';
 import * as moment from 'moment';
-import * as $ from 'jquery';
 
 export interface IAuthDetails {
     activeCompany: Company;
@@ -31,7 +30,7 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info',
+    'license-info'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -171,11 +170,27 @@ export class AuthService {
     }
 
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
-        if (visible) {
-            $('#app-spinner').fadeIn(0);
-            $('#app-spinner-text').text(() => isLogout ? 'Logger ut' : 'Laster selskapsdata');
-        } else {
-            $('#app-spinner').fadeOut(250);
+        const spinner = document.getElementById('app-spinner');
+        if (spinner) {
+            if (visible) {
+                spinner.style.opacity = '1';
+                spinner.style.display = 'flex';
+                const textElement = document.getElementById('app-spinner-text');
+                if (textElement) {
+                    textElement.innerText = isLogout ? 'Logger ut' : 'Laster selskapsdata';
+                }
+            } else {
+                let opacity = 1;
+                const interval = setInterval(() => {
+                    if (opacity <= 0.2) {
+                        spinner.style.display = 'none';
+                        clearInterval(interval);
+                    } else {
+                        spinner.style.opacity = opacity.toString();
+                        opacity = opacity - 0.2;
+                    }
+                }, 50);
+            }
         }
 
         // #chat-container is added by boost, so it wont show up
@@ -247,11 +262,8 @@ export class AuthService {
                             });
                         },
                         () => {
-                            this.storage.removeOnUser(
-                                'lastActiveCompanyKey'
-                            );
-                            this.clearAuthAndGotoLogin();
-                            this.setLoadIndicatorVisibility(false);
+                            this.storage.removeOnUser('lastActiveCompanyKey');
+                            this.idsLogout();
                         }
                     );
                 }
@@ -408,8 +420,9 @@ export class AuthService {
     public cleanStorageAndRedirect() {
         this.storage.removeOnUser('activeCompany');
         this.storage.removeOnUser('activeFinancialYear');
-        this.jwt = undefined;
         this.activeCompany = undefined;
+        this.jwt = undefined;
+        this.token$.next(undefined);
         this.setLoadIndicatorVisibility(false);
 
         if (!this.router.url.includes('init')) {

@@ -7,6 +7,10 @@
         <section>
             <uni-form [model]="regulativeModel$" [fields]="regulativeFields$" [config]="regulativeConfig$"></uni-form>
         </section>
+        <section *ngIf="!!(groupModel$ | async).ID" class="regulative-upload-info-note">
+            <i class="material-icons regulative-info-icon">info_outlined</i>
+            <p>Alle arbeidsforhold som er knyttet mot dette regulativet vil få oppdatert satser (timelønn/månedslønn/årslønn) ved innlesing av ny versjon.</p>
+        </section>
         <section class="file-container">
             <span>Filimport</span>
             <div class="budget-file-import">
@@ -16,6 +20,6 @@
     </article>
     <footer>
         <button class="secondary" (click)="close()">Avbryt</button>
-        <button class="c2a" (click)="import()" [attr.aria-busy]="busy">Importer</button>
+        <button class="c2a" (click)="import()" [attr.aria-busy]="busy" [disabled]="importDisabled">Importer</button>
     </footer>
 </section>

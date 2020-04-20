@@ -92,7 +92,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     private categories: EmployeeCategory[];
     public busy: boolean;
 
-    @ViewChild(SalaryTransactionEmployeeList, { static: false })
+    @ViewChild(SalaryTransactionEmployeeList)
     private transList: SalaryTransactionEmployeeList;
 
     constructor(
@@ -136,6 +136,21 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
             this.setupState(this.router.url);
 
         });
+    }
+
+    public ngOnInit() {
+        this.searchControl.valueChanges
+            .debounceTime(150)
+            .pipe(
+                takeUntil(this.destroy$),
+            )
+            .subscribe(query => {
+                this.filteredEmployees = this.getFilteredEmployees();
+                setTimeout(() => {
+                    this.scrollbar.update();
+                    this.addTab();
+                });
+            });
     }
 
     private setupState(key: string) {
@@ -189,21 +204,6 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
                         tap(() => this.taxCards = {})
                     )
                     .subscribe(() => this.updateErrors(this.employees));
-    }
-
-    public ngOnInit() {
-        this.searchControl.valueChanges
-            .debounceTime(150)
-            .pipe(
-                takeUntil(this.destroy$),
-            )
-            .subscribe(query => {
-                this.filteredEmployees = this.getFilteredEmployees();
-                setTimeout(() => {
-                    this.scrollbar.update();
-                    this.addTab();
-                });
-            });
     }
 
     public ngAfterViewInit() {

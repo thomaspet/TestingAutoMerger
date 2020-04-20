@@ -2,6 +2,7 @@ import {Routes} from '@angular/router';
 import {Marketplace} from './marketplace';
 import {MarketplaceIntegrations} from './integrations/marketplaceIntegrations';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
+import {ProductPurchases} from './product-purchases/productPurchases';
 
 export const marketplaceRoutes: Routes = [
     {
@@ -20,6 +21,10 @@ export const marketplaceRoutes: Routes = [
             {
                 path: 'integrations',
                 component: MarketplaceIntegrations,
+            },
+            {
+                path: 'purchases',
+                component: ProductPurchases,
             },
         ]
     }

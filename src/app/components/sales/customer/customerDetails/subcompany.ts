@@ -84,6 +84,7 @@ export class SubCompanyComponent implements OnInit {
     public refresh() {
         this.currentCustomerID = 0;
         this.canDelete = false;
+        this.uniForm.ngOnInit();
         this.onParentCustomerChange(this.customer.getValue());
     }
 
@@ -141,8 +142,6 @@ export class SubCompanyComponent implements OnInit {
                             }];
                         }
 
-
-                        this.uniForm.editMode();
                         this.canDelete = this.subCompanies[0].ID !== undefined;
                         this.attachLicense(this.subCompanies[0]);
                         this.subCompany$.next(this.subCompanies[0]);
@@ -169,7 +168,7 @@ export class SubCompanyComponent implements OnInit {
                     Property: '_licenseCompany',
                     FieldType: FieldType.DROPDOWN,
                     Label: 'Oppslag',
-                    ReadOnly: true,
+                    ReadOnly: false,
                     Options:  {
                         source: [],
                         valueProperty: 'ID',

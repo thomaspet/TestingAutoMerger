@@ -100,7 +100,8 @@ export const NO = {
     },
 
     TIMETRACKING: {
-        'PERSON_NEW': 'Ny person'
+        'PERSON_NEW': 'Ny person',
+        'HOURTOTALS': 'Timerapport'
     },
 
     TASKS: {
@@ -220,6 +221,7 @@ export const NO = {
         'NUMBER_AND_REPORTS': 'Tall og rapporter',
         'EXPENSE': 'Utgift',
         'INBOX': 'Innboks',
-        'BANK_PRODUCTS': 'Bankprodukter'
+        'BANK_PRODUCTS': 'Bankprodukter',
+        'PURCHASES': 'Produktkjøp',
     }
 };

@@ -3,7 +3,7 @@ import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
 import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
-import {PeriodDateFormatPipe} from '../../../../pipes/periodDateFormatPipe';
+import {PeriodDateFormatPipe} from '@uni-framework/pipes/periodDateFormatPipe';
 import {BehaviorSubject} from 'rxjs';
 
 import {
@@ -34,7 +34,7 @@ import {
 export class CreateCorrectedVatReportForm implements OnInit {
     @Input() public config: {};
 
-    @ViewChild(UniForm, { static: false }) public uniform: UniForm;
+    @ViewChild(UniForm) public uniform: UniForm;
 
     @Output() public formSubmitted: EventEmitter<number> = new EventEmitter<number>();
 
@@ -183,7 +183,7 @@ export class CreateCorrectedVatReportModal {
         private periodService: PeriodService,
         private errorService: ErrorService,
     ) {
-        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
+        this.periodDateFormat = new PeriodDateFormatPipe();
         const self = this;
 
         self.modalConfig = {

@@ -33,7 +33,7 @@ export interface AutocompleteOptions {
 })
 export class Autocomplete {
     @ViewChild('inputElement', { static: true }) inputElement: ElementRef<HTMLInputElement>;
-    @ViewChild('optionContainer', { static: false }) optionContainer: ElementRef;
+    @ViewChild('optionContainer') optionContainer: ElementRef;
 
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;
@@ -274,11 +274,12 @@ export class Autocomplete {
     }
 
     scrollToListItem() {
-        if (this.optionContainer && this.optionContainer.nativeElement && this.optionContainer.nativeElement.children) {
-            const row: HTMLElement = this.optionContainer.nativeElement.children[this.focusIndex];
-            if (row) {
-                row.scrollIntoView(false);
-            }
+        try {
+            const items: HTMLElement[] = this.optionContainer.nativeElement.children;
+            const row = items[this.focusIndex];
+            row.scrollIntoView({ block: 'nearest' });
+        } catch (e) {
+            console.error(e);
         }
     }
 

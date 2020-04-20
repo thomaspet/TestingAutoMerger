@@ -1,16 +1,25 @@
-<section class="content">
+<section class="wrapper">
+    <img *ngIf="illustration" [src]="illustration">
+
     <ng-container *ngIf="!selectedCompanyType">
-        <section class="select-type-of-company" *ngIf="contractID">
-            <section *ngFor="let option of registrationOptions" class="authentication-component">
+        <ng-container *ngIf="contractID">
+            <section *ngFor="let option of registrationOptions" class="registration-card authentication-component">
                 <h1>{{option.header}}</h1>
 
-                <p *ngFor="let text of option.textSections">{{text}}</p>
+                <section class="content">
+                    <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
+                    <section *ngFor="let text of option.textSections">{{text}}</section>
+                </section>
 
-                <button [ngClass]="option.buttonClass || 'secondary'" (click)="option.action()">
-                    {{option.buttonLabel}}
-                </button>
+                <section class="footer">
+                    <section class="footer-text" *ngIf="option.footerText">{{option.footerText}}</section>
+
+                    <button *ngFor="let button of option.buttons" [ngClass]="button.class || 'secondary'" (click)="button.action()">
+                        {{button.label}}
+                    </button>
+                </section>
             </section>
-        </section>
+        </ng-container>
 
         <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
             <small class="alert warn">
@@ -27,6 +36,7 @@
 
     <init-new-company
         *ngIf="selectedCompanyType === 'company'"
-        [contractID]="contractID">
+        [contractID]="contractID"
+        [isTest]="isTest">
     </init-new-company>
 </section>

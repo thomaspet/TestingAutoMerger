@@ -1,9 +1,12 @@
-<!-- <article> -->
-    <button class="good" (click)="openApikeyModal()">Legg til</button>
+<section class="uni-container">
     <ag-grid-wrapper
         *ngIf="apikeys && apikeys.length > 0"
         [resource]="apikeys"
         [config]="apikeysConfig"
         (rowDelete)="onRowDeleted($event)">
     </ag-grid-wrapper>
-<!-- </article> -->
+
+    <button class="secondary" (click)="openApikeyModal()">
+        Legg til integrasjon
+    </button>
+</section>

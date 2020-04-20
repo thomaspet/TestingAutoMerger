@@ -11,63 +11,58 @@ import {ProjectSupplierInvoiceList} from './project/lists/supplier-invoice-list/
 
 export const dimensionsRoutes = [
     {
-        path: 'dimensions',
+        path: '',
+        pathMatch: 'full',
+        redirectTo: 'projects'
+    },
+    {
+        path: 'overview/:id',
+        component: UniDimensionView
+    },
+    {
+        path: 'projects',
+        component: Project,
         children: [
             {
                 path: '',
                 pathMatch: 'full',
-                redirectTo: 'projects'
+                redirectTo: 'overview'
             },
             {
-                path: 'overview/:id',
-                component: UniDimensionView
+                path: 'overview',
+                component: ProjectOverview
             },
             {
-                path: 'projects',
-                component: Project,
-                children: [
-                    {
-                        path: '',
-                        pathMatch: 'full',
-                        redirectTo: 'overview'
-                    },
-                    {
-                        path: 'overview',
-                        component: ProjectOverview
-                    },
-                    {
-                        path: 'tasks',
-                        component: ProjectTasks
-                    },
-                    {
-                        path: 'hours',
-                        component: ProjectHourTotals
-                    },
-                    {
-                        path: 'editmode',
-                        component: ProjectEditmode
-                    },
-                    {
-                        path: 'documents',
-                        component: ProjectDocument
-                    },
-                    {
-                        path: 'invoices',
-                        component: ProjectQueryList
-                    },
-                    {
-                        path: 'orders',
-                        component: ProjectQueryList
-                    },
-                    {
-                        path: 'quotes',
-                        component: ProjectQueryList
-                    },
-                    {
-                        path: 'supplierinvoices',
-                        component: ProjectSupplierInvoiceList
-                    }
-                ]
+                path: 'tasks',
+                component: ProjectTasks
+            },
+            {
+                path: 'hours',
+                component: ProjectHourTotals
+            },
+            {
+                path: 'editmode',
+                component: ProjectEditmode
+            },
+            {
+                path: 'documents',
+                component: ProjectDocument
+            },
+            {
+                path: 'invoices',
+                component: ProjectQueryList
+            },
+            {
+                path: 'orders',
+                component: ProjectQueryList
+            },
+            {
+                path: 'quotes',
+                component: ProjectQueryList
+            },
+            {
+                path: 'supplierinvoices',
+                component: ProjectSupplierInvoiceList
             }
         ]
     }

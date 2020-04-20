@@ -2,8 +2,6 @@ import {Injectable} from '@angular/core';
 import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType, SupplierInvoice} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/operator/mergeMap';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationLevel, CompanySettings, JournalEntryLineDraft, LocalDate} from '../../unientities';
 import {ValidationMessage, ValidationResult} from '../../models/validationResult';
@@ -261,12 +259,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         .map(response => response.body);
     }
 
-    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
+    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string, numberSeriesID?: number) {
 
         // filter out entries with no account or no amount, the user has already approved
         // this in a dialog
         journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
-
+        journalEntryData.forEach((data) => {
+            data.NumberSeriesID = numberSeriesID
+        });
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
@@ -280,13 +280,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryData, existingJournalEntries);
-                    journalEntries.forEach(je => je.Description = text);
+                    journalEntries.forEach((je) => { 
+                        je.Description = text;
+                    });
 
                     return this.saveJournalEntriesAsDraft(journalEntries);
                 });
         } else {
+            
             const journalEntries = this.createJournalEntryObjects(journalEntryData, []);
-            journalEntries.forEach(je => je.Description = text);
+            journalEntries.forEach((je) => { 
+                je.Description = text;
+            });
 
             return this.saveJournalEntriesAsDraft(journalEntries);
         }
@@ -427,7 +432,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     }
 
     public createInvoicePaymentDataObjects(data: JournalEntryData[] ):
-    {id: number, payment: InvoicePaymentData, numberSeriesTaskID: number}[] {
+    {id: number, payment: InvoicePaymentData, numberSeriesID: number}[] {
         const dataToConvert = data.filter(line => !!line.InvoiceNumber);
 
         return dataToConvert.map(line => {
@@ -440,7 +445,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     CurrencyCodeID: line.CurrencyID,
                     CurrencyExchangeRate: line.CurrencyExchangeRate,
                 },
-                numberSeriesTaskID: line.NumberSeriesTaskID
+                numberSeriesID: line.NumberSeriesID
             };
         });
     }
@@ -448,7 +453,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
         let previousJournalEntryNo: string = null;
         const journalEntries: Array<JournalEntryExtended> = [];
-
         let je: JournalEntryExtended;
 
         // create new journalentries and journalentrylines for the inputdata
@@ -797,15 +801,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             let currentSumDebit: number = 0;
             let currentSumCredit: number = 0;
             let lastJournalEntryFinancialDate: LocalDate;
+            let hasForeignCurrency: boolean = false;
 
             sortedJournalEntries.forEach(entry => {
                 if (doValidateBalance) {
                     if (lastJournalEntryNo !== entry.JournalEntryNo) {
                         const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
-                        if (diff !== 0) {
+                        if (diff !== 0 && !hasForeignCurrency) {
                             const message = new ValidationMessage();
                             message.Level = ValidationLevel.Error;
-                            message.Message = `Bilag ${lastJournalEntryNo || ''} går ikke i balanse.`
+                            message.Message = `Bilag ${lastJournalEntryNo || ''} går ikke i balanse. `
                                 + ` Sum debet og sum kredit må være lik (differanse: ${diff})`;
                             result.Messages.push(message);
                         }
@@ -814,6 +819,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                         currentSumCredit = 0;
                         currentSumDebit = 0;
                         lastJournalEntryFinancialDate = null;
+                        hasForeignCurrency = false;
                     }
                 }
 
@@ -879,6 +885,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     }
                 }
 
+                if (entry.CurrencyID !== companySettings.BaseCurrencyCodeID) {
+                    hasForeignCurrency = true;
+                }
+
                 if (
                     (entry.DebitAccount && entry.CreditAccount)
                     || (entry.DebitAccount && !entry.CreditAccount && entry.Amount > 0)
@@ -934,7 +944,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
             if (doValidateBalance) {
                 const diff = UniMath.round(currentSumDebit - (currentSumCredit * -1));
-                if (diff !== 0) {
+                if (diff !== 0 && !hasForeignCurrency) {
                     const message = new ValidationMessage();
                     message.Level = ValidationLevel.Error;
                     message.Message = `Bilag ${lastJournalEntryNo || ''}

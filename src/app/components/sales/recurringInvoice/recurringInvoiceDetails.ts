@@ -76,7 +76,7 @@ declare const _;
 })
 export class UniRecurringInvoice implements OnInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) private tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
@@ -388,7 +388,13 @@ export class UniRecurringInvoice implements OnInit {
             this.recurringInvoiceService.getLog(ID)
         ).map(res => {
             const invoice: RecurringInvoice = res[0];
-            const invoiceItems: RecurringInvoiceItem[] = res[1] || [];
+            const invoiceItems: RecurringInvoiceItem[] = res[1].map(item => {
+                if (item.Dimensions) {
+                    item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                }
+                return item;
+            });
+
             this.log = res[2];
 
             invoice.Items = invoiceItems;

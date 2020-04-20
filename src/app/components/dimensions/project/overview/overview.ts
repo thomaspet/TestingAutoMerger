@@ -28,7 +28,7 @@ interface IMonthAndYear {
 
 export class ProjectOverview {
 
-    @ViewChild('chartElement1', { static: false })
+    @ViewChild('chartElement1')
     private chartElement1: ElementRef;
 
     private MONTHS: string[] = [

@@ -1,0 +1,22 @@
+<section class="import-regulative-container">
+    <h2 class="empty-regulative-title">{{heading}}</h2>
+    <img class="regulative-icon">
+    <article class="empty-regulative-content">
+        <p>
+            Statens regulativ kan importeres direkte inn i systemet. Disse kan du laste ned fra Regjeringen sine sider i Excel-format.
+        </p>
+
+        <p>
+            <a href="https://www.regjeringen.no/no/tema/arbeidsliv/Statlig-arbeidsgiverpolitikk/lonn-og-tariff-i-staten/lonnstabellen/id438643/#Atabellen" target="_blank">
+                Du finner de her.
+            </a>
+        </p>
+
+        <p>
+            Det er også mulig å lage eget regulativ i Excel og lese inn i systemet.
+            Du kan også lage egne regulativ ved å eksportere allerede eksisterende regulativ (evt. mal) til Excel, endre og lese inn med ny startdato.
+        </p>
+    </article>
+    <button (click)="newRegulation()" class="c2a">Importer regulativ</button>
+    <button (click)="downloadTemplateFile()" class="secondary" [attr.aria-busy]="busy">Last ned mal</button>
+</section>

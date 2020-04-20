@@ -10,7 +10,7 @@ import {
     ElsaProductService,
     ElsaPurchaseService,
 } from '@app/services/services';
-import {ElsaPurchase, ElsaProduct} from '@app/models';
+import {ElsaPurchase, ElsaProduct, ElsaProductType} from '@app/models';
 
 interface IRoleGroup {
     label: string;
@@ -231,7 +231,7 @@ export class UniRoleModal implements IUniModal {
     private groupRolesByProducts(roles: Role[], products: ElsaProduct[]): IRoleGroup[] {
         // Create groups based on products (of type Module)
         const filteredProducts = (products || []).filter(product => {
-            return product.ProductTypeName === 'Module'
+            return product.ProductType === ElsaProductType.Module
                 && product.Name !== 'Complete';
         });
 

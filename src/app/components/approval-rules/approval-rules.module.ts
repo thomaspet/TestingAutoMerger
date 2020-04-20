@@ -1,10 +1,9 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {RouterModule, Routes} from '@angular/router';
 
 import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {AppCommonModule} from '@app/components/common/appCommonModule';
-import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {LayoutModule} from '@app/components/layout/layoutModule';
 
 import {ApprovalRules} from './approval-rules';
@@ -37,12 +36,11 @@ const routes: Routes = [{
 
 @NgModule({
     imports: [
-        CommonModule,
+        LibraryImportsModule,
         RouterModule.forChild(routes),
         AppCommonModule,
         LayoutModule,
         UniFrameworkModule,
-        AppPipesModule,
     ],
     declarations: [
         ApprovalRules,
@@ -50,11 +48,6 @@ const routes: Routes = [{
         ApprovalRuleModal,
         GlobalApprovalRuleModal,
         Substitutes,
-        SubstituteModal
-    ],
-    entryComponents: [
-        ApprovalRuleModal,
-        GlobalApprovalRuleModal,
         SubstituteModal
     ]
 })

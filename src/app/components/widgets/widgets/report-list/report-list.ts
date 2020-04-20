@@ -4,11 +4,10 @@ import {IUniWidget} from '../../uniWidget';
 import {Router} from '@angular/router';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {ReportDefinition} from '@uni-entities';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 
 import {SelectReportsModal} from './select-reports-modal';
 import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
-import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {AnnualSatementReportFilterModalComponent} from '@app/components/reports/modals/anualStatement/anualStatementReportFilterModal';
 import {AuthService} from '@app/authService';
 

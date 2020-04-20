@@ -122,6 +122,14 @@ export class StatisticsService extends BizHttp<string> {
             .send({responseType: 'blob'}, params);
     }
 
+    public GetExportedExcelFileFromUrlParams(params: HttpParams) {
+        return this.http
+            .usingRootDomain()
+            .asGET()
+            .withEndPoint('exportstatistics')
+            .send({responseType: 'blob'}, params);
+    }
+
     public checkShouldShowField(field: string) {
         if (field.toLowerCase() === 'id') {
             return true;

@@ -10,7 +10,7 @@ import { InvoiceHourService, ErrorService } from '@app/services/services';
     </uni-table>`
 })
 export class WorkitemTransferWizardFilter implements OnInit {
-    @ViewChild(UniTable, { static: false }) private uniTable: UniTable;
+    @ViewChild(UniTable) private uniTable: UniTable;
     @Input() public options: IWizardOptions;
     public get selectedItems() {
         return this.uniTable.getSelectedRows();

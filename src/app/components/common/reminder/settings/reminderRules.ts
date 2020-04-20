@@ -19,7 +19,7 @@ import {
     templateUrl: './reminderRules.html',
 })
 export class ReminderRules implements OnInit, OnChanges {
-    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
     @Input() settings: CustomerInvoiceReminderSettings;
     @Output() change: EventEmitter<any> = new EventEmitter();
 

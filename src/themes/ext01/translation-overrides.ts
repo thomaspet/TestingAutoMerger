@@ -73,6 +73,8 @@ export const TRANSLATION_OVERRIDES = {
         'BILLING_HOURS': 'Fakturere timer',
         'PERSONS': 'Timebrukere',
         'EXPENSE': 'Utgift',
-        'BANK_PRODUCTS': 'Bankprodukter'
+        'BANK_PRODUCTS': 'Bankprodukter',
+        'PURCHASES': 'Produktkjøp',
+        'DIMENSION': 'Prosjekt og avdeling'
     }
 };

@@ -1,13 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {WidgetModule} from '../widgets/widgetModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {salaryRoutes} from './salaryRoutes';
 import {UniSalary} from './salary';
 import {AMeldingView} from './amelding/ameldingview';
@@ -41,7 +39,7 @@ import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
 import {ControlModal} from './payrollrun/modals/controlModal';
 import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
 import {PayrollrunList} from './payrollrun/payrollrunList';
-import {PayrollRunDetailsService} from './payrollrun/services/payrollRunDetailsService';
+import {PayrollRunDetailsService} from './payrollrun/services/payrollrun-details.service';
 import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
 import {PaycheckSending} from './payrollrun/sending/paycheckSending';
 import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
@@ -83,7 +81,6 @@ import {SalaryBalanceLineModal} from './salarybalance/modals/salBalLineModal';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import {UniSupplementEditModal} from './salaryTransactionSupplement/editValueModal';
 
-import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import { AnnualStatementSenderComponent } from './annualStatement/annual-statement-sender/annual-statement-sender.component';
 import { EmployeeReportPickerListComponent } from './common/employee-report-picker-list/employee-report-picker-list.component';
 import {
@@ -101,9 +98,6 @@ import { TravelDetailsComponent } from './travel/travel-details/travel-details.c
 import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
-import {MatTooltipModule} from '@angular/material/tooltip';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSlideToggleModule } from '@angular/material';
 import {TraveltypeComponent} from './travel/travel-type/traveltype.component';
 import {EmployeeTransTickerComponent} from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import {UniTickerModule} from '@app/components/uniticker/uniTickerModule';
@@ -133,19 +127,20 @@ import {
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import {SalaryHelperMethods} from './helperMethods/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
-import { RegulativeComponent } from './regulative/regulative';
 import { RegulativeUploadModalComponent } from './modals/regulative-upload-modal/regulative-upload-modal.component';
+import { RegulativeGroupListComponent } from './regulative/regulative-group-list.component';
 import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
+import { RegulativeImportComponent } from './regulative/regulative-import/regulative-import.component';
+import { NewRegulativeModalComponent } from './modals/new-regulative-modal/new-regulative-modal.component';
+import { RegulativeDetailsComponent } from './regulative/regulative-details/regulative-details.component';
+import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
+import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
+import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.service';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatTooltipModule,
-        MatSlideToggleModule,
-        MatSelectModule,
+        LibraryImportsModule,
         UniTickerModule,
 
         RouterModule.forChild(salaryRoutes),
@@ -154,7 +149,6 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         WidgetModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
         ReportsModule
     ],
     declarations: [
@@ -201,6 +195,8 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         PaycheckSenderModal,
         TimeTransferComponent,
         VariablePayrollsComponent,
+        NegativeSalaryComponent,
+        NegativeSalaryModalComponent,
 
         // Salarytrans
         SalaryTransactionSelectionList,
@@ -262,36 +258,15 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
         OtpPeriodWagetypeModalComponent,
 
         // Regulation
-        RegulativeComponent,
         RegulativeUploadModalComponent,
-    ],
-    entryComponents: [
-        TaxCardModal,
-        TaxResponseModal,
-        ControlModal,
-        PostingSummaryModal,
-        AmeldingTypePickerModal,
-        SalarybalanceLine,
-        PaycheckSenderModal,
-        SalaryTransSupplementsModal,
-        SalaryBalanceLineModal,
-        UniSalaryTransactionModal,
-        ReconciliationModalComponent,
-        ReconciliationResponseModalComponent,
-        TimeTransferComponent,
-        TravelRejectModal,
-        OtpFilterModalComponent,
-        PeriodAdminModalComponent,
-        OtpPeriodWagetypeModalComponent,
-        UniFindEmployeeModal,
-        UniSupplementEditModal,
-        SyncWagetypesModalComponent,
-        RegulativeUploadModalComponent,
-        StatusAMeldingModal,
-        MakeAmeldingPaymentModal
+        RegulativeGroupListComponent,
+        RegulativeImportComponent,
+        NewRegulativeModalComponent,
+        RegulativeDetailsComponent,
     ],
     providers: [
         PayrollRunDetailsService,
+        PayrollRunDataService,
         WageTypeViewService,
         EmployeeDetailsService,
         SalaryBalanceViewService,

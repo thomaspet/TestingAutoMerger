@@ -133,11 +133,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         ],
                         expands: ['customer']
                     },
-                    // {
-                    //     name: 'NAVBAR.BATCH_INVOICE',
-                    //     url: '/sales/batch-invoices',
-                    //     activeInSidebar: true,
-                    // },
+                    {
+                        name: 'NAVBAR.BATCH_INVOICE',
+                        url: '/sales/batch-invoices',
+                        activeInSidebar: true,
+                    },
                     {
                         name: 'NAVBAR.REMINDER',
                         url: '/sales/reminders',
@@ -423,12 +423,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.VariablePayrolls,
                         activeInSidebar: true
                     },
-                    // { QWER123
-                    //     name: 'NAVBAR.REGULATIVE',
-                    //     url: '/salary/regulative',
-                    //     moduleID: UniModules.Regulative,
-                    //     activeInSidebar: true
-                    // }
+                    {
+                        name: 'NAVBAR.REGULATIVE',
+                        url: '/salary/regulative',
+                        moduleID: UniModules.Regulative,
+                        activeInSidebar: true
+                    }
                 ]
             },
             {
@@ -500,6 +500,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             {
                 name: 'NAVBAR.REGISTER',
                 links: [
+                    {
+                        name: 'TIMETRACKING.HOURTOTALS',
+                        url: '/timetracking/hourtotals',
+                        moduleID: UniModules.HourTotals,
+                        activeInSidebar: true,
+                    },
                     {
                         name: 'NAVBAR.PERSONS',
                         url: '/timetracking/workers',
@@ -608,6 +614,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.INTEGRATION',
                         url: '/marketplace/integrations',
+                        moduleID: UniModules.Marketplace,
+                        activeInSidebar: true
+                    },
+                    {
+                        name: 'NAVBAR.PURCHASES',
+                        url: '/marketplace/purchases',
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
                     },

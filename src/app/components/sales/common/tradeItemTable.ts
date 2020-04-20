@@ -18,7 +18,8 @@ import {
     Department,
     Dimensions,
     LocalDate,
-    StatusCodeProduct
+    StatusCodeProduct,
+    Product
 } from '../../../unientities';
 import {
     ProductService,
@@ -29,11 +30,12 @@ import {
     ErrorService,
     CompanySettingsService,
     CustomDimensionService,
-    AccountMandatoryDimensionService
+    AccountMandatoryDimensionService,
+    NumberFormat
 } from '../../../services/services';
 import * as moment from 'moment';
-import * as _ from 'lodash';
-import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
+import {cloneDeep} from 'lodash';
+import {ToastType, ToastService} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-tradeitem-table',
@@ -48,7 +50,7 @@ import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
     `
 })
 export class TradeItemTable {
-    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     @Input() public readonly: boolean;
     @Input() public defaultTradeItem: any;
@@ -84,15 +86,7 @@ export class TradeItemTable {
     productExpands = [
         'Account',
         'Account.MandatoryDimensions',
-        'Dimensions',
-        'Dimensions.Project',
-        'Dimensions.Department',
-        'Dimensions.Dimension5',
-        'Dimensions.Dimension6',
-        'Dimensions.Dimension7',
-        'Dimensions.Dimension8',
-        'Dimensions.Dimension9',
-        'Dimensions.Dimension10'
+        'Dimensions.Info'
     ];
 
     constructor(
@@ -107,7 +101,8 @@ export class TradeItemTable {
         private modalService: UniModalService,
         private customDimensionService: CustomDimensionService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private numberFormatter: NumberFormat
     ) {}
 
     public ngOnInit() {
@@ -157,6 +152,12 @@ export class TradeItemTable {
         if (changes['vatTypes']) {
             this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
             this.updateVatPercentsAndItems();
+        }
+
+        if (changes['items'] && this.items) {
+            this.items.forEach(item => {
+                item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
+            });
         }
     }
 
@@ -454,8 +455,8 @@ export class TradeItemTable {
                         return new Promise(resolve => {
                             this.modalService.open(UniProductDetailsModal, {}).onClose.subscribe(item => {
                                 if (item) {
-                                    this.productService.Get(item.ID, this.productExpands).subscribe(
-                                        product => resolve(product),
+                                    this.productService.GetAll(`filter=ID eq ${item.ID}`, this.productExpands).subscribe(
+                                        product => resolve(product && product[0]),
                                         err => {
                                             this.errorService.handle(err);
                                             resolve(null);
@@ -464,7 +465,7 @@ export class TradeItemTable {
                                 } else {
                                     resolve(null);
                                 }
-                            })
+                            });
                         });
                     }
                 }
@@ -714,10 +715,21 @@ export class TradeItemTable {
             'SumTotalIncVatCurrency', 'Sum', UniTableColumnType.Money, true
         ).setMaxWidth(160);
 
+
+        const dekningsGradCol = new UniTableColumn('_dekningsGrad', 'Dekningsgrad', UniTableColumnType.Percent, false)
+            .setMaxWidth(140)
+            .setVisible(false);
+
+        const costPriceCol = new UniTableColumn('CostPrice', 'Innpris', UniTableColumnType.Money)
+            .setMaxWidth(140)
+            .setVisible(false)
+            .setTemplate(row => row.CostPrice || row.Product && row.Product.CostPrice);
+
         const allCols = [
             sortIndexCol, productCol, itemTextCol, unitCol, numItemsCol,
             exVatCol, incVatCol, accountCol, vatTypeCol, discountPercentCol, discountCol,
-            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol
+            projectCol, departmentCol, sumTotalExVatCol, sumVatCol, sumTotalIncVatCol, projectTaskCol,
+            costPriceCol, dekningsGradCol
         ].concat(dimensionCols);
 
         allCols.push(this.createMandatoryDimensionsCol());
@@ -762,6 +774,8 @@ export class TradeItemTable {
                     this.items[updatedIndex] = updatedRow;
                 }
 
+                updatedRow['_dekningsGrad'] = this.getDekningsGrad(updatedRow);
+
                 return updatedRow;
                 // Splitting text larger than 250 characters and emitting
                 // item change is handled in rowChange event hook (onRowChange)
@@ -769,9 +783,19 @@ export class TradeItemTable {
             })
             .setInsertRowHandler((index) => {
                 this.items.splice(index, 0, this.getEmptyRow());
-                this.items = _.cloneDeep(this.items); // trigger change detection
+                this.items = cloneDeep(this.items); // trigger change detection
                 this.itemsChange.emit(this.items);
             });
+    }
+
+    private getDekningsGrad(item) {
+        if (item.Product && item.SumTotalExVat) {
+            const costPrice = item.CostPrice || (item.Product && item.Product.CostPrice) || 0;
+            const dekningsBidrag = item.SumTotalExVat - (costPrice * item.NumberOfItems);
+            const dekningsGrad = (dekningsBidrag * 100) / item.SumTotalExVat;
+
+            return this.numberFormatter.asNumber(dekningsGrad);
+        }
     }
 
     private createMandatoryDimensionsCol(): UniTableColumn {
@@ -831,6 +855,12 @@ export class TradeItemTable {
         if (event.field === 'Product') {
             if (!event.newValue) {
                 noProduct = true;
+            } else if (updatedRow.Product && updatedRow.Product.Dimensions && updatedRow.Product.Dimensions.Info) {
+                // Set row to use product dimensions and reset ID
+                updatedRow.Dimensions = updatedRow.Product.Dimensions;
+                updatedRow.DimensionsID = 0;
+                updatedRow.Dimensions = this.customDimensionService.mapDimensions(updatedRow.Dimensions);
+                triggerChangeDetection = true;
             } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
                 updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
                 updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
@@ -884,7 +914,7 @@ export class TradeItemTable {
             if (this.showMandatoryDimensionsColumn) {
                 this.updateItemMandatoryDimensions(updatedRow);
             } else {
-                this.items = _.cloneDeep(this.items); // trigger change detection
+                this.items = cloneDeep(this.items); // trigger change detection
             }
         }
 
@@ -909,11 +939,11 @@ export class TradeItemTable {
                     report: rep
                 });
             }
-            this.items = _.cloneDeep(this.items); // trigger change detection
+            this.items = cloneDeep(this.items); // trigger change detection
         },
         err => {
             this.errorService.handle(err);
-            this.items = _.cloneDeep(this.items);
+            this.items = cloneDeep(this.items);
         });
     }
 
@@ -931,7 +961,7 @@ export class TradeItemTable {
                     });
 
                     if (this.itemsWithReport.length) {
-                        this.items = _.cloneDeep(this.items);
+                        this.items = cloneDeep(this.items);
                     }
                 },
                 err => this.errorService.handle(err)
@@ -976,7 +1006,7 @@ export class TradeItemTable {
 
     private getEmptyRow() {
         // Clone to make sure the row is a copy, not a reference
-        const row: any = _.cloneDeep(this.defaultTradeItem);
+        const row: any = cloneDeep(this.defaultTradeItem);
         row['_isEmpty'] = false;
         row['_createguid'] = this.productService.getNewGuid();
         row.Dimensions = null;

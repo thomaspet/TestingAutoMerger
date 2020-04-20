@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {saveAs} from 'file-saver';
-import printJS from 'print-js';
+import * as printJS from 'print-js';
 
 import {FileExtended} from '../../uniImage';
 import {FileService} from '@app/services/services';

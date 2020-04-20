@@ -2,13 +2,11 @@ import {Injectable} from '@angular/core';
 import {GuidService, NumberFormat} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
-    Project,
     Product,
-    ProjectTask,
-    Department,
     CompanySettings,
     VatType,
-    LocalDate
+    LocalDate,
+    StatusCodeCustomerOrderItem
 } from '../../../unientities';
 import * as _ from 'lodash';
 
@@ -33,6 +31,7 @@ export class TradeItemHelper  {
 
                 if (item.Dimensions && !item.Dimensions.ID) {
                     item.Dimensions['_createguid'] = this.guidService.guid();
+                    item.Dimensions.Project = null;
                 }
 
                 // ID is enough
@@ -63,6 +62,16 @@ export class TradeItemHelper  {
 
                 if (!item.DiscountPercent) {
                     item.DiscountPercent = 0; // backend doesnt want this to be null
+                }
+
+                // Remove objects before save!
+                if (item.Dimensions) {
+                    item.Dimensions.Project = null;
+                    item.Dimensions.Department = null;
+
+                    for (let i = 5; i <= 10; i++) {
+                        item.Dimensions[`Dimension${i}`] = null;
+                    }
                 }
 
                 return item;
@@ -121,9 +130,8 @@ export class TradeItemHelper  {
             newRow.Dimensions._createguid = this.guidService.guid();
         }
 
-
-
         if (event.field === 'Product') {
+            newRow.CostPrice = null;
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
 
@@ -134,7 +142,7 @@ export class TradeItemHelper  {
                     newRow.VatTypeID = foreignVatType.ID;
                     overrideVatType = foreignVatType;
                 }
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType);
+                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType, companySettings);
 
             } else {
                 newRow['ProductID'] = null;
@@ -273,7 +281,14 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings, overrideVatType: VatType) {
+    public mapProductToQuoteItem(
+        rowModel,
+        currencyExchangeRate: number,
+        vatTypes: Array<VatType>,
+        settings: CompanySettings,
+        overrideVatType: VatType,
+        companySettings: CompanySettings
+    ) {
         const product: Product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -286,13 +301,21 @@ export class TradeItemHelper  {
         rowModel.PricingSource = 0;
         rowModel.TimeFactor = 0;
 
-        let productVatType = product.VatTypeID ? vatTypes.find(x => x.ID === product.VatTypeID) : null;
-        if (overrideVatType) { productVatType = overrideVatType; }
+        let productVatType = product.VatTypeID
+            ? vatTypes.find(x => x.ID === product.VatTypeID)
+            : vatTypes.find(x => x.ID === companySettings?.DefaultSalesAccount?.VatTypeID);
+
+        product.Account = product.Account || companySettings.DefaultSalesAccount;
+
+        if (overrideVatType) {
+            productVatType = overrideVatType;
+        }
 
         if (settings.TaxMandatoryType === 1) {
             // company does not use VAT/MVA
             rowModel.VatTypeID = null;
             rowModel.VatType = null;
+            rowModel.Account = product.Account;
         } else if (settings.TaxMandatoryType === 2) {
             // company will use VAT when configured limit is passed - validations will be run
             // when saving the invoice to see
@@ -303,22 +326,17 @@ export class TradeItemHelper  {
                     const vatType6 = vatTypes.find(x => x.VatCode === '6');
                     rowModel.VatType = vatType6;
                     rowModel.VatTypeID = vatType6.ID;
+                    rowModel.Account = product.Account;
                 } else {
                     rowModel.VatTypeID = productVatType.ID;
                     rowModel.VatType = productVatType;
-
-                    if (!rowModel.VatTypeID && product.Account) {
-                        rowModel.VatTypeID = product.Account.VatTypeID;
-                    }
+                    rowModel.Account = product.Account;
                 }
             }
         } else {
             rowModel.VatTypeID = productVatType ? productVatType.ID : product.VatTypeID;
             rowModel.VatType = productVatType || product.VatType;
-
-            if (!rowModel.VatTypeID && product.Account) {
-                rowModel.VatTypeID = product.Account.VatTypeID;
-            }
+            rowModel.Account = product.Account;
         }
 
         // if vat is not used/not defined, set PriceIncVat to PriceExVat
@@ -423,6 +441,14 @@ export class TradeItemHelper  {
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {
+        if (rowModel.StatusCode === StatusCodeCustomerOrderItem.TransferredToInvoice) {
+            return;
+            /*
+            Quick-fix: SumTotalExVat m.fl. avrundes til 2 desimaler backend.
+            Dersom man endrer Ordre (legger til Item) etter at Item er overført, får man feilmelding dersom beløpet har >2 desimaler med verdi
+            ettersom dette tolkes som en endring, og backend tillater ikke endring på overførte orderitems (kun tekst og status)
+            */
+        }
         const discountExVat  = this.round(
             (rowModel['NumberOfItems'] * rowModel['PriceExVat'] * rowModel['DiscountPercent']) / 100, 4
         );
@@ -510,8 +536,14 @@ export class TradeItemHelper  {
         sum.SumDiscountCurrency = 0;
         sum.DecimalRoundingCurrency = 0;
 
+        sum.DekningsGrad = 0;
+
         if (items) {
+            let totalCostPrice = 0;
+
             items.forEach((item) => {
+                totalCostPrice += ((item.CostPrice || item.Product && item.Product.CostPrice) || 0) * item.NumberOfItems;
+
                 sum.SumDiscount += item.Discount || 0;
                 sum.SumTotalExVat += item.SumTotalExVat || 0;
                 sum.SumTotalIncVat += item.SumTotalIncVat || 0;
@@ -533,6 +565,8 @@ export class TradeItemHelper  {
             roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
+
+            sum.DekningsGrad = ((sum.SumTotalExVat - totalCostPrice) * 100) / sum.SumTotalExVat;
         }
 
         return sum;
@@ -542,7 +576,7 @@ export class TradeItemHelper  {
         return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
-    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number) : number {
+    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number): number {
         if (currencyCodeID && currencyCodeID !== 1) {
             return 2;
         }
