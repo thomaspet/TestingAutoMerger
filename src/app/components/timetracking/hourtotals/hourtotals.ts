@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as utils from '../../common/utils/utils';
@@ -8,49 +8,10 @@ import {
 } from '@app/services/services';
 import * as moment from 'moment';
 import {Subject} from 'rxjs';
-import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
-import { HourTotalsDrilldownModal } from './drilldown-modal';
-
-interface IPageState {
-    projectID?: string;
-    month?: string;
-    year?: string;
-}
-
-interface IQueryData {
-    yr: number;
-    md: number;
-    tsum: number;
-    title: string;
-}
-
-interface IReport {
-    title: string;
-    sum: number;
-    columns: Array<string>;
-    rows: Array<IReportRow>;
-}
-
-interface IReportRow {
-    title: string;
-    sum: number;
-    prc: number;
-    items: Array<{tsum: number}>;
-}
-
-class ReportRow implements IReportRow {
-    public title: string;
-    public sum: number;
-    public prc: number;
-    public items: Array<{tsum: number}>;
-    constructor(title: string) {
-        this.title = title;
-        this.items = utils.createRow(12, () => ({ tsum: 0 }));
-        this.sum = 0;
-        this.prc = 0;
-    }
-}
+import {HourTotalsDrilldownModal} from './drilldown-modal';
+import {IReport, IPageState, IReportRow, IQueryData, ReportRow, HourReportInput} from './models';
 
 @Component({
     selector: 'hourtotals',
@@ -58,9 +19,11 @@ class ReportRow implements IReportRow {
     styleUrls: [ 'hourtotals.sass' ]
 })
 export class HourTotals {
+    @Input() input: HourReportInput;
     onDestroy$ = new Subject();
 
     private query: string;
+    private currentOdataFilter: string;
     public busy: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
@@ -146,77 +109,86 @@ export class HourTotals {
             ? 'worktype.product'
             : 'worktype';
 
+        let OdataFilter = '';
+        let Odata = '';
+
         switch (name) {
             default:
             case 'worktypes':
-                this.query = 'model=workitem'
+                Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,worktype.name as title`
                     + `&expand=${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),worktype.name`
-                    + `&filter=year(date) ge ${(yr - 1)}`;
+                    + `&orderby=year(date) desc,month(date),worktype.name`;
+                    // + `&filter=year(date) ge ${(yr - 1)}`;
+                    OdataFilter = `year(date) ge ${(yr - 1)}`;
                     break;
 
             case 'teams':
-                    this.query = 'model=workitem'
+                    Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title`
                     + `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
                     + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)} and ( team.id gt 0 or tt.id gt 0 )`;
+                    + `&orderby=year(date) desc,month(date)`;
+                    //+ `&filter=year(date) ge ${(yr - 1)} and ( team.id gt 0 or tt.id gt 0 )`;
+                    OdataFilter = `year(date) ge ${(yr - 1)} and ( team.id gt 0 or tt.id gt 0 )`;
                     break;
 
 
             case 'persons':
-                    this.query = 'model=workitem'
+                    Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title`
                     + `&join=worker.businessrelationid eq businessrelation.id`
                     + `&expand=workrelation.worker,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)}`;
+                    + `&orderby=year(date) desc,month(date)`;
+                    //+ `&filter=year(date) ge ${(yr - 1)}`;
+                    OdataFilter = `year(date) ge ${(yr - 1)}`;
                     break;
 
             case 'customers':
-                    this.query = 'model=workitem'
+                    Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.name as title`
                     + `&expand=customer.info,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)} and customerid gt 0`;
+                    + `&orderby=year(date) desc,month(date)`;
+                    //+ `&filter=year(date) ge ${(yr - 1)} and customerid gt 0`;
+                    OdataFilter = `year(date) ge ${(yr - 1)} and customerid gt 0`;
                     break;
 
             case 'projects':
-                    this.query = 'model=workitem'
+                    Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.projectname as title,sum(minutes)`
                     + `&expand=dimensions.info,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`
-                    + `&filter=year(date) ge ${(yr - 1)} and dimensions.projectid gt 0`;
+                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
+                    //+ `&filter=year(date) ge ${(yr - 1)} and dimensions.projectid gt 0`;
+                    OdataFilter = `year(date) ge ${(yr - 1)} and dimensions.projectid gt 0`;
                     break;
 
             case 'orders':
-                    this.query = 'model=workitem'
+                    Odata = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,customerorder.customername as title,sum(minutes)`
                     + `&expand=customerorder,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`
-                    + `&filter=year(date) ge ${(yr - 1)} and customerorderid gt 0`;
+                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
+                    //+ `&filter=year(date) ge ${(yr - 1)} and customerorderid gt 0`;
+                    OdataFilter = `year(date) ge ${(yr - 1)} and customerorderid gt 0`;
                     break;
         }
 
         if (state.year) {
-            this.query += ` and year(date) eq ${parseInt(state.year, 10)}`;
+            OdataFilter += ` and year(date) eq ${parseInt(state.year, 10)}`;
         }
 
         if (state.month) {
-            this.query += ` and month(date) eq ${parseInt(state.month, 10)}`;
+            OdataFilter += ` and month(date) eq ${parseInt(state.month, 10)}`;
         }
 
         if (this.isFilteredByTransfer) {
-            this.query += ` and transferedtoorder eq 0`;
+            OdataFilter += ` and transferedtoorder eq 0`;
         }
 
         if (this.isFilteredByInvoicable) {
-            this.query += ` and worktype.productid gt 0`;
+            OdataFilter += ` and worktype.productid gt 0`;
         }
 
-        this.query += ` and year(date) le ${yr}`;
+        this.query = `${Odata}&filter=${OdataFilter} and year(date) le ${yr}`;
 
         this.refreshData();
     }
@@ -319,11 +291,14 @@ export class HourTotals {
         });
     }
 
-    openDrilldownModal(row, col, index) {
-        const modalOptions = {
+    openDrilldownModal(row: IReportRow, col: IQueryData, index: number) {
+        const input: HourReportInput = {
+            data: col,
+            groupBy: this.activeGroup,
+            odataFilter: this.currentOdataFilter
         };
 
-        this.modalService.open(HourTotalsDrilldownModal, {data: modalOptions});
+        this.modalService.open(HourTotalsDrilldownModal, {data: input});
     }
 
 }
