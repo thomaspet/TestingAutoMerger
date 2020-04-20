@@ -60,7 +60,7 @@ class ReportRow implements IReportRow {
 export class HourTotals {
     onDestroy$ = new Subject();
 
-    private filter: string;
+    private query: string;
     public busy: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
@@ -78,7 +78,7 @@ export class HourTotals {
     public numberFormat2 = '';
     private currentYear: number;
 
-    filters = [
+    groups = [
         { label: 'Timearter', name: 'worktypes' },
         { label: 'Kunder', name: 'customers' },
         { label: 'Ordre', name: 'orders' },
@@ -86,7 +86,7 @@ export class HourTotals {
         { label: 'Medarbeidere', name: 'persons' },
         { label: 'Team', name: 'teams' },
     ];
-    activeFilter = this.filters[0];
+    activeGroup = this.groups[0];
 
     constructor(
         private pageState: PageStateService,
@@ -106,11 +106,11 @@ export class HourTotals {
     public ngOnInit() {
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const filterName = this.pageState.getPageState().groupby;
-        this.onActiveFilterChange(this.getFilterByName(filterName) || this.filters[0]);
+        this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
     }
 
     getFilterByName(name: string) {
-        return this.filters.find( x => x.name === name);
+        return this.groups.find( x => x.name === name);
     }
 
     ngOnDestroy() {
@@ -118,14 +118,14 @@ export class HourTotals {
         this.onDestroy$.complete();
     }
 
-    public onActiveFilterChange(filter) {
-        this.pageState.setPageState('groupby', filter.name);
-        this.activeFilter = filter;
-        this.createFilter(filter.name);
+    public onActiveGroupChange(group) {
+        this.pageState.setPageState('groupby', group.name);
+        this.activeGroup = group;
+        this.createFilter(group.name);
     }
 
     public onCheckInvoiced() {
-        this.createFilter(this.activeFilter.name);
+        this.createFilter(this.activeGroup.name);
     }
 
     private createFilter(name: string) {
@@ -149,7 +149,7 @@ export class HourTotals {
         switch (name) {
             default:
             case 'worktypes':
-                this.filter = 'model=workitem'
+                this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,worktype.name as title`
                     + `&expand=${expandMacro}`
                     + `&orderby=year(date) desc,month(date),worktype.name`
@@ -157,7 +157,7 @@ export class HourTotals {
                     break;
 
             case 'teams':
-                    this.filter = 'model=workitem'
+                    this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title`
                     + `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
                     + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
@@ -167,7 +167,7 @@ export class HourTotals {
 
 
             case 'persons':
-                    this.filter = 'model=workitem'
+                    this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title`
                     + `&join=worker.businessrelationid eq businessrelation.id`
                     + `&expand=workrelation.worker,${expandMacro}`
@@ -176,7 +176,7 @@ export class HourTotals {
                     break;
 
             case 'customers':
-                    this.filter = 'model=workitem'
+                    this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.name as title`
                     + `&expand=customer.info,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`
@@ -184,7 +184,7 @@ export class HourTotals {
                     break;
 
             case 'projects':
-                    this.filter = 'model=workitem'
+                    this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.projectname as title,sum(minutes)`
                     + `&expand=dimensions.info,${expandMacro}`
                     + `&orderby=year(date) desc,month(date),sum(minutes) desc`
@@ -192,7 +192,7 @@ export class HourTotals {
                     break;
 
             case 'orders':
-                    this.filter = 'model=workitem'
+                    this.query = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,customerorder.customername as title,sum(minutes)`
                     + `&expand=customerorder,${expandMacro}`
                     + `&orderby=year(date) desc,month(date),sum(minutes) desc`
@@ -201,29 +201,29 @@ export class HourTotals {
         }
 
         if (state.year) {
-            this.filter += ` and year(date) eq ${parseInt(state.year, 10)}`;
+            this.query += ` and year(date) eq ${parseInt(state.year, 10)}`;
         }
 
         if (state.month) {
-            this.filter += ` and month(date) eq ${parseInt(state.month, 10)}`;
+            this.query += ` and month(date) eq ${parseInt(state.month, 10)}`;
         }
 
         if (this.isFilteredByTransfer) {
-            this.filter += ` and transferedtoorder eq 0`;
+            this.query += ` and transferedtoorder eq 0`;
         }
 
         if (this.isFilteredByInvoicable) {
-            this.filter += ` and worktype.productid gt 0`;
+            this.query += ` and worktype.productid gt 0`;
         }
 
-        this.filter += ` and year(date) le ${yr}`;
+        this.query += ` and year(date) le ${yr}`;
 
         this.refreshData();
     }
 
     private refreshData() {
         this.busy = true;
-        this.getStatistics(this.filter)
+        this.getStatistics(this.query)
         .finally( () => this.busy = false)
         .subscribe( result => {
             this.report = this.buildReport(result);
@@ -278,7 +278,7 @@ export class HourTotals {
 
             // Title
             csv.push( utils.createRow(colCount, '', `Timerapport ${this.currentYear}` ));
-            csv.push(utils.createRow(colCount, '', 'Fordeling: ' + this.activeFilter.label));
+            csv.push(utils.createRow(colCount, '', 'Fordeling: ' + this.activeGroup.label));
             if (this.isFilteredByInvoicable) {
                 csv.push(utils.createRow(colCount, '', 'Utvalg:', 'fakturerbare timer (timeart knyttet til produkt)'));
             }
@@ -289,7 +289,7 @@ export class HourTotals {
             this.report.forEach( group => {
 
                 const record = [];
-                record.push(this.activeFilter.label + ' - ' + group.title);
+                record.push(this.activeGroup.label + ' - ' + group.title);
                 record.push('Sum');
                 group.columns.forEach(element => {
                     record.push(element);
@@ -313,7 +313,7 @@ export class HourTotals {
                 csv.push(utils.createRow(colCount, ''));
             });
             utils.exportToFile(utils.arrayToCsv(csv, undefined, undefined, undefined, false),
-                `Timerapport_${this.activeFilter.label}.csv`);
+                `Timerapport_${this.activeGroup.label}.csv`);
 
             resolve(true);
         });

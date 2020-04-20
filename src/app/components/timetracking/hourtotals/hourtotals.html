@@ -7,9 +7,9 @@
 
     <section class="toolbar">
         <mat-form-field>
-            <mat-select [value]="activeFilter" (valueChange)="onActiveFilterChange($event)" placeholder="Fordeling">
-                <mat-option *ngFor="let filter of filters" [value]="filter">
-                    {{ filter.label }}
+            <mat-select [value]="activeGroup" (valueChange)="onActiveGroupChange($event)" placeholder="Fordeling">
+                <mat-option *ngFor="let group of groups" [value]="group">
+                    {{ group.label }}
                 </mat-option>
             </mat-select>
         </mat-form-field>
@@ -43,7 +43,7 @@
         <div *ngFor="let group of report">
             <table class="report">
                 <thead><tr>
-                    <th>{{activeFilter.label}} i {{group.title}}</th>
+                    <th>{{activeGroup.label}} i {{group.title}}</th>
                     <th>Sum</th>
                     <th class="prc">%</th>
                     <th *ngFor="let hc of group.columns">{{hc}}</th>
