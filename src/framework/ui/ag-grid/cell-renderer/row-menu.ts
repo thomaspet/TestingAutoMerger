@@ -7,7 +7,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     selector: 'row-menu',
     template: `
         <span class="row-menu-container" (click)="$event.stopPropagation()">
-            <i class="material-icons"
+            <i class="material-icons-outlined"
                 *ngIf="deleteButtonAction"
                 (click)="deleteButtonAction(rowData)">
 

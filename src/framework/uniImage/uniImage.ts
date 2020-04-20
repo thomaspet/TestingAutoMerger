@@ -76,6 +76,7 @@ export class UniImage {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileID: number;
     @Input() fileIDs: number[] = [];
+    @Input() hideUploadInput: boolean;
 
     @Output() fileListReady: EventEmitter<FileExtended[]> = new EventEmitter();
     @Output() imageDeleted: EventEmitter<FileExtended> = new EventEmitter();
@@ -606,7 +607,7 @@ export class UniImage {
         return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer;
     }
 
-    public uploadFileChange(event) {
+    public onUploadInputChange(event) {
         const source = event.srcElement || event.target;
 
         if (!this.uploadWithoutEntity && (!this.entity || !this.isDefined(this.entityID))) {

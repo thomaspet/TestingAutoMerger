@@ -11,7 +11,6 @@ export const theme = {
 
     translationOverrides: TRANSLATION_OVERRIDES,
     dashboardConfig: DASHBOARD_CONFIG,
-    showSignupLink: false,
     chatbotIcon: undefined,
 
     init: {

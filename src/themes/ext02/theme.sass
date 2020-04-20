@@ -19,15 +19,15 @@
     src: url(/themes/ext02/DNB-Bold.woff2) format("woff2")
     font-weight: bold
 
+$theme-has-good-btn: false
 $btn-inversed-hover-state: true
 $secondary-btn-grey-border: false
-$theme-has-good-btn: false
+$hide-input-outline: true
 
 body
-    // --font-family: 'Roboto', sans-serif, arial
     --font-family: DNB, arial, sans-serif
-    --body-background: #fff
-    --core-border: #EDEDED
+    --body-background: #fafafa
+    --core-border-color: rgb(205, 205, 205)
     --border-color: #A5E1D2
 
     --link-color: #007272
@@ -48,7 +48,8 @@ body
     --company-dropdown-color: #007272
 
     --tabstrip-background: #fff
-    --tabstrip-color: #2b2b2b
+    --tabstrip-header-color: #333
+    --tabstrip-header-weight: 500
     --tabstrip-link-color: #333333
     --tabstrip-active-link-color: #007272
 
@@ -66,11 +67,9 @@ body
 
     --toolbar-background: #fff
     --toolbar-header-color: #00343E
-    --toolbar-icon-color: #007272
     --toolbar-breadcrumb-color: #007272
-
-    --toolbar-button-border: 1px solid #008484
-    --toolbar-button-color: #007272
+    --toolbar-button-border: inset 0 0 0 1px #008484
+    --toolbar-button-border-focus: inset 0 0 0 2px #008484
 
     --button-radius: 50px
     --section-radius: 4px
@@ -80,12 +79,12 @@ body
     --input-border-color: #008484
     --input-border-color-focus: #008484
     --input-icon-color: #14555A
-    --input-outline: none
     --input-color: #14555A
+    --input-radius: 5px
 
     --color-c2a: #007272
     --color-c2a-dark: #005959
-    --color-good: #01A901
+    --color-good: #007272
     --color-bad: #D63731
     --color-bad-light: #F8598B
     --color-warn: #FF9E2C
@@ -123,11 +122,11 @@ body
     --table-header-color: #14555A
     --table-row-even-background: #fff
     --table-row-odd-background: #F4FBF9
-    --table-row-select-background: #F4FBF9
+    --table-row-select-background: #E9F8F4
     --table-icon-color: #007272
-    --table-border: unset
-    --row-border: 1px solid var(--core-color)
-    --cell-border: unset
+    --table-border: 1px solid var(--border-color)
+    --row-border: 1px solid var(--border-color)
+    --cell-border: none
 
     --alert-info: #DAEEFF
     --alert-good: #DAF0CD
@@ -137,8 +136,8 @@ body
     --toast-info: #DAEEFF
     --toast-info-text: var(--text-color)
 
-    --toast-good: #01A901
-    --toast-good-text: #fff
+    --toast-good: #D2F0E9
+    --toast-good-text: #333
 
     --toast-warn: #FAB86B
     --toast-warn-text: var(--text-color)
@@ -152,3 +151,9 @@ body
 
     --chat-header-background: #007272
     --panel-header-background: #D2F0E9
+
+    --card-header-height: 3rem
+    --card-header-border: 1px solid var(--border-color)
+    --card-header-color: #00343E
+    --card-header-font-size: 16px
+    --card-header-weight: 500

@@ -128,24 +128,21 @@ tof-customer-card
             color: var(--color-bad)
 
 .tradeitem-container
-    margin-right: 0
-
-    uni-tradeitem-table
-        display: block
-
     .freetext-and-summary
         display: flex
         justify-content: space-between
+        margin-top: 1rem
         padding-bottom: 1rem
 
         .freetext
             flex: 1
-            max-width: 35rem
+            max-width: 30rem
             span
                 display: block
                 margin: 0 0 .25rem 2px
                 font-weight: 500
                 font-size: 14px
+                color: var(--card-header-color)
 
         .tof-summary
             display: flex
@@ -156,6 +153,7 @@ tof-customer-card
                 margin-top: .25rem
                 font-size: 14px
             .vertical-summary
+                background: #fff
                 flex: 0 0 auto
-                min-width: 25rem
-                margin-left: 2rem
+                min-width: 23rem
+                margin-left: 4rem

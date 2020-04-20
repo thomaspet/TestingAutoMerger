@@ -5,11 +5,15 @@ import {NavbarLinkService} from '@app/components/layout/navbar/navbar-link-servi
 @Component({
     selector: 'uni-breadcrumbs',
     template: `
-        <ol class="breadcrumbs" role="navigation">
-            <li *ngFor="let crumb of crumbs">
+        <ul class="breadcrumbs" role="navigation">
+            <li *ngFor="let crumb of crumbs; let idx = index">
+                <i class="material-icons" *ngIf="idx > 0">
+                    chevron_right
+                </i>
+
                 <a [routerLink]="crumb.url">{{ crumb.name | translate }}</a>
             </li>
-        </ol>
+        </ul>
     `
 })
 export class UniBreadcrumbs {

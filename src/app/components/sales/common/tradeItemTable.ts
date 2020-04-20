@@ -41,7 +41,7 @@ import {ToastType, ToastService} from '@uni-framework/uniToast/toastService';
     selector: 'uni-tradeitem-table',
     template: `
         <ag-grid-wrapper *ngIf="showTable && settings"
-            class="selection-disabled"
+            class="selection-disabled borders"
             [(resource)]="items"
             [config]="tableConfig"
             (rowChange)="onRowChange($event)"

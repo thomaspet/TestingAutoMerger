@@ -31,16 +31,25 @@ uni-bill
 			max-height: calc(100vh - 14rem)
 			position: relative
 
-			.get-from-inbox
-				position: absolute
-				cursor: pointer
-				padding: 0
-				top: .45rem
-				right: 10rem
-				color: #60656a
-				i.material-icons
+			header
+				display: flex
+				span
+					font-weight: 400
+					color: var(--color-c2a)
+
+				uni-icon
 					color: var(--color-c2a)
 					vertical-align: middle
+					width: 16px
+					margin-right: 4px
+					margin-bottom: 3px
+
+				.get-from-inbox
+					cursor: pointer
+					margin: 0 2rem 0 auto
+
+				.upload-input
+					margin-bottom: 0
 
 			uni-image
 				display: flex
@@ -48,10 +57,8 @@ uni-bill
 				max-height: 95%
 				padding-right: 0
 
-				.upload-input
-					position: absolute
-					top: -2rem
-					right: 2rem
+				.image-section
+					border: none
 
 				.uniImage
 					overflow: auto

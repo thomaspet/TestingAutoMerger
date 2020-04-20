@@ -43,34 +43,44 @@ ag-grid-wrapper
 
 // Borders
 ag-grid-wrapper
+
+    .ag-body-container.ag-layout-auto-height
+        min-height: 45px !important
+
     .ag-header
         border-bottom: var(--table-border)
     .ag-row
         border-bottom: var(--row-border)
 
-    &.borders ag-grid-angular:not(.editable)
+    &.borders ag-grid-angular
         .ag-header
             border: var(--table-border)
-            border-top-left-radius: 3px
-            border-top-right-radius: 3px
+            // border-bottom: none
+            border-top-left-radius: var(--section-radius)
+            border-top-right-radius: var(--section-radius)
         .ag-body
             background: #fff
             border: var(--table-border)
             border-top: none
-            border-bottom-left-radius: 4px
-            border-bottom-right-radius: 4px
+            border-bottom-left-radius: var(--section-radius)
+            border-bottom-right-radius: var(--section-radius)
             overflow: hidden // to avoid rows clipping the border radius
 
     ag-grid-angular.editable
         .ag-header
-            border-top: var(--table-border)
-        .ag-body-container .ag-cell,
-        .ag-header-container .ag-header-cell
-            border-left: 1px solid var(--table-border)
+            border-bottom: none
+        .ag-row
+            border-bottom: none
+            border-top: var(--row-border)
+
+        .ag-cell + .ag-cell,
+        .ag-header-cell + .ag-header-cell
+            border-left: var(--cell-border)
+
         .ag-pinned-right-header,
         .ag-pinned-right-cols-container
-            border-left: 1px solid var(--table-border)
-            border-right: 1px solid var(--table-border)
+            border-left: var(--cell-border)
+
 
 ag-grid-angular
     width: 100%

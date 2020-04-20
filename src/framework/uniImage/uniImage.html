@@ -1,5 +1,5 @@
 <!--Upload input -->
-<label *ngIf="!readonly && !uploadConfig?.isDisabled && !uploading" class="upload"
+<label *ngIf="!hideUploadInput && !readonly && !uploadConfig?.isDisabled && !uploading" class="upload"
     class="upload-input"
     [attr.aria-disabled]="uploadConfig?.isDisabled || uploading"
     (drop)="onDrop($event, dropData)">
@@ -8,7 +8,7 @@
     <span>Last opp</span>
 
     <input type="file"
-        (change)="uploadFileChange($event)"
+        (change)="onUploadInputChange($event)"
         [attr.aria-disabled]="uploadConfig?.isDisabled"
         [disabled]="uploadConfig?.isDisabled"
     />

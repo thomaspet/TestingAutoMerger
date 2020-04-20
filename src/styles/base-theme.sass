@@ -1,11 +1,12 @@
+$theme-has-good-btn: true
 $btn-inversed-hover-state: false
 $secondary-btn-grey-border: true
-$theme-has-good-btn: true
+$hide-input-outline: false
 
 body
     --font-family: 'Roboto', sans-serif, arial
     --body-background: #f5f6f8
-    --core-color: #D2DAE2
+    --core-border-color: #D2DAE2
     --border-color: #D2DAE2
 
     --link-color: #2699fb
@@ -26,7 +27,7 @@ body
     --company-dropdown-color: #fff
 
     --tabstrip-background: #fff
-    --tabstrip-color: #2b2b2b
+    --tabstrip-header-color: #2b2b2b
     --tabstrip-link-color: #808080
     --tabstrip-active-link-color: #0070E0
 
@@ -43,11 +44,10 @@ body
 
     --toolbar-background: #fff
     --toolbar-header-color: var(--text-color)
-    --toolbar-icon-color: #0F519C
+    --tabstrip-header-weight: 400
     --toolbar-breadcrumb-color: var(--scale1)
-
-    --toolbar-button-border: 1px solid var(--border-color)
-    --toolbar-button-color: #0F519C
+    --toolbar-button-border: inset 0 0 0 1px var(--border-color)
+    --toolbar-button-border-focus: inset 0 0 0 1px var(--color-c2a)
 
     --button-radius: 3px
     --section-radius: 3px
@@ -57,8 +57,8 @@ body
     --input-border-color: var(--border-color)
     --input-border-color-focus: var(--border-color)
     --input-icon-color: var(--text-color)
-    --input-outline: default
     --input-color: var(--text-color)
+    --input-radius: 3px
 
     --color-c2a: #0070E0
     --color-c2a-dark: #123F9A
@@ -132,3 +132,9 @@ body
 
     --chat-header-background: #0070E0
     --panel-header-background: rgb(240, 240, 240)
+
+    --card-header-height: 2.5rem
+    --card-header-border: none
+    --card-header-color: unset
+    --card-header-font-size: 16px
+    --card-header-weight: 400

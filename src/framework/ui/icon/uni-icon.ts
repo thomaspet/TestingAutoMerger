@@ -1,4 +1,5 @@
 import {Component, Input, ChangeDetectionStrategy, ElementRef, HostBinding} from '@angular/core';
+import {SHARED_ICONS} from './shared-icons';
 import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
@@ -35,6 +36,9 @@ export class UniIcon {
                     this.svg = undefined;
                     this.matIcon = themeIcon;
                 }
+            } else if (SHARED_ICONS[this.icon]) {
+                this.svg = SHARED_ICONS[this.icon];
+                this.matIcon = undefined;
             } else {
                 this.svg = undefined;
                 this.matIcon = this.icon;

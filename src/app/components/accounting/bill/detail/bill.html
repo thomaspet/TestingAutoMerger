@@ -101,14 +101,30 @@
     </section>
 
     <section class="bill-right-side uni-container">
-        <header>Dokument ({{this.files?.length || 0}})</header>
+        <header>
+            Dokument ({{this.files?.length || 0}})
 
-        <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+            <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                <uni-icon [icon]="'download'"></uni-icon>
+                Hent fra innboks
+            </span>
+
+            <label class="upload-input">
+                <uni-icon [icon]="'upload'"></uni-icon>
+                <span>Last opp</span>
+                <input type="file" (change)="uniImage.onUploadInputChange($event)" />
+            </label>
+        </header>
+
+        <!-- <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
             <i class="material-icons">get_app</i>
             Hent fra innboks
-        </span>
+        </span> -->
 
-        <uni-image
+
+
+        <uni-image #uniImage
+            [hideUploadInput]="true"
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"

@@ -11,7 +11,8 @@
                 (rowSelectionChange)="onFileSelected($event)">
             </ag-grid-wrapper>
 
-            <uni-image *ngIf="selectedFile"
+            <uni-image class="border"
+                *ngIf="selectedFile"
                 [singleImage]="true"
                 [readonly]="true"
                 [uploadWithoutEntity]="true"

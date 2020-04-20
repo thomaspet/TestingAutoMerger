@@ -14,11 +14,14 @@
         margin-left: 1rem !important
 
     > header
-        height: 2.5rem
-        line-height: 2.5rem
+        display: flex
+        align-items: center
+        height: var(--card-header-height)
+        font-weight: var(--card-header-weight)
+        font-size: var(--card-header-font-size)
+        color: var(--card-header-color)
+        border-bottom: var(--card-header-border)
         padding: 0 1rem
-        font-weight: 400
-        font-size: 17px
         @media screen and (max-width: 1300px)
             font-size: 15px
 

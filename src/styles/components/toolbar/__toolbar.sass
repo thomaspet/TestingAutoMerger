@@ -16,7 +16,7 @@ uni-toolbar
     flex-direction: row
     align-items: center
     background: var(--toolbar-background)
-    border-bottom: 1px solid var(--core-border)
+    border-bottom: 1px solid var(--core-border-color)
 
     &.static
         position: static
@@ -162,12 +162,14 @@ uni-toolbar
     uni-context-menu .toggle-button,
     uni-comments .toggle-button
         background-color: #fff
-        border: var(--toolbar-button-border)
         margin-right: .5rem
-        color: var(--color-c2a)
         font-weight: 500
-        &:hover
-            border-color: var(--color-c2a)
+        color: var(--color-c2a)
+        border: none
+
+        box-shadow: var(--toolbar-button-border)
+        &:hover, &:focus
+            box-shadow: var(--toolbar-button-border-focus)
 
     .new-button i.material-icons
         font-size: 20px
