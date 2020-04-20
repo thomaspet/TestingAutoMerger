@@ -105,9 +105,17 @@ export class HourTotals {
             ? 'worktype.product'
             : 'worktype';
 
-        const baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
+        let baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
         let filter = '';
         let select = '';
+
+        if (this.input && this.input.groupBy) {
+            switch (this.input.groupBy.name) {
+                case 'worktypes':
+                    baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
+                    break;
+            }
+        }
 
         switch (name) {
             default:
@@ -176,7 +184,8 @@ export class HourTotals {
     }
 
     private addFilter(baseValue: string, value: string, operator: string = 'and'): string {
-        if (baseValue) { return  `${baseValue} ${operator} ${value}`; }
+        if (baseValue && value) { return  `${baseValue} ${operator} ${value}`; }
+        if (baseValue) { return baseValue; }
         return value;
     }
 
