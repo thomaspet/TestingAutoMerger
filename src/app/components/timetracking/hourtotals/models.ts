@@ -26,6 +26,8 @@ export interface IReportRow {
     sum: number;
     prc: number;
     items: Array<{tsum: number}>;
+    year: number;
+    id?: number;
 }
 
 export class ReportRow implements IReportRow {
@@ -33,13 +35,15 @@ export class ReportRow implements IReportRow {
     title: string;
     sum: number;
     prc: number;
+    year: number;
     items: Array<{tsum: number}>;
-    constructor(title: string, id?: number) {
+    constructor(title: string, year: number, id?: number) {
         this.title = title;
         this.items = utils.createRow(12, () => ({ tsum: 0 }));
         this.sum = 0;
         this.prc = 0;
         this.id = id;
+        this.year = year;
     }
 }
 

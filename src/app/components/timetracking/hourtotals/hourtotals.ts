@@ -210,7 +210,7 @@ export class HourTotals {
             if ((!level2) || level2.title !== item.title) {
                 level2 = level1.rows.find( x => x.title === item.title );
                 if (!level2) {
-                    level2 = new ReportRow(item.title, item.id);
+                    level2 = new ReportRow(item.title, item.yr, item.id);
                     level1.rows.push(level2);
                 }
             }
@@ -280,15 +280,13 @@ export class HourTotals {
         });
     }
 
-    openDrilldownModal(row: IReportRow, col: IQueryData, index: number) {
+    openDrilldownModal(row: IReportRow, cell: IQueryData, index: number) {
         const input: HourReportInput = {
-            cell: col,
+            cell: { tsum: cell.tsum, md: index + 1, yr: row.year, title: undefined },
             row: row,
             groupBy: this.activeGroup,
             odata: this.currentOdata
         };
-
-        console.log(input);
 
         this.modalService.open(HourTotalsDrilldownModal, {data: input});
     }
