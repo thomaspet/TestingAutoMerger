@@ -11,6 +11,7 @@ export interface IQueryData {
     md: number;
     tsum: number;
     title: string;
+    id?: number;
 }
 
 export interface IReport {
@@ -28,20 +29,23 @@ export interface IReportRow {
 }
 
 export class ReportRow implements IReportRow {
+    id?: number;
     title: string;
     sum: number;
     prc: number;
     items: Array<{tsum: number}>;
-    constructor(title: string) {
+    constructor(title: string, id?: number) {
         this.title = title;
         this.items = utils.createRow(12, () => ({ tsum: 0 }));
         this.sum = 0;
         this.prc = 0;
+        this.id = id;
     }
 }
 
 export class HourReportInput {
-    data: IQueryData;
+    cell: IQueryData;
+    row: IReportRow;
     groupBy: { name: string, label: string };
-    odataFilter: string;
+    odata: { query: string, filter: string };
 }
