@@ -938,7 +938,7 @@ export class BankComponent {
             }
 
             const modal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Ignorer betalinger',
+                header: 'Skjul innbetalingsposter',
                 warning: 'Det er kun innbetalingsposten som fjernes fra listen, bilaget vil ikke krediteres.',
                 message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',                
                 buttonLabels: {
