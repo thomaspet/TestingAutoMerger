@@ -591,9 +591,18 @@ export class TableDataService {
     }
 
     private getDateFilterString(filter, filterValue) {
-        const date1 = moment(filterValue, 'YYYY-MM-DD');
-        const date2 = moment(filterValue, 'YYYY-MM-DD').add(1, 'days');
-        return `(${filter.field} ge '${date1.format('YYYY-MM-DD')}' and ${filter.field} lt '${date2.format('YYYY-MM-DD')}')`;
+        const date = moment(filterValue, 'YYYY-MM-DD').format('YYYY-MM-DD');
+        const nextDay =  moment(filterValue, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD');
+
+        if (filter.operator === 'eq') {
+            return `(${filter.field} ge '${date}' and ${filter.field} lt '${nextDay}')`;
+        } else if (filter.operator === 'ne') {
+            return `(${filter.field} lt '${date}' or ${filter.field} ge '${nextDay}')`;
+        } else if (filter.operator === 'le') {
+            return `(${filter.field} lt '${nextDay}')`;
+        } else {
+            return `(${filter.field} ${filter.operator} '${date}')`;
+        }
     }
 
     private getFieldValue(field, operator) {
