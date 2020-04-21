@@ -35,9 +35,9 @@ import {
 } from '../../../services/services';
 import {EmployeeDetailsService} from './services/employeeDetailsService';
 import {Subscription} from 'rxjs';
-import {SalaryBalanceViewService} from '@app/components/salary/salarybalance/services/salaryBalanceViewService';
 import * as _ from 'lodash';
 import {tap, finalize, map, filter, switchMap} from 'rxjs/operators';
+import { SalaryBalanceViewService } from '../shared/services/salaryBalanceViewService';
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';

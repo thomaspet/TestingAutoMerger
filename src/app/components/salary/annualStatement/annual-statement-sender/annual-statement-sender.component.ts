@@ -1,5 +1,5 @@
 import {Component, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
-import {EmployeeReportPickerListComponent} from '../../common/employee-report-picker-list/employee-report-picker-list.component';
+import {EmployeeReportPickerListComponent} from '../../shared/components/employee-report-picker-list/employee-report-picker-list.component';
 import {
     ErrorService, EmployeeService, AnnualStatementService, ReportNames,
     IAnnualStatementEmailInfo, BrowserStorageService, FinancialYearService, CompanySettingsService

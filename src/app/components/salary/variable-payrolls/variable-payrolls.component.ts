@@ -24,7 +24,7 @@ import {
 import {UniSalaryTransactionModal} from './editSalaryTransactionModal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions, UniConfirmModalV2, IModalOptions } from '@uni-framework/uni-modal';
-import { SalaryTransViewService } from '../sharedServices/salaryTransViewService';
+import { SalaryTransViewService } from '../shared/services/salaryTransViewService';
 import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
 import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals/ImageModal';
 import { ActivatedRoute, Router } from '@angular/router';

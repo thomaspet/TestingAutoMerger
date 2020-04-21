@@ -5,15 +5,17 @@ import { RegulativeGroup } from '@uni-entities';
 import {
     RegulativeUploadModalComponent,
     IRegulativeUploadResult
-} from '@app/components/salary/modals/regulative-upload-modal/regulative-upload-modal.component';
+} from '@app/components/salary/shared/components/regulative-upload-modal/regulative-upload-modal.component';
 import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
 import { filter, map, switchMap, finalize, tap, catchError } from 'rxjs/operators';
 import { StatisticsService, PageStateService, ErrorService } from '@app/services/services';
 import { forkJoin, Observable } from 'rxjs';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
-import { NewRegulativeModalComponent, NewRegulativeActions } from '../modals/new-regulative-modal/new-regulative-modal.component';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { IUniSaveAction } from '@uni-framework/save/save';
+import {
+    NewRegulativeModalComponent, NewRegulativeActions
+} from '../shared/components/new-regulative-modal/new-regulative-modal.component';
 @Component({
   selector: 'uni-regulative-group-list',
   templateUrl: './regulative-group-list.component.html',

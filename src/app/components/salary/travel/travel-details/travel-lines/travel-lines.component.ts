@@ -7,7 +7,7 @@ import {WageTypeService, AccountService, TravelTypeService} from '@app/services/
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import {TravelLineService} from '@app/services/salary/travel/travelLineService';
-import {SalaryTransViewService} from '@app/components/salary/sharedServices/salaryTransViewService';
+import {SalaryTransViewService} from '@app/components/salary/shared/services/salaryTransViewService';
 const DIRTY = '_isDirty';
 
 @Component({

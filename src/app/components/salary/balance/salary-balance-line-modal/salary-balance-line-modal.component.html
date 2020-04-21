@@ -1,0 +1,10 @@
+<section role="dialog" class="uni-modal">
+    <header>Legge til manuelt trekk</header>
+    <article>
+        <uni-salary-balance-line [salarybalance]="options.data" (linesSaved)="close(true)"></uni-salary-balance-line>
+    </article>
+    <footer>
+        <button class="good" (click)="saveSalaryBalanceLine()">Lagre</button>
+        <button class="bad" (click)="close(false)">Lukk</button>
+    </footer>
+</section>

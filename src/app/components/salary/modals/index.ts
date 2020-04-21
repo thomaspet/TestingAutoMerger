@@ -1,3 +1,3 @@
-export * from './salaryTransSupplementsModal';
-export * from './reconciliation-modal/reconciliation-modal.component';
-export * from './reconciliation-response-modal/reconciliation-response-modal.component';
+export * from '../shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
+export * from '../amelding/reconciliation-modal/reconciliation-modal.component';
+export * from '../amelding/reconciliation-response-modal/reconciliation-response-modal.component';
