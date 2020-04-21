@@ -1991,10 +1991,11 @@ export class BillView implements OnInit {
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
-        current.DefaultDimensions.ProjectID = result.Dimensions.ProjectID;
-        current.DefaultDimensions.DepartmentID = result.Dimensions.DepartmentID;
+        current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
+        current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
-            current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
+            const dimensions = result?.Dimensions || {};
+            current.DefaultDimensions[`Dimension${i}ID`] = dimensions[`Dimension${i}ID`] ||  null;
         }
         this.current.next(current);
 
@@ -3059,13 +3060,13 @@ export class BillView implements OnInit {
             line.CurrencyExchangeRate = supplierInvoice.CurrencyExchangeRate;
 
             if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
-                line.Dimensions.Project = supplierInvoice.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = supplierInvoice.DefaultDimensions.ProjectID;
+                line.Dimensions.Project = supplierInvoice?.DefaultDimensions?.Project;
+                line.Dimensions.ProjectID = supplierInvoice?.DefaultDimensions?.ProjectID;
             }
 
             if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
-                line.Dimensions.Department = supplierInvoice.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = supplierInvoice.DefaultDimensions.DepartmentID;
+                line.Dimensions.Department = supplierInvoice?.DefaultDimensions?.Department;
+                line.Dimensions.DepartmentID = supplierInvoice?.DefaultDimensions?.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {
