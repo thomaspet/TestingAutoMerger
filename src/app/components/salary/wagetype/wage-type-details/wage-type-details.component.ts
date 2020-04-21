@@ -1,17 +1,15 @@
-import {Component, ViewChild, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {WageTypeService, AccountService, InntektService, WageTypeBaseOptions} from '../../../../services/services';
-import {UniForm, UniFieldLayout} from '../../../../../framework/ui/uniform/index';
-import {
-        WageType, WageTypeSupplement, SpecialTaxAndContributionsRule, GetRateFrom, TaxType, code, CompanySalary
-    } from '../../../../unientities';
+import {WageTypeService, AccountService, InntektService, WageTypeBaseOptions, UniCacheService, ErrorService, PageStateService} from '@app/services/services';
 import {Observable} from 'rxjs';
-import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../../framework/ui/unitable/index';
 
-import {UniView} from '../../../../../framework/core/uniView';
-import {UniCacheService, ErrorService, PageStateService} from '../../../../services/services';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {BehaviorSubject} from 'rxjs';
+import { UniFieldLayout, UniForm } from '@uni-framework/ui/uniform';
+import { UniView } from '@uni-framework/core/uniView';
+import { WageType, code, GetRateFrom, TaxType, WageTypeSupplement } from '@uni-entities';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { WageTypeViewService } from '../services/wageTypeViewService';
 
 const WAGETYPE_KEY = 'wagetype';
 
@@ -19,6 +17,7 @@ interface IValidValuesFilter {
     IncomeType?: string;
     Benefit?: string;
     Description?: string;
+    taxAndContributionRule?: string;
 }
 
 interface IIncomeType {
@@ -40,12 +39,13 @@ interface IUniFormTabEvent {
     next: UniFieldLayout;
 }
 
-
 @Component({
-    selector: 'wagetype-details',
-    templateUrl: './wagetypeDetails.html'
+  selector: 'uni-wage-type-details',
+  templateUrl: './wage-type-details.component.html',
+  styleUrls: ['./wage-type-details.component.sass']
 })
-export class WagetypeDetail extends UniView {
+export class WageTypeDetailsComponent extends UniView {
+
     private aMeldingHelp: string = 'https://www.skatteetaten.no/bedrift-og-organisasjon/arbeidsgiver/a-meldingen/veiledning/';
     public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     private wagetypeID: number;
@@ -92,13 +92,13 @@ export class WagetypeDetail extends UniView {
     constructor(
         private route: ActivatedRoute,
         private router: Router,
-        private wageService: WageTypeService,
         private inntektService: InntektService,
         public cacheService: UniCacheService,
         private errorService: ErrorService,
-        private wagetypeService: WageTypeService,
+        private wageTypeService: WageTypeService,
         private tabService: TabService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private wageTypeViewService: WageTypeViewService,
     ) {
 
         super(router.url, cacheService);
@@ -154,12 +154,12 @@ export class WagetypeDetail extends UniView {
 
     private getSetupSources(wageType: WageType) {
         const sources = [
-            <Observable<any>>this.wageService.layout('WagetypeDetails', this.wageType$),
+            <Observable<any>>this.wageTypeService.layout('WagetypeDetails', this.wageType$),
             this.inntektService.getSalaryValidValueTypes()
         ];
 
         if (wageType.WageTypeNumber) {
-            sources.push(this.wageService.usedInPayrollrun(wageType.WageTypeNumber));
+            sources.push(this.wageTypeService.usedInPayrollrun(wageType.WageTypeNumber));
         }
         return sources;
     }
@@ -182,7 +182,7 @@ export class WagetypeDetail extends UniView {
 
     private extendFields(calculatedRun: boolean, fields: any[], wageType: WageType) {
         this.basePayment = wageType.Base_Payment;
-        fields = this.wageService.manageReadOnlyIfCalculated(fields, calculatedRun);
+        fields = this.wageTypeService.manageReadOnlyIfCalculated(fields, calculatedRun);
         this.setReadOnlyOnField(fields, 'Rate', this.rateIsReadOnly);
         this.setReadOnlyOnField(fields, 'WageTypeNumber', !!wageType.ID);
         this.setReadOnlyOnField(fields, 'AccountNumber_balance', wageType.Base_Payment);
@@ -321,7 +321,9 @@ export class WagetypeDetail extends UniView {
         const filter: IValidValuesFilter = {
             IncomeType: (wageType && wageType.IncomeType) || '',
             Benefit: (wageType && wageType.Benefit) || '',
-            Description: (wageType && wageType.Description) || ''
+            Description: (wageType && wageType.Description) || '',
+            taxAndContributionRule: this.wageTypeViewService
+                .getTaxAndContributionRuleAmeldingName(wageType && wageType.SpecialTaxAndContributionsRule)
         };
         fields = fields || this.fields$.getValue();
 
@@ -407,6 +409,7 @@ export class WagetypeDetail extends UniView {
 
             if (incometypeChild
                 && filter.Benefit
+                // && !filter.Description
                 && filter.Benefit.toLowerCase() !== 'fradrag'
                 && filter.Benefit.toLowerCase() !== 'forskuddstrekk') {
                 incometypeChild = tp.fordel === filter.Benefit ? incometypeChild : undefined;
@@ -420,10 +423,10 @@ export class WagetypeDetail extends UniView {
         return incometypeChild;
     }
 
-    private updateForSkatteOgAvgiftregel(supplementPackages: any[]) {
+    private updateForSkatteOgAvgiftregel(supplementPackages: any[], rule: string) {
         const filtered: any[] = [];
         supplementPackages.forEach(pack => {
-            if (pack.skatteOgAvgiftregel === null) {
+            if (pack.skatteOgAvgiftregel === rule) {
                 filtered.push(pack);
             }
         });
@@ -435,7 +438,7 @@ export class WagetypeDetail extends UniView {
     private setupTilleggsPakker(supplementPackages: code[], filter: IValidValuesFilter) {
         let packs: any[] = [];
         // Ta bort alle objekter som har 'skatteOgAvgiftsregel' som noe annet enn null
-        supplementPackages = this.updateForSkatteOgAvgiftregel(supplementPackages);
+        supplementPackages = this.updateForSkatteOgAvgiftregel(supplementPackages, filter.taxAndContributionRule);
 
         supplementPackages.forEach(tp => {
             const incometypeChild: any = this.getIncometypeChildObject(tp, filter);
@@ -478,7 +481,7 @@ export class WagetypeDetail extends UniView {
                                     wtSupp.ameldingType = key;
                                     wtSupp.SuggestedValue = this.removeAndReturnValue(obj[prop]);
                                     wtSupp.WageTypeID = this.wageType$.getValue().ID;
-                                    wtSupp['_createguid'] = this.wageService.getNewGuid();
+                                    wtSupp['_createguid'] = this.wageTypeService.getNewGuid();
                                     additions.push(wtSupp);
                                 }
                             }
@@ -489,7 +492,7 @@ export class WagetypeDetail extends UniView {
                         wtSupp.ameldingType = key;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(obj);
                         wtSupp.WageTypeID = this.wageType$.getValue().ID;
-                        wtSupp['_createguid'] = this.wageService.getNewGuid();
+                        wtSupp['_createguid'] = this.wageTypeService.getNewGuid();
                         additions.push(wtSupp);
                     }
                 }
@@ -504,7 +507,7 @@ export class WagetypeDetail extends UniView {
                         wtSupp.Name = props;
                         wtSupp.SuggestedValue = this.removeAndReturnValue(spesiObj[props]);
                         wtSupp.WageTypeID = this.wageType$.getValue().ID;
-                        wtSupp['_createguid'] = this.wageService.getNewGuid();
+                        wtSupp['_createguid'] = this.wageTypeService.getNewGuid();
                         additions.push(wtSupp);
                     }
                 }
@@ -638,7 +641,7 @@ export class WagetypeDetail extends UniView {
                         wageType.WageTypeNumber = currVal;
                         this.busy = true;
 
-                        this.wagetypeService.getOrderByWageTypeNumber(
+                        this.wageTypeService.getOrderByWageTypeNumber(
                             `filter=WageTypeNumber eq ${currVal}`
                             + `&top=1&hateoas=false`, null, '&ValidYear desc')
                             .finally(() => this.busy = false)
@@ -676,7 +679,7 @@ export class WagetypeDetail extends UniView {
                 if (changes['_baseOptions']) {
                     const baseOptions = changes['_baseOptions'].currentValue;
                     this.setBaseOptionsOnWagetype(wageType, baseOptions);
-                    this.wagetypeService.wagetypeMaintainanceNotify(wageType);
+                    this.wageTypeService.wagetypeMaintainanceNotify(wageType);
                 }
 
                 if (changes['IncomeType']) {
@@ -700,7 +703,7 @@ export class WagetypeDetail extends UniView {
                     || changes['taxtype']
                     || changes['WageTypeNumber']
                     || changes['SupplementPackage']) {
-                    this.wagetypeService.wagetypeMaintainanceNotify(wageType);
+                    this.wageTypeService.wagetypeMaintainanceNotify(wageType);
                 }
 
                 return [wageType, fields];

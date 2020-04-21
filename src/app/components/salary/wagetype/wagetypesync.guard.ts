@@ -3,7 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angul
 import { Observable, of } from 'rxjs';
 import { StatisticsService, FinancialYearService } from '@app/services/services';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { SyncWagetypesModalComponent } from '../modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
+import { SyncWagetypesModalComponent } from '../shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
 import { map, switchMap, tap } from 'rxjs/operators';
 
 @Injectable()

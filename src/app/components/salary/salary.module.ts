@@ -50,18 +50,10 @@ import {SalaryTransactionEmployeeList} from './payrollrun/salarytrans/salarytran
 import {SalaryTransViewService} from './shared/services/salaryTransViewService';
 import {UniFindEmployeeModal} from './payrollrun/salarytrans/findEmployeeModal';
 
-import {
-    SalaryTransSupplementsModal,
-    ReconciliationModalComponent,
-    ReconciliationResponseModalComponent
-} from './modals';
-
-import { WageTypeView } from './wagetype/wagetypeView';
-import { WagetypeDetail } from './wagetype/views/wagetypeDetails';
-import { WageTypeSettings } from './wagetype/views/wagetypeSettings';
-import { WagetypeList } from './wagetype/wagetypeList';
-import { WageTypeViewService } from './wagetype/services/wageTypeViewService';
-import { WagetypeSyncGuard } from './wagetype/wagetypesync.guard';
+import {WageTypeView} from './wagetype/wagetypeView';
+import {WagetypeList} from './wagetype/wagetypeList';
+import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
+import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
 
 import { CategoryList } from './category/categoryList';
 import { CategoryView } from './category/categoryView';
@@ -102,7 +94,7 @@ import {
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import { SalaryHelperMethods } from './shared/services/salaryHelperMethods';
-import { SyncWagetypesModalComponent } from './modals/sync-wagetypes-modal/sync-wagetypes-modal.component';
+import { SyncWagetypesModalComponent } from './shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
 import { RegulativeUploadModalComponent } from './shared/components/regulative-upload-modal/regulative-upload-modal.component';
 import { RegulativeGroupListComponent } from './regulative/regulative-group-list.component';
 import { StatusAMeldingModal } from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
@@ -113,6 +105,8 @@ import { RegulativeDetailsComponent } from './regulative/regulative-details/regu
 import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
 import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
 import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.service';
+import { WageTypeDetailsComponent } from './wagetype/wage-type-details/wage-type-details.component';
+import { WageTypeSettingsComponent } from './wagetype/wage-type-settings/wage-type-settings.component';
 import { BalanceComponent } from './balance/balance.component';
 import { SalarybalanceTemplateListComponent } from './salary-balance-template/salarybalance-template-list/salarybalance-template-list.component';
 import { SalarybalanceTemplateDetailsComponent } from './salary-balance-template/salarybalance-template-details/salarybalance-template-details.component';
@@ -127,6 +121,9 @@ import { SalaryBalanceLineModalComponent } from './balance/salary-balance-line-m
 import { SalaryBalanceComponent } from './employee/salary-balance/salary-balance.component';
 import { SalaryBalanceViewService } from './shared/services/salaryBalanceViewService';
 import { ReconciliationRequestComponent } from './amelding/reconciliation-request/reconciliation-request.component';
+import { SalaryTransSupplementsModal } from './shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
+import { ReconciliationModalComponent } from './amelding/reconciliation-modal/reconciliation-modal.component';
+import { ReconciliationResponseModalComponent } from './amelding/reconciliation-response-modal/reconciliation-response-modal.component';
 
 @NgModule({
     imports: [
@@ -198,9 +195,9 @@ import { ReconciliationRequestComponent } from './amelding/reconciliation-reques
 
         // Wagetype
         WageTypeView,
-        WagetypeDetail,
+        WageTypeDetailsComponent,
+        WageTypeSettingsComponent,
         WagetypeList,
-        WageTypeSettings,
         SyncWagetypesModalComponent,
 
         // Category

@@ -1,18 +1,19 @@
-import {Component, ViewChild, SimpleChanges} from '@angular/core';
-import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {ActivatedRoute, Router} from '@angular/router';
-import {WageType, LimitType, StdWageType, SpecialAgaRule, TaxType} from '../../../../unientities';
-import {WageTypeService, UniCacheService, ErrorService, PageStateService} from '../../../../services/services';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
-import {UniView} from '../../../../../framework/core/uniView';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import { Component, OnInit, ViewChild, SimpleChanges } from '@angular/core';
+import { UniView } from '@uni-framework/core/uniView';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { WageType, LimitType, StdWageType, SpecialAgaRule, TaxType } from '@uni-entities';
+import { UniForm } from '@uni-framework/ui/uniform';
+import { ActivatedRoute, Router } from '@angular/router';
+import { WageTypeService, ErrorService, UniCacheService, PageStateService } from '@app/services/services';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
-    selector: 'uni-wagetype-settings',
-    templateUrl: './wagetypeSettings.html'
+  selector: 'uni-wage-type-settings',
+  templateUrl: './wage-type-settings.component.html',
+  styleUrls: ['./wage-type-settings.component.sass']
 })
-export class WageTypeSettings extends UniView {
+export class WageTypeSettingsComponent extends UniView {
+
     public wageType$: BehaviorSubject<WageType> = new BehaviorSubject(new WageType());
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({});

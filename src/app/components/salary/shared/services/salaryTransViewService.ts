@@ -7,7 +7,7 @@ import { VatType, LocalDate, SalaryTransaction, Valuetype,
 import { SupplementService, VatTypeService } from '@app/services/services';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { SalaryTransSupplementsModal } from '../../modals';
+import { SalaryTransSupplementsModal } from '../components/salaryTransSupplementModal/salaryTransSupplementsModal';
 
 @Injectable()
 export class SalaryTransViewService {
