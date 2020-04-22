@@ -573,7 +573,7 @@ export class WageTypeService extends BizHttp<WageType> {
                         }
                     },
                     ...this.getShipFields(compSal),
-                    ...this.getMacroFields()
+                    //...this.getMacroFields()
                 ]
             };
         });
