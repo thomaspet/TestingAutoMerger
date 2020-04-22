@@ -23,7 +23,7 @@ export class PaymentService extends BizHttp<Payment> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(paymentIDs)
-            .withEndPoint(this.relativeURL + '?action=create-payment-batch')
+            .withEndPoint(this.relativeURL + `?action=create-payment-batch&isManual=${isManual}`)
             .send()
             .map(response => response.body);
     }
