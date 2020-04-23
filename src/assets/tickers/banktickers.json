@@ -623,7 +623,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Sett til bokført og betalt",
+                "Name": "Endre status til bokført og betalt",
                 "Code": "set_to_paid",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,

@@ -450,7 +450,8 @@ export class BankComponent {
         if (selectedTickerCode === 'payment_list') {
             const hasActiveAgreement = this.agreements && this.agreements.length
             && this.agreements.filter((agreement: BankIntegrationAgreement) =>
-            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
+            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0
+            && this.isAutobankAdmin;
 
             this.actions.push({
                 label: 'Send alle til betaling',
@@ -518,7 +519,8 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaidAndJournaled(done);
                 },
-                disabled: this.rows.length === 0
+                main: this.rows.length > 0 && (this.filter !== "payed_not_journaled"),
+                disabled: this.rows.length === 0 || (this.filter == "payed_not_journaled")
             });
 
             this.actions.push({
@@ -527,6 +529,7 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
+                main: this.rows.length > 0 && (this.filter == "payed_not_journaled"),
                 disabled: this.rows.length === 0
             });
 
