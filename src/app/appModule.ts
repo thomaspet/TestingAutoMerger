@@ -17,6 +17,7 @@ import {ToastService} from '../framework/uniToast/toastService';
 
 import {UniFrameworkModule} from '../framework/frameworkModule';
 import {AuthService} from './authService';
+import {FeaturePermissionService} from './featurePermissionService';
 import {AuthGuard} from './authGuard';
 import {UniAngularErrorHandler} from './angularErrorHandler';
 import {CompanyKeyRouteGuard} from './companyKeyRouteGuard';
@@ -107,6 +108,7 @@ moment.locale('nb');
     bootstrap: [App],
     providers: [
         AuthService,
+        FeaturePermissionService,
         AuthGuard,
         CompanyKeyRouteGuard,
         RoutePermissionGuard,

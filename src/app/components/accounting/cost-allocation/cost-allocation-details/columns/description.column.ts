@@ -1,6 +1,6 @@
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { PredefinedDescription } from '@app/unientities';
-import { of } from 'rxjs/index';
+import { of } from 'rxjs';
 
 export const descriptionColumn = (predefinedDescriptions: PredefinedDescription[]) => {
     return new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Typeahead)

@@ -42,7 +42,6 @@
         [getRowClass]="rowClassResolver"
         [pinnedBottomRowData]="dataService?.sumRow$ | async"
         [suppressPropertyNamesCheck]="true"
-
         [rowModelType]="rowModelType"
         [domLayout]="(localData && !config?.isGroupingTicker && !config?.virtualScroll) ? 'autoHeight' : 'normal'"
 

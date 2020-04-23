@@ -22,6 +22,22 @@
             matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
             Kun for testing
         </section>
+
+        <section class="bundle-test" style="margin-left: 1rem;">
+            <a #trigger style="font-weight: 500; font-size: 15px; text-decoration: none;">
+                {{featurePermissionService?.mockActiveBundle?.label}}
+                <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
+            </a>
+            <dropdown-menu [trigger]="trigger" minWidth="8rem">
+                <ng-template>
+                    <section class="dropdown-menu-item"
+                        *ngFor="let bundle of featurePermissionService?.mockFeatureBundles"
+                        (click)="featurePermissionService.mockSetActiveBundle(bundle)">
+                        {{bundle.label}}
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+        </section>
     </section>
 
     <section class="navbar-right">

@@ -15,6 +15,7 @@ export interface ComboButtonAction {
     template: `
         <ng-container *ngIf="action">
             <button (click)="action.action()"
+                class="main-button"
                 [ngClass]="buttonClass"
                 [disabled]="action.disabled"
                 [attr.aria-busy]="busy">

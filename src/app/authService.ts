@@ -7,7 +7,11 @@ import { environment } from 'src/environments/environment';
 import { Company, UserDto, ContractLicenseType } from './unientities';
 import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, WebStorageStateStore } from 'oidc-client';
+import { UserManager, WebStorageStateStore, Log } from 'oidc-client';
+
+Log.logger = console;
+Log.level = Log.DEBUG;
+
 import * as moment from 'moment';
 
 export interface IAuthDetails {

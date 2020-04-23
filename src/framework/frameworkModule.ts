@@ -23,6 +23,7 @@ import {UniHttp} from './core/http/http';
 import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
+import {FeaturePermissionDirective} from './featurePermission.directive';
 
 import {UniModalService, MODALS, UniShowReinvoiceStatus} from './uni-modal';
 
@@ -72,6 +73,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniShowReinvoiceStatus,
         UniTabs,
         UniIcon,
+        FeaturePermissionDirective,
         ...MODALS
     ],
     providers: [
@@ -99,7 +101,6 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         AutocompleteModule,
         DatepickerModule,
 
-        // Components
         UniModal,
         UniSave,
         UniImage,
@@ -115,6 +116,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniComponentLoader,
         UniTabs,
         UniIcon,
+        FeaturePermissionDirective,
     ]
 })
 export class UniFrameworkModule {}

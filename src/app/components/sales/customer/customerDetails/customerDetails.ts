@@ -3,12 +3,10 @@ import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {UniForm, UniFieldLayout, FieldType, UniFormError} from '../../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {NavbarLinkService} from '../../../layout/navbar/navbar-link-service';
 import {
-    ComponentLayout,
     Customer,
-    Contact,
     Email,
     Phone,
     Address,
@@ -17,9 +15,10 @@ import {
     Terms,
     NumberSeries,
     Seller,
-    SellerLink,
     BankAccount,
-    Distributions
+    Distributions,
+    Department,
+    Project
 } from '../../../../unientities';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {IReference} from '../../../../models/iReference';
@@ -31,10 +30,8 @@ import {
     DepartmentService,
     ProjectService,
     CustomerService,
-    PhoneService,
     AddressService,
     EmailService,
-    BusinessRelationService,
     UniQueryDefinitionService,
     ErrorService,
     NumberFormat,
@@ -43,7 +40,6 @@ import {
     TermsService,
     UniSearchCustomerConfig,
     NumberSeriesService,
-    SellerLinkService,
     SellerService,
     BankAccountService,
     ModulusService,
@@ -102,8 +98,8 @@ export class CustomerDetails implements OnInit {
     @ViewChild(SubCompanyComponent, { static: true }) private subCompany: SubCompanyComponent;
 
     private customerID: any;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    public fields$ = new BehaviorSubject([]);
+    public customer$ = new BehaviorSubject<Customer>(null);
     public showReminderSection: boolean = false; // used in template
     public showContactSection: boolean = false; // used in template
     public showSellerSection: boolean = false; // used in template
@@ -113,12 +109,9 @@ export class CustomerDetails implements OnInit {
     public paymentTerms: Terms[];
     public deliveryTerms: Terms[];
     public numberSeries: NumberSeries[];
-    public dropdownData: any;
-    public customer$: BehaviorSubject<Customer> = new BehaviorSubject(null);
+    public departments: Department[];
+    public projects: Project[];
     public searchText: string;
-    public emptyPhone: Phone;
-    public emptyEmail: Email;
-    public emptyAddress: Address;
     public reportLinks: IReference[];
     private customDimensions: any[] = [];
 
@@ -267,7 +260,6 @@ export class CustomerDetails implements OnInit {
         private customerService: CustomerService,
         private router: Router,
         private route: ActivatedRoute,
-        private phoneService: PhoneService,
         private emailService: EmailService,
         private addressService: AddressService,
         private tabService: TabService,
@@ -292,7 +284,7 @@ export class CustomerDetails implements OnInit {
         private customDimensionService: CustomDimensionService,
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private companySettingsService: CompanySettingsService,
-        private translationService: UniTranslationService
+        private translationService: UniTranslationService,
     ) {}
 
     public ngOnInit() {
@@ -308,11 +300,11 @@ export class CustomerDetails implements OnInit {
 
                 this.tabs = [
                     {name: 'Detaljer'},
-                    {name: 'Utsendelse'},
+                    {name: 'Utsendelse', featurePermission: 'ui.distribution'},
                     {name: 'Åpne poster'},
                     {name: 'Produkter solgt'},
                     {name: 'Dokumenter'},
-                    {name: 'Selskap'},
+                    {name: 'Selskap', featurePermission: 'ui.sales.customer.sub_company'},
                 ];
 
                 this.commentsConfig = {
@@ -362,6 +354,11 @@ export class CustomerDetails implements OnInit {
                     this.activeTabIndex = index < this.tabs.length ? index : 0;
                 }
         });
+    }
+
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.customer$.complete();
     }
 
     private activateCustomer(customerID: number) {
@@ -566,17 +563,14 @@ export class CustomerDetails implements OnInit {
     public setup() {
         this.showReportWithID = null;
         if (!this.formIsInitialized) {
+            const customerGetRequest = this.customerID > 0
+                ? this.customerService.Get(this.customerID, this.expandOptions)
+                : this.customerService.GetNewEntity(this.newEntityExpandOptions);
+
             Observable.forkJoin(
+                customerGetRequest,
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
-                (
-                    this.customerID > 0 ?
-                        this.customerService.Get(this.customerID, this.expandOptions)
-                        : this.customerService.GetNewEntity(this.newEntityExpandOptions)
-                ),
-                this.phoneService.GetNewEntity(),
-                this.emailService.GetNewEntity(),
-                this.addressService.GetNewEntity(null, 'Address'),
                 this.currencyCodeService.GetAll(null),
                 this.termsService.GetAction(null, 'get-payment-terms'),
                 this.termsService.GetAction(null, 'get-delivery-terms'),
@@ -590,23 +584,18 @@ export class CustomerDetails implements OnInit {
                 this.customDimensionService.getMetadata(),
                 this.companySettingsService.Get(1, ['Distributions'])
             ).subscribe(response => {
-                this.dropdownData = [response[0], response[1]];
-                this.emptyPhone = response[3];
-                this.emptyEmail = response[4];
-                this.emptyAddress = response[5];
-                this.currencyCodes = response[6];
-                this.paymentTerms = response[7];
-                this.deliveryTerms = response[8];
-                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[9]);
-                this.sellers = response[10];
-                this.distributionPlans = response[11];
-                this.customDimensions = response[12];
-                this.companySettings = response[13];
+                const customer: Customer = response[0];
+                this.departments = response[1];
+                this.projects = response[2];
+                this.currencyCodes = response[3];
+                this.paymentTerms = response[4];
+                this.deliveryTerms = response[5];
+                this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response[6]);
+                this.sellers = response[7];
+                this.distributionPlans = response[8];
+                this.customDimensions = response[9];
+                this.companySettings = response[10];
 
-                const layout: ComponentLayout = this.getComponentLayout(); // results
-                this.fields$.next(layout.Fields);
-
-                const customer: Customer = response[2];
 
                 const numberSerie = this.numberSeries.find(x => x.Name === 'Customer number series');
                 if (numberSerie) {
@@ -633,9 +622,9 @@ export class CustomerDetails implements OnInit {
                 );
 
                 this.setTabTitle();
-                this.extendFormConfig();
-                this.showHideNameProperties();
 
+                this.fields$.next(this.getFormFields());
+                this.showHideNameProperties();
                 this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
         } else {
@@ -775,160 +764,6 @@ export class CustomerDetails implements OnInit {
                 type: type
             }];
         }
-    }
-
-    public extendFormConfig() {
-        const fields: UniFieldLayout[] = this.fields$.getValue();
-
-        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
-        currencyCode.Options = {
-            source: this.currencyCodes,
-            valueProperty: 'ID',
-            displayProperty: 'Code',
-            debounceTime: 200
-        };
-
-        const localization: UniFieldLayout = fields.find(x => x.Property === 'Localization');
-        localization.Options = {
-            source: this.localizationOptions,
-            valueProperty: 'Culture',
-            displayProperty: 'Label',
-            searchable: false,
-        };
-
-        const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
-        department.Options = {
-            source: this.dropdownData[0],
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.DepartmentNumber + ' - ' + item.Name) : '';
-            },
-            debounceTime: 200,
-            addEmptyValue: true
-        };
-
-        const project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
-        project.Options = {
-            source: this.dropdownData[1],
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
-            },
-            debounceTime: 200,
-            addEmptyValue: true
-        };
-
-        const defaultSeller: UniFieldLayout = fields.find(field => field.Property === 'DefaultSellerID');
-        defaultSeller.Options = {
-            source: this.sellers,
-            valueProperty: 'ID',
-            displayProperty: 'Name',
-            debounceTime: 200,
-            addEmptyValue: true
-        };
-
-        const paymentTerm: UniFieldLayout = fields.find(x => x.Property === 'PaymentTermsID');
-        paymentTerm.Options = {
-            source: this.paymentTerms,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
-            },
-            debounceTime: 200,
-            addEmptyValue: true
-        };
-
-        const deliveryTerm: UniFieldLayout = fields.find(x => x.Property === 'DeliveryTermsID');
-        deliveryTerm.Options = {
-            source: this.deliveryTerms,
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
-            },
-            debounceTime: 200,
-            addEmptyValue: true
-        };
-
-        // MultiValue
-        const phones: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultPhone');
-
-        phones.Options = {
-            entity: Phone,
-            listProperty: 'Info.Phones',
-            displayValue: 'Number',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhone',
-            storeIdInProperty: 'Info.DefaultPhoneID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniPhoneModal, {
-                    data: value || new Phone()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            }
-        };
-
-        const invoiceaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.InvoiceAddress');
-
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: 'Info.Addresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddress',
-            storeIdInProperty: 'Info.InvoiceAddressID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address(),
-                    header: 'Fakturaadresse'
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        const emails: UniFieldLayout = fields.find(x => x.Property === 'Info.DefaultEmail');
-        emails.Options = {
-            entity: Email,
-            listProperty: 'Info.Emails',
-            displayValue: 'EmailAddress',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmail',
-            storeIdInProperty: 'Info.DefaultEmailID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniEmailModal, {
-                    data: value || new Email()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            }
-        };
-
-        const shippingaddress: UniFieldLayout = fields.find(x => x.Property === 'Info.ShippingAddress');
-        shippingaddress.Options = {
-            entity: Address,
-            listProperty: 'Info.Addresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeIdInProperty: 'Info.ShippingAddressID',
-            storeResultInProperty: 'Info.ShippingAddress',
-            editor: (value) => {
-                const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address(),
-                    header: 'Leveringsadresse'
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        this.fields$.next(fields);
     }
 
     public showHideNameProperties(customer?: Customer) {
@@ -1241,390 +1076,517 @@ export class CustomerDetails implements OnInit {
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
     }
 
-    private getComponentLayout(): any {
-        const layout = {
-            Name: 'Customer',
-            BaseEntity: 'Customer',
-            Fields: [
-                // Fieldset 1 (Kunde)
-                {
-                    FieldSet: 1,
-                    Legend: 'Kunde',
-                    EntityType: 'BusinessRelation',
-                    Property: 'Info.Name',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Navn',
-                    Section: 0
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Kunde',
-                    EntityType: 'Customer',
-                    Property: '_CustomerSearchResult',
-                    FieldType: FieldType.UNI_SEARCH,
-                    Label: 'Navn',
-                    Section: 0,
-                    Options: {
-                        uniSearchConfig: this.getCustomerLookupOptions()
-                    }
-                },
-                {
-                    FieldSet: 1,
-                    EntityType: 'Customer',
-                    Property: 'OrgNumber',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Organisasjonsnummer',
-                    Validations: [
-                        (value, validatedField) => this.orgNrValidator(value, validatedField)
-                    ],
-                    Section: 0
-                },
-                {
-                    FieldSet: 1,
-                    EntityType: 'Customer',
-                    Property: 'WebUrl',
-                    FieldType: FieldType.URL,
-                    Label: 'Webadresse',
-                    Section: 0
-                },
-                {
-                    FieldSet: 1,
-                    EntityType: 'Customer',
-                    Property: 'ReminderEmailAddress',
-                    FieldType: FieldType.EMAIL,
-                    Label: 'Purre-e-postadresse',
-                    Section: 0,
-                    Validations: [
-                        (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
-                    ]
-                },
+    private getFormFields(): any {
+        const fields: Partial<UniFieldLayout>[] = [
+            // Fieldset 1 (Kunde)
+            {
+                FieldSet: 1,
+                Legend: 'Kunde',
+                EntityType: 'BusinessRelation',
+                Property: 'Info.Name',
+                FieldType: FieldType.TEXT,
+                Label: 'Navn',
+                Section: 0
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Kunde',
+                EntityType: 'Customer',
+                Property: '_CustomerSearchResult',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Navn',
+                Section: 0,
+                Options: {
+                    uniSearchConfig: this.getCustomerLookupOptions()
+                }
+            },
+            {
+                FieldSet: 1,
+                EntityType: 'Customer',
+                Property: 'OrgNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Organisasjonsnummer',
+                Validations: [
+                    (value, validatedField) => this.orgNrValidator(value, validatedField)
+                ],
+                Section: 0
+            },
+            {
+                FieldSet: 1,
+                EntityType: 'Customer',
+                Property: 'WebUrl',
+                FieldType: FieldType.URL,
+                Label: 'Webadresse',
+                Section: 0
+            },
+            {
+                FieldSet: 1,
+                EntityType: 'Customer',
+                Property: 'ReminderEmailAddress',
+                FieldType: FieldType.EMAIL,
+                Label: 'Purre-e-postadresse',
+                Section: 0,
+                Validations: [
+                    (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
+                ]
+            },
 
-                // Fieldset 2 (Kontaktinformasjon)
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Customer',
-                    Property: 'Info.InvoiceAddress',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Fakturaadresse',
-                    Section: 0
-                },
-                {
-                    FieldSet: 2,
-                    EntityType: 'Customer',
-                    Property: 'Info.ShippingAddress',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Leveringsadresse',
-                    Section: 0
-                },
-                {
-                    FieldSet: 2,
-                    EntityType: 'Customer',
-                    Property: 'Info.DefaultEmail',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'E-postadresser',
-                    Section: 0
-                },
-                {
-                    FieldSet: 2,
-                    EntityType: 'Customer',
-                    Property: 'Info.DefaultPhone',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Telefonnumre',
-                    Section: 0
-                },
+            // Fieldset 2 (Kontaktinformasjon)
+            {
+                FieldSet: 2,
+                Legend: 'Kontaktinformasjon',
+                EntityType: 'Customer',
+                Property: 'Info.InvoiceAddress',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Fakturaadresse',
+                Section: 0,
+                Options: {
+                    entity: Address,
+                    listProperty: 'Info.Addresses',
+                    displayValue: 'AddressLine1',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.InvoiceAddress',
+                    storeIdInProperty: 'Info.InvoiceAddressID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniAddressModal, {
+                            data: value || new Address(),
+                            header: 'Fakturaadresse'
+                        });
 
-                // Fieldset 3 (Betingelser)
-                {
-                    FieldSet: 3,
-                    Legend: 'Betingelser',
-                    EntityType: 'Customer',
-                    Property: 'PaymentTermsID',
-                    FieldType: FieldType.DROPDOWN,
-                    Sectionheader: 'Betingelser',
-                    Label: 'Betalingsbetingelse',
-                    Section: 0
-                },
-                {
-                    FieldSet: 3,
-                    EntityType: 'Customer',
-                    Property: 'DeliveryTermsID',
-                    FieldType: FieldType.DROPDOWN,
-                    Sectionheader: 'Betingelser',
-                    Label: 'Leveringsbetingelse',
-                    Section: 0
-                },
-                {
-                    FieldSet: 3,
-                    EntityType: 'Customer',
-                    Property: 'CurrencyCodeID',
-                    FieldType: FieldType.DROPDOWN,
-                    Sectionheader: 'Betingelser',
-                    Label: 'Foretrukket valuta',
-                    Section: 0
-                },
-                {
-                    FieldSet: 3,
-                    EntityType: 'Customer',
-                    Property: 'Localization',
-                    FieldType: FieldType.DROPDOWN,
-                    Sectionheader: 'Betingelser',
-                    Label: 'Språk tilbud/ordre/faktura',
-                    Section: 0
-                },
-
-                // Fieldset 4 (Dimensjoner)
-                {
-                    FieldSet: 4,
-                    Legend: 'Dimensjoner',
-                    EntityType: 'Project',
-                    Property: 'Dimensions.ProjectID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Prosjekt',
-                    Section: 0,
-                    Sectionheader: 'Dimensjoner'
-                },
-                {
-                    FieldSet: 4,
-                    EntityType: 'Department',
-                    Property: 'Dimensions.DepartmentID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Avdeling',
-                    Section: 0
-                },
-                {
-                    FieldSet: 4,
-                    EntityType: 'Seller',
-                    Property: 'DefaultSellerID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Hovedselger',
-                    Section: 0
-                },
-                // Fieldset 5 (EHF)
-                {
-                    FieldSet: 5,
-                    Legend: 'EHF',
-                    Sectionheader: 'EHF',
-                    Section: 0,
-                    EntityType: 'Customer',
-                    Property: 'PeppolAddress',
-                    Label: 'Peppoladresse',
-                    FieldType: FieldType.TEXT
-                },
-                {
-                    FieldSet: 5,
-                    Sectionheader: 'EHF',
-                    Section: 0,
-                    EntityType: 'Customer',
-                    Property: 'GLN',
-                    Label: 'GLN-nummer',
-                    FieldType: FieldType.TEXT
-                },
-                {
-                    FieldSet: 6,
-                    Legend: 'Bank',
-                    Section: 0,
-                    EntityType: 'Customer',
-                    Property: 'Info.BankAccounts',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Bankkonto'
-                },
-                {
-                    FieldSet: 6,
-                    Legend: 'Bank',
-                    Section: 0,
-                    EntityType: 'Customer',
-                    Property: 'CustomerNumberKidAlias',
-                    FieldType: FieldType.TEXT,
-                    Label: 'KID-Identifikator',
-                    Tooltip: {
-                        Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at ' +
-                        'kundenummer-del av KID skal erstattes av dette nummeret.'
+                        return modal.onClose.take(1).toPromise();
                     },
-                    Validations: [
-                        // check if value is a valid number
-                        (value: string, fieldToValidate) => {
-                            if (isNumber(value)) {
-                                return null;
-                            } else {
-                                return {
-                                    value: value,
-                                    errorMessage: 'KID-Identifikator må være et heltall',
-                                    field: fieldToValidate,
-                                    isWarning: false
-                                };
-                            }
-                        },
+                    display: (address: Address) => {
+                        return this.addressService.displayAddress(address);
+                    }
+                }
+            },
+            {
+                FieldSet: 2,
+                EntityType: 'Customer',
+                Property: 'Info.ShippingAddress',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Leveringsadresse',
+                Section: 0,
+                Options: {
+                    entity: Address,
+                    listProperty: 'Info.Addresses',
+                    displayValue: 'AddressLine1',
+                    linkProperty: 'ID',
+                    storeIdInProperty: 'Info.ShippingAddressID',
+                    storeResultInProperty: 'Info.ShippingAddress',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniAddressModal, {
+                            data: value || new Address(),
+                            header: 'Leveringsadresse'
+                        });
 
-                        // check if KID is valid
-                        (value: string, fieldToValidate) => {
-                            const errorMessage = {
+                        return modal.onClose.take(1).toPromise();
+                    },
+                    display: (address: Address) => {
+                        return this.addressService.displayAddress(address);
+                    }
+                }
+            },
+            {
+                FieldSet: 2,
+                EntityType: 'Customer',
+                Property: 'Info.DefaultEmail',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'E-postadresser',
+                Section: 0,
+                Options: {
+                    entity: Email,
+                    listProperty: 'Info.Emails',
+                    displayValue: 'EmailAddress',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultEmail',
+                    storeIdInProperty: 'Info.DefaultEmailID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniEmailModal, {
+                            data: value || new Email()
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    }
+                }
+            },
+            {
+                FieldSet: 2,
+                EntityType: 'Customer',
+                Property: 'Info.DefaultPhone',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Telefonnumre',
+                Section: 0,
+                Options: {
+                    entity: Phone,
+                    listProperty: 'Info.Phones',
+                    displayValue: 'Number',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultPhone',
+                    storeIdInProperty: 'Info.DefaultPhoneID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniPhoneModal, {
+                            data: value || new Phone()
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    }
+                }
+            },
+
+            // Fieldset 3 (Betingelser)
+            {
+                FieldSet: 3,
+                Legend: 'Betingelser',
+                EntityType: 'Customer',
+                Property: 'PaymentTermsID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Betalingsbetingelse',
+                Section: 0,
+                Options: {
+                    source: this.paymentTerms,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.CreditDays + ' kredittdager (' + item.Name + ')') : '';
+                    },
+                    debounceTime: 200,
+                    addEmptyValue: true
+                }
+            },
+            {
+                FieldSet: 3,
+                EntityType: 'Customer',
+                Property: 'DeliveryTermsID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Leveringsbetingelse',
+                Section: 0,
+                Options: {
+                    source: this.deliveryTerms,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.CreditDays + ' leveringsdager (' + item.Name + ')') : '';
+                    },
+                    debounceTime: 200,
+                    addEmptyValue: true
+                }
+            },
+            {
+                FieldSet: 3,
+                EntityType: 'Customer',
+                Property: 'CurrencyCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Foretrukket valuta',
+                Section: 0,
+                Options: {
+                    source: this.currencyCodes,
+                    valueProperty: 'ID',
+                    displayProperty: 'Code',
+                    debounceTime: 200
+                }
+            },
+            {
+                FieldSet: 3,
+                EntityType: 'Customer',
+                Property: 'Localization',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Språk tilbud/ordre/faktura',
+                Section: 0,
+                Options: {
+                    source: this.localizationOptions,
+                    valueProperty: 'Culture',
+                    displayProperty: 'Label',
+                    searchable: false,
+                }
+            },
+
+            // Fieldset 4 (Dimensions)
+            {
+                FieldSet: 4,
+                FeaturePermission: 'ui.dimensions',
+                Legend: 'Dimensjoner',
+                EntityType: 'Project',
+                Property: 'Dimensions.ProjectID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Prosjekt',
+                Section: 0,
+                Options: {
+                    source: this.projects,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.ProjectNumber + ' - ' + item.Name) : '';
+                    },
+                    debounceTime: 200,
+                    addEmptyValue: true
+                }
+            },
+            {
+                FieldSet: 4,
+                FeaturePermission: 'ui.dimensions',
+                EntityType: 'Department',
+                Property: 'Dimensions.DepartmentID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avdeling',
+                Section: 0,
+                Options: {
+                    source: this.departments,
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.DepartmentNumber + ' - ' + item.Name) : '';
+                    },
+                    debounceTime: 200,
+                    addEmptyValue: true
+                }
+            },
+
+            ...this.customDimensions.map(dimension => {
+                return {
+                    FieldSet: 4,
+                    FeaturePermission: 'ui.dimensions',
+                    Legend: 'Dimensjoner',
+                    Label: dimension.Label,
+                    Section: 0,
+                    EntityType: 'Project',
+                    Property: `Dimensions.Dimension${dimension.Dimension}ID`,
+                    FieldType: FieldType.UNI_SEARCH,
+                    ReadOnly: !dimension.IsActive,
+                    Options: {
+                        valueProperty: 'ID',
+                        uniSearchConfig: this.uniSearchDimensionConfig.generateDimensionConfig(
+                            dimension.Dimension,
+                            this.customDimensionService
+                        )
+                    }
+                };
+            }),
+
+            {
+                FieldSet: 4,
+                FeaturePermission: 'ui.dimensions',
+                EntityType: 'Seller',
+                Property: 'DefaultSellerID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Hovedselger',
+                Section: 0,
+                Options: {
+                    source: this.sellers,
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                    debounceTime: 200,
+                    addEmptyValue: true
+                }
+            },
+
+            // Fieldset 5 (EHF)
+            {
+                FieldSet: 5,
+                FeaturePermission: 'ui.sales.customer.ehf_setup',
+                Legend: 'EHF',
+                Section: 0,
+                EntityType: 'Customer',
+                Property: 'PeppolAddress',
+                Label: 'Peppoladresse',
+                FieldType: FieldType.TEXT
+            },
+            {
+                FieldSet: 5,
+                FeaturePermission: 'ui.sales.customer.ehf_setup',
+                Section: 0,
+                EntityType: 'Customer',
+                Property: 'GLN',
+                Label: 'GLN-nummer',
+                FieldType: FieldType.TEXT
+            },
+            // Fieldset 6 (Bank)
+            {
+                FieldSet: 6,
+                Legend: 'Bank',
+                Section: 0,
+                EntityType: 'Customer',
+                Property: 'Info.BankAccounts',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Bankkonto',
+                Options: {
+                    entity: BankAccount,
+                    listProperty: 'Info.BankAccounts',
+                    displayValue: 'AccountNumber',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultBankAccount',
+                    storeIdInProperty: 'Info.DefaultBankAccountID',
+                    editor: (bankaccount: BankAccount) => {
+                        if ((bankaccount && !bankaccount.ID) || !bankaccount) {
+                            bankaccount = bankaccount || new BankAccount();
+                            bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                            bankaccount.BankAccountType = 'customer';
+                            bankaccount.ID = 0;
+                        }
+                        const modal = this.modalService.open(UniBankAccountModal, {
+                            data: bankaccount
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    }
+                }
+            },
+            {
+                FieldSet: 6,
+                Legend: 'Bank',
+                Section: 0,
+                EntityType: 'Customer',
+                Property: 'CustomerNumberKidAlias',
+                FieldType: FieldType.TEXT,
+                Label: 'KID-Identifikator',
+                Tooltip: {
+                    Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at ' +
+                    'kundenummer-del av KID skal erstattes av dette nummeret.'
+                },
+                Validations: [
+                    // check if value is a valid number
+                    (value: string, fieldToValidate) => {
+                        if (isNumber(value)) {
+                            return null;
+                        } else {
+                            return {
                                 value: value,
-                                errorMessage: 'KID-identifikator er ugyldig og  det må ligge utenfor debitor-serien',
+                                errorMessage: 'KID-Identifikator må være et heltall',
                                 field: fieldToValidate,
                                 isWarning: false
                             };
-                            if (!isNumber(value)) {
-                                return null;
-                            }
-                            return this.customerService.validateKID(value)
-                                .switchMap(response => {
-                                    const body = response.body;
-                                    const result = body === true ? null : errorMessage;
-                                    return Observable.of(result);
-                               })
-                                .catch(response => {
-                                    return Observable.of(errorMessage);
-                                });
                         }
-                    ]
-                },
-                {
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Standard blankett faktura',
-                    Property: 'DefaultCustomerInvoiceReportID',
-                    Options: {
-                        source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
-                        valueProperty: 'ID',
-                        displayProperty: 'Description',
-                        hideDeleteButton: false,
-                        searchable: false,
                     },
-                    Section: 0,
-                    FieldSet: 7,
-                },
-                {
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Standard blankett ordre',
-                    Legend: 'Blanketter',
-                    Property: 'DefaultCustomerOrderReportID',
-                    Options: {
-                        source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
-                        valueProperty: 'ID',
-                        displayProperty: 'Description',
-                        hideDeleteButton: false,
-                        searchable: false,
-                    },
-                    FieldSet: 7,
-                    Section: 0,
-                },
-                {
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Standard blankett tilbud',
-                    Property: 'DefaultCustomerQuoteReportID',
-                    Options: {
-                        source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
-                        valueProperty: 'ID',
-                        displayProperty: 'Description',
-                        hideDeleteButton: false,
-                        searchable: false,
-                    },
-                    Section: 0,
-                    FieldSet: 7,
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'FactoringNumber',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Factoring kundenr.',
-                    FieldSet: 8,
-                    Legend: 'Avtaler faktura',
-                    Section: 0,
-                    Hidden: false
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'AvtaleGiro',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Påmeldt AvtaleGiro',
-                    FieldSet: 8,
-                    Legend: 'Avtaler faktura',
-                    Section: 0,
-                    Tooltip: {
-                        Text: (!this.companySettings.AllowAvtalegiroRegularInvoice ?
-                            'Kun repeterende fakturaer vil sendes som AvtaleGiro. ' :
-                            '') +
-                         'Husk at utsendelsesplanen for faktura (enten på Innstillinger eller evt denne kunden) ' +
-                         'må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse som prioritet 2. ' +
-                        (!this.companySettings.AllowAvtalegiroRegularInvoice ?
-                            'Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer ' +
-                            'sendes med valget i prioritet 2' :
-                            ''
-                        )
-                    }
-                },
-                {
-                    EntityType: 'Customer',
-                    FieldType: FieldType.BUTTON,
-                    FieldSet: 8,
-                    Legend: 'Avtaler faktura',
-                    Section: 0,
-                    Label: 'Detaljer',
-                    Options: {
-                        click: () => this.openAvtaleGiroModal(),
-                    }
-                },
-                {
-                    EntityType: 'Customer',
-                    Property: 'AvtaleGiroNotification',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Varsel AvtaleGiro',
-                    FieldSet: 8,
-                    Legend: 'Avtaler faktura',
-                    Section: 0,
-                    Tooltip: {
-                        Text: 'Skal det sendes varsel på e-post om AvtaleGiro?'
-                    }
-                }
-            ]
-        };
 
-        const field: any = layout.Fields.find(x => x.Property === 'Info.BankAccounts');
-        field.Options = {
-            entity: BankAccount,
-            listProperty: 'Info.BankAccounts',
-            displayValue: 'AccountNumber',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultBankAccount',
-            storeIdInProperty: 'Info.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => {
-                if ((bankaccount && !bankaccount.ID) || !bankaccount) {
-                    bankaccount = bankaccount || new BankAccount();
-                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
-                    bankaccount.BankAccountType = 'customer';
-                    bankaccount.ID = 0;
-                }
-                const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount
-                });
+                    // check if KID is valid
+                    (value: string, fieldToValidate) => {
+                        const errorMessage = {
+                            value: value,
+                            errorMessage: 'KID-identifikator er ugyldig og  det må ligge utenfor debitor-serien',
+                            field: fieldToValidate,
+                            isWarning: false
+                        };
+                        if (!isNumber(value)) {
+                            return null;
+                        }
+                        return this.customerService.validateKID(value)
+                            .switchMap(response => {
+                                const body = response.body;
+                                const result = body === true ? null : errorMessage;
+                                return Observable.of(result);
+                            })
+                            .catch(response => {
+                                return Observable.of(errorMessage);
+                            });
+                    }
+                ]
+            },
 
-                return modal.onClose.take(1).toPromise();
+            // Fieldset 7 (TOF report setup)
+            {
+                FieldSet: 7,
+                FeaturePermission: 'ui.sales.customer.tof_report_setup',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Standard blankett faktura',
+                Property: 'DefaultCustomerInvoiceReportID',
+                Options: {
+                    source: this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: false,
+                    searchable: false,
+                },
+                Section: 0,
+            },
+            {
+                FieldSet: 7,
+                FeaturePermission: 'ui.sales.customer.tof_report_setup',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Standard blankett ordre',
+                Legend: 'Blanketter',
+                Property: 'DefaultCustomerOrderReportID',
+                Options: {
+                    source: this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: false,
+                    searchable: false,
+                },
+                Section: 0,
+            },
+            {
+                FieldSet: 7,
+                FeaturePermission: 'ui.sales.customer.tof_report_setup',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Standard blankett tilbud',
+                Property: 'DefaultCustomerQuoteReportID',
+                Options: {
+                    source: this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
+                    valueProperty: 'ID',
+                    displayProperty: 'Description',
+                    hideDeleteButton: false,
+                    searchable: false,
+                },
+                Section: 0,
+            },
+            // Fieldset 8 (Avtalegiro?)
+            {
+                FieldSet: 8,
+                FeaturePermission: 'ui.sales.customer.avtalegiro',
+                EntityType: 'Customer',
+                Property: 'FactoringNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Factoring kundenr.',
+                Legend: 'Avtaler faktura',
+                Section: 0,
+                Hidden: false
+            },
+            {
+                FieldSet: 8,
+                FeaturePermission: 'ui.sales.customer.avtalegiro',
+                EntityType: 'Customer',
+                Property: 'AvtaleGiro',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Påmeldt AvtaleGiro',
+                Legend: 'Avtaler faktura',
+                Section: 0,
+                Tooltip: {
+                    Text: (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                        'Kun repeterende fakturaer vil sendes som AvtaleGiro. ' :
+                        '') +
+                        'Husk at utsendelsesplanen for faktura (enten på Innstillinger eller evt denne kunden) ' +
+                        'må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse som prioritet 2. ' +
+                    (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                        'Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer ' +
+                        'sendes med valget i prioritet 2' :
+                        ''
+                    )
+                }
+            },
+            {
+                FieldSet: 8,
+                FeaturePermission: 'ui.sales.customer.avtalegiro',
+                EntityType: 'Customer',
+                FieldType: FieldType.BUTTON,
+                Legend: 'Avtaler faktura',
+                Section: 0,
+                Label: 'Detaljer',
+                Options: {
+                    click: () => this.openAvtaleGiroModal(),
+                }
+            },
+            {
+                FieldSet: 8,
+                FeaturePermission: 'ui.sales.customer.avtalegiro',
+                EntityType: 'Customer',
+                Property: 'AvtaleGiroNotification',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Varsel AvtaleGiro',
+                Legend: 'Avtaler faktura',
+                Section: 0,
+                Tooltip: {
+                    Text: 'Skal det sendes varsel på e-post om AvtaleGiro?'
+                }
             }
-        };
+        ];
 
-        const dims = [];
-        this.customDimensions.forEach((dim) => {
-            dims.push(
-                <any>{
-                    FieldSet: 4,
-                    Legend: 'Dimensjoner',
-                    Section: 0,
-                    EntityType: 'Project',
-                    Property: `Dimensions.Dimension${dim.Dimension}ID`,
-                    FieldType: FieldType.UNI_SEARCH,
-                    ReadOnly: !dim.IsActive,
-                    Options: {
-                        uniSearchConfig: this.uniSearchDimensionConfig.generateDimensionConfig(dim.Dimension, this.customDimensionService),
-                        valueProperty: 'ID'
-                    },
-                    Label: dim.Label
-                }
-            );
-        });
-
-        layout.Fields.splice.apply(layout.Fields, [15, 0].concat(dims));
-
-        return layout;
+        return fields;
     }
 
     public removeDistributionPlan(type) {

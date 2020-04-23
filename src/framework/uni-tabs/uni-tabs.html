@@ -1,6 +1,7 @@
 <section #tabContainer class="tab-container">
-    <ng-container *ngIf="!useRouterLinkTabs">
-        <a *ngFor="let tab of tabs; let idx = index"
+    <ng-container *ngFor="let tab of tabs; let idx = index">
+        <!-- Regular tab -->
+        <a *ngIf="!useRouterLinkTabs && !tab.hidden"
             (click)="onTabClick(tab)"
             [class.active]="activeIndex === idx"
             [attr.aria-disabled]="tab.disabled"
@@ -15,10 +16,9 @@
                 {{tab.tooltipIcon || 'info_outline'}}
             </i>
         </a>
-    </ng-container>
 
-    <ng-container *ngIf="useRouterLinkTabs">
-        <a *ngFor="let tab of tabs; let idx = index"
+        <!-- Router link tab -->
+        <a *ngIf="useRouterLinkTabs && !tab.hidden"
             (click)="onTabClick(tab)"
             [attr.aria-disabled]="tab.disabled"
             [routerLink]="tab.path"
@@ -37,8 +37,48 @@
             </i>
         </a>
     </ng-container>
+
+    <!-- <ng-container *ngIf="!useRouterLinkTabs">
+        <a *ngFor="let tab of tabs; let idx = index"
+            (click)="onTabClick(tab)"
+            [class.active]="activeIndex === idx"
+            [attr.aria-disabled]="tab.disabled"
+            class="tab">
+
+            <span>{{tab[labelProperty] | translate}}</span>
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
+            <i *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
+                class="material-icons tab-tooltip"
+                [ngClass]="tab.tooltipClass"
+                [matTooltip]="tab.tooltip">
+                {{tab.tooltipIcon || 'info_outline'}}
+            </i>
+        </a>
+    </ng-container> -->
+
+    <!-- <ng-container *ngIf="useRouterLinkTabs">
+        <a *ngFor="let tab of tabs; let idx = index"
+            (click)="onTabClick(tab)"
+            [attr.aria-disabled]="tab.disabled"
+            [routerLink]="tab.path"
+            [queryParams]="tab.queryParams"
+            [routerLinkActiveOptions]="{ exact: pathMatchExact }"
+            routerLinkActive #rla="routerLinkActive"
+            [class.active]="rla.isActive"
+            class="tab">
+
+            <span>{{tab[labelProperty] | translate}}</span>
+            <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
+            <i class="material-icons tab-tooltip"
+                *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
+                [matTooltip]="tab.tooltip">
+                info_outline
+            </i>
+        </a>
+    </ng-container> -->
 </section>
 
+<!-- Dropdown for overflowing items -->
 <ng-container *ngIf="overflowIndex >= 0">
     <a #dropdownToggle
         class="tab-dropdown-toggle"
@@ -50,7 +90,49 @@
 
     <dropdown-menu [trigger]="dropdownToggle">
         <ng-template>
-            <ng-container *ngIf="!useRouterLinkTabs">
+            <ng-container *ngFor="let tab of tabs | slice: overflowIndex">
+                <!-- Regular tab -->
+                <a class="dropdown-menu-item"
+                    *ngIf="!useRouterLinkTabs && !tab.hidden"
+                    [attr.aria-disabled]="tab.disabled"
+                    (click)="onTabClick(tab)">
+
+                    {{tab[labelProperty] | translate}}
+
+                    <section class="align-right">
+                        <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>
+                        <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
+                            *ngIf="tab.tooltip && tab[counterProperty]"
+                            (click)="$event.stopPropagation()"
+                            matTooltip="{{tab.tooltip}}">
+                            info_outline
+                        </i>
+                    </section>
+                </a>
+
+                <!-- Router link tab -->
+                <a class="dropdown-menu-item"
+                    *ngIf="useRouterLinkTabs && !tab.hidden"
+                    (click)="onTabClick(tab)"
+                    [attr.aria-disabled]="tab.disabled"
+                    [routerLink]="tab.path">
+
+                    {{tab[labelProperty] | translate}}
+
+                    <section class="align-right">
+                        <strong style="margin-left: 1rem">{{tab[counterProperty]}}</strong>
+                        <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
+                            *ngIf="tab.tooltip && tab[counterProperty]"
+                            (click)="$event.stopPropagation()"
+                            matTooltip="{{tab.tooltip}}">
+                            info_outline
+                        </i>
+                    </section>
+                </a>
+
+            </ng-container>
+
+            <!-- <ng-container *ngIf="!useRouterLinkTabs">
                 <a class="dropdown-menu-item"
                     *ngFor="let tab of tabs | slice: overflowIndex"
                     [attr.aria-disabled]="tab.disabled"
@@ -68,9 +150,9 @@
                         </i>
                     </section>
                 </a>
-            </ng-container>
+            </ng-container> -->
 
-            <ng-container *ngIf="useRouterLinkTabs">
+            <!-- <ng-container *ngIf="useRouterLinkTabs">
                 <a class="dropdown-menu-item"
                     *ngFor="let tab of tabs | slice: overflowIndex"
                     (click)="onTabClick(tab)"
@@ -89,7 +171,7 @@
                         </i>
                     </section>
                 </a>
-            </ng-container>
+            </ng-container> -->
         </ng-template>
     </dropdown-menu>
 

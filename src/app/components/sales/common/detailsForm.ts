@@ -4,6 +4,7 @@ import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller} from
 import {BehaviorSubject} from 'rxjs';
 import {set} from 'lodash';
 import * as moment from 'moment';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'tof-details-form',
@@ -11,29 +12,30 @@ import * as moment from 'moment';
         <uni-form
             [fields]="fields$"
             [model]="entity$"
-            [config]="formConfig$"
+            [config]="{autofocus: false}"
             (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDetailsForm {
-    @ViewChild(UniForm, { static: true }) form: UniForm;
+    @ViewChild(UniForm) form: UniForm;
 
     @Input() readonly: boolean;
     @Input() entityType: string;
     @Input() entity: any;
-    @Input() currencyCodes: Array<CurrencyCode>;
+    @Input() currencyCodes: CurrencyCode[];
     @Input() projects: Project;
     @Input() sellers: Seller[];
     @Input() contacts: Contact[];
     @Input() companySettings: CompanySettings;
 
-    @Output() entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() entityChange = new EventEmitter();
 
-    tabbedPastLastField: EventEmitter<any> = new EventEmitter();
-    entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    tabbedPastLastField = new EventEmitter();
+    entity$ = new BehaviorSubject<any>({});
+    fields$ = new BehaviorSubject<Partial<UniFieldLayout>[]>([]);
+
+    constructor(private featurePermissionService: FeaturePermissionService) {}
 
     ngOnInit() {
         this.entity$.next(this.entity);
@@ -45,6 +47,11 @@ export class TofDetailsForm {
         if ((this.projects && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
         }
+    }
+
+    ngOnDestroy() {
+        this.entity$.complete();
+        this.fields$.complete();
     }
 
     onFormChange(changes: SimpleChanges) {
@@ -69,8 +76,8 @@ export class TofDetailsForm {
 
     private initFormFields() {
         if (this.currencyCodes && this.entity) {
-            const fields: UniFieldLayout[] = [
-                <any> {
+            const fields: Partial<UniFieldLayout>[] = [
+                {
                     // Legend: 'Detaljer',
                     FieldSet: 1,
                     FieldSetColumn: 1,
@@ -81,7 +88,7 @@ export class TofDetailsForm {
                     Section: 0,
                     ReadOnly: this.readonly,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -90,7 +97,7 @@ export class TofDetailsForm {
                     Label: 'Forfallsdato',
                     Section: 0,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -106,9 +113,9 @@ export class TofDetailsForm {
                     },
                     ReadOnly: this.readonly,
                 },
-                <any> {
+                {
                     FieldSet: 1,
-                    FieldSetColumn: 1,
+                    FieldSetColumn: this.featurePermissionService.canShowUiFeature('ui.dimensions') ? 1 : 2,
                     EntityType: this.entityType,
                     Property: 'OurReference',
                     FieldType: FieldType.TEXT,
@@ -116,7 +123,7 @@ export class TofDetailsForm {
                     Section: 0,
                     MaxLength: 255,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -126,7 +133,7 @@ export class TofDetailsForm {
                     Section: 0,
                     Hidden: true
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -141,7 +148,7 @@ export class TofDetailsForm {
                         displayProperty: 'Info.Name'
                     }
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -150,9 +157,10 @@ export class TofDetailsForm {
                     Label: 'E-postadresse',
                     Section: 0,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
+                    FeaturePermission: 'ui.dimensions',
                     EntityType: this.entityType,
                     Property: 'DefaultDimensions.ProjectID',
                     FieldType: FieldType.DROPDOWN,
@@ -166,9 +174,10 @@ export class TofDetailsForm {
                         addEmptyValue: true
                     },
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
+                    FeaturePermission: 'ui.sellers',
                     EntityType: this.entityType,
                     Property: 'DefaultSellerID',
                     FieldType: FieldType.DROPDOWN,
@@ -208,7 +217,7 @@ export class TofDetailsForm {
 
             if (this.entityType === 'RecurringInvoice') {
                 const avtalegiroFields = [
-                    <any> {
+                    {
                         FieldSet: 1,
                         FieldSetColumn: 1,
                         EntityType: this.entityType,
@@ -221,7 +230,7 @@ export class TofDetailsForm {
                             Text: 'Blir det sendt varsel på e-post om AvtaleGiro?'
                         }
                     },
-                    <any> {
+                    {
                         FieldSet: 1,
                         FieldSetColumn: 1,
                         EntityType: this.entityType,

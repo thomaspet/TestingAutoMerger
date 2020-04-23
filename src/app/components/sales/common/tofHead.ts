@@ -1,5 +1,4 @@
 import {Component, Input, Output, ViewChild, EventEmitter, OnChanges, SimpleChanges} from '@angular/core';
-import {FormControl} from '@angular/forms';
 import {
     CompanySettings,
     CurrencyCode,
@@ -53,14 +52,14 @@ export class TofHead implements OnChanges {
             {name: 'Detaljer', value: 'details'},
             {name: 'Betingelser og levering', value: 'delivery'},
             {name: 'Kommentar', value: 'comment'},
-            {name: 'Selgere', value: 'sellers'},
+            {name: 'Selgere', value: 'sellers', featurePermission: 'ui.sellers'},
             {name: 'Dokumenter', value: 'attachments'},
-            {name: 'Dimensjoner', value: 'dimensions'},
-            {name: 'Utsendelse', value: 'distribution'}
+            {name: 'Dimensjoner', value: 'dimensions', featurePermission: 'ui.dimensions'},
+            {name: 'Utsendelse', value: 'distribution', featurePermission: 'ui.distribution'}
         ];
 
         if (this.entityName === 'CustomerInvoice') {
-            this.tabs.push({name: 'Purringer', value: 'reminders'});
+            this.tabs.push({name: 'Purringer', value: 'reminders', featurePermission: 'ui.debt-collection'});
         }
 
         if (this.entityName === 'RecurringInvoice') {
