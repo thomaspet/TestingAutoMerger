@@ -137,14 +137,33 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
             obs = this.paymentService.createPaymentBatch(this.model.PaymentIds, false);
         }
 
-        obs.subscribe((batch) => {
-            if (batch && batch.ID) {
-                const body = {
-                    Code: this.model.Code,
-                    Password: this.model.Password
-                };
+        obs.subscribe((result) => {
+            const body = {
+                Code: this.model.Code,
+                Password: this.model.Password
+            };
+            if (result?.ProgressUrl) {
+                // runs as hangfire job (decided by back-end)
+                this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                    'Det opprettes en betalingsjobb og genereres en utbetalingsfil som blir sendt til banken. ' +
+                    'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+                this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
+                    if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {
+                        this.paymentBatchService.sendToPayment(batchJobResponse.Result.ID, body).subscribe(() => {
+                            const toastString = `Betalingsbunt med ${ this.options.data.sendAll ? 'alle' : this.model.PaymentIds.length} `
+                                + `utbetalinger er opprettet og sendt til bank`;
 
-                this.paymentBatchService.sendToPayment(batch.ID, body).subscribe(() => {
+                            this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                            this.onClose.emit(true);
+                        });
+                    } else {
+                        this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
+                            batchJobResponse.Result);
+                    }
+                });
+
+            } else {
+                this.paymentBatchService.sendToPayment(result.ID, body).subscribe(() => {
                     const toastString = `Betalingsbunt med ${ this.options.data.sendAll ? 'alle' : this.model.PaymentIds.length} `
                         + `utbetalinger er opprettet og sendt til bank`;
 

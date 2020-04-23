@@ -2003,9 +2003,8 @@ export class BillView implements OnInit {
         current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
         current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
-            if (result?.Dimensions) {
-                current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
-            }
+            const dimensions = result?.Dimensions || {};
+            current.DefaultDimensions[`Dimension${i}ID`] = dimensions[`Dimension${i}ID`] ||  null;
         }
         this.current.next(current);
 
@@ -3095,14 +3094,14 @@ export class BillView implements OnInit {
             line.CurrencyCode = currentSupplierInvoice.CurrencyCode;
             line.CurrencyExchangeRate = currentSupplierInvoice.CurrencyExchangeRate;
 
-            if (!line.Dimensions.Project && currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Project) {
-                line.Dimensions.Project = currentSupplierInvoice.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = currentSupplierInvoice.DefaultDimensions.ProjectID;
+            if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
+                line.Dimensions.Project = supplierInvoice?.DefaultDimensions?.Project;
+                line.Dimensions.ProjectID = supplierInvoice?.DefaultDimensions?.ProjectID;
             }
 
-            if (!line.Dimensions.Department && !!currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Department) {
-                line.Dimensions.Department = currentSupplierInvoice.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = currentSupplierInvoice.DefaultDimensions.DepartmentID;
+            if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
+                line.Dimensions.Department = supplierInvoice?.DefaultDimensions?.Department;
+                line.Dimensions.DepartmentID = supplierInvoice?.DefaultDimensions?.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {

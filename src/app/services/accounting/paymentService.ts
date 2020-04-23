@@ -13,8 +13,8 @@ export class PaymentService extends BizHttp<Payment> {
         this.DefaultOrderBy = null;
     }
 
-    public createPaymentBatchForAll() {
-        return super.PostAction(null, 'create-payment-batch-for-all-payments', 'acceptjob=true');
+    public createPaymentBatchForAll(isManual: boolean = false) {
+        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}`);
     }
 
     public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {
@@ -23,7 +23,7 @@ export class PaymentService extends BizHttp<Payment> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(paymentIDs)
-            .withEndPoint(this.relativeURL + '?action=create-payment-batch')
+            .withEndPoint(this.relativeURL + `?action=create-payment-batch&isManual=${isManual}`)
             .send()
             .map(response => response.body);
     }
