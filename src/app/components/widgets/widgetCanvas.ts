@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import {Observable, Subject, interval} from 'rxjs';
 import {cloneDeep} from 'lodash';
-import * as $ from 'jquery';
 
 import {UniWidget, IUniWidget} from './uniWidget';
 import {CanvasHelper} from './canvasHelper';
@@ -381,8 +380,8 @@ export class UniWidgetCanvas {
             return;
         }
         event.preventDefault();
-        const widgetElement = $(event.srcElement || event.target).closest('uni-widget')[0];
-
+        const srcElement = <HTMLElement> (event.srcElement || event.target);
+        const widgetElement = srcElement.closest('uni-widget');
         const elemBounds = widgetElement.getBoundingClientRect();
         const canvasBounds = this.canvas.nativeElement.getBoundingClientRect();
 

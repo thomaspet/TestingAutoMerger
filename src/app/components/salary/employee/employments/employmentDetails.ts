@@ -45,7 +45,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
     `
 })
 export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
-    @ViewChild(UniForm, { static: false }) private form: UniForm;
+    @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
     @Input() private employee: Employee;

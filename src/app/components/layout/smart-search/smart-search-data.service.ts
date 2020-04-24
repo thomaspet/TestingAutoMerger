@@ -4,10 +4,9 @@ import {Observable} from 'rxjs';
 import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/operator/debounceTime';
 import * as _ from 'lodash';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
 import {UserSettingsModal} from '../navbar/user-dropdown/user-settings-modal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {AuthService} from '@app/authService';
 import {UniTranslationService} from '@app/services/common/translationService';
 

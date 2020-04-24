@@ -2,8 +2,6 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Altinn, AltinnReceipt, TaxCardReadStatus, A06Options} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
-import {SubEntityService} from '../common/subEntityService';
-import {IntegrationServerCaller} from './integrationServerCaller';
 import {Injectable} from '@angular/core';
 import {RequestMethod} from '@uni-framework/core/http';
 import {AltinnAuthenticationData} from '../../models/AltinnAuthenticationData';
@@ -47,15 +45,13 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         { ID: 2, text: 'SMSPin'},
         { ID: 3, text: 'TaxPin'}
     ];
-    private inServer: IntegrationServerCaller;
 
-    constructor(http: UniHttp, private subEntityService: SubEntityService, private integrate: IntegrationServerCaller) {
+    constructor(http: UniHttp) {
         super(http);
         super.disableCache();
 
         this.relativeURL = Altinn.RelativeUrl;
         this.entityType = Altinn.EntityType;
-        this.inServer = integrate;
     }
 
     public checkLogin(): Observable<boolean> {

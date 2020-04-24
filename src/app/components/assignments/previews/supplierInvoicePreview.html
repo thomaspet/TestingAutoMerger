@@ -1,7 +1,7 @@
 <section class="invoice-info">
     <dl *ngIf="invoiceInfoShow">
         <dt>Fakturadato: </dt>
-        <dd>{{invoice?.InvoiceDate | unidateformat}}</dd>
+        <dd>{{invoice?.InvoiceDate | date: 'dd.MM.yyyy'}}</dd>
 
         <dt>Konto: </dt>
         <dd [title]="invoice?.JournalEntry?.DraftLines[0]?.Account?.AccountName">
@@ -9,7 +9,7 @@
         </dd>
 
         <dt>Forfallsdato: </dt>
-        <dd>{{invoice?.PaymentDueDate | unidateformat}}</dd>
+        <dd>{{invoice?.PaymentDueDate | date: 'dd.MM.yyyy'}}</dd>
 
         <dt>Mva: </dt>
         <dd>{{mva}}%</dd>

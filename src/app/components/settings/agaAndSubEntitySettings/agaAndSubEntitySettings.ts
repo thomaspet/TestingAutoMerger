@@ -353,6 +353,14 @@ export class AgaAndSubEntitySettings implements OnInit {
         otpExportActive.Section = 2;
         otpExportActive.FieldSet = 2;
 
+        const postGarnishmentToTaxAccount = new UniFieldLayout();
+        postGarnishmentToTaxAccount.EntityType = 'CompanySalary';
+        postGarnishmentToTaxAccount.Label = 'Utleggstrekk skatt til skattetrekkskonto';
+        postGarnishmentToTaxAccount.Property = 'PostGarnishmentToTaxAccount';
+        postGarnishmentToTaxAccount.FieldType = FieldType.CHECKBOX;
+        postGarnishmentToTaxAccount.Section = 2;
+        postGarnishmentToTaxAccount.FieldSet = 2;
+
         const hourFTEs = new UniFieldLayout();
         hourFTEs.EntityType = 'CompanySalary';
         hourFTEs.Label = 'Timer pr årsverk';
@@ -550,6 +558,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             paymentInterval,
             postTax,
             otpExportActive,
+            postGarnishmentToTaxAccount,
             hourFTEs,
             vacationSettingsBtn,
             vacationPayBtn,

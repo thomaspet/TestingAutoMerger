@@ -15,7 +15,7 @@ import {theme} from 'src/themes/theme';
     styleUrls: ['./login.sass']
 })
 export class Login {
-    @ViewChild(UniSelect, { static: false }) select: UniSelect;
+    @ViewChild(UniSelect) select: UniSelect;
     @HostBinding('class.sr-login') srLogin = environment.isSrEnvironment;
 
     isAuthenticated: boolean;

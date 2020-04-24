@@ -24,17 +24,11 @@ import {UniQueryModule} from './components/uniquery/uniqueryModule';
 import {LayoutModule} from './components/layout/layoutModule';
 import {AppCommonModule} from './components/common/appCommonModule';
 import {DashboardModule} from './components/dashboard/dashboardModule';
-import {BureauModule} from './components/bureau/bureauModule';
 import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/init.module';
-import {AdminModule} from './components/admin/adminModule';
 import {CurrencyModule} from './components/currency/currencyModule';
-import {DimensionsModule} from './components/dimensions/dimensionsModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
-// import {TranslationsModule} from './components/translations/module';
 import {WidgetModule} from './components/widgets/widgetModule';
-
-import {AssignmentsModule} from './components/assignments/assignmentsModule';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
 import {AccountingServicesModule} from './services/accountingServicesModule';
@@ -55,8 +49,8 @@ import {MarketplaceModule} from './components/marketplace/marketplaceModule';
 import {SharingsModule} from './components/sharings/sharingsModule';
 
 import {ReloadHelper} from './reload';
-import { ImportCentralServicesModule } from './services/importCentralServiceModule';
-import {DateAdapter} from '@angular/material';
+import {ImportCentralServicesModule} from './services/importCentralServiceModule';
+import {DateAdapter} from '@angular/material/core';
 import {UniDateAdapter} from './date-adapter';
 
 import localeNb from '@angular/common/locales/nb';
@@ -99,17 +93,12 @@ moment.locale('nb');
         UniQueryModule,
         ReportsModule,
         InitModule,
-        AdminModule,
         CurrencyModule,
-        DimensionsModule,
         UniTickerModule,
-        // TranslationsModule,
         DashboardModule,
-        BureauModule,
         MarketplaceModule,
         SharingsModule,
         AboutModule,
-        AssignmentsModule
     ],
     declarations: [
         App,

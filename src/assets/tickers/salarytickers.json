@@ -198,6 +198,7 @@
         "Group": "Lønn",
         "Model": "Employment",
         "Expand": "",
+        "Joins": "Employment.RegulativeGroupID eq RegulativeGroup.ID as RegulativeGroup",
         "Columns": [
             {
                 "Header": "Nr.",
@@ -258,6 +259,12 @@
             {
                 "Header": "Månedslønn",
                 "Field": "MonthRate"
+            },
+            {
+                "Header": "Årslønn",
+                "Field": "multiply(MonthRate,12)",
+                "Alias": "YearSalary",
+                "Type": "money"
             },
             {
                 "Header": "Arbeidsforhold",
@@ -350,6 +357,17 @@
             {
                 "Header": "Hovedbokskonto",
                 "Field": "LedgerAccount",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Regulativ",
+                "Field": "RegulativeGroup.Name",
+                "Alias": "RegulativeGroupName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Regulativtrinn",
+                "Field": "RegulativeStepNr",
                 "DefaultHidden": true
             },
             {

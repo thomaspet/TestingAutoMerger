@@ -2,7 +2,6 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {ReactiveFormsModule} from '@angular/forms';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
@@ -14,7 +13,6 @@ import {AppCommonModule} from '../common/appCommonModule';
         CommonModule,
         UniFrameworkModule,
         ReactiveFormsModule,
-        AppPipesModule,
         RouterModule,
         LayoutModule,
         UniTickerModule,

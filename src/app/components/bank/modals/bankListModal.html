@@ -2,6 +2,11 @@
     <header><h1>{{ options?.header }}</h1></header>
 
     <article>
+
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
         <section class="bank-list-section">
             <section class="bank-list-ag">
                 <ag-grid-wrapper
@@ -28,15 +33,19 @@
                     <mat-checkbox [(ngModel)]="currentAgreement.IsBankBalance" (ngModelChange)="isDirty = true" name="BankBalance"></mat-checkbox>
                 </label>
                 <label>
-                    <span>Service Id</span>
-                    {{ currentAgreement.ServiceID }}
+                    <span>ServiceID</span>
+                    <span class="sid-span" *ngIf="!showInputField"> {{ currentAgreement.ServiceID }} </span>
+                    <input type="text" [(ngModel)]="currentAgreement.ServiceID" *ngIf="showInputField" />
                 </label>
                 <label>
                     <span>Bekreft endring med passord</span>
                     <input type="password" [(ngModel)]="password" [disabled]="!isDirty" [(ngModel)]="password">
                     <span *ngIf="errorMessage" style="color: red; margin-left: 2px;"> {{ errorMessage }}</span>
                 </label>
+
+                <small style="color: red;" *ngIf="showInputField"> {{ infoTextForNewServiceID }} </small>
             </section>
+
         </section>
         <section *ngIf="displayInfo" class="bank-autobank-update-info">
             <p><i class="material-icons" style="color: #1565c0">info</i> Av sikkerhetsmessige årsaker, må du selv godkjenne at UniEconomy får tilgang til filer fra din bank. Vi sender deg nå en epost om hvordan du går videre for å få dette i gang.</p>
@@ -44,7 +53,8 @@
     </article>
 
     <footer>
-        <button class="c2a rounded" [disabled]="!password?.length" (click)="updateAutobankAgreement()" *ngIf="options.listkey !== 'FILE'">Lagre</button>
-        <button (click)="close()"> Lukk </button>
+        <button (click)="showInputField = true; isDirty = true;" class="c2a secondary"> Rediger ServiceID </button>
+        <button class="c2a " [disabled]="false" (click)="updateAutobankAgreement()" *ngIf="options.listkey !== 'FILE'">Lagre</button>
+        <button (click)="close()" class="c2a secondary"> Lukk </button>
     </footer>
 </section>

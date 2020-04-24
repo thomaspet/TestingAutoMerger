@@ -1,8 +1,6 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {MatSlideToggleModule, MatTooltipModule, MatTreeModule} from '@angular/material';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
@@ -14,7 +12,6 @@ import {CustomerProductsSold} from './customer/customerDetails/customerProductsS
 import {CustomerList} from './customer/list/customerList';
 import {ReportsModule} from '../reports/reportsModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
-import {AppPipesModule} from '@app/pipes/appPipesModule';
 
 import {InvoiceList} from './invoice/list/invoiceList';
 import {OrderDetails} from './order/details/orderDetails';
@@ -71,17 +68,10 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        MatSlideToggleModule,
-        MatTreeModule,
-        MatTooltipModule,
-
+        LibraryImportsModule,
         RouterModule.forChild(salesRoutes),
 
         UniFrameworkModule,
-        AppPipesModule,
         WidgetModule,
         LayoutModule,
         AppCommonModule,
@@ -152,63 +142,9 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
         AprilaOfferModal,
         AprilaCreditNoteModal
     ],
-    entryComponents: [
-        UniOrderToInvoiceModal,
-        ReminderConfirmForm,
-        UniReminderSendingModal,
-        UniReminderSendingEditModal,
-        UniReminderSendingMethodModal,
-        ReminderSending,
-        InvoiceReminders,
-        SendInvoiceModal,
-        TofReportModal,
-        UniTofSelectModal,
-        UniProductDetailsModal,
-        KidModalComponent,
-        UniChooseOrderHoursModal,
-        UniRecurringInvoiceLogModal,
-        AvtaleGiroModal,
-        AprilaOfferModal,
-        AprilaCreditNoteModal,
-        CustomerEditModal,
-    ],
     providers: [
         TradeItemHelper,
         TofHelper,
-    ],
-    exports: [
-        UniSales,
-        Customer,
-        CustomerDetails,
-        CustomerProductsSold,
-        CustomerList,
-        InvoiceList,
-        InvoiceDetails,
-        OrderDetails,
-        OrderList,
-        UniOrderToInvoiceModal,
-        QuoteDetails,
-        QuoteList,
-        Reminder,
-        ReminderList,
-        ReminderSending,
-        UniReminderSendingModal,
-        InvoiceReminders,
-        ProductGroups,
-        GroupDetails,
-        KIDSettings,
-        UniChooseOrderHoursModal,
-
-        ProductDetails,
-        ProductList,
-        UniProductDetailsModal,
-
-        SellerList,
-        // SellerLinks,
-        SellerDetails,
-        SellerSalesList,
-        KidModalComponent,
-        AvtaleGiroModal
     ]
 })
 export class SalesModule {

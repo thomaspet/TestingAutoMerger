@@ -1,11 +1,9 @@
 import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal/interfaces';
 import { SubEntity } from '@uni-entities';
 import { BehaviorSubject } from 'rxjs';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
-import { IMuniAGAZone } from '@app/services/services';
-
-
+import { IMuniAGAZone } from '@app/services/common/subEntityService';
 
 @Component({
     selector: 'uni-edit-aga-zone-modal',

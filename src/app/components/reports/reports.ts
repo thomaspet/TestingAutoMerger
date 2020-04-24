@@ -11,10 +11,9 @@ import {SalaryWithholdingAndAGAReportFilterModal} from './modals/salaryWithholdi
 import {AnnualSatementReportFilterModalComponent} from './modals/anualStatement/anualStatementReportFilterModal';
 import {PayCheckReportFilterModal} from './modals/paycheck/paycheckReportFilterModal';
 import {Observable} from 'rxjs';
-import {UniModalService, ConfirmActions, IUniModal} from '../../../framework/uni-modal';
+import {UniModalService, ConfirmActions, IUniModal, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from './modals/parameter/reportParamModal';
-import {UniPreviewModal} from './modals/preview/previewModal';
-import { map } from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 
 interface IMainGroup {
     name: string;

@@ -92,7 +92,7 @@ export class SalaryTransactionSelectionList extends UniView implements OnDestroy
     private categories: EmployeeCategory[];
     public busy: boolean;
 
-    @ViewChild(SalaryTransactionEmployeeList, { static: false })
+    @ViewChild(SalaryTransactionEmployeeList)
     private transList: SalaryTransactionEmployeeList;
 
     constructor(

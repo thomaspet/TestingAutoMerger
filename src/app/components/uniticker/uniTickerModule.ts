@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {ReportsModule} from '../reports/reportsModule';
 
 import {UniTickerOverview} from './overview/overview';
@@ -27,7 +26,6 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         LayoutModule,
 
         AppCommonModule,
-        AppPipesModule,
         ReportsModule,
     ],
     declarations: [
@@ -37,8 +35,6 @@ import {UniTickerDetailView} from './components/tickerDetailView';
         UniTickerWrapper,
         UniSubTickerContainer,
         UniTickerDetailView
-    ],
-    entryComponents: [
     ],
     exports: [
         UniTickerOverview,

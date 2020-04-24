@@ -1,7 +1,7 @@
 ﻿import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
+
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -12,7 +12,6 @@ import {TimeTableReport} from './timeentry/timetable/timetable';
 import {ReportWorkflow} from './timeentry/timetable/pipes';
 import {RegtimeTotals} from './timeentry/totals/totals';
 import {RegtimeBalance} from './timeentry/balance/balance';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {View} from './worker/relations';
 import {WorkerDetailview} from './worker/worker';
 import {WorkerListview} from './worker/workers';
@@ -36,19 +35,9 @@ import {WidgetModule} from '../widgets/widgetModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {EditVacationModal} from './timeentry/vacation/edit-vacation-modal';
 
-import {MatSelectModule} from '@angular/material';
-import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular/material';
-
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        AppPipesModule,
-        MatSelectModule,
-        MatMenuModule,
-        MatDatepickerModule,
-        MatProgressBarModule,
+        LibraryImportsModule,
 
         RouterModule.forChild(timetrackingRoutes),
 
@@ -88,15 +77,6 @@ import {MatMenuModule, MatDatepickerModule, MatProgressBarModule} from '@angular
     ],
     providers: [
         ReportWorkflow,
-    ],
-    entryComponents: [
-        TimeentryImportModal,
-        UniTemplateModal,
-        TimetrackingDashboard,
-        TimeApproveModal,
-        UniApproveTaskModal,
-        UniTimeEditModal,
-        EditVacationModal
     ]
 })
 export class TimetrackingModule {}

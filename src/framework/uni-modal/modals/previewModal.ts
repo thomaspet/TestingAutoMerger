@@ -2,7 +2,7 @@ import {
     Component, Input, Output, EventEmitter, ChangeDetectorRef, ViewEncapsulation,
     AfterViewInit, ChangeDetectionStrategy
 } from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ReportFormat} from '@app/models/reportFormat';
 import {ReportService, Report, ErrorService} from '@app/services/services';
 import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';

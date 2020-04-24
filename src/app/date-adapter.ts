@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {NativeDateAdapter} from '@angular/material';
+import { NativeDateAdapter } from '@angular/material/core';
 import * as moment from 'moment';
 
 @Injectable()

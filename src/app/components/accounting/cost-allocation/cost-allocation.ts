@@ -9,7 +9,7 @@ import { ErrorService } from '@app/services/common/errorService';
 import { CustomDimensionService } from '@app/services/common/customDimensionService';
 import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
 import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { UniCostAllocationList } from '@app/components/accounting/cost-allocation/cost-allocation-list/cost-allocation-list';
 
 

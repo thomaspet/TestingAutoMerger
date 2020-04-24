@@ -19,9 +19,9 @@ import { UniModalService } from '@uni-framework/uni-modal';
     templateUrl: './vatsettings.html'
 })
 export class VatSettings {
-    @ViewChild(VatTypeList, { static: false }) private vatTypeList: VatTypeList;
-    @ViewChild(VatTypeDetails, { static: false }) private vatTypeDetails: VatTypeDetails;
-    @ViewChild(VatDeductionSettings, { static: false }) private vatDeductionSettings: VatDeductionSettings;
+    @ViewChild(VatTypeList) private vatTypeList: VatTypeList;
+    @ViewChild(VatTypeDetails) private vatTypeDetails: VatTypeDetails;
+    @ViewChild(VatDeductionSettings) private vatDeductionSettings: VatDeductionSettings;
 
     private vatType: VatType;
     private hasChanges: boolean = false;

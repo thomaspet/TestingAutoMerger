@@ -24,7 +24,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
     templateUrl: './recurringPost.html'
 })
 export class RecurringPost extends UniView {
-    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
 
     private employeeID: number;
     public tableConfig: UniTableConfig;

@@ -246,9 +246,9 @@
     display: flex
 
     .bank-list-ag
-        flex: 1
+        width: 30rem
     .bank-list-details
-        flex: 0 0 40rem
+        flex: 1
         border-style: solid
         border-color: #C3CAD9
         border-width: 1px
@@ -260,9 +260,13 @@
             align-items: center
             margin-bottom: .75rem
             input
-                width: 15rem
+                flex: 1
             span
                 width: 240px
+
+                &.sid-span
+                    flex: 1
+                    width: none
 
 .bank-autobank-update-info
     border-style: solid

@@ -30,9 +30,6 @@ import {UniQueries} from './uniQueries';
         SaveQueryDefinitionForm,
         SaveQueryDefinitionModal
     ],
-    entryComponents: [
-        SaveQueryDefinitionForm
-    ],
     exports: [
         UniQueries,
         UniQueryOverview,

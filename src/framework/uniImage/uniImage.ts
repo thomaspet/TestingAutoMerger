@@ -8,9 +8,9 @@ import {
     ChangeDetectionStrategy,
     ViewChild,
 } from '@angular/core';
-import {MatMenuTrigger} from '@angular/material';
+import { MatMenuTrigger } from '@angular/material/menu';
 import {trigger, transition, style, keyframes, animate} from '@angular/animations';
-import printJS from 'print-js';
+import * as printJS from 'print-js';
 
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
@@ -60,7 +60,7 @@ export interface FileExtended extends File {
       ]
 })
 export class UniImage {
-    @ViewChild(MatMenuTrigger, { static: false }) ocrMenu: MatMenuTrigger;
+    @ViewChild(MatMenuTrigger) ocrMenu: MatMenuTrigger;
 
     @Input() entity: string;
     @Input() entityID: number;
@@ -603,7 +603,7 @@ export class UniImage {
     }
 
     protected getTransfer(event: any): any {
-        return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer; // jQuery fix;
+        return event.dataTransfer ? event.dataTransfer : event.originalEvent.dataTransfer;
     }
 
     public uploadFileChange(event) {

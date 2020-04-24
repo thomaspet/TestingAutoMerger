@@ -1,6 +1,6 @@
 <query-item
     *ngFor="let item of items; let idx = index"
-    [(item)]="item"
+    [(item)]="items[idx]"
     [fields]="fields"
     [operators]="operators"
     [hideLogicalOperator]="idx === 0"

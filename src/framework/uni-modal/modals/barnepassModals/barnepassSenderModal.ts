@@ -1,15 +1,13 @@
 import { Component, OnInit, Output, EventEmitter, Input, ViewChild } from '@angular/core';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal/interfaces';
+import { UniPreviewModal } from '../previewModal';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
-import { ReportDefinition, FieldType } from '@uni-entities';
 import { AltinnIntegrationService, ReportDefinitionService, ReportNames, OppgaveBarnepass, BarnepassLeveranse } from '@app/services/services';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IUniTab } from '@uni-framework/uni-tabs/uni-tabs';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { isNullOrUndefined } from 'util';
-import { UniPreviewModal } from '@app/components/reports/modals/preview/previewModal';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { ComboButtonAction } from '@uni-framework/ui/combo-button/combo-button';

@@ -1,42 +1,61 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 
 import {UniAssignments} from './assignments';
 import {UniTasks} from './tasks/tasks';
 import {UniApprovals} from './approvals/approvals';
 
-// Previews
 import {SupplierInvoicePreview} from './previews/supplierInvoicePreview';
 import {WorkApprovalPreview} from './previews/workapprovalpreview';
 
-import {MatSlideToggleModule} from '@angular/material';
+const routes = [
+    {
+        path: '',
+        component: UniAssignments,
+        children: [
+            {
+                path: '',
+                pathMatch: 'full',
+                redirectTo: 'approvals'
+            },
+            {
+                path: 'tasks',
+                component: UniTasks,
+            },
+            {
+                path: 'tasks/:id',
+                component: UniTasks,
+            },
+            {
+                path: 'approvals',
+                component: UniApprovals,
+            },
+            {
+                path: 'approvals/:id',
+                component: UniApprovals,
+            }
+        ]
+    },
+];
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
-        RouterModule,
-
+        RouterModule.forChild(routes),
+        LibraryImportsModule,
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
-        MatSlideToggleModule
     ],
     declarations: [
         UniAssignments,
         UniTasks,
         UniApprovals,
 
-        // Previews
         SupplierInvoicePreview,
         WorkApprovalPreview
     ]

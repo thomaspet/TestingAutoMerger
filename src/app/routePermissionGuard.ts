@@ -1,4 +1,4 @@
-import {Inject} from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import {AuthService} from './authService';
 import {
     Router,
@@ -8,6 +8,7 @@ import {
     RouterStateSnapshot
 } from '@angular/router';
 
+@Injectable()
 export class RoutePermissionGuard implements CanActivate, CanActivateChild {
     constructor(
         @Inject(Router) private router,

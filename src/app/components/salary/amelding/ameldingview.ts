@@ -2,10 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus} from '../../../unientities';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {IUniSaveAction} from '../../../../framework/save/save';
+import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
+import {IUniSaveAction} from '@uni-framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
@@ -19,9 +19,8 @@ import {
     PayrollrunService,
     ReportDefinitionService,
     SalarySumsService
-} from '../../../services/services';
-import {UniModalService} from '../../../../framework/uni-modal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+} from '@app/services/services';
+import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
 import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
@@ -118,17 +117,17 @@ export class AMeldingView implements OnInit {
             label: 'Avansert periodebehandling',
             action: () => this.openAdminModal()
         },
-        // {
-        //     label: 'Betal f.trekk og aga',
-        //     action: () => this.openMakePaymentModal(),
-        //     disabled: () => {
-        //         return !this.periodStatus
-        //             || this.periodStatus.toLowerCase().includes('må hentes')
-        //             || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
-        //             || this.periodStatus.toLowerCase().includes('øyeblikkelig')
-        //             || this.periodStatus.toLowerCase().includes('avvist');
-        //     }
-        // }
+        {
+             label: 'Betal f.trekk og aga',
+             action: () => this.openMakePaymentModal(),
+             disabled: () => {
+                 return !this.periodStatus
+                     || this.periodStatus.toLowerCase().includes('må hentes')
+                     || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
+                     || this.periodStatus.toLowerCase().includes('øyeblikkelig')
+                     || this.periodStatus.toLowerCase().includes('avvist');
+             }
+        }
     ];
 
     constructor(
@@ -786,7 +785,7 @@ export class AMeldingView implements OnInit {
             }
         }).onClose.subscribe(result => {
             if (result) {
-                // this.openMakePaymentModal();
+                this.openMakePaymentModal();
             }
         });
     }

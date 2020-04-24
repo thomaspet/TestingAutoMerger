@@ -9,7 +9,6 @@ import { ReplaySubject } from 'rxjs';
 import 'rxjs/add/operator/map';
 import { UserManager, WebStorageStateStore } from 'oidc-client';
 import * as moment from 'moment';
-import * as $ from 'jquery';
 
 export interface IAuthDetails {
     activeCompany: Company;
@@ -171,11 +170,27 @@ export class AuthService {
     }
 
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
-        if (visible) {
-            $('#app-spinner').fadeIn(0);
-            $('#app-spinner-text').text(() => isLogout ? 'Logger ut' : 'Laster selskapsdata');
-        } else {
-            $('#app-spinner').fadeOut(250);
+        const spinner = document.getElementById('app-spinner');
+        if (spinner) {
+            if (visible) {
+                spinner.style.opacity = '1';
+                spinner.style.display = 'flex';
+                const textElement = document.getElementById('app-spinner-text');
+                if (textElement) {
+                    textElement.innerText = isLogout ? 'Logger ut' : 'Laster selskapsdata';
+                }
+            } else {
+                let opacity = 1;
+                const interval = setInterval(() => {
+                    if (opacity <= 0.2) {
+                        spinner.style.display = 'none';
+                        clearInterval(interval);
+                    } else {
+                        spinner.style.opacity = opacity.toString();
+                        opacity = opacity - 0.2;
+                    }
+                }, 50);
+            }
         }
 
         // #chat-container is added by boost, so it wont show up

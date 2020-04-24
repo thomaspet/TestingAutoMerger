@@ -141,11 +141,22 @@
                 "ExternalModel": "JournalEntry"
             }
         ],
+        "DefaultTableFilter": {
+            "field": "StatusCode",
+            "operator": "ne",
+            "value": "44020",
+            "label": "Vis skjulte betalinger",
+            "filter": "isnull(StatusCode,0) ne 44020",
+            "active": false,
+            "useWhenActive": false,
+            "useOnlyOnFilter": "incomming_without_match"
+        },
         "Filters": [
             {
                 "Name": "Alle",
                 "Code": "bank_list",
                 "UseAllCriterias": true,
+                "IsMultiRowSelect": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -180,8 +191,93 @@
                         },
                         {
                             "Field": "StatusCode",
-                            "Operator": "eq",
-                            "Value": "44018"
+                            "Operator": "ne",
+                            "Value": "44001"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44002"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44003"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44004"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44005"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44006"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44007"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44008"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44009"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44010"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44011"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44012"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44013"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44014"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44015"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44016"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44017"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44019"
                         }
                     ]
                 }]
@@ -999,15 +1095,15 @@
             {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
-                "FilterOperator": "contains",
-                "SumColumn": true
+                "FilterOperator": "contains"
             },
             {
                 "Header": "Beløp",
                 "Field": "Amount",
                 "FilterOperator": "contains",
                 "Alias": "Amount",
-                "DisplayField": "Amount"
+                "DisplayField": "Amount",
+                "SumColumn": true
             },
             {
                 "Header": "Betalingsdato",

@@ -1,8 +1,5 @@
-import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatMenuModule, MatSlideToggleModule } from '@angular/material';
-import { OverlayModule } from '@angular/cdk/overlay';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import {NgModule} from '@angular/core';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {NotificationService} from './notification-service';
 import {Notifications} from './notifications';
@@ -12,11 +9,7 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 
 @NgModule({
     imports: [
-        CommonModule,
-        MatMenuModule,
-        MatSlideToggleModule,
-        OverlayModule,
-        ScrollingModule,
+        LibraryImportsModule,
         UniFrameworkModule
     ],
     declarations: [
@@ -24,7 +17,6 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
         NotificationsDropdown,
         NotificationItem,
     ],
-    entryComponents: [NotificationsDropdown],
     providers: [NotificationService],
     exports: [Notifications]
 })

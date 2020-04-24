@@ -1,7 +1,6 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
@@ -44,41 +43,15 @@ import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
 import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
 import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
 import {SettingsOverview} from './settings-overview/settings-overivew';
-import {AppPipesModule} from '@app/pipes/appPipesModule';
-
-
-import {
-    MatSlideToggleModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatExpansionModule,
-    MatCheckboxModule,
-    MatListModule,
-    MatProgressSpinnerModule,
-    MatMenuModule,
-    MatTooltipModule
-} from '@angular/material';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
+        LibraryImportsModule,
         RouterModule.forChild(settingsRoutes),
         UniFrameworkModule,
         CommonServicesModule,
         LayoutModule,
         AppCommonModule,
-        MatSlideToggleModule,
-        MatFormFieldModule,
-        MatSelectModule,
-        MatExpansionModule,
-        MatCheckboxModule,
-        MatListModule,
-        MatProgressSpinnerModule,
-        MatMenuModule,
-        MatTooltipModule,
-        AppPipesModule
     ],
     declarations: [
         AgaAndSubEntitySettings,
@@ -108,31 +81,6 @@ import {
         EventPlansList,
         EventPlanDetails,
         SettingsOverview
-    ],
-    entryComponents: [
-        GrantModal,
-        FreeAmountModal,
-        ChangeCompanySettingsPeriodSeriesModal,
-        ActivateAutobankModal,
-        ResetAutobankPasswordModal,
-        UniDimensionModal,
-        UniRoleModal,
-        InviteUsersModal,
-        DistributionPlanModal,
-        CustomerListModal
-    ],
-    exports: [
-        RouterModule,
-
-        AgaAndSubEntitySettings,
-        SubEntityDetails,
-        SubEntityList,
-        CompanySettingsComponent,
-        UniTerms,
-        ChangeCompanySettingsPeriodSeriesModal,
-        GrantModal,
-        // FreeAmountModal,
-        EventPlans,
     ],
     providers: [
         SubEntitySettingsService,

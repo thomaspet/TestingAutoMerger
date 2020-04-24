@@ -2,8 +2,6 @@ import {Injectable} from '@angular/core';
 import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType, SupplierInvoice} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/operator/mergeMap';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationLevel, CompanySettings, JournalEntryLineDraft, LocalDate} from '../../unientities';
 import {ValidationMessage, ValidationResult} from '../../models/validationResult';

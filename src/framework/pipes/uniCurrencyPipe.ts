@@ -1,11 +1,8 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {ErrorService} from '../services/services';
 
 @Pipe({name: 'unicurrency'})
 export class UniCurrencyPipe implements PipeTransform {
-
-    constructor(private errorService: ErrorService) {}
-    public transform(value: number, numberOfDecimalPlaces?: number): string {
+    transform(value: number, numberOfDecimalPlaces?: number) {
         try {
             if (value === undefined) return '';
             const nrOfDecimal = numberOfDecimalPlaces || 2;
@@ -16,7 +13,8 @@ export class UniCurrencyPipe implements PipeTransform {
             const thousandSeparatedNumber = this.insertThousandSeparator(decimalCorrect, THOUSAND_SEPARATOR, DECIMAL_SEPARATOR);
             return thousandSeparatedNumber;
         } catch (err) {
-            this.errorService.handle(err);
+            console.error(err);
+            return value;
         }
     }
 

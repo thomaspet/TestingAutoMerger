@@ -6,7 +6,6 @@ import {RouterModule} from '@angular/router';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 
 import {CurrencyComponent} from './currencyComponent';
 import {CurrencyOverrides} from './currencyoverrides/currencyoverrides';
@@ -22,14 +21,9 @@ import {CurrencyExchange} from './currencyexchange/currencyexchange';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        AppPipesModule,
     ],
     declarations: [
         CurrencyComponent,
-        CurrencyOverrides,
-        CurrencyExchange
-    ],
-    exports: [
         CurrencyOverrides,
         CurrencyExchange
     ]

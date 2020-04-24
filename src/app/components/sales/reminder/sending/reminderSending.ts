@@ -5,9 +5,8 @@ import { SendEmail } from '../../../../models/sendEmail';
 import { IUniSaveAction } from '../../../../../framework/save/save';
 import { Observable, of } from 'rxjs';
 import { LocalDate, CustomerInvoiceReminder, ReportDefinition } from '../../../../unientities';
-import { UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { UniModalService, ConfirmActions, UniPreviewModal } from '../../../../../framework/uni-modal';
 import { BehaviorSubject } from 'rxjs';
-import { UniPreviewModal } from '../../../reports/modals/preview/previewModal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniReminderSendingEditModal } from './reminderSendingEditModal';
 import {
@@ -59,7 +58,7 @@ export class ReminderSending implements OnInit {
 
     @Input() config: any;
     @Input() modalMode: boolean;
-    @ViewChild(AgGridWrapper, { static: false })
+    @ViewChild(AgGridWrapper)
     private table: AgGridWrapper;
 
     public reminderTable: UniTableConfig;

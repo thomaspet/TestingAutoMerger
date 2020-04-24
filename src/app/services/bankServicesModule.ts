@@ -14,7 +14,7 @@ export * from './bank/bankStatementRuleService';
 
 @NgModule()
 export class BankServicesModule {
-    static forRoot(): ModuleWithProviders {
+    static forRoot(): ModuleWithProviders<BankServicesModule> {
         return {
             ngModule: BankServicesModule,
             providers: [

@@ -30,7 +30,7 @@ import {saveAs} from 'file-saver';
     templateUrl: './uniQueryDetails.html'
 })
 export class UniQueryDetails {
-    @ViewChild(AgGridWrapper, { static: false })
+    @ViewChild(AgGridWrapper)
     public table: AgGridWrapper;
 
     @ViewChild(SaveQueryDefinitionModal, { static: true })

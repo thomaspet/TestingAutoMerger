@@ -46,7 +46,7 @@ import {BoostChat} from '@app/components/layout/boostChat/boostChat';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTabstripHelp {
-    @ViewChild(BoostChat, { static: false }) boost: BoostChat;
+    @ViewChild(BoostChat) boost: BoostChat;
 
     isSrEnvironment: boolean = environment.isSrEnvironment;
 

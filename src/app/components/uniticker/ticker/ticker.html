@@ -42,7 +42,7 @@
 
     <mat-checkbox
         class="ticker-default-filter"
-        *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label"
+        *ngIf="this.ticker && this.ticker.DefaultTableFilter && this.ticker.DefaultTableFilter.label && (!ticker.DefaultTableFilter.useOnlyOnFilter || ticker.DefaultTableFilter.useOnlyOnFilter == selectedFilter.Code)"
         (change)="setupTableConfig()"
         [(ngModel)]="this.ticker.DefaultTableFilter.active">
         {{ this.ticker.DefaultTableFilter.label }}

@@ -3,7 +3,7 @@ import { ToastService, ToastType } from '../../../../../framework/uniToast/toast
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
 import { IUniSaveAction } from '../../../../../framework/save/save';
 import { ISummaryConfig } from '../../../common/summary/summary';
-import { UniModalService, ConfirmActions } from '../../../../../framework/uni-modal';
+import { UniModalService, ConfirmActions, UniPreviewModal } from '../../../../../framework/uni-modal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     NumberFormat,
@@ -21,10 +21,8 @@ import {
     INumberFormat
 } from '../../../../../framework/ui/unitable/index';
 import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
-import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { UniPreviewModal } from '@app/components/reports/modals/preview/previewModal';
 
 declare const _;
 
@@ -37,7 +35,7 @@ export class DebtCollection implements OnInit {
     @Input()
     public config: any;
 
-    @ViewChild(AgGridWrapper, { static: false })
+    @ViewChild(AgGridWrapper)
     private table: AgGridWrapper;
 
     public remindersToDebtCollect: any;

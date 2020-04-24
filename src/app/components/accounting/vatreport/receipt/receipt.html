@@ -38,7 +38,7 @@
             </tr>
             <tr>
                 <th>Betalingsfrist</th>
-                <td>{{vatReport?.VatReportArchivedSummary?.PaymentDueDate | unidateformat}}</td>
+                <td>{{vatReport?.VatReportArchivedSummary?.PaymentDueDate | date: 'dd.MM.yyyy'}}</td>
             </tr>
             <tr>
                 <th>Betale til</th>

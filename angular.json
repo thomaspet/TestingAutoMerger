@@ -9,8 +9,12 @@
       "projectType": "application",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            },
+            "aot": false,
             "outputPath": "dist",
             "index": "src/index.html",
             "main": "src/main.ts",
@@ -31,9 +35,14 @@
               "node_modules/ag-grid-community/dist/styles/ag-grid.css",
               "node_modules/perfect-scrollbar/css/perfect-scrollbar.css",
               "node_modules/@ng-select/ng-select/themes/default.theme.css",
-              {"input": "src/assets/ehf-viewer.css", "bundleName": "ehf-viewer"},
-              {"input": "src/assets/uni-spinner.css", "bundleName": "uni-spinner"}
-
+              {
+                "input": "src/assets/ehf-viewer.css",
+                "bundleName": "ehf-viewer"
+              },
+              {
+                "input": "src/assets/uni-spinner.css",
+                "bundleName": "uni-spinner"
+              }
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -44,11 +53,21 @@
           "configurations": {
             "dev": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": false,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -56,17 +75,33 @@
             },
             "dev-serve": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true
             },
             "dev-serve-faster": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
@@ -79,11 +114,21 @@
             },
             "test": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -97,11 +142,21 @@
             },
             "rc": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -115,11 +170,21 @@
             },
             "test-serve": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
@@ -132,11 +197,21 @@
             },
             "rc-serve": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
@@ -149,11 +224,21 @@
             },
             "prod": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -167,11 +252,21 @@
             },
             "prod-serve": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
@@ -201,11 +296,21 @@
             },
             "ext01": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -244,11 +349,21 @@
             },
             "ext01-rc": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
@@ -326,11 +441,21 @@
             },
             "ext01-serve": {
               "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
@@ -367,6 +492,12 @@
               }
             },
             "local": {
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "outputHashing": "all",
               "fileReplacements": [
                 {
@@ -377,6 +508,12 @@
             },
             "aot-error-check": {
               "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
@@ -388,9 +525,12 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "economy-frontend:build"
+            "browserTarget": "economy-frontend:build",
+            "customWebpackConfig": {
+              "path": "./webpack.config.js"
+            }
           },
           "configurations": {
             "dev-serve": {
@@ -501,5 +641,8 @@
     "@schematics/angular:directive": {
       "prefix": "uni"
     }
+  },
+  "cli": {
+    "analytics": "8f54a5c5-a2b8-4ebe-b1f8-13047dddc762"
   }
 }

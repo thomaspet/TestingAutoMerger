@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild, ElementRef} from '@angular/core';
-import {MatDatepicker} from '@angular/material';
+import { MatDatepicker } from '@angular/material/datepicker';
 
 @Component({
     selector: 'uni-datepicker',

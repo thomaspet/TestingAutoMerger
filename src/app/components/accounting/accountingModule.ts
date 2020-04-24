@@ -1,22 +1,11 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-
-import {
-    MatSelectModule,
-    MatIconModule,
-    MatTooltipModule,
-    MatProgressBarModule,
-    MatMenuModule,
-    MatOptionModule,
-    DateAdapter,
-} from '@angular/material';
+import {LibraryImportsModule} from '@app/library-imports.module';
+import {DateAdapter} from '@angular/material/core';
 
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {AppPipesModule} from '../../pipes/appPipesModule';
 import {WidgetModule} from '../widgets/widgetModule';
 
 import {accountingRoutes} from './accountingRoutes';
@@ -94,21 +83,12 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
 
 @NgModule({
     imports: [
-        MatSelectModule,
-        MatIconModule,
-        MatTooltipModule,
-        MatProgressBarModule,
-        MatMenuModule,
-        MatOptionModule,
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
+        LibraryImportsModule,
         UniFrameworkModule,
 
         LayoutModule,
         AppCommonModule,
         WidgetModule,
-        AppPipesModule,
         UniTickerModule,
         RouterModule.forChild(accountingRoutes)
     ],
@@ -202,91 +182,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         UniCostAllocation,
         UniCostAllocationList,
         UniCostAllocationDetails,
-    ],
-    entryComponents: [
-        HistoricVatReportModal,
-        VatDeductionGroupSetupModal,
-        CreateCorrectedVatReportForm,
-        AccountDetailsReport,
-        SelectJournalEntryLineModal,
-        EditSupplierInvoicePayments,
-        NewAccountModal,
-        BillAssignmentModal,
-        AccountDetailsReportModal,
-        SelectDraftLineModal,
-        DraftLineDescriptionModal,
-        UniBudgetEntryEditModal,
-        UniBudgetEditModal,
-        UniSmartBookingSettingsModal,
-        UniCostAllocation,
-        UniCostAllocationList,
-        UniCostAllocationDetails,
-        FileFromInboxModal,
-        BillTransitionModal,
-        BillInitModal,
-        ReInvoiceInfoModal,
-        UniJournalEntryLineModal,
-        NewOutgoingWizardModal,
-        ExpenseSummaryModal,
-        RecieverModal,
-        DoneRedirectModal,
-        SupplierEditModal
-    ],
-    exports: [
-        AccountSettings,
-        AccountList,
-        AccountDetails,
-        NewAccountModal,
-        VatSettings,
-        VatTypeDetails,
-        VatTypeList,
-        VatDeductionSettings,
-        VatDeductionGroupSetupModal,
-        SupplierList,
-        SupplierDetails,
-
-        // journalentry
-        JournalEntryProfessional,
-        JournalEntryManual,
-        JournalEntry,
-        JournalEntries,
-        Payments,
-        BillsView,
-        SelectJournalEntryLineModal,
-        DraftLineDescriptionModal,
-
-        // vatreport
-        CheckListVat,
-        VatReportJournalEntry,
-        CreateCorrectedVatReportForm,
-        ReceiptVat,
-        VatSummaryPerPost,
-        VatReportView,
-        CreateCorrectedVatReportModal,
-        HistoricVatReportModal,
-
-        // transquery
-        TransqueryDetails,
-
-        // accounting reports
-        AccountingReports,
-        ResultReport,
-        BalanceReport,
-        PeriodPicker,
-        AccountDetailsReportModal,
-        AccountDetailsReport,
-        DistributionPeriodReportPart,
-        DrilldownResultReportPart,
-        DimensionsOverviewReportPart,
-        DimensionResultReport,
-        DrilldownBalanceReportPart,
-
-        // PostPost
-        PostPost,
-
-        // CostAllocation
-        UniCostAllocation,
-        UniCostAllocationList,
     ],
     providers: [
         { provide: DateAdapter, useClass: UniDateAdapter },

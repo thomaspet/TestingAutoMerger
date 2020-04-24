@@ -1,9 +1,8 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {PaycheckSending, PaycheckFormat} from './paycheckSending';
-import {IUniModal, IModalOptions, UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {of, Observable} from 'rxjs';
-import {ErrorService, ReportNames, PayrollrunService, ReportDefinitionService, IPaycheckEmailInfo} from '@app/services/services';
-import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
+import {IUniModal, IModalOptions, UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
+import {Observable} from 'rxjs';
+import {ErrorService, PayrollrunService, ReportDefinitionService, IPaycheckEmailInfo} from '@app/services/services';
 import {ToastTime, ToastType, ToastService} from '@uni-framework/uniToast/toastService';
 import {Employee, ReportDefinition} from '@uni-entities';
 import {filter, tap, switchMap, catchError, finalize, map} from 'rxjs/operators';

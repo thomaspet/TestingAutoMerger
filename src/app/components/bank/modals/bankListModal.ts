@@ -10,7 +10,7 @@ import {BankService} from '@app/services/accounting/bankService';
 import {UniBankUserPasswordModal} from '@app/components/bank/modals/bank-user-password.modal';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {FileService} from '@app/services/services';
+import {FileService, ErrorService} from '@app/services/services';
 import {saveAs} from 'file-saver';
 import { BankIntegrationAgreement } from '@uni-entities';
 
@@ -36,12 +36,17 @@ export class UniBankListModal implements IUniModal, OnInit {
     errorMessage: string;
     initBankStatementValue: boolean;
     displayInfo: boolean;
+    busy: boolean = false;
+    showInputField: boolean = false;
+    infoTextForNewServiceID: string = 'OBS! ServiceID skal kun endres etter avtale med Z-data. ' +
+    'Du må skrive inn passord for autobank for å lagre.';
 
     constructor(
         private modalService: UniModalService,
         private bankService: BankService,
         private fileService: FileService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -64,35 +69,50 @@ export class UniBankListModal implements IUniModal, OnInit {
         this.isDirty = false;
         this.initBankStatementValue = this.currentAgreement.IsBankBalance;
         this.displayInfo = false;
+        this.showInputField = false;
     }
 
     public updateAutobankAgreement() {
+        this.busy = true;
         this.errorMessage = '';
+
+        // REGEX THAT CHECKS FOR A VALID UUID-GUID
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(this.currentAgreement.ServiceID)) {
+            this.busy = false;
+            this.toastService.addToast('Ugyldig ServiceID, lagring avbrutt', ToastType.warn, 5);
+            return;
+        }
+
         const payload =  {
             IsInbound: this.currentAgreement.IsInbound,
             IsOutgoing: this.currentAgreement.IsOutgoing,
             IsBankStatement : this.currentAgreement.IsBankBalance,
             IsBankBalance : this.currentAgreement.IsBankBalance,
+            ServiceID : this.currentAgreement.ServiceID,
             Password : this.password,
         };
         this.password = '';
 
-        this.bankService.updateAutobankAgreement(this.currentAgreement.ID, payload).subscribe(
-            (response: BankIntegrationAgreement) => {
-                this.toastService.addToast('Godkjent', ToastType.good, ToastTime.medium,
-                'Autobankavtalen er oppdatert');
+        this.bankService.updateAutobankAgreement(this.currentAgreement.ID, payload).subscribe((response: BankIntegrationAgreement) => {
+            this.toastService.addToast('Godkjent', ToastType.good, ToastTime.medium,
+            'Autobankavtalen er oppdatert');
+            this.busy = false;
+            this.showInputField = false;
 
-                if (this.initBankStatementValue !== this.currentAgreement.IsBankBalance && this.currentAgreement.IsBankBalance) {
-                    this.displayInfo = true;
+            if (this.initBankStatementValue !== this.currentAgreement.IsBankBalance && this.currentAgreement.IsBankBalance) {
+                this.displayInfo = true;
+            }
+
+            this.bankAgreements = this.bankAgreements.map(x => {
+                if (x.ID === response.ID) {
+                    return response;
                 }
-
-                this.bankAgreements = this.bankAgreements.map(x => {
-                    if (x.ID === response.ID) {
-                        return response;
-                    }
-                    return x;
-                });
+                return x;
             });
+        }, err => {
+            this.errorService.handle(err);
+            this.busy = false;
+        });
     }
 
     public getStatusText(code: number) {

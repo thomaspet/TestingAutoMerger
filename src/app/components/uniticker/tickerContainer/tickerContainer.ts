@@ -27,7 +27,7 @@ import {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class UniTickerContainer {
-    @ViewChild(UniTicker, { static: false }) public mainTicker: UniTicker;
+    @ViewChild(UniTicker) public mainTicker: UniTicker;
 
     @Input() public ticker: Ticker;
     @Input() public showActions: boolean;

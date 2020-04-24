@@ -36,7 +36,7 @@ export class SalarybalanceDetail extends UniView implements OnChanges {
     public collapseSummary: boolean = false;
     public summaryBusy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-    @ViewChild(UniImage, { static: false }) public uniImage: UniImage;
+    @ViewChild(UniImage) public uniImage: UniImage;
     @ViewChild(UniForm, { static: true }) public form: UniForm;
 
     @Input() public salarybalance: SalaryBalance;

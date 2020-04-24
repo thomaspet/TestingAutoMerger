@@ -1,23 +1,19 @@
 import {Component, OnInit, Input, Output, EventEmitter, ViewChild, SimpleChanges} from '@angular/core';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {BasicAmount, VacationPayLine, CompanySalary, CompanyVacationRate, } from '../../../../unientities';
-import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {
-    UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent
-} from '../../../../../framework/ui/unitable/index';
-import {
-    BasicAmountService, VacationpayLineService, FinancialYearService, ErrorService, CompanySalaryService, CompanyVacationRateService,
-} from '../../../../services/services';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform/index';
 import {VacationPaySettingsModal, IVacationPaySettingsReturn} from './vacationPaySettingsModal';
-import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {Observable, of, forkJoin} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {IUniSaveAction} from '../../../../../framework/save/save';
 import {IUniInfoConfig} from '@uni-framework/uniInfo/uniInfo';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {filter, tap, switchMap, map, finalize, take, catchError} from 'rxjs/operators';
+import { UniTableConfig, IRowChangeEvent, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { BasicAmountService, VacationpayLineService, ErrorService,
+    FinancialYearService, CompanySalaryService, CompanyVacationRateService } from '@app/services/services';
+import { IUniModal, IModalOptions, UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { BasicAmount, VacationPayLine, CompanySalary } from '@uni-entities';
 
 const DIRTY = '_Dirty';
 
@@ -141,57 +137,24 @@ export class VacationPayModal implements OnInit, IUniModal {
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
-    public createVacationPayments() {
-        this.modalService
-            .confirm({
-                header: 'Opprett feriepengeposter',
-                message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
-                + this.runID
-                + ` - Totalsum kr ${UniMath.useFirstTwoDecimals(this.totalPayout)}`,
-                buttonLabels: {
-                    accept: 'Overfør',
-                    cancel: 'Avbryt'
-                }
-            })
-            .onClose
-            .filter(response => response === ConfirmActions.ACCEPT)
-            .pipe(tap(() => {
-                if (this.isEarlierPay(this.currentYear, this.vacationBaseYear)) {
-                    return;
-                }
-                const rows: VacationPayLine[] = this.table.getSelectedRows();
-                let msg = '';
-                const missingEarlierPayments = rows
-                    .filter(row => !!row['MissingEarlierVacationPay']);
-
-                if (missingEarlierPayments.length) {
-                    const last = missingEarlierPayments.pop();
-
-                    msg += missingEarlierPayments
-                        .map(row => `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`)
-                        .join(', ');
-
-                    msg += `${(msg ? ' og ' : '')}${last.Employee.EmployeeNumber} - ${last.Employee.BusinessRelationInfo.Name}`;
-
-                    msg += ', har utbetalinger fra tidligere år som venter og blir derfor ikke med i denne overføringen';
-                }
-                if (msg) {
-                    this.toastService.addToast('Mangler tidligere utbetaling', ToastType.warn, ToastTime.forever, msg);
-                }
-            }))
-            .switchMap(() => {
+    public createVacationPayments(): void {
+        this.OpenVacationPayCreationConfirmModal().pipe(
+            filter(response => response === ConfirmActions.ACCEPT),
+            switchMap(() => {
+                this.canCreateVacationLine();
                 this.busy = true;
-                return this.vacationpaylineService
-                    .toSalary(
-                        this.vacationBaseYear,
-                        this.runID,
-                        this.table.getSelectedRows()
-                    );
+                    return this.vacationpaylineService
+                        .toSalary(
+                            this.vacationBaseYear,
+                            this.runID,
+                            this.table.getSelectedRows()
+                        );
             })
-            .pipe(tap(() => this.closeModal(true)))
-            .finally(() => this.busy = false)
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe();
+        ).subscribe(
+            () =>  this.closeModal(true),
+            (err) => this.errorService.handle(err),
+            () => this.busy = false
+        );
     }
 
     public closeModal(update: boolean = false) {
@@ -259,7 +222,43 @@ export class VacationPayModal implements OnInit, IUniModal {
         }
     }
 
+    private canCreateVacationLine(): void {
+        if (this.isEarlierPay(this.currentYear, this.vacationBaseYear)) {
+            return;
+        }
+        const rows: VacationPayLine[] = this.table.getSelectedRows();
+        let msg = '';
+        const missingEarlierPayments = rows
+            .filter(row => !!row['MissingEarlierVacationPay']);
 
+        if (missingEarlierPayments.length) {
+            const last = missingEarlierPayments.pop();
+
+            msg += missingEarlierPayments
+                .map(row => `${row.Employee.EmployeeNumber} - ${row.Employee.BusinessRelationInfo.Name}`)
+                .join(', ');
+
+            msg += `${(msg ? ' og ' : '')}${last.Employee.EmployeeNumber} - ${last.Employee.BusinessRelationInfo.Name}`;
+
+            msg += ', har utbetalinger fra tidligere år som venter og blir derfor ikke med i denne overføringen';
+        }
+        if (msg) {
+            this.toastService.addToast('Mangler tidligere utbetaling', ToastType.warn, ToastTime.forever, msg);
+        }
+    }
+
+    private OpenVacationPayCreationConfirmModal(): Observable<ConfirmActions> {
+        return this.modalService.confirm({
+            header: 'Opprett feriepengeposter',
+            message: 'Vennligst bekreft overføring av feriepengeposter til lønnsavregning '
+            + this.runID
+            + ` - Totalsum kr ${UniMath.useFirstTwoDecimals(this.totalPayout)}`,
+            buttonLabels: {
+                accept: 'Overfør',
+                cancel: 'Avbryt'
+            }
+        }).onClose;
+    }
 
     private getVacationpayData(vacationHeaderModel: IVacationPayHeader) {
         this.getVacationPayDataObs(vacationHeaderModel).subscribe();
@@ -546,7 +545,8 @@ export class VacationPayModal implements OnInit, IUniModal {
                     return '' + row.Rate;
                 }
             });
-        const sixthCol = new UniTableColumn('_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, (row) => !this.isEarlierPayline(row))
+        const sixthCol = new UniTableColumn(
+            '_IncludeSixthWeek', '6.ferieuke', UniTableColumnType.Select, (row) => !this.isEarlierPayline(row))
             .setOptions({
                 resource: ['Ja', 'Nei']
             });
@@ -594,7 +594,7 @@ export class VacationPayModal implements OnInit, IUniModal {
     }
 
     private isEarlierPayline(row: VacationPayLine) {
-        if (!row) return false;
+        if (!row) { return false; }
         return this.isEarlierPay(this.currentYear, row.Year);
     }
 

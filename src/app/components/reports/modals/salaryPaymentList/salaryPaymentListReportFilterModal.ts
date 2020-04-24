@@ -1,18 +1,16 @@
 import {Component, OnInit, ViewChild, Type, Input} from '@angular/core';
-import {UniModal} from '../../../../../framework/modals/modal';
-import {ReportDefinition, ReportDefinitionParameter, PayrollRun} from '../../../../unientities';
-import {UniModalService} from '../../../../../framework/uni-modal';
-import {UniPreviewModal} from '../preview/previewModal';
-import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {UniModal} from '@uni-framework/modals/modal';
+import {ReportDefinition, ReportDefinitionParameter, PayrollRun} from '@uni-entities';
+import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
+import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {
     ReportDefinitionParameterService,
     FinancialYearService,
     ErrorService,
     PayrollrunService,
     SalaryBookingType
-} from '../../../../services/services';
+} from '@app/services/services';
 import {tap, switchMap} from 'rxjs/operators';
 
 interface IModalConfig {

@@ -43,7 +43,7 @@ import * as _ from 'lodash';
     templateUrl: './accountDetailsReport.html',
 })
 export class AccountDetailsReport {
-    @ViewChild(UniSearch, { static: false }) searchElement: UniSearch;
+    @ViewChild(UniSearch) searchElement: UniSearch;
     @Input() config: {
         close: () => void,
         modalMode: boolean,

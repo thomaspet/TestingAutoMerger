@@ -8,22 +8,15 @@ uni-select
 
 ng-select
     .ng-select-container
-        border-color: #C3CAD9 !important
+        height: 2.5rem
+        border-color: var(--border-color) !important
+        border-radius: var(--section-radius) !important
         box-shadow: unset !important
-        border-radius: 3px !important
 
-    &.ng-select-focused .ng-select-container
-        outline-width: 2px
-        outline-style: solid
-        outline-color: Highlight
-        @media (-webkit-min-device-pixel-ratio:0)
-            outline-color: -webkit-focus-ring-color
-            outline-style: auto
-
-.ng-dropdown-panel
-    margin-top: 1px !important
-    box-shadow: unset
-    border-color: #C3CAD9
+    .ng-dropdown-panel
+        border-color: var(--border-color) !important
+        margin-top: 1px !important
+        box-shadow: unset
 
 uni-multi-select-input
     display: flex
@@ -32,22 +25,3 @@ uni-multi-select-input
         margin-left: 0.5rem
         .mat-checkbox-label
             width: 2rem
-    ng-select
-        width: 100%
-        .ng-select-container
-            border-radius: pxToRem(2) !important
-            border: 1px solid var(--border-color) !important
-    ng-select.ng-select.has-all-button
-        width: calc(100% - 4rem)
-        display: inline-block
-        .ng-select-container
-            min-height: pxToRem(32px)
-    .ng-select.ng-select-multiple
-        .ng-select-container
-            .ng-value-container
-                max-width: 92%
-    .ng-select.ng-select-disabled
-        .ng-select-container,
-        .ng-select-container.ng-has-value
-            min-height: pxToRem(32px)
-            font-size: 0.7rem

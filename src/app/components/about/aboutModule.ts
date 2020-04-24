@@ -4,15 +4,7 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {UniVersionsView} from './versions/versionsView';
 
 @NgModule({
-    imports: [
-        CommonModule,
-        AppCommonModule
-    ],
-    declarations: [
-        UniVersionsView
-    ],
-    exports: [
-        UniVersionsView
-    ]
+    imports: [CommonModule, AppCommonModule],
+    declarations: [UniVersionsView]
 })
 export class AboutModule {}
