@@ -24,7 +24,6 @@ import {
     DepartmentService,
     ProjectService,
     SupplierService,
-    PhoneService,
     AddressService,
     BankAccountService,
     ErrorService,
@@ -60,22 +59,14 @@ import { map } from 'rxjs/operators';
     styleUrls: ['./supplierDetails.sass']
 })
 export class SupplierDetails implements OnInit {
-    @Input()
-    public modalMode: boolean = false;
+    @ViewChild(UniForm) form: UniForm;
+    @ViewChild(LedgerAccountReconciliation) postpost: LedgerAccountReconciliation;
 
-    @Output()
-    public createdNewSupplier: EventEmitter<Supplier> = new EventEmitter<Supplier>();
-
-    @ViewChild(UniForm)
-    public form: UniForm;
-
-    @ViewChild(LedgerAccountReconciliation)
-    private postpost: LedgerAccountReconciliation;
+    @Output() createdNewSupplier = new EventEmitter<Supplier>();
 
     public supplierID: number;
     public supplierNameFromUniSearch: string;
     public allowSearchSupplier: boolean = true;
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true, labelWidth: '15rem'});
     public addressChanged: any;
     public phoneChanged: any;
     public emailChanged: any;
@@ -99,7 +90,6 @@ export class SupplierDetails implements OnInit {
     private isDirty: boolean = false;
     public selectConfig: any;
     private formIsInitialized: boolean = false;
-    private activeTab: string = 'details';
 
     private expandOptions: Array<string> = [
         'Info',
@@ -168,8 +158,6 @@ export class SupplierDetails implements OnInit {
         private supplierService: SupplierService,
         private router: Router,
         private route: ActivatedRoute,
-        private phoneService: PhoneService,
-        private pageStateService: PageStateService,
         private addressService: AddressService,
         private bankaccountService: BankAccountService,
         private tabService: TabService,
@@ -186,43 +174,38 @@ export class SupplierDetails implements OnInit {
     ) {}
 
     public ngOnInit() {
-        if (!this.modalMode) {
-            combineLatest(this.route.params, this.route.queryParams)
-                .pipe(map(results => ({params: results[0], query: results[1]})))
-                .subscribe(results => {
+        this.route.params.subscribe(params => {
+            this.tabs = [
+                {name: 'Detaljer'},
+                {name: 'Åpne poster'},
+                {name: 'Dokumenter'}
+            ];
 
-                this.tabs = [
-                    {name: 'Detaljer'},
-                    {name: 'Åpne poster'},
-                    {name: 'Dokumenter'}
-                ];
+            this.supplierID = Number(params['id']) || 0;
 
-                this.supplierID = +results.params['id'];
-                this.supplier$.getValue().ID = 0;
+            this.commentsConfig = {
+                entityType: 'Supplier',
+                entityID: this.supplierID
+            };
 
-                const index = +results.query['tabIndex']  || 0;
+            this.setup();
 
-                this.commentsConfig = {
-                    entityType: 'Supplier',
-                    entityID: this.supplierID
-                };
+            if (this.supplierID) {
+                this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
+                    links => {
+                        this.reportLinks = links;
+                        this.tabs = [
+                            {name: 'Detaljer'},
+                            {name: 'Åpne poster'},
+                            {name: 'Dokumenter'},
+                            ...links
+                        ];
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
+        });
 
-                this.setup();
-                if (this.supplierID) {
-                    this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Suppliers).subscribe(
-                        links => {
-                            this.reportLinks = links;
-                            this.tabs = [
-                                {name: 'Detaljer'},
-                                {name: 'Åpne poster'},
-                                {name: 'Dokumenter'},
-                                ...links
-                            ];
-                            this.activeTabIndex = index;
-                        }, err => this.errorService.handle(err) );
-                }
-            });
-        }
         this.setupSaveActions();
     }
 
@@ -400,32 +383,28 @@ export class SupplierDetails implements OnInit {
         this.supplier$.next(supplier);
     }
 
-    private setTabTitle() {
+    private updateToolbarAndTab() {
         const supplier = this.supplier$.getValue();
-        if (this.modalMode) {
-            return;
-        }
-        this.toolbarconfig.title = supplier.ID ? supplier.Info.Name : 'Ny leverandør';
-        this.toolbarconfig.subheads = supplier.ID ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
+        const title = supplier && supplier.ID
+            ? (supplier.Info?.Name || 'Leverandør')
+            : 'Ny leverandør';
 
-        this.addTab();
-    }
+        this.toolbarconfig.title = title;
+        this.toolbarconfig.subheads = supplier && supplier.SupplierNumber
+            ? [{title: 'Leverandørnr. ' + supplier.SupplierNumber}] : [];
 
-    public addTab() {
-        const supplier = this.supplier$.getValue();
-        const tabTitle = supplier && supplier.SupplierNumber ? 'Leverandørnr. ' + supplier.SupplierNumber : 'Ny leverandør';
-
-        this.showReportWithID =
-            this.tabs && this.tabs[this.activeTabIndex] && this.tabs[this.activeTabIndex]['id'] && this.tabs[this.activeTabIndex]['id'];
-
-        this.pageStateService.setPageState('tabIndex', this.activeTabIndex + '');
+        this.setSupplierStatusInToolbar();
 
         this.tabService.addTab({
-            url: this.pageStateService.getUrl(),
-            name: tabTitle,
+            url: this.router.url,
+            name: title,
             active: true,
             moduleID: UniModules.Suppliers
         });
+    }
+
+    onTabActivated(tab: IUniTab) {
+        this.showReportWithID = tab['id'];
     }
 
     public canDeactivate(): Observable<boolean> | boolean {
@@ -489,8 +468,6 @@ export class SupplierDetails implements OnInit {
             : this.supplierService.GetNewEntity(['Info']);
 
         if (!this.formIsInitialized) {
-            this.fields$.next(this.getComponentLayout().Fields);
-
             forkJoin(
                 supplierRequest,
                 this.departmentService.GetAll(null),
@@ -503,7 +480,6 @@ export class SupplierDetails implements OnInit {
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
-
                 const supplier: Supplier = response[0];
                 this.updateToolbarContextMenuLabel(supplier.StatusCode);
 
@@ -525,24 +501,23 @@ export class SupplierDetails implements OnInit {
 
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
-                this.setSupplierStatusInToolbar();
                 this.selectConfig = this.numberSeriesService.getSelectConfig(
                     this.supplierID, this.numberSeries, subAccount.Name
                 );
-                this.setTabTitle();
-                this.extendFormConfig();
+
+                this.fields$.next(this.getFields());
                 this.showHideNameProperties();
                 this.formIsInitialized = true;
+                this.updateToolbarAndTab();
             }, err => this.errorService.handle(err));
 
         } else {
             supplierRequest.subscribe(supplier => {
                 this.setDefaultContact(supplier);
                 this.supplier$.next(supplier);
-                this.setTabTitle();
-                this.extendFormConfig();
+                this.fields$.next(this.getFields());
                 this.showHideNameProperties();
-                this.setSupplierStatusInToolbar();
+                this.updateToolbarAndTab();
             }, err => this.errorService.handle(err));
         }
     }
@@ -583,159 +558,6 @@ export class SupplierDetails implements OnInit {
                 }
             });
         }
-    }
-
-    public extendFormConfig() {
-        const fields = this.fields$.getValue();
-
-        const supplier = this.supplier$.getValue();
-        const costAllocation: UniFieldLayout = fields.find(x => x.Property === 'CostAllocationID');
-        costAllocation.Options = this.costAllocationService.getCostAllocationOptions(this.supplier$.asObservable());
-
-        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
-        currencyCode.Options = {
-            source: this.currencyCodes,
-            valueProperty: 'ID',
-            displayProperty: 'Code',
-            debounceTime: 200
-        };
-
-        const localization: UniFieldLayout = fields.find(x => x.Property === 'Localization');
-        localization.Options = {
-            source: this.localizationOptions,
-            valueProperty: 'Culture',
-            displayProperty: 'Label',
-            searchable: false,
-        };
-
-        const department: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.DepartmentID');
-        department.Options = {
-            source: this.dropdownData[0],
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
-            },
-            debounceTime: 200
-        };
-
-        const project: UniFieldLayout = fields.find(x => x.Property === 'Dimensions.ProjectID');
-        project.Options = {
-            source: this.dropdownData[1],
-            valueProperty: 'ID',
-            template: (item) => {
-                return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
-            },
-            debounceTime: 200
-        };
-
-        // MultiValue
-        const phones: UniFieldLayout = fields.find(x => x.Property === 'Info.Phones');
-
-        phones.Options = {
-            entity: Phone,
-            listProperty: 'Info.Phones',
-            displayValue: 'Number',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultPhone',
-            storeIdInProperty: 'Info.DefaultPhoneID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniPhoneModal, {
-                    data: value || new Phone()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-        };
-
-        const invoiceaddress: UniFieldLayout = fields.find(x => x.Label === 'Fakturaadresse');
-
-        invoiceaddress.Options = {
-            entity: Address,
-            listProperty: 'Info.Addresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.InvoiceAddress',
-            storeIdInProperty: 'Info.InvoiceAddressID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        const emails: UniFieldLayout = fields.find(x => x.Property === 'Info.Emails');
-
-        emails.Options = {
-            entity: Email,
-            listProperty: 'Info.Emails',
-            displayValue: 'EmailAddress',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultEmail',
-            storeIdInProperty: 'Info.DefaultEmailID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniEmailModal, {
-                    data: value || new Email()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-        };
-
-        const shippingaddress: UniFieldLayout = fields.find(x => x.Label === 'Leveringsadresse');
-        shippingaddress.Options = {
-            entity: Address,
-            listProperty: 'Info.Addresses',
-            displayValue: 'AddressLine1',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.ShippingAddress',
-            storeIdInProperty: 'Info.ShippingAddressID',
-            editor: (value) => {
-                const modal = this.modalService.open(UniAddressModal, {
-                    data: value || new Address()
-                });
-
-                return modal.onClose.take(1).toPromise();
-            },
-
-            display: (address: Address) => {
-                return this.addressService.displayAddress(address);
-            }
-        };
-
-        const defaultBankAccount: UniFieldLayout = fields.find(x => x.Property === 'Info.BankAccounts');
-        defaultBankAccount.Options = {
-            entity: BankAccount,
-            listProperty: 'Info.BankAccounts',
-            displayValue: 'AccountNumber',
-            linkProperty: 'ID',
-            storeResultInProperty: 'Info.DefaultBankAccount',
-            storeIdInProperty: 'Info.DefaultBankAccountID',
-            editor: (bankaccount: BankAccount) => {
-                if ((bankaccount && !bankaccount.ID) || !bankaccount) {
-                    bankaccount = bankaccount || new BankAccount();
-                    bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
-                    bankaccount.BankAccountType = 'supplier';
-                    bankaccount.BusinessRelationID = this.getCurrentSupplier().BusinessRelationID;
-                    bankaccount.ID = 0;
-                }
-                const modal = this.modalService.open(UniBankAccountModal, {
-                    data: {
-                        bankAccount: bankaccount,
-                        bankAccounts: supplier.Info.BankAccounts
-                    }
-                }
-                );
-
-                return modal.onClose.take(1).toPromise();
-            }
-        };
-
-        this.fields$.next(fields);
     }
 
     public getCurrentSupplier() {
@@ -869,14 +691,10 @@ export class SupplierDetails implements OnInit {
             supplier.Info.Contacts = supplier.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
         }
 
-        if (this.modalMode) {
-            return this.supplierService.Post(supplier);
-        }
-
         if (this.supplierID > 0) {
             this.supplierService.Put(supplier.ID, supplier)
                 .subscribe(
-                    (updatedValue) => {
+                    () => {
                         this.isDirty = false;
                         this.setupSaveActions();
                         completeEvent('Leverandør lagret');
@@ -885,7 +703,7 @@ export class SupplierDetails implements OnInit {
                             updatedSupplier['BankAccounts'] = [updatedSupplier.DefaultBankAccount || this.emptyBankAccount];
                             this.setDefaultContact(updatedSupplier);
                             this.supplier$.next(updatedSupplier);
-                            this.setTabTitle();
+                            this.updateToolbarAndTab();
                         });
                     },
                     (err) => {
@@ -906,10 +724,7 @@ export class SupplierDetails implements OnInit {
                     (newSupplier) => {
                         this.isDirty = false;
                         this.setupSaveActions();
-                        if (!this.modalMode) {
-                            this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
-                            this.setTabTitle();
-                        }
+                        this.router.navigateByUrl('/accounting/suppliers/' + newSupplier.ID);
                         completeEvent('Ny leverandør lagret');
                         this.createdNewSupplier.emit(newSupplier);
                     },
@@ -1027,177 +842,297 @@ export class SupplierDetails implements OnInit {
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternational);
     }
 
-    private getComponentLayout(): any {
-        return {
-            Name: 'Supplier',
-            BaseEntity: 'Supplier',
-            ID: 1,
-            Fields: [
-                // Fieldset 1 (supplier)
-                {
-                    FieldSet: 1,
-                    Legend: 'Leverandør',
-                    EntityType: 'Supplier',
-                    Property: '_SupplierSearchResult',
-                    FieldType: FieldType.UNI_SEARCH,
-                    Label: 'Navn',
-                    Options: {
-                        uniSearchConfig: this.getSupplierLookupOptions()
+    private getFields(): Partial<UniFieldLayout>[] {
+        return [
+            // Fieldset 1 (supplier)
+            {
+                FieldSet: 1,
+                Legend: 'Leverandør',
+                EntityType: 'Supplier',
+                Property: '_SupplierSearchResult',
+                FieldType: FieldType.UNI_SEARCH,
+                Label: 'Navn',
+                Options: {
+                    uniSearchConfig: this.getSupplierLookupOptions()
+                }
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Leverandør',
+                EntityType: 'BusinessRelation',
+                Property: 'Info.Name',
+                FieldType: FieldType.TEXT,
+                Label: 'Navn',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Leverandør',
+                EntityType: 'Supplier',
+                Property: 'OrgNumber',
+                FieldType: FieldType.TEXT,
+                Validations: [
+                    (value, validatedField) => this.orgNrValidator(value, validatedField)
+                ],
+                Label: 'Organisasjonsnummer',
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Leverandør',
+                EntityType: 'Supplier',
+                Property: 'Info.BankAccounts',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Bankkonto',
+                Options: {
+                    entity: BankAccount,
+                    listProperty: 'Info.BankAccounts',
+                    displayValue: 'AccountNumber',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultBankAccount',
+                    storeIdInProperty: 'Info.DefaultBankAccountID',
+                    editor: (bankaccount: BankAccount) => {
+                        if ((bankaccount && !bankaccount.ID) || !bankaccount) {
+                            bankaccount = bankaccount || new BankAccount();
+                            bankaccount['_createguid'] = this.bankaccountService.getNewGuid();
+                            bankaccount.BankAccountType = 'supplier';
+                            bankaccount.BusinessRelationID = this.getCurrentSupplier().BusinessRelationID;
+                            bankaccount.ID = 0;
+                        }
+
+                        const supplier = this.supplier$.getValue();
+                        const modal = this.modalService.open(UniBankAccountModal, {
+                            data: {
+                                bankAccount: bankaccount,
+                                bankAccounts: supplier?.Info?.BankAccounts
+                            }
+                        }
+                        );
+
+                        return modal.onClose.take(1).toPromise();
                     }
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Leverandør',
-                    EntityType: 'BusinessRelation',
-                    Property: 'Info.Name',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Navn',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Leverandør',
-                    EntityType: 'Supplier',
-                    Property: 'OrgNumber',
-                    FieldType: FieldType.TEXT,
-                    Validations: [
-                        (value, validatedField) => this.orgNrValidator(value, validatedField)
-                    ],
-                    Label: 'Organisasjonsnummer',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Leverandør',
-                    EntityType: 'Supplier',
-                    Property: 'Info.BankAccounts',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Bankkonto',
-                },
-                {
-                    FieldSet: 1,
-                    Legend: 'Leverandør',
-                    EntityType: 'Supplier',
-                    Property: 'WebUrl',
-                    FieldType: FieldType.URL,
-                    Label: 'Webadresse',
-                },
+                }
+            },
+            {
+                FieldSet: 1,
+                Legend: 'Leverandør',
+                EntityType: 'Supplier',
+                Property: 'WebUrl',
+                FieldType: FieldType.URL,
+                Label: 'Webadresse',
+            },
 
-                // Fieldset 2 (contact)
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Supplier',
-                    Property: 'Info.Addresses',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Fakturaadresse',
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Supplier',
-                    Property: 'Info.Addresses',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Leveringsadresse',
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Supplier',
-                    Property: 'Info.Emails',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'E-postadresser',
-                },
-                {
-                    FieldSet: 2,
-                    Legend: 'Kontaktinformasjon',
-                    EntityType: 'Supplier',
-                    Property: 'Info.Phones',
-                    FieldType: FieldType.MULTIVALUE,
-                    Label: 'Telefonnumre',
-                },
+            // Fieldset 2 (contact)
+            {
+                FieldSet: 2,
+                Legend: 'Kontaktinformasjon',
+                EntityType: 'Supplier',
+                Property: 'Info.Addresses',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Fakturaadresse',
+                Options: {
+                    entity: Address,
+                    listProperty: 'Info.Addresses',
+                    displayValue: 'AddressLine1',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.InvoiceAddress',
+                    storeIdInProperty: 'Info.InvoiceAddressID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniAddressModal, {
+                            data: value || new Address()
+                        });
 
-                // Fieldset 3 (terms)
-                {
-                    FieldSet: 3,
-                    Legend: 'Betingelser',
-                    EntityType: 'Supplier',
-                    Property: 'CreditDays',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Kredittdager',
-                },
-                {
-                    FieldSet: 3,
-                    Legend: 'Betingelser',
-                    EntityType: 'Supplier',
-                    Property: 'CurrencyCodeID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Foretrukket valuta',
-                },
-                {
-                    FieldSet: 3,
-                    Legend: 'Betingelser',
-                    EntityType: 'Supplier',
-                    Property: 'Localization',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Språk tilbud/ordre/faktura',
-                },
-                {
-                    FieldSet: 3,
-                    Legend: 'Betingelser',
-                    EntityType: 'Supplier',
-                    Property: 'CostAllocationID',
-                    FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Fordelingsnøkkel'
-                },
-
-                // Fieldset 4 (dimensions)
-                {
-                    FieldSet: 4,
-                    Legend: 'Dimensjoner',
-                    EntityType: 'Project',
-                    Property: 'Dimensions.ProjectID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Prosjekt',
-                },
-                {
-                    FieldSet: 4,
-                    Legend: 'Dimensjoner',
-                    EntityType: 'Department',
-                    Property: 'Dimensions.DepartmentID',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Avdeling',
-                },
-
-                // Fieldset 5 (EHF)
-                {
-                    FieldSet: 5,
-                    Legend: 'EHF',
-                    EntityType: 'Supplier',
-                    Property: 'PeppolAddress',
-                    Label: 'Peppoladresse',
-                    FieldType: FieldType.TEXT,
-                },
-                {
-                    FieldSet: 5,
-                    Legend: 'EHF',
-                    EntityType: 'Supplier',
-                    Property: 'GLN',
-                    Label: 'GLN-nummer',
-                    FieldType: FieldType.TEXT
-                },
-                // Fieldset 6 (self-employed)
-                {
-                    FieldSet: 6,
-                    Classes: 'selfEmployed',
-                    Legend: 'Innrapportering selvstendig næringsdrivende',
-                    EntityType: 'Supplier',
-                    Property: 'SelfEmployed',
-                    FieldType: FieldType.CHECKBOX,
-                    Label: 'Selvstendig næringsdrivende uten fast kontoradresse',
-                    Tooltip: {
-                        Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapporteringen baserer seg på leverandørfakturaer til disse leverandørene.'
+                        return modal.onClose.take(1).toPromise();
                     },
+                    display: (address: Address) => {
+                        return this.addressService.displayAddress(address);
+                    }
+                }
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Kontaktinformasjon',
+                EntityType: 'Supplier',
+                Property: 'Info.Addresses',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Leveringsadresse',
+                Options: {
+                    entity: Address,
+                    listProperty: 'Info.Addresses',
+                    displayValue: 'AddressLine1',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.ShippingAddress',
+                    storeIdInProperty: 'Info.ShippingAddressID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniAddressModal, {
+                            data: value || new Address()
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    },
+
+                    display: (address: Address) => {
+                        return this.addressService.displayAddress(address);
+                    }
+                }
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Kontaktinformasjon',
+                EntityType: 'Supplier',
+                Property: 'Info.Emails',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'E-postadresser',
+                Options: {
+                    entity: Email,
+                    listProperty: 'Info.Emails',
+                    displayValue: 'EmailAddress',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultEmail',
+                    storeIdInProperty: 'Info.DefaultEmailID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniEmailModal, {
+                            data: value || new Email()
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    },
+                }
+            },
+            {
+                FieldSet: 2,
+                Legend: 'Kontaktinformasjon',
+                EntityType: 'Supplier',
+                Property: 'Info.Phones',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'Telefonnumre',
+                Options: {
+                    entity: Phone,
+                    listProperty: 'Info.Phones',
+                    displayValue: 'Number',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'Info.DefaultPhone',
+                    storeIdInProperty: 'Info.DefaultPhoneID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniPhoneModal, {
+                            data: value || new Phone()
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    },
+                }
+            },
+
+            // Fieldset 3 (terms)
+            {
+                FieldSet: 3,
+                Legend: 'Betingelser',
+                EntityType: 'Supplier',
+                Property: 'CreditDays',
+                FieldType: FieldType.TEXT,
+                Label: 'Kredittdager',
+            },
+            {
+                FieldSet: 3,
+                Legend: 'Betingelser',
+                EntityType: 'Supplier',
+                Property: 'CurrencyCodeID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Foretrukket valuta',
+                Options: {
+                    source: this.currencyCodes,
+                    valueProperty: 'ID',
+                    displayProperty: 'Code',
+                    debounceTime: 200
+                }
+            },
+            {
+                FieldSet: 3,
+                Legend: 'Betingelser',
+                EntityType: 'Supplier',
+                Property: 'Localization',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Språk tilbud/ordre/faktura',
+                Options: {
+                    source: this.localizationOptions,
+                    valueProperty: 'Culture',
+                    displayProperty: 'Label',
+                    searchable: false,
+                }
+            },
+            {
+                FeaturePermission: 'ui.accounting.supplier.cost_allocation',
+                FieldSet: 3,
+                Legend: 'Betingelser',
+                EntityType: 'Supplier',
+                Property: 'CostAllocationID',
+                FieldType: FieldType.AUTOCOMPLETE,
+                Label: 'Fordelingsnøkkel',
+                Options: this.costAllocationService.getCostAllocationOptions(this.supplier$.asObservable())
+            },
+
+            // Fieldset 4 (dimensions)
+            {
+                FieldSet: 4,
+                Legend: 'Dimensjoner',
+                EntityType: 'Project',
+                Property: 'Dimensions.ProjectID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Prosjekt',
+                Options: {
+                    source: this.dropdownData[1],
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.ProjectNumber + ': ' + item.Name) : '';
+                    },
+                    debounceTime: 200
+                }
+            },
+            {
+                FieldSet: 4,
+                Legend: 'Dimensjoner',
+                EntityType: 'Department',
+                Property: 'Dimensions.DepartmentID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Avdeling',
+                Options: {
+                    source: this.dropdownData[0],
+                    valueProperty: 'ID',
+                    template: (item) => {
+                        return item !== null ? (item.DepartmentNumber + ': ' + item.Name) : '';
+                    },
+                    debounceTime: 200
+                }
+            },
+
+            // Fieldset 5 (EHF)
+            {
+                FieldSet: 5,
+                Legend: 'EHF',
+                EntityType: 'Supplier',
+                Property: 'PeppolAddress',
+                Label: 'Peppoladresse',
+                FieldType: FieldType.TEXT,
+            },
+            {
+                FieldSet: 5,
+                Legend: 'EHF',
+                EntityType: 'Supplier',
+                Property: 'GLN',
+                Label: 'GLN-nummer',
+                FieldType: FieldType.TEXT
+            },
+            // Fieldset 6 (self-employed)
+            {
+                FieldSet: 6,
+                Classes: 'selfEmployed',
+                Legend: 'Innrapportering selvstendig næringsdrivende',
+                EntityType: 'Supplier',
+                Property: 'SelfEmployed',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Selvstendig næringsdrivende uten fast kontoradresse',
+                Tooltip: {
+                    Text: 'Marker dersom leverandøren skal innrapporteres i RF-1301, Selvstendig næringsdrivende uten fast kontoradresse. Innrapporteringen baserer seg på leverandørfakturaer til disse leverandørene.'
                 },
-            ]
-        };
+            }
+        ];
     }
 }
