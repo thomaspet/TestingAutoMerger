@@ -33,36 +33,29 @@ import {Observable} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
 import { ConfirmActions, IModalOptions, UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as _ from 'lodash';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'product-details',
     templateUrl: './productDetails.html'
 })
 export class ProductDetails {
-    @Input()
-    public productId: any;
+    @ViewChild(UniForm) form: UniForm;
+    @ViewChild('descriptionField') descriptionField: ElementRef;
 
-    @Input()
-    public modalMode: boolean;
+    @Input() productId: any;
+    @Input() modalMode: boolean;
 
-    @Output()
-    public productSavedInModalMode: EventEmitter<IProduct> = new EventEmitter<IProduct>();
+    @Output() productSavedInModalMode = new EventEmitter<IProduct>();
 
-    @ViewChild(UniForm)
-    public form: UniForm;
-
-    @ViewChild('descriptionField')
-    public descriptionField: ElementRef;
-
-    public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public product$: BehaviorSubject<Product> = new BehaviorSubject(null);
+    fields$ = new BehaviorSubject<Partial<UniFieldLayout>[]>([]);
+    product$ = new BehaviorSubject<Product>(null);
 
     private defaultSalesAccount: Account;
 
     public showExtendedProductInfo: boolean = true;
-    private descriptionControl: FormControl = new FormControl('');
-    private imageUploadConfig: IUploadConfig;
+    public descriptionControl: FormControl = new FormControl('');
+    public imageUploadConfig: IUploadConfig;
 
     private vatTypes: VatType[];
     private projects: Project[];
@@ -75,10 +68,6 @@ export class ProductDetails {
         {ID: 3, TypeName: 'Annet'}
     ];
 
-    private priceExVat: UniField;
-    private priceIncVat: UniField;
-    private vatTypeField: UniField;
-    private calculateGrossPriceBasedOnNetPriceField: UniField;
     private formIsInitialized: boolean = false;
 
     private expandOptions: Array<string> = ['Dimensions', 'Account', 'VatType'];
@@ -95,19 +84,8 @@ export class ProductDetails {
     ];
     public toolbarStatusValidation: IToolbarValidation[];
 
-    public categoryFilter: ITag[] = [];
-    public tagConfig: IUniTagsConfig = {
-        helpText: 'Produktkategorier',
-        truncate: 20,
-        autoCompleteConfig: {
-            template: (obj: ProductCategory) => obj ? obj.Name : '',
-            valueProperty: 'Name',
-            saveCallback: (category: ProductCategory) => this.productCategoryService
-                .saveCategoryTag(this.productId, category),
-            deleteCallback: (tag) => this.productCategoryService.deleteCategoryTag(this.productId, tag),
-            search: (query, ignoreFilter) => this.productCategoryService.searchCategories(query, ignoreFilter)
-        }
-    };
+    public categoryFilter: ITag[];
+    public tagConfig: IUniTagsConfig;
 
     constructor(
         private productService: ProductService,
@@ -124,12 +102,18 @@ export class ProductDetails {
         private toastService: ToastService,
         private customDimensionService: CustomDimensionService,
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.route.params.subscribe(params => {
             this.productId = +params['id'];
             this.setupForm();
         });
+    }
+
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.product$.complete();
     }
 
     public setupForm() {
@@ -158,23 +142,13 @@ export class ProductDetails {
     }
 
     private setupToolbar() {
-        const subheads = [];
-        if (this.productId > 0) {
-            subheads.push({title: 'Produktnr. ' + this.product$.getValue().PartName});
-        }
-        if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
-            if (this.product$.getValue().PriceExVat !== null) {
-                subheads.push({title: 'Utpris ekskl. mva ' + this.product$.getValue().PriceExVat });
-            }
-        } else {
-            if (this.product$.getValue().PriceIncVat !== null) {
-                subheads.push({title: 'Utpris inkl. mva ' + this.product$.getValue().PriceIncVat });
-            }
-        }
+        const product = this.product$.getValue();
+        const toolbarTitle = product.ID > 0
+            ? `${product.PartName} - ${product.Name}`
+            : 'Nytt produkt';
 
         this.toolbarconfig = {
-            title: this.productId > 0 ? 'Produkt' : 'Nytt produkt',
-            subheads: subheads,
+            title: toolbarTitle,
             navigation: {
                 prev: () => this.previousProduct(),
                 next: () => this.nextProduct(),
@@ -259,13 +233,28 @@ export class ProductDetails {
                 this.setTabTitle();
                 this.setupToolbar();
             }
+
             this.showHidePriceFields(this.product$.getValue().CalculateGrossPriceBasedOnNetPrice);
 
             if (response.length > 1 && response[1] !== null) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
             }
 
-            this.getProductCategories();
+            if (this.productId && this.featurePermissionService.canShowUiFeature('ui.sales.products.product_categories')) {
+                this.tagConfig = {
+                    helpText: 'Produktkategorier',
+                    truncate: 20,
+                    autoCompleteConfig: {
+                        template: (obj: ProductCategory) => obj ? obj.Name : '',
+                        valueProperty: 'Name',
+                        saveCallback: (category: ProductCategory) => this.productCategoryService.saveCategoryTag(this.productId, category),
+                        deleteCallback: (tag) => this.productCategoryService.deleteCategoryTag(this.productId, tag),
+                        search: (query, ignoreFilter) => this.productCategoryService.searchCategories(query, ignoreFilter)
+                    }
+                };
+
+                this.getProductCategories();
+            }
 
             this.imageUploadConfig = {
                 isDisabled: (!this.productId || parseInt(this.productId, 10) === 0),
@@ -426,7 +415,6 @@ export class ProductDetails {
     private calculateAndUpdatePrice() {
         const product = this.productService.calculatePriceLocal(this.product$.getValue(), this.vatTypes);
         this.product$.next(product);
-        this.setupToolbar();
     }
 
     private showHidePriceFields(value: boolean) {
@@ -439,7 +427,6 @@ export class ProductDetails {
         this.fields$.next(fields);
         this.product$.next(this.product$.getValue());
         this.calculateAndUpdatePrice();
-        this.setupToolbar();
     }
 
     private previousProduct() {
@@ -470,7 +457,7 @@ export class ProductDetails {
 
     private extendFormConfig() {
         const self = this;
-        const department: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
+        const department = this.fields$.getValue().find(x => x.Property === 'Dimensions.DepartmentID');
         department.Options = {
             source: this.departments,
             valueProperty: 'ID',
@@ -485,7 +472,7 @@ export class ProductDetails {
             debounceTime: 200
         };
 
-        const project: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Dimensions.ProjectID');
+        const project = this.fields$.getValue().find(x => x.Property === 'Dimensions.ProjectID');
         project.Options = {
             source: this.projects,
             valueProperty: 'ID',
@@ -495,7 +482,7 @@ export class ProductDetails {
             debounceTime: 200
         };
 
-        const vattype: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
+        const vattype = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
         if (this.defaultSalesAccount && this.defaultSalesAccount.VatType) {
             vattype.Placeholder =
                 this.defaultSalesAccount.VatType.VatCode + ' - ' + this.defaultSalesAccount.VatType.Name;
@@ -543,7 +530,7 @@ export class ProductDetails {
             }
         };
 
-        const accountField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'AccountID');
+        const accountField = this.fields$.getValue().find(x => x.Property === 'AccountID');
         if (this.defaultSalesAccount) {
             accountField.Placeholder =
                 this.defaultSalesAccount.AccountNumber + ' - ' + this.defaultSalesAccount.AccountName;
@@ -564,19 +551,12 @@ export class ProductDetails {
             }
         };
 
-        const typeField: UniFieldLayout = this.fields$.getValue().find(x => x.Property === 'Type');
+        const typeField = this.fields$.getValue().find(x => x.Property === 'Type');
         typeField.Options = {
             displayProperty: 'TypeName',
             valueProperty: 'ID',
             source: this.productTypes
         };
-
-        this.priceExVat =  this.fields$.getValue().find(x => x.Property === 'PriceExVat');
-        this.priceIncVat = this.fields$.getValue().find(x => x.Property === 'PriceIncVat');
-        this.vatTypeField = this.fields$.getValue().find(x => x.Property === 'VatTypeID');
-        this.calculateGrossPriceBasedOnNetPriceField = this.fields$.getValue().find(
-            x => x.Property === 'CalculateGrossPriceBasedOnNetPrice'
-        );
     }
 
     private getDefaultAccountData() {

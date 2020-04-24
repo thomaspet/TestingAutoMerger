@@ -1,10 +1,10 @@
-import {Component, Input, Output, EventEmitter, ElementRef} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../ui/uniform/index';
 import {Bank, BankAccount, Account} from '../../../app/unientities';
 import {ToastService, ToastType} from '../../uniToast/toastService';
 import {AccountService, BankService, ErrorService, BankAccountService, StatisticsService} from '../../../app/services/services';
-import { UniModalService } from '../modalService';
+import {UniModalService} from '../modalService';
 import {UniConfirmModalV2} from './confirmModal';
 import {BehaviorSubject} from 'rxjs';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
@@ -21,7 +21,7 @@ import {StatisticsResponse} from '../../../app/models/StatisticsResponse';
                     <mat-spinner class="c2a"></mat-spinner>
                 </section>
                 <uni-form #form
-                    [config]="formConfig$"
+                    [config]="{autofocus: true}"
                     [fields]="formFields$"
                     [model]="formModel$"
                     (readyEvent)="onReady()"
@@ -55,7 +55,6 @@ export class UniBankAccountModal implements IUniModal {
 
     private saveBankAccountInModal: boolean = false;
 
-    formConfig$ = new BehaviorSubject({autofocus: true});
     formModel$ = new BehaviorSubject(null);
     formFields$ = new BehaviorSubject([]);
     initialBankAccount: BankAccount;
@@ -124,7 +123,6 @@ export class UniBankAccountModal implements IUniModal {
     }
 
     ngOnDestroy() {
-        this.formConfig$.complete();
         this.formModel$.complete();
         this.formFields$.complete();
     }
@@ -430,9 +428,9 @@ export class UniBankAccountModal implements IUniModal {
         return this.accountService.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
-    private getFormFields(): UniFieldLayout[] {
+    private getFormFields(): Partial<UniFieldLayout>[] {
         return [
-            <any> {
+            {
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 Property: '_ibanAccountSearch',
@@ -440,7 +438,8 @@ export class UniBankAccountModal implements IUniModal {
                 ReadOnly: false,
                 Label: 'Kontonummer-/IBAN-søk'
             },
-            <any> {
+            {
+                FeaturePermission: 'ui.bank_account_manual_setup',
                 FieldSet: 1,
                 FieldSetColumn: 1,
                 Property: '_manualAccountNumber',
@@ -448,7 +447,7 @@ export class UniBankAccountModal implements IUniModal {
                 ReadOnly: false,
                 Label: 'Manuelt',
             },
-            <any> {
+            {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
@@ -457,7 +456,7 @@ export class UniBankAccountModal implements IUniModal {
                 ReadOnly: true,
                 Label: 'Kontonummer',
             },
-            <any> {
+            {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
@@ -466,7 +465,7 @@ export class UniBankAccountModal implements IUniModal {
                 ReadOnly: true,
                 Label: 'IBAN',
             },
-            <any> {
+            {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',
@@ -495,7 +494,7 @@ export class UniBankAccountModal implements IUniModal {
                 Hidden: (!this.options.modalConfig || !this.options.modalConfig.ledgerAccountVisible)
                     && !this.options.data._fromBankSettings,
             },
-            <any> {
+            {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'Bank',
@@ -522,7 +521,7 @@ export class UniBankAccountModal implements IUniModal {
                     }
                 }
             },
-            <any>{
+            {
                 FieldSet: 2,
                 FieldSetColumn: 1,
                 EntityType: 'BankAccount',

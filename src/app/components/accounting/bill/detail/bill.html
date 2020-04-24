@@ -30,7 +30,7 @@
 
             <uni-form
                 *ngIf="detailsTabIndex === 0"
-                [config]="formConfig$"
+                [config]="{}"
                 [fields]="fields$"
                 [model]="current"
                 (readyEvent)="onFormReady()"

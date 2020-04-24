@@ -87,6 +87,7 @@ import { AprilaOfferModal } from '../modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from '../modals/aprila-credit-note/aprila-credit-note-modal';
 import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-modal';
 import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -245,7 +246,8 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
         private modulusService: ModulusService,
         private accrualService: AccrualService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private elsaPurchaseService: ElsaPurchaseService
+        private elsaPurchaseService: ElsaPurchaseService,
+        private featurePermissionService: FeaturePermissionService,
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -1174,12 +1176,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this)
             },
-            contextmenu: [{
+            contextmenu: []
+        };
+
+        if (this.featurePermissionService.canShowUiFeature('ui.sales.invoice.accrual')) {
+            toolbarconfig.contextmenu.push({
                 label: 'Periodisering',
                 action: () => this.accrueInvoice(),
                 disabled: () => this.invoice.StatusCode >= StatusCodeCustomerInvoice.Invoiced
-            }],
-        };
+            });
+        }
 
         toolbarconfig.buttons = [{
             class: 'icon-button',

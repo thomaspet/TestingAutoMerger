@@ -16,13 +16,18 @@ export class FeaturePermissionService {
                 'ui.dimensions',
                 'ui.distribution',
                 'ui.debt-collection',
-                // 'ui.accrual',
 
                 'ui.sales.customer.ehf_setup',
                 'ui.sales.customer.tof_report_setup',
                 'ui.sales.customer.avtalegiro',
                 'ui.sales.customer.sub_company',
 
+                'ui.sales.invoice.accrual',
+                'ui.sales.products.product_categories',
+
+                'ui.accounting.supplier.cost_allocation',
+                'ui.accounting.bill.delivery_date',
+                'ui.bank_account_manual_setup',
             ]
         },
         {
@@ -33,6 +38,9 @@ export class FeaturePermissionService {
                 'ui.sales.customer.ehf_setup',
                 'ui.sales.customer.sub_company',
 
+                'ui.accounting.supplier.cost_allocation',
+                'ui.accounting.bill.delivery_date',
+                'ui.bank_account_manual_setup',
             ]
         },
         {
@@ -84,11 +92,11 @@ export class FeaturePermissionService {
             || fieldProp.includes('ProjectID')
             || fieldProp.includes('DepartmentID')
         ) {
-            return !this.featureBlacklist.includes('dimensions');
+            return !this.featureBlacklist.includes('ui.dimensions');
         }
 
         if (field.EntityType === 'Seller' || fieldProp.includes('DefaultSeller')) {
-            return !this.featureBlacklist.includes('sellers');
+            return !this.featureBlacklist.includes('ui.sellers');
         }
 
         return true;
@@ -103,11 +111,11 @@ export class FeaturePermissionService {
 
         const field = column.field || '';
 
-        if (this.featureBlacklist.includes('dimensions')) {
+        if (this.featureBlacklist.includes('ui.dimensions')) {
             return !field.includes('Dimensions.');
         }
 
-        if (this.featureBlacklist.includes('sellers')) {
+        if (this.featureBlacklist.includes('ui.sellers')) {
             return !field.includes('DefaultSeller');
         }
 

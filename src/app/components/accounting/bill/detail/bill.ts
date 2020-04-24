@@ -131,10 +131,9 @@ export class BillView implements OnInit {
     public busy: boolean = true;
     public toolbarConfig: IToolbarConfig;
     public paymentStatusIndicator: StatusIndicator;
-    public formConfig$ = new BehaviorSubject({});
-    public fields$: BehaviorSubject<UniFieldLayout[]>;
-    public current: BehaviorSubject<SupplierInvoice> = new BehaviorSubject(new SupplierInvoice());
-    public costAllocationData$: BehaviorSubject<CostAllocationData> = new BehaviorSubject(new CostAllocationData());
+    public fields$: BehaviorSubject<Partial<UniFieldLayout>[]>;
+    public current = new BehaviorSubject(new SupplierInvoice());
+    public costAllocationData$ = new BehaviorSubject(new CostAllocationData());
     public currentSupplierID: number = 0;
     public collapseSimpleJournal: boolean = false;
     public hasUnsavedChanges: boolean = false;
@@ -321,7 +320,6 @@ export class BillView implements OnInit {
     }
 
     ngOnDestroy() {
-        this.formConfig$.complete();
         this.fields$.complete();
         this.costAllocationData$.complete();
         this.current.complete();
@@ -442,10 +440,10 @@ export class BillView implements OnInit {
     }
 
     public extendFormConfig() {
-        let fields: UniFieldLayout[] = this.fields$.getValue();
+        let fields = this.fields$.getValue();
         this.loadingForm = true;
 
-        const currencyCode: UniFieldLayout = fields.find(x => x.Property === 'CurrencyCodeID');
+        const currencyCode = fields.find(x => x.Property === 'CurrencyCodeID');
         currencyCode.Options = {
             source: this.currencyCodes,
             valueProperty: 'ID',
@@ -539,15 +537,15 @@ export class BillView implements OnInit {
     }
 
     private initForm() {
-        const fields = [
-            <any> {
+        const fields: Partial<UniFieldLayout>[] = [
+            {
                 Property: 'BankAccountID',
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Betal til bankkonto',
                 Classes: 'bill-small-field right',
                 Section: 0
             },
-            <any> {
+            {
                 Property: 'InvoiceDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Fakturadato',
@@ -558,7 +556,7 @@ export class BillView implements OnInit {
                     useFinancialYear: true
                 }
             },
-            <any> {
+            {
                 Property: 'PaymentDueDate',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Forfallsdato',
@@ -569,8 +567,9 @@ export class BillView implements OnInit {
                     useFinancialYear: true
                 }
             },
-            <any> {
+            {
                 Property: 'DeliveryDate',
+                FeaturePermission: 'ui.accounting.bill.delivery_date',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
                 Label: 'Leveringsdato',
                 Classes: 'bill-small-field',
@@ -580,35 +579,35 @@ export class BillView implements OnInit {
                     useFinancialYear: true
                 }
             },
-            <any> {
+            {
                 Property: 'InvoiceNumber',
                 FieldType: FieldType.TEXT,
                 Label: 'Fakturanummer',
                 Classes: 'bill-small-field right',
                 Section: 0
             },
-            <any> {
+            {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
                 Classes: 'bill-small-field right',
                 Section: 0
             },
-            <any> {
+            {
                 Property: 'TaxInclusiveAmountCurrency',
                 FieldType: FieldType.NUMERIC,
                 Label: 'Fakturabeløp',
                 Classes: 'bill-small-field',
                 Section: 0
             },
-            <any> {
+            {
                 Property: 'CurrencyCodeID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
                 Classes: 'bill-small-field right',
                 Section: 0
             },
-            <any> {
+            {
                 Property: 'DefaultDimensions.DepartmentID',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Avdeling',
@@ -619,7 +618,7 @@ export class BillView implements OnInit {
                     valueProperty: 'ID'
                 }
             },
-            <any> {
+            {
                 Property: 'DefaultDimensions.ProjectID',
                 FieldType: FieldType.UNI_SEARCH,
                 Label: 'Prosjekt',
