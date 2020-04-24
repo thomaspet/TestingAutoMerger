@@ -569,6 +569,15 @@
                 "NeedsActionOverride": true
             },
             {
+                "Name": "Krediter bilag på utbetalingen",
+                "Code": "credit_journal_entry",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_payment_file",
                 "Type": "action",
@@ -718,6 +727,11 @@
                             "Value": "44018"
                         },
                         {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
+                        },
+                        {
                             "Field": "isPaymentClaim",
                             "Operator": "eq",
                             "Value": "false"
@@ -830,6 +844,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },                        
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         },
                         {
                             "Field": "isPaymentClaim",
