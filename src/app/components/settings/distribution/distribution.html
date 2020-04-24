@@ -13,9 +13,10 @@
             </section>
 
             <section class="entity-priority-container">
-                <span *ngIf="!type.showPlansView">
-                        {{ type.defaultPlan ? 'Standardplan: ' + type.defaultPlan.Name : 'Ingen plan satt' }}
+                <span *ngIf="!type.showPlansView && type.defaultPlan">
+                    {{ 'Standardplan: ' + type.defaultPlan.Name }}
                 </span>
+                <a *ngIf="!type.showPlansView && !type.defaultPlan" style="font-size: 13px;" (click)="openPlanModal(null, type)"> Opprett ny utsendelsesplan </a>
                 <ul class="distribution-elements-stepper" *ngIf="!type.showPlansView && type.defaultPlan">
                     <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
                         <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
@@ -28,10 +29,10 @@
             <section class="entity-functionality-container settings-view">
                 <span *ngIf="type.value === 'Models.Sales.CustomerInvoice'"> Automatisk utsendelse </span>
 
-                <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" [labelPosition]="'before'" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" > </mat-slide-toggle>
+                <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" style="margin-right: 3rem;" [labelPosition]="'before'" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" > </mat-slide-toggle>
 
                 <i class="material-icons" title="Se alle planer" (click)="type.showPlansView = !type.showPlansView">
-                    {{ type.showPlansView ? 'close' : 'list' }}
+                    {{ type.showPlansView ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }}
                 </i>
 
             </section>
