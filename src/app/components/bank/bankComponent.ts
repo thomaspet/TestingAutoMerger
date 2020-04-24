@@ -150,7 +150,7 @@ export class BankComponent {
         {
             Code: 'ignore_payment',
             ExecuteActionHandler: (selectedRows) => this.updatePaymentStatusToIgnore(null, selectedRows),
-            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode == 44018
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44018
         },
         {
             Code: 'reset_payment',
@@ -519,8 +519,8 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaidAndJournaled(done);
                 },
-                main: this.rows.length > 0 && (this.filter !== "payed_not_journaled"),
-                disabled: this.rows.length === 0 || (this.filter == "payed_not_journaled")
+                main: this.rows.length > 0 && (this.filter !== 'payed_not_journaled'),
+                disabled: this.rows.length === 0 || (this.filter === 'payed_not_journaled')
             });
 
             this.actions.push({
@@ -529,7 +529,7 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
-                main: this.rows.length > 0 && (this.filter == "payed_not_journaled"),
+                main: this.rows.length > 0 && (this.filter === 'payed_not_journaled'),
                 disabled: this.rows.length === 0
             });
 
@@ -553,9 +553,9 @@ export class BankComponent {
                 action: (done) => {
                     this.fileUploaded(done);
                 },
-                disabled: this.rows.length > 0 && (this.filter === "incomming_without_match"),
-                main: this.rows.length === 0 || this.filter !== "incomming_without_match" 
-            });            
+                disabled: this.rows.length > 0 && (this.filter === 'incomming_without_match'),
+                main: this.rows.length === 0 || this.filter !== 'incomming_without_match'
+            });
 
             this.actions.push({
                 label: 'Endre status til bokført og betalt',
@@ -563,18 +563,18 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
-                disabled: this.rows.length !== 1 || this.filter !== "incomming_without_match" 
+                disabled: this.rows.length !== 1 || this.filter !== 'incomming_without_match'
             });
-            
+
             this.actions.push({
                 label: 'Skjul innbetalingsposter',
                 action: (done, file) => {
-                    done('Skult innbetalinger');                    
+                    done('Skjult innbetalinger');
                     this.updatePaymentStatusToIgnore(done);
                 },
-                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match",
-                main: this.rows.length !== 0 || this.filter !== "incomming_without_match"               
-            });            
+                disabled: this.rows.length === 0 || this.filter !== 'incomming_without_match',
+                main: this.rows.length !== 0 || this.filter !== 'incomming_without_match'
+            });
         }
     }
 
@@ -923,7 +923,7 @@ export class BankComponent {
         });
     }
 
-    public updatePaymentStatusToIgnore(doneHandler: (status: string) => any, data: any = null){
+    public updatePaymentStatusToIgnore(doneHandler: (status: string) => any, data: any = null) {
         return new Promise(() => {
             const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
             if (rows.length === 0) {
@@ -943,10 +943,10 @@ export class BankComponent {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Skjul innbetalingsposter',
                 warning: 'Det er kun innbetalingsposten som fjernes fra listen, bilaget vil ikke krediteres.',
-                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',                
+                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',
                 buttonLabels: {
-                    accept: "Ok",
-                    reject: "Avbryt"
+                    accept: 'Ok',
+                    reject: 'Avbryt'
                 }
             });
 
@@ -958,7 +958,7 @@ export class BankComponent {
                     });
                     this.paymentService.updatePaymentsToIgnore(paymentIDs).subscribe(PaymentResponse => {
                         this.tickerContainer.mainTicker.reloadData();
-                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3)                        
+                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
                     });
                 } else {
                     if (doneHandler) {
@@ -967,7 +967,7 @@ export class BankComponent {
                     return;
                 }
             });
-        })
+        });
     }
 
     public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null) {
@@ -1109,10 +1109,10 @@ export class BankComponent {
 
                 Observable.forkJoin(queries)
                     .subscribe((result: any) => {
-                        if (result && result.length) {
+                        if (result?.length) {
                             let collectionOfBatchIds = [];
                             result.forEach((res) => {
-                                if (res && res.Value && res.Value.ProgressUrl) {
+                                if (res?.Value?.ProgressUrl) {
                                     this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
                                     'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
                                     done();
@@ -1127,16 +1127,14 @@ export class BankComponent {
                                         } else {
                                             this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
                                         }
-                                        this.tickerContainer.getFilterCounts();
-                                        this.tickerContainer.mainTicker.reloadData();
                                     });
-                                } else {
+                                } else if (res) {
                                     const paymentBatchIds = res.map(paymentBatch => paymentBatch.ID);
                                     collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
-                                    this.tickerContainer.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                    done();
                                 }
+                                this.tickerContainer.getFilterCounts();
+                                this.tickerContainer.mainTicker.reloadData();
+                                done();
                             });
                             if (collectionOfBatchIds.length) {
                                 this.createToastWithStatus(collectionOfBatchIds);
