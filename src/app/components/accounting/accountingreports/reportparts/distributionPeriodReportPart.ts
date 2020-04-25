@@ -137,7 +137,7 @@ export class DistributionPeriodReportPart implements OnChanges {
             this.fromPeriod = 1;
         }
         if (!this.toPeriod) {
-            this.fromPeriod = 12;
+            this.toPeriod = 12;
         }
 
         if (this.filter) {
