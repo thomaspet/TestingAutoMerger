@@ -93,7 +93,9 @@ export class HourTotals {
     }
 
     public onActiveGroupChange(group) {
-        this.pageState.setPageState('groupby', group.name);
+        if (!this.input) {
+            this.pageState.setPageState('groupby', group.name);
+        }
         this.activeGroup = group;
         this.refreshData();
     }

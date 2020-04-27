@@ -43,19 +43,19 @@
         <div *ngFor="let group of report">
             <table class="report">
                 <thead><tr>
-                    <th>{{activeGroup.label}} i {{group.title}}</th>
+                    <th class="rowheader">{{activeGroup.label}} i {{group.title}}</th>
                     <th>Sum</th>
                     <th class="prc">%</th>
                     <th *ngFor="let hc of group.columns">{{hc}}</th>
                 </tr></thead>
                 <tr *ngFor="let row of group.rows">
-                    <td>{{row.title}}</td>
+                    <td class="rowheader">{{row.title}}</td>
                     <td class="clickable" (click)="openDrilldownModal(row, undefined, -1)" [class.right]="isMoney">{{row.sum|min2hours:numberFormat}}</td>
                     <td class="prc">{{row.prc|numpipe:'0'}}</td>
                     <td class="clickable" (click)="openDrilldownModal(row, col, i)" [class.right]="isMoney" *ngFor="let col of row.items; let i = index">{{col.tsum | min2hours:numberFormat}}</td>
                 </tr>
                 <tr>
-                    <td>Sum {{group.title}}</td>
+                    <td class="rowheader">Sum {{group.title}}</td>
                     <td class="left" colspan="14">{{group.sum|min2hours:numberFormat2}}</td>
                 </tr>
             </table>

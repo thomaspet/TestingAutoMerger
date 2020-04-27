@@ -40,7 +40,7 @@ table.report
         width: 4em
 
     th.medium
-        width: 6em
+        width: 6em !important
 
     .left
         text-align: left
@@ -52,13 +52,16 @@ table.report
         text-align: center
         overflow: hidden
 
-    tr td:first-of-type, th:first-of-type
+    .rowheader
         width: 15em
         overflow: hidden
         white-space: nowrap
         text-overflow: ellipsis
         border-left: 0
         text-align: left
+
+    .open
+        background-color: var(--table-row-select-background)
 
 .uni-modal
     min-width: 90vw

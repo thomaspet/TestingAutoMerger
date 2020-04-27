@@ -17,7 +17,8 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
                 <table class="report">
                     <thead>
                         <tr>
-                            <th class="large">Medarbeider</th>
+                            <th class="small">Overført</th>
+                            <th class="large left">Medarbeider</th>
                             <th class="medium">Dato</th>
                             <th class="small">Start</th>
                             <th class="small">Slutt</th>
@@ -27,11 +28,12 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of options.data.details">
-                            <td>{{item.Name}}</td>
+                            <td [class.open]="!item.TransferedToOrder"><input style="font-size: 15pt" [ngModel]="item.TransferedToOrder" type="checkbox" disabled/></td>
+                            <td class="large left">{{item.Name}}</td>
                             <td>{{item.Date | date:'dd.MM.yyyy'}}</td>
                             <td>{{item.StartTime | date:'HH:mm'}}</td>
                             <td>{{item.EndTime | date:'HH:mm'}}</td>
-                            <td>{{item.Minutes | min2hours:'decimal'}}</td>
+                            <td>{{item.Minutes | min2hours:'decimal00'}}</td>
                             <td class="left">{{item.Description}}</td>
                         </tr>
                     </tbody>
