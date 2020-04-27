@@ -16,6 +16,10 @@
                 <input formControlName="AdminPassword" type="password" autocomplete="new-password" autofocus>
             </label>
 
+            <div class="reset-password-link" *ngIf="hasSentWrongPassword">
+                <a (click)="resetPassword()">Nullstill passord</a>
+            </div>
+
             <fieldset>
                 <legend>Brukerinfo</legend>
                 <small>
