@@ -29,7 +29,8 @@ export enum UniTableColumnType {
     Typeahead = 12,
     Link = 13,
     Status = 14,
-    Checkbox = 15
+    Checkbox = 15,
+    Attachment = 16,
 }
 
 export enum UniTableColumnSortMode {
@@ -322,6 +323,11 @@ export class UniTableColumn implements IUniTableColumn {
                 this.setAlignment('center');
                 this.setWidth('4rem', false);
                 this.setCls('checkbox-column');
+            break;
+
+            case UniTableColumnType.Attachment:
+                this.setCls('attachment-column');
+                this.setWidth('160px', false);
             break;
         }
 

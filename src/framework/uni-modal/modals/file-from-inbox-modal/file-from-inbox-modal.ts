@@ -1,10 +1,11 @@
 import { Component, EventEmitter, HostListener, ViewChild } from '@angular/core';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '../../interfaces';
 import { SupplierInvoiceService, ErrorService } from '@app/services/services';
-import { UniTableColumn, UniTableConfig } from '@uni-framework/ui/unitable';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { File } from '@uni-entities';
 import { UP_ARROW, DOWN_ARROW, ENTER } from '@angular/cdk/keycodes';
+import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
+import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
 
 @Component({
     selector: 'file-from-inbox-modal',
@@ -29,7 +30,7 @@ export class FileFromInboxModal implements IUniModal {
     ngOnInit() {
         this.tableConfig = this.getTableConfig();
 
-        const url = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox';
+        const url = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox';
         this.supplierInvoiceService.fetch(url).subscribe(
             files => this.files = files || [],
             err => this.errorService.handle(err)

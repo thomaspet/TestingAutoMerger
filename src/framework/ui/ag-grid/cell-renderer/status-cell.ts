@@ -40,36 +40,6 @@ export class StatusCellRenderer implements ICellRendererAngularComp {
                 }
             }
         }
-
-        // const element = document.createElement('span');
-        // element.classList.add('status-cell');
-
-        // let status;
-        // if (col.statusMap) {
-        //     if (params.value) {
-        //         status = col.statusMap[params.value] || status;
-
-        //         if (status && status.tooltip) {
-        //             element.title = status.tooltip(params.node.data);
-        //             console.log('setting title to', element.title);
-        //         }
-
-        //     } else if (col.statusMap[0]) {
-        //         status = col.statusMap[0];
-        //     }
-        // }
-
-        // status = status || params.value || 'Ingen status';
-
-        // if (typeof status === 'string') {
-        //     element.innerText = status;
-        //     element.title = status;
-        //     element.classList.add('info');
-        // } else {
-        //     element.innerText = status.label;
-        //     element.title = status.label;
-        //     element.classList.add(status.class || 'info');
-        // }
     }
 
     refresh(): boolean {

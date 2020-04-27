@@ -38,6 +38,7 @@ import {PurchaseTraveltextModal} from './modals/purchase-traveltext-modal/purcha
 import {UniNewRegulativeModal} from './modals/newRegulativeModal';
 import {MissingRolesModal} from './modals/missing-roles-modal/missing-roles-modal';
 import {UniPreviewModal} from './modals/previewModal';
+import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -79,6 +80,7 @@ export * from './modals/purchase-traveltext-modal/purchase-traveltext-modal';
 export * from './modals/newRegulativeModal';
 export * from './modals/missing-roles-modal/missing-roles-modal';
 export * from './modals/previewModal';
+export * from './modals/file-from-inbox-modal/file-from-inbox-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -121,5 +123,6 @@ export const MODALS = [
     UniNewRegulativeModal,
     MissingRolesModal,
     UniPreviewModal,
+    FileFromInboxModal,
 ];
 

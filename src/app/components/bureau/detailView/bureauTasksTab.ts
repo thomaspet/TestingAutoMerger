@@ -118,7 +118,7 @@ export class BureauTaskTab implements AfterViewInit, OnDestroy {
 
     public getNumberOfItemsInInbox(companyKey: string): Observable<Company> {
         return this.customHttpService.get(
-            `${BASE}/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox`,
+            `${BASE}/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox`,
             companyKey
         )
             .map(response => response.body)
