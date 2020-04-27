@@ -40,12 +40,12 @@ export class HourTotals {
     private currentYear: number;
 
     groups = [
-        { label: 'Timearter', name: 'worktypes' },
-        { label: 'Medarbeidere', name: 'persons' },
-        { label: 'Kunder', name: 'customers' },
-        { label: 'Ordre', name: 'orders' },
-        { label: 'Prosjekt', name: 'projects' },
-        { label: 'Team', name: 'teams' },
+        { label: 'Timearter', name: 'worktypes', labelSingle: 'Timeart' },
+        { label: 'Medarbeidere', name: 'persons', labelSingle: 'Medarbeider' },
+        { label: 'Kunder', name: 'customers', labelSingle: 'Kunde' },
+        { label: 'Ordre', name: 'orders', labelSingle: 'Ordre' },
+        { label: 'Prosjekt', name: 'projects', labelSingle: 'Prosjekt' },
+        { label: 'Team', name: 'teams', labelSingle: 'Team' },
     ];
     activeGroup = this.groups[0];
 
@@ -65,13 +65,14 @@ export class HourTotals {
     }
 
     public ngOnInit() {
-        this.removeInputGroupFromSelectables();
+        this.removeInputGroup();
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
         this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
     }
 
-    removeInputGroupFromSelectables() {
+    removeInputGroup() {
+        // Remove drilldown-filter (if any)
         if (this.input && this.input.groupBy) {
             for (let i = 0; i < this.groups.length; i++) {
                 if (this.groups[i].name === this.input.groupBy.name) {
@@ -123,6 +124,7 @@ export class HourTotals {
         let join = '';
         let select = '';
 
+        // Combine input-filter (drilldown)
         if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
             switch (this.input.groupBy.name) {
                 case 'worktypes':
@@ -162,7 +164,6 @@ export class HourTotals {
             case 'teams':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title,casewhen(team.id gt 0,team.id,tt.id) as id`
-                    //+ `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
                     + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     filter = 'casewhen(isnull(tp.id,0) gt 0,tp.position,0) lt 10';
@@ -172,7 +173,6 @@ export class HourTotals {
             case 'persons':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title,worker.id as id`
-                    //+ `&join=worker.businessrelationid eq businessrelation.id`
                     + `&expand=workrelation.worker,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     join = 'worker.businessrelationid eq businessrelation.id';

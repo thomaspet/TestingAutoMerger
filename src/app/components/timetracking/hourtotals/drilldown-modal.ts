@@ -6,7 +6,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
     template: `
     <section role="dialog" class="uni-modal">
         <header>
-        {{options.data.groupBy.label}} {{options.data.row.title}}
+        {{options.data.groupBy.labelSingle}}: {{options.data.row.title}}
         </header>
         <article>
             <hourtotals [input]="options.data"></hourtotals>
