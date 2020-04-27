@@ -14,6 +14,7 @@ import {AdvancedFilters} from './filters/advanced-filters/advanced-filters';
 
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {StatusCellRenderer} from './cell-renderer/status-cell';
+import {AttachmentCellRenderer} from './cell-renderer/attachment-cell';
 import {UniDateAdapter} from '@app/date-adapter';
 import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
@@ -28,7 +29,8 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
         InputDropdownModule,
         AgGridModule.withComponents([
             RowMenuRenderer,
-            StatusCellRenderer
+            StatusCellRenderer,
+            AttachmentCellRenderer
         ])
     ],
     declarations: [
@@ -37,6 +39,7 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
         TableEditor,
         RowMenuRenderer,
         StatusCellRenderer,
+        AttachmentCellRenderer,
         TableFilters,
         AdvancedFilters
     ],

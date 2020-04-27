@@ -51,7 +51,8 @@ import {
     UniConfirmModalWithList,
     UniModalService,
     UniRegisterPaymentModal,
-    UniReinvoiceModal
+    UniReinvoiceModal,
+    FileFromInboxModal
 } from '@uni-framework/uni-modal';
 import {
     AssignmentDetails,
@@ -87,7 +88,6 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
-import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
@@ -3307,7 +3307,7 @@ export class BillView implements OnInit {
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
             this.supplierInvoiceService.fetch(
-                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox')
+                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox')
                 .subscribe((res) => {
                     if (res && res.length > 0) {
                         this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);

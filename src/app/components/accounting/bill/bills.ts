@@ -78,7 +78,7 @@ export class BillsView implements OnInit {
     private fileID: any;
 
     public previewVisible: boolean;
-    private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense'];
+    private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense', 'Upload'];
     private inboxTagNamesFilter = '(' + this.inboxTagNames.map(tag => 'tagname eq \'' + tag + '\'').join(' or ') + ')';
     unpaidQuickFilters = [{
         field: 'StatusCode',
@@ -778,6 +778,7 @@ export class BillsView implements OnInit {
                             case 'IncomingEHF': return 'EHF';
                             case 'IncomingTravel': return 'Reise';
                             case 'IncomingExpense': return 'Utlegg';
+                            case 'Upload': return 'Opplastet manuelt';
                         }
                     }
                     return '';

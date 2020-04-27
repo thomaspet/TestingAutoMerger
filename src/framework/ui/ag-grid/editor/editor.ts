@@ -33,6 +33,12 @@ interface IEditorPosition {
     left?: number;
 }
 
+export interface EditorChangeEvent {
+    rowModel: any;
+    field: string;
+    newValue: any;
+}
+
 @Component({
     selector: 'table-editor',
     templateUrl: './editor.html',
@@ -50,8 +56,7 @@ export class TableEditor {
     @Input() public columns: UniTableColumn[];
     @Input() public rowHeight: number;
 
-    @Output()
-    public valueChange: EventEmitter<any> = new EventEmitter();
+    @Output() valueChange = new EventEmitter<EditorChangeEvent>();
 
     public moveThrottle: Subject<{
         direction: 'up' | 'down' | 'left' | 'right',
@@ -451,7 +456,7 @@ export class TableEditor {
                     if (!rowIndex && !this.config.autoAddNewRow) {
                         return this.emitAndClose();
                     }
-                    
+
                     const updatedData = this.dataService.getViewData();
                     cellIndex = this.getNextEditableCellIndex(0, updatedData ? updatedData[rowIndex] : data[rowIndex]);
                 }

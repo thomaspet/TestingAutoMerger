@@ -16,7 +16,7 @@ import {UniModalService} from '../../uni-modal/modalService';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
 import {ColumnMenuNew} from './column-menu-modal';
-import {TableEditor} from './editor/editor';
+import {TableEditor, EditorChangeEvent} from './editor/editor';
 import {CellRenderer} from './cell-renderer/cell-renderer';
 import {ITableFilter, ICellClickEvent, IRowChangeEvent} from './interfaces';
 
@@ -41,6 +41,7 @@ import {
 // Barrel here when we get more?
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {StatusCellRenderer} from './cell-renderer/status-cell';
+import {AttachmentCellRenderer} from './cell-renderer/attachment-cell';
 
 import {Observable, Subscription} from 'rxjs';
 import {Subject} from 'rxjs';
@@ -112,7 +113,8 @@ export class AgGridWrapper {
     public context: any;
     public cellRendererComponents: any = {
         rowMenu: RowMenuRenderer,
-        statusCell: StatusCellRenderer
+        statusCell: StatusCellRenderer,
+        attachmentCell: AttachmentCellRenderer,
     };
 
     isRowSelectable: (rowModel: any) => boolean;
@@ -575,7 +577,7 @@ export class AgGridWrapper {
         this.dataService.isDataLoading = true;
     }
 
-    public onEditorChange(event) {
+    public onEditorChange(event: EditorChangeEvent) {
         let row = event.rowModel;
 
         if (!this.config.changeCallback) {
@@ -597,7 +599,6 @@ export class AgGridWrapper {
             newValue: event.newValue
         });
 
-        // Sorry about this.. Copy-paste from old unitable because "support everything, yay!"
         (
             updatedRowOrObservableOrPromise instanceof Observable
                 ? updatedRowOrObservableOrPromise.toPromise()
@@ -617,7 +618,7 @@ export class AgGridWrapper {
         }).catch(err => console.error(err));
     }
 
-    private emitChanges(changeEvent /* TODO: type me */) {
+    private emitChanges(changeEvent) {
         this.resourceChange.emit(this.dataService.getTableData());
         this.rowChange.emit(changeEvent);
     }
@@ -817,7 +818,6 @@ export class AgGridWrapper {
                 agCol.hide = true;
             }
 
-            agCol['_uniTableColumn'] = col;
             if (this.config && this.config.editable) {
                 agCol.suppressSorting = true;
             }
@@ -857,6 +857,25 @@ export class AgGridWrapper {
                 agCol.cellRenderer = 'statusCell';
             }
 
+            if (col.type === UniTableColumnType.Attachment) {
+                agCol.tooltip = undefined;
+                agCol.cellRenderer = 'attachmentCell';
+                col['_onChange'] = (row, files) => {
+                    if (this.config.editable) {
+                        this.onEditorChange({
+                            rowModel: row,
+                            field: col.field,
+                            newValue: files
+                        });
+                        // this.updateRow(updatedRow['_originalIndex'], updatedRow);
+                    }
+
+                    if (col.options && col.options.onChange) {
+                        col.options.onChange(row, files);
+                    }
+                };
+            }
+
             if (col.checkboxConfig) {
                 agCol.cellRenderer = CellRenderer.getCheckboxColumn(col);
             }
@@ -876,7 +895,7 @@ export class AgGridWrapper {
             }
 
             agCol.colId = col.field;
-
+            agCol['_uniTableColumn'] = col;
             return agCol;
         });
 
