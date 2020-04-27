@@ -251,8 +251,8 @@ export class HourTotals {
             filter += ` and month(date) eq ${index + 1}`;
         }
 
-        return 'model=workitem&select=workitem.*,businessrelation.name as Name'
-            + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker', ',')
+        return 'model=workitem&select=workitem.*,businessrelation.name as Name,info.name as CustomerName'
+            + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker,customer.info', ',')
             + '&join=' + this.addFilter(preset.join, 'worker.businessrelationid eq businessrelation.id')
             + '&filter=' + this.addFilter(preset.filter, filter)
             + '&orderby=date,starttime,endtime';

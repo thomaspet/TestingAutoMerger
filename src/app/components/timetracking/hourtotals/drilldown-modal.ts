@@ -24,6 +24,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
                             <th class="small">Slutt</th>
                             <th class="small">Timer</th>
                             <th class="left">Tekst</th>
+                            <th class="large left">Kunde</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -35,6 +36,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
                             <td>{{item.EndTime | date:'HH:mm'}}</td>
                             <td>{{item.Minutes | min2hours:'decimal00'}}</td>
                             <td class="left">{{item.Description}}</td>
+                            <td class="large left">{{item.CustomerName}}</td>
                         </tr>
                     </tbody>
                 </table>
