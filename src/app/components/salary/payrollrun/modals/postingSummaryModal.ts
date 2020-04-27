@@ -70,7 +70,7 @@ export class PostingSummaryModal implements OnInit, IUniModal, OnDestroy {
     public ngOnInit() {
         const run: PayrollRun = this.options.data;
         this.payrollrunID = this.options.data.ID;
-        this.getPostingSummary(this.payrollrunID);
+        this.getPostingSummary(this.payrollrunID).subscribe((response: PostingSummary) => this.setPostingSummary(response));
         this.setDefaults(run);
         this.createTableConfig();
         this.createFormConfig(run);
@@ -163,16 +163,31 @@ export class PostingSummaryModal implements OnInit, IUniModal, OnDestroy {
             .pipe(
                 take(1),
                 switchMap(model => this.payrollService.generateDraft(this.payrollrunID, model.bookingType)),
+                switchMap(() => this.getPostingSummary(this.payrollrunID)),
             )
-            .subscribe(() => setTimeout(() => this.getPostingSummary(this.payrollrunID)));
+            .subscribe(
+                (response: PostingSummary) => this.setPostingSummary(response),
+                (err) => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                    this.jobBusy = false;
+                }
+            );
     }
 
-    private getPostingSummary(payrollRunID: number) {
+    private setPostingSummary(postingSummary: PostingSummary) {
+        this.summary = postingSummary;
+        this.headerString = 'Konteringssammendrag: '
+            + postingSummary.PayrollRun.ID + ' - ' + postingSummary.PayrollRun.Description
+            + ', utbetales ' + moment(postingSummary.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
+    }
+
+    private getPostingSummary(payrollRunID: number): Observable<any> {
 
         this.busy = true;
         this.jobBusy = true;
         this.payrollService.invalidateCache();
-        this.payrollService
+        return this.payrollService
             .getPostingSummaryDraft(payrollRunID)
             .pipe(
                 repeatWhen(draft => draft.debounceTime(2000)),
@@ -215,15 +230,7 @@ export class PostingSummaryModal implements OnInit, IUniModal, OnDestroy {
                         });
 
                     return postingSummary;
-                }),
-                catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            )
-            .subscribe((response: PostingSummary) => {
-                this.summary = response;
-                this.headerString = 'Konteringssammendrag: '
-                    + response.PayrollRun.ID + ' - ' + response.PayrollRun.Description
-                    + ', utbetales ' + moment(response.PayrollRun.PayDate.toString()).format('DD.MM.YYYY');
-            });
+                }));
     }
 
     private setDefaultBookingType(draft: PostingSummaryDraft) {

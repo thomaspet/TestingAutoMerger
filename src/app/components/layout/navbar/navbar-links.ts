@@ -501,6 +501,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: 'NAVBAR.REGISTER',
                 links: [
                     {
+                        name: 'TIMETRACKING.HOURTOTALS',
+                        url: '/timetracking/hourtotals',
+                        moduleID: UniModules.HourTotals,
+                        activeInSidebar: true,
+                    },
+                    {
                         name: 'NAVBAR.PERSONS',
                         url: '/timetracking/workers',
                         moduleID: UniModules.Workers,

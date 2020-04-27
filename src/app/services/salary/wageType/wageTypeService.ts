@@ -1,16 +1,17 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {WageType, Account, LimitType, SpecialTaxAndContributionsRule, CompanySalary, TaxType, StdWageType} from '../../../unientities';
-import {BehaviorSubject} from 'rxjs';
-import {AccountService} from '../../accounting/accountService';
-import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
-import {ErrorService} from '../../common/errorService';
-import {FieldType} from '../../../../framework/ui/uniform/index';
+import {BehaviorSubject, of, forkJoin} from 'rxjs';
+import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {Observable} from 'rxjs';
 import 'rxjs';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import {CompanySalaryService} from '../companySalary/companySalaryService';
+import { take, switchMap, map, catchError } from 'rxjs/operators';
+import { ElsaPurchaseService } from '@app/services/elsa/elsaPurchasesService';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { WageType, LimitType, SpecialTaxAndContributionsRule, CompanySalary, Account } from '@uni-entities';
+import { AccountService } from '@app/services/accounting/accountService';
+import { CompanySalaryService } from '@app/services/salary/companySalary/companySalaryService';
+import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
+import { ErrorService } from '@app/services/common/errorService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
@@ -47,28 +48,6 @@ export class WageTypeService extends BizHttp<WageType> {
         { ID: SpecialTaxAndContributionsRule.TaxFreeOrganization, Name: 'Skattefri organisasjon'}
     ];
 
-    private taxType: {ID: TaxType, Name: string}[] = [
-        { ID: TaxType.Tax_None, Name: 'Ingen' },
-        { ID: TaxType.Tax_Table, Name: 'Tabelltrekk' },
-        { ID: TaxType.Tax_Percent, Name: 'Prosenttrekk' },
-        { ID: TaxType.Tax_0, Name: 'Trekkplikt uten skattetrekk' }
-    ];
-
-    private stdWageType: {ID: StdWageType, Name: string}[] = [
-        { ID: StdWageType.None, Name: 'Ingen' },
-        { ID: StdWageType.TaxDrawTable, Name: 'Tabelltrekk' },
-        { ID: StdWageType.TaxDrawPercent, Name: 'Prosenttrekk' },
-        { ID: StdWageType.HolidayPayWithTaxDeduction, Name: 'Feriepenger med skattetrekk' },
-        { ID: StdWageType.HolidayPayThisYear, Name: 'Feriepenger i år' },
-        { ID: StdWageType.HolidayPayLastYear, Name: 'Feriepenger forrige år' },
-        { ID: StdWageType.HolidayPayEarlierYears, Name: 'Feriepenger tidligere år' },
-        { ID: StdWageType.AdvancePayment, Name: 'Forskudd' },
-        { ID: StdWageType.Contribution, Name: 'Bidragstrekk' },
-        { ID: StdWageType.Garnishment, Name: 'Utleggstrekk skatt' },
-        { ID: StdWageType.Outlay, Name: 'Utleggstrekk' },
-        { ID: StdWageType.SourceTaxPension, Name: 'Forskuddstrekk kildeskatt på pensjon' }
-    ];
-
     constructor(
         protected http: UniHttp,
         private accountService: AccountService,
@@ -76,6 +55,7 @@ export class WageTypeService extends BizHttp<WageType> {
         private salaryTransactionService: SalaryTransactionService,
         private toastService: ToastService,
         private companySalaryService: CompanySalaryService,
+        private elsaPurchaseService: ElsaPurchaseService,
     ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
@@ -233,11 +213,6 @@ export class WageTypeService extends BizHttp<WageType> {
                     ToastType.warn, ToastTime.medium,
                     `Dersom du lagrer lønnsarten med disse endringene vil ikke systemleverandør oppdatere lønnsarten lenger.`);
         }
-    }
-
-    public getNameForTaxType(type: TaxType): string {
-        const ret = this.taxType.find(t => t.ID === type);
-        return ret && ret.Name;
     }
 
     public layout(layoutID: string, wageType$: BehaviorSubject<WageType>) {
@@ -434,16 +409,6 @@ export class WageTypeService extends BizHttp<WageType> {
             });
     }
 
-    public GetNameForStandardWageTypeFor(type: StdWageType) {
-        const ret = this.stdWageType.find(t => t.ID === type);
-        return ret && ret.Name;
-    }
-
-    public getNameForSpecialTaxAndContributionRule(rule: SpecialTaxAndContributionsRule) {
-        const ret = this.specialTaxAndContributionsRule.find(r => r.ID === rule);
-        return ret && ret.Name;
-    }
-
     private getSpecialTaxAndContributionRules(companySalary: CompanySalary) {
         return [
                 this.specialTaxAndContributionsRule.find(x => x.ID === SpecialTaxAndContributionsRule.Standard),
@@ -459,131 +424,145 @@ export class WageTypeService extends BizHttp<WageType> {
     public specialSettingsLayout(layoutID: string, wageTypes$: Observable<WageType[]>) {
         return Observable
             .forkJoin(wageTypes$, this.companySalaryService.getCompanySalary())
-            .take(1)
-            .map(response => {
-                const [wagetypes, compSal] = response;
-                return {
-                Name: layoutID,
-                BaseEntity: 'wagetype',
-                Fields: [
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'FixedSalaryHolidayDeduction',
-                        FieldType: FieldType.CHECKBOX,
-                        Label: 'Trekk i fastlønn for ferie',
-                        Tooltip: {
-                            Text: `Kryss av dersom du ønsker trekk (negativ post)
-                             på lønnsarten når du har krysset av for 'Trekk i fastlønn for ferie' på lønnsavregningen.`,
-                        },
-                        FieldSet: 1,
-                        Legend: 'Innstillinger',
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'HideFromPaycheck',
-                        FieldType: FieldType.CHECKBOX,
-                        Label: 'Skjul på lønnslipp',
-                        Tooltip: {
-                            Text: 'Skjul lønnsarten på lønnsslipp. Bare mulig for lønnsarter som ikke fører til en utbetaling.',
-                        },
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'StandardWageTypeFor',
-                        FieldType: FieldType.DROPDOWN,
-                        LookupField: 'Name',
-                        Tooltip: {
-                            Text: `Lønnsarter som brukes til spesielle ting, for eksempel skatt,
-                             ferie og lignende må settes opp med korrekt type her.`,
-                        },
-                        Label: 'Systemets lønnsart',
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'SpecialAgaRule',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Type lønnsart',
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'Systemtype',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Standard lønnsart',
-                        Tooltip: {
-                            Text: `Kobling mot standard lønnsartregister for automatisk vedlikehold av lønnsarten.`,
-                        },
-                        FieldSet: 1,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'Limit_type',
-                        FieldType: FieldType.DROPDOWN,
-                        Label: 'Grenseverdi type',
-                        FieldSet: 2,
-                        Legend: 'Grenseverdi',
-                        Section: 0,
-                        Options: {
-                            source: this.limitTypes,
-                            valueProperty: 'Type',
-                            template: (obj: any) => obj
-                                ? `${obj.Type} - ${obj.Name}`
-                                : '',
-                        }
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'Limit_value',
-                        FieldType: FieldType.TEXT,
-                        Label: 'Grenseverdi',
-                        FieldSet: 2,
-                        Section: 0
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'Limit_newRate',
-                        FieldType: FieldType.NUMERIC,
-                        Label: 'Ny sats',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            format: 'money'
-                        }
-                    },
-                    {
-                        EntityType: 'wagetype',
-                        Property: 'Limit_WageTypeNumber',
-                        FieldType: FieldType.AUTOCOMPLETE,
-                        Label: 'Ny lønnsart',
-                        FieldSet: 2,
-                        Section: 0,
-                        Options: {
-                            source: wagetypes,
-                            valueProperty: 'WageTypeNumber',
-                            template: (wt: WageType) => wt
-                                ? `${wt.WageTypeNumber} - ${wt.WageTypeName}`
-                                : ''
-                        }
-                    },
-                    ...this.getShipFields(compSal),
-                    //...this.getMacroFields()
-                ]
-            };
-        });
+            .pipe(
+                take(1),
+                switchMap(response => {
+                    const [wagetypes, companySalary] = response;
+                    return forkJoin(
+                        this.getBaseSpecialSettingsFields(wagetypes),
+                        this.getShipFields(companySalary),
+                        this.getMacroFields(),
+                    );
+                }),
+                map(fieldLists => fieldLists.reduce((acc, curr) => [...acc, ...curr], [])),
+                map(fields => {
+                    return {
+                        Name: layoutID,
+                        BaseEntity: 'wagetype',
+                        Fields: fields
+                    };
+                })
+            );
     }
 
-    private getShipFields(compSal: CompanySalary): any[] {
-        if (!compSal.Base_SpesialDeductionForMaritim) {
-            return [];
+    private getBaseSpecialSettingsFields(wagetypes: WageType[]): Observable<UniFieldLayout[]> {
+        return of(<UniFieldLayout[]>
+            [
+                {
+                    EntityType: 'wagetype',
+                    Property: 'FixedSalaryHolidayDeduction',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Trekk i fastlønn for ferie',
+                    Tooltip: {
+                        Text: `Kryss av dersom du ønsker trekk (negativ post)
+                        på lønnsarten når du har krysset av for 'Trekk i fastlønn for ferie' på lønnsavregningen.`,
+                    },
+                    FieldSet: 1,
+                    Legend: 'Innstillinger',
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'HideFromPaycheck',
+                    FieldType: FieldType.CHECKBOX,
+                    Label: 'Skjul på lønnslipp',
+                    Tooltip: {
+                        Text: 'Skjul lønnsarten på lønnsslipp. Bare mulig for lønnsarter som ikke fører til en utbetaling.',
+                    },
+                    FieldSet: 1,
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'StandardWageTypeFor',
+                    FieldType: FieldType.DROPDOWN,
+                    LookupField: 'Name',
+                    Tooltip: {
+                        Text: `Lønnsarter som brukes til spesielle ting, for eksempel skatt,
+                        ferie og lignende må settes opp med korrekt type her.`,
+                    },
+                    Label: 'Systemets lønnsart',
+                    FieldSet: 1,
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'SpecialAgaRule',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Type lønnsart',
+                    FieldSet: 1,
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'Systemtype',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Standard lønnsart',
+                    Tooltip: {
+                        Text: `Kobling mot standard lønnsartregister for automatisk vedlikehold av lønnsarten.`,
+                    },
+                    FieldSet: 1,
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'Limit_type',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Grenseverdi type',
+                    FieldSet: 2,
+                    Legend: 'Grenseverdi',
+                    Section: 0,
+                    Options: {
+                        source: this.limitTypes,
+                        valueProperty: 'Type',
+                        template: (obj: any) => obj
+                            ? `${obj.Type} - ${obj.Name}`
+                            : '',
+                    }
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'Limit_value',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Grenseverdi',
+                    FieldSet: 2,
+                    Section: 0
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'Limit_newRate',
+                    FieldType: FieldType.NUMERIC,
+                    Label: 'Ny sats',
+                    FieldSet: 2,
+                    Section: 0,
+                    Options: {
+                        format: 'money'
+                    }
+                },
+                {
+                    EntityType: 'wagetype',
+                    Property: 'Limit_WageTypeNumber',
+                    FieldType: FieldType.AUTOCOMPLETE,
+                    Label: 'Ny lønnsart',
+                    FieldSet: 2,
+                    Section: 0,
+                    Options: {
+                        source: wagetypes,
+                        valueProperty: 'WageTypeNumber',
+                        template: (wt: WageType) => wt
+                            ? `${wt.WageTypeNumber} - ${wt.WageTypeName}`
+                            : ''
+                    }
+                },
+            ]
+        );
+    }
+
+    private getShipFields(companySalary: CompanySalary): Observable<UniFieldLayout[]> {
+        if (!companySalary.Base_SpesialDeductionForMaritim) {
+            return of([]);
         }
-        return [
+        return of(<UniFieldLayout[]>[
             {
                 EntityType: 'WageType',
                 Property: 'DaysOnBoard',
@@ -593,25 +572,31 @@ export class WageTypeService extends BizHttp<WageType> {
                 FieldSet: 3,
                 Section: 0,
             },
-        ];
+        ]);
     }
 
-    private getMacroFields() {
-        return [
-            {
-                EntityType: 'WageType',
-                Legend: 'Makro',
-                FieldType: FieldType.TEXTAREA,
-                Property: 'SpecialTaxHandling',
-                Label:'Skattebehandling',
-                FieldSet: 4,
-                Section: 0,
-                Tooltip: {
-                    Type: 'info',
-                    Text: `Bør kun brukes i helt spesielle tilfeller`,
-                },          
-            }
-
-        ];
+    private getMacroFields(): Observable<UniFieldLayout[]> {
+        return this.elsaPurchaseService
+            .getPurchaseByProductName('TAX_MACRO')
+            .pipe(
+                catchError((err, obs) => null),
+                map(product => product
+                    ? <UniFieldLayout[]>[
+                            {
+                                EntityType: 'WageType',
+                                Legend: 'Makro',
+                                FieldType: FieldType.TEXTAREA,
+                                Property: 'SpecialTaxHandling',
+                                Label: 'Skattebehandling',
+                                FieldSet: 4,
+                                Section: 0,
+                                Tooltip: {
+                                    Type: 'info',
+                                    Text: `Bør kun brukes i helt spesielle tilfeller`,
+                                },
+                            }
+                        ]
+                    : [])
+            );
     }
 }

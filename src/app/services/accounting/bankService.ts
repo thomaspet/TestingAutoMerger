@@ -119,16 +119,15 @@ export class BankService extends BizHttp<Bank> {
         + `&select=payment.Id as ID,payment.businessrelationid as BusinessRelationID,`
         + `payment.amount as Amount,payment.amountCurrency as AmountCurrency,`
         + `payment.description as Description,businessrelation.name as Name,`
-        + `payment.paymentID as PaymentID,bankaccount.accountnumber as AccountNumber,`
+        + `payment.paymentID as PaymentID,`
         + `payment.statusCode as StatusCode,payment.paymentdate as PaymentDate,`
         + `payment.paymentCodeId as PaymentCodeID,journalEntry.JournalEntryNumber as JournalEntryNumber,`
         + `payment.JournalEntryID as JournalEntryID,CurrencyCode.Code as CurrencyCode`
         + `&filter=SourceEntityName eq 'SupplierInvoice' and `
-        + `SourceInstanceID eq ${id} and Payment.ID gt 0`
-        + `&join=Tracelink.DestinationInstanceId eq Payment.ID and `
-        + `Payment.BusinessRelationID eq BusinessRelation.ID and `
-        + `Payment.ToBankAccountID eq BankAccount.ID and Payment.JournalEntryID eq JournalEntry.ID and `
-        + `Payment.CurrencyCodeID eq CurrencyCode.ID`
+        + `SourceInstanceID eq ${id} and Payment.ID gt 0 and Payment.BusinessRelationID eq Supplier.BusinessRelationID `
+        + `&join=Tracelink.DestinationInstanceId eq Payment.ID and Tracelink.SourceInstanceID eq SupplierInvoice.ID and `
+        + `Payment.BusinessRelationID eq BusinessRelation.ID and SupplierInvoice.SupplierID eq Supplier.ID and `
+        + `Payment.JournalEntryID eq JournalEntry.ID and Payment.CurrencyCodeID eq CurrencyCode.ID`
         );
     }
 

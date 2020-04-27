@@ -3,13 +3,24 @@ import {Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
 import {Observable} from 'rxjs';
 import {WageTypeService, ErrorService} from '../../../../services/services';
-import {WageType} from '../../../../unientities';
+import {WageType, SpecialTaxAndContributionsRule} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
 
 @Injectable()
 export class WageTypeViewService {
 
     private url: string = '/salary/wagetypes/';
+
+    private taxAndContributionAmeldingMap: {rule: SpecialTaxAndContributionsRule, ameldingName: string}[] = [
+        { rule: SpecialTaxAndContributionsRule.Standard, ameldingName: null },
+        { rule: SpecialTaxAndContributionsRule.NettoPayment, ameldingName: 'nettoloenn'},
+        { rule: SpecialTaxAndContributionsRule.SpesialDeductionForMaritim, ameldingName: 'saerskiltFradragForSjoefolk'},
+        { rule: SpecialTaxAndContributionsRule.Svalbard, ameldingName: 'svalbard'},
+        { rule: SpecialTaxAndContributionsRule.PayAsYouEarnTaxOnPensions, ameldingName: 'kildeskattPaaPensjoner'},
+        { rule: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, ameldingName: 'janMayenOgBilandene'},
+        { rule: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, ameldingName: 'nettoloennForSjoefolk'},
+        { rule: SpecialTaxAndContributionsRule.TaxFreeOrganization, ameldingName: 'skattefriOrganisasjon'}
+    ]
 
     constructor(
         private wageTypeService: WageTypeService,
@@ -55,5 +66,9 @@ export class WageTypeViewService {
                 : `${wageType.WageTypeNumber} - ${wageType.WageTypeName || 'Lønnsart'}`,
             onSelect: selected => this.router.navigate(['salary/wagetypes/' + selected.ID])
         };
+    }
+
+    public getTaxAndContributionRuleAmeldingName(rule: SpecialTaxAndContributionsRule): string {
+        return this.taxAndContributionAmeldingMap.find(m => m.rule === rule)?.ameldingName;
     }
 }

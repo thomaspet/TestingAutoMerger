@@ -100,7 +100,8 @@ export const NO = {
     },
 
     TIMETRACKING: {
-        'PERSON_NEW': 'Ny person'
+        'PERSON_NEW': 'Ny person',
+        'HOURTOTALS': 'Timerapport'
     },
 
     TASKS: {

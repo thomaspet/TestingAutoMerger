@@ -141,16 +141,6 @@
                 "ExternalModel": "JournalEntry"
             }
         ],
-        "DefaultTableFilter": {
-            "field": "StatusCode",
-            "operator": "ne",
-            "value": "44020",
-            "label": "Vis skjulte betalinger",
-            "filter": "isnull(StatusCode,0) ne 44020",
-            "active": false,
-            "useWhenActive": false,
-            "useOnlyOnFilter": "incomming_without_match"
-        },
         "Filters": [
             {
                 "Name": "Alle",
@@ -569,6 +559,15 @@
                 "NeedsActionOverride": true
             },
             {
+                "Name": "Krediter bilag på utbetalingen",
+                "Code": "credit_journal_entry",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_payment_file",
                 "Type": "action",
@@ -623,7 +622,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Sett til bokført og betalt",
+                "Name": "Endre status til bokført og betalt",
                 "Code": "set_to_paid",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
@@ -716,6 +715,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         },
                         {
                             "Field": "isPaymentClaim",
@@ -830,6 +834,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },                        
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         },
                         {
                             "Field": "isPaymentClaim",

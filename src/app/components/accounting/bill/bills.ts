@@ -1,6 +1,6 @@
 import {ViewChild, Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '../../../../framework/ui/unitable/index';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
 import {HttpParams} from '@angular/common/http';
 import {Router} from '@angular/router';
@@ -17,7 +17,6 @@ import {
     ApprovalService,
     SupplierInvoiceService,
     AssignmentDetails,
-    IStatTotal,
     ErrorService,
     PageStateService,
     UserService,
@@ -80,15 +79,6 @@ export class BillsView implements OnInit {
     public previewVisible: boolean;
     private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense'];
     private inboxTagNamesFilter = '(' + this.inboxTagNames.map(tag => 'tagname eq \'' + tag + '\'').join(' or ') + ')';
-    unpaidQuickFilters = [{
-        field: 'StatusCode',
-        operator: 'eq',
-        value: StatusCodeSupplierInvoice.Journaled,
-        selectConfig: {options: [{ ID: 30104, Name: 'Bokført' }], valueField: 'ID', displayField: 'Name'},
-        label: 'Se bare bokførte'
-    }];
-    quickFilters = [];
-
 
     public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public assigneeFilterField: any = {
@@ -672,12 +662,6 @@ export class BillsView implements OnInit {
             this.hasQueriedInboxCount = filter.name === 'Inbox';
         }
 
-        if (this.currentFilter.name === 'unpaid') {
-            this.quickFilters = this.unpaidQuickFilters;
-        } else {
-            this.quickFilters = [];
-        }
-
         const obs = filter.route
             ? this.supplierInvoiceService.fetch(filter.route)
             : this.supplierInvoiceService.getInvoiceList(params, this.currentUserFilter);
@@ -924,12 +908,29 @@ export class BillsView implements OnInit {
 
         ];
 
-        return new UniTableConfig('accounting.bills.mainTable', false, true)
+        const config = new UniTableConfig('accounting.bills.mainTable', false, true)
             .setSearchable(true)
             .setMultiRowSelect(true, false, true)
             .setColumns(cols)
             .setPageSize(this.calculatePagesize())
             .setColumnMenuVisible(true);
+
+        if (this.currentFilter.name === 'unpaid') {
+            config.setQuickFilters([{
+                field: '_onlyJournaled',
+                label: 'Se bare bokførte',
+                type: 'checkbox',
+                filterGenerator: isChecked => {
+                    return isChecked && {
+                        field: 'StatusCode',
+                        operator: 'eq',
+                        value: StatusCodeSupplierInvoice.Journaled,
+                    };
+                }
+            }]);
+        }
+
+        return config;
     }
 
     public reInvoice(row) {
@@ -957,12 +958,6 @@ export class BillsView implements OnInit {
         }
 
         this.currentFilter = filter;
-
-        if (this.currentFilter.name === 'unpaid') {
-            this.quickFilters = this.unpaidQuickFilters;
-        } else {
-            this.quickFilters = [];
-        }
 
         this.refreshList(filter, !this.hasQueriedTotals);
         this.pageStateService.setPageState('filter', filter.name);

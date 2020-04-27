@@ -4,8 +4,7 @@ import {PayrollrunService, StatisticsService, ErrorService} from '@app/services/
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@uni-framework/uni-tabs';
-import {SalaryHelperMethods} from '../../helperMethods/salaryHelperMethods';
-
+import { SalaryHelperMethods } from '../../shared/services/salaryHelperMethods';
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'
@@ -108,7 +107,8 @@ export class PaycheckSending implements OnInit {
                 if (res.Data && res.Data.length) {
                     employees.map(emp => {
                         let string = '';
-                        res.Data.filter(x => x.EmployeeID === emp.ID).map((x, i) => i === 0 ? string += `${x.Number} - ${x.Name}` : string += `, ${x.Number} - ${x.Name}`);
+                        res.Data.filter(x => x.EmployeeID === emp.ID).map(
+                            (x, i) => i === 0 ? string += `${x.Number} - ${x.Name}` : string += `, ${x.Number} - ${x.Name}`);
 
                         return emp['_categories'] = string;
                     });

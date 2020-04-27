@@ -17,7 +17,6 @@ import { TableUtils } from '../../services/table-utils';
     selector: 'advanced-filters',
     templateUrl: './advanced-filters.html',
     styleUrls: ['./advanced-filters.sass'],
-    host: {class: 'uni-redesign'}
 })
 export class AdvancedFilters {
     @ViewChildren('filterRow') filterRows: QueryList<ElementRef>;

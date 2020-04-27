@@ -1,0 +1,37 @@
+<fieldset class="uni-fieldset small">
+    <legend>Detaljer</legend>
+    <aside>
+        <uni-form
+            [config]="config$"
+            [fields]="fields$ | async"
+            [model]="salarybalance$"
+            (changeEvent)="change($event)">
+        </uni-form>
+    </aside>
+</fieldset>
+
+<fieldset class="uni-fieldset small">
+    <legend>Dokumenter</legend>
+    <div *ngIf="!(salarybalance$ | async)?.ID">
+        <uni-image
+            [singleImage]="true"
+            [uploadWithoutEntity]="'true'"
+            (fileListReady)="onFileListReady($event)">
+        </uni-image>
+    </div>
+    <uni-image
+        *ngIf="(salarybalance$ | async)?.ID"
+        [entity]="'SalaryBalance'"
+        [entityID]="(salarybalance$ | async)?.ID"
+        (fileListReady)="onFileListReady($event)">
+    </uni-image>
+</fieldset>
+
+<fieldset class="uni-fieldset">
+    <legend>Poster</legend>
+    <uni-salary-balance-summary
+        [salaryBalance]="salarybalance$ | async"
+        [busy]="summaryBusy$ | async"
+        (changeEvent)="onSummaryChanges($event)">
+    </uni-salary-balance-summary>
+</fieldset>

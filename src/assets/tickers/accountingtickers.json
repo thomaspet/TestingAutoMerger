@@ -8,7 +8,7 @@
         "Group": "Regnskap",
         "Model": "JournalEntryLine",
         "OrderBy": "ID desc",
-        "Expand": "JournalEntryType",
+        "Expand": "JournalEntryType,Period",
         "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and JournalEntryLine.CreatedBy eq User.GlobalIdentity",
         "Columns": [
             {
@@ -271,15 +271,6 @@
                 "Type": "dontdisplay"
             }
         ],
-        "DefaultTableFilter": {
-            "field": "StatusCode",
-            "operator": "ne",
-            "value": "31004",
-            "label": "Vis krediterte",
-            "filter": "isnull(StatusCode,0) ne 31004",
-            "active": false,
-            "useWhenActive": false
-        },
         "Actions": [
             {
                 "Name": "Nytt bilag",

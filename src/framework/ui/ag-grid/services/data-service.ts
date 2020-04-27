@@ -6,10 +6,10 @@ import {cloneDeep, get} from 'lodash';
 import * as moment from 'moment';
 
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '../../unitable/config/unitableColumn';
-import {UniTableConfig} from '../../unitable/config/unitableConfig';
+import {UniTableConfig, QuickFilter} from '../../unitable/config/unitableConfig';
 import {ITableFilter, IExpressionFilterValue} from '../interfaces';
 import {StatisticsService} from '@app/services/common/statisticsService';
-import {TableUtils} from './table-utils';
+import {TableUtils, LastUsedFilter} from './table-utils';
 
 @Injectable()
 export class TableDataService {
@@ -18,15 +18,18 @@ export class TableDataService {
     private hasRemoteLookup: boolean;
     private dataSource;
 
-    public sumRow$: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
-    public totalRowCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-    public loadedRowCount: number;
+    sumRow$: BehaviorSubject<any[]> = new BehaviorSubject(undefined);
+    totalRowCount$: BehaviorSubject<number> = new BehaviorSubject(0);
+    loadedRowCount: number;
 
-    public basicSearchFilters: ITableFilter[];
-    public advancedSearchFilters: ITableFilter[];
-    public filterString: string;
+    basicSearchFilters: ITableFilter[];
+    advancedSearchFilters: ITableFilter[];
+    quickFilters: QuickFilter[];
+    // quickFilterValues: {[field: string]: any};
 
-    public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
+    filterString: string;
+
+    columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
 
     // Only maintained for local data grids!
     private originalData: any[];
@@ -43,13 +46,13 @@ export class TableDataService {
         private utils: TableUtils
     ) {}
 
-    public initialize(gridApi: GridApi, newConfig: UniTableConfig, resource) {
+    public initialize(gridApi: GridApi, config: UniTableConfig, resource, quickFilters: QuickFilter[]) {
         this.gridApi = gridApi;
 
-        const configFiltersChanged = this.didConfigFiltersChange(newConfig);
-        const configChanged = !this.config || this.config.configStoreKey !== newConfig.configStoreKey;
+        const configFiltersChanged = this.didConfigFiltersChange(config);
+        const configChanged = !this.config || this.config.configStoreKey !== config.configStoreKey;
 
-        this.config = newConfig;
+        this.config = config;
 
         const sortModel = this.utils.getSortModel(this.config.configStoreKey);
         if (sortModel) {
@@ -58,15 +61,16 @@ export class TableDataService {
 
         if (configChanged) {
             this.filterString = undefined;
-            const lastUsedFilter = this.utils.getLastUsedFilter(newConfig.configStoreKey) || <any> {};
+            const lastUsedFilter = this.utils.getLastUsedFilter(config.configStoreKey) || <LastUsedFilter> {};
             this.setFilters(
-                lastUsedFilter.advancedSearchFilters || newConfig.filters || [],
+                lastUsedFilter.advancedSearchFilters || config.filters || [],
                 [],
+                quickFilters,
                 false
             );
         } else if (configFiltersChanged) {
             this.filterString = undefined;
-            this.setFilters(newConfig.filters, [], false);
+            this.setFilters(config.filters, [], [], false);
         }
 
         if (Array.isArray(resource)) {
@@ -116,13 +120,14 @@ export class TableDataService {
             this.loadedRowCount = 0;
             this.isDataLoading = true;
             this.gridApi.setDatasource(this.dataSource);
+            this.gridApi.showLoadingOverlay();
         }
     }
 
-    private didConfigFiltersChange(newConfig) {
+    private didConfigFiltersChange(config) {
         let configFiltersChanged = false;
         const oldFilters = (this.config && this.config.filters) || [];
-        const newFilters = (newConfig && newConfig.filters) || [];
+        const newFilters = (config && config.filters) || [];
 
         if (oldFilters.length !== newFilters.length) {
             configFiltersChanged = true;
@@ -212,6 +217,7 @@ export class TableDataService {
 
                         params.successCallback(rows, this.rowCountOnRemote);
                         this.isDataLoading = false;
+                        this.gridApi.hideOverlay();
                     },
                     err => {
                         console.error(err);
@@ -354,6 +360,35 @@ export class TableDataService {
 
         let data = cloneDeep(originalData).filter(row => !row.Deleted);
 
+        // Quick filters
+        if (this.quickFilters?.length) {
+            const filters: ITableFilter[] = [];
+            this.quickFilters.forEach(quickFilter => {
+                if (quickFilter.filterGenerator) {
+                    const generatedFilter = quickFilter.filterGenerator(quickFilter.value);
+                    if (generatedFilter && typeof generatedFilter !== 'string') {
+                        filters.push(generatedFilter);
+                    }
+                } else if (quickFilter.operator && quickFilter.value) {
+                    filters.push({
+                        field: quickFilter.field,
+                        operator: quickFilter.operator,
+                        value: quickFilter.value,
+                        isDate: quickFilter.type === 'date'
+                    });
+                }
+            });
+
+            filters.filter(f => !!f.field && !!f.operator && !!f.value);
+            if (filters.length) {
+                data = data.filter(item => {
+                    return filters.every(filter => {
+                        return this.checkFilter(filter, item);
+                    });
+                });
+            }
+        }
+
         // Advanced filters (separator = and)
         if (this.advancedSearchFilters && this.advancedSearchFilters.length) {
             const filterGroups = [];
@@ -475,6 +510,7 @@ export class TableDataService {
     public setFilters(
         advancedSearchFilters: ITableFilter[] = [],
         basicSearchFilters: ITableFilter[] = [],
+        quickFilters: QuickFilter[] = [],
         refreshTableData: boolean = true
     ): any {
         this.resetRemoteDatasource();
@@ -496,24 +532,59 @@ export class TableDataService {
             return filter;
         });
 
-
         // Sort advanced filters by group
         advancedSearchFilters = advancedSearchFilters.sort((a, b) => a.group - b.group);
 
         this.advancedSearchFilters = advancedSearchFilters;
         this.basicSearchFilters = basicSearchFilters;
+        this.quickFilters = quickFilters;
 
         let filterStrings: string[] = [];
-        if (this.basicSearchFilters && this.basicSearchFilters.length) {
+        if (this.basicSearchFilters?.length) {
             filterStrings.push(this.getFilterString(this.basicSearchFilters, this.config.expressionFilterValues, 'or'));
         }
 
-        if (this.advancedSearchFilters && this.advancedSearchFilters.length) {
+        if (this.advancedSearchFilters?.length) {
             filterStrings.push(this.getFilterString(this.advancedSearchFilters, this.config.expressionFilterValues));
         }
 
-        filterStrings = filterStrings.filter(res => res !== '');
+        if (this.quickFilters?.length) {
+            console.log(this.quickFilters);
 
+            const filters: ITableFilter[] = [];
+            const qfStrings = [];
+
+            this.quickFilters.forEach(quickFilter => {
+                if (quickFilter.filterGenerator) {
+                    const generatedFilter = quickFilter.filterGenerator(quickFilter.value);
+                    if (generatedFilter) {
+                        if (typeof generatedFilter === 'string') {
+                            qfStrings.push(generatedFilter);
+                        } else {
+                            filters.push(generatedFilter);
+                        }
+                    }
+                } else if (quickFilter.operator && quickFilter.value) {
+                    filters.push({
+                        field: quickFilter.field,
+                        operator: quickFilter.operator,
+                        value: quickFilter.value,
+                        isDate: quickFilter.type === 'date'
+                    });
+                }
+            });
+
+            filters.filter(f => !!f.field && !!f.operator && !!f.value);
+            if (filters.length) {
+                qfStrings.push(this.getFilterString(filters, this.config.expressionFilterValues));
+            }
+
+            if (qfStrings.length) {
+                filterStrings.push(qfStrings.join(' and '));
+            }
+        }
+
+        filterStrings = filterStrings.filter(f => !!f);
         this.filterString = filterStrings.join(' and ');
 
         if (refreshTableData) {
@@ -529,7 +600,7 @@ export class TableDataService {
         }
 
         const advancedFilters = this.advancedSearchFilters.filter(f => f.field !== field);
-        this.setFilters(advancedFilters, this.basicSearchFilters);
+        this.setFilters(advancedFilters, this.basicSearchFilters, this.quickFilters);
     }
 
     public getFilterString(filters: ITableFilter[], expressionFilterValues: IExpressionFilterValue[], separator?): string {
@@ -613,27 +684,30 @@ export class TableDataService {
         }
     }
 
+    private formatDateFilter(value) {
+        let filterMoment;
+
+        // Try parsing date strings with norwegian format first
+        if (typeof value === 'string') {
+            filterMoment = moment(value, 'DD.MM.YYYY');
+        }
+
+        // If the above failed, or the filter value is a date object
+        // try parsing it without a specified format
+        if (!filterMoment || !filterMoment.isValid()) {
+            filterMoment = moment(value);
+        }
+
+        if (filterMoment.isValid()) {
+            return filterMoment.format('YYYY-MM-DD');
+        }
+    }
+
     private getFilterValueFromFilter(filter: ITableFilter, expressionFilterValues: IExpressionFilterValue[]): string {
         let filterValue = filter.value.toString() || '';
 
         if (filter.isDate) {
-            let filterMoment;
-
-            // Try parsing date strings with norwegian format first
-            if (typeof filter.value === 'string') {
-                filterMoment = moment(filter.value, 'DD.MM.YYYY');
-            }
-
-            // If the above failed, or the filter value is a date object
-            // try parsing it without a specified format
-            if (!filterMoment || !filterMoment.isValid()) {
-                filterMoment = moment(filter.value);
-            }
-
-            // If the result is a valid date, format for use in http filter
-            if (filterMoment.isValid()) {
-                filterValue = filterMoment.format('YYYY-MM-DD');
-            }
+            filterValue = this.formatDateFilter(filter.value);
         }
 
         // If expressionfiltervalues are defined, e.g. ":currentuserid",

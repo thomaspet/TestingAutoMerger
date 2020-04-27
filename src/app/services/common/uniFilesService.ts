@@ -66,8 +66,6 @@ export class UniFilesService {
     public forceFullLoad(id: string): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, {
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -77,8 +75,6 @@ export class UniFilesService {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/get-page-split-info/' + id, {
             observe: 'body',
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -87,8 +83,6 @@ export class UniFilesService {
     public rotate(id: string, page: number, rotateClockwise: boolean): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + `/api/file/rotate-page/${id}/${page}/${rotateClockwise}`, {
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -98,8 +92,6 @@ export class UniFilesService {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/filestatus/' + id, {
             observe: 'body',
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -109,8 +101,6 @@ export class UniFilesService {
         return this.http.get(this.uniFilesBaseUrl + '/api/client/get-ocr-stats', {
             observe: 'body',
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -119,8 +109,6 @@ export class UniFilesService {
     public trainOcrEngine(body) {
         this.http.post(this.uniFilesBaseUrl + '/api/ocr/train-engine', body, {
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         }).subscribe(
@@ -140,8 +128,6 @@ export class UniFilesService {
             observe: 'body',
             headers: {
                 'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });
@@ -152,8 +138,6 @@ export class UniFilesService {
         return this.http.post(url, null, {
             observe: 'body',
             headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
                 'Key': this.activeCompany.Key
             }
         });

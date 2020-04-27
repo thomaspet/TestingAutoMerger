@@ -5,7 +5,6 @@ import {UnitableNumberInput} from '../controls/number';
 import {UnitableDateTimepicker} from '../controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
-import {get} from 'lodash';
 
 /*
     Dont make changes to this unless you know what you're doing!

@@ -55,9 +55,6 @@ export class CompanyList {
             action: (company: ElsaCompanyLicense) => {
                 this.grantSelfAccess(company);
             },
-            hidden: (company: ElsaCompanyLicense) => {
-                return company['_ueCompany'];
-            }
         }
     ];
 

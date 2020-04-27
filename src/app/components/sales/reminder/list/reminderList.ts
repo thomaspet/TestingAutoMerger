@@ -332,7 +332,6 @@ export class ReminderList {
             .setColumnMenuVisible(true)
             .setMultiRowSelect(true)
             .setDeleteButton(false)
-            .setSearchListVisible(true)
             .setColumns([
                 reminderNumberCol, invoiceNumberCol, customerNumberCol, customerNameCol, emailCol,
                 currencyCodeCol, taxInclusiveAmountCurrencyCol, restAmountCurrencyCol,

@@ -59,29 +59,32 @@ import { environment } from 'src/environments/environment';
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
         <section class="ticker-overview">
-            <i class="material-icons bank-info-button" *ngIf="showInfo" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu">
-                info_outline
-            </i>
-
-            <mat-menu #contextMenu="matMenu" yPosition="below">
-                <div class="bank-ticker-info-container">
-                    <h2>Innbetalinger uten match</h2>
-                    <p>
-                        Dette er en feilliste. Når det ligger poster her, er det viktig å behandle disse så raskt som mulig.
-                        Disse postene er autobokført av programmet som innbetalinger på hovedbokskonto for bank,
-                        ofte konto <strong>1920</strong>. Vi har dessverre ikke funnet hvilken kunde eller konto som innbetalingen gjelder.
-                        Denne er derfor ført mot en interrimskonto, ofte konto <strong>2996</strong>.
-                    </p>
-                    <p>
-                        Gjelder innbetalingen en kundefaktura, klikker du på de 3 prikkene borte til høyre, bruker funksjonen <br/>
-                        <strong>"Velg faktura manuelt"</strong>, finner den riktige fakturaen og fullfører. Vet du bare hvilken kunde
-                        dette gjelder, bruker du <br/> <strong>"Velg kunde manuelt</strong>. Da vil innbetalingsbilaget bli endret slik at
-                        bokføringen vil gå mot riktig kunde, i stedet for mot interrimskonto og posten vil bli fjernet fra denne listen.
-                    </p>
-                </div>
-            </mat-menu>
 
             <section class="overview-ticker-section">
+                <section *ngIf="showNoMatchInfo" class="no-match-info">
+                    <a #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu">
+                        Informasjon om "Betalt ingen match"
+                    </a>
+
+                    <mat-menu #contextMenu="matMenu" yPosition="below">
+                        <div class="bank-ticker-info-container">
+                            <h2>Innbetalinger uten match</h2>
+                            <p>
+                                Dette er en feilliste. Når det ligger poster her, er det viktig å behandle disse så raskt som mulig.
+                                Disse postene er autobokført av programmet som innbetalinger på hovedbokskonto for bank,
+                                ofte konto <strong>1920</strong>. Vi har dessverre ikke funnet hvilken kunde eller konto som innbetalingen gjelder.
+                                Denne er derfor ført mot en interrimskonto, ofte konto <strong>2996</strong>.
+                            </p>
+                            <p>
+                                Gjelder innbetalingen en kundefaktura, klikker du på de 3 prikkene til høyre, bruker funksjonen <br/>
+                                <strong>"Velg faktura manuelt"</strong>, finner den riktige fakturaen og fullfører. Vet du bare hvilken kunde
+                                dette gjelder, bruker du <br/> <strong>"Velg kunde manuelt</strong>. Da vil innbetalingsbilaget bli endret slik at
+                                bokføringen vil gå mot riktig kunde, i stedet for mot interrimskonto og posten vil bli fjernet fra denne listen.
+                            </p>
+                        </div>
+                    </mat-menu>
+                </section>
+
                 <uni-ticker-container
                     [ticker]="selectedTicker"
                     [actionOverrides]="actionOverrides"
@@ -105,7 +108,7 @@ export class BankComponent {
     isSrEnvirnment = environment.isSrEnvironment;
     hasAccessToAutobank: boolean;
     filter: string = '';
-    showInfo: boolean = false;
+    showNoMatchInfo: boolean = false;
     failedFiles: any[] = [];
     tickerGroups: TickerGroup[];
     selectedTicker: Ticker;
@@ -150,7 +153,7 @@ export class BankComponent {
         {
             Code: 'ignore_payment',
             ExecuteActionHandler: (selectedRows) => this.updatePaymentStatusToIgnore(null, selectedRows),
-            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode == 44018
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44018
         },
         {
             Code: 'reset_payment',
@@ -366,7 +369,7 @@ export class BankComponent {
                 }
 
                 this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
-                this.showInfo = params['filter'] === 'incomming_without_match';
+                this.showNoMatchInfo = params['filter'] === 'incomming_without_match';
 
                 if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code || this.filter !== params['filter']) {
                     this.selectedTicker = ticker;
@@ -450,7 +453,8 @@ export class BankComponent {
         if (selectedTickerCode === 'payment_list') {
             const hasActiveAgreement = this.agreements && this.agreements.length
             && this.agreements.filter((agreement: BankIntegrationAgreement) =>
-            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
+            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0
+            && this.isAutobankAdmin;
 
             this.actions.push({
                 label: 'Send alle til betaling',
@@ -518,7 +522,8 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaidAndJournaled(done);
                 },
-                disabled: this.rows.length === 0
+                main: this.rows.length > 0 && (this.filter !== 'payed_not_journaled'),
+                disabled: this.rows.length === 0 || (this.filter === 'payed_not_journaled')
             });
 
             this.actions.push({
@@ -527,6 +532,7 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
+                main: this.rows.length > 0 && (this.filter === 'payed_not_journaled'),
                 disabled: this.rows.length === 0
             });
 
@@ -550,9 +556,9 @@ export class BankComponent {
                 action: (done) => {
                     this.fileUploaded(done);
                 },
-                disabled: false,
-                main: this.rows.length === 0 || this.filter !== "incomming_without_match" 
-            });            
+                disabled: this.rows.length > 0 && (this.filter === 'incomming_without_match'),
+                main: this.rows.length === 0 || this.filter !== 'incomming_without_match'
+            });
 
             this.actions.push({
                 label: 'Endre status til bokført og betalt',
@@ -560,18 +566,18 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
-                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match" 
+                disabled: this.rows.length !== 1 || this.filter !== 'incomming_without_match'
             });
-            
+
             this.actions.push({
                 label: 'Skjul innbetalingsposter',
                 action: (done, file) => {
-                    done('Skult innbetalinger');                    
+                    done('Skjult innbetalinger');
                     this.updatePaymentStatusToIgnore(done);
                 },
-                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match",
-                main: this.rows.length !== 0 || this.filter !== "incomming_without_match"               
-            });            
+                disabled: this.rows.length === 0 || this.filter !== 'incomming_without_match',
+                main: this.rows.length !== 0 || this.filter !== 'incomming_without_match'
+            });
         }
     }
 
@@ -920,7 +926,7 @@ export class BankComponent {
         });
     }
 
-    public updatePaymentStatusToIgnore(doneHandler: (status: string) => any, data: any = null){
+    public updatePaymentStatusToIgnore(doneHandler: (status: string) => any, data: any = null) {
         return new Promise(() => {
             const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
             if (rows.length === 0) {
@@ -938,12 +944,12 @@ export class BankComponent {
             }
 
             const modal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Ignorer betalinger',
+                header: 'Skjul innbetalingsposter',
                 warning: 'Det er kun innbetalingsposten som fjernes fra listen, bilaget vil ikke krediteres.',
-                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',                
+                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',
                 buttonLabels: {
-                    accept: "Ok",
-                    reject: "Avbryt"
+                    accept: 'Ok',
+                    reject: 'Avbryt'
                 }
             });
 
@@ -955,7 +961,7 @@ export class BankComponent {
                     });
                     this.paymentService.updatePaymentsToIgnore(paymentIDs).subscribe(PaymentResponse => {
                         this.tickerContainer.mainTicker.reloadData();
-                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3)                        
+                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
                     });
                 } else {
                     if (doneHandler) {
@@ -964,7 +970,7 @@ export class BankComponent {
                     return;
                 }
             });
-        })
+        });
     }
 
     public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null) {
@@ -1106,10 +1112,10 @@ export class BankComponent {
 
                 Observable.forkJoin(queries)
                     .subscribe((result: any) => {
-                        if (result && result.length) {
+                        if (result?.length) {
                             let collectionOfBatchIds = [];
                             result.forEach((res) => {
-                                if (res && res.Value && res.Value.ProgressUrl) {
+                                if (res?.Value?.ProgressUrl) {
                                     this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
                                     'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
                                     done();
@@ -1124,16 +1130,14 @@ export class BankComponent {
                                         } else {
                                             this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
                                         }
-                                        this.tickerContainer.getFilterCounts();
-                                        this.tickerContainer.mainTicker.reloadData();
                                     });
-                                } else {
+                                } else if (res) {
                                     const paymentBatchIds = res.map(paymentBatch => paymentBatch.ID);
                                     collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
-                                    this.tickerContainer.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                    done();
                                 }
+                                this.tickerContainer.getFilterCounts();
+                                this.tickerContainer.mainTicker.reloadData();
+                                done();
                             });
                             if (collectionOfBatchIds.length) {
                                 this.createToastWithStatus(collectionOfBatchIds);
