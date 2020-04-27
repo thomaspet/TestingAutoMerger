@@ -248,7 +248,8 @@ export class HourTotals {
         return 'model=workitem&select=workitem.*,businessrelation.name as Name'
             + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker', ',')
             + '&join=' + this.addFilter(preset.join, 'worker.businessrelationid eq businessrelation.id')
-            + '&filter=' + this.addFilter(preset.filter, filter);
+            + '&filter=' + this.addFilter(preset.filter, filter)
+            + '&orderby=date,starttime,endtime';
 
     }
 

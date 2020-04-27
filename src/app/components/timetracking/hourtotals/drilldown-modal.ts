@@ -17,14 +17,22 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
                 <table class="report">
                     <thead>
                         <tr>
-                            <th>Medarbeider</th>
-                            <th>Dato</th>
+                            <th class="large">Medarbeider</th>
+                            <th class="medium">Dato</th>
+                            <th class="small">Start</th>
+                            <th class="small">Slutt</th>
+                            <th class="small">Timer</th>
+                            <th class="left">Tekst</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let item of options.data.details">
                             <td>{{item.Name}}</td>
-                            <td>{{item.Date}}</td>
+                            <td>{{item.Date | date:'dd.MM.yyyy'}}</td>
+                            <td>{{item.StartTime | date:'HH:mm'}}</td>
+                            <td>{{item.EndTime | date:'HH:mm'}}</td>
+                            <td>{{item.Minutes | min2hours:'decimal'}}</td>
+                            <td class="left">{{item.Description}}</td>
                         </tr>
                     </tbody>
                 </table>
