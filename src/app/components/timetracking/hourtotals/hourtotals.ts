@@ -71,7 +71,16 @@ export class HourTotals {
     }
 
     getFilterByName(name: string) {
-        return this.groups.find( x => x.name === name);
+        let grp = this.groups.find( x => x.name === name);
+        if (this.input && this.input.groupBy && this.input.groupBy.name === grp.name ) {
+            for (let i = 0; i < this.groups.length; i++) {
+                if (this.groups[i].name !== this.input.groupBy.name) {
+                    grp = this.groups[i];
+                    break;
+                }
+            }
+        }
+        return grp;
     }
 
     ngOnDestroy() {

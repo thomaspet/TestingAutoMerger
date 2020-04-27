@@ -9,9 +9,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
         {{options.data.groupBy.label}} {{options.data.row.title}}
         </header>
         <article>
-            filter: {{options.data.odata.filter}}
             <hourtotals [input]="options.data"></hourtotals>
-
         </article>
 
         <footer>
