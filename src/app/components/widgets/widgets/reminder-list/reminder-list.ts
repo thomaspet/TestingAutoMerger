@@ -74,7 +74,7 @@ export class ReminderListWidget {
             this.approvalService.GetAll(filter, ['Task.Model']),
             this.widgetDataService.getData(`/api/statistics?model=Payment&select=sum(casewhen((Payment.IsCustomerPayment eq 'true' ` +
             `and Payment.StatusCode eq '44018' )\,1\,0)) as payments`),
-            this.widgetDataService.getData(`/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/` +
+            this.widgetDataService.getData(`/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/` +
             `0?action=get-supplierInvoice-inbox`)
         )
         .subscribe(([data, comp, approvals, payments, inbox]) => {

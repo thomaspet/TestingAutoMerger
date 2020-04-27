@@ -109,7 +109,7 @@ export const COUNTERS = [
         height: 1,
         widgetType: 'sum',
         config: {
-            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox-count',
+            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox-count',
             title: 'Fakturainnboks',
             positive: false,
             link: '/accounting/bills?filter=Inbox',

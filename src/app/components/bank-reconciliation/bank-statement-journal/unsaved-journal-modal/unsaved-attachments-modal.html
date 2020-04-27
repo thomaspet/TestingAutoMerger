@@ -1,0 +1,55 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Kobling av vedlegg vil bli forkastet</header>
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="alert warn">
+            Ved å lukke bokføringsdialogen uten å lagre vil koblingen mellom vedlegg og bilagslinje forkastes!
+        </section>
+
+        <ng-container *ngIf="uploadedFiles?.length">
+            <p>Filer som er hentet fra innboks vil automatisk legges tilbake.</p>
+
+            <p>
+                Dersom du har lastet opp filer fra maskinen din kan du om ønskelig markere dem
+                i listen under og overføre til innboks for senere bruk.
+            </p>
+
+            <section class="file-list">
+                <mat-checkbox *ngFor="let file of uploadedFiles"
+                    [(ngModel)]="file['_sendToInbox']"
+                    (ngModelChange)="onSendToInboxChange()">
+                    {{file.Name}}
+                </mat-checkbox>
+            </section>
+        </ng-container>
+    </article>
+
+    <footer>
+        <ng-container *ngIf="!uploadedFiles?.length">
+            <button class="secondary" (click)="onClose.emit(false)">
+                Avbryt
+            </button>
+
+            <button class="c2a" *ngIf="!uploadedFiles?.length" (click)="onClose.emit(true)">
+                Legg filer tilbake i innboks og lukk
+            </button>
+        </ng-container>
+
+        <ng-container *ngIf="uploadedFiles?.length">
+            <button class="secondary pull-left" (click)="onClose.emit(false)">
+                Avbryt
+            </button>
+
+            <button class="secondary bad" (click)="discardUploadedFiles(false)">
+                Slett opplastede filer og lukk
+            </button>
+
+            <button class="c2a" (click)="sendUploadedFilesToInbox()" [disabled]="!sendFilesToInbox">
+                Legg valgte filer i innboks og lukk
+            </button>
+        </ng-container>
+    </footer>
+</section>

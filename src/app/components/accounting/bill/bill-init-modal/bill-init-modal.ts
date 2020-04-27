@@ -30,7 +30,7 @@ export class BillInitModal implements IUniModal {
     ngOnInit() {
         this.busy = true;
 
-        const inboxUrl = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox';
+        const inboxUrl = 'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox';
         this.supplierInvoiceService.fetch(inboxUrl).pipe(
             finalize(() => this.busy = false)
         ).subscribe(

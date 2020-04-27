@@ -9,13 +9,14 @@ import {
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniConfirmModalV2} from './modals/confirmModal';
-import {Observable, fromEvent} from 'rxjs';
+import {Observable, fromEvent, Subscription} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 
 @Injectable()
 export class UniModalService {
     private openModalRefs: ComponentRef<IUniModal>[] = [];
     private containerElement: HTMLElement;
+    private clickOutsideSubscription: Subscription;
 
     constructor(
         private applicationRef: ApplicationRef,
@@ -38,12 +39,33 @@ export class UniModalService {
     public forceClose(modalRef: ComponentRef<IUniModal>): void {
         const options = modalRef && modalRef.instance.options || {};
 
-        if (modalRef.instance.forceCloseValueResolver) {
-            modalRef.instance.onClose.emit(modalRef.instance.forceCloseValueResolver());
-        } else if (options.hasOwnProperty('cancelValue')) {
-            modalRef.instance.onClose.emit(options.cancelValue);
+        const closeFn = () => {
+            if (modalRef.instance.forceCloseValueResolver) {
+                modalRef.instance.onClose.emit(modalRef.instance.forceCloseValueResolver());
+            } else if (options.hasOwnProperty('cancelValue')) {
+                modalRef.instance.onClose.emit(options.cancelValue);
+            } else {
+                modalRef.instance.onClose.emit(null);
+            }
+
+            if (this.clickOutsideSubscription) {
+                this.clickOutsideSubscription.unsubscribe();
+            }
+        };
+
+        if (modalRef.instance.canDeactivate) {
+            const canClose = modalRef.instance.canDeactivate();
+            if (canClose instanceof Observable) {
+                canClose.subscribe(allowed => {
+                    if (allowed) {
+                        closeFn();
+                    }
+                });
+            } else if (canClose) {
+                closeFn();
+            }
         } else {
-            modalRef.instance.onClose.emit(null);
+            closeFn();
         }
     }
 
@@ -189,7 +211,7 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside !== false) {
-            const eventSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
+            this.clickOutsideSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
                 const target = event.target || event.srcElement;
 
                 // Make sure we don't close on events that propagated from the modal,
@@ -197,7 +219,6 @@ export class UniModalService {
                 if (target === backdrop) {
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
-                    eventSubscription.unsubscribe();
                 }
             });
         }

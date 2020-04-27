@@ -27,7 +27,10 @@ export class BankJournalSession {
         return this.vatTypes.filter( x => !x.OutputVat );
     }
 
-    constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private financialYearService: FinancialYearService
+    ) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
     }
 
@@ -238,10 +241,16 @@ export class BankJournalSession {
         let balance = 0;
         const list = [];
         let entry = this.newJournal(); // todo: lookup correct series-id
+
         if (asDraft) { entry['Description'] = 'Kladd fra bankavstemming'; }
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
+
             if (item.Amount) {
+                if (item.files && item.files.length) {
+                    entry.FileIDs.push(...item.files.map(file => file.ID));
+                }
+
                 if (item.Debet) {
                     const debet = this.convertToJournalEntry(item);
                     debet.AccountID = item.Debet.ID;
@@ -257,15 +266,18 @@ export class BankJournalSession {
                     entry.DraftLines.push(credit);
                     balance = BankUtil.safeAdd(balance, credit.Amount);
                 }
+
                 if (BankUtil.isCloseToZero(balance)) {
                     list.push(entry);
                     entry = this.newJournal();
                 }
             }
         }
+
         if (entry.DraftLines.length > 0) {
             list.push(entry);
         }
+
         return list;
     }
 

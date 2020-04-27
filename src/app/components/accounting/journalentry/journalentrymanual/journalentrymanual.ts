@@ -57,11 +57,10 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import {
     UniModalService,
     UniConfirmModalV2,
-    ConfirmActions
-} from '../../../../../framework/uni-modal';
+    ConfirmActions,
+    FileFromInboxModal
+} from '@uni-framework/uni-modal';
 import * as _ from 'lodash';
-import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { fork } from 'child_process';
 
 @Component({
     selector: 'journal-entry-manual',

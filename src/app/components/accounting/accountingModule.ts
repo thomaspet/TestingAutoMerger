@@ -65,7 +65,6 @@ import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
-import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
@@ -114,7 +113,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
-        FileFromInboxModal,
         UniInbox,
         NewOutgoingWizardModal,
         DoneRedirectModal,

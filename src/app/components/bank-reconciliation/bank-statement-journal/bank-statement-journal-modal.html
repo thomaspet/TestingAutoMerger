@@ -49,7 +49,6 @@
             [config]="tableConfig"
             (rowDelete)="onRowDeleted($event)">
         </ag-grid-wrapper>
-
     </article>
 
     <footer>
@@ -60,7 +59,7 @@
 
         <mat-checkbox [(ngModel)]="settings.journalAsDraft">Lagre som kladd</mat-checkbox>
 
-        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="secondary" (click)="closeWithoutSaving()">Avbryt</button>
 
         <button [disabled]="session?.balance && !settings.journalAsDraft" class="c2a"
             (click)="save()">
