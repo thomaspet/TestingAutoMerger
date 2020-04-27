@@ -23,6 +23,7 @@ export class HourTotals {
 
     private currentOdata: { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } };
     public busy: boolean = false;
+    public busy2: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
     public saveactions = [
@@ -244,8 +245,11 @@ export class HourTotals {
 
     buildDetailQuery(row: IReportRow, cell: IQueryData, index: number): string {
         const preset = this.currentOdata.details;
-        const filter = `${preset.keyField} eq ${row.id}`
-            + ` and month(date) eq ${index + 1}`;
+        let filter = `${preset.keyField} eq ${row.id}`;
+
+        if (index >= 0) {
+            filter += ` and month(date) eq ${index + 1}`;
+        }
 
         return 'model=workitem&select=workitem.*,businessrelation.name as Name'
             + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker', ',')
@@ -365,7 +369,10 @@ export class HourTotals {
 
         // Fetch real workitems (second drilldown) ?
         if ((!!this.input) && !details) {
-            this.getStatistics(this.buildDetailQuery(row, cell, index)).subscribe(
+            this.busy2 = true;
+            this.getStatistics(this.buildDetailQuery(row, cell, index))
+                .finally( () => this.busy2 = false )
+                .subscribe(
                 result => {
                     this.openDrilldownModal(row, cell, index, result || []);
                 });

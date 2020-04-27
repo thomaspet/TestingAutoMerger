@@ -5,7 +5,7 @@
 
 <section class="application">
 
-    <section class="toolbar">
+    <section [attr.aria-busy]="busy2" class="toolbar">
         <mat-form-field>
             <mat-select [value]="activeGroup" (valueChange)="onActiveGroupChange($event)" placeholder="Fordeling">
                 <mat-option *ngFor="let group of groups" [value]="group">
