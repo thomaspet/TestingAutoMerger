@@ -65,22 +65,25 @@ export class HourTotals {
     }
 
     public ngOnInit() {
+        this.removeInputGroupFromSelectables();
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
-        const filterName = this.pageState.getPageState().groupby;
+        const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
         this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
     }
 
-    getFilterByName(name: string) {
-        let grp = this.groups.find( x => x.name === name);
-        if (this.input && this.input.groupBy && this.input.groupBy.name === grp.name ) {
+    removeInputGroupFromSelectables() {
+        if (this.input && this.input.groupBy) {
             for (let i = 0; i < this.groups.length; i++) {
-                if (this.groups[i].name !== this.input.groupBy.name) {
-                    grp = this.groups[i];
+                if (this.groups[i].name === this.input.groupBy.name) {
+                    this.groups.splice(i, 1);
                     break;
                 }
             }
         }
-        return grp;
+    }
+
+    getFilterByName(name: string) {
+        return this.groups.find( x => x.name === name);
     }
 
     ngOnDestroy() {
@@ -110,7 +113,7 @@ export class HourTotals {
             ? 'sum(multiply(casewhen(worktype.price gt 0,worktype.price,product.priceexvat),casewhen(minutestoorder ne 0,minutestoorder,minutes)))'
             : 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes))';
 
-        const expandMacro = this.isMoney
+        let expandMacro = this.isMoney
             ? 'worktype.product'
             : 'worktype';
 
@@ -118,10 +121,17 @@ export class HourTotals {
         let filter = '';
         let select = '';
 
-        if (this.input && this.input.groupBy) {
+        if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
             switch (this.input.groupBy.name) {
                 case 'worktypes':
                     baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
+                    break;
+                case 'persons':
+                    baseFilter = this.addFilter(baseFilter, `workrelation.workerid eq ${this.input.row.id}`);
+                    expandMacro += ',workrelation';
+                    break;
+                case 'customers':
+                    baseFilter = this.addFilter(baseFilter, `customerid eq ${this.input.row.id}`);
                     break;
             }
         }
@@ -143,7 +153,6 @@ export class HourTotals {
                     + `&orderby=year(date) desc,month(date)`;
                     filter = 'casewhen(isnull(tp.id,0) gt 0,tp.position,0) lt 10';
                     break;
-
 
             case 'persons':
                     select = 'model=workitem'
