@@ -126,6 +126,9 @@ export class HourTotals {
                 case 'worktypes':
                     baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
                     break;
+                case 'teams':
+                    //todo
+                    break;
                 case 'persons':
                     baseFilter = this.addFilter(baseFilter, `workrelation.workerid eq ${this.input.row.id}`);
                     expandMacro += ',workrelation';
@@ -133,7 +136,14 @@ export class HourTotals {
                 case 'customers':
                     baseFilter = this.addFilter(baseFilter, `customerid eq ${this.input.row.id}`);
                     break;
-            }
+                case 'orders':
+                    baseFilter = this.addFilter(baseFilter, `customerorderid eq ${this.input.row.id}`);
+                    break;
+                case 'projects':
+                    baseFilter = this.addFilter(baseFilter, `dimensions.projectid eq ${this.input.row.id}`);
+                    expandMacro += ',dimensions';
+                    break;
+                }
         }
 
         switch (name) {
