@@ -143,7 +143,7 @@ export const ColumnTemplateOverrides: ColumnTemplateOverrides = {
         },
         'Sex': row => {
             if (row.EmployeeSex) {
-                return row.EmployeeSex = 1 ? 'Kvinne' : 'Mann';
+                return row.EmployeeSex === 1 ? 'Kvinne' : 'Mann';
             }
 
             return 'Ikke satt';
