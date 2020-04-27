@@ -128,6 +128,14 @@ export class HourTotals {
 
         // Combine input-filter (drilldown)
         if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
+
+            if (this.input.cell) {
+                baseFilter = this.addFilter(baseFilter, `year(date) eq ${this.input.cell.yr}`);
+                if (this.input.cell.md > 0) {
+                    baseFilter = this.addFilter(baseFilter, `month(date) eq ${this.input.cell.md}`);
+                }
+            }
+
             switch (this.input.groupBy.name) {
                 case 'worktypes':
                     baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
@@ -236,15 +244,16 @@ export class HourTotals {
         const preset = this.currentOdata.details;
         const filter = `${preset.keyField} eq ${row.id}`
             + ` and month(date) eq ${index + 1}`;
-        return 'model=workitem&select=workitem.*'
-            + '&expand=' + preset.expand
-            + '&join=' + preset.join
+
+        return 'model=workitem&select=workitem.*,businessrelation.name as Name'
+            + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker', ',')
+            + '&join=' + this.addFilter(preset.join, 'worker.businessrelationid eq businessrelation.id')
             + '&filter=' + this.addFilter(preset.filter, filter);
 
     }
 
-    private addFilter(baseValue: string, value: string, operator: string = 'and'): string {
-        if (baseValue && value) { return  `${baseValue} ${operator} ${value}`; }
+    private addFilter(baseValue: string, value: string, operator: string = ' and '): string {
+        if (baseValue && value) { return  `${baseValue}${operator}${value}`; }
         if (baseValue) { return baseValue; }
         return value;
     }
@@ -350,16 +359,18 @@ export class HourTotals {
     }
 
     openDrilldownModal(row: IReportRow, cell: IQueryData, index: number, details?: []) {
+
+        // Fetch real workitems (second drilldown) ?
         if ((!!this.input) && !details) {
             this.getStatistics(this.buildDetailQuery(row, cell, index)).subscribe(
                 result => {
-                    this.openDrilldownModal(row, cell, index, result);
+                    this.openDrilldownModal(row, cell, index, result || []);
                 });
             return;
         }
 
         const input: HourReportInput = {
-            cell: { tsum: cell.tsum, md: index + 1, yr: row.year, title: undefined },
+            cell: { tsum: cell ? cell.tsum : row.sum, md: index + 1, yr: row.year, title: undefined },
             row: row,
             groupBy: this.activeGroup,
             odata: this.currentOdata,

@@ -50,7 +50,7 @@
                 </tr></thead>
                 <tr *ngFor="let row of group.rows">
                     <td>{{row.title}}</td>
-                    <td [class.right]="isMoney">{{row.sum|min2hours:numberFormat}}</td>
+                    <td class="clickable" (click)="openDrilldownModal(row, undefined, -1)" [class.right]="isMoney">{{row.sum|min2hours:numberFormat}}</td>
                     <td class="prc">{{row.prc|numpipe:'0'}}</td>
                     <td class="clickable" (click)="openDrilldownModal(row, col, i)" [class.right]="isMoney" *ngFor="let col of row.items; let i = index">{{col.tsum | min2hours:numberFormat}}</td>
                 </tr>

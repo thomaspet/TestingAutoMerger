@@ -6,7 +6,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
     template: `
     <section role="dialog" class="uni-modal">
         <header>
-        {{options.data.groupBy.labelSingle}}: {{options.data.row.title}})
+        {{options.data.groupBy.labelSingle}}: {{options.data.row.title}}
         </header>
 
         <article>
@@ -14,12 +14,18 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
             <hourtotals *ngIf="!options.data.showDetails" [input]="options.data"></hourtotals>
 
             <div *ngIf="options.data.showDetails">
-                <table style="width: 100%">
+                <table class="report">
                     <thead>
-                        <tr><th>Medarbeider</th></tr>
+                        <tr>
+                            <th>Medarbeider</th>
+                            <th>Dato</th>
+                        </tr>
                     </thead>
                     <tbody>
-                        <tr *ngFor="let item of options.data.details"><td>{{item.Date}}</td></tr>
+                        <tr *ngFor="let item of options.data.details">
+                            <td>{{item.Name}}</td>
+                            <td>{{item.Date}}</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -30,7 +36,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
             <button class="secondary" (click)="onClose.emit()">Lukk</button>
         </footer>
     </section>`,
-    styleUrls: ['drilldown-modal.sass']
+    styleUrls: ['hourtotals.sass']
 })
 export class HourTotalsDrilldownModal implements IUniModal {
     @Input() options: IModalOptions = {};
