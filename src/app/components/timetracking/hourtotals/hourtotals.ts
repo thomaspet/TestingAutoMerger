@@ -66,7 +66,12 @@ export class HourTotals {
     }
 
     public ngOnInit() {
-        this.removeInputGroup();
+        if (this.input) {
+            this.removeInputGroup();
+            this.isFilteredByInvoicable = this.input.isFilteredByInvoicable;
+            this.isFilteredByTransfer = this.input.isFilteredByTransfer;
+            this.isMoney = this.input.isMoney;
+        }
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
         this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
@@ -290,6 +295,7 @@ export class HourTotals {
                     sum: 0,
                     rows: []
                 };
+                level2 = undefined;
                 groupedReports.push(level1);
             }
             if ((!level2) || level2.title !== item.title) {
@@ -385,7 +391,10 @@ export class HourTotals {
             groupBy: this.activeGroup,
             odata: this.currentOdata,
             showDetails: !!this.input,
-            details: details || []
+            details: details || [],
+            isFilteredByInvoicable: this.isFilteredByInvoicable,
+            isFilteredByTransfer: this.isFilteredByTransfer,
+            isMoney: this.isMoney
         };
 
         this.modalService.open(HourTotalsDrilldownModal, {data: input});

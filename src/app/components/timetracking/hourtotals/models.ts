@@ -54,4 +54,8 @@ export class HourReportInput {
     odata: { query: string, filter: string };
     showDetails: boolean;
     details: [];
+    isFilteredByTransfer: boolean;
+    isFilteredByInvoicable: boolean;
+    isMoney: boolean;
+
 }
