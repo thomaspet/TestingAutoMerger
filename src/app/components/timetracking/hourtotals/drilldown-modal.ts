@@ -6,10 +6,24 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
     template: `
     <section role="dialog" class="uni-modal">
         <header>
-        {{options.data.groupBy.labelSingle}}: {{options.data.row.title}}
+        {{options.data.groupBy.labelSingle}}: {{options.data.row.title}})
         </header>
+
         <article>
-            <hourtotals [input]="options.data"></hourtotals>
+
+            <hourtotals *ngIf="!options.data.showDetails" [input]="options.data"></hourtotals>
+
+            <div *ngIf="options.data.showDetails">
+                <table style="width: 100%">
+                    <thead>
+                        <tr><th>Medarbeider</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of options.data.details"><td>{{item.Date}}</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
         </article>
 
         <footer>

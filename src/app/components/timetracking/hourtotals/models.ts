@@ -52,4 +52,6 @@ export class HourReportInput {
     row: IReportRow;
     groupBy: { name: string, label: string };
     odata: { query: string, filter: string };
+    showDetails: boolean;
+    details: [];
 }

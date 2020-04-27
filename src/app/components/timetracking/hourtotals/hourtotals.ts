@@ -21,7 +21,7 @@ export class HourTotals {
     @Input() input: HourReportInput;
     onDestroy$ = new Subject();
 
-    private currentOdata: { query: string, filter: string };
+    private currentOdata: { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } };
     public busy: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
@@ -102,7 +102,8 @@ export class HourTotals {
         this.refreshData();
     }
 
-    private createFilter(name: string): { query: string, filter: string } {
+    // tslint:disable-next-line: max-line-length
+    private createFilter(name: string): { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } } {
 
         this.numberFormat = this.isMoney ? 'money' : 'int';
         this.numberFormat2 = this.isMoney ? 'money2' : '';
@@ -114,15 +115,16 @@ export class HourTotals {
             ? 'sum(multiply(casewhen(worktype.price gt 0,worktype.price,product.priceexvat),casewhen(minutestoorder ne 0,minutestoorder,minutes)))'
             : 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes))';
 
-        let expandMacro = this.isMoney
+        let baseExpand = this.isMoney
             ? 'worktype.product'
             : 'worktype';
-
         let baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
         let filter = '';
+        let expand = '';
         let baseJoin = '';
         let join = '';
         let select = '';
+        let keyField = '';
 
         // Combine input-filter (drilldown)
         if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
@@ -132,12 +134,12 @@ export class HourTotals {
                     break;
                 case 'teams':
                     baseFilter = this.addFilter(baseFilter, `casewhen(team.id gt 0,team.id,tt.id) eq ${this.input.row.id}`);
-                    expandMacro += (name === 'persons') ? ',workrelation.team' : ',workrelation.worker,workrelation.team';
+                    baseExpand += (name === 'persons') ? ',workrelation.team' : ',workrelation.worker,workrelation.team';
                     baseJoin = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
                     break;
                 case 'persons':
                     baseFilter = this.addFilter(baseFilter, `workrelation.workerid eq ${this.input.row.id}`);
-                    expandMacro += ',workrelation';
+                    baseExpand += ',workrelation';
                     break;
                 case 'customers':
                     baseFilter = this.addFilter(baseFilter, `customerid eq ${this.input.row.id}`);
@@ -147,7 +149,7 @@ export class HourTotals {
                     break;
                 case 'projects':
                     baseFilter = this.addFilter(baseFilter, `dimensions.projectid eq ${this.input.row.id}`);
-                    expandMacro += ',dimensions';
+                    baseExpand += ',dimensions';
                     break;
                 }
         }
@@ -157,49 +159,54 @@ export class HourTotals {
             case 'worktypes':
                 select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,worktype.name as title,worktypeid as id`
-                    + `&expand=${expandMacro}`
                     + `&orderby=year(date) desc,month(date),worktype.name`;
+                    keyField = 'worktypeid';
                     break;
 
             case 'teams':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title,casewhen(team.id gt 0,team.id,tt.id) as id`
-                    + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     filter = 'casewhen(isnull(tp.id,0) gt 0,tp.position,0) lt 10';
                     join = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
+                    expand = 'workrelation.worker,workrelation.team';
+                    keyField = 'casewhen(team.id gt 0,team.id,tt.id)';
                     break;
 
             case 'persons':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title,worker.id as id`
-                    + `&expand=workrelation.worker,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     join = 'worker.businessrelationid eq businessrelation.id';
+                    expand = 'workrelation.worker';
+                    keyField = 'worker.id';
                     break;
 
             case 'customers':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.name as title,customer.id as id`
-                    + `&expand=customer.info,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     filter = `customerid gt 0`;
+                    expand = 'customer.info';
+                    keyField = 'customer.id';
                     break;
 
             case 'projects':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.projectname as title,sum(minutes),dimensions.projectid as id`
-                    + `&expand=dimensions.info,${expandMacro}`
                     + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
                     filter = `dimensions.projectid gt 0`;
+                    expand = 'dimensions.info';
+                    keyField = 'dimensions.projectid';
                     break;
 
             case 'orders':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,customerorder.customername as title,sum(minutes),customerorder.id as id`
-                    + `&expand=customerorder,${expandMacro}`
                     + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
                     filter = `customerorderid gt 0`;
+                    expand = 'customerorder';
+                    keyField = 'customerorder.id';
                     break;
         }
 
@@ -213,9 +220,27 @@ export class HourTotals {
 
         return {
             query: `${select}&filter=${this.addFilter(baseFilter, filter)}`
-                + `&join=${this.addFilter(baseJoin, join)}`,
-            filter: filter
+                + `&join=${this.addFilter(baseJoin, join)}`
+                + `&expand=${this.addFilter(baseExpand, expand, ',')}`,
+            filter: filter,
+            details: {
+                filter: this.addFilter(baseFilter, filter),
+                join: this.addFilter(baseJoin, join),
+                expand: this.addFilter(baseExpand, expand, ','),
+                keyField: keyField
+            }
         };
+    }
+
+    buildDetailQuery(row: IReportRow, cell: IQueryData, index: number): string {
+        const preset = this.currentOdata.details;
+        const filter = `${preset.keyField} eq ${row.id}`
+            + ` and month(date) eq ${index + 1}`;
+        return 'model=workitem&select=workitem.*'
+            + '&expand=' + preset.expand
+            + '&join=' + preset.join
+            + '&filter=' + this.addFilter(preset.filter, filter);
+
     }
 
     private addFilter(baseValue: string, value: string, operator: string = 'and'): string {
@@ -324,16 +349,27 @@ export class HourTotals {
         });
     }
 
-    openDrilldownModal(row: IReportRow, cell: IQueryData, index: number) {
+    openDrilldownModal(row: IReportRow, cell: IQueryData, index: number, details?: []) {
+        if ((!!this.input) && !details) {
+            this.getStatistics(this.buildDetailQuery(row, cell, index)).subscribe(
+                result => {
+                    this.openDrilldownModal(row, cell, index, result);
+                });
+            return;
+        }
+
         const input: HourReportInput = {
             cell: { tsum: cell.tsum, md: index + 1, yr: row.year, title: undefined },
             row: row,
             groupBy: this.activeGroup,
-            odata: this.currentOdata
+            odata: this.currentOdata,
+            showDetails: !!this.input,
+            details: details || []
         };
 
         this.modalService.open(HourTotalsDrilldownModal, {data: input});
     }
+
 
 }
 
