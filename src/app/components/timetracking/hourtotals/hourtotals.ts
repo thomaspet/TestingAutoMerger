@@ -119,6 +119,8 @@ export class HourTotals {
 
         let baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
         let filter = '';
+        let baseJoin = '';
+        let join = '';
         let select = '';
 
         if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
@@ -127,7 +129,9 @@ export class HourTotals {
                     baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
                     break;
                 case 'teams':
-                    //todo
+                    baseFilter = this.addFilter(baseFilter, `casewhen(team.id gt 0,team.id,tt.id) eq ${this.input.row.id}`);
+                    expandMacro += (name === 'persons') ? ',workrelation.team' : ',workrelation.worker,workrelation.team';
+                    baseJoin = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
                     break;
                 case 'persons':
                     baseFilter = this.addFilter(baseFilter, `workrelation.workerid eq ${this.input.row.id}`);
@@ -158,18 +162,20 @@ export class HourTotals {
             case 'teams':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title,casewhen(team.id gt 0,team.id,tt.id) as id`
-                    + `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
+                    //+ `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
                     + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
                     filter = 'casewhen(isnull(tp.id,0) gt 0,tp.position,0) lt 10';
+                    join = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
                     break;
 
             case 'persons':
                     select = 'model=workitem'
                     + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title,worker.id as id`
-                    + `&join=worker.businessrelationid eq businessrelation.id`
+                    //+ `&join=worker.businessrelationid eq businessrelation.id`
                     + `&expand=workrelation.worker,${expandMacro}`
                     + `&orderby=year(date) desc,month(date)`;
+                    join = 'worker.businessrelationid eq businessrelation.id';
                     break;
 
             case 'customers':
@@ -206,7 +212,8 @@ export class HourTotals {
         }
 
         return {
-            query: `${select}&filter=${this.addFilter(baseFilter, filter)}`,
+            query: `${select}&filter=${this.addFilter(baseFilter, filter)}`
+                + `&join=${this.addFilter(baseJoin, join)}`,
             filter: filter
         };
     }
