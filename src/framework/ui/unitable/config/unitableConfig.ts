@@ -34,6 +34,7 @@ export interface QuickFilter {
 
 export interface TableButton {
     label: string;
+    icon?: string;
     action: () => void;
     class?: string;
 }

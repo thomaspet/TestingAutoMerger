@@ -42,6 +42,7 @@
 
         <section *ngIf="tableConfig?.buttons?.length" class="button-container" [ngClass]="{'pull-right': tableConfig?.rightAlignButtons}">
             <button *ngFor="let button of tableConfig.buttons" [ngClass]="button.class || 'tertiary'" (click)="button.action()">
+                <i class="material-icons" *ngIf="button.icon">{{button.icon}}</i>
                 {{button.label}}
             </button>
         </section>
