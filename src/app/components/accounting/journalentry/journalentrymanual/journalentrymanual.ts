@@ -301,6 +301,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                             this.disabled = !this.editmode;
                         }
 
+                        this.journalEntrySettings.AttachmentsVisible = false;
                         this.setJournalEntryData(serverLines);
 
                         this.dataLoaded.emit(serverLines);
