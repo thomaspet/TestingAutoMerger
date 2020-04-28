@@ -1,5 +1,4 @@
-import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import {Component, Input} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as utils from '../../common/utils/utils';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -8,47 +7,10 @@ import {
 } from '@app/services/services';
 import * as moment from 'moment';
 import {Subject} from 'rxjs';
-import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
-
-interface IPageState {
-    projectID?: string;
-    month?: string;
-    year?: string;
-}
-
-interface IQueryData {
-    yr: number;
-    md: number;
-    tsum: number;
-    title: string;
-}
-
-interface IReport {
-    title: string;
-    sum: number;
-    columns: Array<string>;
-    rows: Array<IReportRow>;
-}
-
-interface IReportRow {
-    title: string;
-    sum: number;
-    prc: number;
-    items: Array<{tsum: number}>;
-}
-
-class ReportRow implements IReportRow {
-    public title: string;
-    public sum: number;
-    public prc: number;
-    public items: Array<{tsum: number}>;
-    constructor(title: string) {
-        this.title = title;
-        this.items = utils.createRow(12, () => ({ tsum: 0 }));
-        this.sum = 0;
-        this.prc = 0;
-    }
-}
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {HourTotalsDrilldownModal} from './drilldown-modal';
+import {IReport, IPageState, IReportRow, IQueryData, ReportRow, HourReportInput} from './models';
 
 @Component({
     selector: 'hourtotals',
@@ -56,10 +18,12 @@ class ReportRow implements IReportRow {
     styleUrls: [ 'hourtotals.sass' ]
 })
 export class HourTotals {
+    @Input() input: HourReportInput;
     onDestroy$ = new Subject();
 
-    private filter: string;
+    private currentOdata: { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } };
     public busy: boolean = false;
+    public busy2: boolean = false;
     public report: Array<IReport>;
     public toolbarConfig: IToolbarConfig;
     public saveactions = [
@@ -76,20 +40,21 @@ export class HourTotals {
     public numberFormat2 = '';
     private currentYear: number;
 
-    filters = [
-        { label: 'Timearter', name: 'worktypes' },
-        { label: 'Kunder', name: 'customers' },
-        { label: 'Ordre', name: 'orders' },
-        { label: 'Prosjekt', name: 'projects' },
-        { label: 'Medarbeidere', name: 'persons' },
-        { label: 'Team', name: 'teams' },
+    groups = [
+        { label: 'Timearter', name: 'worktypes', labelSingle: 'Timeart' },
+        { label: 'Medarbeidere', name: 'persons', labelSingle: 'Medarbeider' },
+        { label: 'Kunder', name: 'customers', labelSingle: 'Kunde' },
+        { label: 'Ordre', name: 'orders', labelSingle: 'Ordre' },
+        { label: 'Prosjekt', name: 'projects', labelSingle: 'Prosjekt' },
+        { label: 'Team', name: 'teams', labelSingle: 'Team' },
     ];
-    activeFilter = this.filters[0];
+    activeGroup = this.groups[0];
 
     constructor(
         private pageState: PageStateService,
         private http: UniHttp,
         private financialYearService: FinancialYearService,
+        private modalService: UniModalService,
         tabService: TabService
     ) {
         tabService.addTab({
@@ -101,13 +66,31 @@ export class HourTotals {
     }
 
     public ngOnInit() {
+        if (this.input) {
+            this.removeInputGroup();
+            this.isFilteredByInvoicable = this.input.isFilteredByInvoicable;
+            this.isFilteredByTransfer = this.input.isFilteredByTransfer;
+            this.isMoney = this.input.isMoney;
+        }
         this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
-        const filterName = this.pageState.getPageState().groupby;
-        this.onActiveFilterChange(this.getFilterByName(filterName) || this.filters[0]);
+        const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
+        this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
+    }
+
+    removeInputGroup() {
+        // Remove drilldown-filter (if any)
+        if (this.input && this.input.groupBy) {
+            for (let i = 0; i < this.groups.length; i++) {
+                if (this.groups[i].name === this.input.groupBy.name) {
+                    this.groups.splice(i, 1);
+                    break;
+                }
+            }
+        }
     }
 
     getFilterByName(name: string) {
-        return this.filters.find( x => x.name === name);
+        return this.groups.find( x => x.name === name);
     }
 
     ngOnDestroy() {
@@ -115,19 +98,20 @@ export class HourTotals {
         this.onDestroy$.complete();
     }
 
-    public onActiveFilterChange(filter) {
-        this.pageState.setPageState('groupby', filter.name);
-        this.activeFilter = filter;
-        this.createFilter(filter.name);
+    public onActiveGroupChange(group) {
+        if (!this.input) {
+            this.pageState.setPageState('groupby', group.name);
+        }
+        this.activeGroup = group;
+        this.refreshData();
     }
 
     public onCheckInvoiced() {
-        this.createFilter(this.activeFilter.name);
+        this.refreshData();
     }
 
-    private createFilter(name: string) {
-
-        const state: IPageState = this.pageState.getPageState();
+    // tslint:disable-next-line: max-line-length
+    private createFilter(name: string): { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } } {
 
         this.numberFormat = this.isMoney ? 'money' : 'int';
         this.numberFormat2 = this.isMoney ? 'money2' : '';
@@ -139,92 +123,162 @@ export class HourTotals {
             ? 'sum(multiply(casewhen(worktype.price gt 0,worktype.price,product.priceexvat),casewhen(minutestoorder ne 0,minutestoorder,minutes)))'
             : 'sum(casewhen(minutestoorder ne 0,minutestoorder,minutes))';
 
-        const expandMacro = this.isMoney
+        let baseExpand = this.isMoney
             ? 'worktype.product'
             : 'worktype';
+        let baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
+        let filter = '';
+        let expand = '';
+        let baseJoin = '';
+        let join = '';
+        let select = '';
+        let keyField = '';
+
+        // Combine input-filter (drilldown)
+        if (this.input && this.input.groupBy && name !== this.input.groupBy.name) {
+
+            if (this.input.cell) {
+                baseFilter = this.addFilter(baseFilter, `year(date) eq ${this.input.cell.yr}`);
+                if (this.input.cell.md > 0) {
+                    baseFilter = this.addFilter(baseFilter, `month(date) eq ${this.input.cell.md}`);
+                }
+            }
+
+            switch (this.input.groupBy.name) {
+                case 'worktypes':
+                    baseFilter = this.addFilter(baseFilter, `worktypeid eq ${this.input.row.id}`);
+                    break;
+                case 'teams':
+                    baseFilter = this.addFilter(baseFilter, `casewhen(team.id gt 0,team.id,tt.id) eq ${this.input.row.id}`);
+                    baseExpand += (name === 'persons') ? ',workrelation.team' : ',workrelation.worker,workrelation.team';
+                    baseJoin = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
+                    break;
+                case 'persons':
+                    baseFilter = this.addFilter(baseFilter, `workrelation.workerid eq ${this.input.row.id}`);
+                    baseExpand += ',workrelation';
+                    break;
+                case 'customers':
+                    baseFilter = this.addFilter(baseFilter, `customerid eq ${this.input.row.id}`);
+                    break;
+                case 'orders':
+                    baseFilter = this.addFilter(baseFilter, `customerorderid eq ${this.input.row.id}`);
+                    break;
+                case 'projects':
+                    baseFilter = this.addFilter(baseFilter, `dimensions.projectid eq ${this.input.row.id}`);
+                    baseExpand += ',dimensions';
+                    break;
+                }
+        }
 
         switch (name) {
             default:
             case 'worktypes':
-                this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,worktype.name as title`
-                    + `&expand=${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),worktype.name`
-                    + `&filter=year(date) ge ${(yr - 1)}`;
+                select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,worktype.name as title,worktypeid as id`
+                    + `&orderby=year(date) desc,month(date),worktype.name`;
+                    keyField = 'worktypeid';
                     break;
 
             case 'teams':
-                    this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title`
-                    + `&join=worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt`
-                    + `&expand=workrelation.worker,workrelation.team,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)} and ( team.id gt 0 or tt.id gt 0 )`;
+                    select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,casewhen(team.id gt 0,team.name,tt.name) as title,casewhen(team.id gt 0,team.id,tt.id) as id`
+                    + `&orderby=year(date) desc,month(date)`;
+                    filter = 'casewhen(isnull(tp.id,0) gt 0,tp.position,0) lt 10';
+                    join = 'worker.userid eq teamposition.userid as tp and teamposition.teamid eq team.id as tt';
+                    expand = 'workrelation.worker,workrelation.team';
+                    keyField = 'casewhen(team.id gt 0,team.id,tt.id)';
                     break;
 
-
             case 'persons':
-                    this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title`
-                    + `&join=worker.businessrelationid eq businessrelation.id`
-                    + `&expand=workrelation.worker,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)}`;
+                    select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,businessrelation.name as title,worker.id as id`
+                    + `&orderby=year(date) desc,month(date)`;
+                    join = 'worker.businessrelationid eq businessrelation.id';
+                    expand = 'workrelation.worker';
+                    keyField = 'worker.id';
                     break;
 
             case 'customers':
-                    this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.name as title`
-                    + `&expand=customer.info,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date)`
-                    + `&filter=year(date) ge ${(yr - 1)} and customerid gt 0`;
+                    select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.name as title,customer.id as id`
+                    + `&orderby=year(date) desc,month(date)`;
+                    filter = `customerid gt 0`;
+                    expand = 'customer.info';
+                    keyField = 'customer.id';
                     break;
 
             case 'projects':
-                    this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.projectname as title,sum(minutes)`
-                    + `&expand=dimensions.info,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`
-                    + `&filter=year(date) ge ${(yr - 1)} and dimensions.projectid gt 0`;
+                    select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,info.projectname as title,sum(minutes),dimensions.projectid as id`
+                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
+                    filter = `dimensions.projectid gt 0`;
+                    expand = 'dimensions.info';
+                    keyField = 'dimensions.projectid';
                     break;
 
             case 'orders':
-                    this.filter = 'model=workitem'
-                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,customerorder.customername as title,sum(minutes)`
-                    + `&expand=customerorder,${expandMacro}`
-                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`
-                    + `&filter=year(date) ge ${(yr - 1)} and customerorderid gt 0`;
+                    select = 'model=workitem'
+                    + `&select=${valueMaro} as tsum,year(date) as yr,month(date) as md,customerorder.customername as title,sum(minutes),customerorder.id as id`
+                    + `&orderby=year(date) desc,month(date),sum(minutes) desc`;
+                    filter = `customerorderid gt 0`;
+                    expand = 'customerorder';
+                    keyField = 'customerorder.id';
                     break;
         }
 
-        if (state.year) {
-            this.filter += ` and year(date) eq ${parseInt(state.year, 10)}`;
-        }
-
-        if (state.month) {
-            this.filter += ` and month(date) eq ${parseInt(state.month, 10)}`;
-        }
-
         if (this.isFilteredByTransfer) {
-            this.filter += ` and transferedtoorder eq 0`;
+            filter = this.addFilter(filter, 'transferedtoorder eq 0');
         }
 
         if (this.isFilteredByInvoicable) {
-            this.filter += ` and worktype.productid gt 0`;
+            filter = this.addFilter(filter, 'worktype.productid gt 0');
         }
 
-        this.filter += ` and year(date) le ${yr}`;
+        return {
+            query: `${select}&filter=${this.addFilter(baseFilter, filter)}`
+                + `&join=${this.addFilter(baseJoin, join)}`
+                + `&expand=${this.addFilter(baseExpand, expand, ',')}`,
+            filter: filter,
+            details: {
+                filter: this.addFilter(baseFilter, filter),
+                join: this.addFilter(baseJoin, join),
+                expand: this.addFilter(baseExpand, expand, ','),
+                keyField: keyField
+            }
+        };
+    }
 
-        this.refreshData();
+    buildDetailQuery(row: IReportRow, cell: IQueryData, index: number): string {
+        const preset = this.currentOdata.details;
+        let filter = `${preset.keyField} eq ${row.id}`;
+
+        if (index >= 0) {
+            filter += ` and month(date) eq ${index + 1}`;
+        }
+
+        return 'model=workitem&select=workitem.*,businessrelation.name as Name,info.name as CustomerName'
+            + '&expand=' + this.addFilter(preset.expand, 'workrelation.worker,customer.info', ',')
+            + '&join=' + this.addFilter(preset.join, 'worker.businessrelationid eq businessrelation.id')
+            + '&filter=' + this.addFilter(preset.filter, filter)
+            + '&orderby=date,starttime,endtime';
+
+    }
+
+    private addFilter(baseValue: string, value: string, operator: string = ' and '): string {
+        if (baseValue && value) { return  `${baseValue}${operator}${value}`; }
+        if (baseValue) { return baseValue; }
+        return value;
     }
 
     private refreshData() {
         this.busy = true;
-        this.getStatistics(this.filter)
-        .finally( () => this.busy = false)
-        .subscribe( result => {
-            this.report = this.buildReport(result);
-        });
+        const query = this.createFilter(this.activeGroup.name);
+        this.currentOdata = query;
+        this.getStatistics(query.query)
+            .finally( () => this.busy = false)
+            .subscribe( result => {
+                this.report = this.buildReport(result);
+            });
     }
 
 
@@ -241,12 +295,13 @@ export class HourTotals {
                     sum: 0,
                     rows: []
                 };
+                level2 = undefined;
                 groupedReports.push(level1);
             }
             if ((!level2) || level2.title !== item.title) {
                 level2 = level1.rows.find( x => x.title === item.title );
                 if (!level2) {
-                    level2 = new ReportRow(item.title);
+                    level2 = new ReportRow(item.title, item.yr, item.id);
                     level1.rows.push(level2);
                 }
             }
@@ -275,7 +330,7 @@ export class HourTotals {
 
             // Title
             csv.push( utils.createRow(colCount, '', `Timerapport ${this.currentYear}` ));
-            csv.push(utils.createRow(colCount, '', 'Fordeling: ' + this.activeFilter.label));
+            csv.push(utils.createRow(colCount, '', 'Fordeling: ' + this.activeGroup.label));
             if (this.isFilteredByInvoicable) {
                 csv.push(utils.createRow(colCount, '', 'Utvalg:', 'fakturerbare timer (timeart knyttet til produkt)'));
             }
@@ -286,7 +341,7 @@ export class HourTotals {
             this.report.forEach( group => {
 
                 const record = [];
-                record.push(this.activeFilter.label + ' - ' + group.title);
+                record.push(this.activeGroup.label + ' - ' + group.title);
                 record.push('Sum');
                 group.columns.forEach(element => {
                     record.push(element);
@@ -310,11 +365,41 @@ export class HourTotals {
                 csv.push(utils.createRow(colCount, ''));
             });
             utils.exportToFile(utils.arrayToCsv(csv, undefined, undefined, undefined, false),
-                `Timerapport_${this.activeFilter.label}.csv`);
+                `Timerapport_${this.activeGroup.label}.csv`);
 
             resolve(true);
         });
     }
+
+    openDrilldownModal(row: IReportRow, cell: IQueryData, index: number, details?: []) {
+
+        // Fetch real workitems (second drilldown) ?
+        if ((!!this.input) && !details) {
+            this.busy2 = true;
+            this.getStatistics(this.buildDetailQuery(row, cell, index))
+                .finally( () => this.busy2 = false )
+                .subscribe(
+                result => {
+                    this.openDrilldownModal(row, cell, index, result || []);
+                });
+            return;
+        }
+
+        const input: HourReportInput = {
+            cell: { tsum: cell ? cell.tsum : row.sum, md: index + 1, yr: row.year, title: undefined },
+            row: row,
+            groupBy: this.activeGroup,
+            odata: this.currentOdata,
+            showDetails: !!this.input,
+            details: details || [],
+            isFilteredByInvoicable: this.isFilteredByInvoicable,
+            isFilteredByTransfer: this.isFilteredByTransfer,
+            isMoney: this.isMoney
+        };
+
+        this.modalService.open(HourTotalsDrilldownModal, {data: input});
+    }
+
 
 }
 
