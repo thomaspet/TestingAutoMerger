@@ -48,4 +48,10 @@ export class AltinnAuthenticationService extends BizHttp<AltinnAuthRequest> {
     public clearAltinnAuthenticationDataFromLocalstorage()    {
         this.browserStorage.removeItem(this.ALTINN_USER_DATA_LOCALSTORAGE_KEY);
     }
+
+    public clearAltinnPinFromLocalStorage() {
+        const auth = this.getAltinnAuthenticationDataFromLocalstorage();
+        auth.pin = '';
+        this.storeAltinnAuthenticationDataInLocalstorage(auth);
+    }
 }

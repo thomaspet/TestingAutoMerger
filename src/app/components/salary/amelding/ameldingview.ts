@@ -18,7 +18,8 @@ import {
     PageStateService,
     PayrollrunService,
     ReportDefinitionService,
-    SalarySumsService
+    SalarySumsService,
+    AltinnAuthenticationService
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
@@ -31,6 +32,7 @@ import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/status
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
 import {RequestMethod} from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
+import { tap, catchError, filter, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'amelding-view',
@@ -144,7 +146,8 @@ export class AMeldingView implements OnInit {
         private modalService: UniModalService,
         private reportDefinitionService: ReportDefinitionService,
         private companySalaryService: CompanySalaryService,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private altinnAuthService: AltinnAuthenticationService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
@@ -748,18 +751,18 @@ export class AMeldingView implements OnInit {
         this.modalService
             .open(AltinnAuthenticationModal)
             .onClose
-            .do((result: AltinnAuthenticationData) => {
-                if (result === undefined) {
+            .pipe(
+                tap((result: AltinnAuthenticationData) => {
+                    if (!!result) {
+                        return;
+                    }
                     done('Avbrutt, tilbakemelding ikke hentet');
-                    return;
-                }
-            })
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .filter(auth => !!auth)
-            .switchMap(authData => this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData))
-            .catch((err, obs) => this.handleError(err, obs, done))
-            .subscribe((response: AmeldingData) => {
-                if (response) {
+                }),
+                filter(auth => !!auth),
+                switchMap(authData => this._ameldingService.getAmeldingFeedback(this.currentAMelding.ID, authData)),
+            )
+            .subscribe(
+                (response: AmeldingData) => {
                     this.replaceAmeldingInPeriod(response);
                     const refreshPromise = new Promise((resolve) => {
                         this.triggerForOpenBeforeMakePaymentModalResolver = resolve;
@@ -771,10 +774,8 @@ export class AMeldingView implements OnInit {
                     });
                     this.activeTabIndex = 2;
                     done('Tilbakemelding hentet');
-                } else {
-                    done('Feilet ved henting av tilbakemelding');
-                }
-            });
+                },
+                err => this.handleAltinnError(err, done));
     }
 
     private openBeforeMakePaymentModal() {
@@ -831,7 +832,8 @@ export class AMeldingView implements OnInit {
         });
     }
 
-    private handleError(err, obs, done: (message: string) => void = null) {
+    private handleAltinnError(err, done: (message: string) => void = null) {
+        this.altinnAuthService.clearAltinnPinFromLocalStorage();
         if (done) {
             done('Feilet ved henting av tilbakemelding');
         }
@@ -847,9 +849,8 @@ export class AMeldingView implements OnInit {
         if (toastText !== '') {
             this._toastService
                 .addToast(toastText, ToastType.warn, ToastTime.long);
-            return Observable.of(null);
         } else {
-            return this.errorService.handleRxCatch(err, obs);
+            this.errorService.handle(err);
         }
     }
 

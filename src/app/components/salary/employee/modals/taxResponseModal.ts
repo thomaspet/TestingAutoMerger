@@ -1,10 +1,10 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {AltinnAuthenticationData} from '../../../../models/AltinnAuthenticationData';
-import {AltinnIntegrationService, ErrorService} from '../../../../../app/services/services';
-import {IUniModal, IModalOptions} from '../../../../../framework/uni-modal';
-import {TaxCardReadStatus} from '../../../../unientities';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, of} from 'rxjs';
+import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { TaxCardReadStatus } from '@uni-entities';
+import { AltinnAuthenticationService, AltinnIntegrationService, ErrorService } from '@app/services/services';
+import { tap, switchMap, catchError, finalize } from 'rxjs/operators';
 
 interface ITaxInfo {
     receiptID: number;
@@ -25,34 +25,42 @@ export class TaxResponseModal implements OnInit, IUniModal {
     public busy: boolean;
 
     constructor(
+        private altinnAuthService: AltinnAuthenticationService,
         private altinnService: AltinnIntegrationService,
         private errorService: ErrorService
     ) { }
 
     public ngOnInit() {
-
         this.taxStatus$
             .subscribe(status => this.header = status.Title || 'Resultat');
+        this.readTaxCard(this.options.data);
+    }
 
-        Observable
-            .of(<ITaxInfo>this.options.data)
-            .do(() => this.busy = true)
-            .switchMap(info => this.altinnService.readTaxCard(info.auth, info.receiptID))
-            .catch(err => Observable.of(
-                {
-                    mainStatus: this.getError(err),
-                    Text: '',
-                    Title: 'Feil fra Altinn',
-                    employeestatus: [],
-                    IsJob: false,
-                }))
-            .do(() => {
-                const config = this.options.modalConfig;
-                if (config.update) {
-                    config.update();
-                }
-            })
-            .finally(() => this.busy = false)
+    private readTaxCard(info: ITaxInfo) {
+        this.altinnService
+            .readTaxCard(info.auth, info.receiptID)
+            .pipe(
+                tap(() => this.busy = true),
+                catchError(err => {
+                    this.altinnAuthService.clearAltinnPinFromLocalStorage();
+                    return of(
+                        {
+                            mainStatus: this.getError(err),
+                            Text: '',
+                            Title: 'Feil fra Altinn',
+                            employeestatus: [],
+                            IsJob: false,
+                        }
+                    );
+                }),
+                tap(() => {
+                    const config = this.options.modalConfig;
+                    if (config.update) {
+                        config.update();
+                    }
+                }),
+                finalize(() => this.busy = false),
+            )
             .subscribe((responseMessage) => this.taxStatus$.next(responseMessage));
     }
 

@@ -1,15 +1,15 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
-import {IUniModal, IModalOptions, UniModalService} from '../../../../../framework/uni-modal';
-import {AltinnIntegrationService, ErrorService} from '../../../../services/services';
-import {A06Options, AltinnReceipt, A07Response} from '../../../../unientities';
+import {AltinnIntegrationService, ErrorService, AltinnAuthenticationService} from '@app/services/services';
+import {A06Options, A07Response} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
 import {
     IAltinnReceiptListOptions, AltinnReceiptListComponent
-} from '../altinn-receipt-list/altinn-receipt-list.component';
-import {Observable} from 'rxjs';
+} from '@app/components/salary/amelding/altinn-receipt-list/altinn-receipt-list.component';
 import {AltinnAuthenticationModal} from '@app/components/common/modals/AltinnAuthenticationModal';
-import {ReconciliationResponseModalComponent} from '../reconciliation-response-modal/reconciliation-response-modal.component';
+import {ReconciliationResponseModalComponent} from '@app/components/salary/amelding/reconciliation-response-modal/reconciliation-response-modal.component';
+import { filter, tap, switchMap, catchError } from 'rxjs/operators';
+import { IUniModal, IModalOptions, UniModalService } from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-reconciliation-modal',
@@ -27,7 +27,8 @@ export class ReconciliationModalComponent implements OnInit, IUniModal {
     constructor(
         private altinnIntegrationService: AltinnIntegrationService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private altinnAuthService: AltinnAuthenticationService,
     ) { }
 
     public ngOnInit() {
@@ -37,20 +38,19 @@ export class ReconciliationModalComponent implements OnInit, IUniModal {
                 return this.modalService
                     .open(AltinnAuthenticationModal)
                     .onClose
-                    .filter(result => !!result)
-                    .switchMap(result => this.altinnIntegrationService.getA07Response(result, receipt.ReceiptID))
-                    .do(result => this.modalService.open(ReconciliationResponseModalComponent, {data: result}))
-                    .do(result => this.handleA07Response(result));
+                    .pipe(
+                        filter(result => !!result),
+                        switchMap(result => this.altinnIntegrationService.getA07Response(result, receipt.ReceiptID)),
+                        tap(result => this.modalService.open(ReconciliationResponseModalComponent, {data: result})),
+                        catchError((err, obs) => {
+                            this.altinnAuthService.clearAltinnPinFromLocalStorage();
+                            return this.errorService.handleRxCatch(err, obs);
+                        }),
+                    );
             },
             actionText: 'Last ned',
             title: 'Last ned avstemming'
         });
-    }
-
-    private handleA07Response(response: A07Response) {
-        if (!response.Data) {
-            return;
-        }
     }
 
     public onReconciliationRequest() {
