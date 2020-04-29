@@ -51,7 +51,7 @@ export class CompanyList {
             }
         },
         {
-            label: 'Gi meg selv tilgang',
+            label: 'Gi meg selv tilgang (admin)',
             action: (company: ElsaCompanyLicense) => {
                 this.grantSelfAccess(company);
             },
