@@ -78,15 +78,15 @@ export class CustomDimensionService {
             .map(res => res.body);
     }
 
-    public mapDimensions(dims) {
+    public mapDimensionInfoToDimensionObject(dims) {
         const info = dims.Info[0];
-        if (dims.ProjectID) {
+        if (dims.ProjectID && !dims.Project) {
             dims.Project = {
                 ProjectNumber: info.ProjectNumber,
                 Name: info.ProjectName
             };
         }
-        if (dims.DepartmentID) {
+        if (dims.DepartmentID && !dims.Department) {
             dims.Department = {
                 DepartmentNumber: info.DepartmentNumber,
                 Name: info.DepartmentName
@@ -94,7 +94,7 @@ export class CustomDimensionService {
         }
 
         for (let i = 5; i <= 10; i++) {
-            if (dims[`Dimension${i}ID`]) {
+            if (dims[`Dimension${i}ID`] && !dims[`Dimension${i}`]) {
                 dims[`Dimension${i}`] = {
                     Number: info[`Dimension${i}Number`],
                     Name: info[`Dimension${i}Name`]

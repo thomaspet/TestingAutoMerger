@@ -2937,6 +2937,13 @@ export class BillView implements OnInit {
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
+        if (this.current?.value?.ID !== id) {
+            // set diff to null until the journalentry is loaded, the data is calculated correctly
+            // through the onJournalEntryManualDataLoaded event
+            this.sumVat = null;
+            this.sumRemainder = null;
+        }
+
         return new Promise((resolve, reject) => {
             const invoiceGET = this.supplierInvoiceService.Get(id, [
                 'Supplier.Info.BankAccounts',
@@ -2982,11 +2989,6 @@ export class BillView implements OnInit {
                         this.flagActionBar(actionBar.runSmartBooking, invoice.StatusCode < StatusCodeSupplierInvoice.Journaled);
                         this.loadActionsFromEntity();
                         this.checkLockStatus();
-
-                        // set diff to null until the journalentry is loaded, the data is calculated correctly
-                        // through the onJournalEntryManualDataLoaded event
-                        this.sumVat = null;
-                        this.sumRemainder = null;
 
                         resolve('');
                     };
