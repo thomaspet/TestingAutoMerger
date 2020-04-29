@@ -390,7 +390,7 @@ export class UniRecurringInvoice implements OnInit {
             const invoice: RecurringInvoice = res[0];
             const invoiceItems: RecurringInvoiceItem[] = res[1].map(item => {
                 if (item.Dimensions) {
-                    item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                    item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
                 }
                 return item;
             });
