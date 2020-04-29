@@ -682,8 +682,7 @@ export class TradeItemTable {
             const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
-                const dimensions = rowModel?.Dimensions;
-                const dimension = dimensions['Dimension' + type.Dimension];
+                const dimension = rowModel?.Dimensions && rowModel?.Dimensions['Dimension' + type.Dimension];
                 if (dimension) {
                     return dimension.Number + ': ' + dimension.Name;
                 }
