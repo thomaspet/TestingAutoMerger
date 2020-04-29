@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, of, forkJoin} from 'rxjs';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {Observable} from 'rxjs';
-import 'rxjs';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { take, switchMap, map, catchError } from 'rxjs/operators';
 import { ElsaPurchaseService } from '@app/services/elsa/elsaPurchasesService';
@@ -579,7 +578,7 @@ export class WageTypeService extends BizHttp<WageType> {
         return this.elsaPurchaseService
             .getPurchaseByProductName('TAX_MACRO')
             .pipe(
-                catchError((err, obs) => null),
+                catchError(() => of(null)),
                 map(product => product
                     ? <UniFieldLayout[]>[
                             {
