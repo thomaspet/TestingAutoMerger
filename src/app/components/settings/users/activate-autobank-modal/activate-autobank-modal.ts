@@ -53,18 +53,18 @@ export class ActivateAutobankModal implements IUniModal {
             this.errorMessages.push('Telefon må være et gyldig norsk telefonnummer');
         }
 
-        if (!/[a-zæøå]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst en liten bokstav');
+        if (!/[a-z]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en liten bokstav [a-z]');
             return;
         }
 
-        if (!/[A-ZÆØÅ]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst en stor bokstav');
+        if (!/[A-Z]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en stor bokstav [A-Z]');
             return;
         }
 
         if (!/[\d]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst ett tall');
+            this.errorMessages.push('Passord må inneholde minst ett tall [0-9]');
             return;
         }
         if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\:\,\.\?\!\`\(\)\;]/.test(data.Password)) {
