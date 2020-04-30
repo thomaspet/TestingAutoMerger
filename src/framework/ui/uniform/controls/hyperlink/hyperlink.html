@@ -3,7 +3,8 @@
    [attr.target]="field?.Options?.target"
    [attr.aria-describedby]="asideGuid"
    (focus)="focusHandler()"
+   [ngClass]="field?.Classes"
    [title]="field?.Options?.description"
    tabindex="-1"
->{{field?.Options?.description}}</a>
+> <i class="material-icons" *ngIf="field?.Options?.icon"> {{ field.Options.icon }} </i> {{field?.Options?.description}}</a>
 <ng-content></ng-content>

@@ -627,4 +627,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             },
         ]
     },
+    {
+        name: 'NAVBAR.SETTINGS',
+        url: '/settings',
+        icon: 'settings',
+        isOnlyLinkSection: true,
+        megaMenuGroupIndex: 0,
+        linkGroups: []
+    },
 ];

@@ -13,7 +13,7 @@ export class IntegrationSettings {
         tabService.addTab({
             name: 'Integrasjoner',
             url: '/settings/webhooks',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
     }

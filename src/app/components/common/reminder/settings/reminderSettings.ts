@@ -6,7 +6,7 @@ import {
     JobService,
     UniSearchAccountConfig
 } from '@app/services/services';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
 import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales/reminders/debtCollectionAutomations';
 
 @Component({
@@ -14,20 +14,28 @@ import {DebtCollectionAutomations, DebtCollectionFormat} from '@app/models/sales
     templateUrl: './reminderSettings.html'
 })
 export class ReminderSettings {
-    @Input() private reminderSettings: CustomerInvoiceReminderSettings;
-    @Output() reminderSettingsChange: EventEmitter<CustomerInvoiceReminderSettings> = new EventEmitter<CustomerInvoiceReminderSettings>();
+    @Input()
+     private reminderSettings: CustomerInvoiceReminderSettings;
 
-    public isDirty: boolean = false;
-    public reminderSettings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+    @Input()
+    public showLabelAbove: boolean = false;
+
+    @Output()
+    reminderSettingsChange: EventEmitter<CustomerInvoiceReminderSettings> = new EventEmitter<CustomerInvoiceReminderSettings>();
+
+    isDirty: boolean = false;
+    reminderSettings$: BehaviorSubject<CustomerInvoiceReminderSettings> = new BehaviorSubject(null);
+    config$: BehaviorSubject<any> = new BehaviorSubject({ showLabelAbove: this.showLabelAbove});
+    fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+
+    reminderFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     constructor(private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private jobService: JobService) {
     }
 
-    public ngOnChanges() {
+    public ngOnChanges(change) {
         if (this.reminderSettings) {
             if (!this.reminderSettings.DebtCollectionSettings) {
                 this.reminderSettings.DebtCollectionSettings = <DebtCollectionSettings>{
@@ -36,6 +44,10 @@ export class ReminderSettings {
             }
             this.reminderSettings$.next(this.reminderSettings);
             this.setupForm();
+        }
+
+        if (change['showLabelAbove']) {
+            this.config$.next({ showLabelAbove: this.showLabelAbove});
         }
     }
 
@@ -51,6 +63,10 @@ export class ReminderSettings {
         });
     }
 
+    public saveAndReturnObs (): Observable<any> {
+        return this.customerInvoiceReminderSettingsService.Put(this.reminderSettings.ID, this.reminderSettings);
+    }
+
     public onChange(data) {
         this.isDirty = true;
         this.reminderSettings = this.reminderSettings$.getValue();
@@ -58,60 +74,40 @@ export class ReminderSettings {
     }
 
     private async setupForm() {
-        const fields = [
+
+        this.reminderFields$.next([
+            {
+                Property: 'AcceptPaymentWithoutReminderFee',
+                Label: 'Aksepter fakturabetaling uten purregebyr',
+                FieldType: FieldType.CHECKBOX
+            },
             {
                 Legend: 'Purreinnstillinger',
                 Property: 'MinimumAmountToRemind',
                 Label: 'Minste fakturabeløp å purre',
-                FieldType: FieldType.TEXT,
-                Section: 0,
-                FieldSet: 1,
-            },
-            {
-                Property: 'RemindersBeforeDebtCollection',
-                Label: 'Antall purringer før inkasso',
-                FieldType: FieldType.TEXT,
-                Section: 0,
-                FieldSet: 1,
-                ReadOnly: !this.reminderSettings
-                    || !this.reminderSettings.CustomerInvoiceReminderRules
-                    || this.reminderSettings.CustomerInvoiceReminderRules.length < 2,
-                Tooltip: {
-                    Text: 'Det må være opprettet likt antall purreregler under + regel for inkasso for å få lagre dette feltet.'
-                },
-            },
-            {
-                Property: 'AcceptPaymentWithoutReminderFee',
-                Label: 'Aksepter fakturabetaling uten purregebyr',
-                FieldType: FieldType.CHECKBOX,
-                Section: 0,
-                FieldSet: 1
+                FieldType: FieldType.TEXT
             },
             {
                 Property: 'DefaultReminderFeeAccountID',
                 Label: 'Standardkonto purregebyr',
                 FieldType: FieldType.UNI_SEARCH,
-                Section: 0,
-                FieldSet: 1,
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
-            },
+            }
+        ]);
+
+        const fields = [
             {
-                Legend: 'Inkassoinnstillinger',
                 Property: 'DebtCollectionSettings.IntegrateWithDebtCollection',
                 Label: 'Integrasjon med inkasso',
                 FieldType: FieldType.CHECKBOX,
-                Section: 0,
-                FieldSet: 2,
             },
             {
                 Property: 'DebtCollectionSettings.DebtCollectionFormat',
                 Label: 'Inkassoformat',
                 FieldType: FieldType.DROPDOWN,
-                Section: 0,
-                FieldSet: 2,
 
                 Options: {
                     source: [
@@ -126,8 +122,6 @@ export class ReminderSettings {
                 Property: 'DebtCollectionSettings.DebtCollectionAutomationID',
                 Label: 'Automatisering',
                 FieldType: FieldType.DROPDOWN,
-                Section: 0,
-                FieldSet: 2,
                 Options: {
                     source: this.reminderSettings.DebtCollectionSettings.DebtCollectionAutomation,
                     valueProperty: 'ID',
@@ -144,8 +138,6 @@ export class ReminderSettings {
                 Property: 'DebtCollectionSettings.CreditorNumber',
                 Label: 'Vårt kundenr hos inkassobyrå',
                 FieldType: FieldType.TEXT,
-                Section: 0,
-                FieldSet: 2,
             }
         ];
 

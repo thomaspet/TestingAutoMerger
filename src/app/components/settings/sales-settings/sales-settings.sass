@@ -1,0 +1,93 @@
+.settings-list
+    list-style: none
+    margin: 0
+    padding: 0
+
+    li
+        display: flex
+        align-items: center
+        height: 50px
+        border-bottom: 1px solid #cccccc
+        cursor: pointer
+        &:hover
+            background-color: var(--sidebar-active-section-background)
+
+        &.list-header
+            align-items: flex-end
+            height: 30px
+            cursor: default
+            &:hover
+                background-color: transparent
+            span
+                color: var(--table-header-color)
+                font-weight: 500
+
+        &:last-of-type
+            border-bottom: none
+
+        span
+            font-size: 14px
+            font-weight: 400
+            overflow: hidden
+            text-overflow: ellipsis
+            white-space: nowrap
+
+            &.name
+                width: 18rem
+                padding-left: .3rem
+            &.days
+                width: 12rem
+            &.desc
+                flex: 1
+
+            i
+                margin: 0 1rem
+                color: var(--color-c2a)
+                &:hover
+                    color: var(--color-bad)
+
+.electronic-invoice-items-list
+    list-style: none
+    margin: 1rem 0
+
+    li
+        border: 1px solid #CCC
+        border-radius: 4px
+        margin-bottom: 1rem
+        background-color: #f5f6f9
+        display: flex
+        align-items: center
+        padding: 1rem 2rem
+
+        .item-name
+            font-size: 14px
+            font-weight: 500
+            width: 8rem
+
+        .divider
+            flex: 1
+
+        i.material-icons
+            color: var(--color-good)
+
+        button
+            width: 8rem
+
+
+.electronic-invoice-form
+    ::ng-deep uni-field
+        padding: 0 0 15px !important
+
+    ::ng-deep uni-button-input
+        margin-left: 0 !important
+
+.empty-error-message
+    font-size: 14px
+    display: block
+
+.add-terms-link
+    font-size: 14px
+    display: block
+    margin-top: .5rem
+    text-decoration: none
+

@@ -10,6 +10,10 @@ import {UniDimensionSettings} from './dimension/dimension';
 import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {UserManagement} from '@app/components/settings/users/users';
 import {SettingsOverview} from './settings-overview/settings-overivew';
+import {UniCompanySettingsView} from './companySettings/company-settings';
+import {UniCompanyAccountingView} from './accounting-settings/accounting-settings';
+import {UniSalesSettingsView} from './sales-settings/sales-settings';
+import {UniBankSettings} from './bank-settings/bank-settings';
 
 export const settingsRoutes: Routes = [
     {
@@ -19,7 +23,17 @@ export const settingsRoutes: Routes = [
     },
     {
         path: 'company',
-        component: CompanySettingsComponent,
+        component: UniCompanySettingsView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'accounting',
+        component: UniCompanyAccountingView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'sales',
+        component: UniSalesSettingsView,
         canDeactivate: [CanDeactivateGuard]
     },
     {
@@ -30,6 +44,11 @@ export const settingsRoutes: Routes = [
     {
         path: 'aga-and-subentities',
         component: AgaAndSubEntitySettings,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'bank',
+        component: UniBankSettings,
         canDeactivate: [CanDeactivateGuard]
     },
     {

@@ -29,7 +29,7 @@ export class UniDimensionSettings implements OnInit {
         this.tabService.addTab({
             name: 'Dimensjonsinnstillinger',
             url: '/settings/dimension',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
 

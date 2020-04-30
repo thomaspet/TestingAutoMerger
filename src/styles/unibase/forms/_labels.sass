@@ -32,6 +32,27 @@ label.uni-label
             & + *
                 flex: 1
 
+    &.label-above
+        flex-direction: column
+        margin-bottom: 1rem
+
+        > span
+            width: 100%
+            font-weight: 500
+            margin-bottom: .4rem
+
+        &.reverse-label
+            flex-direction: row-reverse
+            align-items: center
+            justify-content: flex-end
+            margin-bottom: 0
+
+            uni-checkbox-input
+                min-width: 1.5rem
+            span
+                margin-bottom: 0
+
+
 label
     input, textarea, .input-with-button
         width: 100%

@@ -1,4 +1,9 @@
-<label class="uni-label label-left" *ngIf="field?.FieldType !== 1">
+<label
+    class="uni-label"
+    [ngClass]="formConfig?.showLabelAbove ? 'label-above' : 'label-left'"
+    [class.reverse-label]="field?.FieldType === 5"
+    *ngIf="field?.FieldType !== 1">
+
     <span
         [hidden]="!isInput(field?.FieldType)"
         [title]="field?.Label"
@@ -220,6 +225,7 @@
     [style.margin-left]="labelWidth"
     [field]="field"
     [model]="model"
+    [ngClass]="field?.Classes"
     [asideGuid]="asideGuid"
     (readyEvent)="onReadyHandler($event)"
     (changeEvent)="onChangeHandler($event)"

@@ -19,18 +19,29 @@ import {
     templateUrl: './reminderRules.html',
 })
 export class ReminderRules implements OnInit, OnChanges {
-    @ViewChild(AgGridWrapper) private table: AgGridWrapper;
-    @Input() settings: CustomerInvoiceReminderSettings;
-    @Output() change: EventEmitter<any> = new EventEmitter();
 
-    rulesTableConfig: UniTableConfig;
+    @ViewChild(AgGridWrapper)
+    private table: AgGridWrapper;
+
+    @Input()
+    settings: CustomerInvoiceReminderSettings;
+
+    @Input()
+    showLabelAbove: boolean = false;
+
+    @Output()
+    change: EventEmitter<any> = new EventEmitter();
+
     private selectedIndex: number;
 
+    rulesTableConfig: UniTableConfig;
     rule$: BehaviorSubject<CustomerInvoiceReminderRule> = new BehaviorSubject(null);
     config$: BehaviorSubject<any> = new BehaviorSubject({});
     fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
 
-    constructor(private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService) {}
+    constructor(
+        private customerInvoiceReminderRuleService: CustomerInvoiceReminderRuleService
+    ) {}
 
     ngOnInit() {
         this.setupTable();
@@ -43,6 +54,10 @@ export class ReminderRules implements OnInit, OnChanges {
                 this.settings.CustomerInvoiceReminderRules = [];
             }
             this.settings.CustomerInvoiceReminderRules.sort((a, b) => a.ReminderNumber - b.ReminderNumber);
+        }
+
+        if (changes['showLabelAbove']) {
+            this.config$.next({ showLabelAbove: this.showLabelAbove});
         }
     }
 

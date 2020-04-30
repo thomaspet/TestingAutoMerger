@@ -1,9 +1,9 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {TabService} from '../../layout/navbar/tabstrip/tabService';
 import {UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {AuthService} from '@app/authService';
-import {UniTranslationService} from '@app/services/services';
+import {UniTranslationService, PageStateService} from '@app/services/services';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
 
@@ -38,25 +38,38 @@ export class SettingsOverview {
         private authService: AuthService,
         private tabService: TabService,
         private navbarLinkService: NavbarLinkService,
+        private pageStateService: PageStateService,
         private translate: UniTranslationService,
+        private route: ActivatedRoute,
         private router: Router
     ) {
-        this.tabService.addTab({
-             name: 'Innstillinger',
-             url: '/settings',
-             moduleID: UniModules.Settings,
-             active: true
-        });
-
         this.authService.authentication$.take(1).subscribe(authDetails => {
             if (authDetails.user) {
                 this.filterSettingsLinks = this.navbarLinkService.getSettingsFilteredByPermissions(authDetails.user);
+                this.route.queryParams.subscribe((params) => {
+                    this.searchString = params['search'] || '';
+                    this.updateTabState();
+                });
             }
         });
     }
 
+    updateTabState() {
+        this.pageStateService.setPageState('search', this.searchString);
+        this.tabService.addTab({
+            name: 'Innstillinger',
+            url: '/settings?search=' + this.searchString,
+            moduleID: UniModules.Settings,
+            active: true
+        });
+    }
+
     goToView (item: any) {
+      if (item.subSettings) {
+          item.showSubSettings = !item.showSubSettings;
+      } else if (item && item.url) {
         this.router.navigateByUrl(item.url);
+      }
     }
 
     getClass(link: any) {

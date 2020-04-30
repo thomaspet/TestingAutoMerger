@@ -14,6 +14,8 @@ import {SubEntityList} from './agaAndSubEntitySettings/subEntityList';
 import {CompanySettingsComponent} from './companySettings/companySettings';
 import {CompanySettingsViewService} from './companySettings/services/companySettingsViewService';
 import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
+import {UniCompanySettingsView} from './companySettings/company-settings';
+import {UniBankSettings} from './bank-settings/bank-settings';
 
 import {
     UserManagement,
@@ -42,7 +44,10 @@ import {IntegrationSettings} from './integrationSettings/integrationSettings';
 import {EventPlans} from '@app/components/settings/eventPlans/event-plans';
 import {EventPlansList} from '@app/components/settings/eventPlans/eventPlansList/event-plans-list';
 import {EventPlanDetails} from '@app/components/settings/eventPlans/eventPlanDetails/event-plan-details';
+import {UniCompanyAccountingView} from './accounting-settings/accounting-settings';
+import {UniSalesSettingsView} from './sales-settings/sales-settings';
 import {SettingsOverview} from './settings-overview/settings-overivew';
+import {UniReportSettingsView} from './report/report-setup';
 
 @NgModule({
     imports: [
@@ -80,7 +85,12 @@ import {SettingsOverview} from './settings-overview/settings-overivew';
         EventPlans,
         EventPlansList,
         EventPlanDetails,
-        SettingsOverview
+        SettingsOverview,
+        UniCompanySettingsView,
+        UniCompanyAccountingView,
+        UniSalesSettingsView,
+        UniReportSettingsView,
+        UniBankSettings
     ],
     providers: [
         SubEntitySettingsService,
