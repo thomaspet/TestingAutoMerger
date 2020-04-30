@@ -179,7 +179,10 @@ export class TableDataService {
                 let orderby;
                 if (params.sortModel && params.sortModel.length) {
                     const sortModel = params.sortModel[0];
-                    orderby = `${sortModel.colId} ${sortModel.sort}`;
+                    const column = this.config.columns.find(col => col.field === sortModel.colId);
+
+                    const sortField = column?.sortField || sortModel.colId;
+                    orderby = `${sortField} ${sortModel.sort}`;
                 }
 
                 if (orderby) {

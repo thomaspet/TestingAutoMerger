@@ -105,6 +105,7 @@ export interface IUniTableColumn {
     filterSelectConfig?: {options: Array<any>, displayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
+    sortField?: string;
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
@@ -150,6 +151,7 @@ export class UniTableColumn implements IUniTableColumn {
     public width: number|string;
     public maxWidth: number;
     public sortMode: UniTableColumnSortMode;
+    public sortField: string;
     public isSumColumn: boolean;
     public markedRowsSumCol: boolean;
     public aggFunc: (items: any[]) => number;
@@ -442,6 +444,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setSortMode(sortMode: UniTableColumnSortMode) {
         this.sortMode = sortMode;
+        return this;
+    }
+
+    public setSortField(field: string) {
+        this.sortField = field;
         return this;
     }
 
