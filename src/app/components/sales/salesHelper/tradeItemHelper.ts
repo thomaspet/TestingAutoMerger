@@ -365,6 +365,10 @@ export class TradeItemHelper  {
     }
 
     private mapProductDimensionsToItem(item) {
+        if (!item.Product?.Dimensions) {
+            return item;
+        }
+
         const itemDims = item.Dimensions;
         const productDims = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Product?.Dimensions);
 
