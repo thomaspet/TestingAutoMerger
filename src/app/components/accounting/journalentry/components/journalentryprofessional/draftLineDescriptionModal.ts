@@ -16,6 +16,8 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
                     (keydown.enter)="onClose.emit(text)"
                     [(ngModel)]="text"
                 />
+                <BR/>
+                Bilagsnummer lagres ikke, og settes på ny når kladd hentes frem igjen.
             </article>
 
             <footer>
