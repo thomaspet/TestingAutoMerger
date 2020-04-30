@@ -304,6 +304,12 @@ export class JournalEntries {
                     // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
                     this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
                         .subscribe(journalEntryData => {
+                            
+                            journalEntryData.forEach(line => {
+                               line.NumberSeriesTaskID = this.selectedNumberSeries.NumberSeriesTaskID;
+                               line.NumberSeriesID = this.selectedNumberSeries.ID;
+                            });
+                            
                             this.editmode = false;
                             this.journalEntryManual.currentJournalEntryID = null;
                             this.currentJournalEntryID = 0;
@@ -311,6 +317,7 @@ export class JournalEntries {
                             setTimeout(() => {
                                 this.journalEntryManual.setJournalEntryData(journalEntryData);
                                 this.journalEntryManual.isDirty = true;
+                                
                             });
                         }, err => this.errorService.handle(err)
                     );
