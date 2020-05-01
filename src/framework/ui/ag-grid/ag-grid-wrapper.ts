@@ -1286,4 +1286,10 @@ export class AgGridWrapper {
             this.tableUtils.setLastUsedFilter(this.config.configStoreKey, undefined);
         }
     }
+
+    onFocus() {
+        if (this.config?.editable) {
+            this.focusRow(0);
+        }
+    }
 }
