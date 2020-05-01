@@ -133,7 +133,10 @@ export class AuthService {
                     this.setLoadIndicatorVisibility(false);
                 }
             } else {
-                onMissingAuth();
+                this.userManager.clearStaleState();
+                this.userManager.removeUser().then(() => {
+                    onMissingAuth();
+                });
             }
         }).catch((err) => {
             // Session has ended ! , clear stale state and redirect to login
