@@ -13,7 +13,6 @@ import {ColumnIndexesPipe} from '@uni-framework/ui/uniform/pipes/column-indexes.
 import {GetLegendPipe} from '@uni-framework/ui/uniform/pipes/get-legend.pipe';
 import {ByFieldsetPipe} from '@uni-framework/ui/uniform/pipes/by-fieldset.pipe';
 import {IsRequiredPipe} from '@uni-framework/ui/uniform/pipes/is-required.pipe';
-import { MarkLastFieldPipe } from '@uni-framework/ui/uniform/pipes/mark-last-field.pipe';
 
 import {UniField} from './unifield/unifield';
 import {UniSection} from './unisection/unisection';
@@ -56,7 +55,6 @@ import {DateAdapter} from '@angular/material/core';
         ColumnIndexesPipe,
         UniformErrorTemplatePipe,
         IsRequiredPipe,
-        MarkLastFieldPipe
     ],
     providers: [
         LayoutBuilder,

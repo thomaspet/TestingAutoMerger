@@ -11,8 +11,7 @@
                        (changeEvent)="onChangeHandler($event)"
                        (inputEvent)="onInputHandler($event)"
                        (focusEvent)="onFocusHandler($event)"
-                       (moveForwardEvent)="onMoveForward($event)"
-                       (moveBackwardEvent)="onMoveBackward($event)"
+                       (moveForwardEvent)="moveForwardEvent.emit($event)"
                        (errorEvent)="onError($event)"
             >
             </uni-field>
@@ -35,8 +34,7 @@
                                     (changeEvent)="onChangeHandler($event)"
                                     (inputEvent)="onInputHandler($event)"
                                     (focusEvent)="onFocusHandler($event)"
-                                    (moveForwardEvent)="onMoveForward($event)"
-                                    (moveBackwardEvent)="onMoveBackward($event)"
+                                    (moveForwardEvent)="moveForwardEvent.emit($event)"
                                     (errorEvent)="onError($event)">
                                 </uni-field>
                                 <uni-linebreak *ngIf="hasLineBreak(item)"></uni-linebreak>

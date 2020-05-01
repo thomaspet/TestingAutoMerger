@@ -1,11 +1,9 @@
 import {
     Component, Input, Output, HostBinding, EventEmitter, QueryList, ViewChildren, ChangeDetectorRef,
-    ChangeDetectionStrategy, SimpleChange, SimpleChanges, Pipe, PipeTransform
+    ChangeDetectionStrategy, SimpleChange, SimpleChanges,
 } from '@angular/core';
 import {UniFieldLayout} from '../interfaces';
 import {UniField} from '../unifield/unifield';
-
-
 
 @Component({
     selector: 'uni-section',
@@ -23,7 +21,6 @@ export class UniSection {
     @Output() public toggleEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public focusEvent: EventEmitter<UniSection> = new EventEmitter<UniSection>(true);
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
 
     @ViewChildren(UniField) public fieldElements: QueryList<UniField>;
@@ -103,14 +100,6 @@ export class UniSection {
 
     public onInputHandler(model: any) {
         this.inputEvent.emit(model);
-    }
-
-    public onMoveForward(action) {
-        this.moveForwardEvent.emit(action);
-    }
-
-    public onMoveBackward(action) {
-        this.moveBackwardEvent.emit(action);
     }
 
     public readMode() {

@@ -532,12 +532,6 @@ export class BillView implements OnInit {
         }
     }
 
-    onFormMoveOutEvent(event) {
-        if (event && event.movingBackward && this.autocomplete) {
-            this.autocomplete.focus();
-        }
-    }
-
     private initForm() {
         const fields = [
             <any> {

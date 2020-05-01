@@ -102,26 +102,6 @@ export class CustomerEditModal implements IUniModal {
         );
     }
 
-    onSearchShiftTab(event: KeyboardEvent) {
-        event.preventDefault();
-        if (this.form) {
-            this.form.focus();
-        }
-    }
-
-    onFormMoveOutEvent(event) {
-        if (event && event.movingBackward && this.autocomplete) {
-            this.autocomplete.focus();
-        }
-    }
-
-    onCancelShiftTab(event: KeyboardEvent) {
-        event.preventDefault();
-        if (this.form) {
-            this.form.focus();
-        }
-    }
-
     onExternalSearchSelected(item) {
         if (!item) {
             return;

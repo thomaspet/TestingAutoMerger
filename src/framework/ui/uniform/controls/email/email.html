@@ -1,7 +1,6 @@
 <input
     *ngIf="control"
     type="email"
-    tabindex="-1"
     [attr.aria-describedby]="asideGuid"
     [formControl]="control"
     [readonly]="readOnly$ | async"

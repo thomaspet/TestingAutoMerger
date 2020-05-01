@@ -100,7 +100,7 @@ export enum CollectorStatus {
     selector: 'uni-invoice',
     templateUrl: './invoice.html'
 })
-export class InvoiceDetails implements OnInit, AfterViewInit {
+export class InvoiceDetails implements OnInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
     @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
@@ -467,12 +467,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
-    }
-
-    ngAfterViewInit() {
-        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => {
-            this.tradeItemTable.focusFirstRow();
-        });
     }
 
     private getInvoice(ID: number): Observable<CustomerInvoice> {

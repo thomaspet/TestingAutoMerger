@@ -471,7 +471,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
 
     public keyPressHandler(event: KeyboardEvent) {
-        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB, KeyCodes.ENTER];
         const keyCode = event.which || event.keyCode;
         const character = String.fromCharCode(keyCode);
 

@@ -194,14 +194,6 @@ export class WageTypeDetailsComponent extends UniView {
                 displayProperty: 'Name',
                 valueProperty: 'ID',
                 debounceTime: 500,
-                events: {
-                    tab: (event) => {
-                        this.uniform.field('AccountNumber').focus();
-                    },
-                    shift_tab: (event) => {
-                        this.uniform.field('RateFactor').focus();
-                    }
-                }
             };
         });
         this.editField(fields, 'GetRateFrom', getRateFrom => {
@@ -760,39 +752,4 @@ export class WageTypeDetailsComponent extends UniView {
             }
         }
     }
-
-    public tabForward(event: IUniFormTabEvent) {
-        this.fields$
-            .take(1)
-            .filter(fields => event.prev.Placement > event.next.Placement)
-            .map(fields => {
-                const newNextField = fields
-                    .filter(field => !field.Hidden)
-                    .find(field => field.Placement > event.prev.Placement) || {};
-                return newNextField.Property || '';
-            })
-            .subscribe(prop => {
-                if (prop) {
-                    this.uniform.field(prop).focus();
-                }
-            });
-    }
-
-    public tabBackward(event: IUniFormTabEvent) {
-        this.fields$
-            .take(1)
-            .map(fields => {
-                const newPrevfield = fields
-                    .filter(field => !field.Hidden)
-                    .sort((fieldA, fieldB) => fieldB.Placement - fieldA.Placement)
-                    .find(field => field.Placement < event.prev.Placement) || {};
-                return newPrevfield.Property || '';
-            })
-            .subscribe(prop => {
-                if (prop) {
-                    this.uniform.field(prop).focus();
-                }
-            });
-    }
-
 }

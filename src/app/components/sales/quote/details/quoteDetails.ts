@@ -75,7 +75,7 @@ import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
     selector: 'quote-details',
     templateUrl: './quoteDetails.html',
 })
-export class QuoteDetails implements OnInit, AfterViewInit {
+export class QuoteDetails implements OnInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -365,10 +365,6 @@ export class QuoteDetails implements OnInit, AfterViewInit {
                     );
             }
         });
-    }
-
-    ngAfterViewInit() {
-        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])

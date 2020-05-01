@@ -4,9 +4,7 @@
     [fields]="fields$"
     [model]="wageType$"
     (changeEvent)="change($event)"
-    (toggleEvent)="toggle($event)"
-    (moveForwardEvent)="tabForward($event)"
-    (moveBackwardEvent)="tabBackward($event)">
+    (toggleEvent)="toggle($event)">
 </uni-form>
 
 <ng-template [ngIf]="showSupplementaryInformations">

@@ -131,12 +131,6 @@ export class ProjectEditmode {
         };
     }
 
-    public onMoveOutOfForm(event) {
-        if (event && event.movingForward && this.table) {
-            this.table.focusRow(0);
-        }
-    }
-
     private setupTable() {
         this.userService.GetAll('').subscribe(users => {
             this.users = users;

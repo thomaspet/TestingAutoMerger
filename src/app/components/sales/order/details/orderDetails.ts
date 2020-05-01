@@ -83,7 +83,7 @@ import {switchMap, tap, catchError, map} from 'rxjs/operators';
     templateUrl: './orderDetails.html',
     styleUrls: ['./orderDetails.sass']
 })
-export class OrderDetails implements OnInit, AfterViewInit {
+export class OrderDetails implements OnInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -426,10 +426,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
                 }
             });
         });
-    }
-
-    ngAfterViewInit() {
-        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
     }
 
     @HostListener('keydown', ['$event'])
