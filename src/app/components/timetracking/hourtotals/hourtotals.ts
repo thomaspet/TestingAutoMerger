@@ -1,4 +1,5 @@
 import {Component, Input} from '@angular/core';
+import {ActivatedRoute} from '@angular/router';
 import {UniHttp} from '@uni-framework/core/http/http';
 import * as utils from '../../common/utils/utils';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
@@ -6,11 +7,13 @@ import {
     PageStateService, FinancialYearService
 } from '@app/services/services';
 import * as moment from 'moment';
+import {FormControl} from '@angular/forms';
 import {Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {HourTotalsDrilldownModal} from './drilldown-modal';
 import {IReport, IPageState, IReportRow, IQueryData, ReportRow, HourReportInput} from './models';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'hourtotals',
@@ -22,23 +25,36 @@ export class HourTotals {
     onDestroy$ = new Subject();
 
     private currentOdata: { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } };
-    public busy: boolean = false;
-    public busy2: boolean = false;
-    public report: Array<IReport>;
-    public toolbarConfig: IToolbarConfig;
-    public saveactions = [
+
+    busy: boolean = false;
+    busy2: boolean = false;
+    report: Array<IReport>;
+    filteredList: Array<IReport>;
+    filterString = '';
+    orderConfig = { orderBy: '', multiplier: 1 };
+    searchControl: FormControl = new FormControl('');
+    monthSort = false;
+    listIndex: number = 0;
+    monthIndex: number;
+
+    toolbarConfig: IToolbarConfig;
+    isFilteredByTransfer = false;
+    isFilteredByInvoicable = false;
+    isMoney = false;
+    numberFormat = '';
+    numberFormat2 = '';
+    toDate: { Date: Date };
+    fromDate: { Date: Date };
+
+    private currentYear: number;
+
+    saveactions = [
         {
             label: 'Eksport til Excel',
             action: done => this.exportToFile().then(() => done()),
             main: true
         }
     ];
-    public isFilteredByTransfer = false;
-    public isFilteredByInvoicable = false;
-    public isMoney = false;
-    public numberFormat = '';
-    public numberFormat2 = '';
-    private currentYear: number;
 
     groups = [
         { label: 'Timearter', name: 'worktypes', labelSingle: 'Timeart' },
@@ -49,32 +65,58 @@ export class HourTotals {
         { label: 'Team', name: 'teams', labelSingle: 'Team' },
     ];
     activeGroup = this.groups[0];
+    placeholder = 'Søk etter ' + this.activeGroup.label.toLowerCase();
 
     constructor(
         private pageState: PageStateService,
         private http: UniHttp,
+        private route: ActivatedRoute,
         private financialYearService: FinancialYearService,
         private modalService: UniModalService,
-        tabService: TabService
-    ) {
-        tabService.addTab({
-            url: '/timetracking/hourtotals',
-            name: 'Timerapport',
-            active: true,
-            moduleID: UniModules.HourTotals
-        });
-    }
+        private tabService: TabService,
+        private toast: ToastService
+    ) { }
 
     public ngOnInit() {
+        this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
         if (this.input) {
             this.removeInputGroup();
             this.isFilteredByInvoicable = this.input.isFilteredByInvoicable;
             this.isFilteredByTransfer = this.input.isFilteredByTransfer;
             this.isMoney = this.input.isMoney;
+
+            const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
+            this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0], false);
+        } else {
+            this.route.queryParams.subscribe(params => {
+                this.fromDate = params.fromDate ? { Date: new Date(params.fromDate) } : { Date: new Date(this.currentYear, 0, 1) };
+                this.toDate = params.toDate ? { Date: new Date(params.toDate) } : { Date: new Date(this.currentYear, 11, 31) };
+
+                this.monthSort = +params.monthSort === 1;
+                this.isFilteredByTransfer = +params.isFilteredByTransfer === 1;
+                this.isFilteredByInvoicable = +params.isFilteredByInvoicable === 1;
+                this.isMoney = +params.isMoney === 1;
+
+                this.listIndex = +params.listIndex || 0;
+                this.monthIndex = params.monthIndex || null;
+                this.filterString = params.filter || '';
+
+                const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
+                this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0], false);
+
+                this.searchControl.valueChanges
+                    .debounceTime(250)
+                    .subscribe(query => {
+                        if (!this.report) {
+                            return;
+                        }
+
+                        this.filteredList = this.sortAndFilterList(JSON.parse(JSON.stringify(this.report)));
+                        this.setTabAndUrlState();
+                    });
+
+            });
         }
-        this.currentYear = this.financialYearService.getActiveFinancialYear().Year;
-        const filterName = this.input && this.input.groupBy ? undefined : this.pageState.getPageState().groupby;
-        this.onActiveGroupChange(this.getFilterByName(filterName) || this.groups[0]);
     }
 
     removeInputGroup() {
@@ -98,16 +140,119 @@ export class HourTotals {
         this.onDestroy$.complete();
     }
 
-    public onActiveGroupChange(group) {
-        if (!this.input) {
-            this.pageState.setPageState('groupby', group.name);
+    public onActiveGroupChange(group, resetValues = true) {
+        if (resetValues) {
+            this.monthSort = false;
+            this.listIndex = 0;
+            this.monthIndex = null;
         }
+
         this.activeGroup = group;
+        this.placeholder = 'Søk etter ' + this.activeGroup.label.toLowerCase();
         this.refreshData();
     }
 
     public onCheckInvoiced() {
+        this.monthSort = false;
+        this.listIndex = 0;
+        this.monthIndex = null;
         this.refreshData();
+    }
+
+    periodChange($event) {
+        this.monthSort = false;
+        this.listIndex = 0;
+        this.monthIndex = null;
+        this.fromDate = { Date: $event.fromDate.Date.toDate() };
+        this.toDate = { Date: $event.toDate.Date.toDate() };
+        this.refreshData();
+    }
+
+    setTabAndUrlState() {
+        this.pageState.setPageState('isFilteredByTransfer', this.isFilteredByTransfer ? '1' : '0');
+        this.pageState.setPageState('isFilteredByInvoicable', this.isFilteredByInvoicable ? '1' : '0');
+        this.pageState.setPageState('isMoney', this.isMoney ? '1' : '0');
+        this.pageState.setPageState('monthSort', this.monthSort ? '1' : '0');
+        this.pageState.setPageState('listIndex', this.listIndex.toString());
+        this.pageState.setPageState('fromDate', moment(this.fromDate.Date).format('YYYY-MM-DD'));
+        this.pageState.setPageState('toDate', moment(this.toDate.Date).format('YYYY-MM-DD'));
+        this.pageState.setPageState('filter', this.filterString);
+        this.pageState.setPageState('groupby', this.activeGroup.name);
+
+        if (this.monthIndex) {
+            this.pageState.setPageState('monthIndex', this.monthIndex.toString());
+        }
+
+        this.tabService.addTab({
+            url: this.pageState.getUrl(),
+            name: 'Timerapport',
+            active: true,
+            moduleID: UniModules.HourTotals
+        });
+    }
+
+    tableHeaderClicked(value: string, index: number, monthSort: boolean = false, monthIndex: number) {
+        this.monthSort = monthSort;
+        this.listIndex = index;
+        this.monthIndex = monthIndex;
+
+        if (value === this.orderConfig.orderBy) {
+            this.orderConfig.multiplier *= -1;
+        } else {
+            this.orderConfig.orderBy = value;
+            this.orderConfig.multiplier = 1;
+        }
+
+       this.filteredList = this.sortAndFilterList(this.filteredList);
+    }
+
+    private sortBasedOnMonths(list: any[], index: number, mul: number) {
+        return list.sort((a, b) => {
+            return a.items[index].tsum === b.items[index].tsum ? 0 : a.items[index].tsum < b.items[index].tsum ? (-1 * mul) : (1 * mul);
+        });
+    }
+
+    private sortAndFilterList(list: any[], sortValue?: string) {
+        if (!list || !list.length) {
+            return [];
+        }
+
+        if (this.monthSort) {
+            list[this.listIndex].rows = this.sortBasedOnMonths(list[this.listIndex].rows, this.monthIndex, this.orderConfig.multiplier);
+        } else {
+            // tslint:disable-next-line: max-line-length
+            list[this.listIndex].rows = list[this.listIndex].rows.sort(this.compare(sortValue || this.orderConfig.orderBy,  this.orderConfig.multiplier));
+        }
+
+        // Filter the list from filter string
+        list = [].concat(list.map(report => {
+            report.rows = report.rows.filter(row => !row.title || row.title.toLowerCase().includes(this.filterString.toLowerCase()));
+            return report;
+        }));
+
+        list.forEach(report => {
+            if (!report.rows.length) {
+                report.sum = 0;
+            } else {
+                report.sum = report.rows.map(r => r.sum).reduce((a, b) => a + b);
+            }
+        });
+
+        // If grouped by team, check the titles. If no title, set default
+        if (this.activeGroup.name === 'teams') {
+            list.forEach(report => {
+                report.rows.map(row => {
+                    row.title = row.title || 'Utenfor team';
+                    return row;
+                });
+            });
+        }
+
+        return list;
+    }
+
+    private compare(propName, mul) {
+        return (a, b) => a[propName] === b[propName] ? 0 : a[propName] < b[propName] ? (-1 * mul) : (1 * mul);
     }
 
     // tslint:disable-next-line: max-line-length
@@ -115,8 +260,6 @@ export class HourTotals {
 
         this.numberFormat = this.isMoney ? 'money' : 'int';
         this.numberFormat2 = this.isMoney ? 'money2' : '';
-
-        const yr = this.currentYear || new Date().getFullYear();
 
         const valueMaro = this.isMoney
             // tslint:disable-next-line: max-line-length
@@ -126,7 +269,7 @@ export class HourTotals {
         let baseExpand = this.isMoney
             ? 'worktype.product'
             : 'worktype';
-        let baseFilter = `year(date) ge ${(yr - 1)} and year(date) le ${yr}`;
+        let baseFilter = this.input ? '' : `date ge '${(moment(this.fromDate.Date).format('YYYY-MM-DD'))}' and date le '${(moment(this.toDate.Date).format('YYYY-MM-DD'))}'` ;
         let filter = '';
         let expand = '';
         let baseJoin = '';
@@ -271,6 +414,9 @@ export class HourTotals {
     }
 
     private refreshData() {
+        if (!this.input) {
+            this.setTabAndUrlState();
+        }
         this.busy = true;
         const query = this.createFilter(this.activeGroup.name);
         this.currentOdata = query;
@@ -278,9 +424,9 @@ export class HourTotals {
             .finally( () => this.busy = false)
             .subscribe( result => {
                 this.report = this.buildReport(result);
+                this.filteredList = this.sortAndFilterList(this.filteredList = JSON.parse(JSON.stringify(this.report)));
             });
     }
-
 
     private buildReport(data: Array<IQueryData>): Array<IReport> {
         const groupedReports = [];
@@ -326,7 +472,13 @@ export class HourTotals {
         return new Promise<boolean>( (resolve, reject) => {
             const csv = [];
 
-            const colCount = this.report[0].columns.length + 2;
+            if (!this.filteredList || !this.filteredList[0]) {
+                resolve();
+                this.toast.addToast('Ingen data å eksportere', ToastType.info, 8);
+                return;
+            }
+
+            const colCount = this.filteredList[0].columns.length + 2;
 
             // Title
             csv.push( utils.createRow(colCount, '', `Timerapport ${this.currentYear}` ));
@@ -338,7 +490,7 @@ export class HourTotals {
             if (this.isMoney) { csv.push(utils.createRow(colCount, '', 'Pris:', 'Kalkulert basert på timeart')); }
             csv.push(utils.createRow(colCount, ''));
 
-            this.report.forEach( group => {
+            this.filteredList.forEach( group => {
 
                 const record = [];
                 record.push(this.activeGroup.label + ' - ' + group.title);
