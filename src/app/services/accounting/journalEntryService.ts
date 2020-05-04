@@ -265,7 +265,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // this in a dialog
         journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
         journalEntryData.forEach((data) => {
-            data.NumberSeriesID = numberSeriesID
+            data.NumberSeriesID = null;
+            data.NumberSeriesTaskID = null;
         });
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
