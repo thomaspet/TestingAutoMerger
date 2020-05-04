@@ -16,6 +16,7 @@ export class FeaturePermissionService {
                 'ui.dimensions',
                 'ui.distribution',
                 'ui.debt-collection',
+                'ui.bank_account_manual_setup',
 
                 'ui.sales.customer.ehf_setup',
                 'ui.sales.customer.tof_report_setup',
@@ -26,21 +27,32 @@ export class FeaturePermissionService {
                 'ui.sales.products.product_categories',
 
                 'ui.accounting.supplier.cost_allocation',
+                'ui.accounting.supplier.ehf_setup',
+                'ui.accounting.supplier.self_employed',
+
                 'ui.accounting.bill.delivery_date',
-                'ui.bank_account_manual_setup',
+                'ui.accounting.vat-deduction-settings',
+
+                'ui.bank.journaling-rules',
             ]
         },
         {
             label: 'Pluss',
             blacklist: [
                 'ui.distribution',
+                'ui.bank_account_manual_setup',
 
                 'ui.sales.customer.ehf_setup',
                 'ui.sales.customer.sub_company',
 
                 'ui.accounting.supplier.cost_allocation',
+                'ui.accounting.supplier.ehf_setup',
+                'ui.accounting.supplier.self_employed',
+
                 'ui.accounting.bill.delivery_date',
-                'ui.bank_account_manual_setup',
+                'ui.accounting.vat-deduction-settings',
+
+                'ui.bank.journaling-rules',
             ]
         },
         {
@@ -84,6 +96,7 @@ export class FeaturePermissionService {
             return !this.featureBlacklist.includes(field.FeaturePermission);
         }
 
+
         const fieldProp = field.Property || '';
 
         if (field.EntityType === 'Project'
@@ -107,16 +120,25 @@ export class FeaturePermissionService {
             return true;
         }
 
-        // REVISIT: might have to also check alias? (ticker uses alias pretty extensively)
+        if (column.featurePermission) {
+            return !this.featureBlacklist.includes(column.featurePermission);
+        }
 
         const field = column.field || '';
 
         if (this.featureBlacklist.includes('ui.dimensions')) {
-            return !field.includes('Dimensions.');
+            if (field.includes('Dimension')
+                || field.includes('Project')
+                || field.includes('Department')
+            ) {
+                return false;
+            }
         }
 
         if (this.featureBlacklist.includes('ui.sellers')) {
-            return !field.includes('DefaultSeller');
+            if (field.includes('DefaultSeller')) {
+                return false;
+            }
         }
 
         return true;

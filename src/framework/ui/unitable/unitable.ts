@@ -17,6 +17,7 @@ import * as Immutable from 'immutable';
 import {List} from 'immutable';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
 import {StatisticsService} from '../../../app/services/services';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export interface IContextMenuItem {
     label: string;
@@ -100,7 +101,8 @@ export class UniTable implements OnChanges {
         private utils: UniTableUtils,
         public el: ElementRef,
         private cdr: ChangeDetectorRef,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private featurePermissionService: FeaturePermissionService
     ) {}
 
     // Life-cycle hooks
@@ -163,6 +165,7 @@ export class UniTable implements OnChanges {
                     });
                 }
 
+                columns = columns.filter(col => this.featurePermissionService.canShowTableColumn(col));
                 this.tableColumns = this.utils.makeColumnsImmutable(columns);
             } else {
                 this.tableColumns = this.utils.makeColumnsImmutable(this.config.columns);

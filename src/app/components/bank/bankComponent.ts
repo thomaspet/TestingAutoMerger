@@ -54,6 +54,7 @@ import {MatchCustomerInvoiceManual} from '@app/components/bank/modals/matchCusto
 import {ConfirmCreditedJournalEntryWithDate} from '../common/modals/confirmCreditedJournalEntryWithDate';
 import {AuthService} from '@app/authService';
 import {theme, THEMES} from 'src/themes/theme';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'uni-bank-component',
@@ -195,11 +196,6 @@ export class BankComponent {
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
         },
         {
-            Code: 'bank_rule_nomatch',
-            ExecuteActionHandler: (selectedRows) => this.openJournalingRulesModalWithRule(selectedRows),
-            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
-        },
-        {
             Code: 'revert_batch',
             ExecuteActionHandler: (selectedRows) => this.revertBatch(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentBatchStatusCode === 45009
@@ -219,7 +215,6 @@ export class BankComponent {
             ExecuteActionHandler: (selectedRows) => this.creditJournalEntry(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018 || !selectedRow.JournalEntryID
         }
-
     ];
 
     columnOverrides: ITickerColumnOverride[] = [
@@ -264,6 +259,7 @@ export class BankComponent {
     }
 
     constructor(
+        private featurePermissionService: FeaturePermissionService,
         private uniTickerService: UniTickerService,
         private router: Router,
         private route: ActivatedRoute,
@@ -283,6 +279,14 @@ export class BankComponent {
         private authService: AuthService,
         private jobService: JobService
     ) {
+        if (this.featurePermissionService.canShowUiFeature('ui.bank.journaling-rules')) {
+            this.actionOverrides.push({
+                Code: 'bank_rule_nomatch',
+                ExecuteActionHandler: (selectedRows) => this.openJournalingRulesModalWithRule(selectedRows),
+                CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018
+            });
+        }
+
         this.isAutobankAdmin = this.authService.currentUser.IsAutobankAdmin;
 
         // Route all test clients to contract activation, Bank is not for demo use
@@ -405,7 +409,9 @@ export class BankComponent {
     public getContextMenu() {
         const items = [ ];
 
-        if (this.selectedTicker.Code === 'bank_list') {
+        if (this.selectedTicker.Code === 'bank_list'
+            && this.featurePermissionService.canShowUiFeature('ui.bank.journaling-rules')
+        ) {
             items.push({
                 label: 'Bokføringsregler bank',
                 action: () => this.openJournalingRulesModal(),
@@ -416,7 +422,8 @@ export class BankComponent {
         if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
 
-            if (theme.theme !== THEMES.SR) {
+            // Unavailable for both SR and Bruno
+            if (theme.theme === THEMES.UE) {
                 items.push({
                     label: 'Ny autobankavtale',
                     action: () => this.openAutobankAgreementModal(),
@@ -556,8 +563,8 @@ export class BankComponent {
                     this.fileUploaded(done);
                 },
                 disabled: this.rows.length > 0 && (this.filter === "incomming_without_match"),
-                main: this.rows.length === 0 || this.filter !== "incomming_without_match" 
-            });            
+                main: this.rows.length === 0 || this.filter !== "incomming_without_match"
+            });
 
             this.actions.push({
                 label: 'Endre status til bokført og betalt',
@@ -565,18 +572,18 @@ export class BankComponent {
                     done('Status oppdatert');
                     this.updatePaymentStatusToPaid(done);
                 },
-                disabled: this.rows.length !== 1 || this.filter !== "incomming_without_match" 
+                disabled: this.rows.length !== 1 || this.filter !== "incomming_without_match"
             });
-            
+
             this.actions.push({
                 label: 'Skjul innbetalingsposter',
                 action: (done, file) => {
-                    done('Skult innbetalinger');                    
+                    done('Skult innbetalinger');
                     this.updatePaymentStatusToIgnore(done);
                 },
                 disabled: this.rows.length === 0 || this.filter !== "incomming_without_match",
-                main: this.rows.length !== 0 || this.filter !== "incomming_without_match"               
-            });            
+                main: this.rows.length !== 0 || this.filter !== "incomming_without_match"
+            });
         }
     }
 
@@ -945,7 +952,7 @@ export class BankComponent {
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Ignorer betalinger',
                 warning: 'Det er kun innbetalingsposten som fjernes fra listen, bilaget vil ikke krediteres.',
-                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',                
+                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',
                 buttonLabels: {
                     accept: "Ok",
                     reject: "Avbryt"
@@ -960,7 +967,7 @@ export class BankComponent {
                     });
                     this.paymentService.updatePaymentsToIgnore(paymentIDs).subscribe(PaymentResponse => {
                         this.tickerContainer.mainTicker.reloadData();
-                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3)                        
+                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3)
                     });
                 } else {
                     if (doneHandler) {

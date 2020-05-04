@@ -32,7 +32,7 @@ export class VatSettings {
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
         {name: 'MVA innstillinger'},
-        {name: 'Forholdsmessig MVA / fradrag'}
+        {name: 'Forholdsmessig MVA / fradrag', featurePermission: 'ui.accounting.vat-deduction-settings'}
     ];
 
     constructor(

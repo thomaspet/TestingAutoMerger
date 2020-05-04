@@ -1105,6 +1105,7 @@ export class SupplierDetails implements OnInit {
 
             // Fieldset 5 (EHF)
             {
+                FeaturePermission: 'ui.accounting.supplier.ehf_setup',
                 FieldSet: 5,
                 Legend: 'EHF',
                 EntityType: 'Supplier',
@@ -1113,6 +1114,7 @@ export class SupplierDetails implements OnInit {
                 FieldType: FieldType.TEXT,
             },
             {
+                FeaturePermission: 'ui.accounting.supplier.ehf_setup',
                 FieldSet: 5,
                 Legend: 'EHF',
                 EntityType: 'Supplier',
@@ -1122,6 +1124,7 @@ export class SupplierDetails implements OnInit {
             },
             // Fieldset 6 (self-employed)
             {
+                FeaturePermission: 'ui.accounting.supplier.self_employed',
                 FieldSet: 6,
                 Classes: 'selfEmployed',
                 Legend: 'Innrapportering selvstendig næringsdrivende',
