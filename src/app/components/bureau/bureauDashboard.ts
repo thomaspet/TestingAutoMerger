@@ -1,10 +1,10 @@
-import {Component, ViewChild, ElementRef} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router, ActivationEnd} from '@angular/router';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
 import {IUniSaveAction} from '../../../framework/save/save';
 import {KpiCompany} from './kpiCompanyModel';
-import {BureauTagsDictionary} from '@app/components/bureau/bureauPreferencesModel';
+import {BureauTagsDictionary} from './bureauPreferencesModel';
 import {UniEditFieldModal} from '@uni-framework/uni-modal/modals/editFieldModal';
 import {AuthService} from '../../authService';
 import {UniHttp} from '../../../framework/core/http/http';
@@ -17,7 +17,7 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
-import {IModalOptions, CompanyActionsModal, UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {environment} from 'src/environments/environment';
 
 enum KPI_STATUS {
@@ -46,7 +46,6 @@ export interface IBureauPreferences {
     templateUrl: './bureauDashboard.html'
 })
 export class BureauDashboard {
-    @ViewChild('contextMenu', { static: false }) private contextMenu: ElementRef;
     @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     companies: KpiCompany[];

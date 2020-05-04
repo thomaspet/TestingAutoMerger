@@ -1,12 +1,22 @@
-<button class="c2a login-button" *ngIf="!isAuthenticated" (click)="authService.authenticate()">
-    Logg inn
-</button>
+<section class="background" [ngStyle]="{'background': background, height: backgroundHeight}"></section>
 
-<section *ngIf="isAuthenticated && availableCompanies?.length" class="authentication-component">
-    <h1>Velg selskap</h1>
-    <uni-select
-        [config]="selectConfig"
-        [items]="availableCompanies"
-        (valueChange)="onCompanySelected($event)">
-    </uni-select>
+<section class="content">
+    <section class="illustration-wrapper">
+        <img *ngIf="illustration" [src]="illustration">
+    </section>
+
+    <section class="login-container">
+        <button class="c2a login-button" *ngIf="!isAuthenticated" (click)="authService.authenticate()">
+            Logg inn
+        </button>
+
+        <section *ngIf="isAuthenticated && availableCompanies?.length" class="authentication-component">
+            <h1>Velg selskap</h1>
+            <uni-select
+                [config]="selectConfig"
+                [items]="availableCompanies"
+                (valueChange)="onCompanySelected($event)">
+            </uni-select>
+        </section>
+    </section>
 </section>

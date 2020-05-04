@@ -1,12 +1,12 @@
-import { Injectable } from '@angular/core';
-import { StatisticsService } from '../common/statisticsService';
-import { forkJoin } from 'rxjs';
-import { tap, finalize } from 'rxjs/operators';
-import { BankUtil } from './bankStatmentModels';
-import { safeDec, toIso } from '@app/components/common/utils/utils';
+import {Injectable} from '@angular/core';
+import {StatisticsService} from '../common/statisticsService';
+import {forkJoin} from 'rxjs';
+import {tap, finalize} from 'rxjs/operators';
+import {BankUtil, IMatchEntry} from './bankStatmentModels';
+import {safeDec, toIso} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
-import { FinancialYearService } from '../accounting/financialYearService';
-import { DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode } from './bankjournalmodels';
+import {FinancialYearService} from '../accounting/financialYearService';
+import {DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode} from './bankjournalmodels';
 export * from './bankjournalmodels';
 
 @Injectable()
@@ -27,7 +27,10 @@ export class BankJournalSession {
         return this.vatTypes.filter( x => !x.OutputVat );
     }
 
-    constructor(private statisticsService: StatisticsService, private financialYearService: FinancialYearService) {
+    constructor(
+        private statisticsService: StatisticsService,
+        private financialYearService: FinancialYearService
+    ) {
         this.currentYear = (this.financialYearService.getActiveFinancialYear().Year || new Date().getFullYear());
     }
 
@@ -238,10 +241,16 @@ export class BankJournalSession {
         let balance = 0;
         const list = [];
         let entry = this.newJournal(); // todo: lookup correct series-id
+
         if (asDraft) { entry['Description'] = 'Kladd fra bankavstemming'; }
         for (let i = 0; i < this.items.length; i++) {
             const item = this.items[i];
+
             if (item.Amount) {
+                if (item.files && item.files.length) {
+                    entry.FileIDs.push(...item.files.map(file => file.ID));
+                }
+
                 if (item.Debet) {
                     const debet = this.convertToJournalEntry(item);
                     debet.AccountID = item.Debet.ID;
@@ -257,15 +266,18 @@ export class BankJournalSession {
                     entry.DraftLines.push(credit);
                     balance = BankUtil.safeAdd(balance, credit.Amount);
                 }
+
                 if (BankUtil.isCloseToZero(balance)) {
                     list.push(entry);
                     entry = this.newJournal();
                 }
             }
         }
+
         if (entry.DraftLines.length > 0) {
             list.push(entry);
         }
+
         return list;
     }
 
@@ -290,6 +302,33 @@ export class BankJournalSession {
         } else if (!acc.superLabel) {
             this.createAccountSuperLabel([acc]);
         }
+    }
+
+    public addRowFromMatchEntry(accountID: number, entry: IMatchEntry) {
+        const item = new DebitCreditEntry();
+        const account = this.accounts.find( x => x.ID === accountID );
+        if (account) {
+            if (entry.Amount > 0) {
+                item.DebetAccountID = accountID;
+                item.Debet = account;
+            } else {
+                item.CreditAccountID = accountID;
+                item.Credit = account;
+            }
+
+            if (account.VatTypeID) {
+                item.VatType = this.vatTypes.find( x => x.ID === account.VatTypeID);
+            }
+        }
+
+        item.Amount = Math.abs(entry.Amount);
+        item.FinancialDate = entry.Date;
+        item.Description = entry.Description;
+        item.EntryID = entry.ID;
+
+        this.items.push(item);
+        this.balance = this.calcTotal();
+        return item;
     }
 
     public addRow(debetAccountID: number, amount: number, date: Date, text = '', virtual = false) {
@@ -317,6 +356,27 @@ export class BankJournalSession {
         return item;
     }
 
+    addJournalingLines(lines: any[]) {
+        if (!lines || !lines.length) {
+            return;
+        }
+
+        lines.forEach(line => {
+            if (line && line.Account) {
+                const itemIndex = this.items.findIndex(item => item.EntryID === line.MatchWithEntryID);
+                if (itemIndex >= 0) {
+                    const item = this.items[itemIndex];
+                    if (item.DebetAccountID && !item.CreditAccountID) {
+                        this.setValue('Credit', line.Account, itemIndex);
+                    } else if (item.CreditAccountID && !item.DebetAccountID) {
+                        this.setValue('Debet', line.Account, itemIndex);
+                    }
+                }
+            }
+        });
+
+        this.items = [...this.items];
+    }
 
     public setValue(fieldName: string, newValue: any, rowIndex: number, row?: DebitCreditEntry) {
         const match = this.items[(rowIndex === undefined ? this.items.indexOf(row) : rowIndex)];

@@ -4,7 +4,7 @@ import {forkJoin, Observable} from 'rxjs';
 import {switchMap, finalize} from 'rxjs/operators';
 
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {ElsaProduct} from '@app/models';
+import {ElsaProduct, ElsaProductType} from '@app/models';
 import {Role} from '@uni-entities';
 import {
     ErrorService,
@@ -134,7 +134,7 @@ export class InviteUsersModal implements IUniModal {
         this.adminRole = roles.find(role => role.Name === 'Administrator');
 
         const filteredProducts = products.filter(product => {
-            return product.ProductTypeName === 'Module' && product.Name !== 'Complete';
+            return product.ProductType === ElsaProductType.Module && product.Name !== 'Complete';
         });
 
         const groups: RoleGroup[] = filteredProducts.map(product => {

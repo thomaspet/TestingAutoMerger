@@ -1,9 +1,8 @@
 import {Component, OnInit, Output, Input, ViewChild, EventEmitter, OnChanges} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent} from '../../../../../framework/ui/unitable';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '../../../../../framework/ui/unitable';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {Employee} from '../../../../unientities';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
-import {UniModalService} from '../../../../../framework/uni-modal';
+import {UniModalService, UniPreviewModal} from '../../../../../framework/uni-modal';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniTab } from '@uni-framework/uni-tabs';
 import { StatisticsService, ReportDefinitionService, ErrorService } from '@app/services/services';

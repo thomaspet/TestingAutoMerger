@@ -1,0 +1,31 @@
+$table-margin-top: 2rem
+$table-padding: 1rem
+header
+    display: grid
+    align-items: center
+    grid-template-columns: 3rem auto auto auto auto auto 12rem
+    margin: 0 1rem 0 .5rem
+    uni-toolbar-validation
+        grid-column: span 4
+    .regulative-close-icon
+        cursor: pointer
+        font-size: 30px
+        margin: .25rem 0
+article
+    .regulative-form
+        margin: 0 .5rem
+    .regulative-step-table
+        margin: 0 1rem
+        margin-top: $table-margin-top
+        padding: $table-padding $table-padding 0 $table-padding
+        border: 1px solid var(--border-color)
+        border-radius: 4px
+        opacity: 1
+        .regulative-export
+            float: right
+            position: absolute
+            .material-icons
+                margin-right: .5rem
+            top: calc(9rem + #{$table-margin-top} + #{$table-padding})
+            left: calc(100% - 11rem)
+

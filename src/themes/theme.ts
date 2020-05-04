@@ -13,7 +13,7 @@ export const theme = {
         illustration: 'themes/ue/init_bg.svg',
         background: '#F5F6F8',
         login_background: undefined,
-        backgroundHeight: undefined,
+        login_background_height: undefined,
     },
 
     widgets: {

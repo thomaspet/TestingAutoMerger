@@ -20,7 +20,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
 
-    @ViewChild('file', { static: false }) fileElement: ElementRef<HTMLElement>;
+    @ViewChild('file') fileElement: ElementRef<HTMLElement>;
 
     // view related variables
     isValidFileFormat: boolean = true;

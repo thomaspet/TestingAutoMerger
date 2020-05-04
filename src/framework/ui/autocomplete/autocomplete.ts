@@ -33,7 +33,7 @@ export interface AutocompleteOptions {
 })
 export class Autocomplete {
     @ViewChild('inputElement', { static: true }) inputElement: ElementRef<HTMLInputElement>;
-    @ViewChild('optionContainer', { static: false }) optionContainer: ElementRef;
+    @ViewChild('optionContainer') optionContainer: ElementRef;
 
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;

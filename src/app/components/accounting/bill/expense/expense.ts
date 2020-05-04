@@ -25,9 +25,8 @@ export { ExpensePrepaid } from './prepaid/prepaid';
 export { ExpenseEntries } from './entries/entries';
 export { ExpensePayable } from './payable/payable';
 import { UniImage } from '@uni-framework/uniImage/uniImage';
-import { UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
+import { UniModalService, UniConfirmModalV2, FileFromInboxModal } from '@uni-framework/uni-modal';
 import {DoneRedirectModal} from './done-redirect-modal/done-redirect-modal';
-import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {CompanySettings} from '@app/unientities';
 import * as moment from 'moment';
 import { safeDec } from '@app/components/common/utils/utils';
@@ -38,7 +37,7 @@ import { safeDec } from '@app/components/common/utils/utils';
     styleUrls: [ './expense.sass' ]
 })
 export class Expense implements OnInit {
-    @ViewChild(ExpensePrepaid, { static: false }) prepaidView: ExpensePrepaid;
+    @ViewChild(ExpensePrepaid) prepaidView: ExpensePrepaid;
     @ViewChild(UniImage, { static: true }) public uniImage: UniImage;
 
     busy = true;

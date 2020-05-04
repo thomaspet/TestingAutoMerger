@@ -51,7 +51,8 @@ import {
     UniConfirmModalWithList,
     UniModalService,
     UniRegisterPaymentModal,
-    UniReinvoiceModal
+    UniReinvoiceModal,
+    FileFromInboxModal
 } from '@uni-framework/uni-modal';
 import {
     AssignmentDetails,
@@ -87,7 +88,6 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
-import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
@@ -121,10 +121,10 @@ interface ILocalValidation {
     templateUrl: './bill.html'
 })
 export class BillView implements OnInit {
-    @ViewChild(Autocomplete, { static: false }) autocomplete: Autocomplete;
-    @ViewChild(UniForm, { static: false }) uniForm: UniForm;
+    @ViewChild(Autocomplete) autocomplete: Autocomplete;
+    @ViewChild(UniForm) uniForm: UniForm;
     @ViewChild(UniImage, { static: true }) uniImage: UniImage;
-    @ViewChild(JournalEntryManual, { static: false }) journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
 
     uploadStepActive: boolean;
 
@@ -175,7 +175,8 @@ export class BillView implements OnInit {
         'Info.BankAccounts',
         'Info.DefaultBankAccount',
         'CurrencyCode',
-        'CostAllocation'
+        'CostAllocation',
+        'Dimensions'
     ];
 
     public activeTabIndex: number = 0;
@@ -225,6 +226,9 @@ export class BillView implements OnInit {
 
     validationMessage: ValidationMessage = null;
     accountsWithMandatoryDimensionsIsUsed = false;
+    lastJournalEntryData: JournalEntryData[];
+    projects = [];
+    departments = [];
 
     constructor(
         private tabService: TabService,
@@ -309,6 +313,12 @@ export class BillView implements OnInit {
         this.current.subscribe((invoice) => {
             this.tryUpdateCostAllocationData(invoice);
         });
+
+        forkJoin([this.projectService.GetAll(null), this.departmentService.GetAll(null)])
+            .subscribe(([projects, departments]) => {
+                this.projects = projects;
+                this.departments = departments;
+            });
     }
 
     ngOnDestroy() {
@@ -1013,6 +1023,7 @@ export class BillView implements OnInit {
         setTimeout(() => {
             if (this.journalEntryManual) {
                 this.updateSummary(this.journalEntryManual.getJournalEntryData());
+                this.lastJournalEntryData = this.journalEntryManual.getJournalEntryData();
                 const current = this.current.getValue();
                 if (current.TaxExclusiveAmountCurrency) {
                     current.TaxExclusiveAmountCurrency = current.TaxInclusiveAmountCurrency - this.sumVat;
@@ -1357,7 +1368,7 @@ export class BillView implements OnInit {
 
     public onUseWord(event) {
         const invoice = this.current.getValue();
-        if (invoice.StatusCode && invoice.StatusCode !== StatusCodeSupplierInvoice.Draft) {
+        if (invoice.StatusCode && invoice.StatusCode > StatusCodeSupplierInvoice.ForApproval) {
             return;
         }
 
@@ -1501,7 +1512,12 @@ export class BillView implements OnInit {
     public onFormChanged(change: SimpleChanges) {
 
         const model = this.current.getValue();
-        const lines = this.journalEntryManual.getJournalEntryData() || [];
+        let lines = this.journalEntryManual.getJournalEntryData() || [];
+
+        lines = lines.map(line => {
+            line.Dimensions = line.Dimensions || new Dimensions;
+            return line;
+        });
 
         if (!model) { return; }
 
@@ -1985,6 +2001,12 @@ export class BillView implements OnInit {
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
+        current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
+        current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
+        for (let i = 5; i <= 10; i++) {
+            const dimensions = result?.Dimensions || {};
+            current.DefaultDimensions[`Dimension${i}ID`] = dimensions[`Dimension${i}ID`] ||  null;
+        }
         this.current.next(current);
 
         this.setupToolbar();
@@ -2703,6 +2725,9 @@ export class BillView implements OnInit {
     }
 
     private journal(ask: boolean, href: string): Observable<boolean> {
+
+        // Call update summary to make sure sums and remainders are up to date
+        this.updateSummary(this.journalEntryManual.getJournalEntryData());
         const current = this.current.getValue();
 
         if (this.sumRemainder !== 0) {
@@ -2913,6 +2938,13 @@ export class BillView implements OnInit {
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
+        if (this.current?.value?.ID !== id) {
+            // set diff to null until the journalentry is loaded, the data is calculated correctly
+            // through the onJournalEntryManualDataLoaded event
+            this.sumVat = null;
+            this.sumRemainder = null;
+        }
+
         return new Promise((resolve, reject) => {
             const invoiceGET = this.supplierInvoiceService.Get(id, [
                 'Supplier.Info.BankAccounts',
@@ -2959,11 +2991,6 @@ export class BillView implements OnInit {
                         this.loadActionsFromEntity();
                         this.checkLockStatus();
 
-                        // set diff to null until the journalentry is loaded, the data is calculated correctly
-                        // through the onJournalEntryManualDataLoaded event
-                        this.sumVat = null;
-                        this.sumRemainder = null;
-
                         resolve('');
                     };
 
@@ -3003,10 +3030,38 @@ export class BillView implements OnInit {
         this.sumVat = sumVatAmountCurrency;
     }
 
+    public updateDimensions(lines) {
+        if (lines.length > this.lastJournalEntryData.length) { // new line at the end
+            const newLine = lines[lines.length - 1];
+            const dimensions = this.current?.getValue().DefaultDimensions;
+            const projectId = dimensions?.ProjectID;
+            const departmentId = dimensions?.DepartmentID;
+            if (projectId) {
+                newLine.Dimensions.ProjectID = projectId;
+                newLine.Dimensions.Project = this.projects.find(x => x.ID === projectId);
+            }
+            if (departmentId) {
+                newLine.Dimensions.DepartmentID = departmentId;
+                newLine.Dimensions.Department = this.departments.find(x => x.ID === projectId);
+            }
+            for (let i = 5; i < 11; i++) {
+                const dimensionID = dimensions[`Dimension${i}ID`];
+                if (dimensionID) {
+                    newLine.Dimensions[`Dimension${i}ID`] = dimensionID;
+                    newLine.Dimensions[`Dimension${i}`] = this.customDimensions
+                        .find(dimMetadata => dimMetadata.Dimension === i).Data.find(x => x.ID === dimensionID);
+                }
+            }
+        }
+        this.lastJournalEntryData = [...lines];
+        this.journalEntryManual.setJournalEntryData(this.lastJournalEntryData);
+    }
+
     public onJournalEntryManualChange(lines) {
         let changes = false;
 
         this.updateSummary(lines);
+        this.updateDimensions(lines);
         let supplierInvoice = this.current.getValue();
         if (supplierInvoice.TaxExclusiveAmountCurrency) {
             supplierInvoice.TaxExclusiveAmountCurrency = supplierInvoice.TaxInclusiveAmountCurrency - this.sumVat;
@@ -3045,13 +3100,13 @@ export class BillView implements OnInit {
             line.CurrencyExchangeRate = supplierInvoice.CurrencyExchangeRate;
 
             if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
-                line.Dimensions.Project = supplierInvoice.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = supplierInvoice.DefaultDimensions.ProjectID;
+                line.Dimensions.Project = supplierInvoice?.DefaultDimensions?.Project;
+                line.Dimensions.ProjectID = supplierInvoice?.DefaultDimensions?.ProjectID;
             }
 
             if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
-                line.Dimensions.Department = supplierInvoice.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = supplierInvoice.DefaultDimensions.DepartmentID;
+                line.Dimensions.Department = supplierInvoice?.DefaultDimensions?.Department;
+                line.Dimensions.DepartmentID = supplierInvoice?.DefaultDimensions?.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {
@@ -3254,7 +3309,7 @@ export class BillView implements OnInit {
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
             this.supplierInvoiceService.fetch(
-                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox')
+                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox')
                 .subscribe((res) => {
                     if (res && res.length > 0) {
                         this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);

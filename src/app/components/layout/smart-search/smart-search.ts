@@ -10,7 +10,7 @@ import {Router} from '@angular/router';
 
 import {OverlayRef} from '@angular/cdk/overlay';
 import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
-import {_getOptionScrollPosition} from '@angular/material';
+import { _getOptionScrollPosition } from '@angular/material/core';
 
 import {Observable} from 'rxjs';
 import {FormControl} from '@angular/forms';

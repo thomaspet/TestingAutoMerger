@@ -1,5 +1,5 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
-import {IModalOptions, IUniModal} from '../../../../framework/uni-modal';
+import {IModalOptions, IUniModal} from '../../../../framework/uni-modal/interfaces';
 import {File} from '../../../unientities';
 import {UniImage, UniImageSize} from '../../../../framework/uniImage/uniImage';
 
@@ -26,7 +26,9 @@ export interface IUpdatedFileListEvent {
                     (fileListReady)="fileListReady($event)"
                 ></uni-image>
             </article>
-            <footer></footer>
+            <footer>
+                <button class="secondary" (click)="close()">Lukk</button>
+            </footer>
         </section>
     `,
     styles: [`
@@ -39,7 +41,7 @@ export class ImageModal implements IUniModal {
     private files: any;
     private singleImage: boolean = true;
 
-    @ViewChild(UniImage, { static: false })
+    @ViewChild(UniImage)
     public uniImage: UniImage;
 
     @Output()

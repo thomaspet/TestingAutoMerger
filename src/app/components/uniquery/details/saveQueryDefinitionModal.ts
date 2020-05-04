@@ -197,7 +197,7 @@ export class SaveQueryDefinitionForm implements OnInit {
     `
 })
 export class SaveQueryDefinitionModal {
-    @ViewChild(UniModal, { static: false }) public modal: UniModal;
+    @ViewChild(UniModal) public modal: UniModal;
 
     @Output() public saved: EventEmitter<UniQueryDefinition> = new EventEmitter<UniQueryDefinition>();
     @Output() public cancelled: EventEmitter<any> = new EventEmitter<boolean>();

@@ -1,19 +1,13 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {LibraryImportsModule} from '@app/library-imports.module';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
-import {MatProgressSpinnerModule, MatCheckboxModule} from '@angular/material';
 import {Autocomplete} from './autocomplete';
 import {ClickOutsideModule} from '@uni-framework/click-outside/click-outside.module';
 
 @NgModule({
     imports: [
-        CommonModule,
-        FormsModule,
-        ReactiveFormsModule,
+        LibraryImportsModule,
         InputDropdownModule,
-        MatProgressSpinnerModule,
-        MatCheckboxModule,
         ClickOutsideModule,
     ],
     declarations: [Autocomplete],

@@ -48,7 +48,6 @@ import {
     PaymentInfoTypeService,
     ModulusService,
     AccrualService,
-    createGuid,
     AccountMandatoryDimensionService,
     ElsaPurchaseService
 } from '@app/services/services';
@@ -104,13 +103,13 @@ export enum CollectorStatus {
 export class InvoiceDetails implements OnInit, AfterViewInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
-    @ViewChild(TradeItemTable, { static: false }) tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
     private distributeEntityType = 'Models.Sales.CustomerInvoice';
     private isDirty: boolean;
-    private itemsSummaryData: TradeHeaderCalculationSummary;
+    itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
     private askedAboutSettingDimensionsOnItems: boolean;
@@ -155,7 +154,6 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
     reports: any[];
     accountsWithMandatoryDimensionsIsUsed = true;
 
-    lastListOfItems: CustomerInvoiceItem[] = [];
     isDistributable = false;
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
@@ -498,7 +496,7 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                 const invoice: CustomerInvoice = res[0];
                 const invoiceItems: CustomerInvoiceItem[] = res[1].map(item => {
                     if (item.Dimensions) {
-                        item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                        item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
                     }
                     return item;
                 });
@@ -672,8 +670,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
             }
-
         }
+
+        invoice.CurrencyCodeID = invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
+        this.currencyCodeID = invoice.CurrencyCodeID;
 
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
@@ -727,19 +727,20 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             shouldGetCurrencyRate = true;
         }
 
-        // update currency code in detailsForm and tradeItemTable to selected currency code if selected
-        // or from customer
+        // update currency code in detailsForm and tradeItemTable to selected currency code if selected or from customer
         if ((!this.currencyCodeID && invoice.CurrencyCodeID) || this.currencyCodeID !== invoice.CurrencyCodeID) {
             this.currencyCodeID = invoice.CurrencyCodeID;
             this.tradeItemTable.updateAllItemVatCodes(this.currencyCodeID);
             shouldGetCurrencyRate = true;
         }
 
-        if (this.invoice && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
+        if (this.invoice && this.invoice.CurrencyCodeID && invoice.CurrencyCodeID !== this.invoice.CurrencyCodeID) {
             shouldGetCurrencyRate = true;
         }
 
-        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001) || this.invoice.InvoiceType === InvoiceTypes.CreditNote) {
+        if ((this.invoice.StatusCode !== null && this.invoice.StatusCode !== 42001)
+            || this.invoice.InvoiceType === InvoiceTypes.CreditNote
+        ) {
             shouldGetCurrencyRate = false;
         }
 
@@ -1835,12 +1836,16 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
                                             .find(plan => plan.ID === this.invoice.DistributionPlanID);
 
                                         // Only show sending of invoice if plan has elementtypes
-                                        if (currentPlan && currentPlan.Elements && !currentPlan.Elements.length) {
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
                                             this.toastService.toast({
                                                 title: 'Fakturering vellykket. Faktura sendes med valgt utsendingplan.',
                                                 type: ToastType.good,
                                                 duration: 5
                                             });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'faktura blir sendt. Fjern denne planen om du ønsker å sende ut faktura.');
                                         }
 
                                         onSendingComplete();
@@ -2185,49 +2190,10 @@ export class InvoiceDetails implements OnInit, AfterViewInit {
             if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
                 this.isDirty = true;
             }
-            this.invoiceItems = this.updateDimensionsOnTradeItems(this.invoiceItems);
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
         });
-    }
-
-    updateDimensionsOnTradeItems(invoiceItems: CustomerInvoiceItem[]) {
-        if (this.lastListOfItems.length === 0 && invoiceItems.length === 0) {
-            this.lastListOfItems = [...invoiceItems];
-            return invoiceItems;
-        }
-        const newItems = invoiceItems
-            .filter(x => !this.lastListOfItems
-                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
-        const newItemsWithDimensionsFromUser = newItems.map(item => {
-            this.tradeItemTable.mapDimensionsToEntity(this.invoice.DefaultDimensions, item);
-            this.updateDimensionObjects(item);
-            return item;
-        });
-        const invoiceItemsUpdatedWithDimensionsFromUser  = invoiceItems.map(item => {
-            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
-            if (newItem) {
-                return newItem;
-            }
-            return item;
-        });
-        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
-        return invoiceItemsUpdatedWithDimensionsFromUser;
-    }
-
-    updateDimensionObjects(item) {
-        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
-        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
-        for (let i = 5; i < 11; i++) {
-            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
-            if (!dim) {
-                continue;
-            }
-            if (dim.Data.length) {
-                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.invoice.DefaultDimensions[`Dimension${i}ID`]);
-            }
-        }
     }
 
     sellInvoiceToAprila(done) {

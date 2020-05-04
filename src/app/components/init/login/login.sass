@@ -1,19 +1,30 @@
 \:host
-    display: flex
-    align-items: flex-start
-    margin-left: 10rem
-    height: 100%
+    padding-top: 3rem
+    .background
+        height: 25rem
 
-    &.ue-login
-        button.login-button
-            margin-top: 5.5rem
-    &.ext01-login
-        align-items: center
+    button.c2a
+        margin-top: 5.5rem
 
-    @media screen and (max-width: 1400px)
-        margin-left: 5rem
-    @media screen and (max-width: 1000px)
-        margin-left: 0
+    img
+        margin-right: 15rem
+
+    &.sr-login
+        padding-top: 0
+        .login-container
+            align-items: center
+            margin: auto 10vw auto auto
+            button.c2a
+                margin-top: 0
+                margin-right: 5vw
+
+            @media screen and (max-width: 1000px)
+                margin: auto auto
+                button.c2a
+                    margin-right: 0
+
+        .background
+            background-size: cover !important
 
 button.c2a
     width: 20rem

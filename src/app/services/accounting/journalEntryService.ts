@@ -2,8 +2,6 @@ import {Injectable} from '@angular/core';
 import {Account, VatType, FinancialYear, VatDeduction, InvoicePaymentData, AccountGroup, JournalEntryType, SupplierInvoice} from '../../unientities';
 import {JournalEntryData, JournalEntryExtended} from '@app/models';
 import {Observable} from 'rxjs';
-import 'rxjs/add/observable/from';
-import 'rxjs/add/operator/mergeMap';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntry, ValidationLevel, CompanySettings, JournalEntryLineDraft, LocalDate} from '../../unientities';
 import {ValidationMessage, ValidationResult} from '../../models/validationResult';
@@ -261,12 +259,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         .map(response => response.body);
     }
 
-    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
+    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string, numberSeriesID?: number) {
 
         // filter out entries with no account or no amount, the user has already approved
         // this in a dialog
         journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
-
+        journalEntryData.forEach((data) => {
+            data.NumberSeriesID = numberSeriesID
+        });
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
@@ -280,13 +280,18 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryData, existingJournalEntries);
-                    journalEntries.forEach(je => je.Description = text);
+                    journalEntries.forEach((je) => { 
+                        je.Description = text;
+                    });
 
                     return this.saveJournalEntriesAsDraft(journalEntries);
                 });
         } else {
+            
             const journalEntries = this.createJournalEntryObjects(journalEntryData, []);
-            journalEntries.forEach(je => je.Description = text);
+            journalEntries.forEach((je) => { 
+                je.Description = text;
+            });
 
             return this.saveJournalEntriesAsDraft(journalEntries);
         }
@@ -448,7 +453,6 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
     public createJournalEntryObjects(data: Array<JournalEntryData>, existingJournalEntries: Array<any>): Array<JournalEntryExtended> {
         let previousJournalEntryNo: string = null;
         const journalEntries: Array<JournalEntryExtended> = [];
-
         let je: JournalEntryExtended;
 
         // create new journalentries and journalentrylines for the inputdata

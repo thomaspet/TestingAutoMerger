@@ -9,7 +9,8 @@ import {
 import {FormControl} from '@angular/forms';
 import {OverlayRef} from '@angular/cdk/overlay';
 import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
-import {_getOptionScrollPosition, throwMatDialogContentAlreadyAttachedError} from '@angular/material';
+import { _getOptionScrollPosition } from '@angular/material/core';
+import { throwMatDialogContentAlreadyAttachedError } from '@angular/material/dialog';
 
 import {Observable, Subject} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';

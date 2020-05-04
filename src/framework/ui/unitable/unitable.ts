@@ -68,10 +68,10 @@ export class UniTable implements OnChanges {
     @Output() public editModeChange: EventEmitter<boolean> = new EventEmitter();
     @Output() public cellFocus: EventEmitter<any> = new EventEmitter();
 
-    @ViewChild(UnitableEditor, { static: false }) private editor: UnitableEditor;
-    @ViewChild(UnitableContextMenu, { static: false }) private contextMenu: UnitableContextMenu;
-    @ViewChild('tbody', { static: false }) private tbody: any;
-    @ViewChild('pager', { static: false }) private pager: UniTablePagination;
+    @ViewChild(UnitableEditor) private editor: UnitableEditor;
+    @ViewChild(UnitableContextMenu) private contextMenu: UnitableContextMenu;
+    @ViewChild('tbody') private tbody: any;
+    @ViewChild('pager') private pager: UniTablePagination;
 
     private configStoreKey: string;
     private remoteData: boolean = false;

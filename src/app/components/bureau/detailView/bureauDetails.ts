@@ -1,20 +1,5 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {BureauAccountingTab} from './bureauAccountingTab';
-import {BureauSalaryTab} from './bureauSalaryTab';
-import {BureauSalesTab} from './bureauSalesTab';
-import {BureauHoursTab} from './bureauHoursTab';
-import {BureauCompanyTab} from './bureauCompanyTab';
-import {BureauTaskTab} from './bureauTasksTab';
-import { IUniTab } from '@uni-framework/uni-tabs';
-
-export const TABS = [
-    BureauTaskTab,
-    BureauCompanyTab,
-    BureauAccountingTab,
-    BureauSalaryTab,
-    BureauSalesTab,
-    BureauHoursTab,
-];
+import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'uni-dashboard-detail-view',

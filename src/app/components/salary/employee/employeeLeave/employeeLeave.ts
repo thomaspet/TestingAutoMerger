@@ -17,7 +17,7 @@ export class EmployeeLeaves extends UniView {
     private employments: Employment[] = [];
     public employeeleaveItems: EmployeeLeave[] = [];
     public tableConfig: UniTableConfig;
-    private unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    public unsavedEmployments$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private companysalarySettings: CompanySalary;
 
     constructor(

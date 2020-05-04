@@ -9,7 +9,7 @@
         "Model": "JournalEntryLine",
         "OrderBy": "ID desc",
         "Expand": "JournalEntryType",
-        "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID",
+        "Joins": "JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and JournalEntryLine.CreatedBy eq User.GlobalIdentity",
         "Columns": [
             {
                 "Header": "Bnr.",
@@ -42,8 +42,7 @@
             },
             {
                 "Header": "Reskontronr.",
-                "Field": "SubAccount.AccountNumber",
-                "DefaultHidden": true
+                "Field": "SubAccount.AccountNumber"
             },
             {
                 "Header": "Reskontro",
@@ -114,13 +113,11 @@
             },
             {
                 "Header": "Mva rapportert",
-                "Field": "VatReport.TerminPeriod.No",
-                "DefaultHidden": true
+                "Field": "VatReport.TerminPeriod.No"
             },
             {
                 "Header": "Fakturanr.",
-                "Field": "InvoiceNumber",
-                "DefaultHidden": true
+                "Field": "InvoiceNumber"
             },
             {
                 "Header": "Forfall",
@@ -147,7 +144,7 @@
             {
                 "Header": "Prosjektnr.",
                 "Field": "Dimensions.Project.ProjectNumber",
-                "DefaultHidden": false
+                "DefaultHidden": true
             },
             {
                 "Header": "Prosjektnavn",
@@ -157,7 +154,7 @@
             {
                 "Header": "Avdelingsnr.",
                 "Field": "Dimensions.Department.DepartmentNumber",
-                "DefaultHidden": false
+                "DefaultHidden": true
             },
             {
                 "Header": "Avdelingsnavn",
@@ -242,6 +239,22 @@
             {
                 "Header": "KID",
                 "Field": "PaymentID",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Bilagstype",
+                "Field": "JournalEntryType.DisplayName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Utført av",
+                "Field": "User.UserName",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Reg Dato",
+                "Field": "CreatedAt",
+                "Type": "date",
                 "DefaultHidden": true
             },
             {

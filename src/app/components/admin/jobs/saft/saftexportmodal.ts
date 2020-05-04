@@ -4,7 +4,7 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 
 import { BehaviorSubject, timer as observableTimer } from 'rxjs';
 import { JobService, AccountService, ErrorService } from '@app/services/services';
-import { MatStepper } from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 
 const JOBNAME: string = 'ExportSaft';
 

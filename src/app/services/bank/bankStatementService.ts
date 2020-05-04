@@ -2,11 +2,10 @@ import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
 import {BankStatement, BankStatementMatch} from '@uni-entities';
 import * as moment from 'moment';
-import { BankStatementEntryService } from './bankStatementEntryService';
 
 @Injectable()
 export class BankStatementService extends BizHttp<BankStatement> {
-    constructor(http: UniHttp, private entryService: BankStatementEntryService) {
+    constructor(http: UniHttp) {
         super(http);
         this.relativeURL = BankStatement.RelativeUrl;
         this.entityType = BankStatement.EntityType;

@@ -1,17 +1,16 @@
 import {Component, OnDestroy} from '@angular/core';
-import {UniView} from '../../../../framework/core/uniView';
+import {UniView} from '@uni-framework/core/uniView';
 import {ActivatedRoute, Router} from '@angular/router';
-import {IUniSaveAction} from '../../../../framework/save/save';
+import {IUniSaveAction} from '@uni-framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {Observable} from 'rxjs';
 import {Subscription} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {SalaryBalance, SalBalType} from '../../../unientities';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
+import {SalaryBalance} from '../../../unientities';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
+import {IContextMenuItem} from '@uni-framework/ui/unitable';
 import {SalaryBalanceLineModal} from './modals/salBalLineModal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
 import {SalaryBalanceViewService} from './services/salaryBalanceViewService';
 import {
     UniCacheService,

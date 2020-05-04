@@ -3,7 +3,7 @@ import {Router} from '@angular/router';
 import {IMatchEntry} from '@app/services/services';
 import {trigger, style, transition, animate, group} from '@angular/animations';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {ImageModal} from '../../common/modals/ImageModal';
+import {ImageModal} from '@app/components/common/modals/ImageModal';
 
 @Pipe({name: 'reconciliationItemFilter', pure: true})
 export class FilterPipe implements PipeTransform {
@@ -94,4 +94,5 @@ export class BankStatementEntries {
 
         this.modalService.open(ImageModal, {data: modalOptions});
     }
+
 }

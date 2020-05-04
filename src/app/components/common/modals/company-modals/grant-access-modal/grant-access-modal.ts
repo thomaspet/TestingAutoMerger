@@ -1,7 +1,7 @@
 import {Component, ViewChild, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaCustomer, ElsaUserLicense} from '@app/models';
-import {MatStepper} from '@angular/material';
+import { MatStepper } from '@angular/material/stepper';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
 
 import {ExecuteForBulkAccess} from './5.execute';
@@ -29,8 +29,8 @@ export interface GrantAccessData {
     styleUrls: ['./grant-access-modal.sass']
 })
 export class GrantAccessModal implements IUniModal {
-    @ViewChild(MatStepper, { static: false }) stepper: MatStepper;
-    @ViewChild(ExecuteForBulkAccess, { static: false }) confirmAndExecuteView: ExecuteForBulkAccess;
+    @ViewChild(MatStepper) stepper: MatStepper;
+    @ViewChild(ExecuteForBulkAccess) confirmAndExecuteView: ExecuteForBulkAccess;
 
     options: IModalOptions = {};
     onClose: EventEmitter<void> = new EventEmitter<void>();

@@ -57,11 +57,10 @@ import {JournalEntryMode} from '../../../../services/accounting/journalEntryServ
 import {
     UniModalService,
     UniConfirmModalV2,
-    ConfirmActions
-} from '../../../../../framework/uni-modal';
+    ConfirmActions,
+    FileFromInboxModal
+} from '@uni-framework/uni-modal';
 import * as _ from 'lodash';
-import { FileFromInboxModal } from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
-import { fork } from 'child_process';
 
 @Component({
     selector: 'journal-entry-manual',
@@ -87,7 +86,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     @Output() public dataChanged: EventEmitter<any> = new EventEmitter<any>();
     @Output() public dataLoaded: EventEmitter<any> = new EventEmitter<any>();
 
-    @ViewChild(UniTable, { static: false }) private openPostsTable: UniTable;
+    @ViewChild(UniTable) private openPostsTable: UniTable;
     @ViewChild(JournalEntryProfessional, { static: true })
 
     public journalEntryProfessional: JournalEntryProfessional;
@@ -350,13 +349,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     public onFileListReady(files) {
-        if (this.journalEntryID > 0) {
-            // don't look for changes if this is a presaved journalentry - we wont
-            // persist the changes anyway, it this analysis could cause incorrect
-            // dirty checking if the API is slow or the user really fast
-            return;
-        }
-
         const fileIds: number[] = [];
 
         files.forEach(file => {

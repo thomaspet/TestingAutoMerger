@@ -34,7 +34,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
 @Component({
     selector: 'employment-details',
     template: `
-        <section *ngIf="employment" [attr.aria-busy]="busy">
+        <section *ngIf="employment">
             <uni-form [config]="config$"
                       [fields]="fields$"
                       [model]="employment$"
@@ -45,7 +45,7 @@ const UPDATE_RECURRING = '_updateRecurringTranses';
     `
 })
 export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
-    @ViewChild(UniForm, { static: false }) private form: UniForm;
+    @ViewChild(UniForm) private form: UniForm;
 
     @Input() public employment: Employment;
     @Input() private employee: Employee;
@@ -58,7 +58,7 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     private formReady: boolean;
-    private employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
+    public employment$: BehaviorSubject<Employment> = new BehaviorSubject(new Employment());
     private searchCache: any[] = [];
     private jobCodeDefaultData: Observable<any>;
     private companySalarySettings: CompanySalary;
@@ -360,6 +360,18 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
             this.employeeChange.emit(this.employee);
         }
 
+        if (changes['RegulativeGroupID'] && !employment.RegulativeGroupID){
+            this.modalService.confirm({
+                header: 'Fjerne regulativ',
+                message: 'Sats i feltet månedslønn/timelønn endres ikke selv om kobling mot regulativ fjernes. ' +
+                'Endringen av satser må skje ved å endre direkte i felt for måneds- og timelønn',
+                buttonLabels: { accept: 'Ok' },
+            });
+            employment.RegulativeStepNr = 0;
+            this.employment$.next(employment);
+            this.employmentChange.emit(employment);
+        }
+
         if (changes['RegulativeGroupID'] || changes['RegulativeStepNr']) {
             fields.find(f => f.Property === 'RegulativeStepNr').ReadOnly = !employment.RegulativeGroupID;
             fields.find(f => f.Property === 'MonthRate').ReadOnly = !!employment.RegulativeStepNr;
@@ -463,7 +475,7 @@ export class EmploymentDetails implements OnChanges, OnInit, OnDestroy {
     }
 
     getRegulativeMonthRate(employment: Employment) {
-        if (!employment.RegulativeStepNr) {
+        if (!employment.RegulativeStepNr || !employment.RegulativeGroupID) {
             return of(0);
         }
         return this.employmentService

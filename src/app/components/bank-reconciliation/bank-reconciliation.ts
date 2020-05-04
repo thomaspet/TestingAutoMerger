@@ -155,6 +155,7 @@ export class BankReconciliation {
 
         const openModal = () => {
             this.modalService.open(BankStatementJournalModal, {
+                closeOnEscape: false,
                 data: {
                     bankAccounts: this.bankAccounts,
                     selectedAccountID: this.selectedBankAccount.AccountID,
@@ -167,7 +168,7 @@ export class BankReconciliation {
                     this.checkSuggest();
                 });
             });
-        }
+        };
 
         if (this.session.closedGroups.length) {
             const msg = `Du har ${this.session.closedGroups.length} kobling${this.session.closedGroups.length > 1 ? 'er ' : ' '}` +
@@ -270,7 +271,10 @@ export class BankReconciliation {
                 const toDate = moment(this.bankPeriod).endOf('month').toDate();
                 this.pageStateService.setPageState('accountid', this.selectedBankAccount.AccountID.toString());
                 this.session.load(fromDate, toDate, this.selectedBankAccount.AccountID, this.reconcileStartDate)
-                    .finally( () => { this.cleanUp = false; this.loaded = true; } )
+                    .finally(() => {
+                        this.cleanUp = false;
+                        this.loaded = true;
+                    })
                     .subscribe(() => this.checkSuggest());
             }
         };

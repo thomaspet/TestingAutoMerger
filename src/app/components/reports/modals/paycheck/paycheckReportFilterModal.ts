@@ -8,8 +8,7 @@ import {
     PayrollrunService,
     EmployeeService
 } from '../../../../services/services';
-import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {UniPreviewModal} from '../preview/previewModal';
+import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
@@ -137,7 +136,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     template: `<uni-modal *ngIf="!inActive" [type]='type' [config]='modalConfig'></uni-modal>`
 })
 export class PayCheckReportFilterModal implements OnInit {
-    @ViewChild(UniModal, { static: false })
+    @ViewChild(UniModal)
     private modal: UniModal;
 
     public modalConfig: IModalConfig;

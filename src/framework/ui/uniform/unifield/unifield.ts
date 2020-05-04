@@ -29,7 +29,7 @@ export class UniField {
     @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @HostBinding('class') cssClasses = '';
-    @ViewChild('selectedComponent', { static: false }) public component: any;
+    @ViewChild('selectedComponent') public component: any;
 
     public classes: (string | Function)[] = [];
     public asideGuid: string = 'unifield-' + performance.now();
@@ -249,8 +249,8 @@ export class UniField {
      */
     public onMultivalueMoveForward(action) {
         if (!this.field.isLast && action.event) {
-            event.preventDefault();
-            event.stopPropagation();
+            action.event.preventDefault();
+            action.event.stopPropagation();
         }
         this.moveForwardEvent.emit(action);
     }

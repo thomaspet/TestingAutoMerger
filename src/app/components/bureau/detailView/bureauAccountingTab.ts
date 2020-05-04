@@ -14,9 +14,8 @@ import {Subscription} from 'rxjs';
 import {AuthService} from '../../../authService';
 import {ErrorService} from '../../../services/common/errorService';
 import {BureauCurrentCompanyService} from '../bureauCurrentCompanyService';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '@app/components/reports/modals/parameter/reportParamModal';
-import {UniPreviewModal} from '@app/components/reports/modals/preview/previewModal';
 import {ReportDefinitionService, FinancialYearService} from '@app/services/services';
 import {ToastService} from '@uni-framework/uniToast/toastService';
 

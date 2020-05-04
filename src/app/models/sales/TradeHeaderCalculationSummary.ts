@@ -14,4 +14,5 @@ export class TradeHeaderCalculationSummary {
     public SumNoVatBasisCurrency: number;
     public SumDiscountCurrency: number;
     public DecimalRoundingCurrency: number;
+    public DekningsGrad: number;
 }

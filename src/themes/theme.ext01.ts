@@ -13,7 +13,7 @@ export const theme = {
         illustration: 'themes/ext01/register-company-background.svg',
         background: '#ebf6fb',
         login_background: 'url(themes/ext01/login_background.png)',
-        backgroundHeight: '100%',
+        login_background_height: '100%',
     },
 
     widgets: {

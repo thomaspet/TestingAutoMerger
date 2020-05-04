@@ -1,5 +1,5 @@
 import { OnInit, Component, Output, EventEmitter, Input } from '@angular/core';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal/interfaces';
 import { Product } from '@uni-entities';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/config/unitableColumn';

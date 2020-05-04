@@ -1,11 +1,7 @@
 import {NgModule} from '@angular/core';
-import {CommonModule} from '@angular/common';
 import {RouterModule} from '@angular/router';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {ScrollingModule} from '@angular/cdk/scrolling';
-import {MatListModule} from '@angular/material';
+import {LibraryImportsModule} from '@app/library-imports.module';
 
-import {AppPipesModule} from '@app/pipes/appPipesModule';
 import {LayoutModule} from '../layout/layoutModule';
 
 import {LicenseInfo} from './license-info';
@@ -25,17 +21,10 @@ import {DeletedCompaniesModal} from './company-list/deleted-companies-modal/dele
 import {DeleteCompanyModal} from './company-list/delete-company-modal/delete-company-modal';
 import {AppCommonModule} from '../common/appCommonModule';
 
-
 @NgModule({
     imports: [
-        CommonModule,
-        RouterModule,
-        FormsModule,
-        ReactiveFormsModule,
-        ScrollingModule,
-        MatListModule,
+        LibraryImportsModule,
         LayoutModule,
-        AppPipesModule,
         AppCommonModule,
         UniFrameworkModule,
 
@@ -66,7 +55,6 @@ import {AppCommonModule} from '../common/appCommonModule';
         AddAdminModal,
         DeletedCompaniesModal,
         DeleteCompanyModal
-    ],
-    entryComponents: [AddAdminModal, DeletedCompaniesModal, DeleteCompanyModal]
+    ]
 })
 export class LicenseInfoModule {}

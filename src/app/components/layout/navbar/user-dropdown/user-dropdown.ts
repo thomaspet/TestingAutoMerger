@@ -1,5 +1,5 @@
 import {Component, ViewChild} from '@angular/core';
-import {MatMenuTrigger} from '@angular/material';
+import {MatMenuTrigger} from '@angular/material/menu';
 import {UserDto} from '@app/unientities';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';

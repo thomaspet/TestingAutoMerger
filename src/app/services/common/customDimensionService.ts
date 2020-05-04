@@ -78,29 +78,32 @@ export class CustomDimensionService {
             .map(res => res.body);
     }
 
-    public mapDimensions(dims) {
-        const info = dims.Info[0];
-        if (dims.ProjectID) {
-            dims.Project = {
-                ProjectNumber: info.ProjectNumber,
-                Name: info.ProjectName
-            };
-        }
-        if (dims.DepartmentID) {
-            dims.Department = {
-                DepartmentNumber: info.DepartmentNumber,
-                Name: info.DepartmentName
-            };
-        }
-
-        for (let i = 5; i <= 10; i++) {
-            if (dims[`Dimension${i}ID`]) {
-                dims[`Dimension${i}`] = {
-                    Number: info[`Dimension${i}Number`],
-                    Name: info[`Dimension${i}Name`]
+    public mapDimensionInfoToDimensionObject(dims) {
+        if (dims) {
+            const info = dims.Info && dims.Info[0];
+            if (dims.ProjectID && !dims.Project) {
+                dims.Project = {
+                    ProjectNumber: info.ProjectNumber,
+                    Name: info.ProjectName
                 };
             }
+            if (dims.DepartmentID && !dims.Department) {
+                dims.Department = {
+                    DepartmentNumber: info.DepartmentNumber,
+                    Name: info.DepartmentName
+                };
+            }
+
+            for (let i = 5; i <= 10; i++) {
+                if (dims[`Dimension${i}ID`] && !dims[`Dimension${i}`]) {
+                    dims[`Dimension${i}`] = {
+                        Number: info[`Dimension${i}Number`],
+                        Name: info[`Dimension${i}Name`]
+                    };
+                }
+            }
         }
+
         return dims;
     }
 }

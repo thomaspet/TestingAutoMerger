@@ -1,10 +1,12 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {environment} from 'src/environments/environment';
+import {UniRecaptcha} from './recaptcha';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -12,6 +14,7 @@ import {environment} from 'src/environments/environment';
     styleUrls: ['./signup.sass']
 })
 export class Signup {
+    @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
     appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
     confirmationCode: string;
     busy: boolean;
@@ -27,6 +30,10 @@ export class Signup {
     step2Successful: boolean;
     invalidConfirmationCode: boolean;
     userExists: boolean;
+    reCaptchaCode;
+
+    background = theme.init.background;
+    illustration = theme.init.illustration;
 
     constructor(
         public authService: AuthService,
@@ -39,7 +46,6 @@ export class Signup {
             Email: new FormControl('', [Validators.required, Validators.email]),
             PhoneNumber: new FormControl('', Validators.required),
             SignUpReferrer: new FormControl(window.location.href),
-            RecaptchaResponse: new FormControl('', Validators.required)
         });
 
         this.step2Form = formBuilder.group({
@@ -71,10 +77,13 @@ export class Signup {
         this.busy = true;
         this.errorMessage = '';
 
+        const body = this.step1Form.value;
+        body.RecaptchaResponse = this.reCaptchaCode;
+
         this.http.asPOST()
             .usingInitDomain()
             .withEndPoint('sign-up')
-            .withBody(this.step1Form.value)
+            .withBody(body)
             .send()
             .subscribe(
                 () => {
@@ -86,8 +95,10 @@ export class Signup {
                     this.step1Form.enable();
                     this.busy = false;
                     this.step1Successful = false;
-                    grecaptcha.reset();
-                    this.step1Form.value.RecaptchaResponse = null;
+                    this.reCaptchaCode = undefined;
+                    if (this.recaptcha) {
+                        this.recaptcha.reset();
+                    }
 
                     this.errorMessage = err && err.error && err.error.Message;
                     if (!this.errorMessage) {

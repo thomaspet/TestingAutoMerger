@@ -1,14 +1,19 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {environment} from 'src/environments/environment';
+import {tap} from 'rxjs/operators';
+import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry} from '@app/services/services';
-import {BankAccount} from '@uni-entities';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable/index';
-import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
-import {Observable} from 'rxjs';
-import { IVatType } from '@uni-framework/interfaces/interfaces';
-import { tap } from 'rxjs/operators';
-import {environment} from 'src/environments/environment';
-import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {BankAccount, BankStatementRule} from '@uni-entities';
+import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
+import {IVatType} from '@uni-framework/interfaces/interfaces';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {BankStatementRulesModal} from '../bank-statement-rules/bank-statement-rules';
+import {BankStatementRuleService} from '@app/services/bank/bankStatementRuleService';
+import {UniModalService, FileFromInboxModal} from '@uni-framework/uni-modal';
+import {ImageModal} from '@app/components/common/modals/ImageModal';
+import {of, Observable} from 'rxjs';
+import {UnsavedAttachmentsModal} from './unsaved-journal-modal/unsaved-attachments-modal';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -28,26 +33,17 @@ export class BankStatementJournalModal implements IUniModal {
     cachedQuery = {};
     settings = { journalAsDraft: false };
 
+    matchEntries: IMatchEntry[];
+    bankStatementRules: BankStatementRule[];
+    activeItem: DebitCreditEntry;
+
     constructor(
+        private modalService: UniModalService,
         private errorService: ErrorService,
-        public session: BankJournalSession
-    ) {}
-
-    public closeEditor() {
-        return this.table.finishEdit();
-    }
-
-    import() {
-        this.closeEditor().then( () => this.save() );
-    }
-
-    save() {
-        this.busy = true;
-        this.session.save(this.settings.journalAsDraft)
-            .finally( () => this.busy = false)
-            .subscribe( x => {
-            this.onClose.emit(x);
-        }, err => this.errorService.handle(err));
+        private ruleService: BankStatementRuleService,
+        public session: BankJournalSession,
+    ) {
+        this.loadRules();
     }
 
     ngOnInit() {
@@ -55,14 +51,15 @@ export class BankStatementJournalModal implements IUniModal {
         this.bankAccounts = data.bankAccounts;
         this.selectedAccountID = data.selectedAccountID;
 
-        const input: IMatchEntry[] = data.entries || [];
+        this.matchEntries = data.entries || [];
 
         this.busy = true;
         this.session.initialize(0, this.selectedAccountID, 'bank').subscribe(
-            res => {
-                for (let i = 0; i < input.length; i++) {
-                    this.session.addRow(this.selectedAccountID, input[i].Amount, input[i].Date, input[i].Description);
-                }
+            () => {
+                this.matchEntries.forEach(entry => {
+                    this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
+                });
+
                 this.session.ensureRowCount(5);
                 this.resetTableLayout();
                 this.busy = false;
@@ -74,11 +71,73 @@ export class BankStatementJournalModal implements IUniModal {
         );
     }
 
-    public resetTableLayout() {
-        this.tableConfig = this.createTableConfig();
+    public closeEditor() {
+        return this.table.finishEdit();
     }
 
-    public onRowSelected(event: any) {
+    private loadRules() {
+        this.ruleService.GetAll().subscribe(
+            rules => this.bankStatementRules = rules,
+            err => console.error(err)
+        );
+    }
+
+    openJournalingRulesModal() {
+        this.modalService.open(BankStatementRulesModal).onClose.subscribe(rulesChanged => {
+            if (rulesChanged) {
+                this.loadRules();
+            }
+        });
+    }
+
+    runRule(rule: BankStatementRule) {
+        this.ruleService.run(rule.ID, <any> this.matchEntries).subscribe(
+            lines => this.session.addJournalingLines(lines),
+            err => console.error(err)
+        );
+    }
+
+    runAllRules() {
+        this.ruleService.runAll(<any> this.matchEntries).subscribe(
+            lines => this.session.addJournalingLines(lines),
+            err => console.error(err)
+        );
+    }
+
+    closeWithoutSaving() {
+        this.canDeactivate().subscribe(canClose => {
+            if (canClose) {
+                this.onClose.emit();
+            }
+        });
+    }
+
+    // Used by modalService! Don't remove unless you know you're supposed to
+    canDeactivate(): Observable<boolean> {
+        const hasAttachments = this.session.items.some(item => item.files && item.files.length > 0);
+        if (hasAttachments) {
+            return this.modalService.open(UnsavedAttachmentsModal, {
+                data: this.session.items
+            }).onClose;
+        }
+
+        return of(true);
+    }
+
+    save() {
+        this.closeEditor().then(() => {
+            this.busy = true;
+            this.session.save(this.settings.journalAsDraft).subscribe(
+                res => this.onClose.emit(res),
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                });
+        });
+    }
+
+    public resetTableLayout() {
+        this.tableConfig = this.createTableConfig();
     }
 
     public onRowDeleted(event: any) {
@@ -115,7 +174,7 @@ export class BankStatementJournalModal implements IUniModal {
                 .setWidth('6rem').setAlignment('right').setConditionalCls( x => x.Amount >= 0 ? 'number-good' : 'number-bad'),
 
             new UniTableColumn('Description', 'Beskrivelse')
-                .setWidth('20%').setMaxLength(500),
+                .setMaxLength(500),
 
             this.createLookupColumn('Project', 'Prosjekt', 'Project',
                 x => this.lookupAny(x, 'projects', 'projectnumber'), 'ProjectNumber' )
@@ -123,15 +182,30 @@ export class BankStatementJournalModal implements IUniModal {
 
             this.createLookupColumn('Department', 'Avdeling', 'Department',
                 x => this.lookupAny(x, 'departments', 'departmentnumber'), 'DepartmentNumber' )
-                .setWidth('6rem').setVisible(false)
+                .setWidth('6rem').setVisible(false),
 
+            new UniTableColumn('files', 'Vedlegg', UniTableColumnType.Attachment)
+                .setOptions({
+                    addFromInboxHandler: () => this.modalService.open(FileFromInboxModal).onClose,
+                    previewHandler: (fileID) => {
+                        this.modalService.open(ImageModal, {
+                            header: 'Vedlegg',
+                            data: {
+                                fileIDs: [fileID],
+                                readonly: true
+                            }
+                        });
+                    }
+                })
         ]);
+
         cfg.deleteButton = true;
         cfg.autoAddNewRow = true;
         cfg.columnMenuVisible = true;
         cfg.setChangeCallback( x => this.onEditChange(x) );
         cfg.autoScrollIfNewCellCloseToBottom = true;
         cfg.defaultRowData = new DebitCreditEntry();
+
         return cfg;
     }
 
@@ -199,7 +273,7 @@ export class BankStatementJournalModal implements IUniModal {
 
         const cache = this.cachedQuery[lcaseText];
         if (cache) {
-            return Observable.from([cache]);
+            return of(cache);
         }
 
         let filter = '';
@@ -209,22 +283,33 @@ export class BankStatementJournalModal implements IUniModal {
             filter = `( contains(keywords,'${lcaseText}') or contains(Description,'${lcaseText}')`
             + ` or contains(accountname,'${lcaseText}') )`;
         }
-        return this.session
-            .query('accounts', 'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description'
-                , 'filter', filter, 'orderby', 'AccountNumber', 'top', 50)
-                .pipe(tap(res => { this.cachedQuery[lcaseText] = res; }));
+        return this.session.query(
+            'accounts',
+            'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description',
+            'filter', filter,
+            'orderby', 'AccountNumber',
+            'top', 50
+        ).pipe(tap(res => this.cachedQuery[lcaseText] = res));
     }
 
-    public lookupVatType(txt: string) {
-        const list = this.session.vatTypes;
-        const lcaseText = txt.toLowerCase();
-        const sublist = list.filter((item: IVatType) => {
-            return (item.VatCode.toString() === txt || item.Name.toLowerCase().indexOf(lcaseText) >= 0); } );
-        return Observable.from([sublist]);
+    public lookupVatType(query: string) {
+        const lcaseText = query.toLowerCase();
+        const vatTypes = this.session.vatTypes.filter((item: IVatType) => {
+            return item.VatCode.toString() === query
+                || item.VatPercent.toString() === query
+                || item.Name.toLowerCase().indexOf(lcaseText) >= 0;
+        });
+
+        return of(vatTypes);
     }
 
-    public lookupAny(txt: string, route: string = 'projects',
-                     visualIdcol: string = 'id', nameCol: string = 'name', expand?: string) {
+    public lookupAny(
+        txt: string,
+        route: string = 'projects',
+        visualIdcol: string = 'id',
+        nameCol: string = 'name',
+        expand?: string
+    ) {
         let filter = '', orderBy = nameCol;
         const filtered = filterInput(txt);
         let select = 'id,' + nameCol;
@@ -240,11 +325,13 @@ export class BankStatementJournalModal implements IUniModal {
         }
         select = visualIdcol === 'id' ? select : select + ',' + visualIdcol;
 
-        return this.session.query(route,
+        return this.session.query(
+            route,
             'select', select,
             'orderby', orderBy,
             'top', '50',
-            'filter', filter, 'expand', expand);
+            'filter', filter, 'expand', expand
+        );
     }
 
 }

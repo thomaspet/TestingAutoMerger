@@ -4,7 +4,6 @@ import {Subject} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {takeUntil} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
-import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-init',
@@ -15,9 +14,6 @@ export class UniInit {
     showTryForFree = true;
 
     isSrEnvironment = environment.isSrEnvironment;
-    illustration: string;
-    background: string;
-    backgroundHeight = theme.init.backgroundHeight;
 
     private onDestroy$ = new Subject();
 
@@ -27,14 +23,6 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-                if (event.url.includes('login') && theme.init.login_background) {
-                    this.background = theme.init.login_background;
-                    this.illustration = undefined;
-                } else {
-                    this.background = theme.init.background;
-                    this.illustration = theme.init.illustration;
-                }
-
                 // Only showing the link in SR env for now. Might also be made visible for UE users later.
                 this.showTryForFree = this.isSrEnvironment && !event.url.includes('sign-up');
             }

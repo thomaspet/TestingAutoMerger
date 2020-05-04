@@ -1,5 +1,4 @@
 <ng-template [ngIf]="recurringPosts">
-    <small *ngIf="!employeeID">Ansatt må lagres før faste poster kan registreres<br><br></small>
     <small *ngIf="unsavedEmployments$ | async">
         Det finnes ulagrede arbeidsforhold. Disse vil ikke kunne benyttes før du har lagret.<br><br>
     </small>

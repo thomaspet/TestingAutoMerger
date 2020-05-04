@@ -108,7 +108,7 @@ export class UniTableRow implements OnChanges {
     @ViewChildren('rowColumn')
     private cells: QueryList<ElementRef>;
 
-    @ViewChild('contextMenuCell', { static: false })
+    @ViewChild('contextMenuCell')
     private contextMenuCell: ElementRef;
 
     public uniTablePipe: UniTablePipe = new UniTablePipe();

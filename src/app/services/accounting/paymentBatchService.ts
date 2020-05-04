@@ -89,13 +89,13 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .map(response => response.body);
     }
 
-    public SendToPayment(password: string, paymentBatchID: number): Observable<any> {
+    public sendToPayment(batchID: number, body): Observable<any> {
         super.invalidateCache();
         return this.http
             .asPUT()
             .usingBusinessDomain()
-            .withBody(password)
-            .withEndPoint(this.relativeURL + '?action=send-to-payment&fileId=' + paymentBatchID)
+            .withBody(body)
+            .withEndPoint(this.relativeURL + '?action=send-batch-to-payment&batchID=' + batchID)
             .send()
             .map(response => response.body);
     }

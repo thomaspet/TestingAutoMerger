@@ -1,0 +1,45 @@
+<section #trigger class="attachment-toggle">
+    <span *ngIf="items?.length > 0">
+        <span>{{items.length}} vedlegg</span>
+    </span>
+
+    <span *ngIf="!items?.length" class="no-attachments">
+        Ingen vedlegg
+    </span>
+
+    <i class="material-icons">expand_more</i>
+</section>
+
+<dropdown-menu [trigger]="trigger" [minWidth]="'12rem'" [alignRight]="true" >
+    <ng-template>
+        <section *ngIf="busy" class="spinner-container">
+            <mat-spinner [diameter]="25" class="c2a"></mat-spinner>
+        </section>
+
+        <section *ngFor="let item of items; let idx = index" (click)="onItemClick(item)" class="dropdown-menu-item">
+            <span class="file-name">{{getItemLabel(item)}}</span>
+
+            <i class="material-icons delete-icon"
+                *ngIf="!options?.suppressDelete"
+                (click)="$event.stopPropagation(); deleteFile(idx)"
+                role="button"
+                aria-label="Remove file">
+                close
+            </i>
+        </section>
+
+        <input #fileInput type="file" (change)="onFileAdded($event)" (click)="$event.stopPropagation()">
+
+        <section (click)="$event.stopPropagation(); fileInput.click()" class="dropdown-menu-item">
+            <i class="material-icons upload-icon">cloud_upload</i>
+            Last opp fil
+        </section>
+
+        <section *ngIf="options?.addFromInboxHandler"
+            (click)="addFromInbox()"
+            class="dropdown-menu-item">
+            <i class="material-icons from-inbox-icon">mail_outline</i>
+            Hent fra innboks
+        </section>
+    </ng-template>
+</dropdown-menu>

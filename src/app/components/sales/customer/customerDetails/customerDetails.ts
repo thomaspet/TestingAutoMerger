@@ -96,9 +96,9 @@ const isNumber = (value) => _.reduce(value, (res, letter) => {
     templateUrl: './customerDetails.html'
 })
 export class CustomerDetails implements OnInit {
-    @ViewChild(UniForm, { static: false }) public form: UniForm;
-    @ViewChild(LedgerAccountReconciliation, { static: false }) private postpost: LedgerAccountReconciliation;
-    @ViewChild(ReminderSettings, { static: false }) public reminderSettings: ReminderSettings;
+    @ViewChild(UniForm) public form: UniForm;
+    @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
+    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
     @ViewChild(SubCompanyComponent, { static: true }) private subCompany: SubCompanyComponent;
 
     private customerID: any;
@@ -1541,10 +1541,16 @@ export class CustomerDetails implements OnInit {
                     Legend: 'Avtaler faktura',
                     Section: 0,
                     Tooltip: {
-                        Text: 'Kun repeterende fakturaer kan sendes som AvtaleGiro. Husk at utsendelsesplanen for faktura (enten på' +
-                        ' Innstillinger eller evt denne kunden) må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse' +
-                        ' som prioritet 2. Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer' +
-                        ' sendes med valget i prioritet 2'
+                        Text: (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                            'Kun repeterende fakturaer vil sendes som AvtaleGiro. ' :
+                            '') +
+                         'Husk at utsendelsesplanen for faktura (enten på Innstillinger eller evt denne kunden) ' +
+                         'må settes opp med AvtaleGiro som prioritet 1 og alternativ utsendelse som prioritet 2. ' +
+                        (!this.companySettings.AllowAvtalegiroRegularInvoice ?
+                            'Da vil alle repeterende faktura sendes som AvtaleGiro og alle andre fakturaer ' +
+                            'sendes med valget i prioritet 2' :
+                            ''
+                        )
                     }
                 },
                 {

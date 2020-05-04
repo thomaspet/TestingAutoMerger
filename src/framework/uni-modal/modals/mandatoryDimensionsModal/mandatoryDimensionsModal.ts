@@ -1,7 +1,7 @@
 import {
     Component, Input, Output, EventEmitter, OnInit
 } from '@angular/core';
-import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { Observable } from 'rxjs/Observable';
 import { StatusCode } from '@app/components/sales/salesHelper/salesEnums';

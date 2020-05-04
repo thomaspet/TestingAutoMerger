@@ -569,7 +569,12 @@ export class TableDataService {
                     filterString += (`${filter.operator}(${filter.field},'${filterValue}')`);
                 } else {
                     // Logical operator
-                    filterString += `${this.getFieldValue(filter.field, filter.operator)} ${filter.operator} '${filterValue}'`;
+                    if (!filter.isDate) {
+                        filterString += `${this.getFieldValue(filter.field, filter.operator)} ${filter.operator} '${filterValue}'`;
+                    } else {
+                        // Because some fields like CreatedAt has time in the value
+                        filterString += this.getDateFilterString(filter, filterValue);
+                    }
                 }
             }
         });
@@ -582,8 +587,22 @@ export class TableDataService {
         if (filterString !== '') {
             filterString = `( ${filterString} )`;
         }
-
         return filterString;
+    }
+
+    private getDateFilterString(filter, filterValue) {
+        const date = moment(filterValue, 'YYYY-MM-DD').format('YYYY-MM-DD');
+        const nextDay =  moment(filterValue, 'YYYY-MM-DD').add(1, 'days').format('YYYY-MM-DD');
+
+        if (filter.operator === 'eq') {
+            return `(${filter.field} ge '${date}' and ${filter.field} lt '${nextDay}')`;
+        } else if (filter.operator === 'ne') {
+            return `(${filter.field} lt '${date}' or ${filter.field} ge '${nextDay}')`;
+        } else if (filter.operator === 'le') {
+            return `(${filter.field} lt '${nextDay}')`;
+        } else {
+            return `(${filter.field} ${filter.operator} '${date}')`;
+        }
     }
 
     private getFieldValue(field, operator) {

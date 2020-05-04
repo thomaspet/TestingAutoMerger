@@ -13,8 +13,8 @@ export class PaymentService extends BizHttp<Payment> {
         this.DefaultOrderBy = null;
     }
 
-    public createPaymentBatchForAll() {
-        return super.PostAction(null, 'create-payment-batch-for-all-payments', 'acceptjob=true');
+    public createPaymentBatchForAll(isManual: boolean = false) {
+        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}`);
     }
 
     public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {
@@ -23,7 +23,7 @@ export class PaymentService extends BizHttp<Payment> {
             .asPOST()
             .usingBusinessDomain()
             .withBody(paymentIDs)
-            .withEndPoint(this.relativeURL + '?action=create-payment-batch')
+            .withEndPoint(this.relativeURL + `?action=create-payment-batch&isManual=${isManual}`)
             .send()
             .map(response => response.body);
     }
@@ -67,6 +67,8 @@ export class PaymentService extends BizHttp<Payment> {
                 return 'Ingen match';
             case 44019:
                 return 'Slette forespørsel';
+            case 44020:
+                return 'Skjult';
             default:
                 return 'Ukjent status: ' + statusCode;
         }
@@ -78,6 +80,17 @@ export class PaymentService extends BizHttp<Payment> {
             .usingBusinessDomain()
             .withEndPoint('/payments?action=batch-cancel-payment-claims')
             .withBody(ids)
+            .send()
+            .map(response => response.body);
+    }
+
+    public updatePaymentsToIgnore(paymentIDs: number[]) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(paymentIDs)
+            .withEndPoint('payments?action=update-payments-to-ignored')
             .send()
             .map(response => response.body);
     }

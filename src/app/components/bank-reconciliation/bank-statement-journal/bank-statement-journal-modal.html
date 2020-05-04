@@ -9,6 +9,34 @@
                 </option>
             </select>
         </label>
+
+        <section class="rules-dropdown">
+            <button #toggle class="tertiary c2a">
+                Bokføringsregler
+                <i class="material-icons">expand_more</i>
+            </button>
+
+            <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'15rem'">
+                <ng-template>
+                    <section (click)="openJournalingRulesModal()" class="dropdown-menu-item">
+                        <i style="margin: 0 .5rem 0 0" class="material-icons">edit</i>
+                        Rediger regler
+                    </section>
+
+                    <ng-container *ngIf="bankStatementRules?.length">
+                        <section (click)="runAllRules()" class="dropdown-menu-item">
+                            <i style="margin: 0 .5rem 0 0" class="material-icons">play_circle_filled</i>
+                            Kjør alle regler
+                        </section>
+
+                        <section class="dropdown-menu-header">Kjør spesifikk regel</section>
+                        <section *ngFor="let rule of bankStatementRules" (click)="runRule(rule)" class="dropdown-menu-item">
+                            {{rule.Name}}
+                        </section>
+                    </ng-container>
+                </ng-template>
+            </dropdown-menu>
+        </section>
     </header>
 
     <article>
@@ -19,10 +47,8 @@
         <ag-grid-wrapper class="compactcells"
             [resource]="session?.items"
             [config]="tableConfig"
-            (rowSelect)="onRowSelected($event)"
             (rowDelete)="onRowDeleted($event)">
         </ag-grid-wrapper>
-
     </article>
 
     <footer>
@@ -33,10 +59,10 @@
 
         <mat-checkbox [(ngModel)]="settings.journalAsDraft">Lagre som kladd</mat-checkbox>
 
-        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="secondary" (click)="closeWithoutSaving()">Avbryt</button>
 
         <button [disabled]="session?.balance && !settings.journalAsDraft" class="c2a"
-            (click)="import()">
+            (click)="save()">
             {{(settings.journalAsDraft ? 'Opprett kladd' : 'Bokfør')}}
         </button>
     </footer>

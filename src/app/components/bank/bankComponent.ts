@@ -148,6 +148,11 @@ export class BankComponent {
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44001
         },
         {
+            Code: 'ignore_payment',
+            ExecuteActionHandler: (selectedRows) => this.updatePaymentStatusToIgnore(null, selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode == 44018
+        },
+        {
             Code: 'reset_payment',
             ExecuteActionHandler: (selectedRows) => this.resetPayment(selectedRows, false),
             CheckActionIsDisabled: (selectedRow) => this.checkResetPaymentDisabled(selectedRow)
@@ -546,8 +551,27 @@ export class BankComponent {
                     this.fileUploaded(done);
                 },
                 disabled: false,
-                main: true
+                main: this.rows.length === 0 || this.filter !== "incomming_without_match" 
+            });            
+
+            this.actions.push({
+                label: 'Endre status til bokført og betalt',
+                action: (done, file) => {
+                    done('Status oppdatert');
+                    this.updatePaymentStatusToPaid(done);
+                },
+                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match" 
             });
+            
+            this.actions.push({
+                label: 'Skjul innbetalingsposter',
+                action: (done, file) => {
+                    done('Skult innbetalinger');                    
+                    this.updatePaymentStatusToIgnore(done);
+                },
+                disabled: this.rows.length === 0 || this.filter !== "incomming_without_match",
+                main: this.rows.length !== 0 || this.filter !== "incomming_without_match"               
+            });            
         }
     }
 
@@ -896,6 +920,53 @@ export class BankComponent {
         });
     }
 
+    public updatePaymentStatusToIgnore(doneHandler: (status: string) => any, data: any = null){
+        return new Promise(() => {
+            const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
+            if (rows.length === 0) {
+                this.toastService.addToast(
+                    'Ingen rader er valgt',
+                    ToastType.bad,
+                    10,
+                    'Vennligst velg hvilke linjer du vil endre, eller kryss av for alle'
+                );
+
+                if (doneHandler) {
+                    doneHandler('Oppdatering av status avbrutt');
+                }
+                return;
+            }
+
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Ignorer betalinger',
+                warning: 'Det er kun innbetalingsposten som fjernes fra listen, bilaget vil ikke krediteres.',
+                message: 'Ønsker du å kreditere posten, velg Krediter innbetaling på knappen til høyre i listen.',                
+                buttonLabels: {
+                    accept: "Ok",
+                    reject: "Avbryt"
+                }
+            });
+
+            modal.onClose.subscribe((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    const paymentIDs: number[] = [];
+                    rows.forEach(x => {
+                        paymentIDs.push(x.ID);
+                    });
+                    this.paymentService.updatePaymentsToIgnore(paymentIDs).subscribe(PaymentResponse => {
+                        this.tickerContainer.mainTicker.reloadData();
+                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3)                        
+                    });
+                } else {
+                    if (doneHandler) {
+                        doneHandler('Status oppdatering avbrutt');
+                    }
+                    return;
+                }
+            });
+        })
+    }
+
     public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null) {
         return new Promise(() => {
             const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
@@ -1234,14 +1305,15 @@ export class BankComponent {
             });
         } else {
             this.modalService.open(UniSendPaymentModal, {
-                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true , count: count}
-            }).onClose.subscribe( res => {
-                doneHandler(res);
-                if (res === 'Sendingen er fullført') {
-                    // this.toastService.addToast('Jobb startet.', ToastType.good, ToastTime.long,
-                    // 'Utbetaling satt igang, resten skjer automatisk. Dette kan ta litt tid, avhengig av antall betalinger.');
+                closeOnClickOutside: false,
+                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true, count: count}
+            }).onClose.subscribe( (res: boolean) => {
+                if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    doneHandler('');
+                } else {
+                    doneHandler('Sending avbrutt.');
                 }
             },
             err => doneHandler('Feil ved sending av autobank'));
@@ -1441,15 +1513,17 @@ export class BankComponent {
         // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
         } else if (this.agreements.length) {
             this.modalService.open(UniSendPaymentModal, {
+                closeOnClickOutside: false,
                 data: { PaymentIds: paymentIDs, hasTwoStage: this.companySettings.TwoStageAutobankEnabled }
             }).onClose.subscribe(res => {
-                doneHandler(res);
-
-                this.tickerContainer.getFilterCounts();
-                this.tickerContainer.mainTicker.reloadData();
-                this.tickerContainer.mainTicker.table.clearSelection();
-            },
-            err => doneHandler('Feil ved sending av autobank'));
+                if (res) {
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+                    doneHandler('');
+                } else {
+                    doneHandler('Sending avbrutt.');
+                }
+            });
         }
     }
 

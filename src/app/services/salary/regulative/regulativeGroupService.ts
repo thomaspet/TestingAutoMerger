@@ -1,15 +1,16 @@
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
 import { RegulativeGroup } from '@uni-entities';
 import { Injectable } from '@angular/core';
-import { ElsaPurchaseService } from '@app/services/elsa/elsaPurchasesService';
-import { switchMap, catchError } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ErrorService } from '@app/services/common/errorService';
 
 @Injectable()
 export class RegulativeGroupService extends BizHttp<RegulativeGroup> {
     constructor(
         protected http: UniHttp,
-        private elsaPurchaseService: ElsaPurchaseService,
+        private errorService: ErrorService,
     ) {
         super(http);
         this.relativeURL = RegulativeGroup.RelativeUrl;
@@ -17,14 +18,14 @@ export class RegulativeGroupService extends BizHttp<RegulativeGroup> {
     }
 
     getAll(query: string, expands: string[]) {
-        return this.elsaPurchaseService
-            .getPurchaseByProductName('LONN_UTVIDET')
+        const forbiddenCode = 403;
+        return super.GetAll(query, expands)
             .pipe(
-                catchError((err, obs) => of(null)),
-                switchMap(p => !p
-                    ? of([])
-                    : super.GetAll(query, expands)
-                )
+                catchError((err: HttpErrorResponse, obs) => (err.status === forbiddenCode)
+                    ? of(null)
+                    : this.errorService.handleRxCatch(err, obs)
+                ),
+                map(regulatives => regulatives || [])
             );
     }
 }

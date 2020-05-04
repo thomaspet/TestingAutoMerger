@@ -2,7 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {UniTableColumn, UniTableConfig, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {Period, VatReport} from '@uni-entities';
-import {PeriodDateFormatPipe} from '@app/pipes/periodDateFormatPipe';
+import {PeriodDateFormatPipe} from '@uni-framework/pipes/periodDateFormatPipe';
 import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
 import {VatReportService, ErrorService} from '@app/services/services';
@@ -42,7 +42,7 @@ export class HistoricVatReportModal implements IUniModal {
         private statisticsService: StatisticsService,
         private errorService: ErrorService
     ) {
-        this.periodDateFormat = new PeriodDateFormatPipe(this.errorService);
+        this.periodDateFormat = new PeriodDateFormatPipe();
     }
 
     public ngOnInit() {

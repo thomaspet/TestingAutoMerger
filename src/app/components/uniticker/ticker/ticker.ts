@@ -44,8 +44,7 @@ import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast
 import {ErrorService, UniTickerService, ApiModelService, ReportDefinitionService} from '../../../services/services';
 import { Observable, empty, forkJoin } from 'rxjs';
 import {ImageModal} from '../../common/modals/ImageModal';
-import {UniModalService} from '../../../../framework/uni-modal';
-import {UniPreviewModal} from '../../reports/modals/preview/previewModal';
+import {UniModalService, UniPreviewModal} from '../../../../framework/uni-modal';
 import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
 import {EmploymentStatuses} from '../../../models/employmentStatuses';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
@@ -87,7 +86,7 @@ export class UniTicker {
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
 
-    @ViewChild(AgGridWrapper, { static: false }) public table: AgGridWrapper;
+    @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
     public model: any;
 
@@ -564,7 +563,7 @@ export class UniTicker {
         }
 
         if (this.selectedFilter) {
-            const uniTableFilter = urlParams.get('filter');
+            const uniTableFilter = params.get('filter');
             let tickerFilter = this.ticker.Filter;
 
             if (this.selectedFilter.Filter) {
@@ -1011,8 +1010,8 @@ export class UniTicker {
                     }
                 }
 
-                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityType') {
-                    selects.push('EntityDisplayValue');
+                if (this.ticker.Name === 'Utsendelse' && column.Field === 'EntityDisplayValue') {
+                    selects.push('EntityType');
                 }
                 if (column.SubFields) {
                     column.SubFields.forEach(subColumn => {

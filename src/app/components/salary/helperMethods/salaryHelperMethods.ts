@@ -73,4 +73,12 @@ export class SalaryHelperMethods {
 
         return ret;
     }
+
+    public idListString(idList: number[]) {
+        let last: number;
+        if (idList.length > 1) {
+            last = idList.pop();
+        }
+        return `${idList.join(', ')}${last ? ` og ${last}` : ''}`;
+    }
 }

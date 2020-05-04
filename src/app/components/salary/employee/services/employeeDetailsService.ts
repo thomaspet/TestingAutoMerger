@@ -1,9 +1,10 @@
 import {Injectable, Type} from '@angular/core';
 import {Router} from '@angular/router';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {Employee, UniEntity, SalaryBalance} from '../../../../unientities';
-import {EmployeeService, ErrorService, SalarybalanceService} from '../../../../services/services';
-import {Observable} from 'rxjs';
+import {Employee, UniEntity, SalaryBalance, CompanySalary} from '../../../../unientities';
+import {EmployeeService, ErrorService, SalarybalanceService, CompanySalaryService} from '../../../../services/services';
+import {Observable, of} from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface ISaveInfo {
     newAfterSave: Type<UniEntity>;
@@ -11,12 +12,13 @@ export interface ISaveInfo {
 
 @Injectable()
 export class EmployeeDetailsService {
-
+    private companySalary: CompanySalary;
     constructor(
         private employeeService: EmployeeService,
         private errorService: ErrorService,
         private router: Router,
-        private salaryBalanceService: SalarybalanceService
+        private salaryBalanceService: SalarybalanceService,
+        private companySalaryService: CompanySalaryService,
     ) {}
 
     public setupToolbarSearchConfig(emp: Employee): IToolbarSearchConfig {
@@ -44,6 +46,20 @@ export class EmployeeDetailsService {
         }
 
         return Observable.of(null);
+    }
+
+    public getCompanySalary(): Observable<CompanySalary> {
+        return this.companySalary
+            ? of(this.companySalary)
+            : this.companySalaryService
+                .getCompanySalary()
+                .pipe(
+                    tap(companySalary => this.companySalary = companySalary)
+                );
+    }
+
+    public cleanUp() {
+        this.companySalary = null;
     }
 
     private createSalaryBalance(empID: number) {

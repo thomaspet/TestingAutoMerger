@@ -24,7 +24,7 @@ import { UniSearchAccountConfig } from '@app/services/services';
             </article>
 
             <footer>
-                <button class="c2a" [disabled]="!selectedID" (click)="close(selectedID)">Bøkfor valgt rad</button>
+                <button class="c2a" [disabled]="!selectedID" (click)="close(selectedID)">Bokfør valgt rad</button>
                 <button class="secondary bad" (click)="close(null)">Avbryt</button>
             </footer>
         </section>

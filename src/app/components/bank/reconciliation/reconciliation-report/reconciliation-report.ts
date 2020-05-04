@@ -1,8 +1,7 @@
 import {Component, Input} from '@angular/core';
 import {BankService, ReportDefinitionService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
-import {UniPreviewModal} from '../../../reports/modals/preview/previewModal';
+import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '../../../reports/modals/parameter/reportParamModal';
 import {Observable} from 'rxjs';
 

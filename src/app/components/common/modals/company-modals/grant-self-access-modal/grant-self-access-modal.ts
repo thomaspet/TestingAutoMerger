@@ -2,7 +2,7 @@ import {Component, EventEmitter} from '@angular/core';
 import {forkJoin} from 'rxjs';
 import {finalize} from 'rxjs/operators';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {ElsaProduct, ElsaCustomer, ElsaContract, ElsaCompanyLicense, ElsaUserLicense} from '@app/models';
+import {ElsaProduct, ElsaCustomer, ElsaContract, ElsaCompanyLicense, ElsaUserLicense, ElsaProductType} from '@app/models';
 import {
     ErrorService,
     ElsaProductService,
@@ -69,7 +69,7 @@ export class GrantSelfAccessModal implements IUniModal {
                     }
                     this.grantAccessData.companies.push(this.initData.companyLicense);
                     this.products = res[2].filter(product => {
-                        return product.ProductTypeName === 'Module'
+                        return product.ProductType === ElsaProductType.Module
                             && product.IsPerUser
                             && product.Name !== 'Complete';
                     });

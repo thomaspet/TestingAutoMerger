@@ -1,11 +1,8 @@
 import {Injectable} from '@angular/core';
-import {GuidService, NumberFormat} from '../../../services/services';
+import {GuidService, NumberFormat, CustomDimensionService} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
-    Project,
     Product,
-    ProjectTask,
-    Department,
     CompanySettings,
     VatType,
     LocalDate,
@@ -24,6 +21,7 @@ export class TradeItemHelper  {
     constructor(
         private guidService: GuidService,
         private numberFormat: NumberFormat,
+        private customDimensionService: CustomDimensionService
     ) {}
 
     public prepareItemsForSave(items) {
@@ -133,9 +131,8 @@ export class TradeItemHelper  {
             newRow.Dimensions._createguid = this.guidService.guid();
         }
 
-
-
         if (event.field === 'Product') {
+            newRow.CostPrice = null;
             if (newRow['Product']) {
                 newRow.NumberOfItems = 1;
 
@@ -146,7 +143,7 @@ export class TradeItemHelper  {
                     newRow.VatTypeID = foreignVatType.ID;
                     overrideVatType = foreignVatType;
                 }
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType);
+                this.mapProductToTradeItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType);
 
             } else {
                 newRow['ProductID'] = null;
@@ -285,7 +282,7 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings, overrideVatType: VatType) {
+    public mapProductToTradeItem(rowModel, currencyExchangeRate: number, vatTypes: Array<VatType>, settings: CompanySettings, overrideVatType: VatType) {
         const product: Product = rowModel['Product'];
 
         rowModel.AccountID = product.AccountID;
@@ -364,45 +361,38 @@ export class TradeItemHelper  {
             rowModel.Dimensions = {};
         }
 
-        if (product.Dimensions && product.Dimensions.ProjectID) {
-            rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
-            rowModel.Dimensions.Project = product.Dimensions.Project;
+        this.mapProductDimensionsToItem(rowModel);
+    }
+
+    private mapProductDimensionsToItem(item) {
+        if (!item.Product?.Dimensions) {
+            return item;
         }
 
-        if (product.Dimensions && product.Dimensions.DepartmentID) {
-            rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
-            rowModel.Dimensions.Department = product.Dimensions.Department;
+        const itemDims = item.Dimensions;
+        const productDims = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Product?.Dimensions);
+
+        if (!itemDims.ProjectID && productDims.ProjectID) {
+            itemDims.ProjectID = productDims.ProjectID;
+            itemDims.Project = productDims.Project;
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension5ID) {
-            rowModel.Dimensions.Dimension5ID = product.Dimensions.Dimension5ID;
-            rowModel.Dimensions.Dimension5 = product.Dimensions.Dimension5;
+        if (!itemDims.DepartmentID && productDims.DepartmentID) {
+            itemDims.DepartmentID = productDims.DepartmentID;
+            itemDims.Department = productDims.Department;
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension6ID) {
-            rowModel.Dimensions.Dimension6ID = product.Dimensions.Dimension6ID;
-            rowModel.Dimensions.Dimension6 = product.Dimensions.Dimension6;
+        for (let i = 5; i < 10; i++) {
+            const idKey = `Dimension${i}ID`;
+            const valueKey = `Dimension${i}`;
+            if (!itemDims[idKey] && productDims[idKey]) {
+                itemDims[idKey] = productDims[idKey];
+                itemDims[valueKey] = productDims[valueKey];
+            }
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension7ID) {
-            rowModel.Dimensions.Dimension7ID = product.Dimensions.Dimension7ID;
-            rowModel.Dimensions.Dimension7 = product.Dimensions.Dimension7;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension8ID) {
-            rowModel.Dimensions.Dimension8ID = product.Dimensions.Dimension8ID;
-            rowModel.Dimensions.Dimension8 = product.Dimensions.Dimension8;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension9ID) {
-            rowModel.Dimensions.Dimension9ID = product.Dimensions.Dimension9ID;
-            rowModel.Dimensions.Dimension9 = product.Dimensions.Dimension9;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension10ID) {
-            rowModel.Dimensions.Dimension10ID = product.Dimensions.Dimension10ID;
-            rowModel.Dimensions.Dimension10 = product.Dimensions.Dimension10;
-        }
+        item.Dimensions = itemDims;
+        return item;
     }
 
     public calculateBaseCurrencyAmounts(rowModel, currencyExchangeRate: number) {
@@ -530,8 +520,14 @@ export class TradeItemHelper  {
         sum.SumDiscountCurrency = 0;
         sum.DecimalRoundingCurrency = 0;
 
+        sum.DekningsGrad = 0;
+
         if (items) {
+            let totalCostPrice = 0;
+
             items.forEach((item) => {
+                totalCostPrice += ((item.CostPrice || item.Product && item.Product.CostPrice) || 0) * item.NumberOfItems;
+
                 sum.SumDiscount += item.Discount || 0;
                 sum.SumTotalExVat += item.SumTotalExVat || 0;
                 sum.SumTotalIncVat += item.SumTotalIncVat || 0;
@@ -553,6 +549,8 @@ export class TradeItemHelper  {
             roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
+
+            sum.DekningsGrad = ((sum.SumTotalExVat - totalCostPrice) * 100) / sum.SumTotalExVat;
         }
 
         return sum;
@@ -562,7 +560,7 @@ export class TradeItemHelper  {
         return Number(Math.round(Number.parseFloat(value + 'e' + decimals)) + 'e-' + decimals);
     }
 
-    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number) : number {
+    public getCompanySettingsNumberOfDecimals(companySettings: CompanySettings, currencyCodeID: number): number {
         if (currencyCodeID && currencyCodeID !== 1) {
             return 2;
         }

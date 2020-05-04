@@ -37,75 +37,16 @@ uni-init
             a
                 display: none
 
-
-    .init-bg
-        position: absolute
-        top: 0
-        left: 0
-        width: 100%
-        height: 25rem
-        max-height: calc(100vh - #{$init-header-height} - #{$init-footer-height})
-        overflow: hidden
-        z-index: -1
-        background-size: cover !important
-        @media screen and (max-width: 1400px)
-            height: 20rem
-
     .init-footer
         flex: 0 0 $init-footer-height
         display: flex
         justify-content: center
         align-items: center
 
-    .init-main
+    .init-content
         flex: 1
         display: flex
-        position: relative
-        padding: 2rem 2rem 0
-        justify-content: center
-
-        &.ue-init
-            padding-top: 4rem
-            @media screen and (max-height: 800px)
-                padding-top: 2rem
-            @media screen and (max-width: 1441px)
-                padding-top: 2rem
-
-        &.ext01-init
-            align-items: center
-
-        .content-container
-            flex: 0 1 auto
-
-        .illustration-container
-            flex: 0 1 40rem
-            margin-right: 6rem
-            @media screen and (max-width: 1441px)
-                margin-right: 2rem
-
-            img
-                width: 100%
-                height: auto
-
-        @media screen and (max-width: 1000px)
-            flex-direction: column
-            align-items: center
-            .illustration-container
-                margin: 2rem 0
-                flex: 0 1 auto
-                img
-                    max-height: 30vh
-
-            .init-bg
-                height: 15rem
-
-        uni-confirm-invite, uni-signup
-            display: flex
-            @media screen and (max-width: 1000px)
-                margin-left: 0
-                .authentication-component
-                    width: 45rem
-
+        flex-direction: column
     .init-footer
         font-size: 16px
         color: #787B80
@@ -204,3 +145,32 @@ uni-password-guide
         button
             width: 15rem
             margin: 2rem 0 1rem 0
+
+
+uni-signup, uni-confirm-invite, uni-login
+    display: flex
+    height: 100%
+    position: relative
+    padding-top: 2rem
+
+    .background
+        width: 100%
+        position: absolute
+        top: 0
+        left: 0
+        height: 42vh
+        z-index: -1
+
+    .content
+        display: flex
+        justify-content: center
+        width: 100%
+        padding: 2rem
+        img
+            margin-right: 10rem
+            width: 40vw
+            max-width: 40rem
+
+        @media screen and (max-width: 1000px)
+            img
+                display: none

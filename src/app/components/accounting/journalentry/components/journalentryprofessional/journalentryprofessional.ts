@@ -105,7 +105,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     @Input() public selectedNumberSeries: NumberSeries;
     @Input() public orgNumber: string;
 
-    @ViewChild(UniTable, { static: false }) table: UniTable;
+    @ViewChild(UniTable) table: UniTable;
 
     private companySettings: CompanySettings;
     private columnsThatMustAlwaysShow: string[] = ['AmountCurrency'];
@@ -2910,7 +2910,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (text === null) {
                         return completeCallback('');
                     }
-                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text)
+                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text, this.selectedNumberSeries.ID)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
 

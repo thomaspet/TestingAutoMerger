@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public Worker: Worker;
     public WorkProfile: WorkProfile;
+    public Worker: Worker;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -560,6 +560,7 @@ export class CustomerInvoiceItem extends UniEntity {
     public AccountingCost: string;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
@@ -792,6 +793,7 @@ export class CustomerOrderItem extends UniEntity {
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
@@ -930,6 +932,7 @@ export class CustomerQuoteItem extends UniEntity {
     public AccountID: number;
     public CalculateGrossPriceBasedOnNetPrice: boolean;
     public Comment: string;
+    public CostPrice: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public CurrencyCodeID: number;
@@ -2284,9 +2287,9 @@ export class SalaryBalance extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public WageTypeNumber: number;
+    public Employee: Employee;
     public Supplier: Supplier;
     public Transactions: Array<SalaryBalanceLine>;
-    public Employee: Employee;
     public Employment: Employment;
     public CustomFields: any;
 }
@@ -2806,9 +2809,6 @@ export class AccountSetup extends UniEntity {
     public Deleted: boolean;
     public ExpectedDebitBalance: boolean;
     public ID: number;
-    public IsAS: boolean;
-    public IsENK: boolean;
-    public IsMini: boolean;
     public PlanType: PlanTypeEnum;
     public SaftMappingAccountID: number;
     public UpdatedAt: Date;
@@ -2816,6 +2816,7 @@ export class AccountSetup extends UniEntity {
     public VatCode: string;
     public Visible: boolean;
     public AccountGroup: AccountGroupSetup;
+    public SaftMappingAccount: SaftMappingAccount;
     public CustomFields: any;
 }
 
@@ -3340,29 +3341,6 @@ export class Translation extends UniEntity {
 }
 
 
-export class UserVerification extends UniEntity {
-    public static RelativeUrl = 'user-verifications';
-    public static EntityType = 'UserVerification';
-
-    public _createguid: string;
-    public CompanyId: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Deleted: boolean;
-    public DisplayName: string;
-    public Email: string;
-    public ExpirationDate: Date;
-    public ID: number;
-    public StatusCode: number;
-    public UpdatedAt: Date;
-    public UpdatedBy: string;
-    public UserId: number;
-    public VerificationCode: string;
-    public VerificationDate: Date;
-    public CustomFields: any;
-}
-
-
 export class VatCodeGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroupSetup';
@@ -3707,6 +3685,7 @@ export class CompanySettings extends UniEntity {
     public CustomerCreditDays: number;
     public CustomerInvoiceReminderSettingsID: number;
     public DefaultAddressID: number;
+    public DefaultCustomerInvoiceReminderReportID: number;
     public DefaultCustomerInvoiceReportID: number;
     public DefaultCustomerOrderReportID: number;
     public DefaultCustomerQuoteReportID: number;
@@ -4770,6 +4749,7 @@ export class NumberSeries extends UniEntity {
     public Empty: boolean;
     public FromNumber: number;
     public ID: number;
+    public IsCopiedFromOtherYear: boolean;
     public IsDefaultForTask: boolean;
     public MainAccountID: number;
     public Name: string;
@@ -6042,6 +6022,29 @@ export class ProcessFileLog extends UniEntity {
     public UpdatedBy: string;
     public UserIdentity: string;
     public Company: Company;
+    public CustomFields: any;
+}
+
+
+export class UserVerification extends UniEntity {
+    public static RelativeUrl = 'user-verifications';
+    public static EntityType = 'UserVerification';
+
+    public _createguid: string;
+    public CompanyId: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DisplayName: string;
+    public Email: string;
+    public ExpirationDate: Date;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UserId: number;
+    public VerificationCode: string;
+    public VerificationDate: Date;
     public CustomFields: any;
 }
 
@@ -7819,6 +7822,7 @@ export class InvoicePaymentData extends UniEntity {
     public CurrencyCodeID: number;
     public CurrencyExchangeRate: number;
     public DimensionsID: number;
+    public FromBankAccountID: number;
     public PaymentDate: LocalDate;
     public PaymentID: string;
 }
@@ -7893,6 +7897,15 @@ export class PayrollRunInAmeldingPeriod extends UniEntity {
     public PayrollrunDescription: string;
     public PayrollrunID: number;
     public PayrollrunPaydate: Date;
+}
+
+
+export class PayAgaTaxDTO extends UniEntity {
+    public correctPennyDiff: boolean;
+    public payAga: boolean;
+    public payDate: Date;
+    public payFinancialTax: boolean;
+    public payTaxDraw: boolean;
 }
 
 
@@ -8275,6 +8288,7 @@ export class CreateCompanyDetails extends UniEntity {
     public ContractID: number;
     public CopyFiles: boolean;
     public IsTemplate: boolean;
+    public IsTest: boolean;
     public LicenseKey: string;
     public ProductNames: string;
     public TemplateCompanyKey: string;
@@ -8736,6 +8750,7 @@ export class ReconciliationStatus extends UniEntity {
 
 export class BalanceDto extends UniEntity {
     public Balance: number;
+    public BalanceInStatement: number;
     public EndDate: Date;
     public StartDate: Date;
 }
@@ -9808,6 +9823,7 @@ export enum WorkStatus{
 export enum State{
     NoOp = 0,
     BalanceCreate = 1,
+    Calculated = 2,
 }
 
 

@@ -426,7 +426,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return (salaryBalance.InstalmentType !== SalBalType.Contribution)
             && (salaryBalance.InstalmentType !== SalBalType.Outlay)
             && (salaryBalance.InstalmentType !== SalBalType.Other)
-            && (salaryBalance.InstalmentType !== SalBalType.Union);
+            && (salaryBalance.InstalmentType !== SalBalType.Union)
+            && (salaryBalance.InstalmentType !== SalBalType.Garnishment);
     }
 
     public resetFields(salaryBalance: SalaryBalance | SalaryBalanceTemplate): SalaryBalance | SalaryBalanceTemplate {
@@ -435,7 +436,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
     }
 
     public resetCreatePayment(salaryBalance: SalaryBalance | SalaryBalanceTemplate): SalaryBalance | SalaryBalanceTemplate {
-        salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance) && salaryBalance.CreatePayment;
+        salaryBalance.CreatePayment = this.isHiddenByInstalmentType(salaryBalance)
+            && salaryBalance.InstalmentType !== SalBalType.Garnishment
+            && salaryBalance.CreatePayment;
+
         return salaryBalance;
     }
 
@@ -852,7 +856,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                     Section: 0,
                     Placement: 12,
                     Options: {},
-                    Hidden: this.isHiddenByInstalmentType(salBal)
+                    Hidden: this.isHiddenByInstalmentType(salBal) || salBal.InstalmentType === SalBalType.Garnishment,
                 }
             ];
 

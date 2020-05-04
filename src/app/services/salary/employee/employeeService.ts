@@ -2,14 +2,16 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {
-    Employee, EmployeeCategory, CompanySettings, SubEntity, InternationalIDType, OtpStatus, TypeOfPaymentOtp, EmployeeTaxCard, Employment, BusinessRelation
-} from '../../../unientities';
+    Employee, EmployeeCategory, CompanySettings, SubEntity, InternationalIDType,
+    OtpStatus, TypeOfPaymentOtp, EmployeeTaxCard, Employment, BusinessRelation
+} from '@uni-entities';
 import {Observable} from 'rxjs';
 import {CompanySettingsService} from '../../common/companySettingsService';
 import {SubEntityService} from '../../common/subEntityService';
 import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {ModulusService} from '@app/services/common/modulusService';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 interface IFromToFilter {
     from: number;
@@ -100,6 +102,7 @@ export class EmployeeService extends BizHttp<Employee> {
         private companySettingsService: CompanySettingsService,
         private subEntityService: SubEntityService,
         private modulusService: ModulusService,
+        private statisticsService: StatisticsService
     ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
@@ -293,6 +296,26 @@ export class EmployeeService extends BizHttp<Employee> {
                 isWarning: warn,
             };
         };
+    }
+
+    public getEmployeeIDsAndNumbersFromSalarytransactions(payrollID: number): Observable<{ID: number, EmployeeNumber: number}[]> {
+        const query =  `model=SalaryTransaction` +
+                        `&select=EmployeeID as ID,EmployeeNumber as EmployeeNumber` +
+                        `&distinct=true` +
+                        `&filter=PayrollRunID eq ${payrollID}`;
+        return this.statisticsService.GetAllUnwrapped(query);
+    }
+
+    public getEmployeeIDsAndNumbersFromCategories(payrollID: number): Observable<{ID: number, EmployeeNumber: number}[]> {
+        const query =  `model=EmployeeCategoryLink` +
+                        `&select=EmployeeCategoryLink.EmployeeID as ID,EmployeeCategoryLink.EmployeeNumber as EmployeeNumber` +
+                        `&distinct=true` +
+                        `&filter=payrun.ID eq ${payrollID}` +
+                        `&join=EmployeeCategoryLink.EmployeeID eq SalaryTransaction.EmployeeID as trans ` +
+                        `and EmployeeCategoryLink.EmployeeCategoryID eq EmployeeCategory.ID as category ` +
+                        `and EmployeeCategory.ID eq PayrollRunCategoryLink.EmployeeCategoryID as empcategory ` +
+                        `and PayrollRunCategoryLink.PayrollRunID eq PayrollRun.ID as payrun`;
+        return this.statisticsService.GetAllUnwrapped(query);
     }
 
     public layout(layoutID: string) {
