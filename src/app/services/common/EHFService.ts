@@ -56,6 +56,11 @@ export class EHFService extends BizHttp<EHFLog> {
         });
     }
 
+    serviceMetadata(peppoladdress: string, entitytype: string) {
+        let params = `peppoladdress=${peppoladdress}&entitytype=${entitytype}`;
+        return this.GetAction(null, 'servicemetadata', params);
+    }
+
     isInvoicePrintActivated(companySettings?: CompanySettings): boolean {
         const settings = companySettings || this.companySettings$.getValue();
         if (settings) {

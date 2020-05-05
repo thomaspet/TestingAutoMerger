@@ -126,6 +126,7 @@ export class UniActivateAPModal implements IUniModal {
 
     public activate() {
         const model = this.formModel$.getValue();
+
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate EHF
@@ -135,10 +136,14 @@ export class UniActivateAPModal implements IUniModal {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
                         this.ehfService.updateActivated();
                     } else if (status === ActivationEnum.EXISTING) {
-                        this.toastService.addToast(
-                            'Aktivering på vent',
-                            ToastType.good, 10,
-                            'Org.nr. er allerede aktivert, deaktiver nåværende løsning eller kontakt support.'
+                        this.ehfService.serviceMetadata(`0192:${model.orgnumber}`, 'CustomerInvoice').subscribe(serviceMetadata => {
+                                this.toastService.addToast(
+                                    'Aktivering på vent',
+                                    ToastType.warn, 15,
+                                    `Org.nr. ${model.orgnumber} er allerede aktivert for mottak av faktura hos ${serviceMetadata.ServiceName} og dermed kan kun sending aktiveres. For å kunne aktivere mottak må dere først få deaktivert mottak i ELMA hos tjenesten som bruker aksesspunktet ${serviceMetadata.ServiceName}. Deretter forsøk igjen eller ta kontakt med support.`
+                                );   
+                            },
+                            err => this.errorService.handle(err)
                         );
                     } else {
                         this.toastService.addToast(
