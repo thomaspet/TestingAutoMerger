@@ -4,6 +4,9 @@
         <uni-image [readonly]="true" [fileIDs]="fileIDs"></uni-image>
     </section>
     <footer>
-        <uni-travel-lines [travelLines]="travelLines$ | async" (travelLinesUpdated)="linesChanged($event)"></uni-travel-lines>
+        <uni-travel-lines
+            [travelLines]="travelLines$ | async"
+            (travelLinesUpdated)="linesChanged($event)">
+        </uni-travel-lines>
     </footer>
 </article>

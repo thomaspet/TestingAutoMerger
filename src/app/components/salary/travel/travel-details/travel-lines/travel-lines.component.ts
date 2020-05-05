@@ -1,14 +1,13 @@
 import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
-import {TravelLine, WageType, Account, TravelType} from '@uni-entities';
+import {TravelLine, WageType, Account, TravelType, Travel} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {IRowChangeEvent} from '@uni-framework/ui/ag-grid/interfaces';
 import {WageTypeService, AccountService, TravelTypeService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, of, Observable} from 'rxjs';
 import {TravelLineService} from '@app/services/salary/travel/travelLineService';
 import {SalaryTransViewService} from '@app/components/salary/shared/services/salaryTransViewService';
-const DIRTY = '_isDirty';
+import { tap, map, switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-travel-lines',
@@ -16,7 +15,6 @@ const DIRTY = '_isDirty';
     styleUrls: ['./travel-lines.component.sass']
 })
 export class TravelLinesComponent implements OnInit {
-
     @Input() public travelLines: TravelLine[] = [];
     @Output() public travelLinesUpdated: EventEmitter<TravelLine[]> = new EventEmitter();
     private wageTypes$: BehaviorSubject<WageType[]> = new BehaviorSubject(null);
@@ -40,11 +38,16 @@ export class TravelLinesComponent implements OnInit {
             .GetAll('')
             .subscribe(tt => this.travelTypes$.next(tt));
 
-        this.createConfig();
+        this.createTable();
     }
 
-    private createConfig() {
-        const wtCol = new UniTableColumn('_wageType', 'Lønnsart', UniTableColumnType.Lookup, (row: TravelLine) => row && !!row.travelType)
+
+    public onRowDelete(event) {
+        this.travelLinesUpdated.next(this.travelLines.filter(x => (!(x['_isEmpty'] === true) || x === event)));
+    }
+
+    private createTable() {
+        const wageTypeColumn = new UniTableColumn('_wageType', 'Lønnsart', UniTableColumnType.Lookup, true)
             .setTemplate((travel: TravelLine) => {
                 if (!travel['_wageType']) {
                     return '';
@@ -60,7 +63,8 @@ export class TravelLinesComponent implements OnInit {
                         wt.WageTypeNumber.toString().startsWith(query)
                         || wt.WageTypeName.toLowerCase().includes(query)))
             });
-        const ttCol = new UniTableColumn('travelType', 'Reisetype', UniTableColumnType.Lookup)
+
+        const travelTypeColumn = new UniTableColumn('travelType', 'Reisetype', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((travel: TravelLine) => {
                 if (!travel.travelType) {
@@ -78,14 +82,13 @@ export class TravelLinesComponent implements OnInit {
                         (tt.Description || tt.ForeignDescription).toLowerCase().includes(query)))
             });
 
-        const fromCol = new UniTableColumn('From', 'Fra dato', UniTableColumnType.DateTime, false).setFormat('DD.MM.YYYY HH:mm')
+        const fromColumn = new UniTableColumn('From', 'Fra dato', UniTableColumnType.DateTime)
+            .setFormat('DD.MM.YYYY HH:mm')
             .setWidth('13rem');
-        const toCol = new UniTableColumn('To', 'Til dato', UniTableColumnType.DateTime, false).setFormat('DD.MM.YYYY HH:mm')
+        const toColumn = new UniTableColumn('To', 'Til dato', UniTableColumnType.DateTime).setFormat('DD.MM.YYYY HH:mm')
             .setWidth('13rem');
-        const accountCol = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup, true)
-            .setTemplate((line: TravelLine) => {
-                return `${line.AccountNumber || ''}`;
-            })
+        const accountColumn = new UniTableColumn('_Account', 'Konto', UniTableColumnType.Lookup, true)
+            .setDisplayField('AccountNumber')
             .setOptions({
                 itemTemplate: (selectedItem: Account) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
@@ -94,62 +97,72 @@ export class TravelLinesComponent implements OnInit {
                     return this.accountService.GetAll(
                         `filter=contains(AccountName, '${searchValue}') `
                         + `or startswith(AccountNumber, '${searchValue}')&top50`
-                    ).debounceTime(200);
+                    );
                 }
             });
-        const vatTypeCol = this.salaryTransViewService.createVatTypeColumn(true, 'From');
-        const amountCol = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Money, false);
-        const rateCol = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, false);
-        const sumCol = new UniTableColumn('', 'Sum', UniTableColumnType.Money, false)
-            .setTemplate((row: TravelLine) => row['_isEmpty'] ? '' : UniMath.useFirstTwoDecimals(row.Rate * row.Amount).toString());
+        const vatTypeColumn = this.salaryTransViewService.createVatTypeColumn(true, 'From');
+        const amountColumn = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number, true);
+        const rateColumn = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, true);
+        const sumColumn = new UniTableColumn('', 'Sum', UniTableColumnType.Money, false)
+            .setTemplate((row: TravelLine) => row['_isEmpty'] ? '0' : UniMath.useFirstTwoDecimals((row.Rate * row.Amount) || 0).toString());
+
         this.config = new UniTableConfig('salary.travel.traveldetails.travellines', true)
-            .setColumns([wtCol, ttCol, fromCol, toCol, accountCol, vatTypeCol, amountCol, rateCol, sumCol])
-            .setAutoAddNewRow(false)
+            .setDefaultRowData(
+                {
+                    _createguid: this.travelLineService.getNewGuid()
+                })
+            .setColumns(
+                [travelTypeColumn, wageTypeColumn, fromColumn, toColumn, accountColumn, vatTypeColumn, amountColumn, rateColumn, sumColumn]
+                )
+            .setDeleteButton(true)
             .setColumnMenuVisible(true)
             .setChangeCallback((event: IRowChangeEvent) => this.handleChange(event));
     }
 
     private handleChange(event: IRowChangeEvent): Observable<TravelLine> {
-        if (!event.rowModel.ID) {
-            return Observable.of(event.rowModel);
-        }
-
-        return Observable
-            .of(<TravelLine>event.rowModel)
-            .map(line => {
-                line[DIRTY] = true;
-                if (event.field === '_wageType' || event.field === 'travelType') {
-                    line.travelType[DIRTY] = true;
+        return Observable.of(event.rowModel).pipe(
+            map(travelLine => {
+                if (!travelLine.From) {
+                    travelLine.From = new Date();
                 }
-                return line;
-            })
-            .map(line => {
+
                 if (event.field === '_Account') {
-                    this.mapAccountToTravelLine(line);
+                    this.mapAccountToTravelLine(travelLine);
                 }
                 if (event.field === 'travelType') {
-                    this.mapTravelTypeToTravelLine(line);
+                    this.mapTravelTypeToTravelLine(travelLine);
                 }
                 if (event.field === '_wageType') {
-                    this.mapWageTypeToTravelLine(line);
+                    this.mapWageTypeToTravelLine(travelLine);
                 }
                 if (event.field === 'VatType') {
-                    line.VatTypeID = line.VatType && line.VatType.ID;
+                    travelLine.VatTypeID = travelLine.VatType && travelLine.VatType.ID;
                 }
-                return line;
-            })
-            .switchMap(line => {
-                if (event.field === '_wageType' || event.field === '_Account' || event.field === 'travelType') {
-                    return this.travelLineService.suggestVatType(line);
+                return travelLine;
+            }),
+            switchMap(travelLine => {
+                if ((event.field === '_wageType' || event.field === '_Account' || event.field === 'travelType') && !!travelLine.From) {
+                    return this.travelLineService.suggestVatType(travelLine);
                 }
-                return Observable.of(line);
+                return of(travelLine);
+            }),
+            tap(travelLine => {
+                if (!this.travelLines.length) {
+                    this.travelLines.push(travelLine);
+                }
+
+                this.travelLines = this.travelLines.map(x => {
+                    if (x['_guid'] === travelLine['_guid']) {
+                        return travelLine;
+                    }
+                    return x;
+                });
+
+                this.travelLinesUpdated.next(this.travelLines.filter(x => !(x['_isEmpty'] === true)));
             })
-            .do(line => {
-                const index = this.travelLines.findIndex(travelline => travelline.ID === line.ID);
-                this.travelLines[index] = line;
-                this.travelLinesUpdated.next(this.travelLines.filter(travelLine => !!travelLine.ID));
-            });
+        );
     }
+
 
     private mapTravelTypeToTravelLine(travelLine: TravelLine): TravelLine {
         const wts = this.wageTypes$.getValue();
@@ -165,6 +178,7 @@ export class TravelLinesComponent implements OnInit {
         const wt: WageType = line['_wageType'];
         line.travelType.WageTypeNumber = wt && wt.WageTypeNumber;
         line.AccountNumber = wt && wt.AccountNumber;
+
         return line;
     }
 
@@ -172,7 +186,6 @@ export class TravelLinesComponent implements OnInit {
         if (!travelLine['_Account']) {
             return travelLine;
         }
-
         travelLine.AccountNumber = travelLine['_Account'].AccountNumber;
 
         return travelLine;
