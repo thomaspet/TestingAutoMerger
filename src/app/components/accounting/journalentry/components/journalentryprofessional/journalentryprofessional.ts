@@ -2910,7 +2910,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (text === null) {
                         return completeCallback('');
                     }
-
                     this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text, this.selectedNumberSeries.ID)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
@@ -2946,8 +2945,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 // Validate if journalEntry number has changed
                 const numbers = this.journalEntryService.findJournalNumbersFromLines(tableData);
-                if ((firstJournalEntry.Description == null && lastJournalEntry.Description == null) && (!numbers || firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
-                     lastJournalEntry.JournalEntryNumber !== numbers.lastNumber )) {
+
+                if (!numbers || firstJournalEntry.JournalEntryNumber !== numbers.firstNumber ||
+                    lastJournalEntry.JournalEntryNumber !== numbers.lastNumber) {
                     this.toastService.addToast(
                         'Lagring var vellykket, men merk at tildelt bilagsnummer er '
                             + firstJournalEntry.JournalEntryNumber + ' - '
