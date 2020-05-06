@@ -1,4 +1,4 @@
-import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -120,11 +120,11 @@ interface ILocalValidation {
     selector: 'uni-bill',
     templateUrl: './bill.html'
 })
-export class BillView implements OnInit {
+export class BillView implements OnInit, AfterViewInit {
     @ViewChild(Autocomplete) autocomplete: Autocomplete;
     @ViewChild(UniForm) uniForm: UniForm;
     @ViewChild(UniImage, { static: true }) uniImage: UniImage;
-    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual) journalEntryManualIn: JournalEntryManual;
 
     uploadStepActive: boolean;
 
@@ -169,6 +169,7 @@ export class BillView implements OnInit {
     public isBlockedSupplier: boolean = false;
     public orgNumber: string;
     autocompleteOptions: any;
+    public journalEntryManual: JournalEntryManual;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -318,6 +319,11 @@ export class BillView implements OnInit {
                 this.projects = projects;
                 this.departments = departments;
             });
+    }
+    ngAfterViewInit(): void {
+        if (this.journalEntryManualIn && !this.journalEntryManual) {
+            this.journalEntryManual = this.journalEntryManualIn;
+        }
     }
 
     ngOnDestroy() {
@@ -3024,7 +3030,7 @@ export class BillView implements OnInit {
     }
 
     public updateDimensions(lines) {
-        if (lines.length > this.lastJournalEntryData.length) { // new line at the end
+        if (lines.length > this.lastJournalEntryData?.length) { // new line at the end
             const newLine = lines[lines.length - 1];
             const dimensions = this.current?.getValue().DefaultDimensions;
             const projectId = dimensions?.ProjectID;
