@@ -29,13 +29,13 @@ import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/stat
 import { VacationPayModal } from '@app/components/common/modals/vacationpay/vacationPayModal';
 import { TimeTransferComponent } from '@app/components/salary/payrollrun/modals/time-transfer/time-transfer.component';
 import { ControlModal } from '@app/components/salary/payrollrun/modals/controlModal';
-import { SalaryTransactionSelectionList } from '@app/components/salary/salarytrans/salarytransactionSelectionList';
+import { SalaryTransactionSelectionList } from '@app/components/salary/payrollrun/salarytrans/salarytransactionSelectionList';
 import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModal';
 import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/services/payrollrun-details.service';
 import { PostingSummaryModal } from '@app/components/salary/payrollrun/modals/postingSummaryModal';
 import { PaycheckSenderModal } from '@app/components/salary/payrollrun/sending/paycheckSenderModal';
-import { SalaryTransViewService } from '@app/components/salary/sharedServices/salaryTransViewService';
-import { SalaryHelperMethods } from '@app/components/salary/helperMethods/salaryHelperMethods';
+import { SalaryTransViewService } from '@app/components/salary/shared/services/salaryTransViewService';
+import { SalaryHelperMethods } from '@app/components/salary/shared/services/salaryHelperMethods';
 import { PayrollRunDataService } from '@app/components/salary/payrollrun/services/payrollrun-data.service';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';

@@ -1,7 +1,8 @@
 import {Component, EventEmitter} from '@angular/core';
 import {FormGroup, FormControl} from '@angular/forms';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
-import {UserService, ErrorService} from '@app/services/services';
+import {UserService, ErrorService, BankService} from '@app/services/services';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {User} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
 
@@ -18,10 +19,13 @@ export class ActivateAutobankModal implements IUniModal {
     autobankData: FormGroup;
     errorMessages: string[];
     busy: boolean;
+    hasSentWrongPassword = false;
 
     constructor(
         private errorService: ErrorService,
         private userService: UserService,
+        private bankService: BankService,
+        private toastService: ToastService,
         private http: UniHttp
     ) {}
 
@@ -49,18 +53,18 @@ export class ActivateAutobankModal implements IUniModal {
             this.errorMessages.push('Telefon må være et gyldig norsk telefonnummer');
         }
 
-        if (!/[a-zæøå]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst en liten bokstav');
+        if (!/[a-z]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en liten bokstav [a-z]');
             return;
         }
 
-        if (!/[A-ZÆØÅ]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst en stor bokstav');
+        if (!/[A-Z]/.test(data.Password)) {
+            this.errorMessages.push('Passord må inneholde minst en stor bokstav [A-Z]');
             return;
         }
 
         if (!/[\d]/.test(data.Password)) {
-            this.errorMessages.push('Passord må inneholde minst ett tall');
+            this.errorMessages.push('Passord må inneholde minst ett tall [0-9]');
             return;
         }
         if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\:\,\.\?\!\`\(\)\;]/.test(data.Password)) {
@@ -77,29 +81,54 @@ export class ActivateAutobankModal implements IUniModal {
         this.onClose.emit();
     }
 
+    resetPassword() {
+        this.busy = true;
+        this.userService.changeAutobankPassword().subscribe(
+            () => {
+                this.toastService.addToast('E-post er sendt', ToastType.good, ToastTime.short);
+                this.busy = false;
+            },
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
+    }
+
     private activateBankUser(autobankData) {
         this.busy = true;
 
-        this.userService.getCurrentUser().switchMap(authenticatedUser => {
-            return this.http.usingBusinessDomain()
-                .asPUT()
-                .withEndPoint(`users/${this.user.ID}?action=make-autobank-user`)
-                .withBody({
-                    AdminUserId: authenticatedUser.ID,
-                    AdminPassword: autobankData.AdminPassword,
-                    IsAdmin: autobankData.IsAdmin,
-                    Password: autobankData.Password,
-                    Phone: autobankData.Phone
-                })
-                .send()
-                .map(res => res.body);
-        }).subscribe(
-            () => this.onClose.emit(true),
-            err => {
+        this.bankService.validateAutobankPassword(autobankData.AdminPassword).subscribe(isCorrectPassword => {
+            if (isCorrectPassword) {
+
+                this.userService.getCurrentUser().switchMap(authenticatedUser => {
+                    return this.http.usingBusinessDomain()
+                        .asPUT()
+                        .withEndPoint(`users/${this.user.ID}?action=make-autobank-user`)
+                        .withBody({
+                            AdminUserId: authenticatedUser.ID,
+                            AdminPassword: autobankData.AdminPassword,
+                            IsAdmin: autobankData.IsAdmin,
+                            Password: autobankData.Password,
+                            Phone: autobankData.Phone
+                        })
+                        .send()
+                        .map(res => res.body);
+                }).subscribe(
+                    () => this.onClose.emit(true),
+                    err => {
+                        this.busy = false;
+                        this.errorMessages.push('Noe gikk galt. Se melding i varsel');
+                        this.errorService.handle(err);
+                    }
+                );
+
+            } else {
                 this.busy = false;
+                this.hasSentWrongPassword = true;
                 this.errorMessages.push('Noe gikk galt. Sjekk at ditt autobank passord er korrekt.');
             }
-        );
+        }, err => this.errorService.handle(err));
     }
 
     private isValidPhoneNumber(phone) {

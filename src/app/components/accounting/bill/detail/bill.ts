@@ -229,7 +229,6 @@ export class BillView implements OnInit {
     lastJournalEntryData: JournalEntryData[];
     projects = [];
     departments = [];
-
     constructor(
         private tabService: TabService,
         private supplierInvoiceService: SupplierInvoiceService,
@@ -2953,12 +2952,12 @@ export class BillView implements OnInit {
                 'ReInvoice'
             ], true);
 
-            forkJoin(
+            forkJoin([
                 invoiceGET,
                 this.bankService.getBankPayments(id),
                 this.bankService.getRegisteredPayments(id),
                 this.bankService.getSumOfPayments(id)
-            ).pipe(
+            ]).pipe(
                 finalize(() => this.flagUnsavedChanged(true))
             ).subscribe(
                 ([invoice, bankPayments, registeredPayments, sumOfPayments]) => {
@@ -3059,7 +3058,6 @@ export class BillView implements OnInit {
 
     public onJournalEntryManualChange(lines) {
         let changes = false;
-
         this.updateSummary(lines);
         this.updateDimensions(lines);
         let supplierInvoice = this.current.getValue();
@@ -3070,10 +3068,9 @@ export class BillView implements OnInit {
         let previousLine = null;
 
         lines.map(line => {
-            const supplierInvoice = this.current.value;
-
+            const currentSupplierInvoice = this.current.value;
             if (!line.VatDate) {
-                line.VatDate = supplierInvoice.InvoiceDate;
+                line.VatDate = currentSupplierInvoice.InvoiceDate;
 
                 line = this.setVatDeductionPercent(line);
             }
@@ -3082,7 +3079,7 @@ export class BillView implements OnInit {
                 if (previousLine && previousLine.FinancialDate) {
                     line.FinancialDate = previousLine.FinancialDate;
                 } else {
-                    line.FinancialDate = supplierInvoice.DeliveryDate || supplierInvoice.InvoiceDate;
+                    line.FinancialDate = currentSupplierInvoice.DeliveryDate || currentSupplierInvoice.InvoiceDate;
                 }
             }
 
@@ -3095,9 +3092,9 @@ export class BillView implements OnInit {
                 line.Dimensions = {};
             }
 
-            line.CurrencyCodeID = supplierInvoice.CurrencyCodeID;
-            line.CurrencyCode = supplierInvoice.CurrencyCode;
-            line.CurrencyExchangeRate = supplierInvoice.CurrencyExchangeRate;
+            line.CurrencyCodeID = currentSupplierInvoice.CurrencyCodeID;
+            line.CurrencyCode = currentSupplierInvoice.CurrencyCode;
+            line.CurrencyExchangeRate = currentSupplierInvoice.CurrencyExchangeRate;
 
             if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
                 line.Dimensions.Project = supplierInvoice?.DefaultDimensions?.Project;
@@ -3111,13 +3108,13 @@ export class BillView implements OnInit {
 
             this.customDimensions.forEach((dimension) => {
                 if (!line.Dimensions['Dimension' + dimension.Dimension]
-                    && supplierInvoice.DefaultDimensions
-                    && supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension]) {
+                    && currentSupplierInvoice.DefaultDimensions
+                    && currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension]) {
 
                     line.Dimensions['Dimension' + dimension.Dimension] =
-                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension];
+                        currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension];
                     line.Dimensions['Dimension' + dimension.Dimension + 'ID'] =
-                        supplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
+                        currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
                 }
             });
 

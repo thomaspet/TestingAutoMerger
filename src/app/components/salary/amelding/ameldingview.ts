@@ -22,7 +22,6 @@ import {
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
-import {ReconciliationModalComponent} from '../modals';
 import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
 import {AltinnAuthenticationData} from '@app/models/AltinnAuthenticationData';
@@ -31,6 +30,7 @@ import {PeriodAdminModalComponent} from './modals/period-admin-modal/period-admi
 import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
 import {RequestMethod} from '@uni-framework/core/http';
+import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
 
 @Component({
     selector: 'amelding-view',
@@ -766,7 +766,7 @@ export class AMeldingView implements OnInit {
                     });
                     this.refresh(response);
                     refreshPromise.then(() => {
-                        // this.openBeforeMakePaymentModal();
+                        this.openBeforeMakePaymentModal();
                         this.triggerForOpenBeforeMakePaymentModalResolver = null;
                     });
                     this.activeTabIndex = 2;

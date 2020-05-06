@@ -7,7 +7,8 @@
         "IsTopLevelTicker": true,
         "Group": "Lønn",
         "Model": "Employee",
-        "Expand": "",
+        "Expand": "SubEntity",
+        "Joins": "SubEntity.BusinessRelationID eq BusinessRelation.ID as SubEntityInfo",
         "Columns": [{
                 "Header": "Ansattnr.",
                 "Field": "EmployeeNumber",
@@ -41,6 +42,16 @@
             {
                 "Header": "Adresse",
                 "Field": "BusinessRelationInfo.InvoiceAddress.AddressLine1",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Postnr.",
+                "Field": "BusinessRelationInfo.InvoiceAddress.PostalCode",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Sted",
+                "Field": "BusinessRelationInfo.InvoiceAddress.City",
                 "DefaultHidden": true
             },
             {
@@ -108,6 +119,10 @@
                     "Field": "InternasjonalIDCountry",
                     "Type": "text"
                 }]
+            },
+            {
+                "Header": "Virksomhet",
+                "Field": "SubEntityInfo.Name"
             }
         ],
         "Actions": [{
@@ -208,7 +223,6 @@
             {
                 "Header": "Yrkeskode",
                 "Field": "JobCode",
-                "Alignment": "right",
                 "Width": "7rem"
             },
             {
@@ -244,13 +258,11 @@
             },
             {
                 "Header": "StartDato",
-                "Field": "StartDate",
-                "Alignment": "right"
+                "Field": "StartDate"
             },
             {
                 "Header": "SluttDato",
-                "Field": "EndDate",
-                "Alignment": "right"
+                "Field": "EndDate"
             },
             {
                 "Header": "Virksomhet org.nr",
@@ -291,14 +303,12 @@
             {
                 "Header": "Ansiennitet",
                 "Field": "SeniorityDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Lønnsjustering",
                 "Field": "LastSalaryChangeDate",
-                "DefaultHidden": true,
-                "Alignment": "right"
+                "DefaultHidden": true
             },
             {
                 "Header": "Sist endret %",
@@ -1232,6 +1242,11 @@
             {
                 "Header": "Avdeling",
                 "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Mva-kode",
+                "Field": "VatType.VatCode",
                 "DefaultHidden": true
             }
         ],

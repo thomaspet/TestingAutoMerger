@@ -78,7 +78,7 @@ export class NumberPipe implements PipeTransform {
 export class MinutesToHoursPipe implements PipeTransform {
 
     public transform(value: any, format?: string) {
-        var parsed = this.parse(value);
+        const parsed = this.parse(value);
         switch (format) {
             case 'short':
                 return this.shortFmt(parsed);
@@ -86,13 +86,23 @@ export class MinutesToHoursPipe implements PipeTransform {
                 return this.decFmt(parsed);
             case 'decimal0':
                 return !!value ? this.decFmt(parsed) : '';
+            case 'decimal00':
+                return !!value ? parsed.decimal.toFixed(2) : '';
             case 'decimal-':
                 return !!value ? this.decFmt(parsed) + 't' : '-';
             case 'int':
                 return !!value ? parsed.decimal.toFixed(0) : '';
+            case 'money2':
+                return !!value ? parsed.decimal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '';
+            case 'money':
+                return !!value ? parsed.decimal.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0}) : '';
             default:
                 return this.longFmt(parsed);
         }
+    }
+
+    private numberWithCommas(x) {
+        return x.toString().replace().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     }
 
     private parse(value: any): ITime {

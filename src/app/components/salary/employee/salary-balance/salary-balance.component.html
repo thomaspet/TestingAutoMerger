@@ -1,0 +1,18 @@
+<section class="splitview" *ngIf="employeeID">
+    <nav class="splitview_list">
+        <uni-salary-balance-list
+            (updatedList) = "onUpdatedList($event)"
+            (createSalaryBalance)="createSalaryBalance()"
+            [salarybalances]="salarybalances"
+            [lightWeight]="true">
+        </uni-salary-balance-list>
+    </nav>
+    <main class="splitview_detail">
+        <uni-salary-balance-details
+            [salarybalance]="selectedSalaryBalance$ | async"
+            [useExternalChangeDetection]="true"
+            [ignoreFields]="['EmployeeID', 'SalarytransactionDescription']"
+            (salarybalanceChange)="onSalarybalanceChange($event)">
+        </uni-salary-balance-details>
+    </main>
+</section>

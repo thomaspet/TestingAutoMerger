@@ -7,9 +7,8 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Observable} from 'rxjs';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
-import {ApiModelService, ModuleConfig, ApiModel} from './apiModelService';
+import {ApiModelService, ApiModel} from './apiModelService';
 import {
-    WageType,
     Leavetype,
     LimitType,
     SpecialTaxAndContributionsRule,
@@ -32,16 +31,16 @@ import {CompanySettings} from '../../unientities';
 import * as allModels from '../../unientities';
 
 import * as moment from 'moment';
-import { ReturnStatement } from '@angular/compiler';
-import { ReportTypeEnum } from '@app/models';
-declare const _; // lodash
+
+import {cloneDeep} from 'lodash';
+import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
+import {QuickFilter} from '@uni-framework/ui/unitable';
 
 @Injectable()
 export class UniTickerService {
 
     private TICKER_LOCALSTORAGE_KEY: string = 'UniTickerHistory';
     private tickers: Array<Ticker>;
-    private models: Array<any>;
     private companySettings: CompanySettings;
 
     constructor(
@@ -73,7 +72,6 @@ export class UniTickerService {
 
     private invalidateCache() {
         this.tickers = null;
-        this.models = null;
         this.companySettings = null;
     }
 
@@ -138,7 +136,7 @@ export class UniTickerService {
                                         if (t.Model && t.Model !== '') {
                                             model = this.modelService.getModel(t.Model);
                                             if (model) {
-                                                model = _.cloneDeep(model);
+                                                model = cloneDeep(model);
                                                 model.RelatedModels = [];
                                                 model.Relations.forEach(rel => {
                                                     const relatedModel = this.modelService.getModel(rel.RelatedModel);
@@ -146,7 +144,7 @@ export class UniTickerService {
                                                         model.RelatedModels.push(
                                                             {
                                                                 RelationName: rel.Name,
-                                                                Model: _.cloneDeep(relatedModel)
+                                                                Model: cloneDeep(relatedModel)
                                                             });
                                                     } else {
                                                         console.log('rel not found:', rel);
@@ -236,7 +234,7 @@ export class UniTickerService {
                                                 if (!t.SubTickers.find(x => x.Code === subTickerCode)) {
                                                     const subTicker = tickers.find(x => x.Code === subTickerCode);
                                                     if (subTicker) {
-                                                        t.SubTickers.push(_.cloneDeep(subTicker));
+                                                        t.SubTickers.push(cloneDeep(subTicker));
                                                     } else {
                                                         console.log('SubTicker ' + subTickerCode + ' not found in loadTickerCache');
                                                     }
@@ -526,8 +524,14 @@ export class UniTickerService {
         return groups;
     }
 
-    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker, columnOverrides: Array<ITickerColumnOverride>) {
+    public getFieldValue(column: TickerColumn, data: any, ticker: Ticker, columnOverrides: ITickerColumnOverride[]) {
         let fieldValue: any = this.getFieldValueInternal(column, data);
+
+        const templateOverrides = ColumnTemplateOverrides[ticker.Code] || {};
+        const templateOverride = templateOverrides[column.Field];
+        if (templateOverride) {
+            fieldValue = templateOverride(data, column);
+        }
 
         if (columnOverrides) {
             const columnOverride = columnOverrides.find(x => x.Field === column.Field);
@@ -1189,6 +1193,13 @@ export class TickerGroup {
     public Tickers: Array<Ticker>;
 }
 
+export interface TickerQuickFilter extends QuickFilter {
+    checkBoxValues?: {
+        true: string;
+        false: string;
+    };
+}
+
 export class Ticker {
     public Name: string;
     public Code: string;
@@ -1213,6 +1224,7 @@ export class Ticker {
     public SubTickersCodes?: Array<string>;
     public Filter?: string;
     public Filters?: Array<TickerFilter>;
+    public QuickFilters?: TickerQuickFilter[];
     public UseParentTickerActions?: boolean;
     public Actions?: Array<TickerAction>;
     public Pagesize?: number;
@@ -1221,7 +1233,6 @@ export class Ticker {
     public MultiRowSelect?: boolean;
     public RequiredUIPermissions?: string[];
     public DefaultTabIndex?: number;
-    public DefaultTableFilter?: any;
 }
 
 export class TickerFieldFilter {

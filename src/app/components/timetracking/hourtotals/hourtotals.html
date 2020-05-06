@@ -1,0 +1,74 @@
+<uni-toolbar *ngIf="!input"
+    [config]="{title: 'TIMETRACKING.HOURTOTALS'}"
+    [saveactions]="saveactions">
+</uni-toolbar>
+
+<section class="application">
+
+    <section [attr.aria-busy]="busy2" class="toolbar hours-report-options">
+
+        <mat-form-field>
+            <mat-select [value]="activeGroup" (valueChange)="onActiveGroupChange($event)" placeholder="Fordeling">
+                <mat-option *ngFor="let group of groups" [value]="group">
+                    {{ group.label }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isFilteredByInvoicable">
+            Fakturerbart
+        </mat-checkbox>
+
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isFilteredByTransfer">
+            Ikke overført
+        </mat-checkbox>
+
+        <mat-checkbox class="toolbaritem"
+            (change)="onCheckInvoiced()"
+            [(ngModel)]="isMoney">
+            Vis pris/verdi
+        </mat-checkbox>
+
+        <uni-date-selector *ngIf="!input" class="uni-timetracking-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
+
+    </section>
+
+    <input type="search" class="search-input" [(ngModel)]="filterString" [formControl]="searchControl" placeholder="{{ placeholder }}" />
+
+    <div [attr.aria-busy]="busy">
+
+        <p *ngIf="filteredList?.length == 0 || (!filteredList)">
+            Ingen timer funnet med aktivt utvalg. Gå til 'Registrere timer' for å legge inn timer.
+        </p>
+
+        <div *ngFor="let group of filteredList; let groupIndex = index;">
+            <table class="report">
+                <thead><tr>
+                    <th class="rowheader" (click)="tableHeaderClicked('title', groupIndex)">{{activeGroup.label}} i {{group.title}}</th>
+                    <th (click)="tableHeaderClicked('sum', groupIndex)">Sum</th>
+                    <th class="prc" (click)="tableHeaderClicked('prc', groupIndex)">%</th>
+                    <th *ngFor="let hc of group.columns; let monthIndex = index;" (click)="tableHeaderClicked('title', groupIndex, true, monthIndex)">{{hc}}</th>
+                </tr></thead>
+                <tr *ngFor="let row of group.rows">
+                    <td class="clickable rowheader" (click)="openDrilldownModal(row, undefined, -1)">{{row.title}}</td>
+                    <td class="clickable" (click)="openDrilldownModal(row, undefined, -1)" [class.right]="isMoney">{{row.sum|min2hours:numberFormat}}</td>
+                    <td class="prc">{{row.prc|numpipe:'0'}}</td>
+                    <td class="clickable" (click)="openDrilldownModal(row, col, i)" [class.right]="isMoney" *ngFor="let col of row.items; let i = index">{{col.tsum | min2hours:numberFormat}}</td>
+                </tr>
+                <tr *ngIf="!group.rows.length">
+                    <td class="no-rows-message" colspan="15"> Ingen rader å vise </td>
+                </tr>
+                <tr class="sum-row">
+                    <td class="rowheader">Sum {{group.title}}</td>
+                    <td class="left" colspan="14">{{group.sum|min2hours:numberFormat2}}</td>
+                </tr>
+            </table>
+            <br/>
+        </div>
+
+    </div>
+</section>

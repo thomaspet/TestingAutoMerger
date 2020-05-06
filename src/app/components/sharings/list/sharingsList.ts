@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-import {ITickerActionOverride, ITickerColumnOverride} from '@app/services/common/uniTickerService';
 import {PageStateService} from '@app/services/services';
 
 @Component({

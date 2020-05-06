@@ -1,0 +1,89 @@
+.toolbaritem
+    margin-left: 2rem
+
+.right
+    text-align: right !important
+
+table.report
+    width: 100%
+    min-width: pxToRem(1000)
+    border-collapse: collapse
+    table-layout: fixed
+    font-size: 0.9rem
+
+    tr
+        height: 42px
+
+        td:first-of-type, th:first-of-type
+            padding-left: .75rem
+
+        &.sum-row
+            font-weight: bold
+
+        th
+            cursor: pointer
+
+    td
+        padding: 0.3rem
+
+    td.clickable
+        cursor: pointer
+        &:hover
+            background: var(--table-row-select-background)
+
+    tr:nth-child(even)
+        background-color: var(--table-row-even-background)
+
+    th
+        border-bottom: 1px solid var(--border-color)
+        padding-bottom: pxToRem(5)
+
+    th.prc, td.prc
+        width: 3em
+        background-color: var(--sidebar-active-section-background)
+
+    th.prc
+        border: 1px solid var(--border-color)
+
+    th.large
+        width: 10em
+
+    th.small
+        width: 4.5em
+
+    th.medium
+        width: 6em !important
+
+    .left
+        text-align: left
+        padding-left: 1rem
+
+    td
+        padding: pxToRem(2) pxToRem(2) pxToRem(2) pxToRem(2)
+        border-left: 1px solid var(--border-color)
+        border-bottom: 1px solid var(--border-color)
+        text-align: center
+        overflow: hidden
+        white-space: nowrap
+        text-overflow: ellipsis
+
+        &.no-rows-message
+            border-left: none
+            height: 70px
+            line-height: 70px
+
+    .rowheader
+        width: 15em
+        overflow: hidden
+        border-left: 0
+        text-align: left
+
+    .open
+        background-color: var(--table-row-select-background)
+
+.search-input
+    width: 22rem
+    margin-bottom: 1rem
+
+.uni-modal
+    min-width: 90vw

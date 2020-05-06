@@ -1,8 +1,12 @@
-import {Component, Output, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
-import {BankService} from '@app/services/services';
+import {Component, Output, EventEmitter, ViewChild} from '@angular/core';
+import {HttpParams} from '@angular/common/http';
+import {BankService, StatisticsService, ErrorService} from '@app/services/services';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {UniModalService, IModalOptions} from '@uni-framework/uni-modal';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import * as moment from 'moment';
+import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import {BankStatmentElementsModal} from './bank-statement-elements-modal';
 
 @Component({
     selector: 'uni-bank-statement-list',
@@ -11,76 +15,45 @@ import * as moment from 'moment';
 })
 
 export class BankStatement {
-    @Output() statementChanged = new EventEmitter<any>();
+    @ViewChild(AgGridWrapper, { static: true })
+    table: AgGridWrapper;
 
+    @Output()
+    statementChanged = new EventEmitter<any>();
+
+    lookupFunction: (urlParams: HttpParams) => any;
+
+    uniTableConfig: IUniTableConfig;
     bankStatements: any[] = [];
-    busy: boolean = false;
-    dataLoaded: boolean = false;
-    actions = [
-        { label: 'Slett avstemming', value: 'delete' },
-        { label: 'Gjenåpne avstemming', value: 'open' },
-    ];
-
-    actionsDone = [
-        { label: 'Slett avstemming', value: 'delete' },
-        { label: 'Ferdigstill avstemming', value: 'close' }
-    ];
 
     constructor (
         private bankService: BankService,
-        private toast: ToastService,
-        private router: Router
-    ) {}
+        private statisticsService: StatisticsService,
+        private modalService: UniModalService,
+        private errorService: ErrorService,
+        private toast: ToastService
+    ) { }
 
     ngOnInit() {
-        this.getDataAndLoadList();
+        this.setUpLookupfunction();
+        this.uniTableConfig = this.generateUniTableConfig();
     }
 
-    getDataAndLoadList() {
-        this.bankService.getBankStatementListData().subscribe((bankStatements) => {
-            if (bankStatements && bankStatements.Data) {
-                this.bankStatements = bankStatements.Data.map((sm) => {
-                    sm._periodeText = moment(sm.FromDate).format('DD. MMM YYYY') + ' - ' + moment(sm.ToDate).format('DD. MMM YYYY');
-                    sm._open = false;
-                    sm.entries = [];
-                    return sm;
-                });
-            }
-            this.dataLoaded = true;
-        }, err => {
-            this.toast.addToast('Kunne ikke hente kontoutskrifter', ToastType.bad, 5);
-            this.dataLoaded = true;
-        });
+    setUpLookupfunction() {
+        this.lookupFunction = (urlParams) => {
+            urlParams = urlParams.set('model', 'BankStatement');
+            urlParams = urlParams.set('select', 'FromDate as FromDate,ToDate as ToDate,ID as ID,count(entry.ID) as count,' +
+            'Amount as Amount,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,StatusCode as StatusCode');
+            urlParams = urlParams.set('join', 'BankStatement.ID eq BankStatementEntry.BankStatementID as Entry');
+            urlParams = urlParams.set('expand', 'Account');
+            urlParams = urlParams.set('orderby', 'count(entry.ID) desc');
+
+            return this.statisticsService.GetAllByHttpParams(urlParams);
+        };
     }
 
-    getStatusText(statement: any) {
-        if (statement.StatusCode === 48001) {
-            return 'Åpen';
-        } else {
-            return 'Ferdigstilt';
-        }
-    }
-
-    getActions(statement: any) {
-        const actions = [
-            { label: 'Slett avstemming', value: 'delete' }
-        ];
-
-        if (statement.StatusCode === 48002) {
-             actions.unshift({ label: 'Gjenåpne avstemming', value: 'open' });
-        } else {
-            actions.unshift({ label: 'Ferdigstill avstemming', value: 'close' });
-        }
-
-        return actions;
-    }
-
-    goToReconciliationView() {
-        this.router.navigateByUrl('/bank/reconciliationmatch');
-    }
-
-    onActionClick(action: any, statement: any, index: number) {
-        switch (action.value) {
+    onActionClick(action: string, statement: any, index: number) {
+        switch (action) {
             case 'open':
                 this.callBankStatementAction(statement.ID, 'reopen');
                 break;
@@ -88,16 +61,14 @@ export class BankStatement {
                 this.callBankStatementAction(statement.ID, 'complete');
                 break;
             case 'delete':
-                this.busy = true;
                 this.bankService.deleteBankStatement(statement.ID).subscribe(() => {
                     this.bankStatements.splice(index, 1);
                     this.toast.addToast('Kontoutskrift slettet', ToastType.good, 5);
-                    this.busy = false;
                     this.statementChanged.emit(true);
+                    this.table.refreshTableData();
                 }, err => {
                     this.toast.addToast('Kunne ikke slette kontoutskrift', ToastType.bad, 5,
                         err && err.error && err.error.Messages && err.error.Messages[0].Message);
-                    this.busy = false;
                 });
                 break;
         }
@@ -105,29 +76,68 @@ export class BankStatement {
 
     callBankStatementAction(id: number, action: string) {
         this.bankService.bankStatementActions(id, action).subscribe((response) => {
-            const statement = this.bankStatements.find(sm => sm.ID === id);
-            // Update the statement with new statuscode and invoke change
-            statement.StatusCode = response.StatusCode;
-            this.bankStatements = [...this.bankStatements];
+            this.table.refreshTableData();
             this.toast.addToast(`${action === 'reopen' ? 'Kontoutskrift gjenåpnet' : 'Kontoutskrift ferdigstilt'}`, ToastType.good, 5);
         }, err => {
-            this.toast.addToast('Kunne ikke oppdatere kontoutskrift', ToastType.bad, 5);
+            this.errorService.handle(err);
         });
     }
 
-    statementClick(statement: any) {
+    private generateUniTableConfig(): UniTableConfig {
 
-        if (!statement._open) {
-            this.bankService.getBankStatementEntriesOnStatement(statement.ID).subscribe((response: any[]) => {
-                statement.entries = response.map(res => {
-                    res._periodeText = moment(res.BookingDate).format('DD.MMM YYYY');
-                    return res;
-                });
-                statement._open = !statement._open;
-            });
-        } else {
-            statement._open = !statement._open;
-        }
+        const columns = [
+            new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
+                .setAlias('AccountName')
+                .setFilterOperator('contains'),
+            new UniTableColumn('Account.AccountNumber', 'Kontonr', UniTableColumnType.Text)
+                .setAlias('AccountNumber')
+                .setFilterOperator('contains'),
+            new UniTableColumn('FromDate', 'Periode', UniTableColumnType.Text)
+                .setTemplate(row => {
+                    // tslint:disable-next-line:max-line-length
+                    return (row && row.FromDate && row.ToDate) ? moment(row.FromDate).format('DD. MMM YYYY') + ' - ' + moment(row.ToDate).format('DD. MMM YYYY') : '';
+                }),
+            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
+                .setTemplate(row => row.StatusCode === 48001 ? 'Åpen' : 'Ferdigstilt'),
+            new UniTableColumn('count', 'Antall poster', UniTableColumnType.Link)
+                .setLinkClick(row => this.openSubElementsInModal(row))
+                .setFilterable(false)
+                .setAlignment('center'),
+            new UniTableColumn('Amount', 'Sum', UniTableColumnType.Money),
+        ];
+
+        return new UniTableConfig('bankstatement.statements.details', false, false)
+            .setPageable(true)
+            .setSearchable(true)
+            .setEntityType('BankStatement')
+            .setContextMenu([
+                {
+                    action: (item) => this.onActionClick('delete', item, item._originalIndex),
+                    disabled: (item) => false,
+                    label: 'Slett avstemming'
+                },
+                {
+                    action: (item) => this.onActionClick('open', item, item._originalIndex),
+                    disabled: (item) => item.StatusCode !== 48002,
+                    label: 'Gjenåpne avstemming'
+                },
+                {
+                    action: (item) => this.onActionClick('close', item, item._originalIndex),
+                    disabled: (item) => item.StatusCode === 48002,
+                    label: 'Ferdigstill avstemming'
+                }
+            ])
+            .setColumns(columns);
     }
 
+    openSubElementsInModal(row: any) {
+        const modalOptions: IModalOptions = {
+            header: `Poster for ${row.AccountNumber} - ${row.AccountName}`,
+            data: {
+                ID: row.ID
+            }
+        };
+
+        this.modalService.open(BankStatmentElementsModal, modalOptions);
+    }
 }

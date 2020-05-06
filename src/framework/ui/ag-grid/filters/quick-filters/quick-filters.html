@@ -1,0 +1,24 @@
+<ng-container *ngFor="let filter of quickFilters">
+    <section class="quick-filter-field" [ngSwitch]="filter.type" [style.flex]="'0 0 ' + filter.width || 'auto'">
+        <!-- Date -->
+        <uni-datepicker *ngSwitchCase="'date'"
+            [placeholder]="filter.label"
+            [(value)]="filter.value"
+            (valueChange)="changeEventDebouncer$.next()">
+        </uni-datepicker>
+
+        <!-- Boolean -->
+        <mat-checkbox *ngSwitchCase="'checkbox'"
+            [(ngModel)]="filter.value"
+            (change)="changeEventDebouncer$.next()">
+            {{filter.label}}
+        </mat-checkbox>
+
+        <!-- Text, number -->
+        <input *ngSwitchDefault type="text"
+            [placeholder]="filter.label"
+            [(ngModel)]="filter.value"
+            (ngModelChange)="changeEventDebouncer$.next()"
+        />
+    </section>
+</ng-container>

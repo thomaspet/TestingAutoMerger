@@ -4,7 +4,7 @@ import {
     UniCacheService, AccountService,
     ErrorService, SalaryTransactionSuggestedValuesService, SalaryTransactionService
 } from '../../../../services/services';
-import {SalaryTransViewService} from '../../sharedServices/salaryTransViewService';
+import {SalaryTransViewService} from '../../shared/services/salaryTransViewService';
 import {
     UniTableColumn,
     UniTableColumnType,

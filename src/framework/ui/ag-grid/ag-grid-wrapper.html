@@ -1,12 +1,13 @@
-<table-filters
+
+<table-filters-and-buttons
     *ngIf="config?.searchable"
     [tableConfig]="config"
     [columns]="columns"
     [filters]="dataService?.advancedSearchFilters"
     [quickFilters]="quickFilters"
     (filtersChange)="onFiltersChange($event)">
-</table-filters>
-<mat-spinner diameter="20" *ngIf="useSpinner && dataService.isDataLoading"></mat-spinner>
+</table-filters-and-buttons>
+
 <section #wrapper class="uni-ag-wrapper"
     *ngIf="rowModelType"
     [ngStyle]="{
@@ -89,7 +90,8 @@
         (columnRowGroupChanged)="onColumnRowGroupChanged($event)"
 
         [context]="context"
-        [frameworkComponents]="cellRendererComponents"
+        [frameworkComponents]="gridComponents"
+        [loadingOverlayComponent]="'tableLoadIndicator'"
         [groupRowAggNodes]="aggregator"
         [localeText]="agTranslations">
     </ag-grid-angular>
