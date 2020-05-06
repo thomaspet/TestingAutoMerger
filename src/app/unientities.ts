@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -690,9 +690,9 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultReminderFeeAccount: Account;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -1844,6 +1844,7 @@ export class CompanySalary extends UniEntity {
     public OtpExportActive: boolean;
     public PaycheckZipReportID: number;
     public PaymentInterval: CompanySalaryPaymentInterval;
+    public PostGarnishmentToTaxAccount: boolean;
     public PostToTaxDraw: boolean;
     public RateFinancialTax: number;
     public StatusCode: number;
@@ -2656,6 +2657,7 @@ export class WageType extends UniEntity {
     public RatetypeColumn: RateTypeColumn;
     public SpecialAgaRule: SpecialAgaRule;
     public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
+    public SpecialTaxHandling: string;
     public StandardWageTypeFor: StdWageType;
     public StatusCode: number;
     public SupplementPackage: string;
@@ -3665,6 +3667,7 @@ export class CompanySettings extends UniEntity {
     public AccountVisibilityGroupID: number;
     public AgioGainAccountID: number;
     public AgioLossAccountID: number;
+    public AllowAvtalegiroRegularInvoice: boolean;
     public APActivated: boolean;
     public APContactID: number;
     public APGuid: string;
@@ -3745,29 +3748,29 @@ export class CompanySettings extends UniEntity {
     public VatReportFormID: number;
     public WebAddress: string;
     public XtraPaymentOrgXmlTagValue: string;
-    public DefaultAddress: Address;
-    public DefaultPhone: Phone;
     public DefaultEmail: Email;
+    public DefaultPhone: Phone;
+    public DefaultAddress: Address;
+    public BaseCurrencyCode: CurrencyCode;
+    public SalaryBankAccount: BankAccount;
+    public CompanyBankAccount: BankAccount;
+    public DefaultTOFCurrencySettings: TOFCurrencySettings;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public SAFTimportAccount: Account;
     public BankAccounts: Array<BankAccount>;
-    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
-    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
-    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
     public AcceptableDelta4CustomerPaymentAccount: Account;
-    public DefaultTOFCurrencySettings: TOFCurrencySettings;
     public FactoringEmail: Email;
     public CustomFields: any;
 }
@@ -4402,6 +4405,25 @@ export class StatusCategory extends UniEntity {
     public ID: number;
     public Name: string;
     public StatusCategoryCode: StatusCategoryCode;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
+export class StatusRemark extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'StatusRemark';
+
+    public _createguid: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public EntityID: number;
+    public EntityType: string;
+    public ID: number;
+    public Remark: string;
+    public StatusCode: number;
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public CustomFields: any;
@@ -6791,6 +6813,7 @@ export class JournalEntryLineDraft extends UniEntity {
     public UpdatedBy: string;
     public VatDate: LocalDate;
     public VatDeductionPercent: number;
+    public VatIsCaluclauted: boolean;
     public VatPercent: number;
     public VatPeriodID: number;
     public VatTypeID: number;
