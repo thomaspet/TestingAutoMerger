@@ -2115,7 +2115,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             ? this.defaultAccountPayments.ID
                             : null;
                     }
-                    
                     this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
                         let agioSign = agioRow.DebitAccountID > 0 ? 1 : -1;
 
@@ -2126,7 +2125,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
                         journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
-                        this.addJournalEntryLines([oppositeRow]);
+                        this.addJournalEntryLines([oppositeRow, agioRow]);
                         resolve(journalEntryRow);
                     });
                 } else {
