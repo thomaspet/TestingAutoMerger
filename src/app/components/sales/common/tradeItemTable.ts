@@ -298,7 +298,7 @@ export class TradeItemTable {
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
-                if (item.Product) {
+                if (item.Product || item['_isEmpty']) {
                     item.Dimensions = item.Dimensions || new Dimensions();
                     item.Dimensions[entity] = id;
                     item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
