@@ -2,24 +2,21 @@ import {Component, Input, Output, EventEmitter, OnChanges, OnInit} from '@angula
 import {Observable, BehaviorSubject} from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {VatType, VatCodeGroup, Account, VatPost, LocalDate} from '@uni-entities';
-import {
-    VatTypeService,
-    VatCodeGroupService,
-    AccountService,
-    VatPostService,
-    ErrorService
-} from '@app/services/services';
+import {VatCodeGroupService, AccountService, VatPostService, ErrorService} from '@app/services/services';
 import {UniTableColumn, UniTableConfig, UniTableColumnType} from '@uni-framework/ui/unitable';
 import * as moment from 'moment';
 
 @Component({
-    selector: 'vattype-details',
-    templateUrl: './vattypedetails.html'
+    selector: 'vattype-settings-details',
+    templateUrl: './vattype-settings-details.html',
+    styleUrls: ['./vattype-settings-details.sass']
 })
-export class VatTypeDetails implements OnChanges, OnInit {
-    @Input() vatType: VatType;
-    @Output() vatTypeSaved: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @Output() change: EventEmitter<VatType> = new EventEmitter<VatType>();
+export class VatTypeSettingsDetails implements OnChanges, OnInit {
+    @Input()
+    vatType: VatType;
+
+    @Output()
+    change: EventEmitter<VatType> = new EventEmitter<VatType>();
 
     vatType$: BehaviorSubject<VatType> = new BehaviorSubject(null);
     fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
@@ -32,7 +29,6 @@ export class VatTypeDetails implements OnChanges, OnInit {
     private vatPostsWithPercentage: VatPost[] = [];
 
     constructor(
-        private vatTypeService: VatTypeService,
         private accountService: AccountService,
         private vatCodeGroupService: VatCodeGroupService,
         private vatPostService: VatPostService,
@@ -65,7 +61,7 @@ export class VatTypeDetails implements OnChanges, OnInit {
     }
 
     public onChange() {
-        this.change.emit(this.vatType$.getValue());
+        this.change.emit();
     }
 
     private setup() {
@@ -86,52 +82,6 @@ export class VatTypeDetails implements OnChanges, OnInit {
             },
             err => this.errorService.handle(err)
         );
-    }
-
-    public saveVatType(completeEvent): void {
-        // we dont support changing any of these, so remove them before posting
-        this.vatType.VatReportReferences = null;
-        this.vatType.VatTypePercentages = null;
-
-        if (this.vatType.ID > 0) {
-            this.vatTypeService.Put(this.vatType.ID, this.vatType)
-                .subscribe(
-                    data => {
-                        completeEvent('Lagret');
-                        this.vatTypeService.Get(
-                            data.ID,
-                            [
-                                'VatCodeGroup', 'IncomingAccount', 'OutgoingAccount', 'VatReportReferences',
-                                'VatReportReferences.VatPost', 'VatReportReferences.Account', 'VatTypePercentages'
-                            ]
-                        )
-                            .subscribe(vatType => {
-                                this.vatType = vatType;
-                                this.vatType$.next(this.vatType);
-                                this.vatTypeSaved.emit(this.vatType);
-                            }
-                        );
-                    },
-                    error => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(error);
-                    }
-                );
-        } else {
-            this.vatTypeService.Post(this.vatType)
-                .subscribe(
-                    data => {
-                        completeEvent('Lagret');
-                        this.vatType = data;
-                        this.vatType$.next(this.vatType);
-                        this.vatTypeSaved.emit(this.vatType);
-                    },
-                    error => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(error);
-                    }
-                );
-        }
     }
 
     private extendFormConfig() {

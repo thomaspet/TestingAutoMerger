@@ -48,7 +48,7 @@ export class UniBankSettings {
     bankAccounts: any[] = [];
     saveActions: any[] = [
         {
-            label: 'Lagre bankinnstillinger',
+            label: 'Lagre innstillinger',
             action: done => this.saveCompanySettings(done),
             main: true,
             disabled: false

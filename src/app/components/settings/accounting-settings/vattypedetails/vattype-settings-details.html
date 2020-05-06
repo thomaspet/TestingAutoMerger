@@ -1,9 +1,9 @@
-<div *ngIf="vatType$ | async">
+<div *ngIf="vatType$ | async" class="vattype-settings-details-view">
     <uni-form
-        [config]="{}"
+        [config]="{showLabelAbove: true, autoFocus: true}"
         [fields]="fields$"
         [model]="vatType$"
-        (change)="onChange($event)">
+        (changeEvent)="onChange($event)">
     </uni-form>
 
     <fieldset class="uni-fieldset">
@@ -23,6 +23,6 @@
     </fieldset>
 
 </div>
-<div *ngIf="!(vatType$ | async)">
+<div *ngIf="!(vatType$ | async)" class="no-vat-selected">
     Velg en mvakode i listen til venstre for å se detaljer om mvakoden
 </div>

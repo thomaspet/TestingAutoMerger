@@ -14,7 +14,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniReportSettingsView} from '../report/report-setup';
-import {CompanySettings, CustomerInvoiceReminderSettings} from '@app/unientities';
+import {CompanySettings, CustomerInvoiceReminderSettings, Email} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
@@ -25,7 +25,8 @@ import {
     ConfirmActions,
     ActivateOCRModal,
     UniActivateAPModal,
-    UniActivateInvoicePrintModal
+    UniActivateInvoicePrintModal,
+    UniEmailModal
 } from '@uni-framework/uni-modal';
 import { IUniTab } from '@uni-framework/uni-tabs';
 import {cloneDeep} from 'lodash';
@@ -51,8 +52,10 @@ export class UniSalesSettingsView {
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     electronicInvoiceFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fields$Customer = new BehaviorSubject<UniFieldLayout[]>([]);
+    factoringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
 
     expands = [
+        'FactoringEmail',
         'DefaultSalesAccount',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
@@ -89,7 +92,7 @@ export class UniSalesSettingsView {
 
     saveActions: any[] = [
         {
-            label: 'Lagre salgsinnstillinger',
+            label: 'Lagre innstillinger',
             action: done => this.saveCompanySettings(done),
             main: true,
             disabled: false
@@ -129,6 +132,7 @@ export class UniSalesSettingsView {
         this.fields$.complete();
         this.electronicInvoiceFields$.complete();
         this.fields$Customer.complete();
+        this.factoringFields$.complete();
     }
 
     reloadCompanySettingsData() {
@@ -142,6 +146,8 @@ export class UniSalesSettingsView {
             data['_FileFlowEmail'] = company['FileFlowEmail'];
             data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
             data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
+
+            data['FactoringEmails'] = [data.FactoringEmail || {_createguid: this.companySettingsService.getNewGuid()}];
 
             this.companySettings$.next(data);
             this.cs = cloneDeep(response[0]);
@@ -161,6 +167,7 @@ export class UniSalesSettingsView {
         if (this.activeIndex === 0) {
             this.fields$.next(this.getFormFields(0));
             this.fields$Customer.next(this.getFormFields(1));
+            this.setUpFactoringFields();
         }
         this.updateTabAndUrl();
     }
@@ -250,14 +257,17 @@ export class UniSalesSettingsView {
 
     saveCompanySettings(done?) {
         const companySettings = this.companySettings$.getValue();
+
         return new Promise(res => {
-            if (!this.isDirty && !this.reportSettings.isDirty && !this.reminderSettings.isDirty) {
+            if (!this.isDirty && !this.reportSettings.isDirty && !this.reminderSettings.isDirty && !companySettings['_isDirty']) {
                 done('Ingen endringer');
                 return;
             }
 
             Observable.forkJoin(
-                this.isDirty ? this.companySettingsService.Put(companySettings.ID, companySettings) : Observable.of(true),
+                (this.isDirty || companySettings['_isDirty'])
+                    ? this.companySettingsService.Put(companySettings.ID, companySettings)
+                    : Observable.of(true),
                 this.reportSettings.isDirty ? this.reportSettings.saveReportSettings() : Observable.of(true),
                 this.reminderSettings.isDirty ? Observable.fromPromise(this.reminderSettings.save()) : Observable.of(true)
             ).subscribe((response) => {
@@ -557,5 +567,51 @@ export class UniSalesSettingsView {
         }
 
         return fields;
+    }
+
+    setUpFactoringFields() {
+        this.factoringFields$.next([
+            <any>{
+                EntityType: 'CompanySettings',
+                Property: 'Factoring',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type',
+                Options: {
+                    source: [{ID: 0, Label: ''}, {ID: 1, Label: 'SGFinans'}],
+                    displayProperty: 'Label',
+                    valueProperty: 'ID'
+                }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'FactoringNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Factoring nr.'
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'FactoringEmail',
+                FieldType: FieldType.MULTIVALUE,
+                Label: 'E-post',
+                Options: {
+                    allowAddValue: false,
+                    allowDeleteValue: true,
+                    entity: Email,
+                    listProperty: 'FactoringEmails',
+                    displayValue: 'EmailAddress',
+                    linkProperty: 'ID',
+                    storeResultInProperty: 'FactoringEmail',
+                    storeIdInProperty: 'FactoringEmailID',
+                    editor: (value) => {
+                        const modal = this.modalService.open(UniEmailModal, {
+                            data: value || new Email(),
+                            closeOnClickOutside: false
+                        });
+
+                        return modal.onClose.take(1).toPromise();
+                    },
+                }
+            }
+        ]);
     }
 }

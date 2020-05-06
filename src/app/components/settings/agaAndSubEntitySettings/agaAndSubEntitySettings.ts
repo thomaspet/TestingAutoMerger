@@ -92,7 +92,7 @@ export class AgaAndSubEntitySettings implements OnInit {
     ];
 
     saveActions: IUniSaveAction[] = [{
-        label: 'Lagre aga og virksomheter',
+        label: 'Lagre innstillinger',
         action: this.saveAgaAndSubEntities.bind(this),
         main: true,
         disabled: false
@@ -296,6 +296,48 @@ export class AgaAndSubEntitySettings implements OnInit {
             click: (event) => {
                 this.openGrantsModal();
             }
+        };
+
+        // Vacation pay cose
+        const mainAccountCostVacation = new UniFieldLayout();
+        const companysalaryModel = this.companySalary$.getValue();
+        const cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
+            ? this.accountService.GetAll(
+                `filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1'
+            )
+            : Observable.of([{ AccountName: '', AccountNumber: null }]);
+        mainAccountCostVacation.Label = 'Kostnad feriepenger';
+        mainAccountCostVacation.Property = 'MainAccountCostVacation';
+        mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostVacation.Options = {
+            getDefaultData: () => cosVacAccountObs,
+            search: (query: string) => this.accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
+
+        // Vacation pay saved
+        const mainAccountAllocatedVacation = new UniFieldLayout();
+        const allVacAccountObs: Observable<Account> = companysalaryModel
+            && companysalaryModel.MainAccountAllocatedVacation
+                ? this.accountService.GetAll(
+                    `filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1'
+                )
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
+        mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
+        mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
+        mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedVacation.Options = {
+            getDefaultData: () => allVacAccountObs,
+            search: (query: string) => this.accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
         };
 
         const mainAccountAlocatedAga = new UniFieldLayout();
@@ -572,8 +614,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.fields$2.next([mainOrgZone, mainOrgRule, agaSoneLink, freeAmountBtn, grantBtn]);
 
         this.accountfields$.next([
-            mainAccountAlocatedAga, mainAccountCostAga, mainAccountAllocatedAgaVacation,
-            mainAccountCostAgaVacation, postTax, postGarnishmentToTaxAccount, interrimRemit
+
+            // HERE
+            mainAccountCostVacation, mainAccountAllocatedVacation, mainAccountAlocatedAga, mainAccountCostAga,
+            mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, postTax, postGarnishmentToTaxAccount, interrimRemit
         ]);
 
         this.accountfields$2.next([hourFTEs, paymentInterval, otpExportActive]);

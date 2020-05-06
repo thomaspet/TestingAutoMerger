@@ -1,0 +1,31 @@
+<section class="uni-card">
+    <section class="uni-card-header">
+        <h1>Forholdsmessig MVA</h1>
+
+        <button class="tertiary c2a" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Info om forholdsmessig MVA">
+            <i class="material-icons">info_outline</i>
+        </button>
+
+        <mat-menu #contextMenu="matMenu" yPosition="below">
+            <div class="number-series-info-container">
+                <h2>Forholdsmessig MVA</h2>
+                <p>Legg inn prosentsats for hvor stor del av MVA bedriften får fradrag for. Det kan legges inn flere grupper med forskjellige fradragssatser hvis dette brukes. I kontoplanen angis det per konto hvilken fradragsgruppe som skal benyttes (hvis forholdsmessig MVA skal brukes for kontoen)</p>
+                <p>Det er ikke tillatt å legge inn overlappende perioder innenfor en gruppe, men den siste perioden kan stå uten en sluttdato</p>
+            </div>
+        </mat-menu>
+
+        <button class="tertiary c2a pull-right" (click)="showVatDeductionGroups()"> Administrer grupper </button>
+    </section>
+
+    <section style="padding: 3rem 2rem 2rem">
+        <ag-grid-wrapper
+            class="borders"
+            [(resource)]="vatdeductions"
+            [config]="uniTableConfig">
+        </ag-grid-wrapper>
+
+        <div style="width: 100%; display: flex; justify-content: flex-end;">
+            <button class="c2a secondary" (click)="table.addRow(); isDirty = true;">Ny rad</button>
+        </div>
+    </section>
+</section>

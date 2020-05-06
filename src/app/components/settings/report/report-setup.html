@@ -1,38 +1,11 @@
 <section class="uni-card">
-    <section class="uni-card-content" *ngIf="companySettings && isOpen[0]">
-
-        <label class="uni-label">
-            <span>Vis logo i rapport</span>
-            <uni-select
-                [config]="selectConfig"
-                [items]="logoHideOptions"
-                [value]="logoHide"
-                (valueChange)="logoChange($event)">
-            </uni-select>
-        </label>
-
-        <label class="uni-label no-border">
-            <span>Plassering rapportlogo</span>
-            <mat-radio-group class="horizontal">
-                <mat-radio-button
-                    *ngFor="let align of logoAlignOptions"
-                    [checked]="align.Alignment === companySettings.LogoAlign"
-                    value="{{ align.Alignment }}"
-                    (change)="alignmentChange(align)">
-                    {{ align.Label }}
-                </mat-radio-button>
-            </mat-radio-group>
-        </label>
-
-        <label class="uni-label">
-            <span>Standard språk</span>
-            <uni-select
-                [config]="selectConfig"
-                [items]="localizationOptions"
-                [value]="lang"
-                (valueChange)="languageChange($event)">
-            </uni-select>
-        </label>
+    <section class="uni-card-content">
+        <uni-form
+            [config]="{showLabelAbove: true, autoFocus: true}"
+            [fields]="fields$"
+            [model]="companySettings$"
+            (changeEvent)="formChange()">
+        </uni-form>
     </section>
 </section>
 
