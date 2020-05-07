@@ -453,8 +453,8 @@ export class BankComponent {
         if (selectedTickerCode === 'payment_list') {
             const hasActiveAgreement = this.agreements && this.agreements.length
             && this.agreements.filter((agreement: BankIntegrationAgreement) =>
-            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0
-            && this.isAutobankAdmin;
+            agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active).length > 0;
+            // todo add check if user has bankIntergartion name...
 
             this.actions.push({
                 label: 'Send alle til betaling',
@@ -1637,4 +1637,3 @@ export class BankComponent {
             + `20eq%20%27false%27)%5C,1%5C,0))%20as%20NonJournaledPayments&filter=${filter}`);
     }
 }
-
