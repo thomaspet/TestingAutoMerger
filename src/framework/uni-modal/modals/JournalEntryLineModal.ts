@@ -79,7 +79,7 @@ export class UniJournalEntryLineModal implements IUniModal {
 ​
     public ngOnInit() {
 ​
-​
+
         Observable.forkJoin(
             this.journalEntryLineService.Get(this.options.data.journalEntryLine.ID, ['Dimensions', 'JournalEntryType']),
             this.projectService.GetAll(),
@@ -93,7 +93,8 @@ export class UniJournalEntryLineModal implements IUniModal {
             this.projects = data[1];
             this.departments = data[2];
             this.customDimensions = data[3];
-            this.jeTypes = data[4];
+            data[4].push({'DisplayName': '- Ikke valgt', ID: -1}); // ID skal være null, men da vises denne default, selv om annen type er valgt
+            this.jeTypes = data[4].sort((a, b) => a.DisplayName > b.DisplayName ? 1 : -1);
             this.setUpDims(this.customDimensions);
             this.formModel$.next(this.journalEntryLine);
             this.formFields$.next(this.getFormFields());
@@ -107,7 +108,11 @@ export class UniJournalEntryLineModal implements IUniModal {
             jelToSave.ID = jel.ID;
             jelToSave.Description = jel.Description;
             jelToSave.PaymentID = jel.PaymentID;
-            jelToSave.JournalEntryTypeID = jel.JournalEntryTypeID || (jel.JournalEntryType && jel.JournalEntryType.ID);
+            if (jel.JournalEntryTypeID < 0) {
+                jelToSave.JournalEntryTypeID = null; // for å komme rundt problem med ID null i lookup, brukes -1 og setter null her
+            } else {
+                jelToSave.JournalEntryTypeID = jel.JournalEntryTypeID;
+            }
             if (jel.Dimensions) {
                 jelToSave.Dimensions = jel.Dimensions;
                 jelToSave.Dimensions['_createguid'] = this.journalEntryLineService.getNewGuid();
@@ -158,13 +163,7 @@ export class UniJournalEntryLineModal implements IUniModal {
                     },
                     source: this.jeTypes,
                     search: (query) => {
-                        let strSearchQuery: string = '';
-                        if (query) {strSearchQuery = `and startswith(DisplayName\,'${query}')`;
-                        }
-                        const searchString = `model=JournalEntryType&select=DisplayName as DisplayName,ID as ID`
-                            + `&filter=ID gt 5 ${strSearchQuery}`;
-                        return this.statisticsService
-                        .GetAll(searchString).map(x => x.Data ? x.Data : []);
+                        return this.jeTypes.filter(x => x.DisplayName.toLowerCase().startsWith(query.toLowerCase()));
                     }
                 }
             },
