@@ -82,30 +82,6 @@
             </section>
         </section>
 
-        <!--  EMAIL INBOX -->
-        <section class="row form-row">
-            <section class="col-md-4">
-                <section class="form-info-section">
-                    <h1> {{ 'SETTINGS.COMPANY_EMAIL' | translate }} </h1>
-                    <p> {{ 'SETTINGS.COMPANY_EMAIL_INFOTEXT' | translate }}  </p>
-                </section>
-            </section>
-
-            <section class="col-md-8">
-                <section class="uni-card">
-                    <section class="uni-card-content">
-                        <uni-form
-                            class="electronic-invoice-form"
-                            [config]="{showLabelAbove: true, autoFocus: true}"
-                            [fields]="electronicInvoiceFields$"
-                            [model]="companySettings$"
-                            (changeEvent)="eifChange($event)">
-                        </uni-form>
-                    </section>
-                </section>
-            </section>
-        </section>
-
         <!-- FACTORING  -->
         <section class="row form-row last">
             <section class="col-md-4">

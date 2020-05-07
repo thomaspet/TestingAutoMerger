@@ -6,7 +6,9 @@ import {
     VatReportFormService,
     ErrorService,
     CurrencyCodeService,
-    PageStateService
+    PageStateService,
+    ElsaPurchaseService,
+    EHFService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -14,14 +16,20 @@ import {CompanySettings, CurrencyCode} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
-import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {
+    UniModalService,
+    ConfirmActions,
+    ActivateOCRModal,
+    UniActivateAPModal,
+} from '@uni-framework/uni-modal';
 import {VatTypeSettingsList} from './vattype-settings-list/vattype-settings-list';
 import {VatDeductionSettings} from './vat-deductions/vat-deduction-settings';
 import { UniFieldLayout } from '../../../../framework/ui/uniform';
 
 @Component({
     selector: 'uni-company-accounting-view',
-    templateUrl: './accounting-settings.html'
+    templateUrl: './accounting-settings.html',
+    styleUrls: ['../sales-settings/sales-settings.sass']
 })
 
 export class UniCompanyAccountingView {
@@ -52,6 +60,11 @@ export class UniCompanyAccountingView {
         {name: 'Regnskapsinnstillinger'},
         {name: 'Mva-innstillinger'},
         {name: 'Forholdsmessig MVA / fradrag'}
+    ];
+
+    eInvoiceItems: any[] = [
+        { name: 'EHF', isActivated: false, value: 1 },
+        { name: 'OCR-tolkning', isActivated: false, value: 2 }
     ];
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
@@ -86,6 +99,8 @@ export class UniCompanyAccountingView {
         private pageStateService: PageStateService,
         private route: ActivatedRoute,
         private router: Router,
+        private elsaPurchasesService: ElsaPurchaseService,
+        private ehfService: EHFService,
     ) { }
 
     ngOnInit() {
@@ -128,6 +143,9 @@ export class UniCompanyAccountingView {
             this.reinitFormFields();
             this.updateTabAndUrl();
 
+            this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
+            this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
+
         }, err => {
             this.errorService.handle(err);
         });
@@ -153,6 +171,60 @@ export class UniCompanyAccountingView {
             moduleID: UniModules.SubSettings,
             active: true
        });
+    }
+
+    onEInvoiceItemClick(item) {
+        switch (item.value) {
+            // EHF
+            case 1:
+                this.activateProduct('EHF', this.openActivateAPModal.bind(this));
+                break;
+            // OCR
+            case 2:
+                if (item.isActivated) {
+                    this.companySettingsService.PostAction(1, 'reject-ocr-agreement').subscribe(() => {
+                        const settings = this.companySettings$.getValue();
+                        settings.UseOcrInterpretation = false;
+                        this.companySettings$.next(settings);
+                    }, err => this.errorService.handle(err));
+                } else {
+                    this.activateProduct('OCR-SCAN', this.openActivateOCRModal.bind(this));
+                }
+            break;
+        }
+    }
+
+    private activateProduct(productName: string, activationModal: () => void) {
+        this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
+            if (purchase) {
+                activationModal();
+            } else {
+                this.router.navigateByUrl(`/marketplace/modules?productName=${productName}`);
+            }
+        });
+    }
+
+    private openActivateAPModal() {
+        this.modalService.open(UniActivateAPModal).onClose.subscribe((status) => {
+            if (status !== 0) {
+                this.companySettingsService.Get(1).subscribe(settings => {
+                    const company = this.companySettings$.getValue();
+                    company.BankAccounts = settings.BankAccounts;
+                    company.CompanyBankAccount = settings.CompanyBankAccount;
+                    this.companySettings$.next(company);
+                });
+            }
+        }, err => this.errorService.handle(err) );
+    }
+
+    private openActivateOCRModal() {
+        this.modalService.open(ActivateOCRModal).onClose.subscribe(activated => {
+            if (activated) {
+                const settings = this.companySettings$.getValue();
+                settings.UseOcrInterpretation = true;
+                this.companySettings$.next(settings);
+            }
+        });
     }
 
     saveCompanySettings(done?) {

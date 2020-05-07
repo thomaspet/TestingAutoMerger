@@ -6,6 +6,34 @@
     <uni-tabs [tabs]="tabs" [(activeIndex)]="activeIndex" (tabClick)="updateTabAndUrl()"></uni-tabs>
 
     <ng-container *ngIf="activeIndex === 0">
+
+        <!--  ELEKTRONISK FAKTURA -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.ELECTRONIC_INVOICE' | translate }} </h1>
+                    <p> {{ 'SETTINGS.ELECTRONIC_INVOICE_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <ul class="electronic-invoice-items-list">
+                            <li *ngFor="let item of eInvoiceItems">
+                                <span class="item-name"> {{ item.name }} </span>
+                                <i class="material-icons" *ngIf="item.isActivated"> check_circle_outline </i>
+                                <span class="divider"></span>
+                                <button class="secondary" [ngClass]="item.isActivated ? 'bad' : 'c2a'" (click)="onEInvoiceItemClick(item)">
+                                    {{ item.isActivated ? 'Deaktiver' : 'Aktiver' }}
+                                </button>
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+            </section>
+        </section>
+
         <section class="row form-row">
             <section class="col-md-4">
                 <section class="form-info-section">

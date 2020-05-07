@@ -1,6 +1,12 @@
-import {Component} from '@angular/core';
-import {CompanySettingsService, CompanyTypeService} from '@app/services/services';
-import {FieldType} from '@uni-framework/ui/uniform/index';
+import {Component, SimpleChanges} from '@angular/core';
+import {
+    CompanySettingsService,
+    CompanyTypeService,
+    CompanyService,
+    ErrorService
+} from '@app/services/services';
+import {AuthService} from '../../../authService';
+import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {BusinessRelationService} from '@app/services/sales/businessRelationService';
 import {CompanySettings, CompanyType} from '@app/unientities';
@@ -19,6 +25,7 @@ import {
 export class UniCompanySettingsView {
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    electronicInvoiceFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fields$ = new BehaviorSubject<any[]>([]);
     expands = ['DefaultPhone', 'DefaultEmail', 'DefaultAddress'];
     companyTypes = [];
@@ -37,8 +44,11 @@ export class UniCompanySettingsView {
         private companySettingsService: CompanySettingsService,
         private companyTypeService: CompanyTypeService,
         private businessRelationService: BusinessRelationService,
+        private companyService: CompanyService,
         private modalService: UniModalService,
         private tabService: TabService,
+        private authService: AuthService,
+        private errorService: ErrorService,
     ) { }
 
     ngOnInit() {
@@ -54,16 +64,27 @@ export class UniCompanySettingsView {
     ngOnDestroy() {
         this.companySettings$.complete();
         this.fields$.complete();
+        this.electronicInvoiceFields$.complete();
     }
 
     reloadCompanySettingsData() {
         Observable.forkJoin(
             this.companyTypeService.GetAll(null),
-            this.companySettingsService.Get(1, this.expands)
+            this.companySettingsService.Get(1, this.expands),
+            this.companyService.Get(this.authService.activeCompany.ID)
         ).subscribe((response) => {
             this.companyTypes = response[0];
-            this.companySettings$.next(response[1]);
+
+            const data = response[1];
+            const company = response[2];
+
+            data['_FileFlowEmail'] = company['FileFlowEmail'];
+            data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
+            data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
+
+            this.companySettings$.next(data);
             this.createFormFields();
+            this.setUpElectronicInvoiceFormFields();
         });
     }
 
@@ -136,6 +157,125 @@ export class UniCompanySettingsView {
         ];
 
         this.fields$.next(fields);
+    }
+
+    private updateInvoiceEmail() {
+        const data = this.companySettings$.getValue();
+        const customEmail = data['_FileFlowEmail'];
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email', 'customEmail=' + customEmail)
+        .subscribe(company => {
+            data['_FileFlowEmail'] = company['FileFlowEmail'];
+            this.companySettings$.next(data);
+            this.setUpElectronicInvoiceFormFields();
+        }, err => this.errorService.handle(err));
+    }
+
+    private activateEmail() {
+        const data = this.companySettings$.getValue();
+        if (!data['_FileFlowEmail']) {
+            this.generateInvoiceEmail();
+        } else {
+            this.disableInvoiceEmail();
+        }
+    }
+
+    private generateInvoiceEmail() {
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email').subscribe(company => {
+            const data = this.companySettings$.getValue();
+            data['_FileFlowEmail'] = company['FileFlowEmail'];
+            this.companySettings$.next(data);
+            this.setUpElectronicInvoiceFormFields();
+        }, err => this.errorService.handle(err));
+    }
+
+    private disableInvoiceEmail() {
+        this.companyService.Action(this.authService.activeCompany.ID, 'disable-email').subscribe(company => {
+            const data = this.companySettings$.getValue();
+            data['_FileFlowEmail'] = '';
+            data['_FileFlowOrgnrEmail'] = '';
+            data['_FileFlowOrgnrEmailCheckbox'] = false;
+            this.companySettings$.next(data);
+            this.setUpElectronicInvoiceFormFields();
+        }, err => this.errorService.handle(err));
+    }
+
+    eifChange(changes: SimpleChanges) {
+        if (changes['_FileFlowOrgnrEmailCheckbox']) {
+            const data = this.companySettings$.getValue();
+            if (data['_FileFlowOrgnrEmailCheckbox']) {
+                this.generateOrgnrInvoiceEmail(data);
+            } else {
+                this.disableOrgnrInvoiceEmail(data);
+            }
+        }
+    }
+
+    private generateOrgnrInvoiceEmail(data) {
+        this.companyService.Action(this.authService.activeCompany.ID, 'create-orgnr-email').subscribe(company => {
+            data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
+            this.companySettings$.next(data);
+        }, err => {
+            data['_FileFlowOrgnrEmailCheckbox'] = false;
+            this.companySettings$.next(data);
+            this.errorService.handle(err);
+        });
+    }
+
+    private disableOrgnrInvoiceEmail(data) {
+        this.companyService.Action(this.authService.activeCompany.ID, 'disable-orgnr-email').subscribe(company => {
+            data['_FileFlowOrgnrEmail'] = '';
+            this.companySettings$.next(data);
+        }, err => {
+            data['_FileFlowOrgnrEmailCheckbox'] = true;
+            this.companySettings$.next(data);
+            this.errorService.handle(err);
+        });
+    }
+
+    setUpElectronicInvoiceFormFields() {
+        const companySettings = this.companySettings$.getValue();
+        this.electronicInvoiceFields$.next([
+            <any>{
+                Property: '_FileFlowEmailActivated',
+                FieldType: FieldType.BUTTON,
+                Label: companySettings['_FileFlowEmail'] ? 'Deaktiver e-postmottak' : 'Aktiver e-postmottak',
+                Options: {
+                    click: () => this.activateEmail()
+                 }
+            },
+            {
+                FieldType: FieldType.TEXT,
+                Label: 'Faktura e-post med firmanavn',
+                Property: '_FileFlowEmail',
+                Placeholder: 'E-post',
+                ReadOnly: false,
+                Hidden: !companySettings['_FileFlowEmail']
+            },
+            {
+                FieldType: FieldType.BUTTON,
+                Label: 'Endre e-postadresse',
+                Property: '_UpdateEmail',
+                Options: {
+                    click: () => this.updateInvoiceEmail()
+                },
+                ReadOnly: companySettings['_FileFlowEmail'],
+                Hidden: !companySettings['_FileFlowEmail']
+            },
+            {
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bruk orgnr for faktura e-post',
+                Property: '_FileFlowOrgnrEmailCheckbox',
+                Hidden: !companySettings['_FileFlowEmail']
+            },
+            {
+                FieldType: FieldType.TEXT,
+                Label: 'Faktura e-port med orgnr',
+                Property: '_FileFlowOrgnrEmail',
+                Placeholder: 'Ikke i bruk',
+                ReadOnly: true,
+                Hidden: !companySettings['_FileFlowEmail']
+            }
+        ]);
     }
 
     logoFileChanged(files: Array<any>) {

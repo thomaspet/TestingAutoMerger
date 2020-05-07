@@ -1,4 +1,4 @@
-import {Component, ViewChild, SimpleChanges} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
     CompanySettingsService,
@@ -6,10 +6,8 @@ import {
     TermsService,
     EHFService,
     ElsaPurchaseService,
-    CompanyService,
     ErrorService
 } from '@app/services/services';
-import {AuthService} from '../../../authService';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
@@ -23,7 +21,6 @@ import {
     IModalOptions,
     UniTermsModal,
     ConfirmActions,
-    ActivateOCRModal,
     UniActivateAPModal,
     UniActivateInvoicePrintModal,
     UniEmailModal
@@ -50,7 +47,6 @@ export class UniSalesSettingsView {
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
-    electronicInvoiceFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fields$Customer = new BehaviorSubject<UniFieldLayout[]>([]);
     factoringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
 
@@ -68,8 +64,7 @@ export class UniSalesSettingsView {
 
     eInvoiceItems: any[] = [
         { name: 'Fakturaprint', isActivated: false, value: 0 },
-        { name: 'EHF', isActivated: false, value: 1 },
-        { name: 'OCR-tolkning', isActivated: false, value: 2 }
+        { name: 'EHF', isActivated: false, value: 1 }
     ];
 
     tabs: IUniTab[] = [
@@ -106,10 +101,8 @@ export class UniSalesSettingsView {
         private route: ActivatedRoute,
         private router: Router,
         private toast: ToastService,
-        private authService: AuthService,
         private errorService: ErrorService,
         private tabService: TabService,
-        private companyService: CompanyService,
         private pageStateService: PageStateService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private ehfService: EHFService,
@@ -130,7 +123,6 @@ export class UniSalesSettingsView {
     ngOnDestroy() {
         this.companySettings$.complete();
         this.fields$.complete();
-        this.electronicInvoiceFields$.complete();
         this.fields$Customer.complete();
         this.factoringFields$.complete();
     }
@@ -139,14 +131,8 @@ export class UniSalesSettingsView {
         Observable.forkJoin(
             this.companySettingsService.Get(1, this.expands),
             this.termsService.GetAll(null),
-            this.companyService.Get(this.authService.activeCompany.ID)
         ).subscribe((response) => {
             const data = response[0];
-            const company = response[2];
-            data['_FileFlowEmail'] = company['FileFlowEmail'];
-            data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
-            data['_FileFlowOrgnrEmailCheckbox'] = !!data['_FileFlowOrgnrEmail'];
-
             data['FactoringEmails'] = [data.FactoringEmail || {_createguid: this.companySettingsService.getNewGuid()}];
 
             this.companySettings$.next(data);
@@ -156,10 +142,8 @@ export class UniSalesSettingsView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isInvoicePrintActivated(response[0]);
             this.eInvoiceItems[1].isActivated = this.ehfService.isEHFActivated(response[0]);
-            this.eInvoiceItems[2].isActivated = response[0].UseOcrInterpretation;
 
             this.setUpTermsArrays();
-            this.setUpElectronicInvoiceFormFields();
         });
     }
 
@@ -296,18 +280,6 @@ export class UniSalesSettingsView {
             case 1:
                 this.activateProduct('EHF', this.openActivateAPModal.bind(this));
                 break;
-            // OCR
-            case 2:
-                if (item.isActivated) {
-                    this.companySettingsService.PostAction(1, 'reject-ocr-agreement').subscribe(() => {
-                        const settings = this.companySettings$.getValue();
-                        settings.UseOcrInterpretation = false;
-                        this.companySettings$.next(settings);
-                    }, err => this.errorService.handle(err));
-                } else {
-                    this.activateProduct('OCR-SCAN', this.openActivateOCRModal.bind(this));
-                }
-            break;
         }
     }
 
@@ -347,16 +319,6 @@ export class UniSalesSettingsView {
         }, err => this.errorService.handle(err));
     }
 
-    private openActivateOCRModal() {
-        this.modalService.open(ActivateOCRModal).onClose.subscribe(activated => {
-            if (activated) {
-                const settings = this.companySettings$.getValue();
-                settings.UseOcrInterpretation = true;
-                this.companySettings$.next(settings);
-            }
-        });
-    }
-
     canDeactivate(): boolean | Observable<boolean> {
         if (!this.isDirty && !this.reportSettings.isDirty) {
             return true;
@@ -378,125 +340,6 @@ export class UniSalesSettingsView {
             }
             return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
-    }
-
-    private updateInvoiceEmail() {
-        const data = this.companySettings$.getValue();
-        const customEmail = data['_FileFlowEmail'];
-        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email', 'customEmail=' + customEmail)
-        .subscribe(company => {
-            data['_FileFlowEmail'] = company['FileFlowEmail'];
-            this.companySettings$.next(data);
-            this.setUpElectronicInvoiceFormFields();
-        }, err => this.errorService.handle(err));
-    }
-
-    private activateEmail() {
-        const data = this.companySettings$.getValue();
-        if (!data['_FileFlowEmail']) {
-            this.generateInvoiceEmail();
-        } else {
-            this.disableInvoiceEmail();
-        }
-    }
-
-    private generateInvoiceEmail() {
-        this.companyService.Action(this.authService.activeCompany.ID, 'create-update-email').subscribe(company => {
-            const data = this.companySettings$.getValue();
-            data['_FileFlowEmail'] = company['FileFlowEmail'];
-            this.companySettings$.next(data);
-            this.setUpElectronicInvoiceFormFields();
-        }, err => this.errorService.handle(err));
-    }
-
-    private disableInvoiceEmail() {
-        this.companyService.Action(this.authService.activeCompany.ID, 'disable-email').subscribe(company => {
-            const data = this.companySettings$.getValue();
-            data['_FileFlowEmail'] = '';
-            data['_FileFlowOrgnrEmail'] = '';
-            data['_FileFlowOrgnrEmailCheckbox'] = false;
-            this.companySettings$.next(data);
-            this.setUpElectronicInvoiceFormFields();
-        }, err => this.errorService.handle(err));
-    }
-
-    eifChange(changes: SimpleChanges) {
-        if (changes['_FileFlowOrgnrEmailCheckbox']) {
-            const data = this.companySettings$.getValue();
-            if (data['_FileFlowOrgnrEmailCheckbox']) {
-                this.generateOrgnrInvoiceEmail(data);
-            } else {
-                this.disableOrgnrInvoiceEmail(data);
-            }
-        }
-    }
-
-    private generateOrgnrInvoiceEmail(data) {
-        this.companyService.Action(this.authService.activeCompany.ID, 'create-orgnr-email').subscribe(company => {
-            data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
-            this.companySettings$.next(data);
-        }, err => {
-            data['_FileFlowOrgnrEmailCheckbox'] = false;
-            this.companySettings$.next(data);
-            this.errorService.handle(err);
-        });
-    }
-
-    private disableOrgnrInvoiceEmail(data) {
-        this.companyService.Action(this.authService.activeCompany.ID, 'disable-orgnr-email').subscribe(company => {
-            data['_FileFlowOrgnrEmail'] = '';
-            this.companySettings$.next(data);
-        }, err => {
-            data['_FileFlowOrgnrEmailCheckbox'] = true;
-            this.companySettings$.next(data);
-            this.errorService.handle(err);
-        });
-    }
-
-    setUpElectronicInvoiceFormFields() {
-        const companySettings = this.companySettings$.getValue();
-        this.electronicInvoiceFields$.next([
-            <any>{
-                Property: '_FileFlowEmailActivated',
-                FieldType: FieldType.BUTTON,
-                Label: companySettings['_FileFlowEmail'] ? 'Deaktiver e-postmottak' : 'Aktiver e-postmottak',
-                Options: {
-                    click: () => this.activateEmail()
-                 }
-            },
-            {
-                FieldType: FieldType.TEXT,
-                Label: 'Faktura e-post med firmanavn',
-                Property: '_FileFlowEmail',
-                Placeholder: 'E-post',
-                ReadOnly: false,
-                Hidden: !companySettings['_FileFlowEmail']
-            },
-            {
-                FieldType: FieldType.BUTTON,
-                Label: 'Endre e-postadresse',
-                Property: '_UpdateEmail',
-                Options: {
-                    click: () => this.updateInvoiceEmail()
-                },
-                ReadOnly: companySettings['_FileFlowEmail'],
-                Hidden: !companySettings['_FileFlowEmail']
-            },
-            {
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Bruk orgnr for faktura e-post',
-                Property: '_FileFlowOrgnrEmailCheckbox',
-                Hidden: !companySettings['_FileFlowEmail']
-            },
-            {
-                FieldType: FieldType.TEXT,
-                Label: 'Faktura e-port med orgnr',
-                Property: '_FileFlowOrgnrEmail',
-                Placeholder: 'Ikke i bruk',
-                ReadOnly: true,
-                Hidden: !companySettings['_FileFlowEmail']
-            }
-        ]);
     }
 
     private getFormFields(index: number) {
