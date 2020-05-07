@@ -105,6 +105,29 @@
                 </section>
             </section>
         </section>
+
+        <!-- FACTORING  -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.FACTORING' | translate }} </h1>
+                    <p> {{ 'SETTINGS.FACTORING_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="factoringFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="isDirty = true">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
     </ng-container>
 
     <ng-container *ngIf="activeIndex === 1">
@@ -145,7 +168,7 @@
         </section>
 
         <!--  LEVERINGSBETINGELSER -->
-        <section class="row form-row">
+        <section class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.DELIVERY_TERMS' | translate }} </h1>
@@ -192,12 +215,12 @@
             </section>
 
             <section class="col-md-8">
-                <uni-report-settings #UniReportSettingsView [companySettings]="cs"></uni-report-settings>
+                <uni-report-settings #UniReportSettingsView [(companySettings$)]="companySettings$"></uni-report-settings>
             </section>
         </section>
 
         <!--  BLANKETTOPPSETT -->
-        <section *ngIf="activeIndex === 2" class="row form-row">
+        <section *ngIf="activeIndex === 2" class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.REPORT_LOGO' | translate }} </h1>

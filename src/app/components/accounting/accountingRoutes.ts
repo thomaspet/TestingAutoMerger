@@ -3,7 +3,6 @@ import {Routes} from '@angular/router';
 import {UniAccounting} from './accounting';
 import {JournalEntry} from './journalentry/journalentry';
 import {AccountSettings} from './accountSettings/accountSettings';
-import {VatSettings} from './vatsettings/vatsettings';
 import {VatReportView} from './vatreport/vatreportview';
 import {AccountingReports} from './accountingreports/accountingreports';
 import {AccountDetailsReport} from './accountingreports/detailsmodal/accountDetailsReport';
@@ -49,11 +48,6 @@ export const accountingRoutes: Routes = [
     {
         path: 'accountsettings',
         component: AccountSettings,
-        canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: 'vatsettings',
-        component: VatSettings,
         canDeactivate: [CanDeactivateGuard]
     },
     {

@@ -1,8 +1,9 @@
 import {Component, Input, Output} from '@angular/core';
-import {Observable} from 'rxjs';
 import {ReportTypeService, CampaignTemplateService} from '@app/services/services';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {CompanySettings} from '@uni-entities';
+import { Observable, BehaviorSubject } from 'rxjs';
+import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 
 @Component({
     selector: 'uni-report-settings',
@@ -13,7 +14,7 @@ import {CompanySettings} from '@uni-entities';
 export class UniReportSettingsView {
 
     @Input()
-    companySettings: CompanySettings;
+    companySettings$ = new BehaviorSubject<CompanySettings>(null);
 
     isDirty: boolean;
 
@@ -41,8 +42,6 @@ export class UniReportSettingsView {
 
     // Store values
     template: any = {};
-    logoHide: any = {};
-    lang: any = {};
 
     // Store form values
     invoice = {};
@@ -61,15 +60,64 @@ export class UniReportSettingsView {
         hideDeleteButton: true
     };
 
+    fields$ = new BehaviorSubject<UniFieldLayout[]>([
+        {
+            FieldType: FieldType.DROPDOWN,
+            Label: 'Vis logo i rapport',
+            Property: 'LogoHideField',
+            Options: {
+                source: this.logoHideOptions,
+                valueProperty: 'Value',
+                displayProperty: 'Label',
+                hideDeleteButton: true,
+                searchable: false,
+            }
+        },
+        {
+            FieldType: FieldType.DROPDOWN,
+            Label: 'Rapportlogo plassering',
+            Property: 'LogoAlign',
+            Options: {
+                source: this.logoAlignOptions,
+                valueProperty: 'Alignment',
+                displayProperty: 'Label',
+                hideDeleteButton: true,
+                searchable: false,
+            }
+        },
+        {
+            FieldType: FieldType.DROPDOWN,
+            Label: 'Standard språk',
+            Property: 'Localization',
+            Options: {
+                source: this.localizationOptions,
+                valueProperty: 'Culture',
+                displayProperty: 'Label',
+                hideDeleteButton: true,
+                searchable: false,
+            }
+        },
+        <any>{
+            EntityType: 'CompanySettings',
+            Property: 'ShowKIDOnCustomerInvoice',
+            FieldType: FieldType.CHECKBOX,
+            Label: 'Vis KID i fakturablankett',
+        }
+    ]);
+
     constructor(
         private reportTypeService: ReportTypeService,
         private campaignTemplateService: CampaignTemplateService,
     ) {}
 
     ngOnChanges(changes) {
-        if (changes['companySettings'] && changes['companySettings'].currentValue) {
+        if (changes['companySettings$'] && changes['companySettings$'].currentValue) {
             this.getDataAndShowForm();
         }
+    }
+
+    ngOnDestroy() {
+        this.fields$.complete();
     }
 
     getDataAndShowForm() {
@@ -90,15 +138,14 @@ export class UniReportSettingsView {
             this.template.CustomerQuote = response[3].find(res => res.EntityName === 'CustomerQuote')
                 || { EntityName: 'CustomerQuote', ID: 0, Template: '' };
 
-            if (this.companySettings) {
+            if (this.companySettings$.getValue()) {
                 this.formatViewData();
             }
         });
     }
 
     formatViewData() {
-        this.logoHide = this.logoHideOptions.find(opt => opt.Value === this.companySettings.LogoHideField);
-        this.lang = this.localizationOptions.find(opt => opt.Culture === this.companySettings.Localization);
+        const companySettings = this.companySettings$.getValue();
 
         if (this.quoteFormList[0] && this.quoteFormList[0].ID !== 0) {
             this.quoteFormList.unshift({Description: 'Ikke valgt', ID: 0});
@@ -106,47 +153,38 @@ export class UniReportSettingsView {
             this.invoiceFormList.unshift({Description: 'Ikke valgt', ID: 0});
         }
 
-        this.invoice = this.invoiceFormList.find(form => form.ID === this.companySettings.DefaultCustomerInvoiceReportID)
+        this.invoice = this.invoiceFormList.find(form => form.ID === companySettings.DefaultCustomerInvoiceReportID)
             || this.invoiceFormList[0];
-        this.order = this.orderFormList.find(form => form.ID === this.companySettings.DefaultCustomerOrderReportID)
+        this.order = this.orderFormList.find(form => form.ID === companySettings.DefaultCustomerOrderReportID)
             || this.orderFormList[0];
-        this.quote = this.quoteFormList.find(form => form.ID === this.companySettings.DefaultCustomerQuoteReportID)
+        this.quote = this.quoteFormList.find(form => form.ID === companySettings.DefaultCustomerQuoteReportID)
             || this.quoteFormList[0];
     }
 
-    logoChange(value) {
-        this.logoHide = value;
-        this.companySettings.LogoHideField = value.Value;
-        this.isDirty = true;
-    }
-
-    languageChange(value) {
-        this.lang = value;
-        this.companySettings.Localization = value.Culture;
-        this.isDirty = true;
-    }
-
-    alignmentChange(value) {
-        this.companySettings.LogoAlign = value.Alignment;
-        this.isDirty = true;
+    formChange() {
+        const companySettings = this.companySettings$.getValue();
+        companySettings['_isDirty'] = true;
+        this.companySettings$.next(companySettings);
     }
 
     tofFormChange(value: any, TOFType: number) {
+        const companySettings = this.companySettings$.getValue();
         switch (TOFType) {
             case 1:
                 this.invoice = value;
-                this.companySettings.DefaultCustomerInvoiceReportID = value.ID;
+                companySettings.DefaultCustomerInvoiceReportID = value.ID;
                 break;
             case 2:
                 this.order = value;
-                this.companySettings.DefaultCustomerInvoiceReportID = value.ID;
+                companySettings.DefaultCustomerInvoiceReportID = value.ID;
                 break;
             case 3:
                 this.quote = value;
-                this.companySettings.DefaultCustomerQuoteReportID = value.ID;
+                companySettings.DefaultCustomerQuoteReportID = value.ID;
                 break;
         }
         this.isDirty = true;
+        this.companySettings$.next(companySettings);
     }
 
     saveReportSettings(): Observable<any> {

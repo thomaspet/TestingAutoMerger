@@ -151,6 +151,7 @@ export const NO = {
         'REMINDER': 'Purreinnstillinger',
         'COLLECTOR_SETTINGS': 'Inkassoinnstillinger',
         'REMINDER_RULES': 'Purreregler',
+        'FACTORING': 'Factoring',
 
         'COMPANY_SETTINGS_INFOTEXT': 'Registrer detaljer om firma. Orgnr feltet kan stå tomt eller fylles med fødselsnummer om virksomhet er privatperson. Du kan også laste opp firmalogo for rapporter.',
         'SALES_INVOICE_INFOTEXT': 'Overordnede innstillinger for salg. Ved å huke av for «Periodiser etter leveringsdato» vil utgående faktura bokføres på leveringsdato.',
@@ -178,7 +179,8 @@ export const NO = {
         'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks.',
         'SALARY_BOOKING_ACCOUNTS_INFOTEXT': 'Administrer systemkonti for postering av arbeidsgiveravgift og interimskonto for utbetaling av lønn. Aktiver automatisk postering av skattetrekk for å bokføre trekk til skattetrekkskonto når lønnskjøring bokføres. Huk av for «Utleggstrekk skatt til skattetrekkskonto» for å styre samlet beløp for utleggstrekk på skatt på lønnskjøringer mot skattetrekkskonto i remitteringsfil.',
         'SALARY_OTHER_INFOTEXT': 'Legg opp intervall for lønnskjøringer på selskapet. Dette angir standard datointervall ved opprettelse av lønnskjøringer. Dersom du aktiverer OTP-eksport må du også fylle ut feltet «Timer per årsverk», som er antall timer som tilsvarer et fullt årsverk i selskapet.',
-        'VACATION_PAY_INFOTEXT': 'Oppsett for feriepengesats for ordinære lønnstakere, tilleggssats og startår, samt trekksats for fastlønn i feriepengemåned. Systemet bruker 10,2% som standard feriepengesats. Dersom noe av feriepengegrunnlaget er kjørt i annet system for inneværende år eller fjoråret kan feriepengegrunnlag registreres her.'
+        'VACATION_PAY_INFOTEXT': 'Oppsett for feriepengesats for ordinære lønnstakere, tilleggssats og startår, samt trekksats for fastlønn i feriepengemåned. Systemet bruker 10,2% som standard feriepengesats. Dersom noe av feriepengegrunnlaget er kjørt i annet system for inneværende år eller fjoråret kan feriepengegrunnlag registreres her.',
+        'FACTORING_INFOTEXT': 'Oppsett av factoring mot selskap'
     },
 
     NAVBAR: {

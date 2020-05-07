@@ -26,7 +26,7 @@ export class UniCompanySettingsView {
 
     saveActions: any[] = [
         {
-            label: 'Lagre firmainnstillinger',
+            label: 'Lagre innstillinger',
             action: done => this.saveCompanySettings(done),
             main: true,
             disabled: false
@@ -194,10 +194,19 @@ export class UniCompanySettingsView {
                 company.FactoringEmail['_createguid'] = this.companySettingsService.getNewGuid();
             }
 
+            if (company.DefaultPhone && !company.DefaultPhoneID) {
+                company.DefaultPhone['_createguid'] = this.companySettingsService.getNewGuid();
+            }
+
+            if (company.DefaultEmail && !company.DefaultEmailID) {
+                company.DefaultEmail['_createguid'] = this.companySettingsService.getNewGuid();
+            }
+
             this.companySettingsService.Put(company.ID, company).subscribe((response) => {
                 if (done) {
                     done('Firmainnstillinger lagret');
                 }
+                this.isDirty = false;
                 res(true);
             }, err => {
                 if (done) {

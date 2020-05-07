@@ -17,6 +17,10 @@ import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCo
 import {UniCompanySettingsView} from './companySettings/company-settings';
 import {UniBankSettings} from './bank-settings/bank-settings';
 
+import {VatTypeSettingsList} from './accounting-settings/vattype-settings-list/vattype-settings-list';
+import {VatTypeSettingsDetails} from './accounting-settings/vattypedetails/vattype-settings-details';
+import {VatDeductionSettings} from './accounting-settings/vat-deductions/vat-deduction-settings';
+
 import {
     UserManagement,
     UserDetails,
@@ -48,6 +52,7 @@ import {UniCompanyAccountingView} from './accounting-settings/accounting-setting
 import {UniSalesSettingsView} from './sales-settings/sales-settings';
 import {SettingsOverview} from './settings-overview/settings-overivew';
 import {UniReportSettingsView} from './report/report-setup';
+import {VatDeductionSettingsGroupSetupModal} from './accounting-settings/vat-deductions/vatDeductionGroupSetupModal';
 
 @NgModule({
     imports: [
@@ -90,12 +95,19 @@ import {UniReportSettingsView} from './report/report-setup';
         UniCompanyAccountingView,
         UniSalesSettingsView,
         UniReportSettingsView,
-        UniBankSettings
+        UniBankSettings,
+        VatTypeSettingsDetails,
+        VatTypeSettingsList,
+        VatDeductionSettings,
+        VatDeductionSettingsGroupSetupModal
     ],
     providers: [
         SubEntitySettingsService,
         CompanySettingsViewService,
-        SettingsService,
+        SettingsService
+    ],
+    entryComponents: [
+        VatDeductionSettingsGroupSetupModal
     ]
 })
 export class SettingsModule {

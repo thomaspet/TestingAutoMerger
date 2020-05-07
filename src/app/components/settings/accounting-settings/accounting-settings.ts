@@ -1,17 +1,22 @@
-import {Component} from '@angular/core';
+import {Component, ViewChild} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {
     CompanySettingsService,
     PeriodSeriesService,
     VatReportFormService,
     ErrorService,
-    CurrencyCodeService
+    CurrencyCodeService,
+    PageStateService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {CompanySettings, CurrencyCode} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
+import {IUniTab} from '@uni-framework/uni-tabs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {VatTypeSettingsList} from './vattype-settings-list/vattype-settings-list';
+import {VatDeductionSettings} from './vat-deductions/vat-deduction-settings';
 import { UniFieldLayout } from '../../../../framework/ui/uniform';
 
 @Component({
@@ -20,6 +25,12 @@ import { UniFieldLayout } from '../../../../framework/ui/uniform';
 })
 
 export class UniCompanyAccountingView {
+
+    @ViewChild(VatTypeSettingsList)
+    private vattypeList: VatTypeSettingsList;
+
+    @ViewChild(VatDeductionSettings)
+    private vatDeducationView: VatDeductionSettings;
 
     expands = [
         'BaseCurrencyCode',
@@ -36,6 +47,12 @@ export class UniCompanyAccountingView {
     accountingPeriods: any[] = [];
     vatReportForms: any[] = [];
     currencyCodes: Array<CurrencyCode> = [];
+    activeIndex: number = 0;
+    tabs: IUniTab[] = [
+        {name: 'Regnskapsinnstillinger'},
+        {name: 'Mva-innstillinger'},
+        {name: 'Forholdsmessig MVA / fradrag'}
+    ];
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -50,7 +67,7 @@ export class UniCompanyAccountingView {
 
     saveActions: any[] = [
         {
-            label: 'Lagre regnskapsinnstillinger',
+            label: 'Lagre innstillinger',
             action: done => this.saveCompanySettings(done),
             main: true,
             disabled: false
@@ -65,14 +82,25 @@ export class UniCompanyAccountingView {
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private currencyCodeService: CurrencyCodeService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private pageStateService: PageStateService,
+        private route: ActivatedRoute,
+        private router: Router,
     ) { }
 
     ngOnInit() {
-        this.fields$.next(this.getFormFields(0));
-        this.fieldsVat$.next(this.getFormFields(1));
-        this.fieldsCurrency$.next(this.getFormFields(2));
-        this.reloadCompanySettingsData();
+
+        this.route.queryParams.subscribe(params => {
+            const index = +params['index'];
+            if (!isNaN(index) && index >= 0 && index < this.tabs.length) {
+                this.activeIndex = index;
+            }
+            this.fields$.next(this.getFormFields(0));
+            this.fieldsVat$.next(this.getFormFields(1));
+            this.fieldsCurrency$.next(this.getFormFields(2));
+            this.updateTabAndUrl();
+            this.reloadCompanySettingsData();
+        });
     }
 
     ngOnDestroy() {
@@ -118,9 +146,10 @@ export class UniCompanyAccountingView {
     }
 
     updateTabAndUrl() {
+        this.pageStateService.setPageState('index', this.activeIndex + '');
         this.tabService.addTab({
             name: 'Innstillinger - Regnskap',
-            url: '/settings/accounting',
+            url: '/settings/accounting?index=' + this.activeIndex,
             moduleID: UniModules.SubSettings,
             active: true
        });
@@ -129,7 +158,7 @@ export class UniCompanyAccountingView {
     saveCompanySettings(done?) {
         return new Promise((res) => {
             const companySettings = this.companySettings$.getValue();
-            if (!this.isDirty) {
+            if (!this.isDirty && !this.vattypeList.hasChanges && !this.vatDeducationView.isDirty) {
                 done('Ingen endringer');
                 return;
             }
@@ -142,11 +171,17 @@ export class UniCompanyAccountingView {
             companySettings.BaseCurrencyCode = null;
             companySettings.AcceptableDelta4CustomerPaymentAccount = null;
 
-            this.companySettingsService.Put(companySettings.ID, companySettings).subscribe((response) => {
+            Observable.forkJoin(
+                this.companySettingsService.Put(companySettings.ID, companySettings),
+                this.vattypeList.saveVatType(),
+                this.vatDeducationView.saveVatDeductions()
+            ).subscribe((response) => {
                 this.isDirty = false;
                 if (done) {
-                    done('Regnskapsinnstillinger lagret');
+                    done('Innstillinger lagret');
                     this.reloadOnlyCompanySettings();
+                    this.vattypeList.vatTypeSaved();
+                    this.vatDeducationView.loadData();
                 }
                 res(true);
             }, err => {
@@ -160,7 +195,7 @@ export class UniCompanyAccountingView {
     }
 
     canDeactivate(): boolean | Observable<boolean> {
-        if (!this.isDirty) {
+        if (!this.isDirty && !this.vattypeList.hasChanges && !this.vatDeducationView.isDirty) {
             return true;
         }
 

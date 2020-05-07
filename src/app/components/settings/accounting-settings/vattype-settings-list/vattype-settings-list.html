@@ -1,0 +1,19 @@
+<section class="row form-row last vat-type-settings-view">
+	<ag-grid-wrapper
+		class="col-md-8"
+		[resource]="lookupFunction"
+		[config]="vatTableConfig"
+		(dataLoaded)="focusClickedRow()"
+		(rowClick)="onRowSelected($event)">
+	</ag-grid-wrapper>
+
+	<section class="col-md-4 padding-container">
+		<section>
+			<vattype-settings-details
+				[(vatType)]="vatType"
+				(vatTypeSaved)="vatTypeSaved()"
+				(change)="onChange()">
+			</vattype-settings-details>
+		</section>
+	</section>
+</section>

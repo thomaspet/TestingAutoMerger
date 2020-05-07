@@ -262,12 +262,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: false
                     },
                     {
-                        name: 'NAVBAR.VAT_SETTINGS',
-                        url: '/accounting/vatsettings',
-                        moduleID: UniModules.Vatsettings,
-                        activeInSidebar: false
-                    },
-                    {
                         name: 'NAVBAR.CURRENCY',
                         url: '/currency/exchange',
                         moduleID: UniModules.CurrencyExchange,

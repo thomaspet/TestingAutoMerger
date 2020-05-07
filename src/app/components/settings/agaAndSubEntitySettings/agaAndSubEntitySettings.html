@@ -38,7 +38,7 @@
         </section>
 
         <!-- AGA-SONE -->
-        <section class="row form-row">
+        <section class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> Arbeidsgiveravgift </h1>
@@ -107,6 +107,7 @@
                 <section class="form-info-section">
                     <h1>Bokføringskontoer</h1>
                     <p> {{ 'SETTINGS.SALARY_BOOKING_ACCOUNTS_INFOTEXT' | translate }} </p>
+                    <small> Systemets driftskonto, lønnskonto og skattetrekkskonto settes opp under <a routerLink="/settings/bank" title="Gå til bankinnstilliger">bankinnstilliger</a>.  </small>
                 </section>
             </section>
 
@@ -117,7 +118,7 @@
                             [config]="{showLabelAbove: true, autoFocus: true}"
                             [fields]="accountfields$"
                             [model]="companySalary$"
-                            (changeEvent)="mainOrgChange($event)">
+                            (changeEvent)="companySalaryChange($event)">
                         </uni-form>
                     </section>
                 </section>
@@ -125,7 +126,7 @@
         </section>
 
         <!-- Andre innstillinger -->
-        <section class="row form-row">
+        <section class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1>Annet</h1>
@@ -140,7 +141,7 @@
                             [config]="{showLabelAbove: true, autoFocus: true}"
                             [fields]="accountfields$2"
                             [model]="companySalary$"
-                            (changeEvent)="mainOrgChange($event)">
+                            (changeEvent)="companySalaryChange($event)">
                         </uni-form>
                     </section>
                 </section>
@@ -152,7 +153,7 @@
     <ng-container *ngIf="activeIndex === 3">
         <!-- Feriepenger -->
 
-        <section class="row form-row">
+        <section class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1>Feriepenger</h1>
@@ -220,7 +221,7 @@
         </section>
 
         <!-- Spesielle innstillinger - Skatt og avgift -->
-        <section class="row form-row">
+        <section class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> Skatter og avgifter </h1>

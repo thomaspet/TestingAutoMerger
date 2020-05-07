@@ -1,72 +1,123 @@
-import {Component, ViewChild, Output, EventEmitter, ElementRef, OnInit, AfterViewInit} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {VatType} from '@uni-entities';
 import {VatTypeService, ErrorService, FinancialYearService} from '@app/services/services';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
+import {VatTypeSettingsDetails} from '../vattypedetails/vattype-settings-details';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
+import { Observable } from 'rxjs';
 
 @Component({
-    selector: 'vattype-list',
-    templateUrl: './vatTypeList.html'
+    selector: 'vattype-settings-list',
+    templateUrl: './vattype-settings-list.html',
+    styleUrls: ['./vattype-settings-list.sass']
 })
-export class VatTypeList implements OnInit, AfterViewInit {
-    @Output() public uniVatTypeChange: EventEmitter<VatType> = new EventEmitter<VatType>();
-    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
+export class VatTypeSettingsList implements OnInit {
 
-    public vatTableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: HttpParams) => any;
-    private activeYear: number;
+	@ViewChild(AgGridWrapper, { static: true })
+    private table: AgGridWrapper;
+
+    @ViewChild(VatTypeSettingsDetails)
+    private vattypeDetails: VatTypeSettingsDetails;
+
+	vatTableConfig: UniTableConfig;
+	lookupFunction: (urlParams: HttpParams) => any;
+
+	private activeYear: number;
+
+	vatType: VatType;
+    hasChanges: boolean = false;
+    activeTableIndex: number;
 
     constructor(
         private vatTypeService: VatTypeService,
         private errorService: ErrorService,
-        private elementRef: ElementRef,
-        private financialYearService: FinancialYearService
-    ) {
-    }
+        private financialYearService: FinancialYearService,
+        private modalService: UniModalService,
+        private toast: ToastService
+    ) { }
 
-    public ngOnInit() {
+    ngOnInit() {
         this.activeYear = this.financialYearService.getActiveYear();
         this.setupTable();
     }
 
-    public ngAfterViewInit() {
-        const input = this.elementRef.nativeElement.querySelector('input');
-        if (input) {
-            input.focus();
+    vatTypeSaved() {
+        this.table.refreshTableData();
+        this.hasChanges = false;
+    }
+
+    focusClickedRow() {
+        if (this.activeTableIndex) {
+            this.table.focusRow(this.activeTableIndex);
         }
     }
 
-    public onRowSelected (event) {
-        this.uniVatTypeChange.emit(event);
+    onChange() {
+        this.hasChanges = true;
     }
 
-    public refresh() {
-        if (this.table) {
-            this.table.refreshTableData();
+    onRowSelected (event) {
+        if (this.hasChanges) {
+
+            const modalOptions = {
+                header: 'Ulagrede endringer',
+                message: 'Vil du lagre endringer før du bytter mva-gruppe? Ulagrede endringer blir fjernet',
+                buttonLabels: {
+                    accept: 'Lagre',
+                    reject: 'Forkast',
+                    cancel: 'Avbryt'
+                }
+            };
+            this.modalService.confirm(modalOptions).onClose.subscribe((response: ConfirmActions) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.vatType.VatReportReferences = null;
+                    this.vatType.VatTypePercentages = null;
+                    this.saveVatType().subscribe(() => {
+                        this.toast.addToast('MVA-innstilling lagret', ToastType.good, 5);
+                        this.hasChanges = false;
+                        this.vatType = {...event};
+                        this.activeTableIndex = event._originalIndex;
+                        this.table.refreshTableData();
+                    });
+                } else if (response === ConfirmActions.REJECT) {
+                    this.hasChanges = false;
+                    this.vatType = {...event};
+                    this.activeTableIndex = event._originalIndex;
+                } else {
+                    this.table.focusRow(this.activeTableIndex);
+                }
+            });
+
+        } else {
+            this.vatType =  {...event};
+            this.activeTableIndex = event._originalIndex;
         }
+    }
+
+    saveVatType(): Observable<any> {
+        if (!this.hasChanges) {
+            return Observable.of(true);
+        }
+
+        return this.vatType.ID ? this.vatTypeService.Put(this.vatType.ID, this.vatType) : this.vatTypeService.Post(this.vatType);
     }
 
     private setupTable() {
-
         this.lookupFunction = (urlParams: HttpParams) => {
-            let params = urlParams;
-
-            if (params === null) {
-                params = new HttpParams();
-            }
+            let params = urlParams || new HttpParams();
 
             if (!params.get('orderby')) {
                 params = params.set('orderby', 'VatCode');
             }
 
-            params = params.set(
-                'expand',
+            params = params.set('expand',
                 'VatCodeGroup,IncomingAccount,OutgoingAccount,VatReportReferences,'
-                    + 'VatReportReferences.VatPost,VatReportReferences.Account,'
-                    + 'VatTypePercentages'
-            );
+				+ 'VatReportReferences.VatPost,VatReportReferences.Account,'
+				+ 'VatTypePercentages' );
 
             return this.vatTypeService.GetAllByHttpParams(params)
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
