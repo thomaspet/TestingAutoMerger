@@ -538,7 +538,7 @@ export class TransqueryDetails implements OnInit {
                         if (res != null) {
                             this.currentRow['JournalEntryLineDescription'] = res.Description;
                             this.currentRow['JournalEntryLinePaymentID'] = res.PaymentID;
-                            this.currentRow['JournalEntryLineJournalEntryTypeID'] = res.JournalEntryType;
+                            this.currentRow['JournalEntryLineJournalEntryTypeID'] = res.JournalEntryTypeID;
                             // this.currentRow['JournalEntryLineJournalEntryType'] = res.JournalEntryType;
                             this.table.refreshTableData();
                         }
