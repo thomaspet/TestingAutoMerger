@@ -103,6 +103,11 @@ export class VatDeductionSettings {
             });
     }
 
+    addRow() {
+        this.table.addRow(this.getDefaultRow());
+        this.isDirty = true;
+    }
+
     getDefaultRow() {
         return <VatDeduction>{
             ID: 0,
