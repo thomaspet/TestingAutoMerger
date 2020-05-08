@@ -103,11 +103,7 @@ export class AuthService {
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
-                        auth => {
-                            if (!auth.hasActiveContract) {
-                                this.router.navigateByUrl('contract-activation');
-                            }
-
+                        () => {
                             // Give the app a bit of time to initialise before we remove spinner
                             // (less visual noise on startup)
                             setTimeout(() => {
@@ -320,14 +316,20 @@ export class AuthService {
             this.currentUser = user;
 
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-            const hasActiveContract = user && !this.isTrialExpired(contract);
+            const isDemo = contract.TypeName === 'Demo';
+            let hasActiveContract = user && !this.isTrialExpired(contract);
+
+            // In SR a demo with non-demo company requires contract activation immediately
+            if (environment.isSrEnvironment && isDemo && !this.activeCompany.IsTest) {
+                hasActiveContract = false;
+            }
 
             const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
                 hasActiveContract: hasActiveContract,
-                isDemo: contract.TypeName === 'Demo',
+                isDemo: isDemo,
             };
 
             this.authentication$.next(authDetails);

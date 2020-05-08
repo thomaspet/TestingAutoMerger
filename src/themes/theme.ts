@@ -1,10 +1,13 @@
 import {TRANSLATION_OVERRIDES} from './ue/translation-overrides';
-import {DASHBOARD_CONFIG} from './ue/dashboard-config';
+import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ue/dashboard-config';
 
 export const icons: any = {};
 export const theme = {
     translationOverrides: TRANSLATION_OVERRIDES,
     dashboardConfig: DASHBOARD_CONFIG,
+    accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
+    bankDashboardConfig: BANK_DASHBOARD_CONFIG,
+    salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
 
     init: {
         illustration: 'themes/ue/init_bg.svg',
