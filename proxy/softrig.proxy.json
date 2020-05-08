@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://test-api.softrig.com",
+        "secure": false,
+        "changeOrigin": true
+    }
+}

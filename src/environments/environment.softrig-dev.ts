@@ -4,22 +4,22 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 
 export const environment = {
-    useProdMode: true,
+    useProdMode: false,
     isSrEnvironment: false,
 
-    authority: 'https://test-login.softrig.com',
-    client_id: '017c7ff6-8586-a221-2783-15251a83299b',
+    authority: 'https://dev-login.unieconomy.no',
+    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
     post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',
     BASE_URL: '',
 
     // If you add base urls here please also update the api check in header-interceptor.ts!
-    BASE_URL_INTEGRATION: 'https://test-integration.softrig.com/',
-    BASE_URL_FILES: 'https://test-unifiles.softrig.com',
-    UNI_JOB_SERVER_URL: 'https://testapi-unijobserver.softrig.com/api/',
-    ELSA_SERVER_URL: 'https://test-admin.softrig.com',
-    SIGNALR_PUSHHUB_URL: 'https://test-unisignal.softrig.com/pushHub',
+    BASE_URL_INTEGRATION: 'https://dev-integration.unieconomy.no/',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
+    UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',
+    ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
+    SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
@@ -35,8 +35,8 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    RAYGUN_API_KEY: 'o/sDy5tQZkTH2vkbPj+SZA==',
-    APP_INSIGHTS_KEY: '',
+    RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',
+    APP_INSIGHTS_KEY: '790678cc-71eb-4852-aff2-f5a2a4e60359',
 
     RECAPTCHA_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
 
@@ -49,15 +49,15 @@ export const environment = {
         'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW',
 
     IMPORT_CENTRAL_TEMPLATE_URLS : {
-        CUSTOMER: 'https://test-public-files.softrig.com/files/import/CustomerTemplateFinal.xlsx',
-        SUPPLIER: 'https://test-public-files.softrig.com/files/import/SupplierTemplateFinal.xlsx',
-        PRODUCT: 'https://test-public-files.softrig.com/files/import/ProductTemplateFinal.xlsx',
-        MAIN_LEDGER: 'https://test-public-files.softrig.com/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://test-public-files.softrig.com/files/import/PayrollTemplate.xlsx',
-        VOUCHER: 'https://test-public-files.softrig.com/files/import/VoucherExcelTemplate.xlsx',
-        ORDER: 'https://test-public-files.softrig.com/files/import/OrderTemplate.xlsx'
+        CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
+        SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
+        PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
+        MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
+        PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
+        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx',
+        ORDER: 'https://public-files.unieconomy.no/files/import/OrderTemplate.xlsx'
     },
 
-    LICENSE_AGREEMENT_URL: 'https://test-public-files.softrig.com/files/license/Lisensavtale_UniEconomy_v2.pdf'
+    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };
 
