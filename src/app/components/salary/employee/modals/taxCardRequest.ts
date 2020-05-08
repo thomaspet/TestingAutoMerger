@@ -1,16 +1,9 @@
-import {Component, ViewChild, Input, Output, EventEmitter, SimpleChanges} from '@angular/core';
-import {UniForm, FieldType} from '../../../../../framework/ui/uniform/index';
-import {FieldLayout, AltinnReceipt, Employee, EmployeeCategory} from '../../../../../app/unientities';
-import {
-    AltinnIntegrationService,
-    ErrorService,
-    FinancialYearService,
-    EmployeeCategoryService,
-    EmployeeService,
-    StatisticsService
-} from '../../../../../app/services/services';
-import {BehaviorSubject, Observable} from 'rxjs';
-declare const _;
+import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
+
+import {BehaviorSubject} from 'rxjs';
+import { Employee, FieldLayout, FieldType, EmployeeCategory, AltinnReceipt } from '@uni-entities';
+import { UniForm } from '@uni-framework/ui/uniform';
+import { AltinnIntegrationService, ErrorService, FinancialYearService, EmployeeCategoryService, EmployeeService, StatisticsService } from '@app/services/services';
 
 interface ITaxRequestModel {
     singleEmpChoice: number;
@@ -80,7 +73,8 @@ export class TaxCardRequest {
                     { id: 1, text: 'Alle ansatte uten sluttdato på minst ett arbeidsforhold' },
                     { id: 2, text: 'Alle ansatte' },
                     { id: 3, text: `Ansatte uten skatteopplysninger i ${this.financialYearService.getActiveYear()}` },
-                    { id: 4, text: 'Ansatte i kategori' }
+                    { id: 4, text: 'Ansatte i kategori' },
+                    { id: 5, text: 'Hent kun endrede skattekort'}
                 ],
                 labelProperty: 'text',
                 valueProperty: 'id'
@@ -140,7 +134,9 @@ export class TaxCardRequest {
                 case 4:
                     option = 'EMPS_IN_CATEGORY';
                     break;
-
+                case 5:
+                    option = 'CHANGED_ONLY';
+                    break;
                 default:
                     option = 'SINGLE_EMP';
             }
@@ -180,6 +176,9 @@ export class TaxCardRequest {
                 this.getEmpsWithoutTaxInfoForCurrentFinancialYear();
                 break;
             case 4:
+                this.empCount = 0;
+                break;
+            case 5:
                 this.empCount = 0;
                 break;
         }
