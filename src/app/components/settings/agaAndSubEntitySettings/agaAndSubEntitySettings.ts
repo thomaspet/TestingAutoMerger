@@ -446,6 +446,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         postGarnishmentToTaxAccount.Label = 'Utleggstrekk skatt til skattetrekkskonto';
         postGarnishmentToTaxAccount.Property = 'PostGarnishmentToTaxAccount';
         postGarnishmentToTaxAccount.FieldType = FieldType.CHECKBOX;
+        postGarnishmentToTaxAccount.Tooltip = {
+            Text: 'Kryss av for at Utleggstrekk Skatt som trekkes av ansatte overføres ' +
+            'til bankkonto for skattetrekk når lønnsavregningen utbetales. Husk at Skattetrekkskonto ' +
+            'må fylles ut, og bør være ulik Lønnskonto/Driftskonto.'
+        };
 
         const hourFTEs = new UniFieldLayout();
         hourFTEs.EntityType = 'CompanySalary';
