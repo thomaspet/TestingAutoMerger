@@ -108,7 +108,7 @@ export class TravelComponent implements OnInit {
     private getContextMenuItems(): IContextMenuItem[] {
         return [
             {
-                label: 'Reisetyper',
+                label: 'Reisetyper og kontoinnstillinger',
                 action: () => this.navigateToTravelTypes(),
             }
         ];
