@@ -28,6 +28,7 @@ import {PaymentWidget} from './payment/payment-chart';
 import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
 import {BankBalanceWidget} from './bank-balance-widget';
 import {LiquidityWidget} from './liquidity-widget/liquidity-widget';
+import { UniInfoTileWidget } from './infoTileWidget';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -58,7 +59,8 @@ export const UNI_WIDGETS = [
     PaymentWidget,
     PublicDueDatesWidget,
     BankBalanceWidget,
-    LiquidityWidget
+    LiquidityWidget,
+    UniInfoTileWidget
 ];
 
 export * from './shortcuts';
@@ -90,3 +92,4 @@ export * from './payment/payment-chart';
 export * from './public-duedates-widget/public-duedates';
 export * from './bank-balance-widget';
 export * from './liquidity-widget/liquidity-widget';
+export * from './infoTileWidget';

@@ -1,9 +1,13 @@
 import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
-import {DASHBOARD_CONFIG} from './ext01/dashboard-config';
+import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ext01/dashboard-config';
 
 export const theme = {
     translationOverrides: TRANSLATION_OVERRIDES,
     dashboardConfig: DASHBOARD_CONFIG,
+    accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
+    bankDashboardConfig: BANK_DASHBOARD_CONFIG,
+    salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
+
 
     init: {
         illustration: 'themes/ext01/register-company-background.svg',
