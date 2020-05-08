@@ -320,7 +320,7 @@ export class UniTicker {
                             if (customerNrCol) {
                                 customerNrCol.setTemplate(x => {
                                     if (x.CustomerStatusCode === 20001) {
-                                        return 'Lead';
+                                        return 'Potensiell kunde';
                                     }
                                     return x.CustomerCustomerNumber;
                                 });

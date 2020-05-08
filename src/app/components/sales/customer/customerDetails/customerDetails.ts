@@ -407,7 +407,7 @@ export class CustomerDetails implements OnInit {
                  disabled: !this.isDirty || this.hasErrors
              },
              {
-                 label: 'Lagre som lead',
+                 label: 'Lagre som potensiell kunde',
                  action: (completeEvent) => this.saveAction(completeEvent, true),
                  main: false,
                  disabled: !this.isDirty || this.hasErrors
@@ -753,7 +753,7 @@ export class CustomerDetails implements OnInit {
         switch (activeStatusCode) {
             case StatusCode.Pending:
                 type = 'warn';
-                label = 'Lead';
+                label = 'Potensiell kunde';
             break;
             case StatusCode.Active:
                 type = 'good';

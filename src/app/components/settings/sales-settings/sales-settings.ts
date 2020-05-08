@@ -358,6 +358,16 @@ export class UniSalesSettingsView {
                         }
                     },
                     {
+                        EntityType: 'CompanySettings',
+                        Property: 'AcceptableDelta4CustomerPaymentAccountID',
+                        FieldType: FieldType.UNI_SEARCH,
+                        Label: 'Konto for øredifferanse',
+                        Options: {
+                            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                            valueProperty: 'ID'
+                        }
+                    },
+                    {
                         Property: 'ShowNumberOfDecimals',
                         FieldType: FieldType.DROPDOWN,
                         Label: 'Antall desimaler i visning av antall og pris',

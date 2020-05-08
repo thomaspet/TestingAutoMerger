@@ -83,3 +83,24 @@
         </label>
     </section>
 </section>
+
+<section class="uni-card collapsable">
+    <section class="uni-card-header" [class.is-open]="isOpen[4]" (click)="isOpen[4] = !isOpen[4]">
+        <h1> {{ 'NAVBAR.REMINDER' | translate }} </h1>
+        <button class="tertiary c2a pull-right">
+            <i class="material-icons"> {{ isOpen[4] ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+        </button>
+    </section>
+
+    <section class="uni-card-content" *ngIf="template?.CustomerQuote && isOpen[4]">
+        <label class="uni-label">
+            <span>Standard blankett</span>
+            <uni-select
+                [config]="formComfig"
+                [items]="invoiceReminderFormList"
+                [value]="reminder"
+                (valueChange)="tofFormChange($event, 4)">
+            </uni-select>
+        </label>
+    </section>
+</section>

@@ -77,7 +77,7 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                     },
                     {
                         name: 'NAVBAR.BANK', activeInSidebar: false, url: '/settings/bank',
-                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Remitteringskonto', 'EndToEndID']
+                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']
                     },
                     {
                         name: 'NAVBAR.SALARY', activeInSidebar: false, url: '/settings/aga-and-subentities',

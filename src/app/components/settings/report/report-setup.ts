@@ -1,4 +1,4 @@
-import {Component, Input, Output} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {ReportTypeService, CampaignTemplateService} from '@app/services/services';
 import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {CompanySettings} from '@uni-entities';
@@ -21,8 +21,9 @@ export class UniReportSettingsView {
     quoteFormList: any[];
     orderFormList: any[];
     invoiceFormList: any[];
+    invoiceReminderFormList: any[];
 
-    isOpen: boolean[] = [true, false, false, false];
+    isOpen = [true, false, false, false, false];
 
     logoHideOptions: {Value: number, Label: string}[] = [
         {Value: 1, Label: 'Firmanavn'},
@@ -47,6 +48,7 @@ export class UniReportSettingsView {
     invoice = {};
     order = {};
     quote = {};
+    reminder = {};
 
     selectConfig = {
         template: (item) => item ? item.Label : '',
@@ -108,7 +110,7 @@ export class UniReportSettingsView {
     constructor(
         private reportTypeService: ReportTypeService,
         private campaignTemplateService: CampaignTemplateService,
-    ) {}
+    ) { }
 
     ngOnChanges(changes) {
         if (changes['companySettings$'] && changes['companySettings$'].currentValue) {
@@ -118,6 +120,7 @@ export class UniReportSettingsView {
 
     ngOnDestroy() {
         this.fields$.complete();
+        this.companySettings$.complete();
     }
 
     getDataAndShowForm() {
@@ -125,17 +128,19 @@ export class UniReportSettingsView {
             this.reportTypeService.getFormType(ReportTypeEnum.QUOTE),
             this.reportTypeService.getFormType(ReportTypeEnum.ORDER),
             this.reportTypeService.getFormType(ReportTypeEnum.INVOICE),
+            this.reportTypeService.getFormType(ReportTypeEnum.REMINDER),
             this.campaignTemplateService.getTemplateText(),
         ) .subscribe((response) => {
             this.quoteFormList = response[0];
             this.orderFormList = response[1];
             this.invoiceFormList = response[2];
+            this.invoiceReminderFormList = response[3];
 
-            this.template.CustomerInvoice = response[3].find(res => res.EntityName === 'CustomerInvoice')
+            this.template.CustomerInvoice = response[4].find(res => res.EntityName === 'CustomerInvoice')
                 || { EntityName: 'CustomerInvoice', ID: 0, Template: '' };
-            this.template.CustomerOrder = response[3].find(res => res.EntityName === 'CustomerOrder')
+            this.template.CustomerOrder = response[4].find(res => res.EntityName === 'CustomerOrder')
                 || { EntityName: 'CustomerOrder', ID: 0, Template: '' };
-            this.template.CustomerQuote = response[3].find(res => res.EntityName === 'CustomerQuote')
+            this.template.CustomerQuote = response[4].find(res => res.EntityName === 'CustomerQuote')
                 || { EntityName: 'CustomerQuote', ID: 0, Template: '' };
 
             if (this.companySettings$.getValue()) {
@@ -151,6 +156,7 @@ export class UniReportSettingsView {
             this.quoteFormList.unshift({Description: 'Ikke valgt', ID: 0});
             this.orderFormList.unshift({Description: 'Ikke valgt', ID: 0});
             this.invoiceFormList.unshift({Description: 'Ikke valgt', ID: 0});
+            this.invoiceReminderFormList.unshift({Description: 'Ikke valgt', ID: 0});
         }
 
         this.invoice = this.invoiceFormList.find(form => form.ID === companySettings.DefaultCustomerInvoiceReportID)
@@ -159,6 +165,8 @@ export class UniReportSettingsView {
             || this.orderFormList[0];
         this.quote = this.quoteFormList.find(form => form.ID === companySettings.DefaultCustomerQuoteReportID)
             || this.quoteFormList[0];
+        this.reminder = this.invoiceReminderFormList.find(form => form.ID === companySettings.DefaultCustomerInvoiceReminderReportID)
+            || this.invoiceReminderFormList[0];
     }
 
     formChange() {
@@ -182,6 +190,9 @@ export class UniReportSettingsView {
                 this.quote = value;
                 companySettings.DefaultCustomerQuoteReportID = value.ID;
                 break;
+            case 4:
+                this.reminder = value;
+                companySettings.DefaultCustomerInvoiceReminderReportID = value.ID;
         }
         this.isDirty = true;
         this.companySettings$.next(companySettings);

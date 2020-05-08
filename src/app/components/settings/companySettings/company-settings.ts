@@ -104,6 +104,12 @@ export class UniCompanySettingsView {
             },
             {
                 EntityType: 'CompanySettings',
+                Property: 'CompanyRegistered',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Foretaksregistrert',
+            },
+            {
+                EntityType: 'CompanySettings',
                 Property: 'DefaultPhone.Number',
                 FieldType: FieldType.TEXT,
                 Label: 'Telefon'
@@ -269,7 +275,7 @@ export class UniCompanySettingsView {
             },
             {
                 FieldType: FieldType.TEXT,
-                Label: 'Faktura e-port med orgnr',
+                Label: 'Faktura e-post med orgnr',
                 Property: '_FileFlowOrgnrEmail',
                 Placeholder: 'Ikke i bruk',
                 ReadOnly: true,

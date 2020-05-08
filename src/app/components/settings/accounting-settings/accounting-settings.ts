@@ -313,16 +313,6 @@ export class UniCompanyAccountingView {
                             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                             valueProperty: 'ID'
                         }
-                    },
-                    {
-                        EntityType: 'CompanySettings',
-                        Property: 'AcceptableDelta4CustomerPaymentAccountID',
-                        FieldType: FieldType.UNI_SEARCH,
-                        Label: 'Konto for øredifferanse',
-                        Options: {
-                            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
-                            valueProperty: 'ID'
-                        }
                     }
                 ];
                 break;

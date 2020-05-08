@@ -396,20 +396,6 @@ export class AgaAndSubEntitySettings implements OnInit {
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 
-        const interrimRemit = new UniFieldLayout();
-        interrimRemit.EntityType = 'CompanySalary';
-        interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
-        interrimRemit.Property = 'InterrimRemitAccount';
-        interrimRemit.FieldType = FieldType.UNI_SEARCH;
-        interrimRemit.Options = {
-            valueProperty: 'AccountNumber',
-            source: model => this.accountService
-                .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccount}`)
-                .map(results => results[0])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
-        };
-
         const postTax = new UniFieldLayout();
         postTax.Label = 'Poster skattetrekk automatisk';
         postTax.EntityType = 'CompanySalary';
@@ -622,7 +608,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
             // HERE
             mainAccountCostVacation, mainAccountAllocatedVacation, mainAccountAlocatedAga, mainAccountCostAga,
-            mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, postTax, postGarnishmentToTaxAccount, interrimRemit
+            mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, postTax, postGarnishmentToTaxAccount
         ]);
 
         this.accountfields$2.next([hourFTEs, paymentInterval, otpExportActive]);

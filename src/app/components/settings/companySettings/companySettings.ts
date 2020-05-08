@@ -1505,7 +1505,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
-                Label: 'Remitteringskonto innbetaling',
+                Label: 'Mellomkonto innbetaling',
                 Property: 'InterrimPaymentAccountID',
                 FieldType: FieldType.UNI_SEARCH,
                 FieldSet: 6,
@@ -1521,7 +1521,7 @@ export class CompanySettingsComponent implements OnInit {
             },
             {
                 EntityType: 'CompanySettings',
-                Label: 'Remitteringskonto utbetaling',
+                Label: 'Mellomkonto utbetaling',
                 Property: 'InterrimRemitAccountID',
                 FieldType: FieldType.UNI_SEARCH,
                 FieldSet: 6,
