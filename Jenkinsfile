@@ -36,7 +36,7 @@ pipeline {
                   if(env.JOB_BASE_NAME.toLowerCase().reverse().substring(0,7).reverse() == "nightly") {
                     echo "Branch is 'develop' but Jenkins-project name ends with 'nightly' so using test-parameters instead of dev..."
                     PUBLISH_NAME = "test-unieconomy"
-                    YARN_BUILD = "build.test"
+                    YARN_BUILD = "build.softrig"
                     ENV_TYPE = "testing"
                   }
                   break; 
