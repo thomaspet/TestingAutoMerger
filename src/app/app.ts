@@ -38,6 +38,7 @@ export class App {
     private missingRolesModalOpen: boolean;
 
     isSrEnvironment = environment.isSrEnvironment;
+    title = environment.appTitle;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
@@ -56,7 +57,7 @@ export class App {
         public chatBoxService: ChatBoxService,
     ) {
         if (!this.titleService.getTitle()) {
-            const title = this.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+            const title = this.title;
             this.titleService.setTitle(title);
         }
 

@@ -6,6 +6,7 @@
 export const environment = {
     useProdMode: true,
     isSrEnvironment: false,
+    appTitle: 'SoftRig',
 
     authority: 'https://test-login.softrig.com',
     client_id: '017c7ff6-8586-a221-2783-15251a83299b',

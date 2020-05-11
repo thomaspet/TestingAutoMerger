@@ -1,6 +1,7 @@
 export const environment = {
     useProdMode: true,
     isSrEnvironment: false,
+    appTitle: 'Uni Economy',
 
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',
