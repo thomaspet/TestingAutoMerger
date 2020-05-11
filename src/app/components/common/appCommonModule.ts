@@ -66,6 +66,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
 import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
 import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 import {LibraryImportsModule} from '@app/library-imports.module';
+import {BrunoProductPackages} from './bruno-product-packages/bruno-product-packages';
 
 @NgModule({
     imports: [
@@ -144,6 +145,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
+        BrunoProductPackages,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -197,6 +199,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         InvoiceHours,
         VacationPayModal,
         VacationPaySettingsModal,
+        BrunoProductPackages,
     ]
 })
 export class AppCommonModule {}

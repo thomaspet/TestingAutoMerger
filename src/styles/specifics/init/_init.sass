@@ -56,28 +56,31 @@ uni-init
     max-width: 92vw
     min-height: 10rem
     background: #fff
+    color: var(--init-text)
     border-radius: 4px
-    padding: 1rem 2rem
+    padding: 1.5rem 2.5rem
     box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.16)
 
     h1
-        margin: 0 0 1rem
-        font-size: 22px
+        margin: 0 0 .5rem
+        font-size: 24px
         font-weight: 500
-        color: var(--color-c2a-dark)
+        color: var(--init-header)
+
+    p
+        color: var(--init-text)
 
     .init-subtitle
         font-weight: 500
         font-size: 15px
-        color: var(--color-c2a-dark)
+        color: var(--init-subtitle)
         margin-bottom: 2rem
 
     label.uni-label
         margin-bottom: 1.25rem
         > span
             font-weight: 500
-            color: var(--color-c2a-dark)
-
+            color: var(--init-label)
 
     small.validation
         margin: 0 0 1rem 0
@@ -98,6 +101,7 @@ uni-password-guide
     ul.password-validation
         list-style: none
         margin-left: .5rem
+        margin-bottom: 2rem
         font-size: .9rem
         display: flex
         flex-flow: row wrap
@@ -105,17 +109,18 @@ uni-password-guide
 
         li
             flex: 0 0 50%
-            color: var(--scale1)
+            // color: var(--scale1)
 
             &:before
                 content: '🞩'
-                color: var(--color-bad)
+                // color: var(--color-bad)
                 margin-right: .5rem
 
             &.completed
-                color: $uni-color-scale7
+                color: var(--init-label)
+                // color: $uni-color-scale7
                 &:before
-                    color: var(--color-good)
+                    // color: var(--color-good)
                     content: '✓'
 
 .locked-company-container
@@ -160,6 +165,9 @@ uni-signup, uni-confirm-invite, uni-login
         left: 0
         height: 42vh
         z-index: -1
+
+        &.full-height
+            height: 100%
 
     .content
         display: flex

@@ -17,10 +17,11 @@ export const theme = {
     salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
 
     init: {
-        illustration: 'themes/ue/init_bg.svg',
-        background: '#F5F6F8',
+        illustration: undefined, // 'themes/ue/init_bg.svg',
+        background: '#FBF6EC',
         login_background: undefined,
-        login_background_height: undefined,
+        login_background_height: '100%',
+        signup_background_height: '100%',
     },
 
     widgets: {

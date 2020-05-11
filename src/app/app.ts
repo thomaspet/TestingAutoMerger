@@ -95,30 +95,6 @@ export class App {
                     return;
                 }
 
-                // this.toastService.toast({
-                //     title: 'Testing av toastfarger',
-                //     type: ToastType.info,
-                //     duration: 0
-                // });
-
-                // this.toastService.toast({
-                //     title: 'Testing av toastfarger1',
-                //     type: ToastType.good,
-                //     duration: 0
-                // });
-
-                // this.toastService.toast({
-                //     title: 'Testing av toastfarger2',
-                //     type: ToastType.warn,
-                //     duration: 0
-                // });
-
-                // this.toastService.toast({
-                //     title: 'Testing av toastfarger3',
-                //     type: ToastType.bad,
-                //     duration: 0
-                // });
-
                 const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
                     && theme.theme !== THEMES.SR
                     && contractType !== 'Demo'

@@ -8,7 +8,7 @@
     border: none
     color: #fff
     background-color: var(--button-#{$type})
-    font-weight: var(--primary-btn-font-weight)
+    font-weight: var(--button-primary-font-weight)
 
     &:focus, &:active
         background-color: var(--button-#{$type}-hover)
@@ -37,7 +37,7 @@
 button, a.button
     position: relative
     height: 2.5rem
-    font-size: 15px
+    font-size: var(--button-font-size)
     font-weight: 400
 
     box-sizing: border-box
@@ -110,7 +110,7 @@ button, a.button
     // Secondary
     &.secondary
         background-color: #fff
-        font-weight: 500
+        font-weight: var(--button-secondary-font-weight)
         border: none
         @include secondary-btn-color(c2a)
         &.good
@@ -123,7 +123,7 @@ button, a.button
         background-color: unset
         padding-left: 0
         border: none
-        font-weight: 500
+        font-weight: var(--button-tertiary-font-weight)
 
         &.c2a
             color: var(--button-c2a)

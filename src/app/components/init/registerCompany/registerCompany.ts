@@ -45,6 +45,7 @@ export class RegisterCompany {
     illustration = theme.init.illustration;
 
     @HostBinding('style.background') background = theme.init.background || '#fff';
+    @HostBinding('class.ext02') usingExt02Theme = theme.theme === THEMES.EXT02;
 
     constructor(
         private initService: InitService,

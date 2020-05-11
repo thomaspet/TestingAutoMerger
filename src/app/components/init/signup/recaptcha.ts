@@ -12,7 +12,7 @@ declare global {
 
 @Component({
     selector: 'uni-recaptcha',
-    template: ''
+    template: '',
 })
 export class UniRecaptcha {
     @Output() reCaptchaCode = new EventEmitter<string>();

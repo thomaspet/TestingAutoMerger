@@ -22,7 +22,6 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-                // Only showing the link in SR env for now. Might also be made visible for UE users later.
                 this.showTryForFree = theme.theme !== THEMES.UE && !event.url.includes('sign-up');
             }
         });

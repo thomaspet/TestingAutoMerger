@@ -1,0 +1,68 @@
+$recommended-tag-height: 28px
+
+\:host
+    display: grid
+    grid-template-columns: repeat(auto-fit, 21rem)
+    grid-column-gap: 2rem
+    grid-row-gap: 3rem
+    justify-content: center
+    color: #14555A
+    margin-top: $recommended-tag-height
+
+.bruno-product-package
+    display: flex
+    flex-direction: column
+    background: #fff
+    padding: 1.5rem
+    border-radius: var(--section-radius)
+    position: relative
+    box-shadow: 0 4px 6px 0px rgba(0,0,0,.1)
+
+    &.recommended
+        border: 2px solid var(--border-color)
+        border-top-left-radius: 0
+
+    .recommended-tag
+        position: absolute
+        top: -$recommended-tag-height
+        left: -2px
+        background: #A5E1D2
+        color: #00343E
+        height: $recommended-tag-height
+        line-height: $recommended-tag-height
+        padding: 0 .75rem
+        border-top-left-radius: var(--section-radius)
+        border-top-right-radius: var(--section-radius)
+
+    .price
+        margin-left: auto
+        strong
+            color: #00343E
+            font-size: 1.1rem
+            font-weight: 600
+
+    .description
+        text-align: center
+        border-bottom: 1px solid var(--border-color)
+        padding: .5rem
+
+        h1
+            font-weight: 500
+            font-size: 1.5rem
+            color: #00343E
+
+    ul
+        list-style: none
+        padding: 0 .5rem
+        li
+            display: flex
+            align-items: center
+            margin-top: 1rem
+        svg
+            fill: #14555A
+            margin-right: 1rem
+
+
+    button
+        margin: 2rem auto 0
+        min-width: 12rem

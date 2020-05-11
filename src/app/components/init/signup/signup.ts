@@ -1,11 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, HostBinding} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {UniRecaptcha} from './recaptcha';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -14,10 +14,14 @@ import {theme} from 'src/themes/theme';
 })
 export class Signup {
     @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
+
+    @HostBinding('class.ext02-signup') isExt02Env = theme.theme === THEMES.EXT02;
+
     confirmationCode: string;
     busy: boolean;
 
     headerText = 'Prøv gratis i 30 dager';
+    appName = theme.appName;
 
     errorMessage: string;
 
@@ -28,10 +32,19 @@ export class Signup {
     step2Successful: boolean;
     invalidConfirmationCode: boolean;
     userExists: boolean;
-    reCaptchaCode;
 
     background = theme.init.background;
+    backgroundHeight = theme.init.signup_background_height;
     illustration = theme.init.illustration;
+
+    agreement = false;
+    agreeementText = theme.theme === THEMES.EXT02
+        ? 'JA, jeg gir samtykke til behandling av mine personopplysninger for å kartlegge mine interesser som beskrevet her og er kjent med at samtykket kan trekkes tilbake når som helst'
+        : 'Jeg godtar lagring og bruk av mine data';
+
+
+    recaptchaVisible = false;
+    recaptchaCode: string;
 
     constructor(
         public authService: AuthService,
@@ -76,7 +89,7 @@ export class Signup {
         this.errorMessage = '';
 
         const body = this.step1Form.value;
-        body.RecaptchaResponse = this.reCaptchaCode;
+        body.RecaptchaResponse = this.recaptchaCode;
 
         this.http.asPOST()
             .usingInitDomain()
@@ -93,7 +106,6 @@ export class Signup {
                     this.step1Form.enable();
                     this.busy = false;
                     this.step1Successful = false;
-                    this.reCaptchaCode = undefined;
                     if (this.recaptcha) {
                         this.recaptcha.reset();
                     }

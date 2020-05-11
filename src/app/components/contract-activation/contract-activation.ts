@@ -57,6 +57,9 @@ export class ContractActivation {
     isBureau = false;
     isSrCustomer = false;
 
+    showProductPackageSelector = theme.theme === THEMES.EXT02;
+    selectedProductPackage: string;
+
     constructor(
         private initService: InitService,
         private toastService: ToastService,
@@ -114,6 +117,8 @@ export class ContractActivation {
             res => {
                 const settings: CompanySettings = res[0] || {};
                 const customer = <any> res[1] || {};
+
+                console.log(res);
 
                 this.companySettings = <CompanySettings> {
                     ID: settings.ID,
@@ -265,6 +270,11 @@ export class ContractActivation {
                 }
             );
         });
+    }
+
+    onProductPackageSelected(packageName: string) {
+        this.showProductPackageSelector = false;
+        this.selectedProductPackage = packageName;
     }
 
     private checkCreationStatus(companyName: string) {

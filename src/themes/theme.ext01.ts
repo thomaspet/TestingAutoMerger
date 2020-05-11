@@ -21,6 +21,7 @@ export const theme = {
         background: '#ebf6fb',
         login_background: 'url(themes/ext01/login_background.png)',
         login_background_height: '100%',
+        signup_background_height: undefined,
     },
 
     widgets: {

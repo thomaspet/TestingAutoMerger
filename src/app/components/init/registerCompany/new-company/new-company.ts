@@ -85,7 +85,6 @@ export class NewCompany {
     }
 
     onCompanySelected(brRegCompany) {
-        setTimeout(() => console.log(brRegCompany));
         if (!brRegCompany) {
             return;
         }
