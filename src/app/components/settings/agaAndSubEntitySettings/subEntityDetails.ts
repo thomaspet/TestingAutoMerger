@@ -13,12 +13,13 @@ import {BehaviorSubject} from 'rxjs';
     templateUrl: './subEntityDetails.html'
 })
 export class SubEntityDetails {
-    @Input() public currentSubEntity: SubEntity;
-    public currentSubEntity$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    public config$: BehaviorSubject<any> = new BehaviorSubject({});
-    public busy: boolean;
-    private formReady: boolean = false;
+
+    @Input()
+    currentSubEntity: SubEntity;
+
+    currentSubEntity$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    busy: boolean;
 
     constructor(
         private _subEntityService: SubEntityService,
@@ -28,24 +29,29 @@ export class SubEntityDetails {
         private errorService: ErrorService
     ) { }
 
-    public ngOnInit() {
+    ngOnInit() {
         this.createForm();
         this.currentSubEntity$.next(this.currentSubEntity);
     }
 
-    public ngOnChanges() {
+    ngOnChanges() {
         this.currentSubEntity$.next(this.currentSubEntity);
     }
 
 
+    ngOnDestroy() {
+        this.currentSubEntity$.complete();
+        this.fields$.complete();
+    }
+
     private createForm() {
         this._subEntityService.getLayout('subEntities').subscribe((layout: any) => {
-            let agaZoneField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaZone');
-            let agaRuleField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaRule');
-            let postalCode: UniFieldLayout = this.findByProperty(
+            const agaZoneField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaZone');
+            const agaRuleField: UniFieldLayout = this.findByProperty(layout.Fields, 'AgaRule');
+            const postalCode: UniFieldLayout = this.findByProperty(
                 layout.Fields, 'BusinessRelationInfo.InvoiceAddress.PostalCode'
             );
-            let municipality: UniFieldLayout = this.findByProperty(layout.Fields, 'MunicipalityNo');
+            const municipality: UniFieldLayout = this.findByProperty(layout.Fields, 'MunicipalityNo');
 
             this._agaZoneService.GetAll('').subscribe(agazones => {
                 agaZoneField.Options = {
@@ -144,10 +150,6 @@ export class SubEntityDetails {
                     }, err => this.errorService.handle(err));
             }
         }
-    }
-
-    public ready(event) {
-        this.formReady = true;
     }
 
     public change(event) {

@@ -19,23 +19,20 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
 })
 export class UniForm implements OnChanges, OnInit {
 
-    @Input() public config: any;
-    @Input() public layout: Observable<UniComponentLayout>;
-    @Input() public fields: Observable<UniFieldLayout[]>;
-    @Input() public model: Observable<any>;
+    @Input() config: any;
+    @Input() layout: Observable<UniComponentLayout>;
+    @Input() fields: Observable<UniFieldLayout[]>;
+    @Input() model: Observable<any>;
 
-    @Output() public submitEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public readyEvent: EventEmitter<UniForm> = new EventEmitter<UniForm>(true);
-    @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
-    @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
-    @Output() public toggleEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public focusEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public moveOutEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
+    @Output() submitEvent = new EventEmitter<Object>(true);
+    @Output() readyEvent = new EventEmitter<UniForm>(true);
+    @Output() changeEvent = new EventEmitter<SimpleChanges>();
+    @Output() inputEvent = new EventEmitter<SimpleChanges>();
+    @Output() toggleEvent = new EventEmitter<Object>(true);
+    @Output() focusEvent = new EventEmitter<UniField>(true);
+    @Output() errorEvent = new EventEmitter<Object>(true);
 
-    @ViewChildren(UniSection) public sectionElements: QueryList<UniSection>;
+    @ViewChildren(UniSection) sectionElements: QueryList<UniSection>;
 
     public _layout: UniComponentLayout;
     public _model: any;
@@ -43,7 +40,7 @@ export class UniForm implements OnChanges, OnInit {
 
     public readyFields: number;
     public hidden: boolean = false;
-    public currentComponent: UniField;
+    public activeFieldComponent: UniField;
     public lastLayout: UniComponentLayout = null;
     public errorList: {[id: string]: UniFormError[]} = {};
     public propertyKeys: any = Object.keys;
@@ -124,7 +121,6 @@ export class UniForm implements OnChanges, OnInit {
                 });
             }
         }
-        this.addSectionEvents();
     }
 
     public changesFields(fields: UniFieldLayout[]) {
@@ -198,32 +194,10 @@ export class UniForm implements OnChanges, OnInit {
 
             this.lastLayout = _.cloneDeep(this._layout);
         }
-        setTimeout(() => {
-            if (this.currentComponent) {
-                this.currentComponent = this.field(this.currentComponent.field.Property, this.currentComponent.field.Label);
-                if (this.currentComponent) {
-                    this.currentComponent.focus();
-                } else {
-                    this.focusFirstElement();
-                }
-            }
-        });
     }
 
     public changesLayout(layout) {
         this._layout = _.cloneDeep(layout);
-        setTimeout(() => {
-            if (this.currentComponent) {
-                setTimeout(() => {
-                    this.currentComponent = this.field(this.currentComponent.field.Property, this.currentComponent.field.Label);
-                    if (this.currentComponent) {
-                        this.currentComponent.focus();
-                    } else {
-                        this.focusFirstElement();
-                    }
-                }, 200);
-            }
-        });
     }
 
     public updateField(name: string, field: any) {
@@ -248,16 +222,16 @@ export class UniForm implements OnChanges, OnInit {
         this.readyFields = 0;
     }
 
-    public onFocusHandler(event) {
-        this.currentComponent = event;
-        this.focusEvent.emit(event);
+    public onFocusHandler(field: UniField) {
+        this.activeFieldComponent = field;
+        this.focusEvent.emit(field);
     }
 
     focus() {
         try {
             const field = this.findFirstNotHiddenComponent();
             if (field) {
-                this.currentComponent = field;
+                this.activeFieldComponent = field;
                 field.focus();
             }
         } catch (e) {}
@@ -270,13 +244,14 @@ export class UniForm implements OnChanges, OnInit {
         if (!this._layout.Fields || this._layout.Fields.length <= 0) {
             return;
         }
-        if (this.currentComponent) {
+        if (this.activeFieldComponent) {
             return;
         }
-        const f: UniField = this.findFirstNotHiddenComponent();
-        if (f) {
-            this.currentComponent = f;
-            setTimeout(() => f.focus());
+
+        const field = this.findFirstNotHiddenComponent();
+        if (field) {
+            this.activeFieldComponent = field;
+            setTimeout(() => field.focus());
         }
     }
 
@@ -312,16 +287,38 @@ export class UniForm implements OnChanges, OnInit {
         });
     }
 
-    public onMoveForward(action) {
+    onKeyDown(event: KeyboardEvent) {
+        const key = event.which || event.keyCode;
+
+        // Jump to next/prev section on page up/down
+        if (key === KeyCodes.PAGE_DOWN || key === KeyCodes.PAGE_UP) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const currentSectionIndex = this.activeFieldComponent?.field?.Section || 0;
+            const nextSectionIndex = key === KeyCodes.PAGE_DOWN ? currentSectionIndex + 1 : currentSectionIndex - 1;
+
+            const section = this.section(nextSectionIndex);
+            if (section) {
+                if (!section.isOpen) {
+                    section.toggle();
+                }
+
+                setTimeout(() => {
+                    const property = section.fields[0] && section.fields[0].Property;
+                    section.field(property)?.focus();
+                });
+            } else {
+                const field = this.field(this._layout.Fields[0].Property);
+                field?.focus();
+            }
+        }
+    }
+
+    public goToNextField(action) {
         const field = action.field;
-        const event = action.event;
         let index = this._layout.Fields.findIndex(item => item.Property === field.Property && item.Label === field.Label);
         if (index === this._layout.Fields.length - 1) {
-            this.moveOutEvent.emit({
-                event: event,
-                movingForward: true,
-                movingBackward: false
-            });
             return;
         }
         index = index + 1;
@@ -329,115 +326,23 @@ export class UniForm implements OnChanges, OnInit {
         while (nextField.Hidden === true) {
             index = index + 1;
             if (index >= this._layout.Fields.length) {
-                this.moveOutEvent.emit({
-                    event: event,
-                    movingForward: true,
-                    movingBackward: false
-                });
                 return;
             }
             nextField = this._layout.Fields[index];
         }
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
 
-        // hack to get correct property in multivalue
-        let property = nextField.Property;
-        let isMultivalue = false;
-        if (nextField.Options && nextField.Options.storeResultInProperty) {
-            property = nextField.Options.storeResultInProperty;
-            isMultivalue = true;
-        }
-
-        const component = this.field(property, nextField.Label);
-        this.currentComponent = component;
+        const fieldComponent = this.field(nextField.Property, nextField.Label);
+        this.activeFieldComponent = fieldComponent;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
             if (!section.isOpen) {
                 section.toggle();
             }
-            // wait for section to open;
-            setTimeout(() => {
-                component.focus();
-            }, 200);
+
+            setTimeout(() => fieldComponent.focus());
         } else {
-            component.focus();
+            fieldComponent.focus();
         }
-        this.moveForwardEvent.emit({
-            event: event,
-            prev: field,
-            next: nextField
-        });
-    }
-
-    onKeyDown(event: KeyboardEvent) {
-        const key = event.which || event.keyCode;
-        if (key === KeyCodes.TAB && event.shiftKey) {
-            event.stopPropagation();
-            event.preventDefault();
-        }
-    }
-
-    public onMoveBackward(action) {
-        const field = action.field;
-        const event = action.event;
-        let index = this._layout.Fields.findIndex(item => item.Property === field.Property);
-        if (index === 0) {
-            this.moveOutEvent.emit({
-                event: event,
-                movingForward: false,
-                movingBackward: true
-            });
-            return;
-        }
-        index = index - 1;
-        let nextField = this._layout.Fields[index];
-        while (nextField.Hidden === true) {
-            index = index - 1;
-            if (index < 0) {
-                this.moveOutEvent.emit({
-                    event: event,
-                    movingForward: false,
-                    movingBackward: true
-                });
-                return;
-            }
-            nextField = this._layout.Fields[index];
-        }
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-
-        // hack to get correct property in multivalue
-        let property = nextField.Property;
-        let isMultivalue = false;
-        if (nextField.Options && nextField.Options.storeResultInProperty) {
-            property = nextField.Options.storeResultInProperty;
-            isMultivalue = true;
-        }
-
-        const component = this.field(property, nextField.Label);
-        this.currentComponent = component;
-        if (field.Section !== nextField.Section) {
-            const section = this.section(nextField.Section);
-            if (!section.isOpen) {
-                section.toggle();
-            }
-            // wait for section to open;
-            setTimeout(() => {
-                component.focus();
-            }, 200);
-        } else {
-            component.focus();
-        }
-        this.moveBackwardEvent.emit({
-            event: event,
-            prev: field,
-            next: nextField
-        });
     }
 
     public editMode() {
@@ -447,11 +352,7 @@ export class UniForm implements OnChanges, OnInit {
     }
 
     public section(id: number): UniSection {
-        const section: UniSection = this.sectionElements.find((s: UniSection) => {
-                return s.sectionId === id;
-        });
-        return section;
-
+        return this.sectionElements.find((s => s.sectionId === id));
     }
 
     public field(property: string, label?: string): UniField {
@@ -507,48 +408,6 @@ export class UniForm implements OnChanges, OnInit {
     public findFirstNotHiddenComponent() {
         const f = this._layout.Fields.find(x => !x.Hidden);
         return this.field(f.Property, f.Label);
-    }
-
-    public addSectionEvents() {
-        const target = this.elementRef.nativeElement;
-        const keyUpEvent = Observable.fromEvent(target, 'keydown');
-        const ctrlEvent = keyUpEvent.filter((event: KeyboardEvent) => {
-            return event.shiftKey;
-        });
-        const ctrlArrow = ctrlEvent.filter((event: KeyboardEvent) => {
-            return event.keyCode === KeyCodes.UP_ARROW || event.keyCode === KeyCodes.DOWN_ARROW;
-        });
-
-        ctrlArrow.subscribe((event: KeyboardEvent) => {
-            event.preventDefault();
-            event.stopPropagation();
-
-            let nextSectionID: number;
-            const cmp: UniField = this.currentComponent;
-            if (event.keyCode === KeyCodes.UP_ARROW) {
-                nextSectionID = cmp.field.Section - 1;
-            } else {
-                nextSectionID = cmp.field.Section + 1;
-            }
-            if (!nextSectionID) {
-                const f: UniField = this.field(this._layout.Fields[0].Property);
-                if (f) {
-                    f.focus();
-                }
-                return;
-            }
-            const section: UniSection = this.section(nextSectionID);
-            if (!section) {
-                return;
-            }
-            const fieldData = section.fields[0];
-            if (!section.isOpen) {
-                section.toggle();
-            }
-            const field: UniField = section.field(fieldData.Property);
-            // we need some time to open the section
-            setTimeout(() => field.focus());
-        });
     }
 
     public validateForm() {

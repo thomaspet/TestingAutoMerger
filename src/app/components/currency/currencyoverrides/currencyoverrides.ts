@@ -73,7 +73,7 @@ export class CurrencyOverrides {
         this.tabService.addTab({
             name: 'Valutaoverstyring',
             url: '/currency/overrides',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
         });
     }

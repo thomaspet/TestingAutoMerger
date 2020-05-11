@@ -19,28 +19,30 @@ uni-ticker-overview
         flex: 0 0 12.5rem
         box-sizing: border-box
         list-style: none
-        padding: .5rem 1.5rem
+        padding: .5rem 1.25rem
         margin: 0
         overflow-y: auto
         font-size: 14px
 
         > li
-            font-weight: bold
+            font-weight: 500
             margin-bottom: 1rem
 
         ul
             list-style: none
             padding: 0
+            margin-top: .25rem
 
             li
                 cursor: pointer
-                font-weight: normal
-                padding: .15rem .5rem
+                font-weight: 400
+                padding: .15rem .25rem
                 border-radius: pxToRem(3)
 
-                &:hover,
-                &[aria-selected]:not([aria-selected=false])
-                    background: mix($uni-color-c2a, $uni-color-negative, 10%)
+                &:hover, &[aria-selected]:not([aria-selected=false])
+                    color: var(--color-c2a)
+                    font-weight: 500
+
 
     .overview-ticker-section
         flex:  0 0 calc(100% - 13rem)
@@ -62,8 +64,3 @@ uni-ticker-overview
                 align-items: center
                 button
                     height: 2.25rem
-
-                    &.tertiary
-                        font-weight: 400
-                        i.material-icons
-                            font-size: 21px

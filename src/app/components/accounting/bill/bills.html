@@ -42,7 +42,6 @@
             <ag-grid-wrapper
                 [resource]="listOfInvoices"
                 [config]="tableConfig"
-                [quickFilters]="quickFilters"
                 (rowClick)="onRowClick($event)"
                 (rowSelectionChange)="onRowSelectionChange($event)"
                 (rowDelete)="onRowDelete($event)">

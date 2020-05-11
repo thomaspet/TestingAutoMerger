@@ -28,6 +28,7 @@ export enum UniModules {
     Marketplace     = 107,
     Sharings        = 108,
     LicenseInfo     = 109,
+    SubSettings     = 110,
 
     Sales            = 200,
     Customers        = 201,

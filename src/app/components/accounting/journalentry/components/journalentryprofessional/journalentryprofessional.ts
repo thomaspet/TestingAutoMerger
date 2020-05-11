@@ -2126,7 +2126,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         journalEntryRow.Amount = oppositeRow.Amount - (agioRow.Amount * agioSign);
                         journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
                         this.updateJournalEntryLine(journalEntryRow);
-                        this.addJournalEntryLines([oppositeRow]);
+                        this.addJournalEntryLines([oppositeRow, agioRow]);
                         resolve(journalEntryRow);
                     });
                 } else {

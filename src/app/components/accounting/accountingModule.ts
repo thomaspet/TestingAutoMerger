@@ -39,7 +39,6 @@ import {DimensionsOverviewReportPart} from './accountingreports/reportparts/dime
 import {DrilldownBalanceReportPart} from './accountingreports/reportparts/drilldownBalanceReportPart';
 import {CreateCorrectedVatReportModal} from './vatreport/modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './vatreport/modals/historicVatReports';
-import {VatDeductionGroupSetupModal} from './vatsettings/modals/vatDeductionGroupSetupModal';
 import {NewAccountModal} from './NewAccountModal';
 import {BillsView} from './bill/bills';
 import {BillView} from './bill/detail/bill';
@@ -55,17 +54,12 @@ import {UniSmartBookingSettingsModal} from './bill/detail/smartBookingSettingsMo
 import {AccountSettings} from './accountSettings/accountSettings';
 import {AccountList} from './accountSettings/accountList/accountList';
 import {AccountDetails} from './accountSettings/accountDetails/accountDetails';
-import {VatSettings} from './vatsettings/vatsettings';
-import {VatTypeDetails} from './vatsettings/vattypedetails/vattypedetails';
-import {VatTypeList} from './vatsettings/vattypelist/vatTypeList';
-import {VatDeductionSettings} from './vatsettings/vatdeductions/vatdeductionsettings';
 import {PostPost} from './postpost/postpost';
 import {SupplierDetails} from './supplier/details/supplierDetails';
 import {SupplierList} from './supplier/list/supplierList';
 import {PeriodFilterHelper} from '@app/components/accounting/accountingreports/periodFilter/periodFilter';
 import {SelectDraftLineModal} from './journalentry/journalentries/selectDraftLineModal';
 import {EditSupplierInvoicePayments} from './modals/editSupplierInvoicePayments';
-import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {DraftLineDescriptionModal} from './journalentry/components/journalentryprofessional/draftLineDescriptionModal';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {UniBudgetView} from './budget/budgetview';
@@ -99,12 +93,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         AccountList,
         AccountDetails,
 
-        VatSettings,
-        VatTypeDetails,
-        VatTypeList,
-        VatDeductionSettings,
-        VatDeductionGroupSetupModal,
-
         NewAccountModal,
         SelectDraftLineModal,
         DraftLineDescriptionModal,
@@ -114,7 +102,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         UniBudgetView,
         UniBudgetEntryEditModal,
         UniBudgetEditModal,
-        FileFromInboxModal,
         UniInbox,
         NewOutgoingWizardModal,
         DoneRedirectModal,

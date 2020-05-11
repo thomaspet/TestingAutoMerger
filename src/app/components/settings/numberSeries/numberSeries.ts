@@ -94,7 +94,7 @@ export class NumberSeries {
         this.tabService.addTab({
             name: 'Nummerserier',
             url: '/settings/numberseries',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
 

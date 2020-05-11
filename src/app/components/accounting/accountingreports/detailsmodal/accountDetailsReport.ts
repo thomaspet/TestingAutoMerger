@@ -439,26 +439,30 @@ export class AccountDetailsReport {
                 .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
         } else {
-            urlParams = urlParams.set('select',
-            'ID as ID,' +
-            'JournalEntryNumber as JournalEntryNumber,' +
-            'FinancialDate,' +
-            'PaymentID as PaymentID,' +
-            'AmountCurrency as AmountCurrency,' +
-            'Description as Description,' +
-            'StatusCode as StatusCode,' +
-            'VatDate as VatDate,' +
-            'VatType.VatCode,' +
-            'Amount as Amount,' +
-            'VatDeductionPercent as VatDeductionPercent,' +
-            'Department.Name,' +
-            'Project.Name,' +
-            'Department.DepartmentNumber,' +
-            'Project.ProjectNumber,' +
-            'JournalEntryID as JournalEntryID,' +
-            'ReferenceCreditPostID as ReferenceCreditPostID,' +
-            'OriginalReferencePostID as OriginalReferencePostID,' +
-            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments');
+            const select = [
+                'ID as ID',
+                'JournalEntryNumber as JournalEntryNumber',
+                'JournalEntryNumberNumeric as JournalEntryNumberNumeric',
+                'FinancialDate',
+                'PaymentID as PaymentID',
+                'AmountCurrency as AmountCurrency',
+                'Description as Description',
+                'StatusCode as StatusCode',
+                'VatDate as VatDate',
+                'VatType.VatCode',
+                'Amount as Amount',
+                'VatDeductionPercent as VatDeductionPercent',
+                'Department.Name',
+                'Project.Name',
+                'Department.DepartmentNumber',
+                'Project.ProjectNumber',
+                'JournalEntryID as JournalEntryID',
+                'ReferenceCreditPostID as ReferenceCreditPostID',
+                'OriginalReferencePostID as OriginalReferencePostID',
+                'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
+            ].join(',');
+
+            urlParams = urlParams.set('select', select);
             urlParams = urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
             urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
 
@@ -488,6 +492,7 @@ export class AccountDetailsReport {
 
     private setupTransactionsTable() {
         const journalEntryNumberCol = new UniTableColumn('JournalEntryNumber', 'Bilagsnr')
+            .setSortField('JournalEntryNumberNumeric')
             .setFilterOperator('contains');
 
         if (!this.config || !this.config.modalMode) {

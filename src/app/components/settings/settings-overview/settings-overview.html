@@ -3,11 +3,11 @@
 <article class="main-container">
 
     <section style="display: flex; justify-content: center; margin: 1rem 0">
-        <input style="width: 25rem; " #searchInput type="search" [(ngModel)]="searchString" placeholder="Søk etter innstilling"/>
+        <input style="width: 30rem;" type="search" [(ngModel)]="searchString" placeholder="Søk etter innstilling" (change)="updateTabState()" />
     </section>
 
     <section *ngIf="filterSettingsLinks" class="settings-link-section">
-        <ul [@listAnimation]="group.links.length" class="main-links" *ngFor="let group of filterSettingsLinks[0].linkGroups">
+        <ul class="main-links" *ngFor="let group of filterSettingsLinks[0].linkGroups">
             <li class="list-header">
                 {{ group.name | translate }}
             </li>
@@ -18,7 +18,7 @@
                 </span>
                 <section *ngIf="link.subSettings && link.showSubSettings">
                     <ul [@listAnimation]="link.subSettings.length" class="sub-links">
-                        <li *ngFor="let subSetting of link.subSettings" (click)="$event.stopPropagation(); goToView(subSetting)">
+                        <li *ngFor="let subSetting of link.subSettings" (click)="$event.stopPropagation(); goToView(subSetting)" [ngClass]="getClass(subSetting)">
                             {{ subSetting.name | translate }}
                         </li>
                     </ul>

@@ -10,6 +10,7 @@ $input-height: 2.5rem
 @import 'select'
 @import 'validation'
 @import 'labelLength'
+@import 'form-info-section'
 
 uni-form
     display: block
@@ -35,6 +36,17 @@ uni-field
 uni-hyperlink-input a
     display: block
     line-height: 2.2rem
+
+    &.info-box-link
+        height: 3rem
+        display: flex
+        align-items: center
+        background-color: var(--sidebar-active-section-background)
+        padding-left: 1rem
+        font-size: 13px
+
+        i
+            color: var(--color-c2a)
 
 uni-field.visuallyHideLabel label > span
     @extend %visuallyHidden

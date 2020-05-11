@@ -106,7 +106,6 @@ export class UniTofSelectModal implements IUniModal {
         this.tableData = new UniTableConfig('common.newbasedon', false, true, pageSize)
             .setSearchable(true)
             .setEntityType(this.options.data.moduleName)
-            .setSearchListVisible(true)
             .setColumns([
                 numberCol,
                 nameCol,

@@ -712,11 +712,15 @@ export class UniImage {
                 top: 'calc(' + (coordinates[1] * 100 / height) + '% - 4.5px)'
             };
         }
+
+        this.cdr.markForCheck();
     }
 
     public removeHighlight() {
         this.highlightStyle = {
             display: 'none'
         };
+
+        this.cdr.markForCheck();
     }
 }

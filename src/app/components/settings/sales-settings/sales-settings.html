@@ -1,0 +1,232 @@
+<uni-toolbar [config]="{ title: 'Salgsinnstillinger' }" [saveactions]="saveActions"></uni-toolbar>
+
+<section class="container-fluid uni-grid-container">
+    <uni-tabs
+        [tabs]="tabs"
+        [(activeIndex)]="activeIndex"
+        (tabClick)="onTabChange()">
+    </uni-tabs>
+
+
+    <ng-container *ngIf="activeIndex === 0">
+        <!--  SALGSINNSTILLINGER -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.SALES_INVOICE' | translate }} </h1>
+                    <p> {{ 'SETTINGS.SALES_INVOICE_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="fields$"
+                            [model]="companySettings$"
+                            (changeEvent)="isDirty = true">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!--  KUNDER -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'NAVBAR.CUSTOMER' | translate }} </h1>
+                    <p> {{ 'SETTINGS.CUSTOMER_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="fields$Customer"
+                            [model]="companySettings$"
+                            (changeEvent)="isDirty = true">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!--  ELEKTRONISK FAKTURA -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.ELECTRONIC_INVOICE' | translate }} </h1>
+                    <p> {{ 'SETTINGS.ELECTRONIC_INVOICE_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <ul class="electronic-invoice-items-list">
+                            <li *ngFor="let item of eInvoiceItems">
+                                <span class="item-name"> {{ item.name }} </span>
+                                <i class="material-icons" *ngIf="item.isActivated"> check_circle_outline </i>
+                                <span class="divider"></span>
+                                <button class="secondary" [ngClass]="item.isActivated ? 'bad' : 'c2a'" (click)="onEInvoiceItemClick(item)">
+                                    {{ item.isActivated ? 'Deaktiver' : 'Aktiver' }}
+                                </button>
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!-- FACTORING  -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.FACTORING' | translate }} </h1>
+                    <p> {{ 'SETTINGS.FACTORING_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="factoringFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="isDirty = true">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeIndex === 1">
+        <!--  BETALINGSBETINGELSER -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.PAYMENT_TERMS' | translate }} </h1>
+                    <p> {{ 'SETTINGS.PAYMENT_TERMS_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <ul class="settings-list" *ngIf="paymentTerms.length">
+                            <li class="list-header">
+                                <span class="name"> Navn </span>
+                                <span class="days"> Kredittdager </span>
+                                <span class="desc"> Beskrivelse </span>
+                                <span></span>
+                            </li>
+                            <li *ngFor="let term of paymentTerms" (click)="openTermsModal(term, 1)">
+                                <span class="name"> {{ term.Name }} </span>
+                                <span class="days"> {{ term.CreditDays }} </span>
+                                <span class="desc"> {{ term.Description }} </span>
+                                <span>
+                                    <i class="material-icons" title="Slett betingelse" (click)="$event.stopPropagation(); deleteTerm(term)">delete_outline</i>
+                                </span>
+                            </li>
+                        </ul>
+                        <span *ngIf="!paymentTerms.length" class="empty-error-message">Ingen betalingsbetingelser opprettet</span>
+
+                        <a (click)="openTermsModal(null, 1)" class="add-terms-link"> + Legg til ny </a>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!--  LEVERINGSBETINGELSER -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.DELIVERY_TERMS' | translate }} </h1>
+                    <p> {{ 'SETTINGS.DELIVERY_TERMS_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <ul class="settings-list" *ngIf="deliveryTerms.length">
+                            <li class="list-header">
+                                <span class="name"> Navn </span>
+                                <span class="days"> Leveringsdager </span>
+                                <span class="desc"> Beskrivelse </span>
+                                <span></span>
+                            </li>
+                            <li *ngFor="let term of deliveryTerms" (click)="openTermsModal(term, 2)">
+                                <span class="name"> {{ term.Name }} </span>
+                                <span class="days"> {{ term.CreditDays }} </span>
+                                <span class="desc"> {{ term.Description }} </span>
+                                <span>
+                                    <i class="material-icons" title="Slett betingelse" (click)="$event.stopPropagation(); deleteTerm(term)">delete_outline</i>
+                                </span>
+                            </li>
+                        </ul>
+                        <span *ngIf="!deliveryTerms.length" class="empty-error-message">Ingen leveringsbetingelser opprettet</span>
+                        <a (click)="openTermsModal(null, 2)" class="add-terms-link"> + Legg til ny </a>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+    <!-- Need to use [hidden] instead of ngIf this since sales-settings is depending on viewchild ref always being available.. -->
+    <section [hidden]="activeIndex !== 2">
+        <!--  BLANKETTOPPSETT -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.REPORT' | translate }} </h1>
+                    <p> {{ 'SETTINGS.REPORT_INFOTEXT' | translate }}  </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <uni-report-settings #UniReportSettingsView [(companySettings$)]="companySettings$"></uni-report-settings>
+            </section>
+        </section>
+
+        <!--  BLANKETTOPPSETT -->
+        <section *ngIf="activeIndex === 2" class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.REPORT_LOGO' | translate }} </h1>
+                    <p> {{ 'SETTINGS.LOGO_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <label class="uni-label label-above" style="padding: 1rem">
+                            <span>Logo</span>
+
+                            <uni-image
+                                [entity]="'companysettings'"
+                                [entityID]="1"
+                                [singleImage]="true"
+                                (fileListReady)="logoFileChanged($event)"
+                            ></uni-image>
+                        </label>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </section>
+
+    <reminder-settings
+        [hidden]="activeIndex !== 3"
+        [showLabelAbove]="true"
+        [reminderSettings]="customerInvoiceReminderSettings"
+        (reminderSettingsChange)="isDirty = true;">
+    </reminder-settings>
+</section>

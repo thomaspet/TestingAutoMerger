@@ -1,18 +1,14 @@
-<i class="material-icons info-icon"
-    matTooltip="Endringer på virksomhet kan medføre utilsiktede virkninger på beregning av arbeidsgiveravgift og a-melding">
-    info
-</i>
-
 <section class="splitview" [attr.aria-busy]="busy" style="width: 100%;">
     <nav class="splitview_list">
         <ag-grid-wrapper
+            class="borders"
             [resource]="allSubEntities"
             [config]="subEntityListConfig"
             (rowDelete)="removeSubEntity($event)"
             (rowClick)="rowSelected($event)">
         </ag-grid-wrapper>
 
-        <combo-button style="margin-top: 1rem;" [actions]="actions"></combo-button>
+        <!-- <combo-button style="margin-top: 1rem;" [actions]="actions"></combo-button> -->
     </nav>
 
     <main class="splitview_detail">

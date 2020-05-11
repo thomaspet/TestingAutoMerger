@@ -109,7 +109,7 @@ export const COUNTERS = [
         height: 1,
         widgetType: 'sum',
         config: {
-            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox-count',
+            dataEndpoint: '/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox-count',
             title: 'Fakturainnboks',
             positive: false,
             link: '/accounting/bills?filter=Inbox',
@@ -279,6 +279,23 @@ export const COUNTERS = [
             link: '/salary/wagetypes',
             icon: 'money',
             class: 'blue-counter'
+        }
+    },
+    {
+        id: 'help_sr_accounting',
+        description: 'Klikk for mer info',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'info_tile',
+        config: {
+            dataEndpoint: ``,
+            title: 'Ønsker du hjelp? Få tilbud på regnskapsførsel',
+            positive: false,
+            externalLink: 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/faa_tilbud_paa_regnskapsforsel_bankogregnskap.html',
+            icon: '',
+            class: 'help-sraccounting',
+            srOnly: true
         }
     },
 ];

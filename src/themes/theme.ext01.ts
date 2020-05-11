@@ -1,5 +1,5 @@
 import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
-import {DASHBOARD_CONFIG} from './ext01/dashboard-config';
+import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ext01/dashboard-config';
 
 import {THEMES} from './themes-enum';
 export * from './themes-enum';
@@ -10,9 +10,11 @@ export const theme = {
     appProvider: 'SR-Bank',
 
     translationOverrides: TRANSLATION_OVERRIDES,
-    dashboardConfig: DASHBOARD_CONFIG,
-    showSignupLink: true,
     chatbotIcon: 'themes/ext01/chatbot-icon.png',
+    dashboardConfig: DASHBOARD_CONFIG,
+    accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
+    bankDashboardConfig: BANK_DASHBOARD_CONFIG,
+    salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
 
     init: {
         illustration: 'themes/ext01/register-company-background.svg',

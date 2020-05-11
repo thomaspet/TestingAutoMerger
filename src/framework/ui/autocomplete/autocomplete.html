@@ -10,7 +10,7 @@
             [placeholder]="options?.placeholder || ''"
         />
 
-        <button type="button" [disabled]="readonly" (click)="$event.stopPropagation(); toggle(); inputElement.focus()">
+        <button tabindex="-1" type="button" [disabled]="readonly" (click)="$event.stopPropagation(); toggle(); inputElement.focus()">
             <i class="material-icons">search</i>
         </button>
     </section>

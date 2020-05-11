@@ -9,8 +9,12 @@ ag-grid-wrapper
         border: var(--table-border)
         border-radius: 3px
 
-    table-filters
-        flex: 0 0 auto
+    // .filters-and-buttons
+    //     display: flex
+    //     align-items: flex-end
+    //     .button-container
+    //         flex: 0 0 auto
+    //         margin-bottom: 14px
 
     .uni-ag-wrapper
         position: relative
@@ -36,10 +40,6 @@ ag-grid-wrapper
     &.font-13
         .uni-ag-wrapper
             font-size: 13px
-    mat-spinner.mat-progress-spinner
-        position: absolute
-        left: 50%
-        top: 0.5rem
 
 // Borders
 ag-grid-wrapper
@@ -445,6 +445,9 @@ ag-grid-wrapper
 .checkbox-column
     color: var(--color-c2a-dark)
 
+.attachment-column
+    padding: 0
+
 .ag-column-drop.ag-column-drop-horizontal
     display: flex
     height: 3rem
@@ -481,3 +484,10 @@ table.uni-html-table
 
     th, td
         padding: .75rem
+
+
+.table-focus-helper
+    position: absolute
+    height: 0
+    width: 0
+    opacity: 0

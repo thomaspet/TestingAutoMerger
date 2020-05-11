@@ -1,5 +1,5 @@
-import {WagetypeDetail} from './views/wagetypeDetails';
-import {WageTypeSettings} from './views/wagetypeSettings';
+import {WageTypeDetailsComponent} from './wage-type-details/wage-type-details.component';
+import {WageTypeSettingsComponent} from './wage-type-settings/wage-type-settings.component';
 
 export const routes = [
     {
@@ -9,11 +9,11 @@ export const routes = [
     },
     {
         path: 'details',
-        component: WagetypeDetail
+        component: WageTypeDetailsComponent,
     },
     {
         path: 'spesial-settings',
-        component: WageTypeSettings
+        component: WageTypeSettingsComponent,
     }
 
 ];

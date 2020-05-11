@@ -1,7 +1,7 @@
 <section class="uni-modal uni-redesign" style="width: 75vw">
     <header>Fribeløp pr virksomhet</header>
     <article>
-        <ag-grid-wrapper [config]="freeamountTableConfig" [resource]="freeamountData$ | async" style="margin-bottom: 1.5rem"></ag-grid-wrapper>
+        <ag-grid-wrapper class="borders" [config]="freeamountTableConfig" [resource]="freeamountData$ | async" style="margin-bottom: 1.5rem"></ag-grid-wrapper>
         <uni-form [config]="formConfig$" [fields]="fields$" [model]="freeamountModel$"></uni-form>
     </article>
 </section>

@@ -19,7 +19,8 @@ import {
     Dimensions,
     LocalDate,
     StatusCodeProduct,
-    Product
+    Product,
+    CustomerInvoiceItem
 } from '../../../unientities';
 import {
     ProductService,
@@ -34,7 +35,7 @@ import {
     NumberFormat
 } from '../../../services/services';
 import * as moment from 'moment';
-import {cloneDeep} from 'lodash';
+import {cloneDeep, get} from 'lodash';
 import {ToastType, ToastService} from '@uni-framework/uniToast/toastService';
 
 @Component({
@@ -86,7 +87,9 @@ export class TradeItemTable {
     productExpands = [
         'Account',
         'Account.MandatoryDimensions',
-        'Dimensions.Info'
+        'Dimensions.Info',
+        'Dimensions.Project',
+        'Dimensions.Department'
     ];
 
     constructor(
@@ -295,7 +298,7 @@ export class TradeItemTable {
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
-                if (item.Product) {
+                if (item.Product || item['_isEmpty']) {
                     item.Dimensions = item.Dimensions || new Dimensions();
                     item.Dimensions[entity] = id;
                     item.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
@@ -679,9 +682,9 @@ export class TradeItemTable {
             const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
-                if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions['Dimension' + type.Dimension]) {
-                    const dim = rowModel.Dimensions['Dimension' + type.Dimension];
-                    return dim.Number + ': ' + dim.Name;
+                const dimension = rowModel?.Dimensions && rowModel?.Dimensions['Dimension' + type.Dimension];
+                if (dimension) {
+                    return dimension.Number + ': ' + dimension.Name;
                 }
 
                 return '';
@@ -847,48 +850,9 @@ export class TradeItemTable {
         });
     }
 
-    private updateDimensions(event: IRowChangeEvent, updatedRow: any) {
-        let triggerChangeDetection = false;
-        let noProduct = false;
-
-
-        if (event.field === 'Product') {
-            if (!event.newValue) {
-                noProduct = true;
-            } else if (updatedRow.Product && updatedRow.Product.Dimensions && updatedRow.Product.Dimensions.Info) {
-                // Set row to use product dimensions and reset ID
-                updatedRow.Dimensions = updatedRow.Product.Dimensions;
-                updatedRow.DimensionsID = 0;
-                updatedRow.Dimensions = this.customDimensionService.mapDimensions(updatedRow.Dimensions);
-                triggerChangeDetection = true;
-            } else if (updatedRow.Product && !updatedRow.Product.Dimensions) {
-                updatedRow.Dimensions = this.defaultTradeItem.Dimensions;
-                updatedRow.Dimensions.ProjectID = this.defaultTradeItem.Dimensions.ProjectID;
-                triggerChangeDetection = true;
-            } else if (updatedRow.Product) {
-                triggerChangeDetection = true;
-            }
-        } else if (event.field === 'ItemText') {
-            if (!updatedRow.Product) {
-                noProduct = true;
-            }
-        } else if (event.field.startsWith('Dimensions.')) {
-            updatedRow.DimensionsID = 0;
-            triggerChangeDetection = true;
-        } else if (event.field === 'Account') {
-            triggerChangeDetection = true;
-        }
-        if (noProduct) {
-            updatedRow.Dimensions = null;
-            triggerChangeDetection = true;
-        }
-        return triggerChangeDetection;
-    }
-
     public onRowChange(event: IRowChangeEvent) {
         const updatedRow = event.rowModel;
         const updatedIndex = event.originalIndex;
-        let triggerChangeDetection = this.updateDimensions(event, updatedRow);
 
         // If freetext on row is more than 250 characters we need
         // to split it into multiple rows
@@ -906,18 +870,22 @@ export class TradeItemTable {
                 const insertIndex = updatedIndex + extraRowCounter + 1;
                 this.items.splice(insertIndex, 0, newRow);
             });
-
-            triggerChangeDetection = true;
         }
-        if (triggerChangeDetection) {
-            this.items[updatedIndex] = updatedRow;
-            if (this.showMandatoryDimensionsColumn) {
+
+        if (this.showMandatoryDimensionsColumn) {
+            const shouldCheckMandatoryDimensions = event.field && (
+                event.field === 'Product'
+                || event.field === 'Account'
+                || event.field.startsWith('Dimensions.')
+            );
+
+            if (shouldCheckMandatoryDimensions) {
                 this.updateItemMandatoryDimensions(updatedRow);
-            } else {
-                this.items = cloneDeep(this.items); // trigger change detection
             }
         }
 
+        this.items[updatedIndex] = updatedRow;
+        this.items = cloneDeep(this.items);
         this.itemsChange.next(this.items);
     }
 
@@ -1012,10 +980,6 @@ export class TradeItemTable {
         row.Dimensions = null;
 
         return row;
-    }
-
-    public onRowDeleted(row) {
-        this.itemsChange.next(this.items);
     }
 
     private accountSearch(searchValue: string): Observable<any> {

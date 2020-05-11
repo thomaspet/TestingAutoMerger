@@ -93,6 +93,12 @@ export class SmartSearchDataService {
             settings.forEach((setting) => {
                 setting.linkGroups.forEach(group => {
                     this.componentLookupSource.push(...group.links);
+
+                    group.links.forEach(link => {
+                        if (link.subSettings) {
+                            this.componentLookupSource.push(...link.subSettings);
+                        }
+                    });
                 });
             });
         });
@@ -370,9 +376,10 @@ export class SmartSearchDataService {
             const name = component && component.name;
 
             if (name && this.translate.translate(name).toLowerCase().indexOf(query) !== -1
-                || this.translate.translate(component._section).toLowerCase().indexOf(query) !== -1 ) {
+                || this.translate.translate(component._section).toLowerCase().indexOf(query) !== -1
+                || (component.keyWords && component.keyWords.filter(word => word.toLowerCase().includes(query)).length)) {
                 component.type = 'link';
-                if (component.url.includes('settings')) {
+                if (component.url.includes('settings') && 'innstillinger'.includes(query)) {
                     hasSettings = true;
                 }
 

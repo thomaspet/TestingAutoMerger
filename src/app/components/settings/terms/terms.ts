@@ -50,7 +50,7 @@ export class UniTerms {
         this.tabService.addTab({
             name: 'Betingelser',
             url: '/settings/terms',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
 

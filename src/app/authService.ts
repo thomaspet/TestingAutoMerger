@@ -1,16 +1,14 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { Company, UserDto, ContractLicenseType } from './unientities';
-import { ReplaySubject } from 'rxjs';
+import {Injectable, EventEmitter} from '@angular/core';
+import {Router} from '@angular/router';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map, take} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {Company, UserDto, ContractLicenseType} from './unientities';
+import {ReplaySubject} from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, WebStorageStateStore, Log } from 'oidc-client';
-
-Log.logger = console;
-Log.level = Log.DEBUG;
+import {UserManager, WebStorageStateStore} from 'oidc-client';
+import {THEMES, theme} from 'src/themes/theme';
 
 import * as moment from 'moment';
 
@@ -107,11 +105,7 @@ export class AuthService {
 
                 if (this.activeCompany) {
                     this.loadCurrentSession().subscribe(
-                        auth => {
-                            if (!auth.hasActiveContract) {
-                                this.router.navigateByUrl('contract-activation');
-                            }
-
+                        () => {
                             // Give the app a bit of time to initialise before we remove spinner
                             // (less visual noise on startup)
                             setTimeout(() => {
@@ -136,7 +130,10 @@ export class AuthService {
                     this.setLoadIndicatorVisibility(false);
                 }
             } else {
-                onMissingAuth();
+                this.userManager.clearStaleState();
+                this.userManager.removeUser().then(() => {
+                    onMissingAuth();
+                });
             }
         }).catch((err) => {
             // Session has ended ! , clear stale state and redirect to login
@@ -324,14 +321,20 @@ export class AuthService {
             this.currentUser = user;
 
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-            const hasActiveContract = user && !this.isTrialExpired(contract);
+            const isDemo = contract.TypeName === 'Demo';
+            let hasActiveContract = user && !this.isTrialExpired(contract);
+
+            // In SR a demo with non-demo company requires contract activation immediately
+            if (theme.theme === THEMES.SR && isDemo && !this.activeCompany.IsTest) {
+                hasActiveContract = false;
+            }
 
             const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
                 hasActiveContract: hasActiveContract,
-                isDemo: contract.TypeName === 'Demo',
+                isDemo: isDemo,
             };
 
             this.authentication$.next(authDetails);

@@ -1,0 +1,33 @@
+.uni-card
+    padding: 0
+    margin-bottom: 1rem
+    background-color: #fff
+    border: 1px solid var(--border-color)
+    border-radius: var(--section-radius)
+
+    .uni-card-header
+        display: flex
+        align-items: center
+        min-height: 4rem
+        padding: 0 2rem
+        border-bottom: 1px solid var(--border-color)
+
+        h1
+            font-size: 1.15rem
+            font-weight: 500
+            margin: 0 1rem 0 0
+
+    .uni-card-content
+        padding: 1.5rem 2rem
+
+    &.collapsable
+        .uni-card-header
+            padding-right: 1rem
+            border-bottom: none
+        &.is-open .uni-card-header
+            border-bottom: 1px solid var(--border-color)
+
+    // uniform override..
+    fieldset
+        box-shadow: none
+        margin: 0 1rem .5rem

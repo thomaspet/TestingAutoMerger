@@ -1,4 +1,5 @@
 import { EventEmitter } from '@angular/core';
+import {Observable} from 'rxjs';
 
 export enum ConfirmActions {
     ACCEPT,
@@ -35,9 +36,14 @@ export interface IUniModal {
     options?: IModalOptions;
 
     /**
-        Called by modalService when force-closing a dialog (clickOutside, escape, close icon)
-
-        Allows you to resolve a value for the onClose emit in these cases.
+     * Called by modalService when force-closing a dialog (clickOutside, escape, close icon).
+     * Allows you to resolve a value for the onClose emit in these cases.
     */
     forceCloseValueResolver?: () => any;
+
+    /**
+     * Called by modalService before force-closing a dialog (clickOutside, escape, close icon).
+     * Allows you to specify if the closing is allowed to happen
+    */
+    canDeactivate?: () => boolean | Observable<boolean>;
 }

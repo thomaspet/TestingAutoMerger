@@ -69,7 +69,14 @@ export class RegulativeDetailsComponent implements OnInit {
             .setColumns([stepColumn, salaryColumn])
             .setSearchable(true)
             .setPageSize(10)
-            .setColumnMenuVisible(false);
+            .setColumnMenuVisible(false)
+            .setButtons([
+                {
+                    label: 'Export',
+                    action: () => this.exportRegulative(),
+                    class: 'secondary c2a',
+                }
+            ], true);
     }
 
     private getFormFields(regulatives: IRegulativeData[]): UniFieldLayout[] {

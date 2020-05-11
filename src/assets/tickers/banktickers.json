@@ -141,16 +141,6 @@
                 "ExternalModel": "JournalEntry"
             }
         ],
-        "DefaultTableFilter": {
-            "field": "StatusCode",
-            "operator": "ne",
-            "value": "44020",
-            "label": "Vis skjulte betalinger",
-            "filter": "isnull(StatusCode,0) ne 44020",
-            "active": false,
-            "useWhenActive": false,
-            "useOnlyOnFilter": "incomming_without_match"
-        },
         "Filters": [
             {
                 "Name": "Alle",
@@ -569,6 +559,15 @@
                 "NeedsActionOverride": true
             },
             {
+                "Name": "Krediter bilag på utbetalingen",
+                "Code": "credit_journal_entry",
+                "Type": "action",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
+            {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_payment_file",
                 "Type": "action",
@@ -623,7 +622,7 @@
                 "NeedsActionOverride": true
             },
             {
-                "Name": "Sett til bokført og betalt",
+                "Name": "Endre status til bokført og betalt",
                 "Code": "set_to_paid",
                 "Type": "action",
                 "ExecuteWithMultipleSelections": false,
@@ -718,6 +717,11 @@
                             "Value": "44018"
                         },
                         {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
+                        },
+                        {
                             "Field": "isPaymentClaim",
                             "Operator": "eq",
                             "Value": "false"
@@ -735,7 +739,7 @@
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
-                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken, men vi har ikke funnet en matchende post i systemet. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
+                "tooltip": "Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i Uni Economy. Vi har derfor ikke funnet en sammenfallende post i vårt system. Disse må derfor behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere «Bokfør kun betalinger fra UE i Autobank-innstillingene. Da vil disse ikke bli bokført heretter.",
                 "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
@@ -830,6 +834,11 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "44018"
+                        },                        
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "ne",
+                            "Value": "44020"
                         },
                         {
                             "Field": "isPaymentClaim",

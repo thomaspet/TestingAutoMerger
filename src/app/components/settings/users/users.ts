@@ -44,7 +44,7 @@ export class UserManagement {
         this.tabService.addTab({
             name: 'Brukere',
             url: '/settings/users',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID)

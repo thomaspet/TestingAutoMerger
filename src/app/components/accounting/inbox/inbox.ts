@@ -23,7 +23,7 @@ import { File } from '@uni-entities';
 
 export class UniInbox {
 
-    TAG_NAMES = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense'];
+    TAG_NAMES = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense', 'Upload'];
     inboxList: any[] = [];
     draftList: any[] = [];
     fileIds: number[] = [];

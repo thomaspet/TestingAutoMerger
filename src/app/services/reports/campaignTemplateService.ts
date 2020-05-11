@@ -1,11 +1,15 @@
+
 import {Injectable} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {UniHttp} from '../../../framework/core/http/http';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {CampaignTemplate} from '@uni-entities';
+import { Observable } from 'rxjs';
 
 @Injectable()
 export class CampaignTemplateService extends BizHttp<CampaignTemplate> {
+
+    private requestCache: {[hash: number]: Observable<any>} = {};
 
     constructor(http: UniHttp) {
         super(http);
@@ -15,24 +19,23 @@ export class CampaignTemplateService extends BizHttp<CampaignTemplate> {
         this.DefaultOrderBy = 'ID';
     }
 
-    public getInvoiceTemplatetext() {
-        const params = new HttpParams()
-            .set('filter', `EntityName eq 'CustomerInvoice'`);
+    getTemplateText() {
+        const hash = this.hashFnv32a(this.relativeURL);
 
-        return this.GetAllByHttpParams(params, true);
+        if (!this.requestCache[hash]) {
+            this.requestCache[hash] = this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint(this.relativeURL)
+                .send()
+                .map(res => res.body)
+                .publishReplay(1)
+                .refCount();
+        }
+        return this.requestCache[hash];
     }
 
-    public getOrderTemplateText() {
-        const params = new HttpParams()
-            .set('filter', `EntityName eq 'CustomerOrder'`);
-
-        return this.GetAllByHttpParams(params, true);
-    }
-
-     public getQuoteTemplateText() {
-        const params = new HttpParams()
-            .set('filter', `EntityName eq 'CustomerQuote'`);
-
-        return this.GetAllByHttpParams(params, true);
+    public clearCache() {
+        this.requestCache = {};
     }
 }

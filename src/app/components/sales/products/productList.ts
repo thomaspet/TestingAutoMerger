@@ -93,9 +93,7 @@ export class ProductList {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         };
 
-        const partNameCol = new UniTableColumn('PartName', 'Produktnr', UniTableColumnType.Text)
-            .setWidth('15%')
-            .setFilterOperator('contains');
+        const partNameCol = new UniTableColumn('PartName', 'Produktnr', UniTableColumnType.Text);
 
         const nameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text);
 
@@ -103,19 +101,11 @@ export class ProductList {
             .setVisible(false)
             .setWidth('4rem');
 
-        const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva', UniTableColumnType.Money)
-            .setFilterOperator('eq')
-            .setWidth('10%')
-            .setCls('column-align-right');
+        const priceExVatCol = new UniTableColumn('PriceExVat', 'Utpris eks. mva', UniTableColumnType.Money);
 
-        const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva', UniTableColumnType.Money)
-            .setFilterOperator('eq')
-            .setWidth('10%')
-            .setCls('column-align-right');
+        const priceIncVatCol = new UniTableColumn('PriceIncVat', 'Utpris inkl. mva', UniTableColumnType.Money);
 
         const departmentCol = new UniTableColumn('Dimensions.Department.DepartmentNumber', 'Avdeling', UniTableColumnType.Text)
-            .setWidth('15%')
-            .setFilterOperator('contains')
             .setTemplate((data: Product) => {
                 return data.Dimensions && data.Dimensions.Department
                     ? data.Dimensions.Department.DepartmentNumber + ': ' + data.Dimensions.Department.Name
@@ -123,8 +113,6 @@ export class ProductList {
             });
 
         const projectCol = new UniTableColumn('Dimensions.Project.ProjectNumber', 'Prosjekt', UniTableColumnType.Text)
-            .setWidth('15%')
-            .setFilterOperator('contains')
             .setTemplate((data: Product) => {
                 return data.Dimensions && data.Dimensions.Project
                     ? data.Dimensions.Project.ProjectNumber + ': ' + data.Dimensions.Project.Name
@@ -132,21 +120,17 @@ export class ProductList {
             });
 
         const descriptionCol = new UniTableColumn('Description', 'Beskrivelse', UniTableColumnType.Text)
-            .setWidth('15%')
             .setVisible(false);
 
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
-            .setWidth('15%')
             .setVisible(false)
             .setTemplate((data: Product) => {
                 return this.productService.getStatusText(data.StatusCode);
-            })
-            ;
+            });
 
         this.productTable = new UniTableConfig('common.productList', false, true, 25)
             .setSearchable(true)
             .setEntityType('Product')
-            .setSearchListVisible(true)
             .setColumns([
                 partNameCol,
                 nameCol,

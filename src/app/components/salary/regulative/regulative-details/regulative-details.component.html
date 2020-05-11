@@ -7,15 +7,10 @@
 <article>
     <uni-form class="regulative-form" [fields]="fields$" [config]="config$" [model]="model$" (changeEvent)="formChange($event)"></uni-form>
     <section *ngIf="(model$ | async).ID" class="regulative-step-table">
-        <button (click)="exportRegulative()"
-            class="regulative-export secondary c2a"
-                [attr.aria-busy]="exporting">
-                <i class="material-icons">save_alt</i>
-                Export
-        </button>
         <ag-grid-wrapper
             [config]="tableConfig"
-            [resource]="lookupFunction">
+            [resource]="lookupFunction"
+            [attr.aria-busy]="exporting">
         </ag-grid-wrapper>
     </section>
 </article>

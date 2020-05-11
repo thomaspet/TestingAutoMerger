@@ -13,7 +13,6 @@
             [title]="control?.value || ''"
             (keypress)="keyPressHandler($event)"
             [attr.aria-readonly]="readOnly$ | async"
-            tabindex="-1"
             readonly
         />
 

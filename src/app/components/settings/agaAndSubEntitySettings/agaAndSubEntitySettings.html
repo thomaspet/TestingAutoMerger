@@ -1,27 +1,247 @@
 ﻿﻿<uni-toolbar [config]="{ title: 'Lønnsinnstillinger' }" [saveactions]="saveActions"></uni-toolbar>
 
-<section class="settings-view-container">
-    <uni-form
-    [attr.aria-busy]="busy"
-    class="companySettings"
-    [config]="formConfig$"
-    [fields]="fields$"
-    [model]="mainOrganization$"
-    (changeEvent)="mainOrgChange($event)">
-</uni-form>
+<section class="container-fluid uni-grid-container">
+    <uni-tabs
+        [tabs]="tabs"
+        [(activeIndex)]="activeIndex"
+        (tabClick)="updateTabAndUrl()">
+    </uni-tabs>
 
-<section class="collapsable" [ngClass]="{'-is-open':showSubEntities}">
-    <h4 (click)="toggleShowSubEntities()">Virksomheter</h4>
+    <ng-container *ngIf="activeIndex === 0">
+        <!-- JURIDISK ENHET -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> Juridisk enhet </h1>
+                    <p> {{ 'SETTINGS.AGA_SETTINGS1' | translate }} </p>
+                    <small>
+                        Dersom virksomheten er omfattet av fribeløps-ordningen for arbeidsgiveravgift
+                        <a target="_blank" title="Gå til skatteetaten sine sider" href="https://www.skatteetaten.no/en/business-and-organisation/employer/employers-national-insurance-contributions/zones-calculation-codes-and-rates-for-employers-national-insurance-contributions/avgiftssatser-og-beregning/fribelop-for-arbeidsgiver">
+                            registreres fribeløpet her
+                        </a>.
+                    </small>
+                </section>
+            </section>
 
-    <sub-entity-list class="collapsable-content"></sub-entity-list>
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="fields$"
+                            [model]="mainOrganization$"
+                            (changeEvent)="mainOrgChange($event)">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!-- AGA-SONE -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> Arbeidsgiveravgift </h1>
+                    <p> {{ 'SETTINGS.AGA_SETTINGS2' | translate }} </p>
+                    <small>
+                        Eventuelle offentlige tilskudd til lønn kan også
+                        <a target="_black" title="Gå til skatteetaten sine sider" href="https://www.skatteetaten.no/en/business-and-organisation/employer/employers-national-insurance-contributions/zones-calculation-codes-and-rates-for-employers-national-insurance-contributions/avgiftssatser-og-beregning/fribelop-for-arbeidsgiver/">
+                            registreres her
+                        </a>.
+                    </small>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="fields$2"
+                            [model]="mainOrganization$"
+                            (changeEvent)="mainOrgChange($event)">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+   <ng-container *ngIf="activeIndex === 1">
+        <section class="uni-card">
+            <section class="uni-card-header">
+                <h1>{{ tabs[activeIndex].name | translate }}</h1>
+
+                <button class="tertiary c2a" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Info om virksomheter">
+                    <i class="material-icons">info_outline</i>
+                </button>
+
+                <mat-menu #contextMenu="matMenu" yPosition="below">
+                    <div class="number-series-info-container">
+                        <h2>Virksomheter</h2>
+                        <p>Endringer på virksomhet kan medføre utilsiktede virkninger på beregning av arbeidsgiveravgift og a-melding.</p>
+                        <p>Klikk på "Ny virksomhet" til høyre for å hente inn fra enhetsregister eller for å legge til manuelt.</p>
+                    </div>
+                </mat-menu>
+
+                <button class="tertiary c2a pull-right" #toggle> Ny virksomhet </button>
+                <dropdown-menu [trigger]="toggle">
+                    <ng-template>
+                        <a class="dropdown-menu-item"
+                            *ngFor="let action of actions"
+                            (click)="action.action()">
+                            {{action.label}}
+                        </a>
+                    </ng-template>
+                </dropdown-menu>
+            </section>
+
+            <sub-entity-list></sub-entity-list>
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeIndex === 2">
+        <!-- Kontoer -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1>Bokføringskontoer</h1>
+                    <p> {{ 'SETTINGS.SALARY_BOOKING_ACCOUNTS_INFOTEXT' | translate }} </p>
+                    <small> Systemets driftskonto, lønnskonto og skattetrekkskonto settes opp under <a routerLink="/settings/bank" title="Gå til bankinnstilliger">bankinnstilliger</a>.  </small>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="accountfields$"
+                            [model]="companySalary$"
+                            (changeEvent)="companySalaryChange($event)">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!-- Andre innstillinger -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1>Annet</h1>
+                    <p> {{ 'SETTINGS.SALARY_OTHER_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="accountfields$2"
+                            [model]="companySalary$"
+                            (changeEvent)="companySalaryChange($event)">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+
+    <ng-container *ngIf="activeIndex === 3">
+        <!-- Feriepenger -->
+
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1>Feriepenger</h1>
+                    <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <!-- <section class="uni-card-header">
+                        <h1>Feriepenger</h1>
+                    </section> -->
+
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="vacationfields$"
+                            [model]="companySalary$"
+                            (changeEvent)="companySalaryChange()">
+                        </uni-form>
+
+                        <ag-grid-wrapper style="margin-top: 1rem" [config]="tableConfig" [(resource)]="vacationRates" (rowDelete)="onRowDeleted($event)" (rowChange)="isDirty = true"></ag-grid-wrapper>
+                    </section>
+
+                </section>
+
+                <section class="uni-card">
+                    <section class="uni-card-header">
+                        <h1>Feriepengegrunnlag</h1>
+                    </section>
+
+                    <section class="uni-card-content">
+                        <div class="box-with-button">
+                            <span> Registrer feriepengegrunnlag </span>
+                            <button class="c2a secondary" (click)="openVacationPayModal()"> Registrer </button>
+                        </div>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeIndex === 4">
+        <!-- Spesielle innstillinger -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> Finansskatt </h1>
+                    <p> Informasjon om finansskatt </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="specialFields"
+                            [model]="companySalary$"
+                            (changeEvent)="companySalaryChange()">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <!-- Spesielle innstillinger - Skatt og avgift -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> Skatter og avgifter </h1>
+                    <p> Informasjon om skatter og avgifter innen lønn for diverse særskilte grupper </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="specialFields2"
+                            [model]="companySalary$"
+                            (changeEvent)="companySalaryChange()">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
 </section>
 
-<uni-form
-    [attr.aria-busy]="busy"
-    class="companySettings"
-    [config]="accountformConfig$"
-    [fields]="accountfields$"
-    [model]="companySalary$"
-    (changeEvent)="companySalarychange($event)">
-</uni-form>
-</section>

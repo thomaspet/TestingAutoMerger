@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {GuidService, NumberFormat} from '../../../services/services';
+import {GuidService, NumberFormat, CustomDimensionService} from '../../../services/services';
 import {TradeHeaderCalculationSummary} from '../../../models/sales/TradeHeaderCalculationSummary';
 import {
     Product,
@@ -21,6 +21,7 @@ export class TradeItemHelper  {
     constructor(
         private guidService: GuidService,
         private numberFormat: NumberFormat,
+        private customDimensionService: CustomDimensionService
     ) {}
 
     public prepareItemsForSave(items) {
@@ -142,7 +143,8 @@ export class TradeItemHelper  {
                     newRow.VatTypeID = foreignVatType.ID;
                     overrideVatType = foreignVatType;
                 }
-                this.mapProductToQuoteItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType, companySettings);
+
+                this.mapProductToTradeItem(newRow, currencyExchangeRate, vatTypes, companySettings, overrideVatType, companySettings);
 
             } else {
                 newRow['ProductID'] = null;
@@ -281,7 +283,7 @@ export class TradeItemHelper  {
         }
     }
 
-    public mapProductToQuoteItem(
+    public mapProductToTradeItem(
         rowModel,
         currencyExchangeRate: number,
         vatTypes: Array<VatType>,
@@ -370,45 +372,38 @@ export class TradeItemHelper  {
             rowModel.Dimensions = {};
         }
 
-        if (product.Dimensions && product.Dimensions.ProjectID) {
-            rowModel.Dimensions.ProjectID = product.Dimensions.ProjectID;
-            rowModel.Dimensions.Project = product.Dimensions.Project;
+        this.mapProductDimensionsToItem(rowModel);
+    }
+
+    private mapProductDimensionsToItem(item) {
+        if (!item.Product?.Dimensions) {
+            return item;
         }
 
-        if (product.Dimensions && product.Dimensions.DepartmentID) {
-            rowModel.Dimensions.DepartmentID = product.Dimensions.DepartmentID;
-            rowModel.Dimensions.Department = product.Dimensions.Department;
+        const itemDims = item.Dimensions;
+        const productDims = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Product?.Dimensions);
+
+        if (!itemDims.ProjectID && productDims.ProjectID) {
+            itemDims.ProjectID = productDims.ProjectID;
+            itemDims.Project = productDims.Project;
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension5ID) {
-            rowModel.Dimensions.Dimension5ID = product.Dimensions.Dimension5ID;
-            rowModel.Dimensions.Dimension5 = product.Dimensions.Dimension5;
+        if (!itemDims.DepartmentID && productDims.DepartmentID) {
+            itemDims.DepartmentID = productDims.DepartmentID;
+            itemDims.Department = productDims.Department;
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension6ID) {
-            rowModel.Dimensions.Dimension6ID = product.Dimensions.Dimension6ID;
-            rowModel.Dimensions.Dimension6 = product.Dimensions.Dimension6;
+        for (let i = 5; i < 10; i++) {
+            const idKey = `Dimension${i}ID`;
+            const valueKey = `Dimension${i}`;
+            if (!itemDims[idKey] && productDims[idKey]) {
+                itemDims[idKey] = productDims[idKey];
+                itemDims[valueKey] = productDims[valueKey];
+            }
         }
 
-        if (product.Dimensions && product.Dimensions.Dimension7ID) {
-            rowModel.Dimensions.Dimension7ID = product.Dimensions.Dimension7ID;
-            rowModel.Dimensions.Dimension7 = product.Dimensions.Dimension7;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension8ID) {
-            rowModel.Dimensions.Dimension8ID = product.Dimensions.Dimension8ID;
-            rowModel.Dimensions.Dimension8 = product.Dimensions.Dimension8;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension9ID) {
-            rowModel.Dimensions.Dimension9ID = product.Dimensions.Dimension9ID;
-            rowModel.Dimensions.Dimension9 = product.Dimensions.Dimension9;
-        }
-
-        if (product.Dimensions && product.Dimensions.Dimension10ID) {
-            rowModel.Dimensions.Dimension10ID = product.Dimensions.Dimension10ID;
-            rowModel.Dimensions.Dimension10 = product.Dimensions.Dimension10;
-        }
+        item.Dimensions = itemDims;
+        return item;
     }
 
     public calculateBaseCurrencyAmounts(rowModel, currencyExchangeRate: number) {

@@ -185,7 +185,7 @@
                 ]
             },
             {
-                "Name": "Lead",
+                "Name": "Potensiell kunde",
                 "Code": "lead_customers",
                 "UseAllCriterias": true,
                 "FilterGroups": [

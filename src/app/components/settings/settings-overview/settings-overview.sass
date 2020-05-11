@@ -10,6 +10,15 @@
     justify-content: center
     padding: 2rem 0 1rem
 
+    @media (max-width: 1000px)
+        flex-direction: column
+        align-items: center
+
+        .main-links
+            width: 22rem
+            margin-bottom: 5rem !important
+
+
     .main-links
         margin: 0 3rem
         list-style: none
@@ -18,7 +27,7 @@
         li.list-item
             padding: 1rem 1rem
             font-size: 15px
-            color: var(--link-color)
+            color: var(--color-c2a)
             cursor: pointer
             border-bottom: 1px solid var(--border-color)
 
@@ -26,8 +35,9 @@
                 border-bottom: none
 
             &.isSearchMatch
-                background-color: var(--sidebar-active-section-background)
-                font-weight: bold
+                &:not(.open)
+                    background-color: var(--sidebar-active-section-background)
+                    font-weight: bold
 
             &:not(.open):hover
                 background-color: var(--sidebar-active-section-background)
@@ -45,9 +55,9 @@
                     font-size: 20px
 
         li.list-header
-            font-size: 18px
+            font-size: 16px
             font-weight: bold
-            color: var(--color-c2a)
+            color: var(--toolbar-header-color)
             padding-left: 0
             cursor: default
             margin-bottom: .75rem
@@ -62,7 +72,7 @@
         li
             padding: 1rem 1rem
             font-size: 14px
-            color: var(--link-color)
+            color: var(--color-c2a)
             cursor: pointer
             border-bottom: 1px solid var(--border-color)
             font-weight: 400
@@ -72,3 +82,7 @@
 
             &:last-of-type
                 border-bottom: none
+
+            &.isSearchMatch
+                background-color: var(--sidebar-active-section-background)
+                font-weight: bold

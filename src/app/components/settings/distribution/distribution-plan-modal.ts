@@ -20,7 +20,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
     types: any[];
     currentType: any;
     busy: boolean = false;
-    setAsCompanyDefault: boolean = false;
+    setAsCompanyDefault: boolean = true;
     deletedElements: any[] = [];
 
     constructor (
@@ -32,8 +32,11 @@ export class DistributionPlanModal implements OnInit, IUniModal {
         this.currentPlan = _.cloneDeep(this.options.data.plan);
         this.types = _.cloneDeep(this.options.data.types);
         this.currentType = this.options.data.currentType;
-        this.setAsCompanyDefault = this.currentType.defaultPlan && this.currentPlan
+
+        if (this.currentPlan.ID) {
+            this.setAsCompanyDefault = this.currentType.defaultPlan && this.currentPlan
             && this.currentType.defaultPlan.ID === this.currentPlan.ID;
+        }
     }
 
     public saveOrCreate() {

@@ -1,3 +1,5 @@
+import {File} from '@uni-entities';
+
 export class DebitCreditEntry {
     public EntryID: number;
     public FinancialDate: Date;
@@ -19,9 +21,13 @@ export class DebitCreditEntry {
     public Amount: number;
     public InvoiceNumber: string;
     public active = false;
+    public files: File[];
 
     constructor(date?: Date) {
-        if (date) { this.FinancialDate = date; }
+        this.files = [];
+        if (date) {
+            this.FinancialDate = date;
+        }
     }
 }
 

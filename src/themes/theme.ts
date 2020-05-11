@@ -1,5 +1,5 @@
 import {TRANSLATION_OVERRIDES} from './ue/translation-overrides';
-import {DASHBOARD_CONFIG} from './ue/dashboard-config';
+import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ue/dashboard-config';
 
 import {THEMES} from './themes-enum';
 export * from './themes-enum';
@@ -10,8 +10,11 @@ export const theme = {
     appProvider: 'Uni Micro',
 
     translationOverrides: TRANSLATION_OVERRIDES,
-    dashboardConfig: DASHBOARD_CONFIG,
     chatbotIcon: undefined,
+    dashboardConfig: DASHBOARD_CONFIG,
+    accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
+    bankDashboardConfig: BANK_DASHBOARD_CONFIG,
+    salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
 
     init: {
         illustration: 'themes/ue/init_bg.svg',

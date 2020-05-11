@@ -212,16 +212,16 @@ export class BankInitModal implements IUniModal, OnInit {
             return false;
         }
 
-        if (!/[a-zæøå]/.test(this.payload.Password)) {
-            this.errorMsg = 'Passord må ha minst 1 liten bokstav';
+        if (!/[a-z]/.test(this.payload.Password)) {
+            this.errorMsg = 'Passord må ha minst 1 liten bokstav [a-z]';
             return false;
         }
-        if (!/[A-ZÆØÅ]/.test(this.payload.Password)) {
-            this.errorMsg = 'Passord må ha minst 1 stor bokstav';
+        if (!/[A-Z]/.test(this.payload.Password)) {
+            this.errorMsg = 'Passord må ha minst 1 stor bokstav [A-Z]';
             return false;
         }
         if (!/[\d]/.test(this.payload.Password)) {
-            this.errorMsg = 'Passord må ha minst ett tall';
+            this.errorMsg = 'Passord må ha minst ett tall [0-9]';
             return false;
         }
 

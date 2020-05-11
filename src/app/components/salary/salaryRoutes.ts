@@ -19,24 +19,19 @@ import {AMeldingView} from './amelding/ameldingview';
 import {CategoryList} from './category/categoryList';
 import {CategoryView} from './category/categoryView';
 import {routes as CategoryRoutes} from './category/categoryRoutes';
-import {SalaryBalanceListContainer} from './salarybalance/salaryBalanceList/salaryBalanceListContainer';
-import {SalarybalanceView} from './salarybalance/salarybalanceView';
-import {routes as SalarybalanceRoutes} from './salarybalance/salarybalanceRoutes';
 import {SalaryTransactionSupplementList} from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import {EmpCanActivateGuard} from '@app/components/salary/employee/empGuard';
 import { TraveltypeComponent } from '@app/components/salary/travel/travel-type/traveltype.component';
 import {TravelComponent} from '@app/components/salary/travel/travel.component';
-import {
-    SalarybalanceTemplateListComponent
-} from '@app/components/salary/salarybalance/template/salarybalance-template-list/salarybalance-template-list.component';
 import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
-// import {
-//     SalarybalanceTemplateDetailsComponent
-// } from '@app/components/salary/salarybalance/template/salarybalance-template-details/salarybalance-template-details.component';
-import {routes as SalarybalanceTemplateRoutes} from './salarybalance/template/salarybalanceTemplateRoutes';
-import {SalarybalanceTemplateView} from './salarybalance/template/salarybalanceTemplateView';
 import {OTPExportComponent} from './otpexport/otpexport.component';
 import {RegulativeGroupListComponent} from './regulative/regulative-group-list.component';
+import { BalanceComponent } from './balance/balance.component';
+import { SalarybalanceTemplateListComponent } from './salary-balance-template/salarybalance-template-list/salarybalance-template-list.component';
+import { SalarybalanceTemplateView } from './salary-balance-template/salarybalanceTemplateView';
+import { routes as SalarybalanceTemplateRoutes } from './salary-balance-template/salarybalanceTemplateRoutes';
+import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
+import { routes as SalarybalanceRoutes } from './balance/salary-balance.routes';
 
 export const salaryRoutes: Routes = [
     {
@@ -92,11 +87,11 @@ export const salaryRoutes: Routes = [
     },
     {
         path: 'salarybalances',
-        component: SalaryBalanceListContainer
+        component: SalaryBalanceListContainerComponent
     },
     {
         path: 'salarybalances/:id',
-        component: SalarybalanceView,
+        component: BalanceComponent,
         children: SalarybalanceRoutes,
         canDeactivate: [CanDeactivateGuard]
     },

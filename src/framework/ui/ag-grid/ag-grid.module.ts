@@ -9,26 +9,32 @@ import {ColumnMenuNew} from './column-menu-modal';
 import {TableDataService} from './services/data-service';
 import {TableUtils} from './services/table-utils';
 import {TableEditor} from './editor/editor';
-import {TableFilters} from './filters/filters';
+import {TableFiltersAndButtons} from './filters/filters-and-buttons';
 import {AdvancedFilters} from './filters/advanced-filters/advanced-filters';
 
 import {RowMenuRenderer} from './cell-renderer/row-menu';
 import {StatusCellRenderer} from './cell-renderer/status-cell';
+import {AttachmentCellRenderer} from './cell-renderer/attachment-cell';
 import {UniDateAdapter} from '@app/date-adapter';
 import {DropdownMenuModule} from '../dropdown-menu/dropdown-menu';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
+import {QuickFilters} from './filters/quick-filters/quick-filters';
+import {DatepickerModule} from '../datepicker/datepicker.module';
+import {TableLoadIndicator} from './table-load-indicator';
 
 @NgModule({
     imports: [
         LibraryImportsModule,
         MatNativeDateModule,
+        DatepickerModule,
 
         UniPipesModule,
         DropdownMenuModule,
         InputDropdownModule,
         AgGridModule.withComponents([
             RowMenuRenderer,
-            StatusCellRenderer
+            StatusCellRenderer,
+            AttachmentCellRenderer
         ])
     ],
     declarations: [
@@ -37,8 +43,11 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
         TableEditor,
         RowMenuRenderer,
         StatusCellRenderer,
-        TableFilters,
-        AdvancedFilters
+        TableFiltersAndButtons,
+        AdvancedFilters,
+        QuickFilters,
+        TableLoadIndicator,
+        AttachmentCellRenderer,
     ],
     providers: [
         TableUtils,

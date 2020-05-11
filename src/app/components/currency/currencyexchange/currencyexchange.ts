@@ -58,7 +58,7 @@ export class CurrencyExchange {
         this.tabService.addTab({
             name: 'Valutakurser',
             url: '/currency/exchange',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
         });
 

@@ -5,7 +5,6 @@ import {UnitableNumberInput} from '../controls/number';
 import {UnitableDateTimepicker} from '../controls/dateTimePicker/dateTimePicker';
 import {UnitableSelect} from '../controls/select';
 import {LocalDatePicker} from '../controls/localDatePicker/LocalDatePicker';
-import {get} from 'lodash';
 
 /*
     Dont make changes to this unless you know what you're doing!
@@ -30,7 +29,8 @@ export enum UniTableColumnType {
     Typeahead = 12,
     Link = 13,
     Status = 14,
-    Checkbox = 15
+    Checkbox = 15,
+    Attachment = 16,
 }
 
 export enum UniTableColumnSortMode {
@@ -105,6 +105,7 @@ export interface IUniTableColumn {
     filterSelectConfig?: {options: Array<any>, displayField: string, valueField: string};
     skipOnEnterKeyNavigation?: boolean;
     sortMode: UniTableColumnSortMode;
+    sortField?: string;
     jumpToColumn?: string;
     onCellClick?: (rowModel) => void;
     isSumColumn?: boolean;
@@ -151,6 +152,7 @@ export class UniTableColumn implements IUniTableColumn {
     public width: number|string;
     public maxWidth: number;
     public sortMode: UniTableColumnSortMode;
+    public sortField: string;
     public isSumColumn: boolean;
     public markedRowsSumCol: boolean;
     public aggFunc: (items: any[]) => number;
@@ -326,6 +328,11 @@ export class UniTableColumn implements IUniTableColumn {
                 this.setWidth('4rem', false);
                 this.setCls('checkbox-column');
             break;
+
+            case UniTableColumnType.Attachment:
+                this.setCls('attachment-column');
+                this.setWidth('160px', false);
+            break;
         }
 
         if (type === UniTableColumnType.LocalDate || type === UniTableColumnType.DateTime) {
@@ -439,6 +446,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     public setSortMode(sortMode: UniTableColumnSortMode) {
         this.sortMode = sortMode;
+        return this;
+    }
+
+    public setSortField(field: string) {
+        this.sortField = field;
         return this;
     }
 

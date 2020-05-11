@@ -21,6 +21,7 @@ export interface LastUsedFilter {
     searchText: string;
     basicSearchFilters: ITableFilter[];
     advancedSearchFilters: ITableFilter[];
+    quickFilterValues: {[field: string]: any};
 }
 
 @Injectable()
@@ -248,6 +249,7 @@ export class TableUtils {
             lastUsedFilter.searchText
             || (lastUsedFilter.basicSearchFilters && lastUsedFilter.basicSearchFilters.length)
             || (lastUsedFilter.advancedSearchFilters && lastUsedFilter.advancedSearchFilters.length)
+            || (lastUsedFilter.quickFilterValues)
         )) {
             sessionStorage.setItem(key, JSON.stringify(lastUsedFilter));
         } else {

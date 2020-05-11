@@ -41,7 +41,7 @@
     </section>
 
     <section class="navbar-right">
-        <section *ngIf="isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
+        <section *ngIf="hasActiveContract && isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
             {{demoText}}
             <a>{{isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktiver nå'}}</a>
         </section>
@@ -71,10 +71,10 @@
 
         <navbar-create-new *ngIf="hasActiveContract && !deativateFunctions"></navbar-create-new>
 
-        <notifications *ngIf="!deativateFunctions"></notifications>
+        <notifications *ngIf="!deativateFunctions" title=""></notifications>
 
         <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length) && !deativateFunctions">
-            <uni-icon #settingsToggle [icon]="'settings'"></uni-icon>
+            <uni-icon #settingsToggle [icon]="'settings'" title="Innstillinger"></uni-icon>
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
                 <ng-template>
@@ -110,7 +110,7 @@
 
                     </ng-container>
 
-                    <section style="padding: 1rem; font-size: 14px; text-align: center;">
+                    <section class="settings-overview-link">
                         <a routerLink="settings"> Oversikt innstillinger </a>
                     </section>
                 </ng-template>

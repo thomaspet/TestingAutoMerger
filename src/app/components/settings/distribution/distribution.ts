@@ -108,7 +108,7 @@ export class UniDistributionSettings {
         this.tabService.addTab({
             name: 'Utsendelse',
             url: '/settings/distribution',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
         this.route.queryParams.subscribe((params) => {

@@ -37,7 +37,9 @@ import {TofEmailModal} from './modals/tof-email-modal/tof-email-modal';
 import {PurchaseTraveltextModal} from './modals/purchase-traveltext-modal/purchase-traveltext-modal';
 import {UniNewRegulativeModal} from './modals/newRegulativeModal';
 import {MissingRolesModal} from './modals/missing-roles-modal/missing-roles-modal';
+import {UniTermsModal} from './modals/terms-modal';
 import {UniPreviewModal} from './modals/previewModal';
+import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -78,7 +80,9 @@ export * from './modals/tof-email-modal/tof-email-modal';
 export * from './modals/purchase-traveltext-modal/purchase-traveltext-modal';
 export * from './modals/newRegulativeModal';
 export * from './modals/missing-roles-modal/missing-roles-modal';
+export * from './modals/terms-modal';
 export * from './modals/previewModal';
+export * from './modals/file-from-inbox-modal/file-from-inbox-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -120,6 +124,8 @@ export const MODALS = [
     PurchaseTraveltextModal,
     UniNewRegulativeModal,
     MissingRolesModal,
+    UniTermsModal,
     UniPreviewModal,
+    FileFromInboxModal,
 ];
 

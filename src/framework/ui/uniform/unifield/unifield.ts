@@ -26,7 +26,6 @@ export class UniField {
     @Output() public inputEvent: EventEmitter<any> = new EventEmitter<any>();
     @Output() public focusEvent: EventEmitter<UniField> = new EventEmitter<UniField>(true);
     @Output() public moveForwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
-    @Output() public moveBackwardEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @Output() public errorEvent: EventEmitter<Object> = new EventEmitter<Object>(true);
     @HostBinding('class') cssClasses = '';
     @ViewChild('selectedComponent') public component: any;
@@ -102,7 +101,7 @@ export class UniField {
 
     public onFocusHandler(event) {
         this.touched = true;
-        this.focusEvent.emit(event);
+        this.focusEvent.emit(this);
     }
 
     public focus() {
@@ -280,26 +279,13 @@ export class UniField {
             }
         }
 
-        if (combination.length === 1 && (combination[0] === 'enter' || combination[0] === 'tab')) {
-            if (!this.field.isLast) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
+        if (combination.length === 1 && (combination[0] === 'enter')) {
             this.moveForwardEvent.emit({
                 event: event,
                 field: this.field
             });
-
-        } else if (combination.length === 2 && (combination[0] === 'shift' && combination[1] === 'tab')) {
-            if (!this.field.isLast) {
-                event.preventDefault();
-                event.stopPropagation();
-            }
-            this.moveBackwardEvent.emit({
-                event: event,
-                field: this.field
-            });
         }
+
         return;
     }
 

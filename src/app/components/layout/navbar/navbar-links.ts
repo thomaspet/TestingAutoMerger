@@ -306,12 +306,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.VAT_SETTINGS',
-                        url: '/accounting/vatsettings',
-                        moduleID: UniModules.Vatsettings,
-                        activeInSidebar: true
-                    },
-                    {
                         name: 'NAVBAR.CURRENCY',
                         url: '/currency/exchange',
                         moduleID: UniModules.CurrencyExchange,
@@ -626,5 +620,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 ]
             },
         ]
+    },
+    {
+        name: 'NAVBAR.SETTINGS',
+        url: '/settings',
+        icon: 'settings',
+        isOnlyLinkSection: true,
+        megaMenuGroupIndex: 0,
+        linkGroups: []
     },
 ];

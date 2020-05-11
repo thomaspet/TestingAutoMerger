@@ -1,11 +1,69 @@
-<uni-form class="main-form"
-    [config]="config$"
-    [fields]="fields$"
-    [model]="reminderSettings$"
-    (changeEvent)="onChange($event)">
-</uni-form>
+<!-- PURREINNSTILLINGER -->
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>{{ 'SETTINGS.REMINDER' | translate }}</h1>
+            <p>{{ 'SETTINGS.REMINDER_SETTINGS_INFOTEXT' | translate }}</p>
+        </section>
+    </section>
 
-<reminder-rules
-    [settings]="reminderSettings$ | async"
-    (change)="onChange($event)">
-</reminder-rules>
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form
+                    [config]="config$"
+                    [fields]="reminderFields$"
+                    [model]="reminderSettings$"
+                    (changeEvent)="onChange($event)">
+                </uni-form>
+            </section>
+        </section>
+    </section>
+</section>
+
+<!-- INKASSOINNSTILLINGER -->
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>{{ 'SETTINGS.COLLECTOR_SETTINGS' | translate }}</h1>
+            <p>{{ 'SETTINGS.INKASSO_SETTINGS_INFOTEXT' | translate }}</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form
+                    [config]="config$"
+                    [fields]="fields$"
+                    [model]="reminderSettings$"
+                    (changeEvent)="onChange($event)">
+                </uni-form>
+            </section>
+        </section>
+    </section>
+</section>
+
+<!-- PURREREGLER -->
+<section class="row form-row last">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>{{ 'SETTINGS.REMINDER_RULES' | translate }}</h1>
+            <p>{{ 'SETTINGS.REMINDER_RULES_INFOTEXT' | translate }}</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <reminder-rules
+                    [showLabelAbove]="showLabelAbove"
+                    [settings]="reminderSettings$ | async"
+                    (change)="onChange($event)">
+                </reminder-rules>
+            </section>
+        </section>
+    </section>
+</section>
+
+

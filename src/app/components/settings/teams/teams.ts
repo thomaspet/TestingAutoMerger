@@ -42,7 +42,7 @@ export class Teams {
         this.tabService.addTab({
             name: 'Teams',
             url: '/settings/teams',
-            moduleID: UniModules.Settings,
+            moduleID: UniModules.SubSettings,
             active: true
        });
         this.initTableConfigs();

@@ -490,6 +490,194 @@
                   "src/themes/ext01"
                 ]
               }
+            },"softrig-dev": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.softrig-dev.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
+            },"softrig": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.softrig.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
+            },
+            "softrig-serve": {
+              "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.softrig.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
+            },
+            "softrig-serve-dev": {
+              "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.softrig-dev.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
             },
             "ext02": {
               "aot": false,
@@ -669,6 +857,12 @@
             },
             "rodc": {
               "browserTarget": "economy-frontend:build:rodc"
+            },
+            "softrig-serve":{
+              "browserTarget":"economy-frontend:build:softrig-serve"
+            },
+            "softrig-serve-dev":{
+              "browserTarget":"economy-frontend:build:softrig-serve-dev"
             }
           }
         },

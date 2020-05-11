@@ -83,7 +83,7 @@ import {switchMap, tap, catchError, map} from 'rxjs/operators';
     templateUrl: './orderDetails.html',
     styleUrls: ['./orderDetails.sass']
 })
-export class OrderDetails implements OnInit, AfterViewInit {
+export class OrderDetails implements OnInit {
     @ViewChild(TofHead, { static: true }) private tofHead: TofHead;
     @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
@@ -99,7 +99,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     newOrderItem: CustomerOrderItem;
     order: CustomerOrder;
     orderItems: CustomerOrderItem[];
-    lastListOfItems: CustomerOrderItem[] = [];
 
     saveActions: IUniSaveAction[] = [];
 
@@ -429,10 +428,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
         });
     }
 
-    ngAfterViewInit() {
-        this.tofHead.detailsForm.tabbedPastLastField.subscribe((event) => this.tradeItemTable.focusFirstRow());
-    }
-
     @HostListener('keydown', ['$event'])
     onKeyDown(event: KeyboardEvent) {
         const key = event.which || event.keyCode;
@@ -464,7 +459,7 @@ export class OrderDetails implements OnInit, AfterViewInit {
             const order: CustomerOrder = res[0];
             const orderItems: CustomerOrderItem[] = res[1].map(item => {
                 if (item.Dimensions) {
-                    item.Dimensions = this.customDimensionService.mapDimensions(item.Dimensions);
+                    item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
                 }
                 return item;
             });
@@ -1572,45 +1567,6 @@ export class OrderDetails implements OnInit, AfterViewInit {
     onTradeItemsChange() {
         this.order.Items = this.orderItems;
         this.order = cloneDeep(this.order);
-        this.updateDimensionsOnTradeItems(this.orderItems)
         this.recalcDebouncer.emit(this.orderItems);
-    }
-
-    updateDimensionsOnTradeItems(orderItems: CustomerOrderItem[]) {
-        if (this.lastListOfItems.length === 0 && orderItems.length === 0) {
-            this.lastListOfItems = [...orderItems];
-            return orderItems;
-        }
-        const newItems = orderItems
-            .filter(x => !this.lastListOfItems
-                .some(y => x['_originalIndex'] === y['_originalIndex'] && x.ProductID === y.ProductID));
-        const newItemsWithDimensionsFromUser = newItems.map(item => {
-            this.tradeItemTable.mapDimensionsToEntity(this.order.DefaultDimensions, item);
-            this.updateDimensionObjects(item);
-            return item;
-        });
-        const invoiceItemsUpdatedWithDimensionsFromUser  = orderItems.map(item => {
-            const newItem = newItemsWithDimensionsFromUser.find(x => x['_originalIndex'] === item['_originalIndex']);
-            if (newItem) {
-                return newItem;
-            }
-            return item;
-        });
-        this.lastListOfItems = [...invoiceItemsUpdatedWithDimensionsFromUser];
-        return invoiceItemsUpdatedWithDimensionsFromUser;
-    }
-
-    updateDimensionObjects(item) {
-        item.Dimensions.Project = this.projects.find(project => project.ID === item.Dimensions.ProjectID);
-        item.Dimensions.Department = this.departments.find(dep => dep.ID === item.Dimensions.DepartmentID);
-        for (let i = 5; i < 11; i++) {
-            const dim = this.dimensionTypes.find(dimension => dimension.Dimension === i);
-            if (!dim) {
-                continue;
-            }
-            if (dim.Data.length) {
-                item.Dimensions[`Dimension${i}`] = dim.Data.find(d => d.ID === this.order.DefaultDimensions[`Dimension${i}ID`]);
-            }
-        }
     }
 }

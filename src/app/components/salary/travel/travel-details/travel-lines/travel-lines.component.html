@@ -1,1 +1,5 @@
-<ag-grid-wrapper [resource]="travelLines" [config]="config"></ag-grid-wrapper>
+<ag-grid-wrapper
+    [resource]="travelLines"
+    [config]="config"
+    (rowDelete)="onRowDelete($event)"
+></ag-grid-wrapper>

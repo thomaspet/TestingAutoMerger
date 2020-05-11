@@ -1,0 +1,17 @@
+<uni-form
+    [attr.aria-busy] = "busy"
+    [config]="config$"
+    [fields]="fields$"
+    [model]="wageType$"
+    (changeEvent)="change($event)"
+    (toggleEvent)="toggle($event)">
+</uni-form>
+
+<ng-template [ngIf]="showSupplementaryInformations">
+    <p>Valgte tilleggsopplysninger</p>
+    <ag-grid-wrapper
+        [attr.aria-busy] = "busy"
+        [config]="tilleggspakkeConfig"
+        [resource]="(wageType$ | async)?.SupplementaryInformations">
+    </ag-grid-wrapper>
+</ng-template>

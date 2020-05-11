@@ -243,16 +243,8 @@ export class KIDSettings {
     }
 
     private checkShowKIDSettingInCompanySettings() {
-        if (this.companySettings.ShowKIDOnCustomerInvoice
-            && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active)) {
-                this.toastService.addToast(
-                    'Feil ved lagring',
-                    ToastType.bad,
-                    ToastTime.long,
-                    `'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`
-                );
-                throw new Error(`'Vis KID i fakturablankett' på Bank i Firmaoppsett er aktivert. Minst én KID-type må være aktiv.`);
-        }
+        return this.companySettings.ShowKIDOnCustomerInvoice
+            && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active);
     }
 
     private initFormConfig() {
@@ -398,7 +390,14 @@ export class KIDSettings {
             const currentIdx = this.paymentInfoTypes.findIndex(paymentInfoType => paymentInfoType.ID === this.currentPaymentInfoType.ID);
             this.paymentInfoTypes[currentIdx] = this.currentPaymentInfoType;
             this.checkPaymentInfoTypeParts();
-            this.checkShowKIDSettingInCompanySettings();
+
+            if (this.checkShowKIDSettingInCompanySettings()) {
+                this.toastService.addToast('Kunne ikke lagre', ToastType.warn, ToastTime.long,
+                    `"Vis KID i fakturablankett" er aktivert under Innstillinger - Salg - Blankettoppsett. Minst én KID-type må da være aktiv. <a href="/#/settings/sales?index=2">Gå til innstillinger</a>`
+                );
+                reject(false);
+                return;
+            }
 
             // save PaymentInfoType.StatusCode if change
             if (this.currentPaymentInfoType['_active'] !== this.initialActive) {
@@ -416,19 +415,16 @@ export class KIDSettings {
             // save PaymentInfoType
             requests.push(this.paymentInfoTypeService.Put(this.currentPaymentInfoType.ID, this.currentPaymentInfoType));
 
-            Observable.forkJoin(...requests)
-                .subscribe(
-                    () => {
-                        resolve(true);
-                        this.hasUnsavedChanges = false;
-                        this.updateSaveActions();
-                        this.requestData();
-                    },
-                    error => {
-                        reject(error);
-                        this.errorService.handle(error);
-                    }
-                );
+            Observable.forkJoin(...requests).subscribe(() => {
+                resolve(true);
+                this.hasUnsavedChanges = false;
+                this.updateSaveActions();
+                this.requestData();
+            },
+            error => {
+                reject(error);
+                this.errorService.handle(error);
+            });
         });
     }
 

@@ -155,7 +155,7 @@ export class UniActivateInvoicePrintModal implements IUniModal {
                     } else if (status === ActivationEnum.EXISTING) {
                         this.toastService.addToast(
                             'Aktivering på vent',
-                            ToastType.good, 10,
+                            ToastType.warn, 10,
                             'Org.nr. er allerede aktivert, deaktiver nåværende løsning eller kontakt support.'
                         );
                     } else {

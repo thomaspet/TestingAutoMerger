@@ -63,7 +63,6 @@ export class BankStatementRulesModal implements IUniModal {
             const parser = new QueryParser();
             try {
                 this.queryItems = parser.parseExpression(rule.Rule);
-                console.log(this.queryItems);
             } catch (e) {
                 console.error(e);
             }
@@ -76,10 +75,7 @@ export class BankStatementRulesModal implements IUniModal {
 
         if (rule.AccountID) {
             this.accountSubscription = this.accountService.Get(rule.AccountID).subscribe(
-                account => {
-                    this.activeRule['_account'] = account;
-                    console.log(rule);
-                },
+                account => this.activeRule['_account'] = account,
                 err => console.error(err)
             );
         }

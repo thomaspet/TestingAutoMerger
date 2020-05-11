@@ -11,6 +11,7 @@ export class TravelLineService extends BizHttp<TravelLine> {
     constructor(
         protected http: UniHttp,
         private vatTypeService: VatTypeService
+
     ) {
         super(http);
         this.entityType = TravelLine.EntityType;

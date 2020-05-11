@@ -143,7 +143,6 @@ export class UniSelect implements OnChanges, AfterViewInit {
             break;
             case KeyCodes.ENTER:
             case KeyCodes.TAB:
-                event.preventDefault();
                 if (this.expanded) {
                     const item = this.filteredItems[this.focusedIndex];
                     if (item) {
@@ -168,7 +167,7 @@ export class UniSelect implements OnChanges, AfterViewInit {
 
     onKeyPress(event: KeyboardEvent) {
         // Copy paste from old select code. Should refactor..
-        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB];
+        const ignoredKeyCodes = [KeyCodes.ESCAPE, KeyCodes.TAB, KeyCodes.ENTER];
         const keyCode = event.which || event.keyCode;
         const character = String.fromCharCode(keyCode);
 

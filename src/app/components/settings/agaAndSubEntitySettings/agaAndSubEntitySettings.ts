@@ -1,20 +1,24 @@
 ﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {FieldType, UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {SubEntityList} from './subEntityList';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {GrantModal} from './modals/grantModal';
 import {FreeAmountModal} from './modals/freeamountModal';
 import {Observable} from 'rxjs';
 import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
+import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable/index';
 import {
     CompanySalary,
     Account,
     SubEntity,
     AGAZone,
     AGASector,
-    CompanySalaryPaymentInterval
+    CompanySalaryPaymentInterval,
+    LocalDate,
+    CompanyVacationRate
 } from '../../../unientities';
 import {
     CompanySalaryService,
@@ -22,13 +26,17 @@ import {
     SubEntityService,
     AgaZoneService,
     ErrorService,
-    CompanySalaryBaseOptions
+    PageStateService,
+    VacationpayLineService,
+    CompanyVacationRateService,
+    FinancialYearService
 } from '../../../services/services';
-import {SettingsService} from '../settings-service';
 import {VacationPaySettingsModal} from '../../common/modals/vacationpay/vacationPaySettingsModal';
-import { ToastService } from '@uni-framework/uniToast/toastService';
 import {VacationPayModal} from '@app/components/common/modals/vacationpay/vacationPayModal';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import * as moment from 'moment';
 declare var _;
 
 @Component({
@@ -37,27 +45,54 @@ declare var _;
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
-    @ViewChild(UniForm, { static: true }) public uniform: UniForm;
-    @ViewChild(SubEntityList, { static: true }) public subEntityList: SubEntityList;
+    @ViewChild(SubEntityList) public subEntityList: SubEntityList;
+    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
 
     private agaSoneOversiktUrl: string = 'https://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
-    public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    public accountfields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
-    public accountformConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    fields$= new BehaviorSubject<UniFieldLayout[]>([]);
+    fields$2 = new BehaviorSubject<UniFieldLayout[]>([]);
 
-    public companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
-    public accounts: Account[] = [];
-    public mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+    specialFields = new BehaviorSubject<UniFieldLayout[]>([]);
+    specialFields2 = new BehaviorSubject<UniFieldLayout[]>([]);
+
+    accountfields$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    accountfields$2 = new BehaviorSubject<UniFieldLayout[]>([]);
+
+    vacationfields$ = new BehaviorSubject<UniFieldLayout[]>([]);
+
+    tableConfig: UniTableConfig;
+    activeYear: number;
+
+    companySalary$: BehaviorSubject<CompanySalary> = new BehaviorSubject(null);
+
+    accounts: Account[] = [];
+    mainOrganization$: BehaviorSubject<SubEntity> = new BehaviorSubject(null);
+
     private agaZones: AGAZone[] = [];
     private agaRules: AGASector[] = [];
 
+    actions: any[] = [
+        { label: 'Hent inn virksomheter fra enhetsregisteret', action: () => this.subEntityList.addSubEntitiesFromExternal() },
+        { label: 'Legg til virksomhet manuelt', action: () => this.subEntityList.addNewSubEntity() }
+    ];
+
+    activeIndex: number = 0;
+    vacationRates: any[] = [];
+    stdCompVacRate: CompanyVacationRate;
+    tabs = [
+        {name: 'Juridisk enhet'},
+        {name: 'Virksomheter'},
+        {name: 'Kontoer og lønn'},
+        {name: 'Feriepenger'},
+        {name: 'Spesielle innstillinger'}
+    ];
+
     saveActions: IUniSaveAction[] = [{
-        label: 'Lagre aga og virksomheter',
+        label: 'Lagre innstillinger',
         action: this.saveAgaAndSubEntities.bind(this),
         main: true,
         disabled: false
@@ -66,7 +101,6 @@ export class AgaAndSubEntitySettings implements OnInit {
     public busy: boolean;
 
     constructor(
-        private settingsService: SettingsService,
         private companySalaryService: CompanySalaryService,
         private accountService: AccountService,
         private subentityService: SubEntityService,
@@ -76,56 +110,103 @@ export class AgaAndSubEntitySettings implements OnInit {
         private modalService: UniModalService,
         private toastService: ToastService,
         private tabService: TabService,
-    ) {
-        this.formConfig$.next({
-            labelWidth: '15rem',
-            sections: {
-                1: { isOpen: true }
-            }
-        });
-    }
+        private pageStateService: PageStateService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private vacationpayLineService: VacationpayLineService,
+        private companyVacationRateService: CompanyVacationRateService,
+        private financialYearService: FinancialYearService
+    ) { }
 
-    public ngOnInit() {
-        this.tabService.addTab({
-            name: 'Lønnsinnstillinger',
-            url: '/settings/aga-and-subentities',
-            moduleID: UniModules.Settings,
-            active: true
-       });
+    ngOnInit() {
+
+        this.activeYear = this.financialYearService.getActiveYear();
+
+        this.route.queryParams.subscribe(params => {
+            const index = +params['index'];
+            if (!isNaN(index) && index >= 0 && index < this.tabs.length) {
+                this.activeIndex = index;
+            }
+            this.updateTabAndUrl();
+        });
         this.getDataAndSetupForm();
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
-        if (!this.isDirty) {
+    ngOnDestroy() {
+    this.fields$.complete();
+    this.fields$2.complete();
+    this.specialFields.complete();
+    this.specialFields2.complete();
+    this.accountfields$.complete();
+    this.accountfields$2.complete();
+    this.vacationfields$.complete();
+    this.companySalary$.complete();
+    }
+
+    updateTabAndUrl() {
+        this.pageStateService.setPageState('index', this.activeIndex + '');
+        this.tabService.addTab({
+            name: 'Innstillinger - Lønn',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.SubSettings,
+            active: true
+       });
+    }
+
+    canDeactivate(): boolean | Observable<boolean> {
+        if (!this.companySalary$.getValue() || (!this.isDirty && !this.companySalary$.getValue()['isDirty'])) {
            return true;
         }
 
-        return this.modalService.openUnsavedChangesModal().onClose.map(result => {
-            if (result === ConfirmActions.ACCEPT) {
-                this.saveAgaAndSubEntities(() => '');
+        const modalOptions = {
+            header: 'Ulagrede endringer',
+            message: 'Du har endringer i innstillingene som ikke er lagret. Ønsker du å lagre disse før du fortsetter?',
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
             }
-            return result !== ConfirmActions.CANCEL;
+        };
+
+        return this.modalService.confirm(modalOptions).onClose.switchMap(confirm => {
+            if (confirm === ConfirmActions.ACCEPT) {
+                return this.saveAgaAndSubEntities().then(res => true).catch(res => false);
+            }
+            return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
     }
 
     private getDataAndSetupForm() {
         this.busy = true;
+        this.buildForms();
         Observable.forkJoin(
             this.companySalaryService.getCompanySalary(),
             this.subentityService.getMainOrganization(),
             this.agazoneService.GetAll(''),
-            this.agazoneService.getAgaRules()
+            this.agazoneService.getAgaRules(),
+            this.companyVacationRateService.GetAll(''),
+            this.companyVacationRateService.getCurrentRates(this.activeYear)
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
-                const [companysalary, mainOrg, zones, rules] = dataset;
+                const [companysalary, mainOrg, zones, rules, rates, currentRates] = dataset;
+
+                if (!companysalary) {
+                    this.toastService.addToast('En feil oppstod', ToastType.warn, 10, 'Systemet klarte ikke finne innstillinger for lønn. Prøv å last inn bilde på nytt. Hvis feil vedvarer, ta kontakt med support');
+                    this.router.navigateByUrl('/settings');
+                    return;
+                }
+
                 companysalary['_TaxFreeOrgHelp'] = 'https://support.unimicro.no/kundestotte/lonn/rapportering/a-ordningen/'
                 + 'a-meldingen/grense-for-oppgaveplikt-or-skattefrie-selskaper-foreninger-og-institusjoner';
                 companysalary['_baseOptions'] = this.companySalaryService.getBaseOptions(companysalary);
                 this.companySalary$.next(companysalary);
                 this.agaZones = zones;
                 this.agaRules = rules;
+                this.vacationRates = rates;
+                this.stdCompVacRate = currentRates;
 
                 this.buildForms();
+                this.setTableConfig();
 
                 mainOrg[0]['_AgaSoneLink'] = this.agaSoneOversiktUrl;
                 this.mainOrganization$.next(mainOrg[0]);
@@ -140,9 +221,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgName.EntityType = 'mainOrganization';
         mainOrgName.Property = 'BusinessRelationInfo.Name';
         mainOrgName.FieldType = FieldType.TEXT;
-        mainOrgName.Section = 0;
-        mainOrgName.FieldSet = 1;
-        mainOrgName.Legend = 'Juridisk enhet';
         mainOrgName.ReadOnly = true;
 
         const mainOrgOrg = new UniFieldLayout();
@@ -150,8 +228,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgOrg.EntityType = 'mainOrganization';
         mainOrgOrg.Property = 'OrgNumber';
         mainOrgOrg.FieldType = FieldType.TEXT;
-        mainOrgOrg.Section = 0;
-        mainOrgOrg.FieldSet = 1;
         mainOrgOrg.ReadOnly = true;
 
         const mainOrgFreeAmount = new UniFieldLayout();
@@ -159,17 +235,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgFreeAmount.EntityType = 'mainOrganization';
         mainOrgFreeAmount.Property = 'freeAmount';
         mainOrgFreeAmount.FieldType = FieldType.NUMERIC;
-        mainOrgFreeAmount.Section = 0;
-        mainOrgFreeAmount.FieldSet = 1;
 
         const mainOrgZone = new UniFieldLayout();
         mainOrgZone.Label = 'Sone';
         mainOrgZone.EntityType = 'mainOrganization';
         mainOrgZone.Property = 'AgaZone';
         mainOrgZone.FieldType = FieldType.DROPDOWN;
-        mainOrgZone.Section = 0;
-        mainOrgZone.FieldSet = 2;
-        mainOrgZone.Legend = 'Arbeidsgiveravgift';
         mainOrgZone.Options = {
             source: this.agaZones,
             valueProperty: 'ID',
@@ -182,8 +253,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         mainOrgRule.EntityType = 'mainOrganization';
         mainOrgRule.Property = 'AgaRule';
         mainOrgRule.FieldType = FieldType.DROPDOWN;
-        mainOrgRule.Section = 0;
-        mainOrgRule.FieldSet = 2;
         mainOrgRule.Options = {
             source: this.agaRules,
             valueProperty: 'SectorID',
@@ -192,16 +261,16 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         const agaSoneLink = new UniFieldLayout();
-        agaSoneLink.Label = 'AGA soner';
+        agaSoneLink.Label = '';
         agaSoneLink.HelpText = 'Oversikt over arbeidsgiveravgift soner';
         agaSoneLink.EntityType = 'mainOrganization';
         agaSoneLink.Property = '_AgaSoneLink';
         agaSoneLink.FieldType = FieldType.HYPERLINK;
-        agaSoneLink.Section = 0;
-        agaSoneLink.FieldSet = 2;
+        agaSoneLink.Classes = 'info-box-link';
         agaSoneLink.Options = {
             description: 'Arbeidsgiveravgift soner',
-            target: '_blank'
+            target: '_blank',
+            icon: 'info_outlinee'
         };
 
         const freeAmountBtn = new UniFieldLayout();
@@ -209,12 +278,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         freeAmountBtn.EntityType = 'mainOrganization';
         freeAmountBtn.Property = 'FreeAmountBtn';
         freeAmountBtn.FieldType = FieldType.BUTTON;
-        freeAmountBtn.Section = 0;
-        freeAmountBtn.FieldSet = 2;
+        freeAmountBtn.Classes = 'uni-aga-settings-buttons';
         freeAmountBtn.Options = {
             click: (event) => {
                 this.openFreeamountModal();
-            }
+            },
+            class: ''
         };
 
         const grantBtn = new UniFieldLayout();
@@ -222,23 +291,60 @@ export class AgaAndSubEntitySettings implements OnInit {
         grantBtn.EntityType = 'mainOrganization';
         grantBtn.Property = 'TilskuddBtn';
         grantBtn.FieldType = FieldType.BUTTON;
-        grantBtn.Section = 0;
-        grantBtn.FieldSet = 2;
+        grantBtn.Classes = 'uni-aga-settings-buttons';
         grantBtn.Options = {
             click: (event) => {
                 this.openGrantsModal();
             }
         };
 
+        // Vacation pay cose
+        const mainAccountCostVacation = new UniFieldLayout();
+        const companysalaryModel = this.companySalary$.getValue();
+        const cosVacAccountObs: Observable<Account> = companysalaryModel && companysalaryModel.MainAccountCostVacation
+            ? this.accountService.GetAll(
+                `filter=AccountNumber eq ${companysalaryModel.MainAccountCostVacation}` + '&top=1'
+            )
+            : Observable.of([{ AccountName: '', AccountNumber: null }]);
+        mainAccountCostVacation.Label = 'Kostnad feriepenger';
+        mainAccountCostVacation.Property = 'MainAccountCostVacation';
+        mainAccountCostVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountCostVacation.Options = {
+            getDefaultData: () => cosVacAccountObs,
+            search: (query: string) => this.accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
+
+        // Vacation pay saved
+        const mainAccountAllocatedVacation = new UniFieldLayout();
+        const allVacAccountObs: Observable<Account> = companysalaryModel
+            && companysalaryModel.MainAccountAllocatedVacation
+                ? this.accountService.GetAll(
+                    `filter=AccountNumber eq ${companysalaryModel.MainAccountAllocatedVacation}` + '&top=1'
+                )
+                : Observable.of([{ AccountName: '', AccountNumber: null }]);
+        mainAccountAllocatedVacation.Label = 'Avsatt feriepenger';
+        mainAccountAllocatedVacation.Property = 'MainAccountAllocatedVacation';
+        mainAccountAllocatedVacation.FieldType = FieldType.AUTOCOMPLETE;
+        mainAccountAllocatedVacation.Options = {
+            getDefaultData: () => allVacAccountObs,
+            search: (query: string) => this.accountService.GetAll(
+                `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`
+            ),
+            displayProperty: 'AccountName',
+            valueProperty: 'AccountNumber',
+            template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+        };
+
         const mainAccountAlocatedAga = new UniFieldLayout();
-        mainAccountAlocatedAga.Label = 'Konto avsatt aga';
+        mainAccountAlocatedAga.Label = 'Konto for avsatt arbeidsgiveravgift';
         mainAccountAlocatedAga.EntityType = 'CompanySalary';
         mainAccountAlocatedAga.Property = 'MainAccountAllocatedAGA';
         mainAccountAlocatedAga.FieldType = FieldType.UNI_SEARCH;
-        mainAccountAlocatedAga.Section = 2;
-        mainAccountAlocatedAga.Sectionheader = 'Lønnsoppsett';
-        mainAccountAlocatedAga.FieldSet = 1;
-        mainAccountAlocatedAga.Legend = 'Hovedbokskontoer';
         mainAccountAlocatedAga.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -249,12 +355,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         };
 
         const mainAccountCostAga = new UniFieldLayout();
-        mainAccountCostAga.Label = 'Konto kostnad aga';
+        mainAccountCostAga.Label = 'Konto for kostnad til arbeidsgiveravgift';
         mainAccountCostAga.EntityType = 'CompanySalary';
         mainAccountCostAga.Property = 'MainAccountCostAGA';
         mainAccountCostAga.FieldType = FieldType.UNI_SEARCH;
-        mainAccountCostAga.Section = 2;
-        mainAccountCostAga.FieldSet = 1;
         mainAccountCostAga.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -266,11 +370,9 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const mainAccountAllocatedAgaVacation = new UniFieldLayout();
         mainAccountAllocatedAgaVacation.EntityType = 'CompanySalary';
-        mainAccountAllocatedAgaVacation.Label = 'Avsatt aga av feriepenger';
+        mainAccountAllocatedAgaVacation.Label = 'Konto for avsatt arbeidsgiveravgift av feriepenger';
         mainAccountAllocatedAgaVacation.Property = 'MainAccountAllocatedAGAVacation';
         mainAccountAllocatedAgaVacation.FieldType = FieldType.UNI_SEARCH;
-        mainAccountAllocatedAgaVacation.Section = 2;
-        mainAccountAllocatedAgaVacation.FieldSet = 1;
         mainAccountAllocatedAgaVacation.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
@@ -282,31 +384,13 @@ export class AgaAndSubEntitySettings implements OnInit {
 
         const mainAccountCostAgaVacation = new UniFieldLayout();
         mainAccountCostAgaVacation.EntityType = 'CompanySalary';
-        mainAccountCostAgaVacation.Label = 'Kostnad aga feriepenger';
+        mainAccountCostAgaVacation.Label = 'Konto for kostnad arbeidsgiveravgift av feriepenger';
         mainAccountCostAgaVacation.Property = 'MainAccountCostAGAVacation';
         mainAccountCostAgaVacation.FieldType = FieldType.UNI_SEARCH;
-        mainAccountCostAgaVacation.Section = 2;
-        mainAccountCostAgaVacation.FieldSet = 1;
         mainAccountCostAgaVacation.Options = {
             valueProperty: 'AccountNumber',
             source: model => this.accountService
                 .GetAll(`filter=AccountNumber eq ${model.MainAccountCostAGAVacation}`)
-                .map(results => results[0])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
-            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
-        };
-
-        const interrimRemit = new UniFieldLayout();
-        interrimRemit.EntityType = 'CompanySalary';
-        interrimRemit.Label = 'Hovedbokskonto netto utbetalt';
-        interrimRemit.Property = 'InterrimRemitAccount';
-        interrimRemit.FieldType = FieldType.UNI_SEARCH;
-        interrimRemit.Section = 2;
-        interrimRemit.FieldSet = 1;
-        interrimRemit.Options = {
-            valueProperty: 'AccountNumber',
-            source: model => this.accountService
-                .GetAll(`filter=AccountNumber eq ${model.InterrimRemitAccount}`)
                 .map(results => results[0])
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
@@ -317,11 +401,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         postTax.EntityType = 'CompanySalary';
         postTax.Property = 'PostToTaxDraw';
         postTax.FieldType = FieldType.CHECKBOX;
-        postTax.ReadOnly = false;
-        postTax.Hidden = false;
-        postTax.Section = 2;
-        postTax.FieldSet = 2;
-        postTax.Legend = 'Andre innstillinger';
         postTax.Options = {
             source: this.companySalary$.getValue(),
             valueProperty: 'PostToTaxDraw'
@@ -332,9 +411,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         paymentInterval.Label = 'Lønnsintervall';
         paymentInterval.Property = 'PaymentInterval';
         paymentInterval.FieldType = FieldType.DROPDOWN;
-        paymentInterval.Section = 2;
-        paymentInterval.FieldSet = 2;
-        paymentInterval.Sectionheader = 'Lønnsintervall';
         paymentInterval.Options = {
             source: [
                 { value: CompanySalaryPaymentInterval.Monthly, name: 'Måned' },
@@ -350,67 +426,29 @@ export class AgaAndSubEntitySettings implements OnInit {
         otpExportActive.Label = 'Benytte OTP-eksport';
         otpExportActive.Property = 'OtpExportActive';
         otpExportActive.FieldType = FieldType.CHECKBOX;
-        otpExportActive.Section = 2;
-        otpExportActive.FieldSet = 2;
 
         const postGarnishmentToTaxAccount = new UniFieldLayout();
         postGarnishmentToTaxAccount.EntityType = 'CompanySalary';
         postGarnishmentToTaxAccount.Label = 'Utleggstrekk skatt til skattetrekkskonto';
         postGarnishmentToTaxAccount.Property = 'PostGarnishmentToTaxAccount';
         postGarnishmentToTaxAccount.FieldType = FieldType.CHECKBOX;
-        postGarnishmentToTaxAccount.Section = 2;
-        postGarnishmentToTaxAccount.FieldSet = 2;
+        postGarnishmentToTaxAccount.Tooltip = {
+            Text: 'Kryss av for at Utleggstrekk Skatt som trekkes av ansatte overføres ' +
+            'til bankkonto for skattetrekk når lønnsavregningen utbetales. Husk at Skattetrekkskonto ' +
+            'må fylles ut, og bør være ulik Lønnskonto/Driftskonto.'
+        };
 
         const hourFTEs = new UniFieldLayout();
         hourFTEs.EntityType = 'CompanySalary';
         hourFTEs.Label = 'Timer pr årsverk';
         hourFTEs.Property = 'HourFTEs';
         hourFTEs.FieldType = FieldType.TEXT;
-        hourFTEs.Section = 2;
-        hourFTEs.FieldSet = 2;
-
-        const vacationSettingsBtn = new UniFieldLayout();
-        vacationSettingsBtn.Label = 'Innstillinger feriepenger';
-        vacationSettingsBtn.EntityType = 'CompanySalary';
-        vacationSettingsBtn.Property = '_VacationSettingsBtn';
-        vacationSettingsBtn.FieldType = FieldType.BUTTON;
-        vacationSettingsBtn.Section = 2;
-        vacationSettingsBtn.FieldSet = 2;
-        vacationSettingsBtn.Options = {
-            class: 'vacationSettingsButton',
-            click: (event) => {
-                this.openVacationSettingsModal();
-            }
-        };
-
-        const vacationPayBtn = new UniFieldLayout();
-        vacationPayBtn.Label = 'Registrer feriepengegrunnlag';
-        vacationPayBtn.EntityType = 'CompanySalary';
-        vacationPayBtn.Property = '_VacationPayBtn';
-        vacationPayBtn.FieldType = FieldType.BUTTON;
-        vacationPayBtn.Section = 2;
-        vacationPayBtn.FieldSet = 2;
-        vacationPayBtn.Options = {
-            class: 'vacationSettingsButton',
-            click: (event) => {
-                this.openVacationPayModal();
-            }
-        };
 
         const calculateFinancial = new UniFieldLayout();
         calculateFinancial.Label = 'Finansskatt';
         calculateFinancial.EntityType = 'CompanySalary';
         calculateFinancial.Property = 'CalculateFinancialTax';
         calculateFinancial.FieldType = FieldType.CHECKBOX;
-        calculateFinancial.ReadOnly = false;
-        calculateFinancial.Hidden = false;
-        calculateFinancial.Section = 2;
-        calculateFinancial.FieldSet = 3;
-        calculateFinancial.Tooltip = {
-            Text: 'Kryss av for å beregne finansskatt ved bokføring',
-            Alignment: 'bottom'
-        };
-        calculateFinancial.Legend = 'Finansskatt';
         calculateFinancial.Options = {
             source: this.companySalary$.getValue(),
             valueProperty: 'CalculateFinancialTax'
@@ -421,16 +459,12 @@ export class AgaAndSubEntitySettings implements OnInit {
         rateFinancialTax.EntityType = 'CompanySalary';
         rateFinancialTax.Property = 'RateFinancialTax';
         rateFinancialTax.FieldType = FieldType.TEXT;
-        rateFinancialTax.Section = 2;
-        rateFinancialTax.FieldSet = 3;
 
         const financial = new UniFieldLayout();
         financial.EntityType = 'CompanySalary';
         financial.Label = 'Avsatt finansskatt';
         financial.Property = 'MainAccountAllocatedFinancial';
         financial.FieldType = FieldType.UNI_SEARCH;
-        financial.Section = 2;
-        financial.FieldSet = 3;
         financial.Options = {
             valueProperty: 'AccountNumber',
             source: (model: CompanySalary) => this.accountService
@@ -445,8 +479,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         costFinancial.Label = 'Kostnad finansskatt';
         costFinancial.Property = 'MainAccountCostFinancial';
         costFinancial.FieldType = FieldType.UNI_SEARCH;
-        costFinancial.Section = 2;
-        costFinancial.FieldSet = 3;
         costFinancial.Options = {
             valueProperty: 'AccountNumber',
             source: (model: CompanySalary) => this.accountService
@@ -461,8 +493,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         financialVacation.Label = 'Avsatt finansskatt av feriepenger';
         financialVacation.Property = 'MainAccountAllocatedFinancialVacation';
         financialVacation.FieldType = FieldType.UNI_SEARCH;
-        financialVacation.Section = 2;
-        financialVacation.FieldSet = 3;
         financialVacation.Options = {
             valueProperty: 'AccountNumber',
             source: (model: CompanySalary) => this.accountService
@@ -477,8 +507,6 @@ export class AgaAndSubEntitySettings implements OnInit {
         costFinancialVacation.Label = 'Kostnad finansskatt av feriepenger';
         costFinancialVacation.Property = 'MainAccountCostFinancialVacation';
         costFinancialVacation.FieldType = FieldType.UNI_SEARCH;
-        costFinancialVacation.Section = 2;
-        costFinancialVacation.FieldSet = 3;
         costFinancialVacation.Options = {
             valueProperty: 'AccountNumber',
             source: (model: CompanySalary) => this.accountService
@@ -487,90 +515,144 @@ export class AgaAndSubEntitySettings implements OnInit {
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
-        const link = 'https://support.unimicro.no/kundestotte/lonn/rapportering/a-ordningen/'
-            + 'a-meldingen/grense-for-oppgaveplikt-or-skattefrie-selskaper-foreninger-og-institusjoner';
-        const taxAndFeeRules = new UniFieldLayout();
-        taxAndFeeRules.EntityType = 'CompanySalary';
-        taxAndFeeRules.Label = 'Skatte og avgiftsregel: ';
-        taxAndFeeRules.Property = '_baseOptions';
-        taxAndFeeRules.FieldType = FieldType.CHECKBOXGROUP;
-        taxAndFeeRules.Section = 2;
-        taxAndFeeRules.FieldSet = 4;
-        taxAndFeeRules.Legend = 'Skatte og avgiftsregler';
-        taxAndFeeRules.Tooltip = {
-            Text: `Skattefri organisasjon kan kun settes dersom alle lønnsavregniner på året har status Opprettet.`,
-        };
-        taxAndFeeRules.Options = {
-            multivalue: true,
-            source: [
-                {
-                    ID: CompanySalaryBaseOptions.SpesialDeductionForMaritim,
-                    Name: 'Særskilt fradrag for sjøfolk'
-                },
-                {
-                    ID: CompanySalaryBaseOptions.NettoPayment,
-                    Name: 'Netto lønn',
-                },
-                {   ID: CompanySalaryBaseOptions.PayAsYouEarnTaxOnPensions,
-                    Name: 'Kildeskatt for pensjonister',
-                },
-                {
-                    ID: CompanySalaryBaseOptions.NettoPaymentForMaritim,
-                    Name: 'Netto lønn for sjøfolk',
-                },
-                {
-                    ID: CompanySalaryBaseOptions.TaxFreeOrganization,
-                    Name: 'Skattefri organisasjon',
-                },
-            ],
-            valueProperty: 'ID',
-            labelProperty: 'Name',
+
+        const taxRule1 = new UniFieldLayout();
+        taxRule1.Label = 'Særskilt fradrag for sjøfolk';
+        taxRule1.EntityType = 'CompanySalary';
+        taxRule1.Property = 'Base_SpesialDeductionForMaritim';
+        taxRule1.FieldType = FieldType.CHECKBOX;
+        taxRule1.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'Base_SpesialDeductionForMaritim'
         };
 
-        const supportLink = new UniFieldLayout();
-        supportLink.EntityType = 'CompanySalary';
-        supportLink.Property = '_TaxFreeOrgHelp';
-        supportLink.FieldType = FieldType.HYPERLINK;
-        supportLink.FieldSet = 4;
-        supportLink.Section = 2;
-        supportLink.Options = {
+        const taxRule2 = new UniFieldLayout();
+        taxRule2.Label = 'Netto lønn';
+        taxRule2.EntityType = 'CompanySalary';
+        taxRule2.Property = 'Base_NettoPayment';
+        taxRule2.FieldType = FieldType.CHECKBOX;
+        taxRule2.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'Base_NettoPayment'
+        };
+
+        const taxRule3 = new UniFieldLayout();
+        taxRule3.Label = 'Kildeskatt for pensjonister';
+        taxRule3.EntityType = 'CompanySalary';
+        taxRule3.Property = 'Base_PayAsYouEarnTaxOnPensions';
+        taxRule3.FieldType = FieldType.CHECKBOX;
+        taxRule3.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'Base_PayAsYouEarnTaxOnPensions'
+        };
+
+        const taxRule4 = new UniFieldLayout();
+        taxRule4.Label = 'Netto lønn for sjøfolk';
+        taxRule4.EntityType = 'CompanySalary';
+        taxRule4.Property = 'Base_NettoPaymentForMaritim';
+        taxRule4.FieldType = FieldType.CHECKBOX;
+        taxRule4.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'Base_NettoPaymentForMaritim'
+        };
+
+        const taxRule5 = new UniFieldLayout();
+        taxRule5.Label = 'Skattefri organisasjon';
+        taxRule5.EntityType = 'CompanySalary';
+        taxRule5.Property = 'Base_TaxFreeOrganization';
+        taxRule5.FieldType = FieldType.CHECKBOX;
+        taxRule5.Options = {
+            source: this.companySalary$.getValue(),
+            valueProperty: 'Base_TaxFreeOrganization'
+        };
+
+        const taxRuleHelper = new UniFieldLayout();
+        taxRuleHelper.Label = '';
+        taxRuleHelper.HelpText = 'Hjelp skattefri organisasjon';
+        taxRuleHelper.EntityType = 'CompanySalary';
+        taxRuleHelper.Property = '_TaxFreeOrgHelp';
+        taxRuleHelper.FieldType = FieldType.HYPERLINK;
+        taxRuleHelper.Classes = 'info-box-link';
+        taxRuleHelper.Options = {
             description: 'Hjelp skattefri organisasjon',
             target: '_blank',
+            icon: 'info_outlinee'
         };
 
-        this.fields$.next([
-            mainOrgName,
-            mainOrgOrg,
-            mainOrgFreeAmount,
-            mainOrgZone,
-            mainOrgRule,
-            agaSoneLink,
-            freeAmountBtn,
-            grantBtn
+
+        // VACATION PAY SETTINGS
+        this.vacationfields$.next([
+            <UniFieldLayout> {
+                Label: 'Trekk i fastlønn i feriemåned',
+                EntityType: 'CompanySalary',
+                Property: 'WageDeductionDueToHoliday',
+                FieldType: FieldType.DROPDOWN,
+                Options: {
+                    source: this.vacationpayLineService.WageDeductionDueToHolidayArray,
+                    displayProperty: 'name',
+                    valueProperty: 'id'
+                }
+            },
+            <UniFieldLayout> {
+                Label: 'Ignorer grunnbeløp',
+                Property: 'AllowOver6G',
+                FieldType: FieldType.CHECKBOX
+            }
         ]);
 
+        this.fields$.next([ mainOrgName, mainOrgOrg, mainOrgFreeAmount ]);
+
+        this.fields$2.next([mainOrgZone, mainOrgRule, agaSoneLink, freeAmountBtn, grantBtn]);
+
         this.accountfields$.next([
-            mainAccountAlocatedAga,
-            mainAccountCostAga,
-            mainAccountAllocatedAgaVacation,
-            mainAccountCostAgaVacation,
-            interrimRemit,
-            paymentInterval,
-            postTax,
-            otpExportActive,
-            postGarnishmentToTaxAccount,
-            hourFTEs,
-            vacationSettingsBtn,
-            vacationPayBtn,
-            calculateFinancial,
-            rateFinancialTax,
-            financial,
-            costFinancial,
-            financialVacation,
-            costFinancialVacation,
-            taxAndFeeRules,
-            supportLink,
+
+            // HERE
+            mainAccountCostVacation, mainAccountAllocatedVacation, mainAccountAlocatedAga, mainAccountCostAga,
+            mainAccountAllocatedAgaVacation, mainAccountCostAgaVacation, postTax, postGarnishmentToTaxAccount
         ]);
+
+        this.accountfields$2.next([hourFTEs, paymentInterval, otpExportActive]);
+
+        this.specialFields.next([
+            calculateFinancial, rateFinancialTax, financial, costFinancial, financialVacation, costFinancialVacation
+        ]);
+
+        this.specialFields2.next([taxRule1, taxRule2, taxRule3, taxRule4, taxRule5, taxRuleHelper]);
+    }
+
+    private setTableConfig() {
+        const rateCol = new UniTableColumn('Rate', 'Feriepengesats', UniTableColumnType.Percent);
+        const rate60Col = new UniTableColumn('Rate60', 'Tilleggssats over 60 år', UniTableColumnType.Percent);
+        const dateCol = new UniTableColumn('FromDate', 'Gjelder fra opptjeningsår', UniTableColumnType.Text)
+            .setTemplate((rowModel) => {
+                return rowModel.FromDate ? moment(rowModel.FromDate).format('YYYY') : '';
+            });
+
+        this.tableConfig = new UniTableConfig('salary.payrollrun.vacationpaySettingModalContent', true)
+            .setColumns([rateCol, rate60Col, dateCol])
+            .setPageable(this.vacationRates.length > 10)
+            .setCopyFromCellAbove(false)
+            .setDeleteButton(true)
+            .setChangeCallback((event) => {
+                const row = event.rowModel;
+                if (event.field === 'FromDate') {
+                    row.FromDate = row.FromDate
+                    ? new LocalDate(moment(row.FromDate).format('YYYY') + '-01-01')
+                    : new LocalDate(this.activeYear - 1 + '-01-01');
+                    if (this.table.getTableData()
+                        .some(x => moment(x.FromDate).format('YYYY') === moment(row.FromDate).format('YYYY') && x.ID !== row.ID)) {
+                        this.toastService.addToast('Like år', ToastType.bad, ToastTime.medium,
+                            `Sats for år ${moment(row.FromDate).format('YYYY')} finnes fra før`);
+                    }
+                }
+                if (event.field === 'Rate60') {
+                    row.Rate60 = row.Rate60 ? row.Rate60 : this.stdCompVacRate.Rate60;
+                }
+                if (event.field === 'Rate') {
+                    row.Rate = row.Rate ? row.Rate : this.stdCompVacRate.Rate;
+                }
+                return row;
+            });
     }
 
     public openGrantsModal() {
@@ -589,51 +671,68 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.modalService.open(VacationPayModal);
     }
 
-    public saveAgaAndSubEntities(done) {
-        const saveObs: Observable<any>[] = [];
+    public saveAgaAndSubEntities(done?) {
         const companySalary = this.companySalary$.getValue();
-        if (!companySalary['RateFinancialTax']) {
-            companySalary['RateFinancialTax'] = 0;
-        }
-        if (companySalary) {
-            let companySaveObs: Observable<CompanySalary>;
-            companySaveObs = companySalary['_isDirty']
-            ? this.companySalaryService.Put(companySalary.ID, companySalary)
-            : Observable.of(companySalary);
 
-            saveObs.push(companySaveObs);
-        }
+        return new Promise(res => {
+            const saveObs: Observable<any>[] = [];
 
-        if (this.subEntityList) {
-            saveObs.push(this.subEntityList.saveSubEntity());
-        }
-        const mainOrganization = this.mainOrganization$.getValue();
-        if (mainOrganization) {
-            let mainOrgSave: Observable<SubEntity> = null;
+            if (!companySalary['RateFinancialTax']) {
+                companySalary['RateFinancialTax'] = 0;
+            }
+            if (companySalary) {
+                let companySaveObs: Observable<CompanySalary>;
+                companySaveObs = companySalary['_isDirty']
+                ? this.companySalaryService.Put(companySalary.ID, companySalary)
+                : Observable.of(companySalary);
 
-            if (mainOrganization['_isDirty']) {
-                mainOrgSave = mainOrganization.ID
-                    ? this.subentityService.Put(mainOrganization.ID, mainOrganization)
-                    : this.subentityService.Post(mainOrganization);
-            } else {
-                mainOrgSave = Observable.of(mainOrganization);
+                saveObs.push(companySaveObs);
             }
 
-            saveObs.push(mainOrgSave);
-        }
-        Observable.forkJoin(saveObs)
-            .subscribe((response: any) => {
-                const companySal = response[0];
-                companySal['_baseOptions'] = this.companySalaryService.getBaseOptions(companySal);
-                this.companySalary$.next(companySal);
-                this.mainOrganization$.next(response[2]);
+
+            if (this.subEntityList) {
+                saveObs.push(this.subEntityList.saveSubEntity());
+            }
+            const mainOrganization = this.mainOrganization$.getValue();
+            if (mainOrganization) {
+                let mainOrgSave: Observable<SubEntity> = null;
+
+                if (mainOrganization['_isDirty']) {
+                    mainOrgSave = mainOrganization.ID
+                        ? this.subentityService.Put(mainOrganization.ID, mainOrganization)
+                        : this.subentityService.Post(mainOrganization);
+                } else {
+                    mainOrgSave = Observable.of(mainOrganization);
+                }
+
+                saveObs.push(mainOrgSave);
+            }
+
+            this.vacationRates.filter(rate => rate._isDirty && !rate._isEmpty).forEach(vacationRate => {
+                if (vacationRate.ID > 0) {
+                    saveObs.push(this.companyVacationRateService.Put(vacationRate.ID, vacationRate));
+                } else {
+                    saveObs.push(this.companyVacationRateService.Post(vacationRate));
+                }
+            });
+
+
+            Observable.forkJoin(saveObs).subscribe((response: any) => {
                 this.isDirty = false;
-                done('Lagret');
+                if (done) {
+                    done('Lagret');
+                    this.getDataAndSetupForm();
+                }
+                res(true);
             },
             err => {
                 this.errorService.handle(err);
-                done('');
+                if (done) {
+                    done('');
+                }
+                res(false);
             });
+        });
     }
 
     public toggleShowSubEntities() {
@@ -659,7 +758,13 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.companySalary$.next(value);
     }
 
-    public mainOrgChange(event) {
+    companySalaryChange() {
+        const companySalary = this.companySalary$.getValue();
+        companySalary['_isDirty'] = true;
+        this.companySalary$.next(companySalary);
+    }
+
+    mainOrgChange(event) {
         const value = this.mainOrganization$.getValue();
 
         if (event['AgaRule']) {
@@ -671,5 +776,40 @@ export class AgaAndSubEntitySettings implements OnInit {
         value['_isDirty'] = true;
         this.isDirty = true;
         this.mainOrganization$.next(value);
+    }
+
+    onRowDeleted(rowModel: CompanyVacationRate) {
+        if (rowModel['_isEmpty']) {
+            return;
+        }
+        if (isNaN(rowModel.ID)) {
+            return;
+        }
+
+        this.modalService.confirm({
+            header: 'Slette sats',
+            message: `Er du sikker på at du vil slette sats for år ${moment(rowModel.FromDate).format('YYYY')}`,
+            buttonLabels: {
+                accept: 'Ja, slett sats',
+                reject: 'Nei, behold sats'
+            }
+        })
+        .onClose
+        .switchMap((result: ConfirmActions) => result === ConfirmActions.ACCEPT
+            ? this.companyVacationRateService.Remove(rowModel.ID)
+            : Observable.of(result))
+        .switchMap((result: ConfirmActions) => {
+            if (result === ConfirmActions.REJECT) {
+                this.companyVacationRateService.invalidateCache();
+                return this.companyVacationRateService.GetAll('');
+            }
+            return Observable.of(this.vacationRates);
+        })
+        .subscribe((result: CompanyVacationRate[]) => {
+            this.vacationRates = result.filter(x => x.Deleted === false);
+            if (this.vacationRates.length === 1) {
+                this.vacationRates = [];
+            }
+        });
     }
 }

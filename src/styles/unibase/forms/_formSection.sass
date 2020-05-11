@@ -32,3 +32,13 @@ uni-section
             display: flex
             flex-wrap: wrap
 
+// Hopefully a temporary solution until we have time to rewrite/improve the formbuilder
+uni-form.two-column-layout .collapsable.-is-open > .collapsable-content
+    display: grid
+    grid-template-columns: 1fr 1fr
+    grid-column-gap: 2rem
+
+    @media (max-width: 1300px)
+        grid-template-columns: 1fr
+
+

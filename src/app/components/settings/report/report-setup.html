@@ -1,0 +1,106 @@
+<section class="uni-card">
+    <section class="uni-card-content">
+        <uni-form
+            [config]="{showLabelAbove: true, autoFocus: true}"
+            [fields]="fields$"
+            [model]="companySettings$"
+            (changeEvent)="formChange()">
+        </uni-form>
+    </section>
+</section>
+
+<section class="uni-card collapsable">
+    <section class="uni-card-header" [class.is-open]="isOpen[1]" (click)="isOpen[1] = !isOpen[1]">
+        <h1> {{ 'NAVBAR.INVOICE' | translate }} </h1>
+        <button class="tertiary c2a pull-right">
+            <i class="material-icons"> {{ isOpen[1] ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+        </button>
+    </section>
+
+    <section class="uni-card-content" *ngIf="template?.CustomerInvoice && isOpen[1]">
+        <label class="uni-label">
+            <span>Standard blankett</span>
+            <uni-select
+                [config]="formComfig"
+                [items]="invoiceFormList"
+                [value]="invoice"
+                (valueChange)="tofFormChange($event, 1)">
+            </uni-select>
+        </label>
+        <label class="uni-label">
+            <span>Fast tekst faktura</span>
+            <textarea [(ngModel)]="template.CustomerInvoice.Template"  (change)="template.CustomerInvoice._isDirty = true; isDirty = true;"></textarea>
+        </label>
+    </section>
+</section>
+
+<section class="uni-card collapsable">
+    <section class="uni-card-header" [class.is-open]="isOpen[2]" (click)="isOpen[2] = !isOpen[2]">
+        <h1> {{ 'NAVBAR.ORDER' | translate }} </h1>
+        <button class="tertiary c2a pull-right">
+            <i class="material-icons"> {{ isOpen[2] ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+        </button>
+    </section>
+
+    <section class="uni-card-content" *ngIf="template?.CustomerOrder && isOpen[2]">
+        <label class="uni-label">
+            <span>Standard blankett</span>
+            <uni-select
+                [config]="formComfig"
+                [items]="orderFormList"
+                [value]="order"
+                (valueChange)="tofFormChange($event, 2)">
+            </uni-select>
+        </label>
+        <label class="uni-label">
+            <span>Fast tekst ordre</span>
+            <textarea [(ngModel)]="template.CustomerOrder.Template" (change)="template.CustomerOrder._isDirty = true; isDirty = true;"></textarea>
+        </label>
+    </section>
+</section>
+
+<section class="uni-card collapsable">
+    <section class="uni-card-header" [class.is-open]="isOpen[3]" (click)="isOpen[3] = !isOpen[3]">
+        <h1> {{ 'NAVBAR.QUOTE' | translate }} </h1>
+        <button class="tertiary c2a pull-right">
+            <i class="material-icons"> {{ isOpen[3] ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+        </button>
+    </section>
+
+    <section class="uni-card-content" *ngIf="template?.CustomerQuote && isOpen[3]">
+        <label class="uni-label">
+            <span>Standard blankett</span>
+            <uni-select
+                [config]="formComfig"
+                [items]="quoteFormList"
+                [value]="quote"
+                (valueChange)="tofFormChange($event, 3)">
+            </uni-select>
+        </label>
+        <label class="uni-label">
+            <span>Fast tekst tilbud</span>
+            <textarea [(ngModel)]="template.CustomerQuote.Template" (change)="template.CustomerQuote._isDirty = true; isDirty = true;"></textarea>
+        </label>
+    </section>
+</section>
+
+<section class="uni-card collapsable">
+    <section class="uni-card-header" [class.is-open]="isOpen[4]" (click)="isOpen[4] = !isOpen[4]">
+        <h1> {{ 'NAVBAR.REMINDER' | translate }} </h1>
+        <button class="tertiary c2a pull-right">
+            <i class="material-icons"> {{ isOpen[4] ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+        </button>
+    </section>
+
+    <section class="uni-card-content" *ngIf="template?.CustomerQuote && isOpen[4]">
+        <label class="uni-label">
+            <span>Standard blankett</span>
+            <uni-select
+                [config]="formComfig"
+                [items]="invoiceReminderFormList"
+                [value]="reminder"
+                (valueChange)="tofFormChange($event, 4)">
+            </uni-select>
+        </label>
+    </section>
+</section>

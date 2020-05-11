@@ -31,9 +31,9 @@ export class TofDetailsForm {
 
     @Output() entityChange = new EventEmitter();
 
-    tabbedPastLastField = new EventEmitter();
-    entity$ = new BehaviorSubject<any>({});
-    fields$ = new BehaviorSubject<Partial<UniFieldLayout>[]>([]);
+    entity$: BehaviorSubject<any> = new BehaviorSubject({});
+    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
+    fields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
 
     constructor(private featurePermissionService: FeaturePermissionService) {}
 
@@ -189,10 +189,6 @@ export class TofDetailsForm {
                         displayProperty: 'Name',
                         debounceTime: 200,
                         addEmptyValue: true,
-                        events: {
-                            tab: (event) => this.tabbedPastLastField.emit(event),
-                            enter: (event) => this.tabbedPastLastField.emit(event)
-                        },
                     },
                 },
             ];

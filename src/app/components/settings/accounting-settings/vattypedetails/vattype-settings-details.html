@@ -1,0 +1,28 @@
+<div *ngIf="vatType$ | async" class="vattype-settings-details-view">
+    <uni-form
+        [config]="{showLabelAbove: true, autoFocus: true}"
+        [fields]="fields$"
+        [model]="vatType$"
+        (changeEvent)="onChange($event)">
+    </uni-form>
+
+    <fieldset class="uni-fieldset">
+        <legend>Satser</legend>
+        <ag-grid-wrapper
+            [resource]="(vatType$ | async).VatTypePercentages"
+            [config]="uniTableConfigVatTypePercentage">
+        </ag-grid-wrapper>
+    </fieldset>
+
+    <fieldset class="uni-fieldset">
+        <legend>Regnskap</legend>
+        <ag-grid-wrapper
+            [resource]="(vatType$ | async).VatReportReferences"
+            [config]="uniTableConfigVatPostReference">
+        </ag-grid-wrapper>
+    </fieldset>
+
+</div>
+<div *ngIf="!(vatType$ | async)" class="no-vat-selected">
+    Velg en mvakode i listen til venstre for å se detaljer om mvakoden
+</div>

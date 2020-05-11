@@ -10,9 +10,7 @@
             <autocomplete
                 [options]="externalLookupOptions"
                 [value]="value"
-                (valueChange)="onExternalSearchSelected($event)"
-                (keydown.shift.tab)="$event.preventDefault()"
-                (keydown.tab)="onSearchShiftTab($event)">
+                (valueChange)="onExternalSearchSelected($event)">
             </autocomplete>
         </section>
 
@@ -20,13 +18,12 @@
             [model]="customer$"
             [fields]="fields$"
             [config]="config$"
-            (changeEvent)="isDirty = true"
-            (moveOutEvent)="onFormMoveOutEvent($event)">
+            (changeEvent)="isDirty = true">
         </uni-form>
     </article>
 
     <footer>
-        <button (click)="onClose.emit()" class="secondary" (keydown.shift.tab)="onCancelShiftTab($event)">
+        <button (click)="onClose.emit()" class="secondary">
             Avbryt
         </button>
 

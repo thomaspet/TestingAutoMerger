@@ -1,0 +1,20 @@
+<section role="dialog" class="uni-modal uni-redesign" style="width: 95rem">
+    <header> {{ options?.header }} </header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+		</section>
+
+		<ag-grid-wrapper
+			class="borders"
+			style="font-size: 15px;"
+			[(resource)]="lookupFunction"
+			[config]="uniTableConfig">
+		</ag-grid-wrapper>
+    </article>
+
+    <footer>
+        <button class="secondary c2a" (click)="onClose.emit()"> Lukk </button>
+    </footer>
+</section>

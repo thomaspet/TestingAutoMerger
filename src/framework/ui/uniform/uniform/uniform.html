@@ -1,7 +1,7 @@
 <form (submit)="submit($event)" autocomplete="off" (keydown)="onKeyDown($event)">
     <ng-template ngFor let-item [ngForOf]="_layout?.Fields | sectionIndexes" let-i="index">
         <uni-section
-            [fields]="_layout?.Fields | markLastField | bySection:item"
+            [fields]="_layout?.Fields | bySection:item"
             [model]="_model"
             [formConfig]="_config"
             (readyEvent)="onReadyHandler($event)"
@@ -9,8 +9,7 @@
             (inputEvent)="onInputHandler($event)"
             (toggleEvent)="onToggleHandler($event)"
             (focusEvent)="onFocusHandler($event)"
-            (moveForwardEvent)="onMoveForward($event)"
-            (moveBackwardEvent)="onMoveBackward($event)"
+            (moveForwardEvent)="goToNextField($event)"
             (errorEvent)="onError($event)"
         >
         </uni-section>

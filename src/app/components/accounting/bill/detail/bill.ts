@@ -1,4 +1,4 @@
-import {Component, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -51,7 +51,8 @@ import {
     UniConfirmModalWithList,
     UniModalService,
     UniRegisterPaymentModal,
-    UniReinvoiceModal
+    UniReinvoiceModal,
+    FileFromInboxModal
 } from '@uni-framework/uni-modal';
 import {
     AssignmentDetails,
@@ -87,7 +88,6 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import {JournalEntryMode} from '../../../../services/accounting/journalEntryService';
 import {EditSupplierInvoicePayments} from '../../modals/editSupplierInvoicePayments';
 import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
-import {FileFromInboxModal} from '../../modals/file-from-inbox-modal/file-from-inbox-modal';
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
@@ -120,11 +120,11 @@ interface ILocalValidation {
     selector: 'uni-bill',
     templateUrl: './bill.html'
 })
-export class BillView implements OnInit {
+export class BillView implements OnInit, AfterViewInit {
     @ViewChild(Autocomplete) autocomplete: Autocomplete;
     @ViewChild(UniForm) uniForm: UniForm;
     @ViewChild(UniImage, { static: true }) uniImage: UniImage;
-    @ViewChild(JournalEntryManual) journalEntryManual: JournalEntryManual;
+    @ViewChild(JournalEntryManual) journalEntryManualIn: JournalEntryManual;
 
     uploadStepActive: boolean;
 
@@ -168,6 +168,7 @@ export class BillView implements OnInit {
     public isBlockedSupplier: boolean = false;
     public orgNumber: string;
     autocompleteOptions: any;
+    public journalEntryManual: JournalEntryManual;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -317,6 +318,11 @@ export class BillView implements OnInit {
                 this.projects = projects;
                 this.departments = departments;
             });
+    }
+    ngAfterViewInit(): void {
+        if (this.journalEntryManualIn && !this.journalEntryManual) {
+            this.journalEntryManual = this.journalEntryManualIn;
+        }
     }
 
     ngOnDestroy() {
@@ -527,12 +533,6 @@ export class BillView implements OnInit {
     onAutocompleteTab() {
         if (this.uniForm) {
             setTimeout(() => this.uniForm.focus());
-        }
-    }
-
-    onFormMoveOutEvent(event) {
-        if (event && event.movingBackward && this.autocomplete) {
-            this.autocomplete.focus();
         }
     }
 
@@ -2002,9 +2002,8 @@ export class BillView implements OnInit {
         current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
         current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
-            if (result?.Dimensions) {
-                current.DefaultDimensions[`Dimension${i}ID`] = result.Dimensions[`Dimension${i}ID`];
-            }
+            const dimensions = result?.Dimensions || {};
+            current.DefaultDimensions[`Dimension${i}ID`] = dimensions[`Dimension${i}ID`] ||  null;
         }
         this.current.next(current);
 
@@ -2937,6 +2936,13 @@ export class BillView implements OnInit {
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
+        if (this.current?.value?.ID !== id) {
+            // set diff to null until the journalentry is loaded, the data is calculated correctly
+            // through the onJournalEntryManualDataLoaded event
+            this.sumVat = null;
+            this.sumRemainder = null;
+        }
+
         return new Promise((resolve, reject) => {
             const invoiceGET = this.supplierInvoiceService.Get(id, [
                 'Supplier.Info.BankAccounts',
@@ -2983,11 +2989,6 @@ export class BillView implements OnInit {
                         this.loadActionsFromEntity();
                         this.checkLockStatus();
 
-                        // set diff to null until the journalentry is loaded, the data is calculated correctly
-                        // through the onJournalEntryManualDataLoaded event
-                        this.sumVat = null;
-                        this.sumRemainder = null;
-
                         resolve('');
                     };
 
@@ -3028,7 +3029,7 @@ export class BillView implements OnInit {
     }
 
     public updateDimensions(lines) {
-        if (lines.length > this.lastJournalEntryData.length) { // new line at the end
+        if (lines.length > this.lastJournalEntryData?.length) { // new line at the end
             const newLine = lines[lines.length - 1];
             const dimensions = this.current?.getValue().DefaultDimensions;
             const projectId = dimensions?.ProjectID;
@@ -3094,14 +3095,14 @@ export class BillView implements OnInit {
             line.CurrencyCode = currentSupplierInvoice.CurrencyCode;
             line.CurrencyExchangeRate = currentSupplierInvoice.CurrencyExchangeRate;
 
-            if (!line.Dimensions.Project && currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Project) {
-                line.Dimensions.Project = currentSupplierInvoice.DefaultDimensions.Project;
-                line.Dimensions.ProjectID = currentSupplierInvoice.DefaultDimensions.ProjectID;
+            if (!line.Dimensions.Project && supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Project) {
+                line.Dimensions.Project = supplierInvoice?.DefaultDimensions?.Project;
+                line.Dimensions.ProjectID = supplierInvoice?.DefaultDimensions?.ProjectID;
             }
 
-            if (!line.Dimensions.Department && !!currentSupplierInvoice.DefaultDimensions && currentSupplierInvoice.DefaultDimensions.Department) {
-                line.Dimensions.Department = currentSupplierInvoice.DefaultDimensions.Department;
-                line.Dimensions.DepartmentID = currentSupplierInvoice.DefaultDimensions.DepartmentID;
+            if (!line.Dimensions.Department && !!supplierInvoice.DefaultDimensions && supplierInvoice.DefaultDimensions.Department) {
+                line.Dimensions.Department = supplierInvoice?.DefaultDimensions?.Department;
+                line.Dimensions.DepartmentID = supplierInvoice?.DefaultDimensions?.DepartmentID;
             }
 
             this.customDimensions.forEach((dimension) => {
@@ -3304,7 +3305,7 @@ export class BillView implements OnInit {
     private saveAndGetNewDocument(done?) {
         return this.save(done).then(() => {
             this.supplierInvoiceService.fetch(
-                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense/0?action=get-supplierInvoice-inbox')
+                'filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/0?action=get-supplierInvoice-inbox')
                 .subscribe((res) => {
                     if (res && res.length > 0) {
                         this.router.navigateByUrl('/accounting/bills/0?fileid=' + res[0].ID);
