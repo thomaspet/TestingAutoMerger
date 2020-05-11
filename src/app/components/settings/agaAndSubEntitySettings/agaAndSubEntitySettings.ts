@@ -280,10 +280,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         freeAmountBtn.FieldType = FieldType.BUTTON;
         freeAmountBtn.Classes = 'uni-aga-settings-buttons';
         freeAmountBtn.Options = {
+            class: 'tertiary c2a',
             click: (event) => {
                 this.openFreeamountModal();
-            },
-            class: ''
+            }
         };
 
         const grantBtn = new UniFieldLayout();
@@ -293,6 +293,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         grantBtn.FieldType = FieldType.BUTTON;
         grantBtn.Classes = 'uni-aga-settings-buttons';
         grantBtn.Options = {
+            class: 'tertiary c2a',
             click: (event) => {
                 this.openGrantsModal();
             }

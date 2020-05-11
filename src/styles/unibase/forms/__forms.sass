@@ -41,12 +41,10 @@ uni-hyperlink-input a
         height: 3rem
         display: flex
         align-items: center
-        background-color: var(--sidebar-active-section-background)
+        background-color: var(--alert-info)
+        color: var(--color-c2a)
         padding-left: 1rem
-        font-size: 13px
-
-        i
-            color: var(--color-c2a)
+        font-size: 15px
 
 uni-field.visuallyHideLabel label > span
     @extend %visuallyHidden
@@ -54,11 +52,15 @@ uni-field.visuallyHideLabel label > span
 uni-button-input
     display: block
     min-width: 100%
-    margin-left: #{$labelLength}
+
+    &.offset-left
+        margin-left: #{$labelLength}
     button
         min-width: 8rem
         &.secondary
             border-width: 1px
+        &.tertiary
+            text-align: left
 
 uni-static-text-input
     line-height: 2rem
