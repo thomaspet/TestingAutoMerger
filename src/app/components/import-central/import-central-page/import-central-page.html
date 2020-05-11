@@ -14,16 +14,16 @@
                             </label>
                         </div>
                         <div class="card-footer">
-                            <label class="upload-input" (click)="openImportTemplateModal(card.type)"
+                            <button class="tertiary c2a" (click)="openImportTemplateModal(card.type)"
                                 *ngIf="card.uiPermission.hasImportAccess">
                                 <i class="material-icons">cloud_upload</i>
                                 <span>{{card.importText}}</span>
-                            </label>
-                            <label class="upload-input" (click)="openDownloadTemplateModal(card.type)"
+                            </button>
+                            <button class="tertiary c2a" (click)="openDownloadTemplateModal(card.type)"
                                 *ngIf="card.uiPermission.hasTemplateAccess">
                                 <i class="material-icons">cloud_download</i>
                                 <span>{{card.downloadText}}</span>
-                            </label>
+                            </button>
                         </div>
                     </div>
                 </div>

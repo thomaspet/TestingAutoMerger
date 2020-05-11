@@ -1,13 +1,14 @@
 .all-cards
     justify-content: center
     margin-bottom: 50px
-    
+
 .card-container
     padding: 15px
 
     .import-card
         background-color: #fff
-        border-radius: 5px
+        border: 1px solid var(--border-color)
+        border-radius: var(--section-radius)
         height: 100%
         position: relative
         transition: .25s ease-in-out
@@ -20,10 +21,6 @@
             justify-content: center
             label
                 margin-top: 15px
-
-
-        &:hover
-            box-shadow: 0 1px 14px 0px rgba(0, 0, 0, 0.14)
 
         .card-header
             display: flex
@@ -48,22 +45,29 @@
         .card-footer
             display: flex
             justify-content: space-between
-            background-color: #2699FB
+            background-color: var(--card-footer-background)
             align-items: center
-            padding: 20px 10px
+            padding: 15px 10px
             position: absolute
             bottom: 0
             width: 100%
 
+            button.tertiary
+                font-size: 14px
+                padding: 0 1rem
+                i
+                    font-size: 18px
+                    margin-right: 4px
+
 
             label
-                color: white
+                // color: white
                 font-size: 14px
                 margin-bottom: 0
                 text-align: center
 
                 i
-                    color: white
+                    // color: white
                     font-size: 18px
                     display: inline-block
                 span
