@@ -14,11 +14,16 @@ export function generateEHFMarkup(invoice: EHFData) {
                             <h4>LEVERANDØR</h4>
                             ${getCompanyInfoMarkup(invoice.supplier)}
                         </section>
-
                         <section>
                             <h4>KUNDE</h4>
-
-                            ${getCompanyInfoMarkup(invoice.customer)}
+                            <section class="info-and-delivery">
+                                <section class="customer-info">
+                                    ${getCompanyInfoMarkup(invoice.customer)}
+                                </section>
+                                <section class="delivery-info">
+                                    ${getCompanyDeliveryInfoMarkup(invoice)}
+                                </section>
+                            </section>
                         </section>
                     </section>
 
@@ -96,6 +101,26 @@ function getCompanyInfoMarkup(company) {
             ` : ''
         }
     `;
+}
+
+function getCompanyDeliveryInfoMarkup(invoice) {
+    const address = invoice.delivery.address || {};
+
+    return invoice.delivery && (invoice.delivery.address.addressLine !== '' || invoice.delivery.address.addressLine2 !== '') ? `
+        <section><b>Leveringsadresse:</b></section>
+        <section>
+            ${address.addressLine || ''}
+        </section>
+        <section>
+            ${address.addressLine2 || ''}
+            ${address.addressLine3 || ''}
+        </section>
+        <section>
+            ${address.postalCode || ''}
+            ${address.city || ''}
+            ${address.country || ''}
+        </section>
+    ` : '';
 }
 
 function getInvoiceDetailsMarkup(invoice: EHFData) {

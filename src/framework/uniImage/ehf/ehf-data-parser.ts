@@ -225,13 +225,17 @@ function getTaxSummary(taxData, isCreditNote: boolean) {
 }
 
 function getDeliveryInfo(deliveryData) {
+    const country = get(deliveryData, 'cac:DeliveryLocation.cac:Address.cac:Country.cbc:IdentificationCode', '');
+
     return {
         date: getDateText(get(deliveryData, 'cbc:ActualDeliveryDate', '')),
         address: {
             addressLine: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:StreetName', ''),
+            addressLine2: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:AdditionalStreetName', ''),
+            addressLine3: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cac:AddressLine.cbc:Line', ''),
             city: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:CityName', ''),
             postalCode: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:PostalZone', ''),
-            country: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cac:Country.cbc:IdentificationCode.#text', '')
+            country: get(country, '#text', null) ?? country
         }
     };
 }

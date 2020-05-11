@@ -41,6 +41,8 @@ export interface EHFData {
         date: string;
         address: {
             addressLine: string;
+            addressLine2: string;
+            addressLine3: string;
             city: string;
             postalCode: string;
             country: string;
