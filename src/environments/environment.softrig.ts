@@ -16,10 +16,10 @@ export const environment = {
 
     // If you add base urls here please also update the api check in header-interceptor.ts!
     BASE_URL_INTEGRATION: 'https://test-integration.softrig.com/',
-    BASE_URL_FILES: 'https://test-unifiles.softrig.com',
-    UNI_JOB_SERVER_URL: 'https://testapi-unijobserver.softrig.com/api/',
+    BASE_URL_FILES: 'https://test-files.softrig.com',
+    UNI_JOB_SERVER_URL: 'https://test-jobserver.softrig.com/api/',
     ELSA_SERVER_URL: 'https://test-admin.softrig.com',
-    SIGNALR_PUSHHUB_URL: 'https://test-unisignal.softrig.com/pushHub',
+    SIGNALR_PUSHHUB_URL: 'https://test-signal.softrig.com/pushHub',
 
     API_DOMAINS: {
         INIT: '/api/init/',
