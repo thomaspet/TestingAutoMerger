@@ -131,7 +131,7 @@ export class BankComponent {
         {
             Code: 'download_payment_file',
             ExecuteActionHandler: (selectedRows) => this.downloadPaymentFiles(selectedRows),
-            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44001
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode === 44001 || selectedRow.PaymentStatusCode === 44018
         },
         {
             Code: 'download_payment_notification_file',

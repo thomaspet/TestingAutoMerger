@@ -739,7 +739,7 @@
                 "Code": "payed_not_journaled",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
-                "tooltip": "Utbetalingsposter i denne listen er utbetalt fra banken, men vi har ikke funnet en matchende post i systemet. Disse postene krever derfor manuell behandling. Klikk på ...-knappen til høyre i listen for å se behandlingsmuligheter.",
+                "tooltip": "Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i Uni Economy. Vi har derfor ikke funnet en sammenfallende post i vårt system. Disse må derfor behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere «Bokfør kun betalinger fra UE i Autobank-innstillingene. Da vil disse ikke bli bokført heretter.",
                 "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
