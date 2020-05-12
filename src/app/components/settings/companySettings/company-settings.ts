@@ -30,6 +30,7 @@ export class UniCompanySettingsView {
     expands = ['DefaultPhone', 'DefaultEmail', 'DefaultAddress'];
     companyTypes = [];
     isDirty = false;
+    emailChangeTimeout;
 
     saveActions: any[] = [
         {
@@ -216,9 +217,27 @@ export class UniCompanySettingsView {
         }
     }
 
+    onFormInputChange(changes: SimpleChanges) {
+        if (changes['_FileFlowEmail']) {
+            if (this.emailChangeTimeout) {
+                clearTimeout(this.emailChangeTimeout);
+            }
+            this.emailChangeTimeout = setTimeout(() => {
+                const customEmail = changes['_FileFlowEmail'].currentValue;
+                this.companyService.GetAction(
+                    this.authService.activeCompany.ID,
+                    'check-email-changed-valid-available', 'email=' + customEmail
+                ).subscribe(isValid => {
+                    this.setUpElectronicInvoiceFormFields(isValid);
+                }, err => this.errorService.handle(err));
+            }, 250);
+        }
+    }
+
     private generateOrgnrInvoiceEmail(data) {
         this.companyService.Action(this.authService.activeCompany.ID, 'create-orgnr-email').subscribe(company => {
             data['_FileFlowOrgnrEmail'] = company['FileFlowOrgnrEmail'];
+            this.setUpElectronicInvoiceFormFields();
             this.companySettings$.next(data);
         }, err => {
             data['_FileFlowOrgnrEmailCheckbox'] = false;
@@ -230,6 +249,7 @@ export class UniCompanySettingsView {
     private disableOrgnrInvoiceEmail(data) {
         this.companyService.Action(this.authService.activeCompany.ID, 'disable-orgnr-email').subscribe(company => {
             data['_FileFlowOrgnrEmail'] = '';
+            this.setUpElectronicInvoiceFormFields();
             this.companySettings$.next(data);
         }, err => {
             data['_FileFlowOrgnrEmailCheckbox'] = true;
@@ -238,7 +258,7 @@ export class UniCompanySettingsView {
         });
     }
 
-    setUpElectronicInvoiceFormFields() {
+    setUpElectronicInvoiceFormFields(openSave: boolean = false) {
         const companySettings = this.companySettings$.getValue();
         this.electronicInvoiceFields$.next([
             <any>{
@@ -264,7 +284,7 @@ export class UniCompanySettingsView {
                 Options: {
                     click: () => this.updateInvoiceEmail()
                 },
-                ReadOnly: companySettings['_FileFlowEmail'],
+                ReadOnly: !openSave,
                 Hidden: !companySettings['_FileFlowEmail']
             },
             {
