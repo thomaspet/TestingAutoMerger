@@ -32,7 +32,8 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info'
+    'license-info',
+    'settings',
 ];
 
 const PUBLIC_ROUTES = [];
