@@ -97,7 +97,7 @@ export class TravelLinesComponent implements OnInit {
         const toColumn = new UniTableColumn('To', 'Til dato', UniTableColumnType.DateTime).setFormat('DD.MM.YYYY HH:mm')
             .setWidth('13rem');
         const accountColumn = new UniTableColumn(ACCOUNT_FIELD, 'Konto (lønnsart)', UniTableColumnType.Lookup, true)
-            .setDisplayField('AccountNumber')
+            .setTemplate((row: TravelLine) => `${row.AccountNumber || row[WAGE_TYPE_FIELD]?.AccountNumber || ''}`)
             .setOptions({
                 itemTemplate: (selectedItem: Account) => {
                     return (selectedItem.AccountNumber + ' - ' + selectedItem.AccountName);
@@ -110,7 +110,7 @@ export class TravelLinesComponent implements OnInit {
                 }
             });
         const invoiceAccount = new UniTableColumn(INVOICE_ACCOUNT_FIELD, 'Konto (utlegg)')
-            .setDisplayField('InvoiceAccount')
+            .setTemplate((row: TravelLine) => `${row.InvoiceAccount || (row.travelType?.InvoiceAccount) || ''}`)
             .setOptions({
                 itemTemplate: (item: Account) => item ? `${item.AccountNumber} - ${item.AccountName}` : '',
                 lookupFunction: (query) => this.statisticsService
@@ -126,7 +126,10 @@ export class TravelLinesComponent implements OnInit {
         const amountColumn = new UniTableColumn('Amount', 'Antall', UniTableColumnType.Number, true);
         const rateColumn = new UniTableColumn('Rate', 'Sats', UniTableColumnType.Money, true);
         const sumColumn = new UniTableColumn('', 'Sum', UniTableColumnType.Money, false)
-            .setTemplate((row: TravelLine) => row[IS_EMPTY_FIELD] ? '0' : UniMath.useFirstTwoDecimals((row.Rate * row.Amount) || 0).toString());
+            .setTemplate((row: TravelLine) => row[IS_EMPTY_FIELD]
+                ? ''
+                : UniMath.useFirstTwoDecimals((row.Rate * row.Amount) || 0).toString()
+            );
 
         this.config = new UniTableConfig('salary.travel.traveldetails.travellines', true)
             .setDefaultRowData(
