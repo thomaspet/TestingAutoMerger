@@ -5,7 +5,7 @@ import {AuthService} from '@app/authService';
     selector: 'navbar-create-new',
     template: `
         <ng-container *ngIf="links">
-            <uni-icon #toggle [icon]="'add'"></uni-icon>
+            <uni-icon #toggle [icon]="'add'" matTooltip="Opprett ny ..."></uni-icon>
 
             <dropdown-menu [trigger]="toggle" minWidth="12rem">
                 <ng-template>

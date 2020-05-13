@@ -5,7 +5,7 @@ import {theme, THEMES} from 'src/themes/theme';
 @Component({
     selector: 'uni-tabstrip-help',
     template: `
-        <uni-icon #trigger [icon]="'help'"></uni-icon>
+        <uni-icon #trigger [icon]="'help'" matTooltip="Lisensinformasjon og support"></uni-icon>
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
@@ -48,7 +48,7 @@ import {theme, THEMES} from 'src/themes/theme';
 export class UniTabstripHelp {
     @ViewChild(BoostChat) boost: BoostChat;
 
-    isSrEnvironment = true; // theme.theme === THEMES.SR;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {

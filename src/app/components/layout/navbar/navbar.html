@@ -59,14 +59,16 @@
         <uni-icon
             *ngIf="hasActiveContract && !deativateFunctions"
             [icon]="'search'"
-            (click)="openSearch()">
+            (click)="openSearch()"
+            matTooltip="Søk etter funksjon/tjeneste">
         </uni-icon>
 
         <uni-icon
             *ngIf="hasActiveContract && !deativateFunctions"
             [icon]="'company'"
             role="link"
-            routerLink="bureau">
+            routerLink="bureau"
+            matTooltip="Mine selskaper">
         </uni-icon>
 
         <navbar-create-new *ngIf="hasActiveContract && !deativateFunctions"></navbar-create-new>
@@ -74,7 +76,7 @@
         <notifications *ngIf="!deativateFunctions" title=""></notifications>
 
         <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length) && !deativateFunctions">
-            <uni-icon #settingsToggle [icon]="'settings'" title="Innstillinger"></uni-icon>
+            <uni-icon #settingsToggle [icon]="'settings'" title="Innstillinger" matTooltip="Innstillinger"></uni-icon>
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
                 <ng-template>
