@@ -49,6 +49,7 @@ export class UniSalesSettingsView {
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fields$Customer = new BehaviorSubject<UniFieldLayout[]>([]);
     factoringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    ehfInvoiceField$ = new BehaviorSubject<UniFieldLayout[]>([]);
 
     expands = [
         'FactoringEmail',
@@ -143,6 +144,8 @@ export class UniSalesSettingsView {
             this.eInvoiceItems[0].isActivated = this.ehfService.isInvoicePrintActivated(response[0]);
             this.eInvoiceItems[1].isActivated = this.ehfService.isEHFActivated(response[0]);
 
+            this.setUpEHFField();
+            this.setUpFactoringFields();
             this.setUpTermsArrays();
         });
     }
@@ -151,7 +154,7 @@ export class UniSalesSettingsView {
         if (this.activeIndex === 0) {
             this.fields$.next(this.getFormFields(0));
             this.fields$Customer.next(this.getFormFields(1));
-            this.setUpFactoringFields();
+
         }
         this.updateTabAndUrl();
     }
@@ -287,6 +290,7 @@ export class UniSalesSettingsView {
         this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
             if (purchase) {
                 activationModal();
+                this.setUpEHFField();
             } else {
                 this.router.navigateByUrl(`/marketplace/modules?productName=${productName}`);
             }
@@ -464,6 +468,19 @@ export class UniSalesSettingsView {
                         return modal.onClose.take(1).toPromise();
                     },
                 }
+            }
+        ]);
+    }
+
+    setUpEHFField() {
+        const cs = this.companySettings$.getValue();
+        this.ehfInvoiceField$.next([
+            <any>{
+                EntityType: 'CompanySettings',
+                Property: 'APIncludeAttachment',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Inkluder PDF av faktura ved sending av EHF',
+                Hidden: !this.companySettings$.getValue()['APActivated']
             }
         ]);
     }
