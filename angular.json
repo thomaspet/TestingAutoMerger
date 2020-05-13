@@ -680,15 +680,15 @@
               }
             },
             "ext02": {
-              "aot": false,
-              "optimization": false,
-              "buildOptimizer": false,
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": { "scripts": true, "styles": false, "vendor": false },
               "extractCss": true,
-              "namedChunks": true,
-              "vendorChunk": true,
+              "namedChunks": false,
+              "vendorChunk": false,
               "fileReplacements": [
                 {
                   "replace": "src/themes/logo.svg",
@@ -714,15 +714,15 @@
               }
             },
             "ext02-rc": {
-              "aot": false,
-              "optimization": false,
-              "buildOptimizer": false,
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
               "outputHashing": "all",
               "evalSourceMap": true,
-              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "sourceMap": { "scripts": true, "styles": false, "vendor": false },
               "extractCss": true,
-              "namedChunks": true,
-              "vendorChunk": true,
+              "namedChunks": false,
+              "vendorChunk": false,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -750,7 +750,7 @@
                   "src/themes/ext02"
                 ]
               }
-            },            
+            },
             "ext02-serve": {
               "aot": false,
               "optimization": false,
