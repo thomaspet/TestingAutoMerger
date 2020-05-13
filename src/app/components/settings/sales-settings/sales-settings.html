@@ -77,6 +77,12 @@
                                 </button>
                             </li>
                         </ul>
+                        <uni-form
+                            [config]="{showLabelAbove: true}"
+                            [fields]="ehfInvoiceField$"
+                            [model]="companySettings$"
+                            (changeEvent)="isDirty = true">
+                        </uni-form>
                     </section>
                 </section>
             </section>
