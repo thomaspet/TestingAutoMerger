@@ -17,24 +17,24 @@ export class AddressService extends BizHttp<Address> {
 
     public addressToInvoice(entity: any, a: Address) {
         a = a || new Address();
-        entity.InvoiceAddressLine1 = a.AddressLine1;
-        entity.InvoiceAddressLine2 = a.AddressLine2;
-        entity.InvoiceAddressLine3 = a.AddressLine3;
-        entity.InvoicePostalCode = a.PostalCode;
-        entity.InvoiceCity = a.City;
-        entity.InvoiceCountry = a.Country;
-        entity.InvoiceCountryCode = a.CountryCode;
+        entity.InvoiceAddressLine1 = a.AddressLine1 || '';
+        entity.InvoiceAddressLine2 = a.AddressLine2 || '';
+        entity.InvoiceAddressLine3 = a.AddressLine3 || '';
+        entity.InvoicePostalCode = a.PostalCode || '';
+        entity.InvoiceCity = a.City || '';
+        entity.InvoiceCountry = a.Country || '';
+        entity.InvoiceCountryCode = a.CountryCode || '';
     }
 
     public addressToShipping(entity: any, a: Address) {
         a = a || new Address();
-        entity.ShippingAddressLine1 = a.AddressLine1;
-        entity.ShippingAddressLine2 = a.AddressLine2;
-        entity.ShippingAddressLine3 = a.AddressLine3;
-        entity.ShippingPostalCode = a.PostalCode;
-        entity.ShippingCity = a.City;
-        entity.ShippingCountry = a.Country;
-        entity.ShippingCountryCode = a.CountryCode;
+        entity.ShippingAddressLine1 = a.AddressLine1 || '';
+        entity.ShippingAddressLine2 = a.AddressLine2 || '';
+        entity.ShippingAddressLine3 = a.AddressLine3 || '';
+        entity.ShippingPostalCode = a.PostalCode || '';
+        entity.ShippingCity = a.City || '';
+        entity.ShippingCountry = a.Country || '';
+        entity.ShippingCountryCode = a.CountryCode || '';
     }
 
     public invoiceToAddress(entity: any): Address {
