@@ -58,7 +58,7 @@ export class UniCompanyAccountingView {
     activeIndex: number = 0;
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
-        {name: 'Mva-innstillinger'},
+        {name: 'Mvakoder'},
         {name: 'Forholdsmessig MVA / fradrag'}
     ];
 

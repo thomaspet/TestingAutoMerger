@@ -70,7 +70,7 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                         showSubSettings: false,
                         subSettings: [
                             {name: 'Regnskapsinnstilliger', activeInSidebar: false, url: '/settings/accounting?index=0', keyWords: ['Kundereskontro', 'Leverandørreskontro', 'EHF', 'OCR', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'Valutatap']},
-                            {name: 'Mva-innstillinger', activeInSidebar: false, url: '/settings/accounting?index=1', keyWords: ['Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']},
+                            {name: 'Mvakoder', activeInSidebar: false, url: '/settings/accounting?index=1', keyWords: ['Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']},
                             {name: 'Forholdsmessig MVA / fradrag', activeInSidebar: false, url: '/settings/accounting?index=2', keyWords: ['Fradragsprosent']},
                         ],
                         keyWords: ['Kundereskontro', 'Leverandørreskontro', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'EHF', 'OCR', 'Valutatap', 'Fradragsprosent', 'Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']

@@ -557,7 +557,7 @@ export class NumberSeries {
                         resource: this.numberSeriesService.asinvoicenumber
                     }),
                     new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
-                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setTemplate(row => row.ID || row._isDirty ? (row.Disabled ? 'Nei' : 'Ja') : ' ')
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({
@@ -654,16 +654,6 @@ export class NumberSeries {
                 new UniTableColumn('NextNumber', 'Neste nr', UniTableColumnType.Number)
                     .setEditable(true)
                     .setWidth('7rem'),
-                new UniTableColumn('NumberSeriesTask', 'Oppgave', UniTableColumnType.Select)
-                    .setVisible(false) // Hidden because we haven't defined any tasks for sales numberseries yet
-                    .setEditable(row => !row.ID || row.Disabled)
-                    .setTemplate(row => row.NumberSeriesTask ? row.NumberSeriesTask.DisplayName : '')
-                    .setOptions({
-                        hideNotChosenOption: false,
-                        field: 'ID',
-                        displayField: 'DisplayName',
-                        resource: this.tasks.filter(x => x.EntityType !== 'JournalEntry')
-                    }),
                 new UniTableColumn('_Register', 'Oppgave', UniTableColumnType.Select)
                     .setEditable(row => !row.ID)
                     .setTemplate(row => row._Register ? row._Register.DisplayName : '')
@@ -672,8 +662,8 @@ export class NumberSeries {
                         displayField: 'DisplayName',
                         resource: this.numberSeriesService.registers.filter(x => x.Sale)
                     }),
-                    new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
-                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
+                    .setTemplate(row => row.ID || row._isDirty ? (row.Disabled ? 'Nei' : 'Ja') : ' ')
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({
@@ -734,7 +724,7 @@ export class NumberSeries {
                 DisplayName: '',
                 _Register: null,
                 _AsInvoiceNumber: this.numberSeriesService.asinvoicenumber[0],
-                _rowSelected: false
+                _rowSelected: true
             });
     }
 
@@ -797,7 +787,7 @@ export class NumberSeries {
                         }
                     }),
                     new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
-                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setTemplate(row => row.ID || row._isDirty ? (row.Disabled ? 'Nei' : 'Ja') : ' ')
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({
@@ -865,7 +855,7 @@ export class NumberSeries {
                         resource: this.numberSeriesService.registers
                     }),
                     new UniTableColumn('Disabled', 'Aktiv', UniTableColumnType.Select)
-                    .setTemplate(row => row.Disabled ? 'Nei' : 'Ja')
+                    .setTemplate(row => row.ID || row._isDirty ? (row.Disabled ? 'Nei' : 'Ja') : ' ')
                     .setVisible(true)
                     .setWidth('4rem')
                     .setOptions({

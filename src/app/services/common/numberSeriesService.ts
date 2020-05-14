@@ -71,7 +71,7 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         {EntityType: 'CustomerInvoice', DisplayName: 'Faktura', Sale: true},
         {EntityType: 'CustomerOrder', DisplayName: 'Ordre', Sale: true},
         {EntityType: 'CustomerQuote', DisplayName: 'Tilbud', Sale: true},
-        {EntityType: 'Reminder', DisplayName: 'Purring', Sale: true},
+        {EntityType: 'CustomerInvoiceReminder', DisplayName: 'Purring', Sale: true},
         {EntityType: 'Project', DisplayName: 'Prosjekt', Sale: false},
         {EntityType: 'Department', DisplayName: 'Avdeling', Sale: false},
     ];
