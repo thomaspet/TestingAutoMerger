@@ -32,43 +32,40 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
 
     private load() {
         let fields: UniFieldLayout[] = [];
-        if (this.salaryTransaction$.getValue().Supplements) {
-            this.salaryTransaction$
-                .getValue()
-                .Supplements
-                .forEach((supplement: SalaryTransactionSupplement, index) => {
-                    if (supplement.Deleted) {
-                        return;
-                    }
-                    if (!supplement.WageTypeSupplement && this.salaryTransaction$.getValue().Wagetype) {
-                        supplement.WageTypeSupplement = this.salaryTransaction$.getValue()
-                            .Wagetype
-                            .SupplementaryInformations
-                            .find(x => x.ID === supplement.WageTypeSupplementID);
-                    }
-
-
-                    if (supplement.WageTypeSupplement) {
-                        switch (supplement.WageTypeSupplement.ValueType) {
-                            case Valuetype.IsBool:
-                                fields.push(this.createCheckBox(supplement, index));
-                                break;
-                            case Valuetype.IsDate:
-                                fields.push(this.createDatePicker(supplement, index));
-                                break;
-                            case Valuetype.IsMoney:
-                                fields.push(this.createNumberField(supplement, index));
-                                break;
-                            case Valuetype.IsString:
-                                fields.push(this.createTexField(supplement, index));
-                                break;
-                            case Valuetype.Period:
-                                fields = [...fields, ...this.createFromToDatePicker(supplement, index)];
-                                break;
-                        }
-                    }
+        const supplements = this.salaryTransaction$.getValue().Supplements;
+        if (!supplements) { return; }
+        supplements
+            .forEach((supplement: SalaryTransactionSupplement, index) => {
+                if (supplement.Deleted) {
+                    return;
+                }
+                if (!supplement.WageTypeSupplement && this.salaryTransaction$.getValue().Wagetype) {
+                    supplement.WageTypeSupplement = this.salaryTransaction$.getValue()
+                        .Wagetype
+                        .SupplementaryInformations
+                        .find(x => x.ID === supplement.WageTypeSupplementID);
+                }
+                if (!supplement.WageTypeSupplement || supplement.WageTypeSupplement.GetValueFromTrans) {
+                    return;
+                }
+                switch (supplement.WageTypeSupplement.ValueType) {
+                    case Valuetype.IsBool:
+                        fields.push(this.createCheckBox(supplement, index));
+                        break;
+                    case Valuetype.IsDate:
+                        fields.push(this.createDatePicker(supplement, index));
+                        break;
+                    case Valuetype.IsMoney:
+                        fields.push(this.createNumberField(supplement, index));
+                        break;
+                    case Valuetype.IsString:
+                        fields.push(this.createTexField(supplement, index));
+                        break;
+                    case Valuetype.Period:
+                        fields = [...fields, ...this.createFromToDatePicker(supplement, index)];
+                        break;
+                }
             });
-        }
         this.fields$.next(fields);
     }
 
@@ -115,15 +112,13 @@ export class SalaryTransSupplementsModal implements OnInit, IUniModal {
         property: string,
         name: string = supplement.WageTypeSupplement.Name
     ): UniFieldLayout {
-        const config = this.options.modalConfig;
-        const field: UniFieldLayout = new UniFieldLayout();
-        field.EntityType = 'SalaryTransactionSupplement';
-        field.Label = name;
-        field.FieldType = type;
-        field.Property = property;
-        field.LineBreak = true;
-        field.ReadOnly = (supplement.WageTypeSupplement && supplement.WageTypeSupplement.GetValueFromTrans)
-            || config && config.readOnly;
-        return field;
+        return <UniFieldLayout>{
+            EntityType: 'SalaryTransactionSupplement',
+            Label: name,
+            FieldType: type,
+            Property: property,
+            LineBreak: true,
+            ReadOnly: this.options.modalConfig?.readOnly,
+        };
     }
 }
