@@ -3033,22 +3033,24 @@ export class BillView implements OnInit, AfterViewInit {
         if (lines.length > this.lastJournalEntryData?.length) { // new line at the end
             const newLine = lines[lines.length - 1];
             const dimensions = this.current?.getValue().DefaultDimensions;
-            const projectId = dimensions?.ProjectID;
-            const departmentId = dimensions?.DepartmentID;
-            if (projectId) {
-                newLine.Dimensions.ProjectID = projectId;
-                newLine.Dimensions.Project = this.projects.find(x => x.ID === projectId);
-            }
-            if (departmentId) {
-                newLine.Dimensions.DepartmentID = departmentId;
-                newLine.Dimensions.Department = this.departments.find(x => x.ID === projectId);
-            }
-            for (let i = 5; i < 11; i++) {
-                const dimensionID = dimensions[`Dimension${i}ID`];
-                if (dimensionID) {
-                    newLine.Dimensions[`Dimension${i}ID`] = dimensionID;
-                    newLine.Dimensions[`Dimension${i}`] = this.customDimensions
-                        .find(dimMetadata => dimMetadata.Dimension === i).Data.find(x => x.ID === dimensionID);
+            if (dimensions) {
+                const projectId = dimensions?.ProjectID;
+                const departmentId = dimensions?.DepartmentID;
+                if (projectId) {
+                    newLine.Dimensions.ProjectID = projectId;
+                    newLine.Dimensions.Project = this.projects.find(x => x.ID === projectId);
+                }
+                if (departmentId) {
+                    newLine.Dimensions.DepartmentID = departmentId;
+                    newLine.Dimensions.Department = this.departments.find(x => x.ID === projectId);
+                }
+                for (let i = 5; i < 11; i++) {
+                    const dimensionID = dimensions[`Dimension${i}ID`];
+                    if (dimensionID) {
+                        newLine.Dimensions[`Dimension${i}ID`] = dimensionID;
+                        newLine.Dimensions[`Dimension${i}`] = this.customDimensions
+                            .find(dimMetadata => dimMetadata.Dimension === i).Data.find(x => x.ID === dimensionID);
+                    }
                 }
             }
         }
