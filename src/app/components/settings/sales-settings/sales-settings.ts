@@ -129,6 +129,7 @@ export class UniSalesSettingsView {
     }
 
     reloadCompanySettingsData() {
+        this.companySettingsService.invalidateCache();
         Observable.forkJoin(
             this.companySettingsService.Get(1, this.expands),
             this.termsService.GetAll(null),
@@ -146,6 +147,13 @@ export class UniSalesSettingsView {
 
             this.setUpEHFField();
             this.setUpFactoringFields();
+            this.setUpTermsArrays();
+        });
+    }
+
+    reloadTermsOnSave() {
+        this.termsService.GetAll(null).subscribe(terms => {
+            this.terms = terms;
             this.setUpTermsArrays();
         });
     }
@@ -185,7 +193,7 @@ export class UniSalesSettingsView {
 
         this.modalService.open(UniTermsModal, value).onClose.subscribe(response => {
             if (response) {
-                this.reloadCompanySettingsData();
+                this.reloadTermsOnSave();
                 this.toast.addToast('Betingelse lagret', ToastType.good, 5);
             }
         });
@@ -205,7 +213,6 @@ export class UniSalesSettingsView {
             if (response === ConfirmActions.ACCEPT) {
                 this.termsService.Remove(term.ID).subscribe(() => {
                     this.toast.addToast('Betingelse slettet', ToastType.good, 5);
-                    // this.reloadCompanySettingsData();
                     this.terms.splice(this.terms.findIndex(t => t.ID === term.ID), 1);
                     this.setUpTermsArrays();
                 });
