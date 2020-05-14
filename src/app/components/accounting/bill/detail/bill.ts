@@ -2000,6 +2000,10 @@ export class BillView implements OnInit {
         }
 
         // make uniform update itself to show correct values for bankaccount/currency
+        if (!current.DefaultDimensions) {
+            current.DefaultDimensions = <Dimensions> {};
+        }
+
         current.DefaultDimensions.ProjectID = result?.Dimensions?.ProjectID;
         current.DefaultDimensions.DepartmentID = result?.Dimensions?.DepartmentID;
         for (let i = 5; i <= 10; i++) {
