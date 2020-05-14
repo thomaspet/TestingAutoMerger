@@ -7,7 +7,7 @@
                 <span>Forskuddstrekk ({{totalFtrekkFeedbackStr}} kr)</span>
                 <mat-checkbox
                     tabindex="-1"
-                    [(ngModel)]="dto.payAga"
+                    [(ngModel)]="dto.payTaxDraw"
                     [labelPosition]="'before'"
                     [disableRipple]="true">
                 </mat-checkbox>
@@ -16,7 +16,7 @@
                 <span>Arbeidsgiveravgift ({{totalAGAFeedbackStr}} kr)</span>
                 <mat-checkbox
                     tabindex="-1"
-                    [(ngModel)]="dto.payTaxDraw"
+                    [(ngModel)]="dto.payAga"
                     [labelPosition]="'before'"
                     [disableRipple]="true">
                 </mat-checkbox>
