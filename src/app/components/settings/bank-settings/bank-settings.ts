@@ -416,7 +416,15 @@ export class UniBankSettings {
         return {
             entity: BankAccount,
             listProperty: 'BankAccounts',
-            displayValue: 'AccountNumber',
+            display: (bankAccount: BankAccount) => {
+                let ret = bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
+                        + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
+                    if (bankAccount['Label']) {
+                        ret = ret + ' - ' + bankAccount['Label'];
+                    } else if (bankAccount.Account){
+                        ret = ret + ' - ' + bankAccount.Account.AccountNumber + ' (' + bankAccount.Account.AccountName + ')' ;
+                    }
+                return ret; },
             linkProperty: 'ID',
             storeResultInProperty: storeResultInProperty,
             storeIdInProperty: storeResultInProperty + 'ID',
