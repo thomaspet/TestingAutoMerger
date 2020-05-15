@@ -280,7 +280,9 @@ export class TravelComponent implements OnInit {
     }
 
     private transferToSupplierInvoice(done: (msg) => void) {
-        const travels = this.travelSelection.filter(x => x.TravelLines.some(line => line.CostType === costtype.Expense));
+        const travels = this.travelSelection.filter(x =>
+            x.TravelLines.some(line => (line.CostType === costtype.Expense) && !(x['_isEmpty'])));
+
         this.fetchingFiles$
             .filter(fetching => !fetching)
             .take(1)
