@@ -3130,6 +3130,11 @@ export class BillView implements OnInit, AfterViewInit {
                 changes = true;
             }
 
+            if (line.Amount === line.AmountCurrency && line.CurrencyExchangeRate !== 1) {
+                line.Amount = UniMath.round(line.AmountCurrency * (line.CurrencyExchangeRate || 1), 2);
+                changes = true;
+            }
+
             previousLine = line;
         });
 
