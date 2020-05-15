@@ -34,7 +34,6 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
     @Output() public changeEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public inputEvent: EventEmitter<SimpleChanges> = new EventEmitter<SimpleChanges>();
     @Output() public focusEvent: EventEmitter<UniMultivalueInput> = new EventEmitter<UniMultivalueInput>(true);
-    @Output() public moveForwardEvent: EventEmitter<any> = new EventEmitter<any>(true);
 
     public isOpen: boolean;
     private editorIsOpen: boolean;
@@ -144,8 +143,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
         change[property]['valid'] = true;
         this.inputEvent.emit(change);
-
-        this.moveForwardEvent.emit({event: null, field: this.field});
+        this.focus();
     }
 
     onClick(event) {
@@ -197,7 +195,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
 
         this.emitChange(previousValue, null);
         this.close();
-        this.moveForwardEvent.emit({event: null, field: this.field});
+        this.focus();
     }
 
     public selectRow(row: any, forcedSelection?: boolean) {
@@ -223,7 +221,7 @@ export class UniMultivalueInput extends BaseControl implements OnChanges, AfterV
         }
 
         this.emitChange(previousValue, row);
-        this.moveForwardEvent.emit({event: null, field: this.field});
+        this.focus();
     }
 
     public getDisplayValue(row): string {
