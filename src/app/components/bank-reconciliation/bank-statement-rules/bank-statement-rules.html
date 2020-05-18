@@ -23,9 +23,9 @@
 
             <button (click)="addRule()" class="new-rule tertiary c2a">Legg til regel</button>
 
-            <section class="info-section" *ngIf="rules?.length > 1">
-                Avkrysningboksen ved hver regel bestemmer om den skal kjøres når man velger "Kjør alle regler".
-                Regler som ikke er avkrysset vil likevel kunne kjøres manuelt dersom man ønsker det.
+            <section class="info-section">
+                Avkrysningboksen ved hver regel bestemmer om den skal kjøres når man velger "Kjør alle aktive regler".
+                <br>Regler som ikke er avkrysset vil likevel kunne kjøres manuelt dersom man ønsker det.
                 <br><br>
                 Du kan endre prioriteringsrekkefølge på reglene ved å dra elementene i listen opp eller ned.
             </section>

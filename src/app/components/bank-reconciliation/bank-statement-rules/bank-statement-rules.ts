@@ -49,7 +49,7 @@ export class BankStatementRulesModal implements IUniModal {
                 return of([]);
             })
         ).subscribe(rules => {
-            this.rules = (rules && rules.length) ? rules : [{ Name: 'Ny regel' }];
+            this.rules = (rules && rules.length) ? rules : [{ Name: 'Ny regel', IsActive: true}];
             this.onRuleSelected(this.rules[0]);
             this.busy = false;
         });
