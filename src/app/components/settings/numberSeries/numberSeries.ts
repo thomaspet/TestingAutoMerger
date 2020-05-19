@@ -45,8 +45,11 @@ export class NumberSeries {
     private numberseries: any[] = [];
     private types: any[] = [];
     private tasks: any[] = [];
-    public currentYear: number;
-    public currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
+
+    currentYear: number;
+    currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
+    infoMarkup = this.getInfoTextMarkup('JournalEntry');
+
     private asinvoicenumberserie: number = null;
     private customerAccount: Account = null;
     private supplierAccount: Account = null;
@@ -228,6 +231,8 @@ export class NumberSeries {
         }
 
         let current = [];
+
+        this.infoMarkup = this.getInfoTextMarkup(t.ID);
 
         switch (t.ID) {
             case 'JournalEntry':
@@ -1088,5 +1093,39 @@ export class NumberSeries {
 
             return x;
         });
+    }
+
+    getInfoTextMarkup(type: string) {
+        switch (type) {
+            case 'JournalEntry':
+                return `
+                    <h2>Regnskap</h2>
+                    <p> Programmet er ved første gangs bruk kun satt opp med en nummerserie. Generelle bilag. Denne vil da virke som nummerserie for alle bilagstyper.  </p>
+                    <p> Serien er satt opp til å være knyttet til årstall, slik at den begynner opp igjen på bilag 1, når man begynner å arbeide i nytt år. Eksempel: Bilag 1-2020.</p>
+                    <p> Vi anbefaler å bruke dette oppsettet, da det er enkelt å sortere mellom ulike bilagstyper på andre måter enn ved å bruke egne nummerserier. </p>
+                    <p> Du kan velge å aktivere egne nummerserier for ulike oppgaver. Ønsker du å ha egen nummerserie for Lønn, klikker du i raden for Lønnsbilag, velger åpne opp. Da har vi forhåndsdefinert denne med bilagsnummer 70 000-79 999. Du kan endre dette, pass på at nummerserier ikke overlapper hverandre, avslutt med å lagre nummerserie. Nå vil alle bilag som blir laget fra lønn, få nummer innenfor denne serien, mens alle andre vil få tildelt bilagsnummer fra serien Generelle bilag. </p>
+                `;
+
+                case 'Sale':
+                    return `
+                        <h2>Salg</h2>
+                        <p> Det er kanskje litt forvirrende at faktura finnes både under Salg og under Regnskap, men forskjellen er at her bestemmes nummeret til selve salgsfakturaen, mens under Regnskap kan bilaget som går til regnskapet styres. </p>
+                        <p> Vi anbefaler å bare justere/tilpasse fakturanummer før man lager første faktura og deretter lar fakturanummer gå fortløpende, uten senere endringer i oppsettet.</p>
+                    `;
+
+                case 'Accounts':
+                    return `
+                        <h2>Kontoer</h2>
+                        <p> Kunder(debitorer) og leverandører(kreditorer) er underkontoer til regnskapet. Som standard vil alle salgsfakturaer bli lagret i regnskapet på konto 1500, med det spesifikke kundenummeret som en underkonto. </p>
+                        <p> Vi anbefaler å ikke justere på dette oppsettet, dersom du ikke er trygg på hvilke konsekvenser endringene får.</p>
+                        <p> Regnskapssystemet støtter flere kunde- og leverandørserier, samt at man kan opprette serier for andre formål.</p>
+                    `;
+
+                case 'Others':
+                    return `
+                        <h2>Andre serier</h2>
+                        <p> Her vil du kunne styre øvrige nummerserier som er i bruk.</p>
+                    `;
+        }
     }
 }
