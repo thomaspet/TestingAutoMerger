@@ -276,7 +276,7 @@ export class NumberSeries {
                 break;
             case 'Others':
                 current = this.numberseries.filter(
-                    x => ['JournalEntry', 'CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'Customer', 'Supplier']
+                    x => ['JournalEntry', 'CustomerQuote', 'CustomerOrder', 'CustomerInvoice', 'Customer', 'CustomerInvoiceReminder', 'Supplier']
                         .indexOf(x.NumberSeriesType.EntityType) < 0
                 );
                 this.initOtherSeriesTableConfig();

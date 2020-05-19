@@ -275,6 +275,7 @@ export class UniSalesSettingsView {
                 if (done) {
                     done('Lagring feilet. Sjekk at info stemmer, eller last inn siden på nytt og prøv igjen.');
                 }
+                this.errorService.handle(err);
                 res(false);
             });
         });
