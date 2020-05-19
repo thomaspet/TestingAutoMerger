@@ -421,7 +421,7 @@ export class UniBankSettings {
                         + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
                     if (bankAccount['Label']) {
                         ret = ret + ' - ' + bankAccount['Label'];
-                    } else if (bankAccount.Account){
+                    } else if (bankAccount.Account) {
                         ret = ret + ' - ' + bankAccount.Account.AccountNumber + ' (' + bankAccount.Account.AccountName + ')' ;
                     }
                 return ret; },
