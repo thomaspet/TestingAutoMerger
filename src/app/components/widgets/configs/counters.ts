@@ -236,17 +236,9 @@ export const COUNTERS = [
         id: 'sum_employees',
         description: 'Antall ansatte',
         permissions: ['ui_salary'],
-        width: 3,
-        height: 1,
-        widgetType: 'sum',
-        config: {
-            dataEndpoint: `/api/statistics?model=Employee&select=count(id) as sum`,
-            title: 'Ansatte',
-            positive: false,
-            link: '/salary/employees',
-            icon: 'people_outline',
-            class: 'green-counter'
-        }
+        width: 2,
+        height: 2,
+        widgetType: 'sum_employees'
     },
     {
         id: 'sum_employments',

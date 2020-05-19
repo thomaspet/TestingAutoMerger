@@ -1,0 +1,60 @@
+<article class="container">
+    <section class="row1">
+        <p class="left-text">
+            Aktive ansatte
+        </p>
+        <p class="right-text">
+            {{activeEmployeesCount}}
+        </p>
+
+    </section>
+
+    <section class="row2">
+        <section class="female">
+            <svg xmlns="http://www.w3.org/2000/svg" width="19.063" height="46.36" viewBox="0 0 19.063 46.36">
+                <path id="Path_3" data-name="Path 3" d="M36.452,46.042V34.452h3.732a2.333,2.333,0,0,0,2.2-3.06L37.518,16.766a4.658,4.658,0,0,0-4.4-3.176h-.278a4.636,4.636,0,0,0-4.4,3.176L23.564,31.392a2.313,2.313,0,0,0,2.2,3.06H29.5v11.59a2.325,2.325,0,0,0,2.318,2.318h2.318A2.325,2.325,0,0,0,36.452,46.042Zm-3.477-34.77a4.636,4.636,0,1,0-4.636-4.636A4.62,4.62,0,0,0,32.975,11.272Z" transform="translate(-23.439 -2)" fill="#fa89ad"/>
+              </svg>
+            <p>
+                {{femaleEmployeesCount}}
+            </p>
+        </section>
+        <section class="male">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16.226" height="46.36" viewBox="0 0 16.226 46.36">
+                <path id="Path_4" data-name="Path 4" d="M7.477,46.042V30.975H6.318A2.325,2.325,0,0,1,4,28.657V18.226A4.65,4.65,0,0,1,8.636,13.59H15.59a4.65,4.65,0,0,1,4.636,4.636V28.657a2.325,2.325,0,0,1-2.318,2.318H16.749V46.042a2.325,2.325,0,0,1-2.318,2.318H9.8A2.325,2.325,0,0,1,7.477,46.042Zm4.636-34.77A4.636,4.636,0,1,0,7.477,6.636,4.62,4.62,0,0,0,12.113,11.272Z" transform="translate(-4 -2)" fill="#5b9af6"/>
+              </svg>
+            <p>
+                {{maleEmployeesCount}}
+            </p>
+        </section>
+    </section>
+
+    <section class="row3">
+        <p class="blue-text">
+            {{startDateThisYear}}
+        </p>
+        <p class="normal-text">
+            personer er ansatt i år
+        </p>
+    </section>
+
+    <section class="row4">
+        <p class="blue-text">
+            {{endDateThisYear}}
+        </p>
+        <p class="normal-text">
+            personer har sluttet i år
+        </p>
+    </section>
+
+    <section class="row5">
+        <section>
+            <p class="left-text">
+                Total antall årsverk:
+            </p>
+            <p class="right-text">
+                {{activeEmployments}}
+            </p>
+        </section>
+    </section>
+</article>
+
