@@ -114,7 +114,6 @@ export class NotificationService extends BizHttp<Notification> {
                             )
                         );
                     }
-                    this.authService.setActiveCompany(company, notificationRoute);
                 } else {
                     this.toastService.addToast(
                         'Mistet tilgang',

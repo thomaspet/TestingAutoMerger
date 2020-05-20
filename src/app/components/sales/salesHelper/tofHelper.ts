@@ -44,7 +44,7 @@ export class TofHelper {
 
     // Without mapping the customer to entity here, creating a new TOF from customer
     // will not bring along all the attributes that are needed in the TOF
-    public mapCustomerToEntity(customer: Customer, entity: any): any {
+    public mapCustomerToEntity(customer: Customer, entity: any, isNew: boolean = true): any {
         entity.Customer = customer;
         entity.CustomerID = customer.ID;
 
@@ -69,7 +69,11 @@ export class TofHelper {
                 );
             }
 
-            entity.CurrencyCodeID = customer.CurrencyCodeID;
+            // Only change currencycode when new customer is selected
+            if (isNew) {
+                entity.CurrencyCodeID = customer.CurrencyCodeID;
+            }
+
             entity.YourReference = customer.Info.DefaultContact && customer.Info.DefaultContact.Info.Name;
         }
 
