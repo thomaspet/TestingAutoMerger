@@ -8,7 +8,8 @@ import {
     CurrencyCodeService,
     PageStateService,
     ElsaPurchaseService,
-    EHFService
+    EHFService,
+    AccountVisibilityGroupService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -55,6 +56,7 @@ export class UniCompanyAccountingView {
     accountingPeriods: any[] = [];
     vatReportForms: any[] = [];
     currencyCodes: Array<CurrencyCode> = [];
+    accountVisibilityGroups: any[] = [];
     activeIndex: number = 0;
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
@@ -101,6 +103,7 @@ export class UniCompanyAccountingView {
         private router: Router,
         private elsaPurchasesService: ElsaPurchaseService,
         private ehfService: EHFService,
+        private accountVisibilityGroupService: AccountVisibilityGroupService
     ) { }
 
     ngOnInit() {
@@ -131,12 +134,16 @@ export class UniCompanyAccountingView {
             this.periodeSeriesService.GetAll(null),
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
+            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
         ).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
 
             this.accountingPeriods = this.periods.filter((value) => value.SeriesType.toString() === '1');
             this.vatPeriods = this.periods.filter((value) => value.SeriesType.toString() === '0');
+
+            // Get accountvisibilitygroups that are not specific for a companytype
+            this.accountVisibilityGroups = response[4].filter(x => x.CompanyTypes.length === 0);
 
             this.vatReportForms = response[2];
             this.currencyCodes = response[3];
@@ -313,7 +320,19 @@ export class UniCompanyAccountingView {
                             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                             valueProperty: 'ID'
                         }
-                    }
+                    },
+                    {
+                        EntityType: 'CompanySettings',
+                        Property: 'AccountVisibilityGroupID',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Synlige kontoer',
+                        Options: {
+                            source: this.accountVisibilityGroups,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name',
+                            debounceTime: 200
+                        }
+                    },
                 ];
                 break;
             case 1:
