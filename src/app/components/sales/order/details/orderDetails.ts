@@ -608,20 +608,19 @@ export class OrderDetails implements OnInit {
 
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.tradeItemTable.setDimensionOnTradeItems
+                    (dimKey, order[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
                 this.askedAboutSettingDimensionsOnItems = true;
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], order.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems
+                    (dimension[1], order.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
                 this.askedAboutSettingDimensionsOnItems = true;
             }
             if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
                 this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
             }
         }
-
-        order.CurrencyCodeID = order.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
-        this.currencyCodeID = order.CurrencyCodeID;
 
         this.updateCurrency(order, shouldGetCurrencyRate);
 

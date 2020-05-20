@@ -46,7 +46,7 @@ declare var _;
 
 export class AgaAndSubEntitySettings implements OnInit {
     @ViewChild(SubEntityList) public subEntityList: SubEntityList;
-    @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
+    @ViewChild(AgGridWrapper, { static: false }) private table: AgGridWrapper;
 
     public showSubEntities: boolean = true;
     public isDirty: boolean = false;
