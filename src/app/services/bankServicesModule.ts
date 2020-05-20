@@ -5,12 +5,14 @@ import {BankStatementEntryService} from './bank/bankStatementEntryService';
 import {BankStatementSession} from './bank/bankstatementsession';
 import {BankJournalSession} from './bank/bankJournalSession';
 import {BankStatementRuleService} from './bank/bankStatementRuleService';
+import {BrunoOnboardingService} from './bank/BrunoOnboardingService';
 
 export * from './bank/bankStatementService';
 export * from './bank/bankStatementEntryService';
 export * from './bank/bankstatementsession';
 export * from './bank/bankJournalSession';
 export * from './bank/bankStatementRuleService';
+export * from './bank/BrunoOnboardingService';
 
 @NgModule()
 export class BankServicesModule {
@@ -22,7 +24,8 @@ export class BankServicesModule {
                 BankStatementEntryService,
                 BankStatementRuleService,
                 BankStatementSession,
-                BankJournalSession
+                BankJournalSession,
+                BrunoOnboardingService
             ]
         };
     }

@@ -84,6 +84,15 @@ export class BankService extends BizHttp<Bank> {
         .map(res => res.body);
     }
 
+    public getActiveOrPendingDirectAutobankAgreement() {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint('bank-agreements?action=get-active-or-pending-direct-agreement')
+        .send()
+        .map(res => res.body);
+    }
+
     public updateAutobankAgreementStatus(id: any, password: string) {
         return this.http
             .asPUT()

@@ -11,6 +11,7 @@ import {
 import {Observable} from 'rxjs';
 
 export interface IAutoBankAgreementDetails {
+    DisplayName: string;
     Orgnr: string;
     Email: string;
     Bank: string;
@@ -25,6 +26,13 @@ export interface IAutoBankAgreementDetails {
     Password: string;
     BankAccountNumber: number;
     _confirmPassword?: string;
+    ServiceProvider: number;
+}
+
+export enum BankAgreementServiceProvider {
+    ZData = 1,
+    Bruno = 2,
+    Mock = 3
 }
 
 @Component({
@@ -277,6 +285,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     `disse tegnene: ! @ # $ % ^ & * _ - = + . : ? , ( ) [ ] { }`;
 
     agreementDetails: IAutoBankAgreementDetails = {
+        DisplayName: '',
         Phone: '',
         Email: '',
         Bank: '',
@@ -290,7 +299,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         IsBankStatement: true,
         Password: '',
         _confirmPassword: '',
-        BankAccountNumber: 0
+        BankAccountNumber: 0,
+        ServiceProvider: BankAgreementServiceProvider.ZData
     };
 
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
