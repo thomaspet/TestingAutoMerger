@@ -24,7 +24,7 @@ import * as moment from 'moment';
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
 import { CompanySettings, BankIntegrationAgreement } from '@uni-entities';
 import { Observable } from 'rxjs';
-import { THEMES, theme } from 'dist/themes/theme';
+import { THEMES, theme } from 'src/themes/theme';
 
 @Component({
     selector: 'bank-balance-widget',
