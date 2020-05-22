@@ -9,8 +9,8 @@ import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a class="dropdown-menu-item" href="https://help.unieconomy.no" target="_blank" *ngIf="!isSrEnvironment">
-                    Kundesenter
+                <a class="dropdown-menu-item" href="{{helpdeskUrl}}" target="_blank">
+                    {{isSrEnvironment ? 'Hjelpeside' : 'Kundesenter'}}
                 </a>
 
                 <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="!isSrEnvironment">
@@ -49,6 +49,9 @@ export class UniTabstripHelp {
     @ViewChild(BoostChat) boost: BoostChat;
 
     isSrEnvironment: boolean = environment.isSrEnvironment;
+    helpdeskUrl = environment.isSrEnvironment
+        ? 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html'
+        : 'https://help.unieconomy.no';
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {
