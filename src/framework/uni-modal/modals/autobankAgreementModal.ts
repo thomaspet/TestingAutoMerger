@@ -9,31 +9,8 @@ import {
     BankService
 } from '@app/services/services';
 import {Observable} from 'rxjs';
+import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
 
-export interface IAutoBankAgreementDetails {
-    DisplayName: string;
-    Orgnr: string;
-    Email: string;
-    Bank: string;
-    Phone: string;
-    BankAccountID: number;
-    BankAcceptance: boolean;
-    IsBankBalance: boolean;
-    BankApproval: boolean;
-    IsBankStatement: boolean;
-    IsInbound: boolean;
-    IsOutgoing: boolean;
-    Password: string;
-    BankAccountNumber: number;
-    _confirmPassword?: string;
-    ServiceProvider: number;
-}
-
-export enum BankAgreementServiceProvider {
-    ZData = 1,
-    Bruno = 2,
-    Mock = 3
-}
 
 @Component({
     selector: 'uni-autobank-agreement-modal',
@@ -284,7 +261,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     passwordCriteriaMsg = `Passordet må være minst 10 tegn og inneholde en stor bokstav [A-Z], en liten bokstav [a-z], ett tall [0-9] og ett av ` +
     `disse tegnene: ! @ # $ % ^ & * _ - = + . : ? , ( ) [ ] { }`;
 
-    agreementDetails: IAutoBankAgreementDetails = {
+    agreementDetails: AutoBankAgreementDetails = {
         DisplayName: '',
         Phone: '',
         Email: '',
@@ -304,7 +281,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     };
 
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    formModel$: BehaviorSubject<IAutoBankAgreementDetails> = new BehaviorSubject(null);
+    formModel$: BehaviorSubject<AutoBankAgreementDetails> = new BehaviorSubject(null);
     formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     haveReadAgreement = false;
 
@@ -551,7 +528,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
     }
 
-    private isValidPassword(agreementDetails: IAutoBankAgreementDetails): boolean {
+    private isValidPassword(agreementDetails: AutoBankAgreementDetails): boolean {
         const password = agreementDetails.Password;
         const confirmPassword = agreementDetails._confirmPassword;
 

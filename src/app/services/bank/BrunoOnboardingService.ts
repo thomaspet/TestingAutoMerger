@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BankIntegrationAgreement } from '../../unientities';
-import { IAutoBankAgreementDetails, BankAgreementServiceProvider } from '@uni-framework/uni-modal';
-import { BankService } from '../accountingServicesModule';
+import { BankService } from '../accounting/bankService';
 import { Observable } from 'rxjs';
+import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
 
 @Injectable()
 export class BrunoOnboardingService {
@@ -10,7 +10,7 @@ export class BrunoOnboardingService {
         private bankService: BankService
     ) { }
 
-    agreementDetails: IAutoBankAgreementDetails = {
+    agreementDetails: AutoBankAgreementDetails = {
         DisplayName: 'Bruno Autobank',
         Phone: '',
         Email: '',
