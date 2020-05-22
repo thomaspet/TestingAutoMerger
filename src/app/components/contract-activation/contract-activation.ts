@@ -54,7 +54,6 @@ export class ContractActivation {
 
     hasAcceptedTerms = false;
     isBureau = false;
-    isSrCustomer = false;
 
     constructor(
         private initService: InitService,
@@ -209,7 +208,7 @@ export class ContractActivation {
                                     this.router.navigateByUrl('/');
                                 });
 
-                                if (this.isSrEnvironment && !this.isSrCustomer) {
+                                if (this.isSrEnvironment && !this.elsaCustomer.IsBankCustomer) {
                                     let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
                                     if (this.companySettings.OrganizationNumber) {
                                         url += `?bm-orgNumber=${this.companySettings.OrganizationNumber}`;
