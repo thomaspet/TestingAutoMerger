@@ -1,6 +1,9 @@
 <article>
     <section *ngIf="(errorMessage$ | async)" class="alert bad">
-        Feilmelding fra Altinn: {{errorMessage$ | async}}
+        <i class="material-icons">error</i>
+        <span>
+            <strong>Feilmelding fra Altinn: </strong> {{errorMessage$ | async}}
+        </span>
     </section>
     <ag-grid-wrapper [resource]="altinnReceipts$ | async" [config]="tableConfig$ | async"></ag-grid-wrapper>
 </article>

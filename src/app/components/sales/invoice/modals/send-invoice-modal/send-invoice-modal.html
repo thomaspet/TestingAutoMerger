@@ -6,8 +6,8 @@
         </section>
 
         <section *ngIf="invoice?.StatusCode === 42004" class="alert info already-paid">
-            <i class="material-icons">info_outline</i>
-            <span class="text">OBS: Denne fakturaen er allerede markert som betalt</span>
+            <i class="material-icons">info</i>
+            <span class="text">Denne fakturaen er allerede markert som betalt</span>
         </section>
 
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">

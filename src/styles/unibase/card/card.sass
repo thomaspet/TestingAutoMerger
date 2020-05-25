@@ -8,7 +8,7 @@
     .uni-card-header
         display: flex
         align-items: center
-        min-height: 4rem
+        min-height: 3.75rem
         padding: 0 2rem
         border-bottom: 1px solid var(--border-color)
 
@@ -16,6 +16,9 @@
             font-size: 1.15rem
             font-weight: 500
             margin: 0 1rem 0 0
+
+    .uni-card-header.borderless + .uni-card-content
+        padding-top: .5rem
 
     .uni-card-content
         padding: 1.5rem 2rem
