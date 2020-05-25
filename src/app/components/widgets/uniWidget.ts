@@ -98,7 +98,7 @@ export const WIDGET_MAP = {
     bank_balance: BankBalanceWidget,
     liquidity: LiquidityWidget,
     info_tile: UniInfoTileWidget,
-    sum_employees: EmployeeCounterWidget,
+    employee_counter: EmployeeCounterWidget,
 };
 
 @Directive({
