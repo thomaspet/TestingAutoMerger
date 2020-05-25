@@ -6,43 +6,32 @@
     flex-flow: row nowrap
     max-height: calc(100vh - 18.5rem)
 
-    > *
-        border: 1px solid var(--border-color)
-        border-radius: var(--section-radius)
-
     .user-list-container
         flex: 0 0 28rem
         display: flex
         flex-direction: column
         margin-right: 20px
-        padding-top: 1rem
 
         .list-actions
             display: flex
             flex-wrap: wrap
             justify-content: space-between
-            margin: 0 1rem
+            padding: 0 1rem
+            border-bottom: 1px solid var(--border-color)
 
             button
-                margin: 0  0 1rem 0
-                &:first-of-type
-                    margin-right: 2px
-                i.material-icons
-                    color: var(--color-c2a)
-                    font-size: 18px
-                    margin: 0 2px 2px 0
+                margin: .5rem .5rem .5rem 0
 
         input[type=search]
             height: 2.75rem
             width: calc(100% - 2rem)
-            margin: 0 1rem
+            margin: 1rem
             padding: 0 1rem
-            border: 1px solid rgba(0,0,0,.12)
 
         ul#user-list
             flex: 1
             position: relative // required for scroll to work properly
-            margin-bottom: 0
+            margin: 0
             list-style: none
             max-width: 28rem
 

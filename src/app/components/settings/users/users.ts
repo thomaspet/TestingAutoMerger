@@ -71,7 +71,7 @@ export class UserManagement {
                     ? user.DisplayName.toLowerCase()
                     : '';
 
-                return displayName.startsWith(query.toLowerCase());
+                return displayName.includes(query.toLowerCase());
             });
         } else {
             this.filteredUsers = this.users;

@@ -58,15 +58,7 @@ export class LicenseAgreementModal implements IUniModal {
             .withEndPoint('users?action=accept-CustomerAgreement')
             .send()
             .subscribe(
-                () => {
-                    this.toastService.addToast(
-                        'Selskapslisens godkjent',
-                        ToastType.good,
-                        ToastTime.short
-                    );
-
-                    this.onClose.emit();
-                },
+                () => this.onClose.emit(),
                 err => {
                     this.busy = false;
                     this.errorService.handle(err);

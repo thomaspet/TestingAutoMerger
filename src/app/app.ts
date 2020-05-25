@@ -192,12 +192,7 @@ export class App {
                     .send()
                     .map(res => res.body)
                     .subscribe(
-                        () => this.toastService.addToast(
-                            'Suksess',
-                            ToastType.good,
-                            ToastTime.short,
-                            'Brukerlisens godtatt',
-                        ),
+                        () => {},
                         err => this.errorService.handle(err),
                     );
             } else {
