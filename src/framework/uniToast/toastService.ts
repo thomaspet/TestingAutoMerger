@@ -1,5 +1,5 @@
 import {Injectable, SecurityContext} from '@angular/core';
-import {ReplaySubject} from 'rxjs';
+import {ReplaySubject, Subject, BehaviorSubject} from 'rxjs';
 import {DomSanitizer} from '@angular/platform-browser';
 
 export enum ToastType {
@@ -7,6 +7,7 @@ export enum ToastType {
     good = 2,
     warn = 3,
     info = 4,
+    load = 5,
 }
 
 export enum ToastTime {
@@ -41,16 +42,19 @@ export interface IToast {
     done?: boolean;
 }
 
+export interface SpinnerToast {
+    title: string;
+    message?: string;
+}
+
 @Injectable()
 export class ToastService {
     private nextId: number = 0;
-    private toasts: IToast[] = [];
 
-    public toasts$: ReplaySubject<IToast[]>;
+    spinnerToast$ = new BehaviorSubject<IToast>(null);
+    toasts$ = new BehaviorSubject<IToast[]>([]);
 
-    constructor(private domSanitizer: DomSanitizer) {
-        this.toasts$ = new ReplaySubject<IToast[]>(1);
-    }
+    constructor(private domSanitizer: DomSanitizer) {}
 
     toast(options: IToastOptions) {
         this.addToast(
@@ -62,7 +66,7 @@ export class ToastService {
         );
     }
 
-    public addToast(
+    addToast(
         title: string,
         type?: ToastType,
         durationInSeconds?: number,
@@ -71,15 +75,17 @@ export class ToastService {
     ): number {
         let toastID: number;
         const sanitizedMessage = this.domSanitizer.sanitize(SecurityContext.HTML, message);
-        const duplicate = this.toasts.find((toast) => {
+
+        const toasts = this.toasts$.value || [];
+        const duplicate = toasts.find((toast) => {
             return toast.title === title
                 && toast.message === (sanitizedMessage || '');
         });
 
         if (duplicate) {
             toastID = duplicate.id;
-            const i = this.toasts.indexOf(duplicate);
-            this.toasts[i] = <IToast>{
+            const i = toasts.indexOf(duplicate);
+            toasts[i] = <IToast>{
                 id: duplicate.id,
                 type: duplicate.type,
                 title: duplicate.title,
@@ -90,7 +96,7 @@ export class ToastService {
             };
         } else {
             toastID = this.nextId++;
-            this.toasts.push(<IToast>{
+            toasts.push(<IToast>{
                 id: toastID,
                 type: type || ToastType.warn,
                 title: title,
@@ -101,24 +107,37 @@ export class ToastService {
             });
         }
 
-        this.toasts$.next(this.toasts);
+        this.toasts$.next(toasts);
         return toastID;
     }
 
-    public clear() {
-        this.toasts = [];
-        this.toasts$.next(this.toasts);
+    clear() {
+        this.toasts$.next([]);
     }
 
-    public getToasts(): IToast[] {
-        return this.toasts;
+    getToasts(): IToast[] {
+        return this.toasts$.value;
     }
 
-    public removeToast(id: number) {
-        this.toasts = this.toasts.filter((toast) => {
-            return toast.id !== id;
-        });
+    removeToast(id: number) {
+        const toasts = this.toasts$.value || [];
+        this.toasts$.next(toasts.filter(toast => toast.id !== id));
+    }
 
-        this.toasts$.next(this.toasts);
+    showLoadIndicator(args: { title: string, message?: string }) {
+        const toast: IToast = {
+            type: ToastType.load,
+            title: args.title,
+            message: args.message,
+            duration: 0,
+            count: 1,
+            id: this.nextId++
+        };
+
+        this.spinnerToast$.next(toast);
+    }
+
+    hideLoadIndicator() {
+        this.spinnerToast$.next(undefined);
     }
 }

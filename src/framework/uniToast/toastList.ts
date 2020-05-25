@@ -4,6 +4,13 @@ import {ToastService} from './toastService';
 @Component({
     selector: 'uni-toast-list',
     template: `
+        <uni-toast *ngIf="toastService.spinnerToast$ | async as spinnerToast"
+            role="alert"
+            class="load"
+            [toast]="spinnerToast"
+            (dismiss)="hideLoadIndicator()">
+        </uni-toast>
+
         <uni-toast *ngFor="let toast of toastService.toasts$ | async"
             role="alert"
             [toast]="toast"
