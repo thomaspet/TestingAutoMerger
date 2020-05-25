@@ -10,7 +10,7 @@ import { Employee, Employment } from '@uni-entities';
     styleUrls: ['./employee-counter-widget.sass']
 })
 export class EmployeeCounterWidget {
-    @ViewChild('sum_employees') liquidityChart: ElementRef;
+    @ViewChild('employee_counter') employeeChart: ElementRef;
 
     activeEmployeesCount: number = 0;
     femaleEmployeesCount: number = 0;
