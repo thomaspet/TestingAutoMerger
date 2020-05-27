@@ -386,9 +386,9 @@ export class UniCompanySettingsView {
     openBrRegModal() {
         this.modalService.open(UniBrRegModal).onClose.subscribe(brRegInfo => {
             if (brRegInfo) {
-                this.businessRelationService.updateCompanySettingsWithBrreg(
+                this.companySettings$.next(this.businessRelationService.updateCompanySettingsWithBrreg(
                     this.companySettings$.getValue(), brRegInfo, this.companyTypes
-                );
+                ));
             }
         });
     }
