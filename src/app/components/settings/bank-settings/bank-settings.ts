@@ -119,7 +119,7 @@ export class UniBankSettings {
         const companySalary = this.companySalary$.getValue();
 
         return new Promise(res => {
-            if (!companySettings.CompanyBankAccountID || !companySettings.CompanyBankAccount) {
+            if (!companySettings.CompanyBankAccountID && !companySettings.CompanyBankAccount) {
                 if (done) {
                     done('Lagring avbrutt! Driftskonto må være angitt');
                 }
