@@ -1,6 +1,7 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
 import { StatisticsService } from '@app/services/services';
 import { Employee, Employment } from '@uni-entities';
+import { UniMath } from '@uni-framework/core/uniMath';
 
 
 
@@ -25,7 +26,7 @@ export class EmployeeCounterWidget {
     ) { }
 
     ngOnInit(): void {
-        this.statisticsService.GetAllUnwrapped('model=Employee&select=Sex as Sex,EmployeeNumber as EmployeeNumber').subscribe(
+        this.statisticsService.GetAllUnwrapped('model=Employment&select=Employee.Sex as Sex,Employee.EmployeeNumber as EmployeeNumber&expand=Employee&filter=StartDate le getdate() and (setornull(EndDate) or EndDate ge getdate() )&distinct=true').subscribe(
                 (employees: Employee[]) => {
                     this.activeEmployeesCount = employees.length;
                     this.femaleEmployeesCount = employees.filter(x => x.Sex === 1).length;
@@ -42,9 +43,9 @@ export class EmployeeCounterWidget {
                 this.endDateThisYear = employments.length;
                 }
             );
-        this.statisticsService.GetAllUnwrapped('model=Employment&select=count(ID) as sum&filter=setornull(EndDate) or EndDate gt getdate()')
+        this.statisticsService.GetAllUnwrapped('model=Employment&select=divide(sum(WorkPercent),100) as sum&filter=setornull(EndDate) or EndDate gt getdate()')
             .subscribe(x => {
-                this.activeEmployments = x[0].sum;
+                this.activeEmployments = UniMath.round(Math.round(x[0].sum), 2);
                 }
             );
     }
