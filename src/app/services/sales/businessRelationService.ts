@@ -91,5 +91,6 @@ export class BusinessRelationService extends BizHttp<BusinessRelation> {
 
             companySetting.DefaultPhone.Number = brregInfo.tlf;
         }
+        return companySetting;
     }
 }
