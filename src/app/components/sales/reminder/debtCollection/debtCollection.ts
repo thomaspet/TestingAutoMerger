@@ -93,11 +93,12 @@ export class DebtCollection implements OnInit {
         });
 
 
-        this.elsaPurchaseService.getPurchaseByProductName('Kreditorforeningen')
-            .pipe(catchError(() => of(null)))
-            .subscribe(product => {
-                this.debtCollectionProductPurchased = !!product;
-            });
+        // Commented out because we need to disable this feature for now. Then we'll have to refine it for later.
+        // this.elsaPurchaseService.getPurchaseByProductName('Kreditorforeningen')
+        //     .pipe(catchError(() => of(null)))
+        //     .subscribe(product => {
+        //         this.debtCollectionProductPurchased = !!product;
+        //     });
     }
 
     public onRowSelected(data) {
