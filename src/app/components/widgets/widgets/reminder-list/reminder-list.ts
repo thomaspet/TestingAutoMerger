@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniWidget} from '../../uniWidget';
 import {AuthService} from '@app/authService';
@@ -9,6 +9,7 @@ import {NewTaskModal} from '../../../common/modals/new-task-modal/new-task-modal
 import {UniModalService} from '@uni-framework/uni-modal';
 import {ApprovalStatus } from '@uni-entities';
 import {Observable} from 'rxjs';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-reminder-list',
@@ -16,35 +17,33 @@ import {Observable} from 'rxjs';
         <section class="widget-wrapper">
             <section class="header">
                 <span style="flex: 1"> {{ widget.description }} </span>
-
-                <a class="add-task" (click)="newTask()">
-                    <i class="material-icons">add</i>
-                    Ny oppgave
-                </a>
+                <a (click)="newTask()">Ny oppgave</a>
             </section>
 
             <div class="content reminder-list-widget">
-                <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
-                    <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
-                        <i class="material-icons-outlined"> {{ item._icon }} </i>
-                        <div>
-                            <span>{{ item._label }} </span>
-                            <span> {{ item._typeText }}  </span>
-                        </div>
-                    </li>
-                </ul>
-                <span class="no-items-message">
-                    <i class="material-icons"> mood </i>
-                    Huskelisten er tom, godt jobbet
+                <span *ngIf="dataLoaded && !items?.length" class="no-items-message">
+                    <i class="material-icons">mood</i>
+                    Huskelisten er tom, godt jobbet!
                 </span>
+
+                <ng-container *ngIf="dataLoaded && items?.length">
+                    <a *ngFor="let item of items" class="reminder-item" [routerLink]="item._url">
+                        <i class="material-icons-outlined">{{ item._icon }}</i>
+                        <div>
+                            <strong>{{ item._label }}</strong>
+                            <span>{{ item._typeText }}</span>
+                        </div>
+                    </a>
+                </ng-container>
             </div>
         </section>
     `,
     styleUrls: ['./reminder-list.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class ReminderListWidget {
+    @HostBinding('class.ext02') isExt02Env = theme.theme === THEMES.EXT02;
+
     widget: IUniWidget;
     items: Array<any> = [];
     scrollbar: PerfectScrollbar;
@@ -97,8 +96,8 @@ export class ReminderListWidget {
                 .map(item => {
                     item._icon = this.getIcon(item.Name);
                     item._label = item.Name === 'ToBePayed'
-                        ? `Regninger til betaling (${item.Counter})`
-                        : `Faktura klar for purring (${item.Counter})`;
+                        ? `${item.Counter} regninger til betaling`
+                        : `${item.Counter} faktura klar for purring`;
                     item._typeText = this.getTranslatedTypeText(item.Name);
                     item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=ToPayment' : '/sales/reminders/ready';
                     return item;
@@ -107,7 +106,7 @@ export class ReminderListWidget {
             if (inbox && inbox.length) {
                 kpi.unshift({
                     _icon: 'mail_outline',
-                    _label: `Elementer i innboksen (${inbox.length})`,
+                    _label: `${inbox.length} elementer i innboksen`,
                     _typeText: 'Innboks',
                     _url : '/accounting/inbox'
                 });
@@ -143,7 +142,7 @@ export class ReminderListWidget {
             }
 
             if (this.widget && this.items && this.items.length) {
-                this.scrollbar = new PerfectScrollbar('#reminder-list', {wheelPropagation: true});
+                this.scrollbar = new PerfectScrollbar('.reminder-list-widget', {wheelPropagation: true});
             }
 
             this.dataLoaded = true;
@@ -172,10 +171,6 @@ export class ReminderListWidget {
         return '/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Name as Name,EntityID as EntityID,' +
         `StatusCode as StatusCode,Type as Type,UserID as UserID&filter=UserID eq ${this.authService.currentUser.ID} and ` +
         `StatusCode ne 50030 and Type ne 1&top=50&expand=model&orderby=ID desc`;
-    }
-
-    goToTaskView(item: any) {
-        this.router.navigateByUrl(item._url);
     }
 
     getIcon(value: string) {

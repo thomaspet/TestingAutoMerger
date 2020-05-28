@@ -41,10 +41,9 @@ export const ACCOUNTING_DASHBOARD_CONFIG = {
             { x: 0, y: 0, widgetID: 'operatingprofit' },
             { x: 6, y: 0, widgetID: 'expenses' },
 
-            { x: 9, y: 0, widgetID: 'help_sr_accounting'},
-            { x: 9, y: 1, widgetID: 'sum_inbox' },
-            { x: 9, y: 2, widgetID: 'sum_payment_list' },
-            { x: 9, y: 3, widgetID: 'payment_no_match' },
+            { x: 9, y: 0, widgetID: 'sum_inbox' },
+            { x: 9, y: 1, widgetID: 'sum_payment_list' },
+            { x: 9, y: 2, widgetID: 'payment_no_match' },
 
             { x: 0, y: 4, widgetID: 'balance' },
             { x: 5, y: 4, widgetID: 'unpaid_supplierinvoice' }

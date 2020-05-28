@@ -192,10 +192,6 @@ export class OverdueInvoicesWidget implements AfterViewInit {
         this.router.navigateByUrl(route + ID);
     }
 
-    goToOverdueList() {
-        this.router.navigateByUrl('/sales/invoices?filter=overdue_invoices')
-    }
-
     private drawChart() {
         if (this.chartRef) {
             this.chartRef.destroy();

@@ -84,7 +84,7 @@ export class BankBalanceWidget implements AfterViewInit {
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    colors = ['#005AA4', '#0071CD'];
+    colors = theme.widgets.pie_colors.slice(0, 2); // ['#005AA4', '#0071CD'];
     show = [true, true];
 
     IsThemeEXT02: boolean = theme.theme === THEMES.EXT02;

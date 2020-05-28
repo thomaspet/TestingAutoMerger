@@ -1,7 +1,7 @@
-<header class="dashboard-header" [ngClass]="{ 'no-link-dashboard': isSrEnvironment }">
-    <span class="title">{{ isSrEnvironment ? activeLinkLabel : companyName}}</span>
+<header class="dashboard-header" [ngClass]="{ 'no-link-dashboard': noLinkDashboard }">
+    <span class="title">{{ noLinkDashboard ? activeLinkLabel : companyName}}</span>
 
-    <ng-container *ngIf="!isSrEnvironment">
+    <ng-container *ngIf="!noLinkDashboard">
         <ul class="links" *ngIf="links">
             <li *ngFor="let link of links">
                 <a class="dashboard-link"
@@ -13,7 +13,8 @@
             </li>
         </ul>
 
-        <a class="dashboard-link" routerLink="/overview">Oversikt</a>
+        <!-- <a class="dashboard-link" routerLink="/overview">Oversikt</a> -->
+        <button class="tertiary" routerLink="/overview">Oversikt</button>
 
         <newsfeed></newsfeed>
     </ng-container>

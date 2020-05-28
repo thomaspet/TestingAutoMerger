@@ -1,7 +1,7 @@
 .table-section
     flex: 1
     margin-left: 2rem
-    font-size: 14px
+    font-size: .9rem
     min-height: 10rem
     .no-overdue-invoices
         height: 100%
@@ -14,8 +14,15 @@ table
     table-layout: fixed
     width: 100%
 
-    tbody tr
-        border-top: 1px solid var(--border-color)
+    thead tr
+        background: var(--table-header-background)
+        color: var(--table-header-color)
+        border-radius: var(--section-radius) var(--section-radius) 0 0
+        th
+            font-weight: 500
+
+    tr
+        border-bottom: 1px solid var(--border-color)
 
     th, td
         padding: 1rem 1rem
@@ -23,8 +30,6 @@ table
         white-space: nowrap
         overflow: hidden
         text-overflow: ellipsis
-    th
-        color: #2b2b2b
 
 .indicator
     display: inline-block

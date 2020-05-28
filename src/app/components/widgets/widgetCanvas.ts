@@ -106,6 +106,7 @@ export class UniWidgetCanvas {
 
     canvasHeight: number;
 
+    noLinkDashboard = theme.theme !== THEMES.UE;
     isSrEnvironment = theme.theme === THEMES.SR;
     activeLinkLabel: string = 'Hjem';
 
