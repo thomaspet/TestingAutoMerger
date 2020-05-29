@@ -1,4 +1,5 @@
 import {TypeOfIntegration} from '@uni-entities';
+import {THEMES} from 'src/themes/theme';
 
 export const COUNTERS = [
     {
@@ -295,7 +296,7 @@ export const COUNTERS = [
             externalLink: 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/faa_tilbud_paa_regnskapsforsel_bankogregnskap.html',
             icon: '',
             class: 'help-sraccounting',
-            srOnly: true
+            onlyForTheme: THEMES.SR,
         }
     },
 ];

@@ -514,11 +514,13 @@ export class UniWidgetCanvas {
 
     private initWidgetSelector() {
         const filter = widgets => {
-            if (this.isSrEnvironment) {
-                return widgets;
-            } else {
-                return widgets.filter(w => !w.srOnly);
-            }
+            return (widgets || []).filter(widget => {
+                if (widget?.onlyForTheme) {
+                    return theme.theme === widget.onlyForTheme;
+                }
+
+                return true;
+            });
         };
 
         this.widgetSelectorItems = [
