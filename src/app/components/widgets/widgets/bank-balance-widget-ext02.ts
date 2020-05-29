@@ -149,13 +149,10 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                 this.missingData = false;
                 this.chartConfig = this.getEmptyResultChart();
                 this.chartConfig.data.labels = this.chartLegends;
-
                 data.forEach((value, index) => {
                     this.chartLegends[index] += ' - ' + this.numberFormatService.asMoney(value);
                 });
-
                 this.chartConfig.options.plugins.doughnutlabel.labels = this.getChartLabel();
-
                 this.chartConfig.data.datasets[0].data = data;
                 this.chartConfig.data.datasets[0].backgroundColor = this.colors;
                 this.drawChart();
@@ -164,7 +161,6 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                 this.msg = 'Vi fant ingen saldo. Har du satt opp driftskonto og/eller skattetrekkskonto på firmaoppsett?';
                 this.missingData = true;
                 this.cdr.markForCheck();
-
             }
         }, err => {
             this.icon = 'money_off';

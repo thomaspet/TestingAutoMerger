@@ -1,14 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BankIntegrationAgreement } from '../../unientities';
 import { BankService } from '../accounting/bankService';
-import { Observable, observable } from 'rxjs';
-import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { AutoBankAgreementDetails, BankAgreementServiceProvider } from '@app/models/autobank-models';
+import { AuthService } from '@app/authService';
+
 
 @Injectable()
 export class BrunoOnboardingService {
     constructor(
-        private bankService: BankService
+        private bankService: BankService,
+        private authService: AuthService
     ) { }
 
     agreementDetails: AutoBankAgreementDetails = {
@@ -71,9 +73,7 @@ export class BrunoOnboardingService {
     }
 
     private openExternalOnboarding() {
-        // TODO: If pacages has different set of services, make a function here for building the bruno url,
-        // inluding the correct services from IAutoBankAgreementDetails parameter
-        // TODO: Add Tuser name to end of url
-        window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=DNBRegnskap&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true&userid=' + '', '_blank');
+        window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=DNBRegnskap&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true&userid='
+        + this.authService.currentUser.BankIntegrationUserName, '_blank');
     }
 }
