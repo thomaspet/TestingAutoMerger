@@ -13,7 +13,9 @@ import {
     CompanySettingsService,
     BankAccountService,
     PaymentBatchService,
-    ElsaPurchaseService
+    ElsaPurchaseService,
+    BrunoOnboardingService,
+    BankService
 } from '@app/services/services';
 import { AuthService } from '@app/authService';
 import { IUniWidget } from '../uniWidget';
@@ -24,7 +26,7 @@ import { CompanySettings, BankIntegrationAgreement } from '@uni-entities';
 import { Observable } from 'rxjs';
 
 @Component({
-    selector: 'bank-balance-widget',
+    selector: 'bank-balance-widget-ext02',
     template: `
         <section class="widget-wrapper">
             <section class="header">
@@ -34,6 +36,7 @@ import { Observable } from 'rxjs';
             <section *ngIf="missingData" class="no-content" style="flex-direction: column; text-align: center; padding: 2rem;">
                 <i class="material-icons" style="margin-bottom: 1rem; font-size: 3rem; color: var(--alert-info);"> {{ icon }} </i>
                 <span [innerHtml]="msg" style="font-size: 14px"></span>
+                <span style="font-size: 14px"><a (click)="startOnboarding()" [innerHtml]="actionLink"></a> <span [innerHtml]="actionMsg"></span></span>
             </section>
 
             <div *ngIf="!missingData" class="content cavnas-container">
@@ -74,13 +77,13 @@ import { Observable } from 'rxjs';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 
-export class BankBalanceWidget implements AfterViewInit {
+export class BankBalanceWidgetExt02 implements AfterViewInit {
     @ViewChild('bankBalance')
     private bankBalance: ElementRef;
 
     widget: IUniWidget;
     dataLoaded: EventEmitter<boolean> = new EventEmitter();
-    colors = theme.widgets.pie_colors.slice(0, 2); // ['#005AA4', '#0071CD'];
+    colors = ['#005AA4', '#0071CD'];
     show = [true, true];
 
     chartRef: Chart;
@@ -92,6 +95,8 @@ export class BankBalanceWidget implements AfterViewInit {
     agreements: any[];
     agreement?: BankIntegrationAgreement;
     msg: string = '';
+    actionLink: string;
+    actionMsg: string;
     icon: string = '';
     tooltip: any;
     chartLegends: string[] = [];
@@ -104,7 +109,9 @@ export class BankBalanceWidget implements AfterViewInit {
         private elsaPurchasesService: ElsaPurchaseService,
         private paymentBatchService: PaymentBatchService,
         private authService: AuthService,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private brunoOnboardingService: BrunoOnboardingService,
+        private bankService: BankService
     ) { }
 
     ngOnDestroy() {
@@ -154,7 +161,7 @@ export class BankBalanceWidget implements AfterViewInit {
                 this.drawChart();
             } else {
                 this.icon = 'money_off';
-                this.msg = 'Vi fant ingen saldo. Har du satt opp driftskonto og/eller skattetrekkskonto på på firmaoppsett?';
+                this.msg = 'Vi fant ingen saldo. Har du satt opp driftskonto og/eller skattetrekkskonto på firmaoppsett?';
                 this.missingData = true;
                 this.cdr.markForCheck();
 
@@ -225,6 +232,13 @@ export class BankBalanceWidget implements AfterViewInit {
         });
     }
 
+    startOnboarding() {
+        this.brunoOnboardingService.startOnboarding()
+            .subscribe(() => {
+                this.ngAfterViewInit(); // BUG: Only waits if a debugger is pressent, should not be done before data is ready
+            });
+    }
+
     public ngAfterViewInit() {
         if (this.authService.activeCompany.IsTest) {
             this.getTestData();
@@ -232,29 +246,36 @@ export class BankBalanceWidget implements AfterViewInit {
         }
 
         if (this.widget) {
-            this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe(res => {
-                if (!!res) {
-                    Observable.forkJoin(
-                        this.companySettingsService.Get(1,
-                            ['BankAccounts', 'BankAccounts.Account', 'CompanyBankAccount', 'TaxBankAccount']),
-                        this.paymentBatchService.checkAutoBankAgreement()
-                    ).subscribe(([companySettings, agreements]) => {
-                        this.companySettings = companySettings;
-                        this.agreements = agreements;
-                        if (this.agreements.length) {
-                            this.getDataAndLoadChart();
-                        } else {
-                            this.msg = 'Du har aktivert Autobank, men har ingen aktive avtaler med banken. <br/>' +
-                                '<a href="/#/bank/ticker?code=bank_list">Gå til Bank</a> for å koble sammen bank og regnskap';
-                            this.icon = 'domain_disabled';
-                            this.missingData = true;
-                            this.cdr.markForCheck();
-                        }
-                    });
-                } else {
-                    this.msg = 'For å se saldo på bankkonto, trenger du en autobankavtale med banken. <br/>' +
-                        '<a href="/#/bank/ticker?code=bank_list">Gå til Bank</a> for å koble sammen bank og regnskap';
+            Observable.forkJoin(
+                this.companySettingsService.Get(1,
+                    ['BankAccounts', 'BankAccounts.Account', 'CompanyBankAccount', 'TaxBankAccount']),
+                this.brunoOnboardingService.getAgreement()
+            ).subscribe(([companySettings, agreement]) => {
+                this.companySettings = companySettings;
+                this.agreement = agreement;
+                if (this.brunoOnboardingService.isActiveAgreement(this.agreement)) {
+                    this.getDataAndLoadChart();
+                }
+                if (!this.agreement) {
+                    this.msg = 'For å se saldo på bankkonto, trenger du en autobankavtale med banken. <br/>';
+                    this.actionLink = 'Gå til bank';
+                    this.actionMsg = ' for å koble sammen bank og regnskap.';
                     this.icon = 'sync_disabled';
+                    this.missingData = true;
+                    this.cdr.markForCheck();
+                } else if (this.brunoOnboardingService.isPendingAgreement(this.agreement)) {
+                    this.msg = 'Du har bestilt integrasjon med nettbanken din og vi jobber <br/> med å sette den opp. ' +
+                        'Dette kan ta inntil 3 arbeidsdager.';
+                    this.actionLink = 'Gå til bank';
+                    this.actionMsg = ' for å bestille på nytt.';
+                    this.icon = 'domain_disabled';
+                    this.missingData = true;
+                    this.cdr.markForCheck();
+                } else if (this.brunoOnboardingService.isNeedConfigOnBankAccounts(this.agreement)) {
+                    this.msg = 'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
+                    this.actionLink = ' Sett opp kontoen(e) her';
+                    this.actionMsg = '';
+                    this.icon = 'domain_disabled';
                     this.missingData = true;
                     this.cdr.markForCheck();
                 }
@@ -265,6 +286,8 @@ export class BankBalanceWidget implements AfterViewInit {
                 this.cdr.markForCheck();
             });
         }
+
+
     }
 
     private drawChart() {

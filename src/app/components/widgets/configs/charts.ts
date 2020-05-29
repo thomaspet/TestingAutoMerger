@@ -241,4 +241,16 @@ export const CHARTS = [
 
         }
     },
+    {
+        id: 'bank_balance_ext02',
+        description: 'Banksaldo',
+        permissions: ['ui_bank'],
+        srOnly: true,
+        width: 4,
+        height: 3,
+        widgetType: 'bank_balance_ext02',
+        config: {
+
+        }
+    },
 ];

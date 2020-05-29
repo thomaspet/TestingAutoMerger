@@ -84,11 +84,11 @@ export class BankService extends BizHttp<Bank> {
         .map(res => res.body);
     }
 
-    public getActiveOrPendingDirectAutobankAgreement() {
+    public getDirectBankAgreement(serviceProvider: number) {
         return this.http
         .asGET()
         .usingBusinessDomain()
-        .withEndPoint('bank-agreements?action=get-active-or-pending-direct-agreement')
+        .withEndPoint(`bank-agreements?action=get-direct-bank-agreement&serviceprovider=${serviceProvider}`)
         .send()
         .map(res => res.body);
     }

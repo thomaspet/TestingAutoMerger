@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { BankIntegrationAgreement } from '../../unientities';
 import { BankService } from '../accounting/bankService';
-import { Observable } from 'rxjs';
+import { Observable, observable } from 'rxjs';
 import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
+import { map } from 'rxjs/operators';
 
 @Injectable()
 export class BrunoOnboardingService {
@@ -29,41 +30,47 @@ export class BrunoOnboardingService {
         ServiceProvider: BankAgreementServiceProvider.Bruno
     };
 
-    public IsPendingAgreement(agreement?: BankIntegrationAgreement): boolean {
+    public isPendingAgreement(agreement?: BankIntegrationAgreement): boolean {
         return agreement?.StatusCode === 700001 ? true : false;
     }
 
-    public IsActiveAgreement(agreement?: BankIntegrationAgreement): boolean {
+    public isNeedConfigOnBankAccounts(agreement?: BankIntegrationAgreement): boolean {
+        return agreement?.StatusCode === 700007 ? true : false;
+    }
+
+    public isActiveAgreement(agreement?: BankIntegrationAgreement): boolean {
         return agreement?.StatusCode === 700005 ? true : false;
     }
 
-    public StartOnboarding() {
-        this.GetPendingOrActiveAgreement()
-            .subscribe((agreement) => {
+    public startOnboarding(): Observable<void> {
+        return this.getAgreement()
+            .map((agreement) => {
                 if (!agreement) {
-                    this.CreateNewPendingAgreement(this.agreementDetails)
+                    this.createNewPendingAgreement(this.agreementDetails)
                         .subscribe((pendingAgreementCreated) => {
                             if (pendingAgreementCreated) {
-                                this.OpenExternalOnboarding();
+                                this.openExternalOnboarding();
                             }
                         });
-                } else if (this.IsPendingAgreement(agreement)) {
-                    this.OpenExternalOnboarding();
+                } else if (this.isPendingAgreement(agreement)) {
+                    this.openExternalOnboarding();
+                } else if (this.isNeedConfigOnBankAccounts(agreement)) {
+                    // TODO: Do bank account setup
                 }
             });
     }
 
-    public GetPendingOrActiveAgreement(): Observable<BankIntegrationAgreement> {
-        return this.bankService.getActiveOrPendingDirectAutobankAgreement()
+    public getAgreement(): Observable<BankIntegrationAgreement> {
+        return this.bankService.getDirectBankAgreement(BankAgreementServiceProvider.Bruno)
             .map((agre: BankIntegrationAgreement[]) => agre[0]);
     }
 
-    private CreateNewPendingAgreement(agreementDetails): Observable<boolean> {
+    private createNewPendingAgreement(agreementDetails): Observable<BankIntegrationAgreement> {
         return this.bankService.createInitialAgreement(agreementDetails)
-            .map((res: BankIntegrationAgreement) => this.IsPendingAgreement(res));
+            .map((res: BankIntegrationAgreement) => res);
     }
 
-    private OpenExternalOnboarding() {
+    private openExternalOnboarding() {
         // TODO: If pacages has different set of services, make a function here for building the bruno url,
         // inluding the correct services from IAutoBankAgreementDetails parameter
         // TODO: Add Tuser name to end of url

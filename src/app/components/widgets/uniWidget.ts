@@ -42,7 +42,8 @@ import {
     PublicDueDatesWidget,
     BankBalanceWidget,
     LiquidityWidget,
-    UniInfoTileWidget
+    UniInfoTileWidget,
+    BankBalanceWidgetExt02
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -95,6 +96,7 @@ export const WIDGET_MAP = {
     payment_chart: PaymentWidget,
     public_duedates: PublicDueDatesWidget,
     bank_balance: BankBalanceWidget,
+    bank_balance_ext02: BankBalanceWidgetExt02,
     liquidity: LiquidityWidget,
     info_tile: UniInfoTileWidget
 };

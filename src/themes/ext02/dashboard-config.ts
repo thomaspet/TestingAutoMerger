@@ -19,7 +19,7 @@
 
 export const DASHBOARD_CONFIG = {
     large: [
-        {x: 0, y: 0, widgetID: 'bank_balance'},
+        {x: 0, y: 0, widgetID: 'bank_balance_ext02'},
         {x: 4, y: 0, widgetID: 'public_duedates'},
         {x: 0, y: 3, widgetID: 'operatingprofit_line' },
         {x: 8, y: 3, widgetID: 'reminder_list'},
