@@ -5,7 +5,7 @@ import { tap, map, finalize, switchMap } from 'rxjs/operators';
 import { HttpParams } from '@angular/common/http';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 import { IToolbarValidation } from '@app/components/common/toolbar/toolbar';
-import { RegulativeDetailsLogicService, IRegulativeData } from './regulative-details-logic.service';
+import { RegulativeDetailsLogicService, IRegulativeData } from '@app/components/salary/regulative/shared/service/regulative-details-logic.service';
 import { BehaviorSubject } from 'rxjs';
 
 @Component({

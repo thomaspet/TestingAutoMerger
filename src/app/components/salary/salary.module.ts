@@ -10,7 +10,6 @@ import {salaryRoutes} from './salaryRoutes';
 import {UniSalary} from './salary';
 import {AMeldingView} from './amelding/ameldingview';
 import {AmeldingAgaView} from './amelding/ameldingAga/aga';
-import {AmeldingAvstemView} from './amelding/ameldingAvstem/avstem';
 import {AmeldingControlView} from './amelding/ameldingControl/control';
 import {AmeldingPeriodSummaryView} from './amelding/ameldingPeriod/period';
 import {AmeldingReceiptView} from './amelding/ameldingReceipt/receipt';
@@ -18,7 +17,6 @@ import {AmeldingSummaryView} from './amelding/ameldingSummary/summary';
 import {AmeldingTypePickerModal} from './amelding/modals/ameldingTypePickerModal';
 import {ReportsModule} from '../reports/reportsModule';
 
-import {UniEmployee} from './employee/employee';
 import {EmployeeDetails} from './employee/employeeDetails';
 import {EmployeeDetailsService} from './employee/shared/services/employeeDetailsService';
 import {EmployeeList} from './employee/employeeList';
@@ -159,7 +157,6 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         // Amelding
         AMeldingView,
         AmeldingAgaView,
-        AmeldingAvstemView,
         AmeldingControlView,
         AmeldingPeriodSummaryView,
         AmeldingReceiptView,
@@ -171,7 +168,6 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         MakeAmeldingPaymentModal,
 
         // Employee
-        UniEmployee,
         EmployeeList,
         EmployeeDetails,
         EmployeeLeaves,
