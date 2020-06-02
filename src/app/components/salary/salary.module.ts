@@ -20,7 +20,7 @@ import {ReportsModule} from '../reports/reportsModule';
 
 import {UniEmployee} from './employee/employee';
 import {EmployeeDetails} from './employee/employeeDetails';
-import {EmployeeDetailsService} from './employee/services/employeeDetailsService';
+import {EmployeeDetailsService} from './employee/shared/services/employeeDetailsService';
 import {EmployeeList} from './employee/employeeList';
 import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
 import {EmploymentDetails} from './employee/employments/employmentDetails';
@@ -47,17 +47,17 @@ import {UniSalaryTransactionModal} from './variable-payrolls/editSalaryTransacti
 
 import {SalaryTransactionSelectionList} from './payrollrun/salarytrans/salarytransactionSelectionList';
 import {SalaryTransactionEmployeeList} from './payrollrun/salarytrans/salarytransList';
-import {SalaryTransViewService} from './shared/services/salaryTransViewService';
+import {SalaryTransViewService} from './shared/services/salary-transaction/salaryTransViewService';
 import {UniFindEmployeeModal} from './payrollrun/salarytrans/findEmployeeModal';
 
 import {WageTypeView} from './wagetype/wagetypeView';
 import {WagetypeList} from './wagetype/wagetypeList';
-import {WageTypeViewService} from './wagetype/services/wageTypeViewService';
+import {WageTypeViewService} from './wagetype/shared/services/wageTypeViewService';
 import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
 
 import { CategoryList } from './category/categoryList';
 import { CategoryView } from './category/categoryView';
-import { CategoryViewService } from './category/services/categoryViewService';
+import { CategoryViewService } from './category/shared/services/categoryViewService';
 import { CategoryDetail } from './category/views/categoryDetails';
 import { SalaryTransactionSupplementList } from './salaryTransactionSupplement/salaryTransactionSupplementsList';
 import { UniSupplementEditModal } from './salaryTransactionSupplement/editValueModal';
@@ -68,7 +68,7 @@ import {
     AnnualStatementSenderContainerComponent
 } from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
 import { AltinnReceiptListComponent } from './amelding/altinn-receipt-list/altinn-receipt-list.component';
-import { AltinnErrorHandlerService } from './shared/services/altinnErrorHandlerService';
+import { AltinnErrorHandlerService } from './amelding/shared/service/altinnErrorHandlerService';
 import { AltinnResponseStatusComponent } from './shared/components/altinn-response-status/altinn-response-status.component';
 import { TimeTransferComponent } from './payrollrun/modals/time-transfer/time-transfer.component';
 import { EmpCanActivateGuard } from './employee/empGuard';
@@ -93,7 +93,7 @@ import {
     AmeldingPayrollsPeriodViewComponent
 } from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
 import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
-import { SalaryHelperMethods } from './shared/services/salaryHelperMethods';
+import { SalaryHelperMethods } from './payrollrun/services/salaryHelperMethods';
 import { SyncWagetypesModalComponent } from './shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
 import { RegulativeUploadModalComponent } from './shared/components/regulative-upload-modal/regulative-upload-modal.component';
 import { RegulativeGroupListComponent } from './regulative/regulative-group-list.component';
@@ -119,11 +119,26 @@ import { SalaryBalanceSummaryComponent } from './shared/components/salary-balanc
 import { SalaryBalanceLineComponent } from './balance/salary-balance-line/salary-balance-line.component';
 import { SalaryBalanceLineModalComponent } from './balance/salary-balance-line-modal/salary-balance-line-modal.component';
 import { SalaryBalanceComponent } from './employee/salary-balance/salary-balance.component';
-import { SalaryBalanceViewService } from './shared/services/salaryBalanceViewService';
+import { SalaryBalanceViewService } from './shared/services/salary-balance/salaryBalanceViewService';
 import { ReconciliationRequestComponent } from './amelding/reconciliation-request/reconciliation-request.component';
 import { SalaryTransSupplementsModal } from './shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
 import { ReconciliationModalComponent } from './amelding/reconciliation-modal/reconciliation-modal.component';
 import { ReconciliationResponseModalComponent } from './amelding/reconciliation-response-modal/reconciliation-response-modal.component';
+import { RegulativeService } from './regulative/shared/service/regulativeService';
+import { RegulativeGroupService } from './regulative/shared/service/regulativeGroupService';
+import { AnnualStatementService } from './annualStatement/shared/service/annualStatementService';
+import { EmployeeCategoryService } from './shared/services/category/employeeCategoryService';
+import { EmployeeLeaveService } from './employee/shared/services/employeeLeaveService';
+import { EmployeeOnCategoryService } from './shared/services/category/EmployeeOnCategoryService';
+import { InntektService } from './wagetype/shared/services/inntektService';
+import { OtpExportWagetypesService } from './otpexport/shared/service/otpExportWagetypesService';
+import { PayrollRunOnCategoryService } from './shared/services/category/payrollRunOnCategoryService';
+import { SalarySumsService } from './shared/services/salary-transaction/salarySumsService';
+import { SalaryTransactionSuggestedValuesService } from './shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
+import { SupplementService } from './shared/services/salary-transaction/salaryTransactionSupplementService';
+import { TravelLineService } from './travel/shared/service/travelLineService';
+import { TravelTypeService } from './travel/shared/service/travelTypeService';
+import { AMeldingService } from './amelding/shared/service/aMeldingService';
 
 @NgModule({
     imports: [
@@ -265,6 +280,21 @@ import { ReconciliationResponseModalComponent } from './amelding/reconciliation-
         EmpCanActivateGuard,
         SalaryHelperMethods,
         WagetypeSyncGuard,
+        RegulativeService,
+        RegulativeGroupService,
+        AMeldingService,
+        AnnualStatementService,
+        EmployeeCategoryService,
+        EmployeeLeaveService,
+        EmployeeOnCategoryService,
+        InntektService,
+        OtpExportWagetypesService,
+        PayrollRunOnCategoryService,
+        SalarySumsService,
+        SalaryTransactionSuggestedValuesService,
+        SupplementService,
+        TravelLineService,
+        TravelTypeService
     ]
 })
 export class SalaryModule {}

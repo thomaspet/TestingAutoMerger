@@ -1,22 +1,16 @@
-import {Component, OnInit, ViewChild} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
-import {UniTableConfig, UniTableColumn, UniTableColumnType, UniTable} from '../../../../framework/ui/unitable/index';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig} from '../../common/toolbar/toolbar';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {
-    PayrollrunService, EmployeeService, ErrorService,
-    SalaryTransactionService, FinancialYearService, SupplementService, StatisticsService
-} from '../../../services/services';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {
-    PayrollRun, SalaryTransaction, Employee,
-     SalaryTransactionSupplement, Valuetype
-} from '../../../unientities';
-import {Observable, ReplaySubject, forkJoin} from 'rxjs';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {UniSupplementEditModal} from './editValueModal';
 import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
+import { SupplementService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSupplementService';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { SalaryTransactionSupplement, SalaryTransaction, Employee, PayrollRun, Valuetype } from '@uni-entities';
+import { ReplaySubject, Observable, forkJoin } from 'rxjs';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { PayrollrunService, SalaryTransactionService, EmployeeService, ErrorService, FinancialYearService, StatisticsService } from '@app/services/services';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ActivatedRoute } from '@angular/router';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { UniSupplementEditModal } from '@app/components/salary/salaryTransactionSupplement/editValueModal';
 
 @Component({
     selector: 'salary-transaction-supplement-list',

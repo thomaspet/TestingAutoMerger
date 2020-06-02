@@ -1,32 +1,24 @@
-import {Component, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, OnInit, OnDestroy} from '@angular/core';
-import {
-    Employment,
-    Account,
-    Employee,
-    LocalDate,
-    CompanySalary,
-    RegulativeStep,
-    SalaryRegistry,
-    TypeOfEmployment,
-    SubEntity,
-} from '@uni-entities';
 import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {
-    ErrorService,
-    EmploymentService,
-    AccountService,
-    StatisticsService,
-    CompanySalaryService,
-    RegulativeGroupService,
-    SubEntityService
-} from '@app/services/services';
 import {filter, take, switchMap, map, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
 import { AuthService } from '@app/authService';
+import {
+    Employment, Employee, CompanySalary, TypeOfEmployment,
+    SubEntity, LocalDate, RegulativeStep, SalaryRegistry, Account
+} from '@uni-entities';
+import {
+    Component, Input, Output, EventEmitter, ViewChild,
+    OnChanges, SimpleChanges, OnInit, OnDestroy
+} from '@angular/core';
+import {
+    EmploymentService, AccountService, StatisticsService,
+    ErrorService, CompanySalaryService, SubEntityService
+} from '@app/services/services';
+import { RegulativeGroupService } from '@app/components/salary/regulative/shared/service/regulativeGroupService';
 
 declare var _;
 const UPDATE_RECURRING = '_updateRecurringTranses';

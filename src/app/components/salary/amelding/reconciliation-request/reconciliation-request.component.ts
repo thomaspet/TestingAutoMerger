@@ -2,7 +2,7 @@ import {Component, OnInit, Output, EventEmitter, ViewChild, SimpleChanges} from 
 import {BehaviorSubject} from 'rxjs';
 import {A06Options, AltinnReceipt, Maaned, ReportType} from '@uni-entities';
 import {AltinnIntegrationService, ErrorService, FinancialYearService} from '@app/services/services';
-import {AltinnErrorHandlerService} from '@app/components/salary/shared/services/altinnErrorHandlerService';
+import {AltinnErrorHandlerService} from '@app/components/salary/amelding/shared/service/altinnErrorHandlerService';
 import {UniFieldLayout, FieldType, UniForm, UniField} from '@uni-framework/ui/uniform';
 
 @Component({

@@ -1,8 +1,7 @@
 import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { RegulativeService } from '@app/services/services';
-import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 import { finalize } from 'rxjs/operators';
 import { saveAs } from 'file-saver';
+import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulativeService';
 
 @Component({
   selector: 'uni-regulative-import',

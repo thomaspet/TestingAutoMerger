@@ -3,13 +3,14 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { TravelType, WageType, Account  } from '@uni-entities';
 
-import {TravelTypeService, WageTypeService } from '@app/services/salaryServicesModule';
-import {ErrorService } from '@app/services/common/errorService';
+import { WageTypeService } from '@app/services/salaryServicesModule';
+import { ErrorService } from '@app/services/common/errorService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Observable, forkJoin, BehaviorSubject } from 'rxjs';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { StatisticsService } from '@app/services/services';
+import { TravelTypeService } from '@app/components/salary/travel/shared/service/travelTypeService';
 
 const INVOICE_ACCOUNT_FIELD = '_InvoiceAccount';
 const WAGETYPE_FIELD = '_WageTypeNumber';

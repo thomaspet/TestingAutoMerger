@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {Observable} from 'rxjs';
-import {WageTypeService, ErrorService} from '../../../../services/services';
-import {WageType, SpecialTaxAndContributionsRule} from '../../../../unientities';
-import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
+import { SpecialTaxAndContributionsRule, WageType } from '@uni-entities';
+import { WageTypeService, ErrorService } from '@app/services/services';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { Observable } from 'rxjs';
+import { IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
 
 @Injectable()
 export class WageTypeViewService {
@@ -20,7 +20,7 @@ export class WageTypeViewService {
         { rule: SpecialTaxAndContributionsRule.JanMayenAndBiCountries, ameldingName: 'janMayenOgBilandene'},
         { rule: SpecialTaxAndContributionsRule.NettoPaymentForMaritim, ameldingName: 'nettoloennForSjoefolk'},
         { rule: SpecialTaxAndContributionsRule.TaxFreeOrganization, ameldingName: 'skattefriOrganisasjon'}
-    ]
+    ];
 
     constructor(
         private wageTypeService: WageTypeService,

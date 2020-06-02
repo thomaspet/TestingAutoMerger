@@ -4,10 +4,11 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import { VatType, LocalDate, SalaryTransaction, Valuetype,
     WageTypeSupplement, SalaryTransactionSupplement, Department, Project, Employment, Dimensions
 } from '@uni-entities';
-import { SupplementService, VatTypeService } from '@app/services/services';
+import { VatTypeService } from '@app/services/services';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { SalaryTransSupplementsModal } from '../components/salaryTransSupplementModal/salaryTransSupplementsModal';
+import { SupplementService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSupplementService';
+import { SalaryTransSupplementsModal } from '@app/components/salary/shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
 
 @Injectable()
 export class SalaryTransViewService {

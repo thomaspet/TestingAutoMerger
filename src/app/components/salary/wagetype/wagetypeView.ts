@@ -1,24 +1,17 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
-import {
-    WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
-    TaxType, StdWageType, GetRateFrom, CompanySalary
-} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService, CompanySalaryService} from '../../../services/services';
-import {WageTypeViewService} from './services/wageTypeViewService';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
-
-import {UniView} from '../../../../framework/core/uniView';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-
-import {Observable, of} from 'rxjs';
-import {ReplaySubject} from 'rxjs';
-import {BehaviorSubject} from 'rxjs';
-import {Subscription} from 'rxjs';
 import { take, map, catchError, switchMap, filter } from 'rxjs/operators';
+import { UniView } from '@uni-framework/core/uniView';
+import { Subscription, BehaviorSubject, ReplaySubject, Observable, of } from 'rxjs';
+import { WageType, CompanySalary, SpecialAgaRule, SpecialTaxAndContributionsRule, TaxType, StdWageType, GetRateFrom } from '@uni-entities';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { IToolbarConfig, IToolbarSearchConfig, IContextMenuItem } from '@app/components/common/toolbar/toolbar';
+import { WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService,
+    CompanySalaryService
+} from '@app/services/services';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { WageTypeViewService } from '@app/components/salary/wagetype/shared/services/wageTypeViewService';
 
 const WAGETYPE_KEY = 'wagetype';
 

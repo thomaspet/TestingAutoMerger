@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, AfterViewInit } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { CompanySalary, AmeldingData, AmeldingType, InternalAmeldingStatus } from '@uni-entities';
-import { AMeldingService, ErrorService } from '@app/services/services';
+import { ErrorService } from '@app/services/services';
 import { of, pipe, Observable} from 'rxjs';
 import {tap, finalize, switchMap, catchError} from 'rxjs/operators';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { AMeldingService } from '@app/components/salary/amelding/shared/service/aMeldingService';
 
 @Component({
     selector: 'uni-amelding-period-split-view',

@@ -15,14 +15,15 @@ import {
 } from '@uni-entities';
 import {
     AccountService, UniCacheService,
-    ErrorService, WageTypeService, SalaryTransactionService, SalaryTransactionSuggestedValuesService, IEmployee
+    ErrorService, WageTypeService, SalaryTransactionService, IEmployee
 } from '@app/services/services';
 
 import {tap, takeUntil, map} from 'rxjs/operators';
 import { UniView } from '@uni-framework/core/uniView';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { SalaryTransViewService } from '@app/components/salary/shared/services/salaryTransViewService';
+import { SalaryTransViewService } from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
 import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals/ImageModal';
+import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 const BUSY_KEY = 'transes_busy';

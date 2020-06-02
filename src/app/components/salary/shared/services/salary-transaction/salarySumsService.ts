@@ -1,9 +1,7 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryTransactionSums, SalaryTransactionPeriodSums, TaxAndAgaSums, AGACalculation, AGADraw, AGAPension, AGATax} from '../../../unientities';
-
-import {Observable} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { TaxAndAgaSums, AGACalculation, SalaryTransactionSums, SalaryTransactionPeriodSums, AGADraw, AGATax, AGAPension } from '@uni-entities';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
 
 export interface ITaxAndAgaSums extends TaxAndAgaSums {
     Aga: AGACalculation;

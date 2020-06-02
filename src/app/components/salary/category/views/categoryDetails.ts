@@ -1,16 +1,14 @@
 import {Component, ViewChild, SimpleChanges, OnDestroy} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {EmployeeCategoryService, EmployeeService, FinancialYearService} from '../../../../services/services';
-import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {EmployeeCategory, PayrollRun, Employee, EmployeeCategoryLink} from '../../../../unientities';
 import {Subject, BehaviorSubject} from 'rxjs';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, UniTableColumnSortMode} from '../../../../../framework/ui/unitable/index';
-
-import {UniView} from '../../../../../framework/core/uniView';
-import {UniCacheService, ErrorService} from '../../../../services/services';
-
 import * as _ from 'lodash';
 import {catchError, map} from 'rxjs/operators';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
+import { UniView } from '@uni-framework/core/uniView';
+import { EmployeeCategory, EmployeeCategoryLink, PayrollRun, Employee } from '@uni-entities';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { UniForm } from '@uni-framework/ui/uniform';
+import { UniCacheService, ErrorService, EmployeeService, FinancialYearService } from '@app/services/services';
 
 const EMP_CAT_LINKS_KEY = 'employeeCategoryLinks';
 const EMP_CAT_KEY = 'employeecategory';

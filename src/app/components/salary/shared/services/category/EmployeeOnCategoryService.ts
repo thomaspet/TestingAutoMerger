@@ -3,7 +3,7 @@ import {EmployeeCategory, Employee, PayrollRun, UniEntity, StdSystemType} from '
 import {BizHttp} from '@uni-framework/core/http/BizHttp';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {map, switchMap, catchError, filter} from 'rxjs/operators';
-import {PayrollRunOnCategoryService} from '../payrollRun/payrollRunOnCategoryService';
+import {PayrollRunOnCategoryService} from '@app/components/salary/shared/services/category/payrollRunOnCategoryService';
 import {forkJoin, Observable, of as observableOf} from 'rxjs';
 import {ErrorService} from '@app/services/common/errorService';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';

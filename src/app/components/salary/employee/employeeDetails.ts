@@ -1,43 +1,36 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
-import {Observable, of, from, forkJoin} from 'rxjs';
-import {ReplaySubject} from 'rxjs';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
-import {
-    Employee, Employment, EmployeeLeave, SalaryTransaction, Project, Dimensions,
-    Department, SubEntity, SalaryTransactionSupplement, EmployeeTaxCard,
-    WageType, EmployeeCategory, BusinessRelation, SalaryBalance, UniEntity, Operator, CompanySalary
-} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
-import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {
-    IToolbarConfig,
-    IToolbarSearchConfig,
-    IToolbarValidation,
-    UniToolbar
-} from '../../common/toolbar/toolbar';
-
-import {IUniTagsConfig, ITag} from '../../common/toolbar/tags';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {UniView, ISaveObject} from '../../../../framework/core/uniView';
-import {TaxCardModal} from './modals/taxCardModal';
-import {
-    UniModalService,
-    ConfirmActions
-} from '../../../../framework/uni-modal';
-import {
-    EmployeeService, EmploymentService, EmployeeLeaveService, DepartmentService, ProjectService,
-    SalaryTransactionService, UniCacheService, SubEntityService, EmployeeTaxCardService, ErrorService,
-    WageTypeService, FinancialYearService, BankAccountService, EmployeeCategoryService,
-    ModulusService, SalarybalanceService, SalaryBalanceLineService, PayrollrunService, EmployeeOnCategoryService, CompanySalaryService,
-    PageStateService
-} from '../../../services/services';
-import {EmployeeDetailsService} from './services/employeeDetailsService';
-import {Subscription} from 'rxjs';
 import * as _ from 'lodash';
 import {tap, finalize, map, filter, switchMap} from 'rxjs/operators';
-import { SalaryBalanceViewService } from '../shared/services/salaryBalanceViewService';
+import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salaryBalanceViewService';
+import { EmployeeLeaveService } from '@app/components/salary/employee/shared/services/employeeLeaveService';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
+import { EmployeeOnCategoryService } from '@app/components/salary/shared/services/category/EmployeeOnCategoryService';
+import { ConfirmActions, UniModalService } from '@uni-framework/uni-modal';
+import {
+    EmployeeService, EmploymentService, SalaryTransactionService,
+    ProjectService, DepartmentService, UniCacheService,
+    ErrorService, EmployeeTaxCardService, WageTypeService,
+    FinancialYearService, BankAccountService, ModulusService,
+    SalarybalanceService, SalaryBalanceLineService, PayrollrunService, PageStateService
+} from '@app/services/services';
+import { UniView, ISaveObject } from '@uni-framework/core/uniView';
+import {
+    Employee, Employment, SalaryTransaction, SalaryBalance,
+    EmployeeLeave, SubEntity, Project, Department, EmployeeTaxCard,
+    WageType, EmployeeCategory, UniEntity, CompanySalary, BusinessRelation,
+    Dimensions, SalaryTransactionSupplement, Operator
+} from '@uni-entities';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { IToolbarConfig, IToolbarSearchConfig, IToolbarValidation, IContextMenuItem, UniToolbar } from '@app/components/common/toolbar/toolbar';
+import { ReplaySubject, Subscription, Observable, of, forkJoin, from } from 'rxjs';
+import { ITag, IUniTagsConfig } from '@app/components/common/toolbar/tags';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { UniHttp } from '@uni-framework/core/http';
+import { EmployeeDetailsService } from '@app/components/salary/employee/shared/services/employeeDetailsService';
+import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModal';
+
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';
 const RECURRING_POSTS_KEY = 'recurringPosts';

@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpParams } from '@angular/common/http';
-import { StatisticsService, RegulativeService, ErrorService } from '@app/services/services';
+import { StatisticsService, ErrorService } from '@app/services/services';
 import { LocalDate, Regulative, RegulativeGroup } from '@uni-entities';
 import { Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 import { saveAs } from 'file-saver';
+import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulativeService';
+
 export interface IRegulativeData {
     ID: number;
     StartDate: LocalDate;

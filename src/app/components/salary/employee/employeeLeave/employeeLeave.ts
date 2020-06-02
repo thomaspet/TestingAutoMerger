@@ -1,10 +1,11 @@
 import {Component} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Employment, EmployeeLeave, Leavetype, CompanySalary} from '../../../../unientities';
-import {UniTableConfig, UniTableColumnType, UniTableColumn, IRowChangeEvent} from '../../../../../framework/ui/unitable/index';
-import {UniCacheService, ErrorService, EmployeeLeaveService, CompanySalaryService} from '../../../../services/services';
-import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject} from 'rxjs';
+import { EmployeeLeaveService } from '@app/components/salary/employee/shared/services/employeeLeaveService';
+import { UniView } from '@uni-framework/core/uniView';
+import { Employment, EmployeeLeave, CompanySalary, Leavetype } from '@uni-entities';
+import { UniTableConfig, UniTableColumn, UniTableColumnType, IRowChangeEvent } from '@uni-framework/ui/unitable';
+import { UniCacheService, ErrorService, CompanySalaryService } from '@app/services/services';
 const EMPLOYEE_LEAVE_KEY = 'employeeLeave';
 
 @Component({

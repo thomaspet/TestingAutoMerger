@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {EmployeeLeave, Leavetype} from '../../../unientities';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { EmployeeLeave, Leavetype } from '@uni-entities';
 
 @Injectable()
 export class EmployeeLeaveService extends BizHttp<EmployeeLeave> {

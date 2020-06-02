@@ -1,26 +1,3 @@
-import {Component, ViewChild, OnDestroy, AfterViewInit} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
-import {FormControl} from '@angular/forms';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import PerfectScrollbar from 'perfect-scrollbar';
-
-import * as _ from 'lodash';
-import {takeUntil, map, tap, switchMap, filter, take, finalize} from 'rxjs/operators';
-
-import {SalaryHelperMethods} from '../../shared/services/salaryHelperMethods';
-import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
-import { UniView } from '@uni-framework/core/uniView';
-import {
-    IEmployee, AgaZoneService, SalarySumsService, NumberFormat,
-    UniCacheService, ErrorService, EmployeeTaxCardService,
-    FinancialYearService, StatisticsService, EmploymentService,
-    PageStateService, Dimension
-} from '@app/services/services';
-import {
-    Employment, EmployeeTaxCard, AGAZone, PayrollRun,
-    EmployeeCategory, SubEntity, ValidationLevel,
-    SalaryTransactionSums, SalBalType
-} from '@uni-entities';
 import { ISummaryConfig } from '@app/components/common/summary/summary';
 import { ReplaySubject, Subject, of, forkJoin, Observable } from 'rxjs';
 import { ILinkMenuItem } from '@app/components/common/linkMenu/linkMenu';
@@ -28,6 +5,25 @@ import { SalaryTransactionEmployeeList } from './salarytransList';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { UniFindEmployeeModal } from './findEmployeeModal';
+import { SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salarySumsService';
+import { Component, OnDestroy, AfterViewInit, ViewChild } from '@angular/core';
+import { UniView } from '@uni-framework/core/uniView';
+import {
+    IEmployee, AgaZoneService, NumberFormat, UniCacheService, ErrorService, EmployeeTaxCardService,
+    FinancialYearService, StatisticsService, EmploymentService, PageStateService, Dimension
+} from '@app/services/services';
+import { FormControl } from '@angular/forms';
+import PerfectScrollbar from 'perfect-scrollbar';
+import { CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
+import {
+    Employment, EmployeeTaxCard, AGAZone, PayrollRun, EmployeeCategory, SubEntity, ValidationLevel,
+    SalaryTransactionSums, SalBalType
+} from '@uni-entities';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { SalaryHelperMethods } from '../services/salaryHelperMethods';
+import { takeUntil, filter, switchMap, take, map, tap, finalize } from 'rxjs/operators';
+
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SELECTED_EMP_KEY: string = 'selected_emp';
 const CATEGORIES_KEY: string = 'categories';

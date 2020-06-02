@@ -1,8 +1,7 @@
-import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {code} from '../../../unientities';
-import {Observable} from 'rxjs';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { code } from '@uni-entities';
 
 @Injectable()
 export class InntektService extends BizHttp<code> {

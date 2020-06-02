@@ -1,12 +1,8 @@
 import {Component, Input} from '@angular/core';
-import {
-    UniTableConfig,
-    UniTableColumnType,
-    UniTableColumn,
-} from '../../../../../framework/ui/unitable/index';
-import {AmeldingData, CompanySalary} from '../../../../unientities';
 import * as moment from 'moment';
-import { AMeldingService} from '../../../../services/services';
+import { AmeldingData, CompanySalary } from '@uni-entities';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { AMeldingService } from '@app/components/salary/amelding/shared/service/aMeldingService';
 
 @Component({
     selector: 'amelding-receipt-view',

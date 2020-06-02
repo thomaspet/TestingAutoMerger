@@ -1,10 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { PayrollRunInAmeldingPeriod, AmeldingType } from '@uni-entities';
-import { AMeldingService, ErrorService } from '@app/services/services';
+import { ErrorService } from '@app/services/services';
 import { Observable, pipe, of } from 'rxjs';
 import { tap, finalize, switchMap, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
+import { AMeldingService } from '@app/components/salary/amelding/shared/service/aMeldingService';
 
 @Component({
   selector: 'uni-amelding-payrolls-period-view',

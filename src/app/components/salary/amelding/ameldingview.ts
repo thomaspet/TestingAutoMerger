@@ -9,16 +9,13 @@ import {IUniSaveAction} from '@uni-framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {
-    AMeldingService,
     CompanySalaryService,
     ErrorService,
     FinancialYearService,
-    ITaxAndAgaSums,
     NumberFormat,
     PageStateService,
     PayrollrunService,
     ReportDefinitionService,
-    SalarySumsService,
     AltinnAuthenticationService
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
@@ -32,7 +29,9 @@ import {StatusAMeldingModal} from '@app/components/salary/amelding/modals/status
 import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
 import {RequestMethod} from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
-import { tap, catchError, filter, switchMap } from 'rxjs/operators';
+import { tap, filter, switchMap } from 'rxjs/operators';
+import { ITaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salarySumsService';
+import { AMeldingService } from '@app/components/salary/amelding/shared/service/aMeldingService';
 
 @Component({
     selector: 'amelding-view',

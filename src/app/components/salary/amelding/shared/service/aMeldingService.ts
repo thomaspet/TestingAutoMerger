@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {AmeldingData, PayrollRunInAmeldingPeriod} from '../../../unientities';
 import {Observable, of} from 'rxjs';
-import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {map} from 'rxjs/operators';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { AmeldingData, PayrollRunInAmeldingPeriod } from '@uni-entities';
+import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {

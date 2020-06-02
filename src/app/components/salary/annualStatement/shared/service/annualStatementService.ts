@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
-import {AnnualStatement, Employee} from '../../../unientities';
 import {Observable} from 'rxjs';
+import { AnnualStatement } from '@uni-entities';
 
 export interface IAnnualStatementEmailInfo {
     Subject?: string;

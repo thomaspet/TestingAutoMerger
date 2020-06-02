@@ -1,14 +1,12 @@
 import {Component, OnInit, ViewChild, Output, EventEmitter} from '@angular/core';
-import {EmployeeReportPickerListComponent} from '../../shared/components/employee-report-picker-list/employee-report-picker-list.component';
-import {
-    ErrorService, EmployeeService, AnnualStatementService, ReportNames,
-    IAnnualStatementEmailInfo, BrowserStorageService, FinancialYearService, CompanySettingsService
-} from '../../../../services/services';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {Employee, CompanySettings} from '../../../../unientities';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {take, switchMap, finalize} from 'rxjs/operators';
+import { IAnnualStatementEmailInfo, AnnualStatementService } from '@app/components/salary/annualStatement/shared/service/annualStatementService';
+import { Employee, CompanySettings } from '@uni-entities';
+import { EmployeeReportPickerListComponent } from '@app/components/salary/shared/components/employee-report-picker-list/employee-report-picker-list.component';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { EmployeeService, BrowserStorageService, FinancialYearService, CompanySettingsService, ReportNames } from '@app/services/services';
 
 const DEFAULT_OPTIONS_KEY = 'Default_Annual_Statement_Options';
 

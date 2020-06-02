@@ -1,9 +1,10 @@
 import {Component, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable';
-import {EmployeeCategoryService, ErrorService} from '@app/services/services';
+import {ErrorService} from '@app/services/services';
 import {EmployeeCategory} from '@uni-entities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
 
 @Component({
     selector: 'employeecategories',

@@ -1,9 +1,10 @@
 import {Component, Input} from '@angular/core';
-import {NumberFormat, ITaxAndAgaSums, ISystemTaxAndAgaSums, SalarySumsService} from '@app/services/services';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {AmeldingData, SalaryTransactionPeriodSums, CompanySalary} from '@uni-entities';
+import {AmeldingData, CompanySalary} from '@uni-entities';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import * as moment from 'moment';
+import { ITaxAndAgaSums, ISystemTaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salarySumsService';
+import { NumberFormat } from '@app/services/services';
 
 @Component({
     selector: 'amelding-periodsummary-view',

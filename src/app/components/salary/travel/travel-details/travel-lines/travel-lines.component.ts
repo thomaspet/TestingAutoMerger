@@ -3,11 +3,12 @@ import {TravelLine, WageType, Account, TravelType, Travel} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {IRowChangeEvent} from '@uni-framework/ui/ag-grid/interfaces';
-import {WageTypeService, AccountService, TravelTypeService, StatisticsService} from '@app/services/services';
+import {WageTypeService, AccountService, StatisticsService} from '@app/services/services';
 import {BehaviorSubject, of, Observable} from 'rxjs';
-import {TravelLineService} from '@app/services/salary/travel/travelLineService';
-import {SalaryTransViewService} from '@app/components/salary/shared/services/salaryTransViewService';
+import {TravelLineService} from '@app/components/salary/travel/shared/service/travelLineService';
+import {SalaryTransViewService} from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
 import { tap, map, switchMap } from 'rxjs/operators';
+import { TravelTypeService } from '@app/components/salary/travel/shared/service/travelTypeService';
 
 const INVOICE_ACCOUNT_FIELD = '_InvoiceAccount';
 const ACCOUNT_FIELD = '_Account';

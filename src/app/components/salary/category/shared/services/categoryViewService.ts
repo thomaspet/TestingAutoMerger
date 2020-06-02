@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import {EmployeeCategoryService, ErrorService} from '../../../../services/services';
-import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {EmployeeCategory} from '../../../../unientities';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
+import { ErrorService } from '@app/services/services';
+import { EmployeeCategory } from '@uni-entities';
+import { IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
 
 @Injectable()
 export class CategoryViewService {

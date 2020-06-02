@@ -1,15 +1,14 @@
 import {Component, ViewChild, SimpleChanges, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {WageTypeService, AccountService, InntektService, WageTypeBaseOptions, UniCacheService, ErrorService, PageStateService} from '@app/services/services';
-import {Observable} from 'rxjs';
-
-import {BehaviorSubject} from 'rxjs';
+import {WageTypeService, WageTypeBaseOptions, UniCacheService, ErrorService, PageStateService} from '@app/services/services';
 import { UniFieldLayout, UniForm } from '@uni-framework/ui/uniform';
 import { UniView } from '@uni-framework/core/uniView';
 import { WageType, code, GetRateFrom, TaxType, WageTypeSupplement } from '@uni-entities';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
-import { WageTypeViewService } from '../services/wageTypeViewService';
+import { WageTypeViewService } from '@app/components/salary/wagetype/shared/services/wageTypeViewService';
+import { InntektService } from '@app/components/salary/wagetype/shared/services/inntektService';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const WAGETYPE_KEY = 'wagetype';
 

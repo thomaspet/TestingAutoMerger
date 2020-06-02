@@ -1,22 +1,13 @@
 import {Component, ViewChild} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {
-    UniCacheService, AccountService,
-    ErrorService, SalaryTransactionSuggestedValuesService, SalaryTransactionService
-} from '../../../../services/services';
-import {SalaryTransViewService} from '../../shared/services/salaryTransViewService';
-import {
-    UniTableColumn,
-    UniTableColumnType,
-    UniTableConfig
-} from '../../../../../framework/ui/unitable/index';
-import {
-    Employment, SalaryTransaction, WageType, Dimensions, Department, Project,
-    SalaryTransactionSupplement, WageTypeSupplement, Account
-} from '../../../../unientities';
-import {UniView} from '../../../../../framework/core/uniView';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
+import { UniView } from '@uni-framework/core/uniView';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { SalaryTransaction, Employment, WageType, Project, Department, SalaryTransactionSupplement, WageTypeSupplement, Account} from '@uni-entities';
+import { UniCacheService, AccountService, ErrorService, SalaryTransactionService } from '@app/services/services';
+import { SalaryTransViewService } from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
 
 
 @Component({

@@ -1,10 +1,10 @@
 import {Injectable, Type} from '@angular/core';
 import {Router} from '@angular/router';
-import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
-import {Employee, UniEntity, SalaryBalance, CompanySalary} from '../../../../unientities';
-import {EmployeeService, ErrorService, SalarybalanceService, CompanySalaryService} from '../../../../services/services';
-import {Observable, of} from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { UniEntity, CompanySalary, Employee, SalaryBalance } from '@uni-entities';
+import { EmployeeService, ErrorService, SalarybalanceService, CompanySalaryService } from '@app/services/services';
+import { IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
+import { Observable, of } from 'rxjs';
 
 export interface ISaveInfo {
     newAfterSave: Type<UniEntity>;

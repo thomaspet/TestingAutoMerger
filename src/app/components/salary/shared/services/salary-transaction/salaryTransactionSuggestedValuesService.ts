@@ -1,11 +1,9 @@
 import {Injectable} from '@angular/core';
-import {EmploymentService} from '../employee/employmentService';
-import {PayrollrunService} from '../payrollRun/payrollrunService';
-import {SalaryTransaction, LocalDate, Account, VatType} from '../../../unientities';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
-import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
 import {VatTypeService} from '@app/services/accounting/vatTypeService';
+import { PayrollrunService, EmploymentService } from '@app/services/services';
+import { SalaryTransaction, LocalDate } from '@uni-entities';
 
 @Injectable()
 export class SalaryTransactionSuggestedValuesService {
@@ -13,14 +11,13 @@ export class SalaryTransactionSuggestedValuesService {
     constructor(
         private payrollRunService: PayrollrunService,
         private employmentService: EmploymentService,
-        private salaryTransactionService: SalaryTransactionService,
         private vatTypeService: VatTypeService,
     ) { }
 
     public suggestFromDate(
         salaryTransaction: SalaryTransaction,
         recurringPost: boolean = false): Observable<SalaryTransaction> {
-        let employmentObs = salaryTransaction.EmploymentID
+        const employmentObs = salaryTransaction.EmploymentID
             ? this.employmentService.Get(salaryTransaction.EmploymentID)
             : this.employmentService.getStandardEmployment(salaryTransaction.EmployeeID);
         return Observable
@@ -29,12 +26,12 @@ export class SalaryTransactionSuggestedValuesService {
                     .getEarliestOpenRunOrLatestSettled(),
                 employmentObs)
             .map((result) => {
-                let [run, emp] = result;
+                const [run, emp] = result;
                 let dateField: Date;
 
                 if (run && emp) {
                     if (run.StatusCode && (run.ToDate >= emp.StartDate)) {
-                        let date = new LocalDate(run.ToDate);
+                        const date = new LocalDate(run.ToDate);
                         dateField = moment(date).add(1, 'days').toDate();
                     } else if (run.FromDate >= emp.StartDate) {
                         dateField = run.FromDate;

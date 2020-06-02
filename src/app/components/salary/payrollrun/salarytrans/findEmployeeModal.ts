@@ -1,11 +1,11 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import { UniSearchEmployeeConfig, StatisticsService, IEmployee } from '@app/services/services';
-import { IUniSearchConfig } from '../../../../../framework/ui/unisearch/index';
-import {SalaryHelperMethods} from '../../shared/services/salaryHelperMethods';
-import {EmployeeCategory} from '@uni-entities';
-import {Observable, forkJoin} from 'rxjs';
-import {map} from 'rxjs/operators';
+import { IUniSearchConfig } from '@uni-framework/ui/unisearch';
+import { SalaryHelperMethods } from '@app/components/salary/payrollrun/services/salaryHelperMethods';
+import { Observable, forkJoin } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { EmployeeCategory } from '@uni-entities';
 
 @Component({
     selector: 'uni-find-employee-modal',

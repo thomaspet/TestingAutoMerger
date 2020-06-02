@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryTransactionSupplement, WageTypeSupplement, Valuetype} from '../../../unientities';
 import * as moment from 'moment';
-import {ErrorService} from '../../common/errorService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { SalaryTransactionSupplement, WageTypeSupplement, Valuetype } from '@uni-entities';
+import { ErrorService } from '@app/services/services';
+
 
 export enum SalaryTransactionSupplementValidationCodes {
     TransDoesntExist = 116101,

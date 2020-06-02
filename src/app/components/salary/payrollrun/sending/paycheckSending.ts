@@ -1,10 +1,11 @@
-import {Component, OnInit, Input, ViewChild, Output, EventEmitter} from '@angular/core';
-import {Employee} from '@uni-entities';
-import {PayrollrunService, StatisticsService, ErrorService} from '@app/services/services';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
-import {IUniTab} from '@uni-framework/uni-tabs';
-import { SalaryHelperMethods } from '../../shared/services/salaryHelperMethods';
+import { Component, OnInit, Input, ViewChild, Output, EventEmitter } from '@angular/core';
+import { Employee } from '@uni-entities';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { UniTableConfig, UniTableColumn } from '@uni-framework/ui/unitable';
+import { IUniTab } from '@uni-framework/uni-tabs';
+import { PayrollrunService, StatisticsService, ErrorService } from '@app/services/services';
+import { SalaryHelperMethods } from '@app/components/salary/payrollrun/services/salaryHelperMethods';
+
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'

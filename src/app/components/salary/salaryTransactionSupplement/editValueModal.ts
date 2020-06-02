@@ -1,8 +1,8 @@
 import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
-import {SupplementService} from '../../../services/services';
 import {ToastService, ToastType} from '@uni-framework//uniToast/toastService';
 import {Valuetype} from '@app/unientities';
+import { SupplementService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSupplementService';
 
 
 @Component({

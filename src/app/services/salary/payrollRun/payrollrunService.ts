@@ -1,22 +1,18 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
-import {
-    PayrollRun, TaxDrawFactor, EmployeeCategory,
-    Employee, SalaryTransaction, Payment, LocalDate, WorkItemToSalary, PostingSummaryDraft
-} from '../../../unientities';
-import {Observable, forkJoin, of} from 'rxjs';
-import {ErrorService} from '../../common/errorService';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {ToastService, ToastTime, ToastType} from '../../../../framework/uniToast/toastService';
-import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
-import {SalarybalanceService} from '../salarybalance/salarybalanceService';
-import {SalaryBalanceLineService} from '../salarybalance/salaryBalanceLineService';
-import {StatisticsService} from '../../common/statisticsService';
-import {FinancialYearService} from '../../accounting/financialYearService';
-import {ITag} from '../../../components/common/toolbar/tags';
-import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {UniTranslationService} from '@app/services/common/translationService';
-import { map, tap, filter, switchMap } from 'rxjs/operators';
+import { PayrollRun, LocalDate, WorkItemToSalary, PostingSummaryDraft, EmployeeCategory, Employee, Payment, FieldType, TaxDrawFactor } from '@uni-entities';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { ITag } from '@app/components/common/toolbar/tags';
+import { UniFieldLayout } from '@uni-framework/ui/uniform';
+import { Observable, forkJoin, of } from 'rxjs';
+import { tap, filter, switchMap, map } from 'rxjs/operators';
+import { SalaryTransactionService } from '@app/services/salary/salaryTransaction/salaryTransactionService';
+import { ErrorService } from '@app/services/common/errorService';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { FinancialYearService } from '@app/services/accounting/financialYearService';
+import { BrowserStorageService, UniTranslationService } from '@app/services/commonServicesModule';
+import { SalaryBalanceLineService } from '@app/services/salary/salarybalance/salaryBalanceLineService';
+import { SalarybalanceService } from '@app/services/salary/salarybalance/salarybalanceService';
 
 enum StatusCodePayment {
     Queued = 44001,

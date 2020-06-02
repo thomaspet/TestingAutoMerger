@@ -1,19 +1,17 @@
 import {Component, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
-import {EmployeeCategory, EmployeeCategoryLink} from '../../../unientities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {
-    EmployeeCategoryService, UniCacheService, ErrorService, EmployeeService, EmployeeOnCategoryService
-} from '../../../services/services';
-import {CategoryViewService} from './services/categoryViewService';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
-
-import {UniView, ISaveObject} from '../../../../framework/core/uniView';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-
 import {Observable, forkJoin, BehaviorSubject, of as observableOf, Subject} from 'rxjs';
 import {map, switchMap, finalize, catchError, tap} from 'rxjs/operators';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
+import { EmployeeOnCategoryService } from '@app/components/salary/shared/services/category/EmployeeOnCategoryService';
+import { UniView, ISaveObject } from '@uni-framework/core/uniView';
+import { IToolbarSearchConfig, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { EmployeeCategory, EmployeeCategoryLink } from '@uni-entities';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { UniCacheService, ErrorService, EmployeeService } from '@app/services/services';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { CategoryViewService } from '@app/components/salary/category/shared/services/categoryViewService';
 
 const EMP_CAT_LINKS_KEY = 'employeeCategoryLinks';
 const EMP_CAT_KEY = 'employeecategory';

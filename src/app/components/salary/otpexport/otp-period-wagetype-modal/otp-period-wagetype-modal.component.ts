@@ -3,7 +3,7 @@ import { WageType, OtpExportWagetype } from '@uni-entities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { WageTypeService, ErrorService } from '@app/services/services';
-import { OtpExportWagetypesService } from '@app/services/salary/otpExport/otpExportWagetypesService';
+import { OtpExportWagetypesService } from '@app/components/salary/otpexport/shared/service/otpExportWagetypesService';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 

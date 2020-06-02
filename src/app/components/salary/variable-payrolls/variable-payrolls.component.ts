@@ -3,34 +3,24 @@ import { HttpParams } from '@angular/common/http';
 import { UniTableColumnType, UniTableColumn, UniTableConfig } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import {
-    WageType, PayrollRun, SalaryTransaction, WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Employment,
-} from '../../../unientities';
-import {
-    UniCacheService,
-    ErrorService,
-    WageTypeService,
-    AccountService,
-    SalaryTransactionService,
-    SalaryTransactionSuggestedValuesService,
-    PayrollrunService,
-    ProjectService,
-    DepartmentService,
-    PageStateService,
-    EmployeeService,
-    StatisticsService,
-    AccountMandatoryDimensionService
-} from '@app/services/services';
-import {UniSalaryTransactionModal} from './editSalaryTransactionModal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions, UniConfirmModalV2, IModalOptions } from '@uni-framework/uni-modal';
-import { SalaryTransViewService } from '../shared/services/salaryTransViewService';
 import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
 import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals/ImageModal';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 import { map } from 'rxjs/operators';
+import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
+import {
+    PayrollRun, WageType, SalaryTransaction, Employment, Dimensions, SalaryTransactionSupplement, WageTypeSupplement, LocalDate, Account
+} from '@uni-entities';
+import {
+    AccountService, UniCacheService, ErrorService, SalaryTransactionService, PayrollrunService, ProjectService, DepartmentService,
+    WageTypeService, EmployeeService, PageStateService, StatisticsService, AccountMandatoryDimensionService
+} from '@app/services/services';
+import { SalaryTransViewService } from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
+import { UniSalaryTransactionModal } from '@app/components/salary/variable-payrolls/editSalaryTransactionModal';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 

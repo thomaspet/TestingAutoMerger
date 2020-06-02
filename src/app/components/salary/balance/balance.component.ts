@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { UniView } from '@uni-framework/core/uniView';
 import { SalaryBalance } from '@uni-entities';
 import { IUniSaveAction } from '@uni-framework/save/save';
@@ -8,8 +8,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SalarybalanceService, ErrorService, UniCacheService, ReportDefinitionService } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions, UniPreviewModal } from '@uni-framework/uni-modal';
-import { SalaryBalanceViewService } from '../shared/services/salaryBalanceViewService';
-import { SalaryBalanceLineModalComponent } from './salary-balance-line-modal/salary-balance-line-modal.component';
+import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salaryBalanceViewService';
+import { SalaryBalanceLineModalComponent } from '@app/components/salary/balance/salary-balance-line-modal/salary-balance-line-modal.component';
 
 const SALARY_BALANCE_KEY = 'salarybalance';
 const SAVING_KEY = 'viewSaving';

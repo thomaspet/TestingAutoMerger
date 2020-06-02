@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {
-    SalaryTransactionService, PayrollrunService, ErrorService, SalarySumsService, NumberFormat, VacationpayLineService, StatisticsService
+    SalaryTransactionService, PayrollrunService, ErrorService, NumberFormat, VacationpayLineService, StatisticsService
 } from '@app/services/services';
 import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '@uni-entities';
 import {BehaviorSubject, Subject, ReplaySubject, Observable, of} from 'rxjs';
@@ -11,6 +11,7 @@ import {UniMath} from '@uni-framework/core/uniMath';
 import { PayrollRunDataService } from '@app/components/salary/payrollrun/services/payrollrun-data.service';
 import { IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from '@uni-framework/ui/unitable';
+import { SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salarySumsService';
 
 interface PaylistSection {
     employeeInfo: {

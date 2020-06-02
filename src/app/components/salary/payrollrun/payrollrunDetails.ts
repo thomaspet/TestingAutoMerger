@@ -18,7 +18,7 @@ import {
     PayrollRunPaymentStatus, IEmployee, PayrollrunService, UniCacheService,
     SalaryTransactionService, WageTypeService, ErrorService, ReportDefinitionService,
     CompanySalaryService, ProjectService, DepartmentService, FinancialYearService,
-    EmployeeCategoryService, FileService, JournalEntryService, SupplementService,
+    FileService, JournalEntryService,
     StatisticsService, SubEntityService, AccountMandatoryDimensionService,
     BrowserStorageService, EmployeeService
 } from '@app/services/services';
@@ -34,9 +34,11 @@ import { TaxCardModal } from '@app/components/salary/employee/modals/taxCardModa
 import { PayrollRunDetailsService } from '@app/components/salary/payrollrun/services/payrollrun-details.service';
 import { PostingSummaryModal } from '@app/components/salary/payrollrun/modals/postingSummaryModal';
 import { PaycheckSenderModal } from '@app/components/salary/payrollrun/sending/paycheckSenderModal';
-import { SalaryTransViewService } from '@app/components/salary/shared/services/salaryTransViewService';
-import { SalaryHelperMethods } from '@app/components/salary/shared/services/salaryHelperMethods';
+import { SalaryTransViewService } from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
+import { SalaryHelperMethods } from '@app/components/salary/payrollrun/services/salaryHelperMethods';
 import { PayrollRunDataService } from '@app/components/salary/payrollrun/services/payrollrun-data.service';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
+import { SupplementService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSupplementService';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';

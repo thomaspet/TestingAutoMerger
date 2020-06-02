@@ -3,7 +3,8 @@ import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import { Employee, FieldLayout, FieldType, EmployeeCategory, AltinnReceipt } from '@uni-entities';
 import { UniForm } from '@uni-framework/ui/uniform';
-import { AltinnIntegrationService, ErrorService, FinancialYearService, EmployeeCategoryService, EmployeeService, StatisticsService } from '@app/services/services';
+import { AltinnIntegrationService, ErrorService, FinancialYearService, StatisticsService } from '@app/services/services';
+import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employeeCategoryService';
 
 interface ITaxRequestModel {
     singleEmpChoice: number;
@@ -44,7 +45,6 @@ export class TaxCardRequest {
         private errorService: ErrorService,
         private financialYearService: FinancialYearService,
         private employeeCategoryService: EmployeeCategoryService,
-        private employeeService: EmployeeService,
         private statisticsService: StatisticsService,
     ) {}
 
