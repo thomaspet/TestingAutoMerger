@@ -701,10 +701,6 @@
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
-                },
-                {
-                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -739,10 +735,6 @@
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
-                },
-                {
-                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -777,10 +769,6 @@
                 {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
-                },
-                {
-                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {

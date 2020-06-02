@@ -23,6 +23,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui_accounting_budget',
         'ui_accounting_costallocation',
         'ui_sales_kidsettings',
+        'ui_sales_recurringinvoice',
     ],
 };
 
@@ -40,10 +41,13 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.products.product_categories',
     ],
     ui_permissions: [
-        ...PLUS_PACKAGE_BLACKLIST.feature_blacklist,
+        ...PLUS_PACKAGE_BLACKLIST.ui_permission_blacklist,
         'ui_sales_quotes',
         'ui_sales_orders',
-        'ui_sales_recurringinvoice',
+        'ui_sales_batch-invoices',
+
+        'ui_sales_productgroups',
+        'ui_sales_sellers',
 
         'ui_sales_reminders',
         'ui_sales_reminders_debtcollect',
@@ -51,11 +55,11 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_reminders_reminded',
         'ui_sales_reminders_senttodebtcollect',
 
-        'ui_sales_productgroups',
-        'ui_sales_sellers',
 
         'ui_accounting_postpost',
 
-        'ui_ui_dimensions',
+        'ui_dimensions',
+        // 'ui_dimensions_projects_overview',
+        // 'ui_dimensions_projects_hours',
     ],
 };
