@@ -11,7 +11,6 @@ import {takeUntil} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {theme, THEMES} from 'src/themes/theme';
-import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'uni-navbar',
@@ -50,7 +49,6 @@ export class UniNavbar {
         public tabService: TabService,
         public cdr: ChangeDetectorRef,
         private smartSearchService: SmartSearchService,
-        public featurePermissionService: FeaturePermissionService
     ) {
         this.authService.authentication$.pipe(
             takeUntil(this.onDestroy$)

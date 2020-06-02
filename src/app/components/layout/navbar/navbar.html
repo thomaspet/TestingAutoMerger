@@ -25,15 +25,19 @@
 
         <section class="bundle-test" style="margin-left: 1rem;">
             <a #trigger style="font-weight: 500; font-size: 15px; text-decoration: none;">
-                {{featurePermissionService?.mockActiveBundle?.label}}
+                Test produktpakke
                 <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
             </a>
             <dropdown-menu [trigger]="trigger" minWidth="8rem">
                 <ng-template>
-                    <section class="dropdown-menu-item"
-                        *ngFor="let bundle of featurePermissionService?.mockFeatureBundles"
-                        (click)="featurePermissionService.mockSetActiveBundle(bundle)">
-                        {{bundle.label}}
+                    <section (click)="authService.mockSetProductBundle('Mini')" class="dropdown-menu-item">
+                        Mini
+                    </section>
+                    <section (click)="authService.mockSetProductBundle('Plus')" class="dropdown-menu-item">
+                        Pluss
+                    </section>
+                    <section (click)="authService.mockSetProductBundle('Complete')" class="dropdown-menu-item">
+                        Komplett
                     </section>
                 </ng-template>
             </dropdown-menu>

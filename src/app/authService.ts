@@ -11,6 +11,7 @@ import {UserManager, WebStorageStateStore} from 'oidc-client';
 import {THEMES, theme} from 'src/themes/theme';
 
 import * as moment from 'moment';
+import {FeaturePermissionService} from './featurePermissionService';
 
 export interface IAuthDetails {
     activeCompany: Company;
@@ -73,7 +74,11 @@ export class AuthService {
         removeOnUser: key => localStorage.removeItem(key)
     };
 
-    constructor(private router: Router, private http: HttpClient) {
+    constructor(
+        private router: Router,
+        private http: HttpClient,
+        private featurePermissionService: FeaturePermissionService
+    ) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.setLoadIndicatorVisibility(true);
@@ -168,6 +173,21 @@ export class AuthService {
 
         this.userManager.events.addSilentRenewError(function(res) {
             console.log(res);
+        });
+    }
+
+    // REMOVE ME
+    mockSetProductBundle(name) {
+        const currentUrl = this.router.url;
+        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
+            this.authentication$.take(1).subscribe(authDetails => {
+                this.featurePermissionService.setFeatureBlacklist(name);
+
+                // Trigger sidebar link filtering
+                this.authentication$.next(authDetails);
+
+                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
+            });
         });
     }
 
@@ -454,6 +474,10 @@ export class AuthService {
         }
 
         const permissionKey: string = this.getPermissionKey(url);
+        if (!this.featurePermissionService.hasUIPermission(permissionKey)) {
+            return false;
+        }
+
         return this.hasUIPermission(user, permissionKey);
     }
 

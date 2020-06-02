@@ -2,6 +2,7 @@ import {TRANSLATION_OVERRIDES} from './ext02/translation-overrides';
 import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ext02/dashboard-config';
 
 import {THEMES} from './themes-enum';
+import {PLUS_PACKAGE_BLACKLIST, MINI_PACKAGE_BLACKLIST} from './ext02/feature-blacklists';
 export * from './themes-enum';
 
 export const theme = {
@@ -15,6 +16,12 @@ export const theme = {
     accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
     bankDashboardConfig: BANK_DASHBOARD_CONFIG,
     salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
+
+    featureBlacklists: {
+        Mini: MINI_PACKAGE_BLACKLIST,
+        Plus: PLUS_PACKAGE_BLACKLIST,
+        Complete: undefined
+    },
 
     init: {
         illustration: undefined, // 'themes/ue/init_bg.svg',

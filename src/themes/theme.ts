@@ -16,6 +16,8 @@ export const theme = {
     bankDashboardConfig: BANK_DASHBOARD_CONFIG,
     salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
 
+    featureBlacklists: undefined,
+
     init: {
         illustration: 'themes/ue/init_bg.svg',
         background: '#F5F6F8',

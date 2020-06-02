@@ -1,99 +1,39 @@
 import {Injectable} from '@angular/core';
 import {UniFieldLayout} from '@uni-framework/ui/uniform';
 import {UniTableColumn} from '@uni-framework/ui/unitable';
-// import {AuthService} from './authService';
-import {Router} from '@angular/router';
+import {theme} from 'src/themes/theme';
 
 @Injectable()
 export class FeaturePermissionService {
-    featureBlacklist: string[];
+    viewFeatureBlacklist: string[];
+    uiPermissionBlacklist: string[];
 
-    mockFeatureBundles = [
-        {
-            label: 'Mini',
-            blacklist: [
-                'ui.sellers',
-                'ui.dimensions',
-                'ui.distribution',
-                'ui.debt-collection',
-                'ui.bank_account_manual_setup',
-
-                'ui.sales.customer.ehf_setup',
-                'ui.sales.customer.tof_report_setup',
-                'ui.sales.customer.avtalegiro',
-                'ui.sales.customer.sub_company',
-
-                'ui.sales.invoice.accrual',
-                'ui.sales.products.product_categories',
-
-                'ui.accounting.supplier.cost_allocation',
-                'ui.accounting.supplier.ehf_setup',
-                'ui.accounting.supplier.self_employed',
-
-                'ui.accounting.bill.delivery_date',
-                'ui.accounting.vat-deduction-settings',
-
-                'ui.bank.journaling-rules',
-            ]
-        },
-        {
-            label: 'Pluss',
-            blacklist: [
-                'ui.distribution',
-                'ui.bank_account_manual_setup',
-
-                'ui.sales.customer.ehf_setup',
-                'ui.sales.customer.sub_company',
-
-                'ui.accounting.supplier.cost_allocation',
-                'ui.accounting.supplier.ehf_setup',
-                'ui.accounting.supplier.self_employed',
-
-                'ui.accounting.bill.delivery_date',
-                'ui.accounting.vat-deduction-settings',
-
-                'ui.bank.journaling-rules',
-            ]
-        },
-        {
-            label: 'Komplett',
-            blacklist: undefined
+    setFeatureBlacklist(contractTypeName: string) {
+        const blacklists = theme.featureBlacklists;
+        if (blacklists && blacklists[contractTypeName]) {
+            this.viewFeatureBlacklist = blacklists[contractTypeName].view_features;
+            this.uiPermissionBlacklist = blacklists[contractTypeName].ui_permissions;
+        } else {
+            this.viewFeatureBlacklist = [];
+            this.uiPermissionBlacklist = [];
         }
-    ];
-
-    mockActiveBundle = this.mockFeatureBundles[2];
-
-    constructor(
-        // private authService: AuthService,
-        private router: Router
-    ) {
-        // this.authService.authentication$.subscribe(auth => {
-        //     if (auth && auth.user) {
-        //         // set correct blacklist from theme file based on license package
-        //     }
-        // });
     }
 
-    mockSetActiveBundle(bundle) {
-        this.mockActiveBundle = bundle;
-        const currentUrl = this.router.url;
-        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
-            this.featureBlacklist = bundle.blacklist;
-            this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
-        });
+    hasUIPermission(uiPermission: string) {
+        return !this.uiPermissionBlacklist || !this.uiPermissionBlacklist.includes(uiPermission);
     }
 
     canShowUiFeature(featureName: string) {
-        return !this.featureBlacklist || !this.featureBlacklist.includes(featureName);
+        return !this.viewFeatureBlacklist || !this.viewFeatureBlacklist.includes(featureName);
     }
 
     canShowFormField(field: UniFieldLayout) {
-        if (!this.featureBlacklist?.length) {
+        if (!this.viewFeatureBlacklist?.length) {
             return true;
         }
 
         if (field.FeaturePermission) {
-            return !this.featureBlacklist.includes(field.FeaturePermission);
+            return !this.viewFeatureBlacklist.includes(field.FeaturePermission);
         }
 
 
@@ -105,28 +45,28 @@ export class FeaturePermissionService {
             || fieldProp.includes('ProjectID')
             || fieldProp.includes('DepartmentID')
         ) {
-            return !this.featureBlacklist.includes('ui.dimensions');
+            return !this.viewFeatureBlacklist.includes('ui.dimensions');
         }
 
         if (field.EntityType === 'Seller' || fieldProp.includes('DefaultSeller')) {
-            return !this.featureBlacklist.includes('ui.sellers');
+            return !this.viewFeatureBlacklist.includes('ui.sellers');
         }
 
         return true;
     }
 
     canShowTableColumn(column: UniTableColumn) {
-        if (!this.featureBlacklist?.length) {
+        if (!this.viewFeatureBlacklist?.length) {
             return true;
         }
 
         if (column.featurePermission) {
-            return !this.featureBlacklist.includes(column.featurePermission);
+            return !this.viewFeatureBlacklist.includes(column.featurePermission);
         }
 
         const field = column.field || '';
 
-        if (this.featureBlacklist.includes('ui.dimensions')) {
+        if (this.viewFeatureBlacklist.includes('ui.dimensions')) {
             if (field.includes('Dimension')
                 || field.includes('Project')
                 || field.includes('Department')
@@ -135,7 +75,7 @@ export class FeaturePermissionService {
             }
         }
 
-        if (this.featureBlacklist.includes('ui.sellers')) {
+        if (this.viewFeatureBlacklist.includes('ui.sellers')) {
             if (field.includes('DefaultSeller')) {
                 return false;
             }
