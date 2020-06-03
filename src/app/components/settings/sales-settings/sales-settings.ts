@@ -56,7 +56,7 @@ export class UniSalesSettingsView {
         'DefaultSalesAccount',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-        'CustomerInvoiceReminderSettings.DebtCollectionSettings'
+        'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
     ];
 
     isDirty: boolean = false;
