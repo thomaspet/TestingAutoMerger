@@ -2,7 +2,7 @@ import {Injectable, EventEmitter} from '@angular/core';
 import {Router} from '@angular/router';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {map, take} from 'rxjs/operators';
+import {map, take, tap} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
@@ -268,9 +268,8 @@ export class AuthService {
                     this.activeCompany = activeCompany;
                     this.companyChange.emit(activeCompany);
 
-                    this.loadCurrentSession().pipe(take(1)).subscribe(
+                    this.reloadCurrentSession().subscribe(
                         authDetails => {
-                            this.authentication$.next(authDetails);
                             const forcedRedirect = this.getForcedRedirect(
                                 authDetails
                             );
@@ -290,6 +289,13 @@ export class AuthService {
                     );
                 }
             });
+    }
+
+    reloadCurrentSession() {
+        return this.loadCurrentSession().pipe(
+            take(1),
+            tap(auth => this.authentication$.next(auth))
+        );
     }
 
     private getForcedRedirect(authDetails: IAuthDetails) {

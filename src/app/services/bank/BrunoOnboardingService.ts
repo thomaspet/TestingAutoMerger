@@ -51,7 +51,7 @@ export class BrunoOnboardingService {
                     this.createNewPendingAgreement(this.agreementDetails)
                         .subscribe((pendingAgreementCreated) => {
                             if (pendingAgreementCreated) {
-                                this.openExternalOnboarding();
+                                this.authService.reloadCurrentSession().subscribe(() => this.openExternalOnboarding());
                             }
                         });
                 } else if (this.isPendingAgreement(agreement)) {
