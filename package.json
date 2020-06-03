@@ -20,6 +20,7 @@
     "build.ext01-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-dev",
     "build.ext02": "npm run prebuild && npm run high-memory-build -- build --configuration=ext02",
     "build.ext02-rc": "npm run prebuild && npm run high-memory-build -- build --configuration=ext02-rc",
+    "build.ext02-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=ext02-dev",
     "build.softrig-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=softrig-dev",
     "build.softrig":"npm run prebuild && npm run high-memory-build -- build --configuration=softrig",
     "build.rodc": "npm run prebuild && npm run high-memory-build -- build --configuration=rodc",

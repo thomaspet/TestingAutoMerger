@@ -743,6 +743,36 @@
                 ]
               }
             },
+            "ext02-dev": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": { "scripts": true, "styles": false, "vendor": false },
+              "extractCss": true,
+              "namedChunks": false,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext02.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext02"
+                ]
+              }
+            },
             "ext02-serve": {
               "aot": false,
               "optimization": false,
