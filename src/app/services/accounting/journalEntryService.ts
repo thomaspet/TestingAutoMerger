@@ -259,14 +259,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         .map(response => response.body);
     }
 
-    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string, numberSeriesID?: number) {
+    public saveJournalEntryDataAsDrafts(journalEntryData: Array<JournalEntryData>, text?: string) {
 
         // filter out entries with no account or no amount, the user has already approved
         // this in a dialog
         journalEntryData = journalEntryData.filter(x => x.AmountCurrency && (x.DebitAccount || x.CreditAccount));
-        journalEntryData.forEach((data) => {
-            data.NumberSeriesID = numberSeriesID
-        });
+
         const journalEntryDataWithJournalEntryID =
             journalEntryData.filter(x => x.JournalEntryID && x.JournalEntryID > 0);
         const existingJournalEntryIDs: Array<number> = [];
