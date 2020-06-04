@@ -172,6 +172,7 @@ export class UniReportSettingsView {
     formChange() {
         const companySettings = this.companySettings$.getValue();
         companySettings['_isDirty'] = true;
+        this.isDirty = true;
         this.companySettings$.next(companySettings);
     }
 
@@ -184,7 +185,7 @@ export class UniReportSettingsView {
                 break;
             case 2:
                 this.order = value;
-                companySettings.DefaultCustomerInvoiceReportID = value.ID;
+                companySettings.DefaultCustomerOrderReportID = value.ID;
                 break;
             case 3:
                 this.quote = value;
@@ -194,7 +195,10 @@ export class UniReportSettingsView {
                 this.reminder = value;
                 companySettings.DefaultCustomerInvoiceReminderReportID = value.ID;
         }
+
+        companySettings['_isDirty'] = true;
         this.isDirty = true;
+
         this.companySettings$.next(companySettings);
     }
 
