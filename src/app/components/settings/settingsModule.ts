@@ -53,6 +53,7 @@ import {UniSalesSettingsView} from './sales-settings/sales-settings';
 import {SettingsOverview} from './settings-overview/settings-overivew';
 import {UniReportSettingsView} from './report/report-setup';
 import {VatDeductionSettingsGroupSetupModal} from './accounting-settings/vat-deductions/vatDeductionGroupSetupModal';
+import {KIDSettings} from '../sales/kidSettings/kidSettings';
 
 @NgModule({
     imports: [
@@ -95,6 +96,7 @@ import {VatDeductionSettingsGroupSetupModal} from './accounting-settings/vat-ded
         UniCompanyAccountingView,
         UniSalesSettingsView,
         UniReportSettingsView,
+        KIDSettings,        
         UniBankSettings,
         VatTypeSettingsDetails,
         VatTypeSettingsList,
