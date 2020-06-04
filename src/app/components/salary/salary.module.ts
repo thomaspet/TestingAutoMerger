@@ -6,110 +6,109 @@ import {WidgetModule} from '../widgets/widgetModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {LayoutModule} from '../layout/layoutModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {salaryRoutes} from './salaryRoutes';
-import {UniSalary} from './salary';
-import {AMeldingView} from './amelding/ameldingview';
-import {AmeldingAgaView} from './amelding/ameldingAga/aga';
-import {AmeldingControlView} from './amelding/ameldingControl/control';
-import {AmeldingPeriodSummaryView} from './amelding/ameldingPeriod/period';
-import {AmeldingReceiptView} from './amelding/ameldingReceipt/receipt';
-import {AmeldingSummaryView} from './amelding/ameldingSummary/summary';
-import {AmeldingTypePickerModal} from './amelding/modals/ameldingTypePickerModal';
+import {salaryRoutes} from './salary.routes';
+import {SalaryComponent} from './salary.component';
+import {AMeldingViewComponent} from './a-melding/a-melding-view.component';
+import {AmeldingAgaViewComponent} from './a-melding/aga-view/a-melding-aga-view.component';
+import {AmeldingPeriodSummaryViewComponent} from './a-melding/period-summary-view/period-summary-view.component';
+import {AmeldingReceiptViewComponent} from './a-melding/a-melding-receipt/receipt-view.component';
+import {AmeldingSummaryViewComponent} from './a-melding/a-melding-summary/summary.component';
+import {AMeldingTypePickerModalComponent} from './a-melding/modals/a-melding-type-picker-modal.component';
 import {ReportsModule} from '../reports/reportsModule';
 
-import {EmployeeDetails} from './employee/employeeDetails';
-import {EmployeeDetailsService} from './employee/shared/services/employeeDetailsService';
-import {EmployeeList} from './employee/employeeList';
-import {EmployeeLeaves} from './employee/employeeLeave/employeeLeave';
-import {EmploymentDetails} from './employee/employments/employmentDetails';
-import {Employments} from './employee/employments/employments';
-import {TaxCardModal} from './employee/modals/taxCardModal';
-import {TaxResponseModal} from './employee/modals/taxResponseModal';
-import {TaxCardReadStatusComponent} from './employee/modals/taxCardReadStatus';
-import {ReadTaxCard} from './employee/modals/readTaxCard';
-import {TaxCardRequest} from './employee/modals/taxCardRequest';
-import {PersonalDetails} from './employee/personalDetails/personalDetails';
-import {RecurringPost} from './employee/recurringPost/recurringPost';
-import {EmployeeTax} from './employee/employeeTax/employeeTax';
-import {EmployeeOTP} from './employee/employeeOTP/employeeOTP';
+import {EmployeeDetailsComponent} from './employee/employee-details.component';
+import {EmployeeDetailsService} from './employee/shared/services/employee-details.service';
+import {EmployeeListComponent} from './employee/employee-list.component';
+import {EmployeeLeavesComponent} from './employee/employee-leave/employee-leave.component';
+import {EmploymentDetailsComponent} from './employee/employment/employment.details.component';
+import {EmploymentComponent} from './employee/employment/employment.component';
+import {TaxCardModal} from './employee/modals/tax-card-modal.component';
+import {TaxResponseModalComponent} from './employee/modals/tax-response-modal.component';
+import {TaxCardReadStatusComponent} from './employee/modals/tax-card-read-status.component';
+import {ReadTaxCardComponent} from './employee/modals/read-tax-card.component';
+import {TaxCardRequestComponent} from './employee/modals/tax-card-request.component';
+import {PersonalDetailsComponent} from './employee/personal-details/personal-details.component';
+import {RecurringPostComponent} from './employee/recurring-post/recurring-post.component';
+import {EmployeeTaxComponent} from './employee/employee-tax/employee-tax.component';
+import {EmployeeOTPComponent} from './employee/employee-otp/employee-otp.component';
 
-import {ControlModal} from './payrollrun/modals/controlModal';
-import {PayrollrunDetails} from './payrollrun/payrollrunDetails';
-import {PayrollrunList} from './payrollrun/payrollrunList';
-import {PayrollRunDetailsService} from './payrollrun/services/payrollrun-details.service';
-import {PostingSummaryModal} from './payrollrun/modals/postingSummaryModal';
-import {PaycheckSending} from './payrollrun/sending/paycheckSending';
-import {PaycheckSenderModal} from './payrollrun/sending/paycheckSenderModal';
+import {ControlModalComponent} from './payroll-run/modals/control-modal.component';
+import {PayrollRunDetailsComponent} from './payroll-run/payroll-run-details.component';
+import {PayrollRunListComponent} from './payroll-run/payroll-run-list.component';
+import {PayrollRunDetailsService} from './payroll-run/services/payroll-run-details.service';
+import {PostingSummaryModalComponent} from './payroll-run/modals/posting-summary-modal.component';
+import {PaycheckSendingComponent} from './payroll-run/sending/paycheck-sending.component';
+import {PaycheckSenderModalComponent} from './payroll-run/sending/paycheck-sender-modal.component';
 import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
-import {UniSalaryTransactionModal} from './variable-payrolls/editSalaryTransactionModal';
+import {SalaryTransactionModalComponent} from './variable-payrolls/salary-transaction-modal.component';
 
-import {SalaryTransactionSelectionList} from './payrollrun/salarytrans/salarytransactionSelectionList';
-import {SalaryTransactionEmployeeList} from './payrollrun/salarytrans/salarytransList';
-import {SalaryTransViewService} from './shared/services/salary-transaction/salaryTransViewService';
-import {UniFindEmployeeModal} from './payrollrun/salarytrans/findEmployeeModal';
+import {SalaryTransactionSelectionListComponent} from './payroll-run/salary-transaction/salary-transaction-selection-list.component';
+import {SalaryTransactionListComponent} from './payroll-run/salary-transaction/salary-transaction-list.component';
+import {SalaryTransactionViewService} from './shared/services/salary-transaction/salary-transaction-view.service';
+import {UniFindEmployeeModalComponent} from './payroll-run/salary-transaction/find-employee-modal.component';
 
-import {WageTypeView} from './wagetype/wagetypeView';
-import {WagetypeList} from './wagetype/wagetypeList';
-import {WageTypeViewService} from './wagetype/shared/services/wageTypeViewService';
-import {WagetypeSyncGuard} from './wagetype/wagetypesync.guard';
+import {WageTypeViewComponent} from './wage-type/wage-type-view.component';
+import {WageTypeListComponent} from './wage-type/wage-type-list.component';
+import {WageTypeViewService} from './wage-type/shared/services/wage-type-view.service';
+import {WagetypeSyncGuard} from './wage-type/wage-type-sync.guard';
 
-import { CategoryList } from './category/categoryList';
-import { CategoryView } from './category/categoryView';
-import { CategoryViewService } from './category/shared/services/categoryViewService';
-import { CategoryDetail } from './category/views/categoryDetails';
-import { SalaryTransactionSupplementList } from './salaryTransactionSupplement/salaryTransactionSupplementsList';
-import { UniSupplementEditModal } from './salaryTransactionSupplement/editValueModal';
+import { CategoryListComponent } from './category/category-list.component';
+import { CategoryViewComponent } from './category/category-view.component';
+import { CategoryViewService } from './category/shared/services/category-view.service';
+import { CategoryDetailComponent } from './category/views/category-details.component';
+import { SalaryTransactionSupplementListComponent } from './salary-transaction-supplement/salary-transaction-supplement-list.component';
+import { UniSupplementEditModal } from './salary-transaction-supplement/edit-value-modal.component';
 
-import { AnnualStatementSenderComponent } from './annualStatement/annual-statement-sender/annual-statement-sender.component';
+import { AnnualStatementSenderComponent } from './annual-statement/annual-statement-sender/annual-statement-sender.component';
 import { EmployeeReportPickerListComponent } from './shared/components/employee-report-picker-list/employee-report-picker-list.component';
 import {
     AnnualStatementSenderContainerComponent
-} from './annualStatement/annual-statement-sender-container/annual-statement-sender-container.component';
-import { AltinnReceiptListComponent } from './amelding/altinn-receipt-list/altinn-receipt-list.component';
-import { AltinnErrorHandlerService } from './amelding/shared/service/altinnErrorHandlerService';
+} from './annual-statement/annual-statement-sender-container/annual-statement-sender-container.component';
+import { AltinnReceiptListComponent } from './a-melding/altinn-receipt-list/altinn-receipt-list.component';
+import { AltinnErrorHandlerService } from './a-melding/shared/service/altinn-error-handler.service';
 import { AltinnResponseStatusComponent } from './shared/components/altinn-response-status/altinn-response-status.component';
-import { TimeTransferComponent } from './payrollrun/modals/time-transfer/time-transfer.component';
-import { EmpCanActivateGuard } from './employee/empGuard';
+import { TimeTransferComponent } from './payroll-run/modals/time-transfer/time-transfer.component';
+import { EmployeeGuard } from './employee/employee.guard';
 import { TravelComponent } from './travel/travel.component';
 import { TravelListComponent } from './travel/travel-list/travel-list.component';
 import { TravelDetailsComponent } from './travel/travel-details/travel-details.component';
 import { TravelLinesComponent } from './travel/travel-details/travel-lines/travel-lines.component';
 import { TravelFilterComponent } from './travel/travel-filter/travel-filter.component';
 
-import { TraveltypeComponent } from './travel/travel-type/traveltype.component';
+import { TravelTypeComponent } from './travel/travel-type/travel-type.component';
 import { EmployeeTransTickerComponent } from './employee/employee-trans-ticker/employee-trans-ticker.component';
 import { UniTickerModule } from '@app/components/uniticker/uniTickerModule';
-import { TravelRejectModal } from './travel/travel-modal/travelRejectModal';
-import { OTPExportComponent } from './otpexport/otpexport.component';
-import { OtpFilterModalComponent } from './otpexport/otp-filter-modal/otp-filter-modal.component';
-import { PaycheckMailOptionsComponent } from './payrollrun/sending/paycheck-mail-options/paycheck-mail-options.component';
-import { PeriodAdminModalComponent } from './amelding/modals/period-admin-modal/period-admin-modal.component';
+import { TravelRejectModalComponent } from './travel/travel-reject-modal/travel-reject-modal.component';
+import { OTPExportComponent } from './otp-export/otp-export.component';
+import { OTPFilterModalComponent } from './otp-export/otp-filter-modal/otp-filter-modal.component';
+import { PaycheckMailOptionsComponent } from './payroll-run/sending/paycheck-mail-options/paycheck-mail-options.component';
+import { PeriodAdminModalComponent } from './a-melding/modals/period-admin-modal/period-admin-modal.component';
 import {
-    AmeldingPeriodSplitViewComponent
-} from './amelding/modals/period-admin-modal/tabViews/amelding-period-split-view/amelding-period-split-view.component';
+    AMeldingPeriodSplitViewComponent
+} from './a-melding/modals/period-admin-modal/tabViews/a-melding-period-split-view/a-melding-period-split-view.component';
 import {
-    AmeldingPayrollsPeriodViewComponent
-} from './amelding/modals/period-admin-modal/tabViews/amelding-payrolls-period-view/amelding-payrolls-period-view.component';
-import { OtpPeriodWagetypeModalComponent } from './otpexport/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
-import { SalaryHelperMethods } from './payrollrun/services/salaryHelperMethods';
+    AMeldingPayrollsPeriodViewComponent
+} from './a-melding/modals/period-admin-modal/tabViews/a-melding-payrolls-period-view/a-melding-payrolls-period-view.component';
+import { OTPPeriodWagetypeModalComponent } from './otp-export/otp-period-wagetype-modal/otp-period-wagetype-modal.component';
+import { SalaryHelperMethodsService } from './payroll-run/services/salary-helper-methods.service';
 import { SyncWagetypesModalComponent } from './shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
 import { RegulativeUploadModalComponent } from './shared/components/regulative-upload-modal/regulative-upload-modal.component';
 import { RegulativeGroupListComponent } from './regulative/regulative-group-list.component';
-import { StatusAMeldingModal } from '@app/components/salary/amelding/modals/statusAMeldingModal/statusAMeldingModal';
-import { MakeAmeldingPaymentModal } from '@app/components/salary/amelding/modals/makeAmeldingPaymentModal/makeAmeldingPaymentModal';
+import { StatusAMeldingModalComponent } from '@app/components/salary/a-melding/modals/status-a-melding-modal/status-a-melding-modal.component';
+import { MakeAmeldingPaymentModalComponent } from '@app/components/salary/a-melding/modals/make-a-melding-payment-modal/make-a-melding-payment-modal.component';
 import { RegulativeImportComponent } from './regulative/regulative-import/regulative-import.component';
 import { NewRegulativeModalComponent } from './shared/components/new-regulative-modal/new-regulative-modal.component';
 import { RegulativeDetailsComponent } from './regulative/regulative-details/regulative-details.component';
-import { NegativeSalaryComponent } from './payrollrun/negative-salary/negative-salary.component';
-import { NegativeSalaryModalComponent } from './payrollrun/negative-salary/negative-salary-modal/negative-salary-modal.component';
-import { PayrollRunDataService } from './payrollrun/services/payrollrun-data.service';
-import { WageTypeDetailsComponent } from './wagetype/wage-type-details/wage-type-details.component';
-import { WageTypeSettingsComponent } from './wagetype/wage-type-settings/wage-type-settings.component';
+import { NegativeSalaryComponent } from './payroll-run/negative-salary/negative-salary.component';
+import { NegativeSalaryModalComponent } from './payroll-run/negative-salary/negative-salary-modal/negative-salary-modal.component';
+import { PayrollRunDataService } from './payroll-run/services/payroll-run-data.service';
+import { WageTypeDetailsComponent } from './wage-type/wage-type-details/wage-type-details.component';
+import { WageTypeSettingsComponent } from './wage-type/wage-type-settings/wage-type-settings.component';
 import { BalanceComponent } from './balance/balance.component';
-import { SalarybalanceTemplateListComponent } from './salary-balance-template/salarybalance-template-list/salarybalance-template-list.component';
-import { SalarybalanceTemplateDetailsComponent } from './salary-balance-template/salarybalance-template-details/salarybalance-template-details.component';
-import { SalarybalanceTemplateView } from './salary-balance-template/salarybalanceTemplateView';
-import { SalarybalanceTemplateEmployeeListComponent } from './salary-balance-template/salarybalance-template-employee-list/salarybalance-template-employee-list.component';
+import { SalaryBalanceTemplateListComponent } from './salary-balance-template/salary-balance-template-list/salary-balance-template-list.component';
+import { SalaryBalanceTemplateDetailsComponent } from './salary-balance-template/salary-balance-template-details/salary-balance-template-details.component';
+import { SalaryBalanceTemplateViewComponent } from './salary-balance-template/salary-balance-template-view.component';
+import { SalaryBalanceTemplateEmployeeListComponent } from './salary-balance-template/salary-balance-template-employee-list/salary-balance-template-employee-list.component';
 import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
 import { SalaryBalanceListComponent } from './shared/components/salary-balance-list/salary-balance-list.component';
 import { SalaryBalanceDetailsComponent } from './shared/components/salary-balance-details/salary-balance-details.component';
@@ -117,26 +116,26 @@ import { SalaryBalanceSummaryComponent } from './shared/components/salary-balanc
 import { SalaryBalanceLineComponent } from './balance/salary-balance-line/salary-balance-line.component';
 import { SalaryBalanceLineModalComponent } from './balance/salary-balance-line-modal/salary-balance-line-modal.component';
 import { SalaryBalanceComponent } from './employee/salary-balance/salary-balance.component';
-import { SalaryBalanceViewService } from './shared/services/salary-balance/salaryBalanceViewService';
-import { ReconciliationRequestComponent } from './amelding/reconciliation-request/reconciliation-request.component';
-import { SalaryTransSupplementsModal } from './shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
-import { ReconciliationModalComponent } from './amelding/reconciliation-modal/reconciliation-modal.component';
-import { ReconciliationResponseModalComponent } from './amelding/reconciliation-response-modal/reconciliation-response-modal.component';
-import { RegulativeService } from './regulative/shared/service/regulativeService';
-import { RegulativeGroupService } from './regulative/shared/service/regulativeGroupService';
-import { AnnualStatementService } from './annualStatement/shared/service/annualStatementService';
-import { EmployeeCategoryService } from './shared/services/category/employeeCategoryService';
-import { EmployeeLeaveService } from './employee/shared/services/employeeLeaveService';
-import { EmployeeOnCategoryService } from './shared/services/category/EmployeeOnCategoryService';
-import { InntektService } from './wagetype/shared/services/inntektService';
-import { OtpExportWagetypesService } from './otpexport/shared/service/otpExportWagetypesService';
-import { PayrollRunOnCategoryService } from './shared/services/category/payrollRunOnCategoryService';
-import { SalarySumsService } from './shared/services/salary-transaction/salarySumsService';
-import { SalaryTransactionSuggestedValuesService } from './shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
-import { SupplementService } from './shared/services/salary-transaction/salaryTransactionSupplementService';
-import { TravelLineService } from './travel/shared/service/travelLineService';
-import { TravelTypeService } from './travel/shared/service/travelTypeService';
-import { AMeldingService } from './amelding/shared/service/aMeldingService';
+import { SalaryBalanceViewService } from './shared/services/salary-balance/salary-balance-view.service';
+import { ReconciliationRequestComponent } from './a-melding/reconciliation-request/reconciliation-request.component';
+import { SalaryTransSupplementModalComponent } from './shared/components/salary-transaction-supplement-modal/salary-transaction-supplement-modal.component';
+import { ReconciliationModalComponent } from './a-melding/reconciliation-modal/reconciliation-modal.component';
+import { ReconciliationResponseModalComponent } from './a-melding/reconciliation-response-modal/reconciliation-response-modal.component';
+import { RegulativeService } from './regulative/shared/service/regulative.service';
+import { RegulativeGroupService } from './regulative/shared/service/regulative-group.service';
+import { AnnualStatementService } from './annual-statement/shared/service/annual-statement.service';
+import { EmployeeCategoryService } from './shared/services/category/employee-category.service';
+import { EmployeeLeaveService } from './employee/shared/services/employee-leave.service';
+import { EmployeeOnCategoryService } from './shared/services/category/employee-on-category.service';
+import { IncomeService } from './wage-type/shared/services/income.service';
+import { OTPExportWageTypeService } from './otp-export/shared/service/otp-export-wagetype.service';
+import { PayrollRunOnCategoryService } from './shared/services/category/payroll-run-on-category.service';
+import { SalarySumsService } from './shared/services/salary-transaction/salary-sums.service';
+import { SalaryTransactionSuggestedValuesService } from './shared/services/salary-transaction/salary-transaction-suggested-values.service';
+import { SalaryTransactionSupplementService } from './shared/services/salary-transaction/salary-transaction-supplement.service';
+import { TravelLineService } from './travel/shared/service/travel-line.service';
+import { TravelTypeService } from './travel/shared/service/travel-type.service';
+import { AMeldingService } from './a-melding/shared/service/a-melding.service';
 
 @NgModule({
     imports: [
@@ -152,69 +151,68 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         ReportsModule
     ],
     declarations: [
-        UniSalary,
+        SalaryComponent,
 
         // Amelding
-        AMeldingView,
-        AmeldingAgaView,
-        AmeldingControlView,
-        AmeldingPeriodSummaryView,
-        AmeldingReceiptView,
-        AmeldingSummaryView,
-        AmeldingTypePickerModal,
-        AmeldingPeriodSplitViewComponent,
-        AmeldingPayrollsPeriodViewComponent,
-        StatusAMeldingModal,
-        MakeAmeldingPaymentModal,
+        AMeldingViewComponent,
+        AmeldingAgaViewComponent,
+        AmeldingPeriodSummaryViewComponent,
+        AmeldingReceiptViewComponent,
+        AmeldingSummaryViewComponent,
+        AMeldingTypePickerModalComponent,
+        AMeldingPeriodSplitViewComponent,
+        AMeldingPayrollsPeriodViewComponent,
+        StatusAMeldingModalComponent,
+        MakeAmeldingPaymentModalComponent,
 
         // Employee
-        EmployeeList,
-        EmployeeDetails,
-        EmployeeLeaves,
-        EmploymentDetails,
-        Employments,
+        EmployeeListComponent,
+        EmployeeDetailsComponent,
+        EmployeeLeavesComponent,
+        EmploymentDetailsComponent,
+        EmploymentComponent,
         TaxCardModal,
-        ReadTaxCard,
-        TaxCardRequest,
-        TaxResponseModal,
+        ReadTaxCardComponent,
+        TaxCardRequestComponent,
+        TaxResponseModalComponent,
         TaxCardReadStatusComponent,
-        PersonalDetails,
-        RecurringPost,
-        EmployeeTax,
-        EmployeeOTP,
+        PersonalDetailsComponent,
+        RecurringPostComponent,
+        EmployeeTaxComponent,
+        EmployeeOTPComponent,
 
         // Payrollrun
-        ControlModal,
-        PayrollrunDetails,
-        PayrollrunList,
-        PostingSummaryModal,
-        PaycheckSending,
-        PaycheckSenderModal,
+        ControlModalComponent,
+        PayrollRunDetailsComponent,
+        PayrollRunListComponent,
+        PostingSummaryModalComponent,
+        PaycheckSendingComponent,
+        PaycheckSenderModalComponent,
         TimeTransferComponent,
         VariablePayrollsComponent,
         NegativeSalaryComponent,
         NegativeSalaryModalComponent,
 
         // Salarytrans
-        SalaryTransactionSelectionList,
-        SalaryTransactionEmployeeList,
-        SalaryTransactionSupplementList,
-        SalaryTransSupplementsModal,
-        UniFindEmployeeModal,
-        UniSalaryTransactionModal,
+        SalaryTransactionSelectionListComponent,
+        SalaryTransactionListComponent,
+        SalaryTransactionSupplementListComponent,
+        SalaryTransSupplementModalComponent,
+        UniFindEmployeeModalComponent,
+        SalaryTransactionModalComponent,
         UniSupplementEditModal,
 
         // Wagetype
-        WageTypeView,
+        WageTypeViewComponent,
         WageTypeDetailsComponent,
         WageTypeSettingsComponent,
-        WagetypeList,
+        WageTypeListComponent,
         SyncWagetypesModalComponent,
 
         // Category
-        CategoryList,
-        CategoryView,
-        CategoryDetail,
+        CategoryListComponent,
+        CategoryViewComponent,
+        CategoryDetailComponent,
 
         // Salarybalance
         SalaryBalanceListContainerComponent,
@@ -234,25 +232,25 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         SalaryBalanceComponent,
 
         // Travel
-        TraveltypeComponent,
+        TravelTypeComponent,
         TravelComponent,
         TravelListComponent,
         TravelDetailsComponent,
         TravelLinesComponent,
         TravelFilterComponent,
         EmployeeTransTickerComponent,
-        TravelRejectModal,
-        SalarybalanceTemplateListComponent,
-        SalarybalanceTemplateDetailsComponent,
-        SalarybalanceTemplateView,
-        SalarybalanceTemplateEmployeeListComponent,
+        TravelRejectModalComponent,
+        SalaryBalanceTemplateListComponent,
+        SalaryBalanceTemplateDetailsComponent,
+        SalaryBalanceTemplateViewComponent,
+        SalaryBalanceTemplateEmployeeListComponent,
 
         // OTP
         OTPExportComponent,
-        OtpFilterModalComponent,
+        OTPFilterModalComponent,
         PaycheckMailOptionsComponent,
         PeriodAdminModalComponent,
-        OtpPeriodWagetypeModalComponent,
+        OTPPeriodWagetypeModalComponent,
 
         // Regulation
         RegulativeUploadModalComponent,
@@ -271,10 +269,10 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         EmployeeDetailsService,
         SalaryBalanceViewService,
         CategoryViewService,
-        SalaryTransViewService,
+        SalaryTransactionViewService,
         AltinnErrorHandlerService,
-        EmpCanActivateGuard,
-        SalaryHelperMethods,
+        EmployeeGuard,
+        SalaryHelperMethodsService,
         WagetypeSyncGuard,
         RegulativeService,
         RegulativeGroupService,
@@ -283,12 +281,12 @@ import { AMeldingService } from './amelding/shared/service/aMeldingService';
         EmployeeCategoryService,
         EmployeeLeaveService,
         EmployeeOnCategoryService,
-        InntektService,
-        OtpExportWagetypesService,
+        IncomeService,
+        OTPExportWageTypeService,
         PayrollRunOnCategoryService,
         SalarySumsService,
         SalaryTransactionSuggestedValuesService,
-        SupplementService,
+        SalaryTransactionSupplementService,
         TravelLineService,
         TravelTypeService
     ]

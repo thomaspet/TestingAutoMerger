@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
 import * as moment from 'moment';
 import { saveAs } from 'file-saver';
-import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulativeService';
+import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulative.service';
 
 export interface IRegulativeData {
     ID: number;

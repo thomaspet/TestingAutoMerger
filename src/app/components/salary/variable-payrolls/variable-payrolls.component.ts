@@ -11,7 +11,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 import { map } from 'rxjs/operators';
-import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salaryTransactionSuggestedValuesService';
+import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-suggested-values.service';
 import {
     PayrollRun, WageType, SalaryTransaction, Employment, Dimensions, SalaryTransactionSupplement, WageTypeSupplement, LocalDate, Account
 } from '@uni-entities';
@@ -19,8 +19,8 @@ import {
     AccountService, UniCacheService, ErrorService, SalaryTransactionService, PayrollrunService, ProjectService, DepartmentService,
     WageTypeService, EmployeeService, PageStateService, StatisticsService, AccountMandatoryDimensionService
 } from '@app/services/services';
-import { SalaryTransViewService } from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
-import { UniSalaryTransactionModal } from '@app/components/salary/variable-payrolls/editSalaryTransactionModal';
+import { SalaryTransactionViewService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-view.service';
+import { SalaryTransactionModalComponent } from '@app/components/salary/variable-payrolls/salary-transaction-modal.component';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -57,7 +57,7 @@ export class VariablePayrollsComponent {
         private _accountService: AccountService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private salaryTransViewService: SalaryTransViewService,
+        private salaryTransViewService: SalaryTransactionViewService,
         private salaryTransService: SalaryTransactionService,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
         private payrollrunService: PayrollrunService,
@@ -217,7 +217,7 @@ export class VariablePayrollsComponent {
             closeOnClickOutside: false
         };
 
-        this.modalService.open(UniSalaryTransactionModal, options).onClose.subscribe(result => {
+        this.modalService.open(SalaryTransactionModalComponent, options).onClose.subscribe(result => {
             if (result) {
                 this.table.refreshTableData();
                 this.toastService.addToast('Lagring vellykket', ToastType.good);

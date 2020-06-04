@@ -4,9 +4,9 @@ import { BehaviorSubject, of, forkJoin, Observable } from 'rxjs';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 import { RegulativeGroup, Regulative, LocalDate } from '@uni-entities';
 import { UniFilesService, ErrorService } from '@app/services/services';
-import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulativeService';
+import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulative.service';
 import { switchMap, map, tap, finalize } from 'rxjs/operators';
-import { RegulativeGroupService } from '@app/components/salary/regulative/shared/service/regulativeGroupService';
+import { RegulativeGroupService } from '@app/components/salary/regulative/shared/service/regulative-group.service';
 
 export interface IRegulativeUploadResult {
     confirmAction: ConfirmActions;

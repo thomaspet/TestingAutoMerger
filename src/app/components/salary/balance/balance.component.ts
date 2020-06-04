@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { SalarybalanceService, ErrorService, UniCacheService, ReportDefinitionService } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions, UniPreviewModal } from '@uni-framework/uni-modal';
-import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salaryBalanceViewService';
+import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salary-balance-view.service';
 import { SalaryBalanceLineModalComponent } from '@app/components/salary/balance/salary-balance-line-modal/salary-balance-line-modal.component';
 
 const SALARY_BALANCE_KEY = 'salarybalance';

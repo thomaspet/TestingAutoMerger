@@ -5,10 +5,10 @@ import {UniMath} from '@uni-framework/core/uniMath';
 import {IRowChangeEvent} from '@uni-framework/ui/ag-grid/interfaces';
 import {WageTypeService, AccountService, StatisticsService} from '@app/services/services';
 import {BehaviorSubject, of, Observable} from 'rxjs';
-import {TravelLineService} from '@app/components/salary/travel/shared/service/travelLineService';
-import {SalaryTransViewService} from '@app/components/salary/shared/services/salary-transaction/salaryTransViewService';
+import {TravelLineService} from '@app/components/salary/travel/shared/service/travel-line.service';
+import {SalaryTransactionViewService} from '@app/components/salary/shared/services/salary-transaction/salary-transaction-view.service';
 import { tap, map, switchMap } from 'rxjs/operators';
-import { TravelTypeService } from '@app/components/salary/travel/shared/service/travelTypeService';
+import { TravelTypeService } from '@app/components/salary/travel/shared/service/travel-type.service';
 
 const INVOICE_ACCOUNT_FIELD = '_InvoiceAccount';
 const ACCOUNT_FIELD = '_Account';
@@ -33,7 +33,7 @@ export class TravelLinesComponent implements OnInit {
     constructor(
         private wageTypeService: WageTypeService,
         private travelLineService: TravelLineService,
-        private salaryTransViewService: SalaryTransViewService,
+        private salaryTransViewService: SalaryTransactionViewService,
         private accountService: AccountService,
         private travelTypeService: TravelTypeService,
         private statisticsService: StatisticsService,
