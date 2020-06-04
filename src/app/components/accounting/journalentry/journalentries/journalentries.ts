@@ -305,13 +305,6 @@ export class JournalEntries {
                     this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
                         .subscribe(journalEntryData => {
 
-                           
-                            journalEntryData.forEach(line => {
-                               line.NumberSeriesTaskID = this.selectedNumberSeries.NumberSeriesTaskID;
-                               line.NumberSeriesID = this.selectedNumberSeries.ID;
-                               line.JournalEntryNo = this.currentJournalEntryNumber;
-                            });
-
                           
 
                             
