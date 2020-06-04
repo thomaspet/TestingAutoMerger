@@ -68,7 +68,7 @@
                     [title]="subhead.title"
                     [ngClass]="subhead.classname || ''"
                     (click)="triggerSubheadEvent(subhead)">
-
+                    <i class="material-icons" *ngIf="subhead.icon"> {{ subhead.icon }} </i>
                     <span *ngIf="subhead.label" class="subhead-label">{{subhead.label | translate}}: </span>
 
                     <a [href]="subhead.link" *ngIf="subhead.link">{{subhead.title | translate}}</a>

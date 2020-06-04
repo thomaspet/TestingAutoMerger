@@ -18,6 +18,7 @@ export interface IToolbarSubhead {
     title: string;
     classname?: string;
     link?: string;
+    icon?: string;
     event?: () => void;
 }
 
