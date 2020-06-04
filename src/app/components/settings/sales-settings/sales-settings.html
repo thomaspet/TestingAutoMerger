@@ -175,7 +175,7 @@
         </section>
     </ng-container>
 
-    <kid-settings [(companySettings$)]="companySettings$" [hidden]="activeIndex !== 2" (changeEvent)="hasUnsavedChanges = true">
+    <kid-settings [(companySettings$)]="companySettings$" [hidden]="activeIndex !== 2">
     </kid-settings>
 
     <!-- Need to use [hidden] instead of ngIf this since sales-settings is depending on viewchild ref always being available.. -->
