@@ -39,6 +39,7 @@ import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
 import {UniIcon} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
+import {AutoFocusDirective} from './autofocus.directive';
 
 @NgModule({
     imports: [
@@ -74,6 +75,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniTabs,
         UniIcon,
         FeaturePermissionDirective,
+        AutoFocusDirective,
         ...MODALS
     ],
     providers: [
@@ -117,6 +119,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniTabs,
         UniIcon,
         FeaturePermissionDirective,
+        AutoFocusDirective,
     ]
 })
 export class UniFrameworkModule {}

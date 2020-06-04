@@ -8,7 +8,7 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {CompanySettings, Company, Role, UserRole} from '@uni-entities';
 import {CompanyInfo} from './select-company/select-company.component';
 import {AuthService} from '@app/authService';
-import {ElsaCustomer, ElsaContract, ElsaContractType, ElsaProduct, ElsaProductType} from '@app/models';
+import {ElsaCustomer, ElsaContract, ContractType, ElsaProduct, ElsaProductType} from '@app/models';
 import {
     ErrorService,
     CompanyService,
@@ -110,7 +110,7 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
 
     onContractSelected(contract) {
         this.companyLimitReached = false;
-        if (contract.ContractType === ElsaContractType.Demo) {
+        if (contract.ContractType === ContractType.Demo) {
             this.elsaContractService.getCompanyLicenses(contract.ID).subscribe(
                 res => this.companyLimitReached = res && res.length >= 2,
                 () => {}

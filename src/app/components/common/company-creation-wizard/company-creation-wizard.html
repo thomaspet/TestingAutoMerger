@@ -1,0 +1,93 @@
+<section *ngIf="!busyCreatingCompany" class="uni-card shadow">
+    <section class="uni-card-content">
+        <h1>Oppretting av selskap</h1>
+
+        <ng-container *ngIf="currentStep === 0">
+            <autocomplete
+                [options]="autocompleteOptions"
+                [readonly]="busy"
+                (valueChange)="onBrRegCompanyChange($event)">
+            </autocomplete>
+
+            <form [formGroup]="companyDetailsForm">
+                <label #companyNameInput class="uni-label">
+                    <span>Firmanavn</span>
+                    <input type="text" formControlName="CompanyName">
+                </label>
+
+                <label class="uni-label">
+                    <span>Organisasjonsnummer</span>
+                    <input type="text" readonly formControlName="OrganizationNumber">
+                </label>
+
+                <label class="uni-label">
+                    <span>Adresse</span>
+                    <input type="text" formControlName="Address">
+                </label>
+
+                <section class="input-row">
+                    <label class="uni-label">
+                        <span>Postnummer</span>
+                        <input type="text" formControlName="PostalCode">
+                    </label>
+
+                    <label class="uni-label">
+                        <span>Poststed</span>
+                        <input type="text" formControlName="City">
+                    </label>
+                </section>
+            </form>
+        </ng-container>
+
+        <ng-container *ngIf="currentStep === 1">
+            <label class="uni-label" uniAutoFocus>
+                <span>Skal selskapet betale moms?</span>
+                <mat-radio-group class="horizontal" [(ngModel)]="templateIncludeVat">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+            </label>
+
+            <label class="uni-label">
+                <span>Skal selskapet ha ansatte?</span>
+                <mat-radio-group class="horizontal" [(ngModel)]="templateIncludeSalary">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+            </label>
+        </ng-container>
+    </section>
+
+    <section class="uni-card-footer">
+        <button class="secondary pull-left" (click)="currentStep = 0" *ngIf="currentStep > 0">
+            Tilbake
+        </button>
+
+        <button class="c2a" *ngIf="currentStep === 0" (click)="next()" (keydown.tab)="$event.preventDefault()">
+            Neste
+        </button>
+
+        <button class="c2a"
+            *ngIf="currentStep === 1"
+            [attr.aria-busy]="busy"
+            (click)="createCompany()"
+            (keydown.tab)="$event.preventDefault()">
+            Opprett selskap
+        </button>
+    </section>
+</section>
+
+<section *ngIf="busyCreatingCompany" class="uni-card shadow">
+    <section class="uni-card-content">
+        <h1>
+            <mat-spinner class="c2a" [diameter]="24"></mat-spinner>
+            Registrerer selskap
+        </h1>
+
+        <p>
+            Vi setter nå opp systemet med innstillinger og data du trenger for å komme i gang.
+            Denne prosessen kan ta litt tid.
+            <br><br>Du vil bli logget på selskapet så snart det er klart til bruk.
+        </p>
+    </section>
+</section>

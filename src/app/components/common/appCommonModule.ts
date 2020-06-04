@@ -58,15 +58,17 @@ import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
-import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
-import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
-import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
+import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
+import {DisclaimerModal} from '../import-central/modals/disclaimer/disclaimer-modal';
+import {ImportTemplateModal} from '../import-central/modals/import-template/import-template-modal';
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
-import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
-import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
-import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
+import {ImportVoucherModal} from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
+import {ImportOrderModal} from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
+import {EditSubEntityAgaZoneModal} from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 import {LibraryImportsModule} from '@app/library-imports.module';
-import {BrunoProductPackages} from './bruno-product-packages/bruno-product-packages';
+import {ContractTypeCard} from './contract-type-card/contract-type-card';
+import {ContractActivationWizard} from './contract-activation-wizard/contract-activation-wizard';
+import {CompanyCreationWizard} from './company-creation-wizard/company-creation-wizard';
 
 @NgModule({
     imports: [
@@ -145,7 +147,9 @@ import {BrunoProductPackages} from './bruno-product-packages/bruno-product-packa
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
-        BrunoProductPackages,
+        ContractTypeCard,
+        ContractActivationWizard,
+        CompanyCreationWizard,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -199,7 +203,9 @@ import {BrunoProductPackages} from './bruno-product-packages/bruno-product-packa
         InvoiceHours,
         VacationPayModal,
         VacationPaySettingsModal,
-        BrunoProductPackages,
+        ContractTypeCard,
+        ContractActivationWizard,
+        CompanyCreationWizard,
     ]
 })
 export class AppCommonModule {}

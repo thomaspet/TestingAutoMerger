@@ -1,42 +1,52 @@
 <section class="wrapper">
-    <img *ngIf="illustration" [src]="illustration">
+    <img *ngIf="illustration && selectedCompanyType != 'company'" [src]="illustration">
 
-    <ng-container *ngIf="!selectedCompanyType">
-        <ng-container *ngIf="contractID">
-            <section *ngFor="let option of registrationOptions" class="registration-card authentication-component">
-                <h1>{{option.header}}</h1>
+    <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
+        <small class="alert warn">
+            Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
+        </small>
+        <a routerLink="/init/sign-up">Gå til registrering</a>
+    </section>
 
-                <section class="content">
-                    <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
-                    <section *ngFor="let text of option.textSections">{{text}}</section>
-                </section>
+    <ng-container *ngIf="!missingContract">
+        <!-- If the user already have an active contract we only offer company creation -->
+        <company-creation-wizard
+            *ngIf="hasActiveContract"
+            [contractID]="contractID">
+        </company-creation-wizard>
 
-                <section class="footer">
-                    <section class="footer-text" *ngIf="option.footerText">{{option.footerText}}</section>
+        <ng-container *ngIf="!hasActiveContract">
+            <ng-container *ngIf="!selectedCompanyType">
+                <ng-container *ngIf="contractID">
+                    <section *ngFor="let option of registrationOptions" class="registration-card authentication-component">
+                        <h1>{{option.header}}</h1>
 
-                    <button *ngFor="let button of option.buttons" [ngClass]="button.class || 'secondary'" (click)="button.action()">
-                        {{button.label}}
-                    </button>
-                </section>
-            </section>
+                        <section class="content">
+                            <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
+                            <section *ngFor="let text of option.textSections">{{text}}</section>
+                        </section>
+
+                        <section class="footer">
+                            <section class="footer-text" *ngIf="option.footerText">{{option.footerText}}</section>
+
+                            <button *ngFor="let button of option.buttons" [ngClass]="button.class || 'secondary'" (click)="button.action()">
+                                {{button.label}}
+                            </button>
+                        </section>
+                    </section>
+                </ng-container>
+            </ng-container>
+
+            <init-new-demo
+                *ngIf="selectedCompanyType === 'demo'"
+                [contractID]="contractID">
+            </init-new-demo>
+
+            <init-new-company
+                *ngIf="selectedCompanyType === 'company'"
+                [contractID]="contractID"
+                [isTest]="isTest">
+            </init-new-company>
         </ng-container>
-
-        <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
-            <small class="alert warn">
-                Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
-            </small>
-            <a routerLink="/init/sign-up">Gå til registrering</a>
-        </section>
     </ng-container>
-
-    <init-new-demo
-        *ngIf="selectedCompanyType === 'demo'"
-        [contractID]="contractID">
-    </init-new-demo>
-
-    <init-new-company
-        *ngIf="selectedCompanyType === 'company'"
-        [contractID]="contractID"
-        [isTest]="isTest">
-    </init-new-company>
 </section>

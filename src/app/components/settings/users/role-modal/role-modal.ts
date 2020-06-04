@@ -53,7 +53,7 @@ export class UniRoleModal implements IUniModal {
 
         this.busy = true;
         forkJoin(
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractType(),
             this.elsaPurchaseService.getAll()
         ).pipe(
             finalize(() => this.busy = false)
@@ -229,10 +229,10 @@ export class UniRoleModal implements IUniModal {
     }
 
     private groupRolesByProducts(roles: Role[], products: ElsaProduct[]): IRoleGroup[] {
-        // Create groups based on products (of type Module)
+        // Create groups based on products
         const filteredProducts = (products || []).filter(product => {
             return product.ProductType === ElsaProductType.Module
-                && product.Name !== 'Complete';
+                || product.ProductType === ElsaProductType.Package;
         });
 
         const groups: IRoleGroup[] = filteredProducts.map(product => {

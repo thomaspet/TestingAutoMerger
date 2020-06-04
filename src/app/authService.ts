@@ -43,15 +43,16 @@ const PUBLIC_ROUTES = [];
 export class AuthService {
     userManager: UserManager;
 
-    public companyChange: EventEmitter<Company> = new EventEmitter();
+    companyChange: EventEmitter<Company> = new EventEmitter();
 
-    public authentication$ = new ReplaySubject<IAuthDetails>(1);
-    public token$ = new ReplaySubject<string>(1);
+    authentication$ = new ReplaySubject<IAuthDetails>(1);
+    token$ = new ReplaySubject<string>(1);
 
-    public jwt: string;
-    public id_token: string;
-    public activeCompany: Company;
-    public currentUser: UserDto;
+    jwt: string;
+    id_token: string;
+    activeCompany: Company;
+    currentUser: UserDto;
+    contractID: number;
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
     private storage = {
@@ -346,10 +347,13 @@ export class AuthService {
             }
         }).pipe(map(user => {
             this.currentUser = user;
+            this.contractID = user?.License?.Company?.ContractID;
 
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
+            this.featurePermissionService.setFeatureBlacklist(contract.TypeName);
             const isDemo = contract.TypeName === 'Demo';
             let hasActiveContract = user && !this.isTrialExpired(contract);
+
 
             // In SR a demo with non-demo company requires contract activation immediately
             if (theme.theme === THEMES.SR && isDemo && !this.activeCompany.IsTest) {

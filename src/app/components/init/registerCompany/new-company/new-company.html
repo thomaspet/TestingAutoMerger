@@ -1,103 +1,12 @@
-<section class="authentication-component" *ngIf=!creatingCompany>
-    <h1>
-        <i (click)="goBack()" class="material-icons">arrow_back_ios</i>
-        Registrer bedriften din
-    </h1>
+<contract-activation-wizard
+    *ngIf="!isTest && !contractActivated"
+    [contractID]="contractID"
+    (contractActivated)="onContractActivated($event)">
+</contract-activation-wizard>
 
-    <ng-container *ngIf="step === 1">
-        <!-- <section class="alert info" *ngIf="!company">
-            Søk på selskapsnavn eller organisasjonsnummer for å komme i gang
-        </section> -->
-
-        <section class="init-subtitle" style="margin-bottom: 1rem">
-            Søk opp bedriften din i Brønnøysundregistrene eller legg inn organisasjonsnummer
-        </section>
-
-        <autocomplete
-            [options]="autocompleteOptions"
-            (valueChange)="onCompanySelected($event)">
-        </autocomplete>
-
-        <section *ngIf="company">
-            <label #companyNameInput class="uni-label">
-                <span>Firmanavn</span>
-                <input type="text" [(ngModel)]="company.CompanyName">
-            </label>
-
-            <label class="uni-label">
-                <span>Organisasjonsnummer</span>
-                <input type="text" readonly [value]="company.OrganizationNumber">
-            </label>
-
-            <label class="uni-label">
-                <span>Adresse</span>
-                <input type="text" [(ngModel)]="company.Address">
-            </label>
-
-            <section class="input-row">
-                <label class="uni-label">
-                    <span>Postnummer</span>
-                    <input type="text" [(ngModel)]="company.PostalCode">
-                </label>
-
-                <label class="uni-label">
-                    <span>Poststed</span>
-                    <input type="text" [(ngModel)]="company.City">
-                </label>
-            </section>
-        </section>
-    </ng-container>
-
-    <ng-container *ngIf="step === 2">
-        <section class="init-subtitle">
-            Vennligst hjelp oss å sette opp riktig bedriftstype
-        </section>
-
-        <label class="uni-label">
-            <span>Skal du betale moms?</span>
-            <mat-radio-group class="horizontal" [(ngModel)]="includeVat">
-                <mat-radio-button [value]="true">Ja</mat-radio-button>
-                <mat-radio-button [value]="false">Nei</mat-radio-button>
-            </mat-radio-group>
-        </label>
-
-        <label class="uni-label">
-            <span>Skal selskapet ha ansatte?</span>
-            <mat-radio-group class="horizontal" [(ngModel)]="includeSalary">
-                <mat-radio-button [value]="true">Ja</mat-radio-button>
-                <mat-radio-button [value]="false">Nei</mat-radio-button>
-            </mat-radio-group>
-        </label>
-
-    </ng-container>
-
-    <section class="footer">
-        <button *ngIf="company && step === 1" class="c2a" (click)="step = 2">
-            Gå videre
-        </button>
-
-        <button *ngIf="step === 2"
-            class="c2a"
-            [attr.aria-busy]="busy"
-            [disabled]="includeVat === undefined || includeSalary === undefined"
-            (click)="createCompany()">
-            Registrer din bedrift
-        </button>
-    </section>
-</section>
-
-<section *ngIf="creatingCompany" class="authentication-component">
-    <h1>
-        <mat-spinner class="c2a" [diameter]="24"></mat-spinner>
-        Oppretter selskap
-    </h1>
-
-    <p>
-        Vi setter nå opp bedriften med innstillinger og data du trenger for å komme i gang.
-    </p>
-    <p>
-        Denne prosessen kan ta litt tid. Du vil bli logget på selskapet så snart
-        oppretting er fullført. Det blir også sendt ut en epost når selskapet er
-        klart til bruk.
-    </p>
-</section>
+<company-creation-wizard
+    *ngIf="isTest || contractActivated"
+    [contractID]="contractID"
+    [orgNumber]="orgNumber"
+    [createDemoCompany]="isTest">
+</company-creation-wizard>

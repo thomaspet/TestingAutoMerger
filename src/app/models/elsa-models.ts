@@ -56,16 +56,38 @@ export enum ElsaPurchaseStatus {
 export interface ElsaContract {
     ID: number;
     CustomerID: number;
-    ContractType: ElsaContractType;
+    ContractType: ContractType;
     StatusCode: number;
     StartDate: Date;
     EndDate?: Date;
     SettledUntil?: Date;
     Note?: any;
     Limit: number;
+    AgreementAcceptances: any[];
 }
 
-export enum ElsaContractType {
+export interface ElsaContractType {
+    ContractType: number;
+    IsActive: boolean;
+    IsDefault: boolean;
+    IsPublic: boolean;
+    Label: string;
+    MaxCompanies: number;
+    MaxUsers: number;
+    Name: string;
+    ProductContractTypes?: ElsaProductContractType[];
+}
+
+export interface ElsaProductContractType {
+    ContractType: number;
+    ID: number;
+    IsDefaultProduct: boolean;
+    IsMandatoryProduct: boolean;
+    ProductID: 11;
+    Product?: ElsaProduct;
+}
+
+export enum ContractType {
     Demo = 0,
     Internal = 1,
     Partner = 3,
@@ -129,7 +151,8 @@ export enum ElsaProductType {
     Bundle = 1,
     Integration = 2,
     Extension = 3,
-    BankProduct = 4
+    BankProduct = 4,
+    Package = 6
 }
 
 export enum ElsaUserLicenseType {

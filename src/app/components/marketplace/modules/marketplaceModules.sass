@@ -1,85 +1,76 @@
-@import '../marketplaceSharedStyles.sass'
-@import '~src/styles/unibase/helpers/_multiline-ellipsis.sass'
-
-$default-margin: 2rem
+\:host
+    display: flex
+    flex-direction: column
 
 .marketplace-modules
-    background-color: $bg-color
-    color: $dark-text-color
-    display: flex
-    flex-flow: row wrap
+    width: 100%
+    max-width: 1300px
+    padding: 0 2rem
+    margin: 2rem auto
 
 .material-icons
     vertical-align: middle
 
 .header
     display: flex
-    background-color: white
-    width: 100%
-    padding-left: $default-margin
-    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.14)
+    align-items: center
+    height: 5.5rem
+    padding: 0 2rem 0 1.5rem
+    background: #fff
+    border-bottom: 1px solid var(--core-border-color)
 
     h1
-        font-weight: 600
-        display: inline-block
-
-    button.tertiary
-        margin: auto 2rem auto auto
-
-.modules, .extensions
-    display: flex
-    flex-flow: row wrap
-    justify-content: flex-start
-    align-content: flex-start
-    padding-left: $default-margin
-    width: 100%
-
-    h3
-        width: 100%
         font-weight: 500
-        font-size: 20px
+        font-size: 24px
 
-    @media (min-width: 1400px)
-        padding-left: 5%
-        padding-right: 5%
+    a
+        margin-left: auto
+        font-weight: 500
+        color: var(--color-c2a)
+        text-decoration: none
 
-.modules
-    margin-top: 1rem
-    padding-bottom: .5rem
+.product-card-grid
+    display: grid
+    grid-gap: 2rem
+    width: 100%
+    grid-template-columns: 1fr 1fr 1fr
+
+    @media (max-width: 1200px)
+        grid-template-columns: 1fr 1fr
+
+    @media (max-width: 750px)
+        grid-template-columns: 1fr
 
 .extensions
-    padding-top: .5rem
-    background-color: $bg-darker-color
+    margin-top: 4rem
+
+.modules, .extensions
+    .product-card-grid
+        grid-gap: 1.5rem
+
+        // Modules and extensions should have 4 columns per row on larger screens
+        @media (min-width: 1500px)
+            grid-template-columns: 1fr 1fr 1fr 1fr
+
+h2
+    font-weight: 500
+    font-size: 22px
 
 .product-card
     display: flex
     flex-direction: column
     padding: 0 .5rem
-    background-color: white
-    width: 20rem
+    background: #fff
     height: 10rem
-    margin-bottom: 1.5rem
-    margin-right: 1.5rem
     position: relative
     border-radius: 3px
-    &:hover
-        box-shadow: 0rem 0.2rem 0.2rem 0.2rem #EDEDED
-        transition-property: box-shadow
-        transition: .25s ease-in-out
-
-    .product-content
-        margin: auto 0
+    box-shadow: 0 4px 6px 0px rgba(0, 0, 0, 0.1)
 
     .price-info
         width: 100%
         text-align: right
         padding: 0.4rem .8rem 1rem 0
-        .price
-            font-weight: 600
-            font-size: 0.8rem
-        .type
-            font-weight: 300
-            font-size: 0.7rem
+        font-size: 13px
 
     .product-info
         font-weight: 500
@@ -118,10 +109,5 @@ $default-margin: 2rem
         &:hover
             text-decoration: underline
 
-uni-tabs
-    margin-bottom: 2rem
-
-.ellipsis-on-3-lines
-    @include multiline-ellipsis(3)
 
 

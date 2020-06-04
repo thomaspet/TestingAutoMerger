@@ -1,16 +1,22 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract, ElsaContractType, ElsaUserLicense} from '@app/models';
+import {Observable, of} from 'rxjs';
+import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType} from '@app/models';
 import {environment} from 'src/environments/environment';
 import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
+import {map, catchError} from 'rxjs/operators';
+import {theme, THEMES} from 'src/themes/theme';
+import {AuthService} from '@app/authService';
 
 @Injectable()
 export class ElsaContractService {
     ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
-    constructor(private uniHttp: UniHttp, private http: HttpClient) {}
+    constructor(
+        private authService: AuthService,
+        private uniHttp: UniHttp,
+        private http: HttpClient
+    ) {}
 
     get(id: number, select?: string): Observable<ElsaContract> {
         const selectClause = select ? `$select=${select}&` : '';
@@ -21,10 +27,63 @@ export class ElsaContractService {
     getAll(): Observable<ElsaContract[]> {
         return this.uniHttp
             .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/elsa/contracts')
+            .usingElsaDomain()
+            .withEndPoint('/api/contracts')
             .send()
             .map(req => req.body);
+    }
+
+    getContractTypes(): Observable<ElsaContractType[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/contract-types')
+            .send()
+            .pipe(map(res => res.body));
+    }
+
+    getCustomContractTypes(): Observable<ElsaContractType[]> {
+        return this.uniHttp
+            .asGET()
+            .usingElsaDomain()
+            .withEndPoint('/api/contracttypes?$expand=bulletpoints,productcontracttypes($expand=product)')
+            .send()
+            .map(res => {
+                return (res.body || []).filter(contractType => {
+                    return contractType.IsActive
+                        && contractType.IsPublic
+                        && contractType.ContractType > 20;
+                });
+            });
+    }
+
+    getValidContractTypeUpgrades(): Observable<number[]> {
+        // return this.uniHttp
+        //     .asGET()
+        //     .usingEmptyDomain()
+        //     .withEndPoint(`/api/elsa/contracts/${this.authService.contractID}/check-upgrade?valid=true`)
+        //     .send()
+        //     .pipe(
+        //         catchError(err => {
+        //             console.error(err);
+        //             return of([]);
+        //         }),
+        //         map(res => (res?.body || []).map(item => item.TargetType))
+        //     );
+
+        const url = `/api/elsa/contracts/${this.authService.contractID}/check-upgrade?valid=true`;
+        return this.http.get<any[]>(url).pipe(
+            catchError(err => {
+                console.error(err);
+                return of([]);
+            }),
+            map(res => (res || []).map(item => item.TargetType))
+        );
+    }
+
+    changeContractType(contractType: number) {
+        const url = `/api/elsa/contracts/${this.authService.contractID}/upgrade?contractType=${contractType}`;
+        return this.http.put(url, null);
     }
 
     getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {
@@ -66,10 +125,34 @@ export class ElsaContractService {
             .map(res => res.body && res.body[0]);
     }
 
+    activate(contractID: number, body, contractType?: number) {
+        let endpoint = `/api/elsa/contracts/${contractID}/activate`;
+
+        const queryParams = [];
+        if (contractType) {
+            queryParams.push(`contractType=${contractType}`);
+        }
+
+        if (theme.theme === THEMES.SR) {
+            queryParams.push(`companyStatusCode=3`); // pending
+        }
+
+        if (queryParams.length) {
+            endpoint += `?${queryParams.join('&')}`;
+        }
+
+        return this.uniHttp
+            .asPUT()
+            .usingEmptyDomain()
+            .withEndPoint(endpoint)
+            .withBody(body)
+            .send();
+    }
+
     activateContract(contractID: number, isBureau: boolean = false, statusCode: number = null) {
         let endpoint = `/api/elsa/contracts/${contractID}/activate`;
         if (isBureau) {
-            endpoint += `&ContractType=${ElsaContractType.Bureau}`;
+            endpoint += `&ContractType=${ContractType.Bureau}`;
         }
 
         if (statusCode) {
@@ -85,19 +168,19 @@ export class ElsaContractService {
 
     getContractTypeText(contractType: number) {
         switch (contractType) {
-            case ElsaContractType.Standard:
+            case ContractType.Standard:
                 return 'Standard';
-            case ElsaContractType.Bureau:
+            case ContractType.Bureau:
                 return 'Byrå';
-            case ElsaContractType.Demo:
+            case ContractType.Demo:
                 return 'Demo';
-            case ElsaContractType.Internal:
+            case ContractType.Internal:
                 return 'Intern';
-            case ElsaContractType.Partner:
+            case ContractType.Partner:
                 return 'Partner';
-            case ElsaContractType.Pilot:
+            case ContractType.Pilot:
                 return 'Pilot';
-            case ElsaContractType.NonProfit:
+            case ContractType.NonProfit:
                 return 'Non-profit';
             default:
                 return '';

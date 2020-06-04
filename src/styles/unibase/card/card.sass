@@ -23,12 +23,26 @@
     .uni-card-content
         padding: 1.5rem 2rem
 
+    .uni-card-footer
+        display: flex
+        justify-content: flex-end
+        align-items: center
+        height: 4.5rem
+        padding: 0 2rem
+        // border-top: 1px solid var(--border-color)
+        background: var(--card-footer-background)
+
+
     &.collapsable
         .uni-card-header
             padding-right: 1rem
             border-bottom: none
         &.is-open .uni-card-header
             border-bottom: 1px solid var(--border-color)
+
+    &.shadow
+        border: none
+        box-shadow: 0 4px 6px 0px rgba(0, 0, 0, 0.1)
 
     // uniform override..
     fieldset

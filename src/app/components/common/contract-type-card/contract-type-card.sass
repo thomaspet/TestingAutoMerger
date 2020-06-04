@@ -1,22 +1,17 @@
 $recommended-tag-height: 28px
 
 \:host
-    display: grid
-    grid-template-columns: repeat(auto-fit, 21rem)
-    grid-column-gap: 2rem
-    grid-row-gap: 3rem
-    justify-content: center
-    color: #14555A
-    margin-top: $recommended-tag-height
-
-.bruno-product-package
-    display: flex
+    display: inline-flex
     flex-direction: column
     background: #fff
-    padding: 1.5rem
+    padding: 1.5rem 1.5rem 1rem
     border-radius: var(--section-radius)
     position: relative
     box-shadow: 0 4px 6px 0px rgba(0,0,0,.1)
+    color: var(--contract-type-card-text)
+
+    // Invisible border to avoid recommended style causing different layout
+    border: 2px solid rgba(0, 0, 0, 0)
 
     &.recommended
         border: 2px solid var(--border-color)
@@ -37,7 +32,7 @@ $recommended-tag-height: 28px
     .price
         margin-left: auto
         strong
-            color: #00343E
+            color: var(--contract-type-card-header)
             font-size: 1.1rem
             font-weight: 600
 
@@ -49,20 +44,31 @@ $recommended-tag-height: 28px
         h1
             font-weight: 500
             font-size: 1.5rem
-            color: #00343E
+            color: var(--contract-type-card-header)
 
     ul
+        flex: 1
+        display: grid
+        justify-content: center
         list-style: none
-        padding: 0 .5rem
+        padding: 0 1.25rem
         li
             display: flex
-            align-items: center
             margin-top: 1rem
         svg
-            fill: #14555A
+            flex: 0 0 auto
+            fill: currentColor
             margin-right: 1rem
 
 
-    button
+    .footer
         margin: 2rem auto 0
-        min-width: 12rem
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        height: 75px
+
+        button
+            padding: 0 2rem
+            margin-bottom: .5rem

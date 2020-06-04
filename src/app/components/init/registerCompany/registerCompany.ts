@@ -3,9 +3,10 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
-import {InitService} from '@app/services/services';
-import {Subscription} from 'rxjs';
+import {InitService, ElsaContractService, ErrorService} from '@app/services/services';
+import {Subscription, forkJoin} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
+import {ElsaContractType, ElsaContract} from '@app/models';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -31,6 +32,8 @@ interface RegistrationOption {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
+    hasInitialized: boolean;
+
     appName = theme.appName;
     tokenSubscription: Subscription;
 
@@ -44,6 +47,8 @@ export class RegisterCompany {
     registrationOptions: RegistrationOption[];
     illustration = theme.init.illustration;
 
+    hasActiveContract: boolean;
+
     @HostBinding('style.background') background = theme.init.background || '#fff';
     @HostBinding('class.ext02') usingExt02Theme = theme.theme === THEMES.EXT02;
 
@@ -52,6 +57,8 @@ export class RegisterCompany {
         private router: Router,
         private route: ActivatedRoute,
         private authService: AuthService,
+        private errorService: ErrorService,
+        private elsaContractService: ElsaContractService
     ) {
         this.route.queryParamMap.subscribe(params => {
             this.isTest = params.get('isTest') === 'true' || false;
@@ -60,16 +67,9 @@ export class RegisterCompany {
 
         this.tokenSubscription = this.authService.token$.subscribe(token => {
             if (token) {
-                this.initService.getContracts().subscribe(contracts => {
-                    if (contracts && contracts[0]) {
-                        this.contractID = contracts[0].ID;
-                        this.registrationOptions = theme.theme === THEMES.SR
-                            ? this.getSrOptions()
-                            : this.getUeOptions();
-                    } else {
-                        this.missingContract = true;
-                    }
-                });
+                if (!this.hasInitialized) {
+                    this.init();
+                }
             } else {
                 this.router.navigateByUrl('/init/login');
             }
@@ -80,6 +80,32 @@ export class RegisterCompany {
         if (this.tokenSubscription) {
             this.tokenSubscription.unsubscribe();
         }
+    }
+
+    init() {
+        forkJoin(
+            // this.initService.getContracts(),
+            this.elsaContractService.getAll(),
+            this.elsaContractService.getContractTypes(),
+        ).subscribe(([contracts, contractTypes]: [ElsaContract[], ElsaContractType[]]) => {
+            const contract = contracts && contracts[0];
+            if (contracts) {
+                this.contractID = contract.ID;
+                this.registrationOptions = theme.theme === THEMES.SR
+                    ? this.getSrOptions()
+                    : this.getUeOptions();
+
+                const demoContractType = (contractTypes || []).find(type => type.Name === 'Demo');
+                console.log(contract);
+
+                const isDemo = contract.ContractType === demoContractType.ContractType;
+                this.hasActiveContract = !isDemo && contract.AgreementAcceptances?.length > 0;
+
+            } else {
+                this.missingContract = true;
+            }
+
+        }, err => this.errorService.handle(err));
     }
 
     navigate(url: string) {

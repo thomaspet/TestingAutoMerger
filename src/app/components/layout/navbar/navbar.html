@@ -17,7 +17,7 @@
 
         <uni-company-dropdown [lockYearSelector]="deativateFunctions"></uni-company-dropdown>
 
-        <section *ngIf="isTestCompany"
+        <section *ngIf="isTestCompany && isSrEnvironment"
             class="template-company-warning"
             matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
             Kun for testing
