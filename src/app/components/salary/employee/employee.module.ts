@@ -19,10 +19,12 @@ import { EmployeeDetailsService } from './shared/services/employee-details.servi
 import { EmployeeLeaveService } from './shared/services/employee-leave.service';
 import { SalaryBalanceComponent } from './salary-balance/salary-balance.component';
 import { EmployeeGuard } from './employee.guard';
+import { EmployeeRoutingModule } from './employee-routing.module';
 
 @NgModule({
     imports: [
         SalarySharedModule,
+        EmployeeRoutingModule,
     ],
     declarations: [
         EmployeeLeavesComponent,

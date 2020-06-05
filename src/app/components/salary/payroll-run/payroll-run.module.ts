@@ -16,10 +16,12 @@ import { PayrollRunListComponent } from './payroll-run-list.component';
 import { PayrollRunDetailsService } from './services/payroll-run-details.service';
 import { PayrollRunDataService } from './services/payroll-run-data.service';
 import { SalaryHelperMethodsService } from './services/salary-helper-methods.service';
+import { PayrollRunRoutingModule } from './payroll-run-routing.module';
 
 @NgModule({
     imports: [
         SalarySharedModule,
+        PayrollRunRoutingModule,
     ],
     declarations: [
         TimeTransferComponent,

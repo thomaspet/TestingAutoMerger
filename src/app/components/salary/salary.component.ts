@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import { DefaultWidgetLayout } from '../widgets/widgetCanvas';
-import { theme } from 'dist/themes/theme.ext01';
 import { TabService, UniModules } from '../layout/navbar/tabstrip/tabService';
+import { theme } from 'src/themes/theme';
 
 
 @Component({

@@ -23,6 +23,7 @@ import { SalarySumsService } from './services/salary-transaction/salary-sums.ser
 import { SalaryTransactionSuggestedValuesService } from './services/salary-transaction/salary-transaction-suggested-values.service';
 import { SalaryTransactionSupplementService } from './services/salary-transaction/salary-transaction-supplement.service';
 import { SalaryTransactionViewService } from './services/salary-transaction/salary-transaction-view.service';
+import { RegulativeImportComponent } from './components/regulative-import/regulative-import.component';
 
 
 @NgModule({
@@ -45,6 +46,7 @@ import { SalaryTransactionViewService } from './services/salary-transaction/sala
         SalaryBalanceSummaryComponent,
         SalaryTransSupplementModalComponent,
         SyncWagetypesModalComponent,
+        RegulativeImportComponent,
     ],
     exports: [
         // shared modules

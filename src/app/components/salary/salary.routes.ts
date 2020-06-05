@@ -1,25 +1,17 @@
 import {Routes} from '@angular/router';
-
 import {SalaryComponent} from './salary.component';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
-
 import {WageTypeViewComponent} from './wage-type/wage-type-view.component';
 import {WageTypeListComponent} from './wage-type/wage-type-list.component';
 import {WagetypeSyncGuard} from './wage-type/wage-type-sync.guard';
-import {EmployeeListComponent} from './employee/employee-list.component';
-import {EmployeeDetailsComponent} from './employee/employee-details.component';
-import {PayrollRunListComponent} from './payroll-run/payroll-run-list.component';
-import {PayrollRunDetailsComponent} from './payroll-run/payroll-run-details.component';
 import {
     AnnualStatementSenderContainerComponent
 } from './annual-statement/annual-statement-sender-container/annual-statement-sender-container.component';
-import {routes as EmployeeRoutes} from './employee/employee.routes';
 import {routes as WageTypeRoutes} from './wage-type/wage-type.routes';
 import {AMeldingViewComponent} from './a-melding/a-melding-view.component';
 import {CategoryListComponent} from './category/category-list.component';
 import {CategoryViewComponent} from './category/category-view.component';
 import {SalaryTransactionSupplementListComponent} from './salary-transaction-supplement/salary-transaction-supplement-list.component';
-import {EmployeeGuard} from '@app/components/salary/employee/employee.guard';
 import { TravelTypeComponent } from '@app/components/salary/travel/travel-type/travel-type.component';
 import {TravelComponent} from '@app/components/salary/travel/travel.component';
 import { VariablePayrollsComponent } from './variable-payrolls/variable-payrolls.component';
@@ -52,28 +44,15 @@ export const salaryRoutes: Routes = [
     },
     {
         path: 'employees',
-        component: EmployeeListComponent
-    },
-    {
-        path: 'employees/:id',
-        component: EmployeeDetailsComponent,
-        children: EmployeeRoutes,
-        canDeactivate: [CanDeactivateGuard],
-        canActivate: [EmployeeGuard]
+        loadChildren: () => import('./employee/employee.module').then(m => m.EmployeeModule)
     },
     {
         path: 'payrollrun',
-        component: PayrollRunListComponent
-    },
-    {
-        path: 'payrollrun/:id',
-        component: PayrollRunDetailsComponent,
-        canDeactivate: [CanDeactivateGuard],
-        canActivate: [WagetypeSyncGuard],
+        loadChildren: () => import('./payroll-run/payroll-run.module').then(m => m.PayrollRunModule)
     },
     {
         path: 'amelding',
-        component: AMeldingViewComponent
+        loadChildren: () => import('./a-melding/a-melding.module').then(m => m.AMeldingModule)
     },
     {
         path: 'employeecategories',

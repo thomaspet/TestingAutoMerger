@@ -17,10 +17,12 @@ import { ReconciliationModalComponent } from './reconciliation-modal/reconciliat
 import { AltinnReceiptListComponent } from './altinn-receipt-list/altinn-receipt-list.component';
 import { ReconciliationRequestComponent } from './reconciliation-request/reconciliation-request.component';
 import { ReconciliationResponseModalComponent } from './reconciliation-response-modal/reconciliation-response-modal.component';
+import { AMeldingRoutingModule } from './a-melding-routing.module';
 
 @NgModule({
     imports: [
-        SalarySharedModule
+        SalarySharedModule,
+        AMeldingRoutingModule
     ],
     declarations: [
         AMeldingViewComponent,
