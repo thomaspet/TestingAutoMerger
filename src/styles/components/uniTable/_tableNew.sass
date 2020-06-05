@@ -51,6 +51,7 @@ ag-grid-wrapper
         border-bottom: var(--table-border)
     .ag-row
         border-bottom: var(--row-border)
+        padding: 0 10px
 
     &.borders ag-grid-angular
         .ag-header
@@ -71,15 +72,15 @@ ag-grid-wrapper
             border-bottom: none
         .ag-row
             border-bottom: none
-            border-top: var(--row-border)
+            border-top: var(--table-border)
 
         .ag-cell + .ag-cell,
         .ag-header-cell + .ag-header-cell
-            border-left: var(--cell-border)
+            border-left: var(--table-border)
 
         .ag-pinned-right-header,
         .ag-pinned-right-cols-container
-            border-left: var(--cell-border)
+            border-left: var(--table-border)
 
 ag-grid-angular
     width: 100%
@@ -129,6 +130,11 @@ ag-grid-angular
     background: var(--table-header-background)
     color: var(--table-header-color)
     font-weight: 500
+
+    .leftmost-header-cell
+        // This needs to be the same as the padding returned by the cellStyle
+        // function in ag-grid-wrapper.ts!
+        padding-left: 16px
 
 .ag-row
     color: var(--text-color)

@@ -9,19 +9,19 @@ import {theme, THEMES} from 'src/themes/theme';
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a class="dropdown-menu-item" href="https://help.unieconomy.no" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="https://help.unieconomy.no" target="_blank" *ngIf="isUeEnvironment">
                     Kundesenter
                 </a>
 
-                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="isUeEnvironment">
                     Opprett supportsak
                 </a>
 
-                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open" target="_blank" *ngIf="isUeEnvironment">
                     Mine supportsaker
                 </a>
 
-                <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="isUeEnvironment">
                     Teamviewer nedlasting
                 </a>
 
@@ -48,6 +48,7 @@ import {theme, THEMES} from 'src/themes/theme';
 export class UniTabstripHelp {
     @ViewChild(BoostChat) boost: BoostChat;
 
+    isUeEnvironment = theme.theme === THEMES.UE;
     isSrEnvironment = theme.theme === THEMES.SR;
 
     openChatBotWithSupport() {
