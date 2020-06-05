@@ -34,12 +34,12 @@ export class ElsaContractService {
     }
 
     getContractTypes(): Observable<ElsaContractType[]> {
-        return this.uniHttp
-            .asGET()
-            .usingEmptyDomain()
-            .withEndPoint('/api/elsa/contract-types')
-            .send()
-            .pipe(map(res => res.body));
+        return this.http.get<ElsaContractType[]>('/api/elsa/contract-types').pipe(
+            catchError(err => {
+                console.error(err);
+                return of([]);
+            })
+        );
     }
 
     getCustomContractTypes(): Observable<ElsaContractType[]> {
@@ -63,19 +63,6 @@ export class ElsaContractService {
     }
 
     getValidContractTypeUpgrades(): Observable<number[]> {
-        // return this.uniHttp
-        //     .asGET()
-        //     .usingEmptyDomain()
-        //     .withEndPoint(`/api/elsa/contracts/${this.authService.contractID}/check-upgrade?valid=true`)
-        //     .send()
-        //     .pipe(
-        //         catchError(err => {
-        //             console.error(err);
-        //             return of([]);
-        //         }),
-        //         map(res => (res?.body || []).map(item => item.TargetType))
-        //     );
-
         const url = `/api/elsa/contracts/${this.authService.contractID}/check-upgrade?valid=true`;
         return this.http.get<any[]>(url).pipe(
             catchError(err => {

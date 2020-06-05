@@ -96,11 +96,9 @@ export class RegisterCompany {
                     : this.getUeOptions();
 
                 const demoContractType = (contractTypes || []).find(type => type.Name === 'Demo');
-                console.log(contract);
 
-                const isDemo = contract.ContractType === demoContractType.ContractType;
+                const isDemo = true; // demoContractType && contract.ContractType === demoContractType.ContractType;
                 this.hasActiveContract = !isDemo && contract.AgreementAcceptances?.length > 0;
-
             } else {
                 this.missingContract = true;
             }
