@@ -59,7 +59,6 @@ import {SellerLinks} from './sellers/sellerlinks';
 import {SellerDetails} from './sellers/sellerDetails';
 import {SellerSalesList} from './sellers/sellerSalesList';
 import {SubCompanyComponent} from './customer/customerDetails/subcompany';
-import {KIDSettings} from './kidSettings/kidSettings';
 import {UniChooseOrderHoursModal} from './order/modal/chooseOrderHoursModal';
 import {KidModalComponent} from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import {AvtaleGiroModal} from './customer/avtalegiro-modal/avtalegiro-modal';
@@ -136,7 +135,6 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
         SellerLinks,
         SellerDetails,
         SellerSalesList,
-        KIDSettings,
         KidModalComponent,
         AvtaleGiroModal,
         AprilaOfferModal,

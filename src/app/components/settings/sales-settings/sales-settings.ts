@@ -16,6 +16,7 @@ import {CompanySettings, CustomerInvoiceReminderSettings, Email} from '@app/unie
 import { Observable, BehaviorSubject } from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
+import {KIDSettings} from '../../sales/kidSettings/kidSettings';
 import {
     UniModalService,
     IModalOptions,
@@ -28,6 +29,7 @@ import {
 import { IUniTab } from '@uni-framework/uni-tabs';
 import {cloneDeep} from 'lodash';
 
+
 @Component({
     selector: 'uni-sales-settings-view',
     templateUrl: './sales-settings.html',
@@ -38,6 +40,9 @@ export class UniSalesSettingsView {
 
     @ViewChild(UniReportSettingsView, { static: true })
     private reportSettings: UniReportSettingsView;
+
+    @ViewChild(KIDSettings)
+    private kidSettings: KIDSettings;
 
     @ViewChild(ReminderSettings, { static: false })
     public reminderSettings: ReminderSettings;
@@ -56,7 +61,7 @@ export class UniSalesSettingsView {
         'DefaultSalesAccount',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-        'CustomerInvoiceReminderSettings.DebtCollectionSettings'
+        'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
     ];
 
     isDirty: boolean = false;
@@ -71,6 +76,7 @@ export class UniSalesSettingsView {
     tabs: IUniTab[] = [
         {name: 'SETTINGS.SALES_INVOICE'},
         {name: 'NAVBAR.TERMS'},
+        {name: 'SETTINGS.KID_SETTINGS'},
         {name: 'SETTINGS.FORM_SETTINGS'},
         {name: 'SETTINGS.COLLECTOR'}
     ];
@@ -253,7 +259,8 @@ export class UniSalesSettingsView {
         const companySettings = this.companySettings$.getValue();
 
         return new Promise(res => {
-            if (!this.isDirty && !this.reportSettings.isDirty && !this.reminderSettings.isDirty && !companySettings['_isDirty']) {
+            if (!this.isDirty && !this.reportSettings.isDirty && !this.reminderSettings.isDirty
+                    && !this.kidSettings.hasUnsavedChanges && !companySettings['_isDirty']) {
                 done('Ingen endringer');
                 return;
             }
@@ -263,7 +270,8 @@ export class UniSalesSettingsView {
                     ? this.companySettingsService.Put(companySettings.ID, companySettings)
                     : Observable.of(true),
                 this.reportSettings.isDirty ? this.reportSettings.saveReportSettings() : Observable.of(true),
-                this.reminderSettings.isDirty ? Observable.fromPromise(this.reminderSettings.save()) : Observable.of(true)
+                this.reminderSettings.isDirty ? Observable.fromPromise(this.reminderSettings.save()) : Observable.of(true),
+                this.kidSettings.hasUnsavedChanges ? Observable.fromPromise(this.kidSettings.save()) : Observable.of(true)
             ).subscribe((response) => {
                 if (done) {
                     done('Salgsinnstillinger lagret');

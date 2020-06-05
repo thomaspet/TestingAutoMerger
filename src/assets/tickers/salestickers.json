@@ -36,6 +36,12 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "Fødselsnr.",
+                "Field": "Customer.SocialSecurityNumber",
+                "FilterOperator": "contains",
+                "DefaultHidden": true
+            },
+            {
                 "Header": "Telefon",
                 "Field": "Info.DefaultPhone.Number"
             },

@@ -145,12 +145,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.KID_SETTINGS',
-                        url: '/sales/kidsettings',
-                        moduleID: UniModules.KIDSettings,
-                        activeInSidebar: true
-                    },
-                    {
                         name: 'NAVBAR.RECURRING_INVOICE',
                         url: '/sales/recurringinvoice',
                         moduleID: UniModules.RecurringInvoice,
@@ -173,7 +167,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'CustomerNumber', isNumeric: true},
-                            {key: 'BusinessRelation.Name', isNumeric: false}
+                            {key: 'BusinessRelation.Name', isNumeric: false},
+                            {key: `isnull(SocialSecurityNumber,'')`, isNumeric: true}
                         ],
                         joins: ['Customer.BusinessRelationid eq BusinessRelation.id']
                     },
