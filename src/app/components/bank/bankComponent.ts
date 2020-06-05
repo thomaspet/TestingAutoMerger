@@ -1322,11 +1322,15 @@ export class BankComponent {
                                 this.paymentBatchService.sendToPayment(batchJobResponse.Result.ID, body).subscribe(() => {
                                     const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
                                     this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                                    this.tickerContainer.getFilterCounts();
+                                    this.tickerContainer.mainTicker.reloadData();
+                                    doneHandler('');
                                 });
                             }
                         } else {
                             this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
                                 batchJobResponse.Result);
+                                doneHandler('');
                         }
                     });
                 } else {
@@ -1342,6 +1346,7 @@ export class BankComponent {
                                         } else {
                                             this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                                 fileJobResponse.Result);
+                                                doneHandler('');
                                         }
                                     });
                                 } else {
@@ -1357,6 +1362,9 @@ export class BankComponent {
                         this.paymentBatchService.sendToPayment(result.ID, body).subscribe(() => {
                             const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
                             this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                            doneHandler('');
                         });
                     }
                 }
@@ -1525,9 +1533,6 @@ export class BankComponent {
                         ToastType.good, 5
                     );
 
-                    // Refresh list after paymentbatch has been generated
-                    this.tickerContainer.mainTicker.reloadData();
-
                     // Run action to generate paymentfile based on batch
                     if (isManualPayment) {
                         this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
@@ -1556,6 +1561,9 @@ export class BankComponent {
                         this.paymentBatchService.sendToPayment(paymentBatch.ID, body).subscribe(() => {
                             const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
                             this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                            doneHandler('');
                         });
                     }
                 },
