@@ -77,6 +77,7 @@ export interface ElsaContractType {
     Name: string;
     ProductContractTypes?: ElsaProductContractType[];
     ContractTypeFeatures?: ElsaContractTypeFeature[];
+    BulletPoints?: { Text: string; }[];
 }
 
 export interface ElsaProductContractType {

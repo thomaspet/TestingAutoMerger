@@ -33,7 +33,6 @@ import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 // import {IUniTab} from '@uni-framework/uni-tabs';
 import {theme, THEMES} from 'src/themes/theme';
-import {take} from 'rxjs/operators';
 import {ChangeContractTypeModal} from './change-contract-type-modal/change-contract-type-modal';
 
 @Component({
@@ -82,12 +81,6 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        // this.authService.authentication$.pipe(take(1)).subscribe(auth => {
-        //     if (auth.isDemo) {
-
-        //     }
-        // });
-
         forkJoin(
             this.elsaContractService.getCustomContractTypes(),
             this.elsaContractService.getValidContractTypeUpgrades(),

@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, HostBinding} from '@angular/core'
+import {Component, Input, Output, EventEmitter, HostBinding} from '@angular/core';
 import {ElsaContractType, ElsaProduct, ElsaProductType} from '@app/models';
 
 @Component({
@@ -19,9 +19,18 @@ export class ContractTypeCard {
     @Output() selected = new EventEmitter();
 
     product: ElsaProduct;
+    bulletPoints: string[];
+
+    cssGridTemplateRows: string;
 
     ngOnChanges(changes) {
         if (changes['contractType'] && this.contractType) {
+            this.bulletPoints = (this.contractType.BulletPoints || [])
+                .filter(item => !!item.Text)
+                .map(item => item.Text);
+
+            this.cssGridTemplateRows = `repeat(${this.bulletPoints.length}, max-content)`;
+
             const productContractType = this.contractType.ProductContractTypes.find(pct => {
                 return pct.Product?.ProductType === ElsaProductType.Package;
             });

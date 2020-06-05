@@ -475,16 +475,17 @@ export class AuthService {
         }
 
         const rootRoute = this.getRootRoute(url);
+        const permissionKey: string = this.getPermissionKey(url);
+
+        if (!this.featurePermissionService.hasUIPermission(permissionKey)) {
+            return false;
+        }
+
         if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
 
         if (!user) {
-            return false;
-        }
-
-        const permissionKey: string = this.getPermissionKey(url);
-        if (!this.featurePermissionService.hasUIPermission(permissionKey)) {
             return false;
         }
 

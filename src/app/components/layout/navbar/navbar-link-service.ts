@@ -9,6 +9,7 @@ import {UserDto} from '@uni-entities';
 import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {theme, THEMES} from 'src/themes/theme';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export type SidebarState = 'collapsed' | 'expanded';
 
@@ -28,6 +29,7 @@ export class NavbarLinkService {
 
     constructor(
         private authService: AuthService,
+        private featurePermissionService: FeaturePermissionService,
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
         browserStorage: BrowserStorageService,
@@ -53,30 +55,32 @@ export class NavbarLinkService {
         } else {
             const linkSections = this.getLinksFilteredByPermissions(this.user);
 
-            this.getDimensionRouteSection(this.user).subscribe(
-                dimensionLinks => {
-                    if (dimensionLinks) {
-                        const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
+            if (this.featurePermissionService.hasUIPermission('ui_dimensions')) {
+                this.getDimensionRouteSection(this.user).subscribe(
+                    dimensionLinks => {
+                        if (dimensionLinks) {
+                            const dimensionsIdx = linkSections.findIndex(section => section.name === 'NAVBAR.DIMENSION');
 
-                        // Insert before marketplace
-                        const insertIndex = linkSections.findIndex(section => section.name === 'NAVBAR.MARKETPLACE');
+                            // Insert before marketplace
+                            const insertIndex = linkSections.findIndex(section => section.name === 'NAVBAR.MARKETPLACE');
 
-                        // If dimensions is already in the list, just update
-                        if (dimensionsIdx !== -1) {
-                            linkSections[dimensionsIdx] = dimensionLinks;
-                        } else if (insertIndex > 0) {
-                            linkSections.splice(insertIndex, 0, dimensionLinks);
-                        } else {
-                            linkSections.push(dimensionLinks);
+                            // If dimensions is already in the list, just update
+                            if (dimensionsIdx !== -1) {
+                                linkSections[dimensionsIdx] = dimensionLinks;
+                            } else if (insertIndex > 0) {
+                                linkSections.splice(insertIndex, 0, dimensionLinks);
+                            } else {
+                                linkSections.push(dimensionLinks);
+                            }
                         }
 
                         this.linkSections$.next(linkSections);
-                    } else {
-                        this.linkSections$.next(linkSections);
-                    }
-                },
-                () => this.linkSections$.next(linkSections)
-            );
+                    },
+                    () => this.linkSections$.next(linkSections)
+                );
+            } else {
+                this.linkSections$.next(linkSections);
+            }
         }
     }
 

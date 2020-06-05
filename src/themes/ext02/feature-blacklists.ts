@@ -1,5 +1,5 @@
 export const PLUS_PACKAGE_BLACKLIST = {
-    feature_blacklist: [
+    view_features: [
         'ui.distribution',
         'ui.bank_account_manual_setup',
 
@@ -15,7 +15,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
 
         'ui.bank.journaling-rules',
     ],
-    ui_permission_blacklist: [
+    ui_permissions: [
         'ui_tickers',
         'ui_uniqueries',
         'ui_assignments',
@@ -29,7 +29,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
 
 export const MINI_PACKAGE_BLACKLIST = {
     view_features: [
-        ...PLUS_PACKAGE_BLACKLIST.feature_blacklist,
+        ...PLUS_PACKAGE_BLACKLIST.view_features,
         'ui.sellers',
         'ui.dimensions',
         'ui.debt-collection',
@@ -41,7 +41,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.products.product_categories',
     ],
     ui_permissions: [
-        ...PLUS_PACKAGE_BLACKLIST.ui_permission_blacklist,
+        ...PLUS_PACKAGE_BLACKLIST.ui_permissions,
         'ui_sales_quotes',
         'ui_sales_orders',
         'ui_sales_batch-invoices',
@@ -59,6 +59,8 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_accounting_postpost',
 
         'ui_dimensions',
+        'ui_marketplace_integrations',
+        'ui_marketplace_purchases',
         // 'ui_dimensions_projects_overview',
         // 'ui_dimensions_projects_hours',
     ],

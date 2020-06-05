@@ -125,13 +125,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.PRODUCT_GROUP',
                         url: '/sales/productgroups',
                         moduleID: UniModules.ProductGroup,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.SELLERS',
                         url: '/sales/sellers',
                         moduleID: UniModules.Sellers,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             }
@@ -212,7 +212,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.BUDGET',
                         url: '/accounting/budget',
                         moduleID: UniModules.Budget,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.OPEN_POST',
@@ -230,19 +230,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.RESULT_BALANCE',
                         url: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.SEARCH_JOURNALENTRY',
                         url: '/accounting/transquery',
                         moduleID: UniModules.TransqueryDetails,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.SEARCH_ACCOUNT',
                         url: '/accounting/accountquery',
                         moduleID: UniModules.AccountQuery,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             },
@@ -253,19 +253,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.ACCOUNT_PLAN',
                         url: '/accounting/accountsettings',
                         moduleID: UniModules.Accountsettings,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.CURRENCY',
                         url: '/currency/exchange',
                         moduleID: UniModules.CurrencyExchange,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.COSTALLOCATION',
                         url: '/accounting/costallocation',
                         moduleID: UniModules.CostAllocation,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             }
@@ -341,31 +341,31 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.BALANCE',
                         url: '/salary/salarybalances',
                         moduleID: UniModules.Salarybalances,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.ADDITIONAL_INFORMATION',
                         url: '/salary/supplements',
                         moduleID: UniModules.Supplements,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.ANNUAL_ASSIGNMENT',
                         url: '/salary/annualstatements',
                         moduleID: UniModules.AnnualStatements,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.OTP_EXPORT',
                         url: '/salary/otpexport',
                         moduleID: UniModules.OTPExport,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.VARIABLE_PAYROLLS',
                         url: '/salary/variablepayrolls',
                         moduleID: UniModules.VariablePayrolls,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             },
@@ -392,19 +392,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.WAGETYPE',
                         url: '/salary/wagetypes',
                         moduleID: UniModules.Wagetypes,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.CATAGORIES',
                         url: '/salary/employeecategories',
                         moduleID: UniModules.Categories,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.MOVE_TEMPLATES',
                         url: '/salary/salarybalancetemplates',
                         moduleID: UniModules.SalarybalanceTemplates,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             }
@@ -448,19 +448,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.TYPES',
                         url: '/timetracking/worktypes',
                         moduleID: UniModules.WorkTypes,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.EMPLOYMENT_TEMPLATE',
                         url: '/timetracking/workprofiles',
                         moduleID: UniModules.WorkProfiles,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.ADMIN_DAYSOFF',
                         url: '/timetracking/worktimeoff',
                         moduleID: UniModules.WorkProfiles,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                 ]
             }
@@ -480,13 +480,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Oversikt',
                         url: '/altinn/overview',
                         moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'Innstillinger',
                         url: '/altinn/settings',
                         moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     }
                 ]
             }
@@ -505,7 +505,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.COMPANIES',
                         url: '/bureau',
                         moduleID: UniModules.BureauDashboard,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.OVERVIEW',
@@ -523,19 +523,19 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.EXTRACT',
                         url: '/uniqueries',
                         moduleID: UniModules.UniQuery,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.DIMENSION',
                         url: '/dimensions/overview/1',
                         moduleID: UniModules.UniQuery,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
-                        activeInSidebar: false
+                        activeInSidebar: true,
                     },
                     {
                         name: 'NAVBAR.REPORTS',
@@ -577,12 +577,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Marketplace,
                         activeInSidebar: true
                     },
-                    {
-                        name: 'NAVBAR.BANK_PRODUCTS',
-                        url: '/marketplace/integrations?products=bank',
-                        moduleID: UniModules.Marketplace,
-                        activeInSidebar: true
-                    },
+                    // {
+                    //     name: 'NAVBAR.BANK_PRODUCTS',
+                    //     url: '/marketplace/integrations?products=bank',
+                    //     moduleID: UniModules.Marketplace,
+                    //     activeInSidebar: true
+                    // },
                     {
                         name: 'NAVBAR.PURCHASES',
                         url: '/marketplace/purchases',
