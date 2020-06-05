@@ -80,12 +80,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.KID_SETTINGS',
-                        url: '/sales/kidsettings',
-                        moduleID: UniModules.KIDSettings,
-                        activeInSidebar: false
-                    },
-                    {
                         name: 'NAVBAR.RECURRING_INVOICE',
                         url: '/sales/recurringinvoice',
                         moduleID: UniModules.RecurringInvoice,

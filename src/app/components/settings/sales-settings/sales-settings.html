@@ -179,8 +179,11 @@
         </section>
     </ng-container>
 
+    <kid-settings [(companySettings$)]="companySettings$" [hidden]="activeIndex !== 2">
+    </kid-settings>
+
     <!-- Need to use [hidden] instead of ngIf this since sales-settings is depending on viewchild ref always being available.. -->
-    <section [hidden]="activeIndex !== 2">
+    <section [hidden]="activeIndex !== 3">
         <!--  BLANKETTOPPSETT -->
         <section class="row form-row">
             <section class="col-md-4">
@@ -196,7 +199,7 @@
         </section>
 
         <!--  BLANKETTOPPSETT -->
-        <section *ngIf="activeIndex === 2" class="row form-row last">
+        <section *ngIf="activeIndex === 3" class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.REPORT_LOGO' | translate }} </h1>
@@ -224,7 +227,7 @@
     </section>
 
     <reminder-settings
-        [hidden]="activeIndex !== 3"
+        [hidden]="activeIndex !== 4"
         [showLabelAbove]="true"
         [reminderSettings]="customerInvoiceReminderSettings"
         (reminderSettingsChange)="isDirty = true;">

@@ -1,10 +1,8 @@
-import { Component, ViewChild, SimpleChanges, } from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import { Component, ViewChild, SimpleChanges, Input, Output, EventEmitter, } from '@angular/core';
 import { BehaviorSubject, } from 'rxjs';
 import { Observable, } from 'rxjs';
-import { IToolbarConfig, } from '@app/components/common/toolbar/toolbar';
 import { TabService, UniModules, } from '@app/components/layout/navbar/tabstrip/tabService';
-import { ErrorService, PaymentInfoTypeService, CompanySettingsService, PageStateService} from '@app/services/services';
+import { ErrorService, PaymentInfoTypeService, CompanySettingsService, PageStateService } from '@app/services/services';
 import { IUniSaveAction, } from '@uni-framework/save/save';
 import { AgGridWrapper, } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { FieldType, UniField, UniFieldLayout, UniFormError, UniForm, } from '@uni-framework/ui/uniform';
@@ -23,6 +21,11 @@ export class KIDSettings {
     @ViewChild('listTable', { static: true }) private detailsTable: AgGridWrapper;
     @ViewChild(UniForm, { static: true }) private form: UniForm;
 
+    @Input()
+    companySettings$ = new BehaviorSubject<CompanySettings>(null);
+
+    @Output() changeEvent = new EventEmitter<SimpleChanges>();
+
     currentPaymentInfoType: PaymentInfoType;
     currentID: number;
     detailsTableConfig: UniTableConfig;
@@ -35,46 +38,27 @@ export class KIDSettings {
     paymentInfoTypes: PaymentInfoType[];
     showInactiveInList: boolean = false;
     toggleBtnLabel: string = 'Vis inaktive';
-    toolbarconfig: IToolbarConfig = {
-        title: 'KID-innstillinger'
-    };
 
-    private companySettings: CompanySettings;
-    private hasUnsavedChanges: boolean = false;
+    hasUnsavedChanges: boolean = false;
     private initialPaymentInfoTypeList: PaymentInfoType[];
     private initialActive: boolean;
     private paymentInfoTypePartsMacros: string[] = [];
 
     constructor(
-        private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private paymentInfoTypeService: PaymentInfoTypeService,
-        private tabService: TabService,
         private toastService: ToastService,
-        private route: ActivatedRoute,
-        private pageStateService: PageStateService
     ) {
-        this.route.queryParams.subscribe((params) => {
-            this.currentID = +params['id'];
-            this.showInactiveInList = params['showInactiveInList'] === 'true';
-            this.initTableConfigs();
-            this.requestData();
-            this.addTab();
-        });
+        this.showInactiveInList = false;
+        this.initTableConfigs();
+        this.requestData();
     }
 
-    addTab() {
-        this.pageStateService.setPageState('id', this.currentID + '');
-        this.pageStateService.setPageState('showInactiveInList', this.showInactiveInList + '');
-
-        this.tabService.addTab({
-            name: 'KID-innstillinger',
-            url: this.pageStateService.getUrl(),
-            moduleID: UniModules.KIDSettings,
-            active: true
-        });
+    ngOnDestroy() {
+        this.companySettings$.complete();
     }
+
 
     checkInactive() {
         if (this.showInactiveInList) {
@@ -98,7 +82,6 @@ export class KIDSettings {
                     this.detailsTable.focusRow(0);
                 });
             }
-            this.addTab();
         }
     }
 
@@ -116,7 +99,6 @@ export class KIDSettings {
             this.formModel$.next(paymentInfoType);
         }
         this.checkLengths();
-        this.updateSaveActions();
     }
 
     onKidSelect(event) {
@@ -128,15 +110,6 @@ export class KIDSettings {
                 this.initFormConfig();
                 this.detailsTableConfig.setEditable(!this.currentPaymentInfoType.Locked);
             }
-        });
-    }
-
-    onSaveClick(done) {
-        this.save().then(() => {
-            done('Lagring fullført');
-        })
-        .catch(err => {
-            done(err.message || err);
         });
     }
 
@@ -171,10 +144,10 @@ export class KIDSettings {
             }
 
             if (part.Part === '<modulus10>' && index < currentPaymentInfoTypeParts.length - 1) {
-                    this.toastService.addToast(
-                        'Feil ved lagring', ToastType.bad, ToastTime.long, 'Kontrollsiffer må være siste element i listen'
-                    );
-                    throw new Error('Kontrollsiffer må være siste element i listen');
+                this.toastService.addToast(
+                    'Feil ved lagring', ToastType.bad, ToastTime.long, 'Kontrollsiffer må være siste element i listen'
+                );
+                throw new Error('Kontrollsiffer må være siste element i listen');
             }
 
             if (this.paymentInfoTypeService.macros.find(macro => macro.Macro === part.Part) === undefined) {
@@ -222,7 +195,7 @@ export class KIDSettings {
                         case ConfirmActions.ACCEPT:
                             this.save().then(success => {
                                 resolve(success);
-                                })
+                            })
                                 .catch(err => this.toastService.addToast('Feil ved lagring', ToastType.bad, ToastTime.long, err.message));
                             break;
                         case ConfirmActions.REJECT:
@@ -243,14 +216,15 @@ export class KIDSettings {
     }
 
     private checkShowKIDSettingInCompanySettings() {
-        return this.companySettings.ShowKIDOnCustomerInvoice
+        const companySettings = this.companySettings$.getValue();
+        return companySettings.ShowKIDOnCustomerInvoice
             && !this.paymentInfoTypes.some(paymentInfoType => paymentInfoType.StatusCode === StatusCodePaymentInfoType.Active);
     }
 
     private initFormConfig() {
         this.formConfig$.next({});
         this.formFields$.next([
-            <any> {
+            <any>{
                 EntityType: 'PaymentInfoType',
                 Property: 'Name',
                 FieldType: FieldType.TEXT,
@@ -258,14 +232,14 @@ export class KIDSettings {
                 Section: 0,
                 ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
-            <any> {
+            <any>{
                 EntityType: 'PaymentInfoType',
                 Property: '_type',
                 FieldType: FieldType.STATIC_TEXT,
                 Label: 'KID-type',
                 Section: 0,
             },
-            <any> {
+            <any>{
                 EntityType: 'PaymentInfoType',
                 Property: 'Length',
                 FieldType: FieldType.NUMERIC,
@@ -274,7 +248,7 @@ export class KIDSettings {
                 Section: 0,
                 ReadOnly: this.currentPaymentInfoType ? this.currentPaymentInfoType.Locked : true,
             },
-            <any> {
+            <any>{
                 EntityType: 'PaymentInfoType',
                 Property: '_active',
                 FieldType: FieldType.CHECKBOX,
@@ -332,14 +306,13 @@ export class KIDSettings {
                     }),
                 new UniTableColumn('Length', 'Antall siffer', UniTableColumnType.Number)
                     .setWidth(40),
-        ]);
+            ]);
     }
 
     private requestData() {
         Observable.forkJoin(
             this.paymentInfoTypeService.GetAll(null),
             this.paymentInfoTypeService.GetAction(null, 'get-paymentinfotype-parts-macros'),
-            this.companySettingsService.getCompanySettings(),
         ).subscribe(
             response => {
                 this.initialPaymentInfoTypeList = response[0];
@@ -370,16 +343,14 @@ export class KIDSettings {
                 }
 
                 this.paymentInfoTypePartsMacros = response[1];
-                this.companySettings = response[2];
 
                 this.initFormConfig();
-                this.updateSaveActions();
             },
             error => this.errorService.handle(error)
         );
     }
 
-    private save(): Promise<boolean>  {
+    public save(): Promise<boolean> {
         return new Promise((resolve, reject) => {
             let action: string;
             const requests: Observable<any>[] = [];
@@ -418,13 +389,12 @@ export class KIDSettings {
             Observable.forkJoin(...requests).subscribe(() => {
                 resolve(true);
                 this.hasUnsavedChanges = false;
-                this.updateSaveActions();
                 this.requestData();
             },
-            error => {
-                reject(error);
-                this.errorService.handle(error);
-            });
+                error => {
+                    reject(error);
+                    this.errorService.handle(error);
+                });
         });
     }
 
@@ -439,17 +409,6 @@ export class KIDSettings {
         this.formModel$.next(this.currentPaymentInfoType);
         this.currentID = this.currentPaymentInfoType.ID;
         this.hasUnsavedChanges = false;
-        this.updateSaveActions();
-        this.addTab();
-    }
-
-    private updateSaveActions() {
-        this.saveactions = [{
-            label: 'Lagre innstillinger',
-            action: (done) => this.onSaveClick(done),
-            main: true,
-            disabled: !this.isKidLengthOK || !this.hasUnsavedChanges
-        }];
     }
 
     private validateKidLength(value: number, field: UniFieldLayout): UniFormError | null {
