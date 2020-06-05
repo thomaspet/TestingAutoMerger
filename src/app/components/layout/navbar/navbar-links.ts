@@ -167,7 +167,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         selects: [
                             {key: 'ID', isNumeric: true},
                             {key: 'CustomerNumber', isNumeric: true},
-                            {key: 'BusinessRelation.Name', isNumeric: false}
+                            {key: 'BusinessRelation.Name', isNumeric: false},
+                            {key: `isnull(SocialSecurityNumber,'')`, isNumeric: true}
                         ],
                         joins: ['Customer.BusinessRelationid eq BusinessRelation.id']
                     },
