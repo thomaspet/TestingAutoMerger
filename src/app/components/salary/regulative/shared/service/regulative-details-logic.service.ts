@@ -14,9 +14,7 @@ export interface IRegulativeData {
     Active: boolean;
     DisplayDate: string;
 }
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class RegulativeDetailsLogicService {
     exporting: boolean;
 

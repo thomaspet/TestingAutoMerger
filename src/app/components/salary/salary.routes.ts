@@ -18,7 +18,6 @@ import {routes as WageTypeRoutes} from './wage-type/wage-type.routes';
 import {AMeldingViewComponent} from './a-melding/a-melding-view.component';
 import {CategoryListComponent} from './category/category-list.component';
 import {CategoryViewComponent} from './category/category-view.component';
-import {routes as CategoryRoutes} from './category/category.routes';
 import {SalaryTransactionSupplementListComponent} from './salary-transaction-supplement/salary-transaction-supplement-list.component';
 import {EmployeeGuard} from '@app/components/salary/employee/employee.guard';
 import { TravelTypeComponent } from '@app/components/salary/travel/travel-type/travel-type.component';
@@ -31,7 +30,8 @@ import { SalaryBalanceTemplateListComponent } from './salary-balance-template/sa
 import { SalaryBalanceTemplateViewComponent } from './salary-balance-template/salary-balance-template-view.component';
 import { routes as SalarybalanceTemplateRoutes } from './salary-balance-template/salary-balance-template.routes';
 import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
-import { routes as SalarybalanceRoutes } from './balance/salary-balance.routes';
+import { SalaryBalanceDetailsComponent } from './shared/components/salary-balance-details/salary-balance-details.component';
+import { CategoryDetailComponent } from './category/views/category-details.component';
 
 export const salaryRoutes: Routes = [
     {
@@ -82,7 +82,17 @@ export const salaryRoutes: Routes = [
     {
         path: 'employeecategories/:id',
         component: CategoryViewComponent,
-        children: CategoryRoutes,
+        children: [
+            {
+                path: '',
+                pathMatch: 'full',
+                redirectTo: 'details'
+            },
+            {
+                path: 'details',
+                component: CategoryDetailComponent
+            }
+        ],
         canDeactivate: [CanDeactivateGuard]
     },
     {
@@ -92,7 +102,17 @@ export const salaryRoutes: Routes = [
     {
         path: 'salarybalances/:id',
         component: BalanceComponent,
-        children: SalarybalanceRoutes,
+        children: [
+            {
+                path: '',
+                pathMatch: 'full',
+                redirectTo: 'details'
+            },
+            {
+                path: 'details',
+                component: SalaryBalanceDetailsComponent
+            }
+        ],
         canDeactivate: [CanDeactivateGuard]
     },
     {
