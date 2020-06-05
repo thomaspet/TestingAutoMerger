@@ -679,6 +679,7 @@
                 ]
               }
             },
+
             "ext02": {
               "aot": true,
               "optimization": true,
@@ -690,6 +691,10 @@
               "namedChunks": false,
               "vendorChunk": false,
               "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext02.ts"
+                },
                 {
                   "replace": "src/themes/logo.svg",
                   "with": "src/themes/ext02/logo.svg"
