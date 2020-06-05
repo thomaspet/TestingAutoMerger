@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, of} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType} from '@app/models';
+import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory} from '@app/models';
 import {environment} from 'src/environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
@@ -55,6 +55,11 @@ export class ElsaContractService {
                         && contractType.ContractType > 20;
                 });
             });
+    }
+
+    // used for comparing contract-types
+    getContractTypesCategories(): Observable<ElsaCategory[]> {
+        return this.http.get<ElsaCategory[]>(this.ELSA_SERVER_URL + '/api/categories');
     }
 
     getValidContractTypeUpgrades(): Observable<number[]> {

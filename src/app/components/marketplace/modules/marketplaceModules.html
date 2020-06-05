@@ -52,6 +52,10 @@
         </section>
     </section>
 
+    <ng-container *ngIf="contractTypes?.length">
+        <contract-types-comparison style="width: 100%; margin: 0 auto"></contract-types-comparison>
+    </ng-container>
+
     <!-- Expensions (and modules if the contract-type selector is visible) -->
     <section *ngIf="extensions?.length || (contractTypes?.length && modules?.length)" class="extensions">
         <h2>Utvidelser</h2>

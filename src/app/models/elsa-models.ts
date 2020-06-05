@@ -76,6 +76,7 @@ export interface ElsaContractType {
     MaxUsers: number;
     Name: string;
     ProductContractTypes?: ElsaProductContractType[];
+    ContractTypeFeatures?: ElsaContractTypeFeature[];
 }
 
 export interface ElsaProductContractType {
@@ -85,6 +86,27 @@ export interface ElsaProductContractType {
     IsMandatoryProduct: boolean;
     ProductID: 11;
     Product?: ElsaProduct;
+}
+
+export interface ElsaContractTypeFeature {
+    FeatureID: number;
+    Feature: ElsaFeature;
+    ContractType: number;
+    ContractTypes: ElsaContractType;
+}
+
+export interface ElsaCategory {
+    ID: number;
+    Name: string;
+    Features?: ElsaFeature[];
+}
+
+export interface ElsaFeature {
+    ID: number;
+    Text: string;
+    CategoryID: number;
+    ContainsContractTypes: number[];
+    Checkmarks: boolean[];
 }
 
 export enum ContractType {

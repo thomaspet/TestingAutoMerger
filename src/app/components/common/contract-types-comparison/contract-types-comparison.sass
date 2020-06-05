@@ -1,0 +1,42 @@
+\:host
+    display: block
+.toggle-list
+    margin: 2rem auto
+    text-align: center
+    a
+        font-weight: 500
+        font-size: 18px
+        text-decoration: none
+        i.material-icons
+            margin-bottom: 1px
+            margin-left: -2px
+            transition: transform .25s ease
+            &.expanded
+                transform: rotate(-180deg)
+.comparison-container
+    width: 100%    
+    background: #fff
+    margin: 0 auto
+    max-height: 5%
+    transition: ease-in-out 400ms max-height
+    &.opened
+        max-height: 100%
+        transition: ease-in-out 800ms max-height
+table
+    width: 100%
+    border-collapse: collapse
+    color: #14555A
+.comparison-header
+    background-color: #D2F0E9
+.category-row
+    background-color: #E9F8F4
+th
+    padding: .75rem
+.center
+    text-align: center
+td
+    padding: .75rem
+    border-top: 1px solid #F4FBF9
+    svg
+        color: #007272
+        vertical-align: middle

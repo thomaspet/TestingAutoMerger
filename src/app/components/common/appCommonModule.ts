@@ -69,6 +69,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
 import {ContractTypeCard} from './contract-type-card/contract-type-card';
 import {ContractActivationWizard} from './contract-activation-wizard/contract-activation-wizard';
 import {CompanyCreationWizard} from './company-creation-wizard/company-creation-wizard';
+import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
 
 @NgModule({
     imports: [
@@ -150,6 +151,7 @@ import {CompanyCreationWizard} from './company-creation-wizard/company-creation-
         ContractTypeCard,
         ContractActivationWizard,
         CompanyCreationWizard,
+        ContractTypesComparison,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -206,6 +208,7 @@ import {CompanyCreationWizard} from './company-creation-wizard/company-creation-
         ContractTypeCard,
         ContractActivationWizard,
         CompanyCreationWizard,
+        ContractTypesComparison,
     ]
 })
 export class AppCommonModule {}

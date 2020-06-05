@@ -1,0 +1,47 @@
+<section class="toggle-list">
+    <a (click)="expanded = !expanded; fetchData()">
+        Sammenlign funksjoner
+        <i class="material-icons" [class.expanded]="expanded && categories.length">expand_more</i>
+    </a>
+</section>
+<section class="comparison-container" *ngIf="expanded && !busy && categories.length" [@slideInOut]>
+    <table class="table">
+        <thead class="comparison-header">
+            <th width="5%"></th>
+            <th width="30%"></th>
+            <th
+                scope="col"
+                *ngFor="let contracttype of activeContractTypes"
+                class="center"
+                width="20%"
+            >
+                {{contracttype.Label}}
+                <br>
+                <span style="font-weight: 400;">
+                    {{contracttype['_MainPackageProduct'] ? contracttype['_MainPackageProduct'].Price : '-'}} kr/mnd
+                </span>
+            </th>
+        </thead>
+
+        <tbody *ngFor="let category of categories">
+            <tr class="category-row">
+                <th></th>
+                <th scope="row" style="float:left">
+                    {{category.Name}}
+                </th>
+                <th *ngFor="let contracttype of activeContractTypes"></th>
+            </tr>
+            <tr *ngFor="let feature of category.Features">
+                <td></td>
+                <td>
+                    {{feature.Text}}
+                </td>
+                <td *ngFor="let checked of feature.Checkmarks" class="center">
+                    <svg *ngIf="checked" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M2.61309 8.7943C2.3745 8.4557 1.9066 8.37462 1.568 8.61321C1.2294 8.8518 1.14833 9.3197 1.38691 9.6583L2.61309 8.7943ZM4.45 12.7033L5.07323 12.2861L5.06825 12.2786L5.06309 12.2713L4.45 12.7033ZM6.157 12.7543L5.5686 12.2892L5.56414 12.2949L5.55979 12.3006L6.157 12.7543ZM14.5884 3.29636C14.8452 2.9714 14.79 2.49975 14.4651 2.2429C14.1401 1.98605 13.6684 2.04127 13.4116 2.36624L14.5884 3.29636ZM1.38691 9.6583L3.83691 13.1353L5.06309 12.2713L2.61309 8.7943L1.38691 9.6583ZM3.82677 13.1205C4.15013 13.6036 4.68696 13.9006 5.26797 13.9179L5.31277 12.4186C5.2162 12.4157 5.12698 12.3664 5.07323 12.2861L3.82677 13.1205ZM5.26797 13.9179C5.84899 13.9353 6.40259 13.6709 6.75421 13.208L5.55979 12.3006C5.50134 12.3775 5.40933 12.4215 5.31277 12.4186L5.26797 13.9179ZM6.7454 13.2194L14.5884 3.29636L13.4116 2.36624L5.5686 12.2892L6.7454 13.2194Z" fill="currentColor"/>
+                    </svg>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
