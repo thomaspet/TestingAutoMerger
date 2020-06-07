@@ -107,6 +107,7 @@ export interface ElsaFeature {
     Text: string;
     CategoryID: number;
     ContainsContractTypes: number[];
+    Tooltip?: string;
     Checkmarks: boolean[];
 }
 

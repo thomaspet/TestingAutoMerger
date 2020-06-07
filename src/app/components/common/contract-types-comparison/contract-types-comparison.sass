@@ -31,12 +31,50 @@ table
 .category-row
     background-color: #E9F8F4
 th
-    padding: .75rem
+    padding: .90rem
 .center
     text-align: center
 td
-    padding: .75rem
+    padding: .90rem
     border-top: 1px solid #F4FBF9
     svg
         color: #007272
         vertical-align: middle
+.feature-tooltip
+    position: relative
+    display: inline-block
+    cursor: default
+    margin-left: 4px
+    top: -1px
+.feature-tooltip .feature-tooltip-text
+    visibility: hidden
+    width: 190px
+    background-color: #fff
+    position: absolute
+    color: #14555A
+    font-size: 14px
+    text-align: left
+    line-height: 16px
+    padding: 0.75rem
+    border: 1px solid #007272
+    border-radius: 3px
+    top: 150%
+    left: 50%
+    // set to -width/2 to center it
+    margin-left: -95px
+    z-index: 1
+.feature-tooltip:hover .feature-tooltip-text
+    visibility: visible
+.feature-tooltip:hover .feature-tooltip-text:before
+    // this creates the arrow above the box
+    content: ''
+    position: absolute
+    height: 12px
+    width: 12px
+    background-color: #fff
+    top: -7px
+    left: 50%
+    transform: translateX(-50%) rotate(45deg) skew(15deg, 15deg)
+    border-left: 1px solid #007272
+    border-top: 1px solid #007272
+    z-index: 1
