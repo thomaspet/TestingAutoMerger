@@ -42,9 +42,12 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
     ) {}
 
     startOnboarding() {
-        this.brunoOnboardingService.startOnboarding().subscribe(() => {
-            this.ngAfterViewInit(); // BUG: Only waits if a debugger is pressent, should not be done before data is ready
-        });
+        this.brunoOnboardingService.startOnboarding()
+            .subscribe(() => {
+                this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+                    this.ngAfterViewInit();
+                });
+            });
     }
 
     public ngAfterViewInit() {
@@ -53,6 +56,11 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
             this.cdr.markForCheck();
             return;
         }
+
+        this.msg = '';
+        this.actionLink = '';
+        this.actionMsg = '';
+        this.icon = '';
 
         if (this.widget) {
             this.brunoOnboardingService.getAgreement().subscribe(
@@ -89,6 +97,8 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                 },
                 err => {
                     this.msg = 'Kunne ikke hente data';
+                    this.actionLink = '';
+                    this.actionMsg = '';
                     this.icon = 'sync_problem';
                     this.missingData = true;
                     this.cdr.markForCheck();

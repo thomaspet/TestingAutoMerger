@@ -44,6 +44,24 @@ export class BankAccountService extends BizHttp<BankAccount> {
     }
 
 
+    public getBankServiceBankAccounts() {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=get-bankservice-bankaccounts`)
+        .send()
+        .map(response => response.body);
+    }
+
+    public createBankAccounts(data: any[]) {
+        return this.http
+        .asPOST()
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + `?action=create-bankaccounts-from-bankservice-bankaccounts`)
+        .withBody(data)
+        .send()
+        .map(response => response);
+    }
 
     public getConnectedBankAccounts(accountID: number, skipBankAccountID: number): Observable<BankAccount[]> {
         return this.http

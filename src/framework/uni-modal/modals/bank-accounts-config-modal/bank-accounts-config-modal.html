@@ -1,0 +1,101 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{options.header || 'Sett opp kontoene dine i DNB regnskap'}}</header>
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section id="text-subline">
+            Vi har mottatt {{ accountsReceived }} bankkontoer fra DNB og trenger din hjelp til å 
+             koble kontoene riktig i regnskapsprogrammet.
+        </section>
+        
+        <br/>
+        <section>
+            Velg hvilke bankkontoer du skal benytte som standard for dine betalinger (driftskonto):
+        </section>
+        <br/>
+        <label class="uni-label label-above">
+            <span>
+                Standard driftskonto
+                <i 
+                    *ngIf="standardAccountAllreadyUsed" 
+                    class="material-icons tooltip-icon" 
+                    matTooltip="Firmaet har allerede en driftskonto som er i bruk, standard driftskonto kan derfor ikke endres.">
+                    error_outline
+                </i>
+            </span>
+            <uni-select
+            [items]="availableAccounts"
+            [config]="SelectConfig"
+            [(value)]="standardAccount"
+            [readonly]="standardAccountAllreadyUsed"
+            (valueChange)="updateForm()"> 
+        </uni-select>
+        </label>
+        <br/>      
+        <span>
+            <b>Lønn</b>
+            <i class="material-icons tooltip-icon" matTooltip="Du kan benytte lønn uten å sette opp egen konto for skattetrekk.">help_outline</i>
+        </span>        
+
+        <section>
+            Skal du benytte lønn og ønsker å bruke en av disse kontoene som skattetrekkskonto?
+        </section>
+        <br/>
+        <span>
+            <button
+                class="butt-taxtoggle"
+                [class.c2a]="hasSalary"
+                id="butt-yes"
+                (click)="toggleTaxAccountField(true)">
+                Ja
+            </button>
+            <button
+                class="butt-taxtoggle"
+                [class.c2a]="!hasSalary"
+                id="butt-no"
+                (click)="toggleTaxAccountField(false)">                
+                Nei
+            </button>
+        </span>
+
+        <br/>
+        <br/>        
+        <label class="uni-label label-above" *ngIf="hasSalary">
+            <span>
+                Skattetrekkskonto
+                    <uni-tooltip 
+                        *ngIf="taxAccountAllreadyUsed"
+                        [type]="'warn'"
+                    [text]="'Firmaet har allerede en skattetrekkskonto som er i bruk, standard skattetrekkskonto kan derfor ikke endres.'">
+                    </uni-tooltip>
+            </span>
+            <uni-select
+            [items]="availableAccounts"
+            [config]="SelectConfig"
+            [(value)]="taxAccount"
+            [readonly]="taxAccountAllreadyUsed"
+            (valueChange)="updateForm()"> 
+        </uni-select>
+        </label>
+
+        <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
+    </article>
+    <footer>
+        <button
+            class="secondary"
+            (click)="close(false)"
+            (keydown.shift.tab)="$event.preventDefault(); form?.focus()"
+            (keydown.tab)="onCancelTab($event)">
+            Avbryt
+        </button>
+
+        <button class="c2a"
+            (click)="close(true)"
+            (keydown.tab)="$event.preventDefault()"
+            [disabled]="!setupFinished">               
+            Neste
+        </button>
+    </footer>
+</section>
