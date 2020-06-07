@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal large">
+<section role="dialog" class="uni-modal file-list-modal" [class.preview-mode]="selectedFile">
     <header> {{ 'ACCOUNTING.SUPPLIER_INVOICE.NEW' | translate }} </header>
 
     <article>
@@ -41,8 +41,8 @@
         </label>
     </article>
 
-    <footer>
-        <button class="good" (click)="onClose.emit(selectedFile.ID)">Velg</button>
+    <footer class="center">
+        <button class="good" [disabled]="!selectedFile" (click)="onClose.emit(selectedFile.ID)">Velg</button>
         <button class="secondary" (click)="onClose.emit()">Lukk</button>
     </footer>
 </section>

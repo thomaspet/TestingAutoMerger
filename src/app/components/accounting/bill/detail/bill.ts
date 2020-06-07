@@ -32,7 +32,7 @@ import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform/index';
-import {IOcrServiceResult, OcrPropertyType, OcrValuables} from './ocr';
+import {IOcrServiceResult, OcrPropertyType, OcrValuables} from '@app/models/accounting/ocr';
 import {billStatusflowLabels as workflowLabels} from './lang';
 import {UniImage} from '@uni-framework/uniImage/uniImage';
 import {BillAssignmentModal} from '../assignment-modal/assignment-modal';

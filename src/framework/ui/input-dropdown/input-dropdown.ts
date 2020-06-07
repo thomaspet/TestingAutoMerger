@@ -1,14 +1,14 @@
 import {NgModule, TemplateRef, Component, Input, ViewChild, ChangeDetectionStrategy, ContentChild, SimpleChanges} from '@angular/core';
 import {CommonModule} from '@angular/common';
-import {OverlayModule, OverlayRef, Overlay, OverlayConfig, ConnectedPosition} from '@angular/cdk/overlay';
+import {OverlayModule, OverlayRef, Overlay, OverlayConfig, ConnectedPosition, OverlaySizeConfig} from '@angular/cdk/overlay';
 import {PortalModule, CdkPortal} from '@angular/cdk/portal';
-import {Subject} from 'rxjs';
+import {ObserversModule} from '@angular/cdk/observers';
 
 @Component({
     selector: 'input-dropdown-menu',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <section *cdkPortal class="input-dropdown-menu" (click)="$event.stopPropagation()">
+        <section (cdkObserveContent)="onContentChange()" *cdkPortal class="input-dropdown-menu" (click)="$event.stopPropagation()">
             <ng-container *ngTemplateOutlet="content"></ng-container>
         </section>
     `
@@ -20,7 +20,8 @@ export class InputDropdownMenu {
     @Input() visible: boolean;
 
     protected overlayRef: OverlayRef;
-    onDestroy$ = new Subject();
+
+    sizeConfig: OverlaySizeConfig;
 
     constructor(protected overlay: Overlay) {}
 
@@ -44,10 +45,15 @@ export class InputDropdownMenu {
         }
     }
 
+    onContentChange() {
+        if (this.overlayRef) {
+            this.overlayRef.updatePosition();
+            this.overlayRef.updateSize(this.sizeConfig);
+        }
+    }
+
     ngOnDestroy() {
         this.hide();
-        this.onDestroy$.next();
-        this.onDestroy$.complete();
     }
 
     show() {
@@ -59,9 +65,13 @@ export class InputDropdownMenu {
         this.overlayRef = this.overlay.create(this.getOverlayConfig());
         this.overlayRef.attach(this.contentTemplate);
         const refRect = this.input.getBoundingClientRect();
-        this.overlayRef.updateSize({
-            minWidth: refRect.width || '10rem'
-        });
+
+        this.sizeConfig = {
+            minWidth: refRect.width || '10rem',
+            maxHeight: '45rem'
+        };
+
+        this.overlayRef.updateSize(this.sizeConfig);
     }
 
     hide() {
@@ -116,7 +126,7 @@ export class InputDropdownMenu {
 }
 
 @NgModule({
-    imports: [CommonModule, OverlayModule, PortalModule],
+    imports: [CommonModule, OverlayModule, PortalModule, ObserversModule],
     declarations: [InputDropdownMenu],
     exports: [InputDropdownMenu]
 })

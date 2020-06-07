@@ -1,0 +1,36 @@
+<section class="uni-card">
+    <section class="uni-card-header">
+        <h1>Dokumenter ({{fileIDs?.length || 0}})</h1>
+
+        <section class="upload-buttons">
+            <span class="get-from-inbox" (click)="openFileFromInboxModal()" role="button">
+                <uni-icon [icon]="'download'"></uni-icon>
+                Hent fra innboks
+            </span>
+
+            <label class="upload-input">
+                <uni-icon [icon]="'upload'"></uni-icon>
+                <span>Last opp</span>
+                <input type="file" (change)="uniImage.onUploadInputChange($event)" />
+            </label>
+        </section>
+    </section>
+
+    <section class="uni-card-content">
+        <uni-image #uniImage
+            [hideUploadInput]="true"
+            [singleImage]="false"
+            [uploadWithoutEntity]="!invoice?.ID"
+            [fileIDs]="!invoice?.ID && startupFileID ? [startupFileID] : []"
+            [entity]="'SupplierInvoice'"
+            [entityID]="invoice?.ID"
+            [size]="1200"
+            [splitAllowed]="true"
+            [rotateAllowed]="true"
+            (fileListReady)="onFileListReady($event)"
+            (imageDeleted)="onImageDeleted($event)"
+            (imageUnlinked)="onImageUnlinked($event)"
+            (useWord)="useOCRValue($event)">
+        </uni-image>
+    </section>
+</section>

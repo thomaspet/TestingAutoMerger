@@ -1,5 +1,5 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {ToastService} from './toastService';
+import {ToastService, ToastType} from './toastService';
 
 @Component({
     selector: 'uni-toast-list',
@@ -8,7 +8,7 @@ import {ToastService} from './toastService';
             role="alert"
             class="load"
             [toast]="spinnerToast"
-            (dismiss)="hideLoadIndicator()">
+            (dismiss)="toastDismissed(spinnerToast)">
         </uni-toast>
 
         <uni-toast *ngFor="let toast of toastService.toasts$ | async"
@@ -36,7 +36,11 @@ export class UniToastList {
         toast.done = true;
 
         setTimeout(() => {
-            this.toastService.removeToast(toast.id);
+            if (ToastType.load) {
+                this.toastService.hideLoadIndicator();
+            } else {
+                this.toastService.removeToast(toast.id);
+            }
         }, 300);
     }
 }

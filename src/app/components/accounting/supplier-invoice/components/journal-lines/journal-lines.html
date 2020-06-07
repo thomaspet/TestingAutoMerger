@@ -1,0 +1,96 @@
+<section class="uni-card">
+    <section class="uni-card-header borderless">
+        <h1>Regnskap</h1>
+    </section>
+
+    <section class="uni-card-content" style="padding-bottom: .5rem" *ngIf="!readonly">
+        <section class="alert info" *ngIf="store?.smartBookingResult?.visible">
+            <i class="material-icons">info</i>
+            <span>
+                <strong>Smart bokføring:</strong>
+                {{ store.smartBookingResult.message }}
+            </span>
+
+            <i role="button" class="material-icons pull-right" (click)="store.smartBookingResult.visible = false">close</i>
+        </section>
+
+        <ng-container *ngFor="let line of lines; let idx = index">
+            <section *ngIf="!line.Deleted" class="line">
+                <section *ngIf="idx > 0 && !readonly" class="line-header">
+                    <span>Konteringslinje {{idx + 1}}</span>
+                    <button (click)="removeLine(idx)" class="tertiary c2a">
+                        <i class="material-icons">close</i>
+                    </button>
+                </section>
+
+                <section class="input-grid">
+                    <label class="uni-label label-above">
+                        <span>Kostnadskonto</span>
+                        <autocomplete
+                            [options]="accountAutocompleteOptions"
+                            [readonly]="readonly"
+                            [(value)]="line.Account"
+                            (valueChange)="onAccountChange(idx, line)">
+                        </autocomplete>
+                    </label>
+
+                    <label class="uni-label label-above">
+                        <span>Beskrivelse</span>
+                        <input type="text" [(ngModel)]="line.Description" (change)="store.updateJournalEntryLine(idx, 'Description', line.Description)" [readonly]="readonly">
+                    </label>
+
+                    <label class="uni-label label-above">
+                        <span>Beløp</span>
+                        <input [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" type="number" [readonly]="readonly">
+                    </label>
+
+                    <label class="uni-label label-above">
+                        <span>MVA</span>
+                        <uni-select
+                            [config]="selectConfig"
+                            [items]="store.vatTypes"
+                            [value]="line.VatType"
+                            [readonly]="readonly"
+                            (valueChange)="onVatTypeChange($event, idx)">
+                        </uni-select>
+                    </label>
+                </section>
+            </section>
+        </ng-container>
+
+        <button class="tertiary c2a" (click)="addDraftLine()" *ngIf="!readonly">
+            <i class="material-icons">add</i>
+            Legg til konteringslinje (del beløp over flere kontoer)
+        </button>
+
+    </section>
+
+    <section class="sum-bottom-container" *ngIf="!readonly">
+        <span class="total-label"> Totalsum: </span>
+
+        <span class="diff-number" *ngIf="total?.diff"> ( Differanse:  {{ total.diff | uninumberformat:'money' }} )  </span>
+
+        <span class="net-and-vat"> Netto: {{ total.net | uninumberformat:'money' }} &nbsp; + &nbsp; MVA: {{ total.vat | uninumberformat:'money' }} &nbsp; = &nbsp; </span>
+
+        <span class="total-sum-number"> {{ total.sum | uninumberformat:'money' }} </span>
+    </section>
+
+    <section *ngIf="readonly" class="booked-journals-list">
+        <span class="booked-info-span"> <i class="material-icons-outlined">info</i> Denne regningen er bokført </span>
+
+        <ul>
+            <li class="header">
+                <span class="acc"> Konto </span>
+                <span class="desc"> Beskrivelse </span>
+                <span class="sum"> Beløp </span>
+                <span class="vat"> Mva </span>
+            </li>
+            <li *ngFor="let line of lines; let idx = index">
+                <span class="acc"> {{ line.Account.AccountNumber }} - {{ line.Account.AccountName }} </span>
+                <span class="desc"> {{ line.Description }} </span>
+                <span class="sum"> {{ line.AmountCurrency | uninumberformat: 'money' }} </span>
+                <span class="vat"> {{ line.VatPercent ? line.VatPercent + '%' : '' }} </span>
+            </li>
+        </ul>
+    </section>
+</section>

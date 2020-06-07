@@ -1,4 +1,6 @@
 .uni-card
+    display: flex
+    flex-direction: column
     padding: 0
     margin-bottom: 1rem
     background-color: #fff
@@ -12,6 +14,9 @@
         padding: 0 2rem
         border-bottom: 1px solid var(--border-color)
 
+        &.borderless
+            border-bottom: none
+
         h1
             font-size: 1.15rem
             font-weight: 500
@@ -21,6 +26,7 @@
         padding-top: .5rem
 
     .uni-card-content
+        overflow: auto
         padding: 1.5rem 2rem
 
     .uni-card-footer

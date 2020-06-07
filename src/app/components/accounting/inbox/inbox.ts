@@ -36,7 +36,6 @@ export class UniInbox {
         title: 'NAVBAR.INBOX',
         buttons: [{
             label: 'Last opp dokument',
-            class: 'inbox-upload-button',
             icon: 'cloud_upload',
             action: () => this.uploadFile()
         }]

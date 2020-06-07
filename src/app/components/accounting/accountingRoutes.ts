@@ -20,7 +20,9 @@ import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
+import {SupplierInvoiceView} from './supplier-invoice/supplier-invoice';
 import {UniInbox} from './inbox/inbox';
+import { theme, THEMES } from 'src/themes/theme';
 
 export const accountingRoutes: Routes = [
     {
@@ -66,10 +68,14 @@ export const accountingRoutes: Routes = [
         component: BillsView,
         canDeactivate: [CanDeactivateGuard]
     },
-    {
+    theme.theme !== THEMES.EXT02 ? {
         path: 'bills/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]
+    } :
+    {
+        path: 'bills/:id',
+        loadChildren: () => import('./supplier-invoice/supplier-invoice.module').then(m => m.SupplierInvoiceModule)
     },
     {
         path: 'suppliers',

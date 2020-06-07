@@ -15,7 +15,7 @@ import {
 } from '@app/services/services';
 import {autocompleteDate} from '@app/date-adapter';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
-import {IOcrServiceResult, OcrValuables} from '../../bill/detail/ocr';
+import {IOcrServiceResult, OcrValuables} from '@app/models/accounting/ocr';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { ExpenseSummaryModal } from './summary/summary';
 export { ExpenseSummaryModal } from './summary/summary';
