@@ -158,7 +158,7 @@ export class ConfigBankAccountsModal implements IUniModal {
         }
     }
 
-    private updateForm() {
+    public updateForm() {
         this.updateAvailableAccounts();
         this.setupFinished = !this.hasSalary || (this.hasSalary && !!this.taxAccount);
     }

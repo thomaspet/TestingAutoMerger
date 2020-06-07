@@ -6,10 +6,10 @@
         </section>
 
         <section id="text-subline">
-            Vi har mottatt {{ accountsReceived }} bankkontoer fra DNB og trenger din hjelp til å 
+            Vi har mottatt {{ accountsReceived }} bankkontoer fra DNB og trenger din hjelp til å
              koble kontoene riktig i regnskapsprogrammet.
         </section>
-        
+
         <br/>
         <section>
             Velg hvilke bankkontoer du skal benytte som standard for dine betalinger (driftskonto):
@@ -18,9 +18,9 @@
         <label class="uni-label label-above">
             <span>
                 Standard driftskonto
-                <i 
-                    *ngIf="standardAccountAllreadyUsed" 
-                    class="material-icons tooltip-icon" 
+                <i
+                    *ngIf="standardAccountAllreadyUsed"
+                    class="material-icons tooltip-icon"
                     matTooltip="Firmaet har allerede en driftskonto som er i bruk, standard driftskonto kan derfor ikke endres.">
                     error_outline
                 </i>
@@ -30,14 +30,14 @@
             [config]="SelectConfig"
             [(value)]="standardAccount"
             [readonly]="standardAccountAllreadyUsed"
-            (valueChange)="updateForm()"> 
+            (valueChange)="updateForm()">
         </uni-select>
         </label>
-        <br/>      
+        <br/>
         <span>
             <b>Lønn</b>
             <i class="material-icons tooltip-icon" matTooltip="Du kan benytte lønn uten å sette opp egen konto for skattetrekk.">help_outline</i>
-        </span>        
+        </span>
 
         <section>
             Skal du benytte lønn og ønsker å bruke en av disse kontoene som skattetrekkskonto?
@@ -55,17 +55,17 @@
                 class="butt-taxtoggle"
                 [class.c2a]="!hasSalary"
                 id="butt-no"
-                (click)="toggleTaxAccountField(false)">                
+                (click)="toggleTaxAccountField(false)">
                 Nei
             </button>
         </span>
 
         <br/>
-        <br/>        
+        <br/>
         <label class="uni-label label-above" *ngIf="hasSalary">
             <span>
                 Skattetrekkskonto
-                    <uni-tooltip 
+                    <uni-tooltip
                         *ngIf="taxAccountAllreadyUsed"
                         [type]="'warn'"
                     [text]="'Firmaet har allerede en skattetrekkskonto som er i bruk, standard skattetrekkskonto kan derfor ikke endres.'">
@@ -76,7 +76,7 @@
             [config]="SelectConfig"
             [(value)]="taxAccount"
             [readonly]="taxAccountAllreadyUsed"
-            (valueChange)="updateForm()"> 
+            (valueChange)="updateForm()">
         </uni-select>
         </label>
 
@@ -86,15 +86,14 @@
         <button
             class="secondary"
             (click)="close(false)"
-            (keydown.shift.tab)="$event.preventDefault(); form?.focus()"
-            (keydown.tab)="onCancelTab($event)">
+            (keydown.shift.tab)="$event.preventDefault()">
             Avbryt
         </button>
 
         <button class="c2a"
             (click)="close(true)"
             (keydown.tab)="$event.preventDefault()"
-            [disabled]="!setupFinished">               
+            [disabled]="!setupFinished">
             Neste
         </button>
     </footer>
