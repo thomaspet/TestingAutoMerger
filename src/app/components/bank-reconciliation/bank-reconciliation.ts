@@ -6,14 +6,15 @@ import {BankAccount, BankStatementMatch} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {IToolbarConfig} from '../common/toolbar/toolbar';
-import {BankStatementSession, IMatchEntry} from '@app/services/bank/bankstatementsession';
+import {BankStatementSession, IMatchEntry, JournalEntryListMode} from '@app/services/bank/bankstatementsession';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {BankStatementUploadModal} from './bank-statement-upload-modal/bank-statement-upload-modal';
+import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/journal-entry-from-account-modal';
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
-import { BankStatementSettings } from './bank-statement-settings/bank-statement-settings';
-import {ClosedEntriesModal} from '../bank/modals/closed-entries-modal';
+import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
 import * as moment from 'moment';
 import {Observable, of} from 'rxjs';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -26,6 +27,7 @@ export class BankReconciliation {
     bankAccounts: BankAccount[];
     selectedBankAccount: BankAccount;
     confirmedMatches: BankStatementMatch[] = [];
+    selectedClosedItem;
     bankPeriod: Date;
     reconcileStartDate: Date;
     journalEntryPeriod: Date;
@@ -34,25 +36,10 @@ export class BankReconciliation {
     loaded = false;
     closedGroupDetailsVisible = false;
     settings = { MaxDayOffset: 5, MaxDelta: 0.0 };
-    saveactions: IUniSaveAction[] = [];
+
     contextMenuItems: IContextMenuItem[] = [];
-    toolbarconfig: IToolbarConfig = {
-        title: 'Bankavstemming',
-        contextmenu: [
-            {
-                label: 'Last opp ny kontoutskrift',
-                action: () => { this.openImportModal(); }
-            },
-            {
-                label: 'Før restsum av markerte linjer',
-                action: () => { this.openJournalModal(); }
-            },
-            {
-                label: 'Se alle åpne poster i bilagsføring',
-                action: () => { this.openJournalModal(true); }
-            }
-        ]
-    };
+    toolbarconfig: IToolbarConfig = this.setToolbarConfig();
+    saveactions: IUniSaveAction[] = [];
 
     constructor(
         tabService: TabService,
@@ -61,7 +48,8 @@ export class BankReconciliation {
         private errorHandler: ErrorHandler,
         private modalService: UniModalService,
         public session: BankStatementSession,
-        private pageStateService: PageStateService
+        private pageStateService: PageStateService,
+        private toastService: ToastService
     ) {
         tabService.addTab({
             url: '/bank/reconciliationmatch',
@@ -71,51 +59,45 @@ export class BankReconciliation {
         });
 
         this.initData();
+        this.updateSaveActions();
     }
 
     updateSaveActions() {
-        this.saveactions = [
-            {
-                label: 'Lagre',
-                action: done => this.save(done),
-                main: true,
-                disabled: !(this.session && this.session.closedGroups && this.session.closedGroups.length > 0)
-            }
-        ];
+        this.saveactions = [{
+            label: 'Avstem automatisk',
+            action: done => this.openSettings(done),
+            disabled: this.session.journalEntryMode !== JournalEntryListMode.Original
+        }];
     }
 
     save(done?) {
         if (this.saveBusy) {
+            if (done) { done(''); }
             return;
         }
 
         this.closedGroupDetailsVisible = false;
         this.saveBusy = true;
-        this.session.saveChanges().subscribe(
-            () => {
-                this.session.reload().subscribe(() => this.checkSuggest());
-                this.saveBusy = false;
-                if (done) {
-                    done();
-                }
-            },
-            err => {
-                this.errorHandler.handleError(err);
-                this.saveBusy = false;
-                if (done) {
-                    done();
-                }
+        this.session.saveChanges().subscribe(() => {
+            this.checkSuggest();
+
+            this.saveBusy = false;
+            if (done) {
+                done('Poster avstemt');
             }
-        );
+        }, err => {
+            this.errorHandler.handleError(err);
+            this.saveBusy = false;
+            if (done) {
+                done();
+            }
+        });
     }
 
     onItemSelect(item) {
         if (item.Closed) {
-            this.modalService.open(ClosedEntriesModal, { data: item }).onClose.subscribe((response) => {
-                if (response) {
-                    this.session.reload().subscribe(() => this.checkSuggest());
-                }
-            });
+            this.selectedClosedItem = item;
+            this.closedGroupDetailsVisible = true;
         } else {
             this.session.checkOrUncheck(item);
         }
@@ -123,7 +105,6 @@ export class BankReconciliation {
 
     initData() {
         this.session.clear();
-        this.updateSaveActions();
         this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0').subscribe(
             accounts => {
                 this.bankAccounts = accounts || [];
@@ -256,12 +237,26 @@ export class BankReconciliation {
                 this.bankPeriod = date;
                 this.journalEntryPeriod = date;
                 this.onBankPeriodChange();
+                this.toolbarconfig = this.setToolbarConfig();
             }
         );
     }
 
-    onBankPeriodChange(offset = 0) {
+    onDateChange(date: Date) {
 
+        const fromDate = moment(date).startOf('month').toDate();
+        const toDate = moment(date).endOf('month').toDate();
+
+        this.session
+        .load(fromDate, toDate, this.selectedBankAccount.AccountID, this.reconcileStartDate)
+        .finally(() => {
+            this.cleanUp = false;
+            this.loaded = true;
+        })
+        .subscribe(() => this.checkSuggest());
+    }
+
+    onBankPeriodChange(offset = 0) {
         const changePeriode = () => {
             if (this.selectedBankAccount) {
                 this.loaded = false;
@@ -307,19 +302,60 @@ export class BankReconciliation {
         }
     }
 
-    openSettings() {
+    openSettings(done?) {
         this.modalService.open(BankStatementSettings, { data: { settings: this.settings }}).onClose.subscribe(settings => {
             if (settings) {
                 this.settings = settings;
-                this.startAutoMatch();
+                this.startAutoMatch(done);
+            } else {
+                done('');
             }
         });
     }
 
     closeStage() {
-        this.session.closeStage();
-        this.updateSaveActions();
-        this.checkSuggest();
+        this.session.preparing = true;
+
+        this.session.closeStage().then((response) => {
+            if (response) {
+                if (this.session.journalEntryMode !== JournalEntryListMode.Original) {
+                    // If one of the matches is on same side, dont allow it in SubAccount view!
+                    if (response.filter(res => !res.BankStatementEntryID || !res.JournalEntryLineID).length) {
+                        const link = `<a href="/#/accounting/postpost?register=${this.session.journalEntryMode === 1 ? 'customer' : 'supplier'}&name=&search=&postsearch=&tabindex=0&maintabindex=0">gå til Utestående</a>`;
+
+                        this.toastService.addToast('Avstemming avbrutt', ToastType.warn, 15,
+                        `Kan ikke matche poster på samme side når du ser ${this.session.journalEntryMode === 1 ? 'kunde' : 'leverandør'}poster på høyresiden. `
+                        + `Trykk på regnskap for å matche bankposter, eller ${link} for å postpost-anmerke`);
+                        this.session.preparing = false;
+                        this.reset();
+                    } else {
+                        this.openJournalAndPostpostModal(response);
+                    }
+                } else {
+                    this.save();
+                }
+            } else {
+                // No changes was done, just need to stop showing busy indicator
+                this.session.preparing = false;
+            }
+        });
+    }
+
+    openJournalAndPostpostModal(matches) {
+        // Response : boolean -> true = saved, false = cancelled
+        this.modalService.open(JournalEntryFromAccountModal,
+            { data: {
+                matches: matches,
+                selectedBankAccount: this.selectedBankAccount
+            }, closeOnClickOutside: false })
+        .onClose.subscribe(response => {
+            if (response) {
+                this.session.reload().subscribe(() => this.checkSuggest());
+            } else {
+                this.session.preparing = false;
+                this.reset();
+            }
+        });
     }
 
     reset() {
@@ -331,10 +367,14 @@ export class BankReconciliation {
 
     sideMenuClose(event) {
         this.closedGroupDetailsVisible = false;
-        setTimeout(() => {
-            this.checkSuggest();
-        });
-        this.updateSaveActions();
+
+        if (event) {
+            this.session.reload().subscribe(() => this.checkSuggest());
+        } else {
+            setTimeout(() => {
+                this.checkSuggest();
+            });
+        }
     }
 
     checkSuggest(setFromUI = false) {
@@ -345,19 +385,44 @@ export class BankReconciliation {
         }
     }
 
-    startAutoMatch() {
-        if (!this.loaded) { return; }
+    startAutoMatch(done?) {
+        if (!this.loaded) { done(''); return; }
         this.session.requestSuggestions(this.settings).subscribe(x => {
             while (true) {
                 this.session.clearStage();
                 if (this.session.tryNextSuggestion(x)) {
                     this.session.closeStage();
                 } else {
-                    this.updateSaveActions();
+                    this.save(done);
                     break;
                 }
             }
         });
+    }
+
+    setToolbarConfig(): IToolbarConfig {
+        return {
+            title: 'Bankavstemming',
+            contextmenu: [
+                {
+                    label: 'Last opp ny kontoutskrift',
+                    action: () => { this.openImportModal(); }
+                },
+                {
+                    label: 'Før restsum av markerte linjer',
+                    action: () => { this.openJournalModal(); }
+                },
+                {
+                    label: 'Se alle åpne poster i bilagsføring',
+                    action: () => { this.openJournalModal(true); }
+                },
+                {
+                    label: 'Se etter match-forslag',
+                    action: () => { this.checkSuggest(); }
+                }
+            ],
+            period: this.bankPeriod
+        };
     }
 
     public canDeactivate(): boolean | Observable<boolean> {

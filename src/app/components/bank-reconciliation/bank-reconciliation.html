@@ -1,193 +1,144 @@
 <uni-toolbar
     [config]="toolbarconfig"
-    [saveactions]="saveactions">
+    [saveactions]="saveactions"
+    (monthChange)="onDateChange($event)">
 </uni-toolbar>
 
 <section class="application">
+
+    <mat-progress-bar
+        *ngIf="session.loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+
     <section class="uni-container view-wrapper">
 
-
-    <section class="reconciliation-toolbar">
-        <section class="left-side">
-            <section class="select-wrapper">
-                <section class="flex-sections-container">
-                    <span class="account-legend">Konto</span>
-                    <section class="section-cont" [matMenuTriggerFor]="contextMenu">
-                        <span>
-                            {{selectedBankAccount?.Account?.AccountNumber}} - {{selectedBankAccount?.Account?.AccountName}}
-                            {{(selectedBankAccount?.AccountNumber | uniaccountnumber) || selectedBankAccount?.IBAN}}
-                        </span>
+        <section class="reconciliation-view">
+            <section class="list-section">
+                <section class="list-header">
+                    <section class="overflow-ellipsis" #toggle title="Se tilgjengelige kontoer">
+                        <i class="material-icons-outlined">account_balance</i>
+                        <span class="bank-name"> {{ (selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName) }} - {{ selectedBankAccount?.AccountNumber }} </span>
+                        <i class="material-icons-outlined">arrow_drop_down</i>
                     </section>
 
-                    <ng-container>
-                        <mat-menu #contextMenu="matMenu" [overlapTrigger]="false" yPosition="below">
-                            <ul class="menu-list">
-                                <li *ngFor="let bankAccount of bankAccounts" (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
-                                    {{bankAccount.Account?.AccountNumber}} - {{bankAccount.Account?.AccountName}}
-                                    ({{(bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN}})
+                    <dropdown-menu [trigger]="toggle">
+                        <ng-template>
+                            <span *ngFor="let bankAccount of bankAccounts" (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
+                                {{ bankAccount.Account?.AccountNumber }} - {{ bankAccount.Account?.AccountName }} ( {{ (bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN }} )
+                            </span>
+                        </ng-template>
+                    </dropdown-menu>
+
+                    <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.bankBalance | uninumberformat: 'money'}}</span>
+                </section>
+
+                <bank-statement-entries *ngIf="!cleanUp"
+                    [showJournalEntryLink]="false"
+                    [(loaded)]="loaded"
+                    [items]="session.bankEntries"
+                    [stageInfo]="session.stageInfo.bank"
+                    (itemSelected)="onItemSelect($event)"
+                    (showClosedGroups)="closedGroupDetailsVisible = true"
+                    (uploadSelected)="openImportModal()">
+                </bank-statement-entries>
+            </section>
+
+            <section class="center-section">
+
+                <section class="reconciliation-summary" [attr.aria-busy]="session.preparing">
+                    <header>
+                        Koble sammen poster
+                    </header>
+                    <section class="content">
+                        <section *ngIf="session.status == 2" class="info-box">
+                            <article>Du har ingen bankposter.</article>
+                            <article>Trykk på "Last opp kontoutskrift" for å lese inn en bankfil manuelt.</article>
+                        </section>
+
+                        <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">
+                            Koble poster ved å klikke på transaksjonene
+                        </section>
+
+                        <section *ngIf="session.status == 4" class="warn" style="text-align: left;">
+                            Du har bankposter som ikke finnes i regnskapet.
+                            <br> Du kan bruke "Se alle poster i bilagsføring" under ...meny oppe til høyre for å bokføre disse.
+                        </section>
+
+                        <section *ngIf="session.status == 5" class="info-box warn">
+                            Du har poster {{ session.journalEntryMode === 0 ? 'i regnskapet' : session.journalEntryMode === 1 ? 'på kunder' : 'på leverandører'  }} som ikke finnes på bankutskriften.
+                        </section>
+<!--
+                        <section *ngIf="session.status == 6" class="info-box c2a">
+                            Du er nesten ferdig!
+                            <article>Klikk på 'Lagre' for å fullføre merkingen!</article>
+                        </section> -->
+
+                        <section *ngIf="session.status == 7" class="info-box good">
+                            <i style="font-size: 40pt" class="material-icons">done_all</i>
+                            <article>Alle poster er avstemt for perioden</article>
+                        </section>
+
+                        <section *ngIf="session.status == 8 || session.statusText" class="info-box good">
+                            <span> {{ session.statusText }} </span>
+                        </section>
+
+                        <ul *ngIf="session.stage?.length" class="match-drafts">
+                            <ng-container *ngFor="let entry of session.stage">
+                                <li>
+                                <span>{{entry.Date | date: 'dd.MM'}} - {{(entry.IsBankEntry ? 'Bank' : 'Regnskap')}}</span>
+                                <span [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
+                                    {{entry.Amount | uninumberformat: 'money' || 0}}
+                                </span>
                                 </li>
-                            </ul>
-                        </mat-menu>
-                    </ng-container>
+                            </ng-container>
 
-
-                </section>
-
-                <section class="flex-sections-container">
-                    <span class="date-legend">
-                        Til dato
-                    </span>
-                    <section class="period-picker">
-                        <button class="icon-button" (click)="onBankPeriodChange(-1)">
-                            <i class="material-icons">arrow_left</i>
-                        </button>
-
-                        <month-picker
-                            [(value)]="bankPeriod"
-                            (valueChange)="onBankPeriodChange()">
-                        </month-picker>
-
-                        <button class="icon-button" (click)="onBankPeriodChange(1)">
-                            <i class="material-icons">arrow_right</i>
-                        </button>
-                    </section>
-                </section>
-            </section>
-        </section>
-
-        <section class="pull-right">
-            <button class="secondary" (click)="openSettings()" title="Finner poster å koble sammen automatisk">
-                <i class="material-icons">compare_arrows</i>
-                Koble poster automatisk
-            </button>
-        </section>
-    </section>
-
-    <section class="reconciliation-view">
-        <section class="list-section">
-            <section class="list-header" [attr.aria-busy]="session.busy">
-                <section class="overflow-ellipsis">
-                    <span>
-                        {{selectedBankAccount?.AccountNumber}}
-                        {{(selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName)}}
-                    </span>
-                </section>
-
-                <small>Saldo</small>
-                <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.bankBalance | uninumberformat: 'money'}}</span>
-            </section>
-
-            <bank-statement-entries *ngIf="!cleanUp"
-                [showJournalEntryLink]="false"
-                [(loaded)]="loaded"
-                [items]="session.bankEntries"
-                [stageInfo]="session.stageInfo.bank"
-                (itemSelected)="onItemSelect($event)"
-                (showClosedGroups)="closedGroupDetailsVisible = true"
-                (uploadSelected)="openImportModal()">
-            </bank-statement-entries>
-        </section>
-
-        <section class="center-section">
-            <section class="warning-label" *ngIf="session.totalImbalance">
-                <span>
-                    <i class="material-icons warn">error</i>
-                    Avvik i saldo:
-                </span>
-                <span [ngClass]="session.totalImbalance >= 0 ? 'positive' : 'negative'">
-                    {{session.totalImbalance | uninumberformat: 'money'}}
-                </span>
-            </section>
-
-            <section class="reconciliation-summary" [attr.aria-busy]="session.preparing" >
-                <section class="content">
-                    <section *ngIf="session.status == 2" class="info-box">
-                        <article>Du har ingen bankposter.</article>
-                        <article>Trykk på "Last opp kontoutskrift" for å lese inn en bankfil manuelt.</article>
-                    </section>
-
-                    <section *ngIf="session.status == 3 && !session.stage?.length" class="no-match-drafts c2a">
-                        Koble poster ved å klikke på transaksjonene
-                    </section>
-
-                    <section *ngIf="session.status == 4" class="warn" style="text-align: left;">
-                        Du har bankposter som ikke finnes i regnskapet.
-                        <br> Du kan bruke "Se alle poster i bilagsføring" under ...meny oppe til høyre for å bokføre disse.
-                    </section>
-
-                    <section *ngIf="session.status == 5" class="info-box warn">
-                        Du har poster i regnskapet som ikke finnes på bankutskriften.
-                    </section>
-
-                    <section *ngIf="session.status == 6" class="info-box c2a">
-                        Du er nesten ferdig!
-                        <article>Klikk på 'Lagre' for å fullføre merkingen!</article>
-                    </section>
-
-                    <section *ngIf="session.status == 7" class="info-box good">
-                        <i style="font-size: 40pt" class="material-icons">done</i>
-                        <article>Alle poster er avstemt for perioden</article>
-                    </section>
-
-                    <ul *ngIf="session.stage?.length" class="match-drafts">
-                        <ng-container *ngFor="let entry of session.stage">
-                            <li>
-                            <span>{{entry.Date | date: 'dd.MM'}} - {{(entry.IsBankEntry ? 'Bank' : 'Regnskap')}}</span>
-                            <span [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
-                                {{entry.Amount | uninumberformat: 'money' || 0}}
-                            </span>
+                            <li class="diff" [ngClass]="{'has-diff': !!session.stageTotal}">
+                                <span>Differanse</span>
+                                <i class="material-icons" *ngIf="!session.stageTotal"> check_circle_outline </i>
+                                <span> {{ session.stageTotal || 0 | uninumberformat: 'money'}} </span>
                             </li>
-                        </ng-container>
+                        </ul>
 
-                        <li *ngIf="session.stageTotal" class="diff">
-                            <span>Differanse</span>
-                            <span [ngClass]="{'has-diff': !!session.stageTotal}">
-                                {{session.stageTotal | uninumberformat: 'money' || 0}}
-                            </span>
-                        </li>
-                    </ul>
+                        <button class="c2a link-posts-button"
+                            *ngIf="session.canCloseStage || session.status == 3"
+                            (click)="closeStage()"
+                            [disabled]="!session.canCloseStage">
 
-                    <button class="c2a link-posts-button"
-                        *ngIf="session.canCloseStage || session.status == 3"
-                        (click)="closeStage()"
-                        [disabled]="!session.canCloseStage">
+                            <i class="material-icons">link</i>
+                            Avstem
+                        </button>
+                    </section>
 
-                        <i class="material-icons">link</i>
-                        Koble sammen
+                    <button class="secondary book-button" *ngIf="session.stageHasOnlyBankEntries" (click)="openJournalModal(false)">
+                        Bokfør transaksjon <i class="material-icons">edit</i>
                     </button>
+
                 </section>
-
-                <section class="footer" *ngIf="session.closedGroups?.length > 0">
-                    <a (click)="closedGroupDetailsVisible = true">
-                        {{session.closedGroups?.length}}
-                        {{session.closedGroups?.length === 1 ? 'kobling' : 'koblinger'}}
-                            klar for lagring
-                    </a>
-                </section>
-
-                <button class="secondary book-button" *ngIf="session.stageHasOnlyBankEntries" (click)="openJournalModal(false)">
-                    Bokfør transaksjon <i class="material-icons">edit</i>
-                </button>
-
-            </section>
-        </section>
-
-        <section class="list-section">
-            <section class="list-header" [attr.aria-busy]="session.busy">
-                <span>Regnskap - {{selectedBankAccount?.Account?.AccountNumber}}</span>
-                <small>Saldo</small>
-                <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.journalEntryBalance | uninumberformat: 'money'}}</span>
             </section>
 
-            <bank-statement-entries *ngIf="!cleanUp"
-                [showJournalEntryLink]="true"
-                [items]="session.journalEntries"
-                [stageInfo]="session.stageInfo.journal"
-                (itemSelected)="onItemSelect($event)"
-                (showClosedGroups)="closedGroupDetailsVisible = true">
-            </bank-statement-entries>
+            <section class="list-section">
+                <section class="list-header">
+                    <!-- <i class="material-icons-outlined">article</i> -->
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 0" (click)="session.selectJournalEntries(0); updateSaveActions();" title="Se alle poster i regnskapet i perioden">Regnskap - {{selectedBankAccount?.Account?.AccountNumber}} ({{ session.originalCounter }})</span>
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 1" (click)="session.selectJournalEntries(1); updateSaveActions();" title="Viser åpne poster på dine kunder">Kunde ({{session.customerCounter}})</span>
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 2" (click)="session.selectJournalEntries(2); updateSaveActions();" title="Viser åpne poster på dine leverandører">Leverandør ({{session.supplierCounter}})</span>
+                    <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'">
+                        <i class="material-icons-outlined" *ngIf="session.totalImbalance" [matTooltip]="'Det er differanse mellom saldo i bank og saldo i regnskapet'"> info </i>
+                        {{session.journalEntryBalance | uninumberformat: 'money' || '0.00'}}
+                    </span>
+                </section>
+
+                <bank-statement-entries *ngIf="!cleanUp"
+                    [showJournalEntryLink]="true"
+                    [items]="session.journalEntries"
+                    [stageInfo]="session.stageInfo.journal"
+                    (itemSelected)="onItemSelect($event)"
+                    (showClosedGroups)="closedGroupDetailsVisible = true">
+                </bank-statement-entries>
+            </section>
         </section>
-    </section>
 
     </section>
 </section>
@@ -195,6 +146,6 @@
 <closed-reconciliations
     class="ontop"
     *ngIf="closedGroupDetailsVisible"
-    (saveEmit)="save()"
+    [item]="selectedClosedItem"
     (close)="sideMenuClose($event)">
 </closed-reconciliations>

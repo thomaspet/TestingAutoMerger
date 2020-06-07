@@ -37,6 +37,7 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
+import {MonthPicker} from './ui/month-picker/month-picker';
 import {UniIcon} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
@@ -75,6 +76,7 @@ import {AutoFocusDirective} from './autofocus.directive';
         UniTabs,
         UniIcon,
         FeaturePermissionDirective,
+        MonthPicker,
         AutoFocusDirective,
         ...MODALS
     ],
@@ -102,6 +104,7 @@ import {AutoFocusDirective} from './autofocus.directive';
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
+        MonthPicker,
 
         UniModal,
         UniSave,

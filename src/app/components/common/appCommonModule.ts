@@ -13,6 +13,7 @@ import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
 import {ToolbarSharingStatus} from './toolbar/sharing-status/sharing-status';
 import {ToolbarCustomStatus} from './toolbar/custom-status/custom-status';
+import {ToolbarMonthSelector} from './toolbar/month-selector/month-selector';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -71,6 +72,7 @@ import {ContractActivationWizard} from './contract-activation-wizard/contract-ac
 import {CompanyCreationWizard} from './company-creation-wizard/company-creation-wizard';
 import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
 
+
 @NgModule({
     imports: [
         LibraryImportsModule,
@@ -90,6 +92,7 @@ import {ContractTypesComparison} from './contract-types-comparison/contract-type
         UniToolbarValidation,
         ToolbarSharingStatus,
         ToolbarCustomStatus,
+        ToolbarMonthSelector,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,

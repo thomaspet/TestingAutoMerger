@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
-import { BankStatementMatch, BankStatementEntry } from '@uni-entities';
+import { BankStatementMatch, BankStatementEntry, JournalEntryLine } from '@uni-entities';
 import { BankStatementEntryService } from './bankStatementEntryService';
 import { StatisticsService } from '../common/statisticsService';
 import { BankStatementService } from './bankStatementService';
@@ -16,28 +16,46 @@ export enum BankSessionStatus {
     ReadyToJournal = 4,
     UnmatchedJournal = 5,
     CompleteIfSaved = 6,
-    Complete = 7
+    Complete = 7,
+    HasPostsInOtherTabs = 8
+}
+
+export enum JournalEntryListMode {
+    Original = 0,
+    Customer = 1,
+    Supplier = 2
 }
 
 @Injectable()
 export class BankStatementSession {
     busy: boolean;
+    loading$: Subject<boolean> = new Subject();
     preparing: boolean;
     closedGroups: StageGroup[] = [];
     stage: Array<IMatchEntry> = [];
     bankEntries: Array<IMatchEntry> = [];
     journalEntries: Array<IMatchEntry> = [];
+    journalEntriesOriginal: Array<IMatchEntry> = [];
+    journalEntriesCustomer: Array<IMatchEntry> = [];
+    journalEntriesSupplier: Array<IMatchEntry> = [];
     ledgerAccountID: number;
     stageTotal: number = 0;
     canCloseStage: boolean = false;
     suggestions: Array<BankStatmentMatchDto>;
     stageHasOnlyBankEntries: boolean = false;
 
+    journalEntryMode: JournalEntryListMode = 0;
+
+    originalCounter = 0;
+    customerCounter = 0;
+    supplierCounter = 0;
+
     bankBalance: number;
     journalEntryBalance: number;
     totalImbalance: number;
 
     status: BankSessionStatus = BankSessionStatus.NoData;
+    statusText: string = '';
 
     stageInfo = { bank: { count: 0, balance: 0 }, journal: { count: 0, balance: 0 } };
 
@@ -61,6 +79,7 @@ export class BankStatementSession {
         this._prevEndDate = endDate;
         this._reconcileStartDate = reconcileStartDate;
         this.busy = true;
+        this.loading$.next(true);
         this.ledgerAccountID = ledgerAccountID || this.ledgerAccountID;
 
         const fromDateString = moment(startDate).format('YYYY-MM-DD');
@@ -80,7 +99,23 @@ export class BankStatementSession {
             + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
             + `&orderby=statuscode,financialdate&distinct=false`;
 
+        const journalEntryCustomerQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate as Date,`
+        + `InvoiceNumber as InvoiceNumber,Description as Description,Amount as Amount,RestAmount as OpenAmount,JournalEntryID as JournalEntryID,`
+        + `StatusCode as StatusCode,AccountID as AccountID,Info.Name as AccountName,SubAccount.ID as SubAccountID,SubAccount.AccountName as SubAccountName`
+        + `&filter=SubAccount.CustomerID gt 0 and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
+        + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
+        + `&expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&orderby=statuscode,financialdate&distinct=false`;
+
+        const journalEntrySupplierQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate as Date,`
+        + `InvoiceNumber as InvoiceNumber,Description as Description,Amount as Amount,RestAmount as OpenAmount,JournalEntryID as JournalEntryID,`
+        + `StatusCode as StatusCode,AccountID as AccountID,Info.Name as AccountName,SubAccount.ID as SubAccountID,SubAccount.AccountName as SubAccountName`
+        + `&filter=SubAccount.SupplierID gt 0 and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
+        + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
+        + `&expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&orderby=statuscode,financialdate&distinct=false`;
+
         const journalEntries$ = this.statisticsService.GetAllUnwrapped(journalEntryQuery);
+        const journalEntriesCustomer$ = this.statisticsService.GetAllUnwrapped(journalEntryCustomerQuery);
+        const journalEntriesSupplier$ = this.statisticsService.GetAllUnwrapped(journalEntrySupplierQuery);
         const bankEntries$ = this.bankStatementEntryService.getEntriesWithOpenHistory(this.ledgerAccountID, startDate, endDate);
 
         const journalEntryBalanceQuery = `model=journalentryline&select=sum(amount) as sum`
@@ -93,18 +128,29 @@ export class BankStatementSession {
             bankEntries$,
             journalEntries$,
             bankBalance$,
-            journalBalance$
+            journalBalance$,
+            journalEntriesCustomer$,
+            journalEntriesSupplier$
         ).pipe(
             tap(res => {
                 const bankEntries = this.mapBankEntries(res[0] || []);
                 this.bankEntries = this.sortEntries(bankEntries);
-                this.journalEntries = this.mapJournalEntries(res[1] || []);
+                this.journalEntriesOriginal = this.mapJournalEntries(res[1] || []);
+
+                this.journalEntriesCustomer = this.mapJournalEntries(res[4] || []);
+                this.journalEntriesSupplier = this.mapJournalEntries(res[5] || []);
+
+                if (!this.journalEntriesOriginal.length) {
+                    this.journalEntryMode = this.journalEntriesCustomer.length ? 1 : this.journalEntriesSupplier.length ? 2 : 0;
+                }
+                this.selectJournalEntries(this.journalEntryMode || JournalEntryListMode.Original);
 
                 this.bankBalance = res[2] && res[2].Balance;
                 this.journalEntryBalance = res[3] && res[3][0] && res[3][0].sum;
                 this.totalImbalance = (this.bankBalance || 0) - (this.journalEntryBalance || 0);
 
                 this.status = this.calcStatus();
+                this.loading$.next(false);
             }),
             finalize (() => this.busy = false)
         );
@@ -112,6 +158,38 @@ export class BankStatementSession {
 
     get totalTransactions(): number {
         return this.journalEntries.length + this.bankEntries.length;
+    }
+
+    selectJournalEntries(mode: JournalEntryListMode) {
+
+        if (mode !== this.journalEntryMode) {
+            this.closedGroups = [];
+        }
+
+        this.journalEntryMode = mode;
+
+        switch (this.journalEntryMode) {
+            case JournalEntryListMode.Original:
+                this.journalEntries = this.journalEntriesOriginal;
+                break;
+            case JournalEntryListMode.Customer:
+                this.journalEntries = this.journalEntriesCustomer;
+                break;
+            case JournalEntryListMode.Supplier:
+                this.journalEntries = this.journalEntriesSupplier;
+                break;
+            default:
+                this.journalEntries = this.journalEntriesOriginal;
+                break;
+        }
+
+        this.journalEntries = this.sortEntries([...this.journalEntries]);
+        this.bankEntries = this.sortEntries(this.bankEntries);
+
+        this.refreshJournalEntryLineCounters();
+        this.clearSuggestions();
+        this.tryNextSuggestion(undefined, { MaxDayOffset: 5, MaxDelta: 0.0 });
+        this.status = this.calcStatus();
     }
 
     clear() {
@@ -171,28 +249,38 @@ export class BankStatementSession {
         return true;
     }
 
-    closeStage(): boolean {
-        const group = new StageGroup();
-        if (BankUtil.isCloseToZero(this.stageTotal) && this.stage.length > 0) {
-            this.stage.forEach( x => {
-                group.key = BankUtil.createGuid();
-                group.items.push(x);
-                group.balance = this.addItemSum(group.balance, x);
-                x.StageGroupKey = group.key;
-                x.Checked = false;
-                if (x.IsBankEntry) {
-                    this.addInfo(this.stageInfo.bank, x.OpenAmount);
+    closeStage(): Promise<any> {
+
+        return new Promise((resolve) => {
+            const group = new StageGroup();
+
+            if (BankUtil.isCloseToZero(this.stageTotal) && this.stage.length > 0) {
+                this.stage.forEach( x => {
+                    group.key = BankUtil.createGuid();
+                    group.items.push(x);
+                    group.balance = this.addItemSum(group.balance, x);
+                    x.StageGroupKey = group.key;
+                    x.Checked = false;
+                    if (x.IsBankEntry) {
+                        this.addInfo(this.stageInfo.bank, x.OpenAmount);
+                    } else {
+                        this.addInfo(this.stageInfo.journal, x.OpenAmount);
+                    }
+                });
+                this.closedGroups.push(group);
+
+                // If we are matching with Suppliers og Customers, resolve prepared groups..
+                if (this.journalEntryMode === JournalEntryListMode.Supplier || this.journalEntryMode === JournalEntryListMode.Customer) {
+                    resolve(this.prepareGroups());
                 } else {
-                    this.addInfo(this.stageInfo.journal, x.OpenAmount);
+                    this.clearStage();
+                    this.status = this.calcStatus();
+                    resolve(true);
                 }
-            });
-            this.closedGroups.push(group);
-            this.clearStage();
-            this.prepareGroups();
-            this.status = this.calcStatus();
-            return true;
-        }
-        return false;
+            } else {
+                resolve(false);
+            }
+        });
     }
 
     clearStage() {
@@ -210,11 +298,44 @@ export class BankStatementSession {
 
     saveChanges() {
         this.busy = true;
+        this.loading$.next(true);
+        this.preparing = true;
         return this.bankStatementService.matchItems(this.prepareGroups())
             .pipe(finalize(() => {
-                this.busy = false;
-                return true;
+                return this.updateAfterMatch();
             }));
+    }
+
+    updateAfterMatch(): boolean {
+
+        // Set all saved items to closed locally
+        this.closedGroups.forEach( x => {
+            x.items.forEach(item => {
+                item.Closed = true;
+                item.StageGroupKey = null;
+                if (item.IsBankEntry) {
+                    this.bankBalance -= item.Amount;
+                } else {
+                    this.journalEntryBalance -= item.Amount;
+                }
+            });
+        });
+
+        // Reset closed groups and busy indicators
+        this.closedGroups = [];
+        this.preparing = false;
+        this.busy = false;
+        this.loading$.next(false);
+
+        this.selectJournalEntries(this.journalEntryMode);
+
+        return true;
+    }
+
+    refreshJournalEntryLineCounters() {
+        this.originalCounter = this.journalEntriesOriginal.filter(line => !line.Closed).length;
+        this.customerCounter = this.journalEntriesCustomer.filter(line => !line.Closed).length;
+        this.supplierCounter = this.journalEntriesSupplier.filter(line => !line.Closed).length;
     }
 
     requestSuggestions(options?: { MaxDayOffset: number, MaxDelta: number }) {
@@ -274,6 +395,7 @@ export class BankStatementSession {
     }
 
     private calcStatus(): BankSessionStatus {
+        this.statusText = '';
 
         if (this.bankEntries.length === 0) {
             return BankSessionStatus.MissingBankEntries;
@@ -287,6 +409,10 @@ export class BankStatementSession {
             // Has open journalentries ?
             if (journalInfo.openCount > 0) { return BankSessionStatus.ReadyToMatch; }
             // Ok, they probably should be posted?
+            if (this.originalCounter || this.customerCounter || this.supplierCounter) {
+                this.setStatusText();
+                return BankSessionStatus.HasPostsInOtherTabs;
+            }
             return BankSessionStatus.ReadyToJournal;
         }
 
@@ -302,6 +428,18 @@ export class BankStatementSession {
         }
 
         return BankSessionStatus.Complete;
+    }
+
+    setStatusText() {
+
+        this.statusText = ` Du har bankposter som ikke finnes ${ this.journalEntryMode === 0 ? 'i regnskapet' : this.journalEntryMode === 1 ? 'på kunder' : 'på leverandører' }. `;
+        if (this.journalEntryMode !== JournalEntryListMode.Original && this.originalCounter) {
+            this.statusText += 'Det er flere poster under regnskapsfanen';
+        } else if (this.journalEntryMode !== JournalEntryListMode.Customer && this.customerCounter) {
+            this.statusText += 'Det er flere poster under kundefanen';
+        } else if (this.journalEntryMode !== JournalEntryListMode.Supplier && this.customerCounter) {
+            this.statusText += 'Det er flere poster under leverandørfanen';
+        }
     }
 
     private countEntries(list: IMatchEntry[]): { openCount: number, stagedCount: number } {
@@ -395,7 +533,9 @@ export class BankStatementSession {
                 IsBankEntry: false,
                 Checked: false,
                 Closed: isClosed,
-                JournalEntryID: x.JournalEntryID
+                JournalEntryID: x.JournalEntryID,
+                SubAccountID: x.SubAccountID,
+                SubAccountName: x.SubAccountName
             };
         });
     }

@@ -280,16 +280,16 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryData, existingJournalEntries);
-                    journalEntries.forEach((je) => { 
+                    journalEntries.forEach((je) => {
                         je.Description = text;
                     });
 
                     return this.saveJournalEntriesAsDraft(journalEntries);
                 });
         } else {
-            
+
             const journalEntries = this.createJournalEntryObjects(journalEntryData, []);
-            journalEntries.forEach((je) => { 
+            journalEntries.forEach((je) => {
                 je.Description = text;
             });
 
@@ -408,7 +408,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send();
     }
 
-    private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<JournalEntry[]> {
+    public bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<JournalEntry[]> {
         return this.http
             .asPOST()
             .usingBusinessDomain()

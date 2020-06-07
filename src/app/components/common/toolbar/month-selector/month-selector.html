@@ -1,0 +1,9 @@
+<section class="month-picker-wrapper">
+
+	<i class="material-icons" role="button" (click)="onMonthChange(-1)">arrow_left</i>
+
+	<month-picker [(value)]="period" (valueChange)="onMonthChange(0)"> </month-picker>
+
+	<i class="material-icons" role="button" (click)="onMonthChange(1)">arrow_right</i>
+
+</section>

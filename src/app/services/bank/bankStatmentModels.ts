@@ -15,6 +15,8 @@ export interface IMatchEntry {
     Tagged?: boolean;
     TagSum?: number;
     JournalEntryID?: number;
+    SubAccountID?: number;
+    SubAccountName?: string;
 }
 
 export class BankStatmentMatchDto {
@@ -25,6 +27,10 @@ export class BankStatmentMatchDto {
     public Batch: string;
     public Group: string;
     public StatusCode: number;
+    public SubAccountID?: number;
+    public SubAccountName?: string;
+    public Description?: string;
+    public Date?: Date;
 }
 
 export class BankUtil {
@@ -82,7 +88,8 @@ export class StageGroup {
                     list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : 0, x.IsBankEntry ? 0 : x.ID, group));
                     list.push(this.newMatch(y.TagSum, y.IsBankEntry ? y.ID : 0, y.IsBankEntry ? 0 : y.ID, group));
                 } else {
-                    list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : y.ID, y.IsBankEntry ? x.ID : y.ID, group));
+                    list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : y.ID, y.IsBankEntry ? x.ID : y.ID, group,
+                        x.SubAccountID || y.SubAccountID, x.SubAccountName || y.SubAccountName, x.Date, x.Description));
                 }
                 x.Tagged = true; y.Tagged = true;
             }
@@ -97,7 +104,8 @@ export class StageGroup {
                 const y = this.findMatch(x, this.items, false, false);
                 if (y) {
                     const matchAmount = this.smallestAmount(x, y);
-                    list.push(this.newMatch(matchAmount, x.IsBankEntry ? x.ID : y.ID, y.IsBankEntry ? x.ID : y.ID, group));
+                    list.push(this.newMatch(matchAmount, x.IsBankEntry ? x.ID : y.ID, y.IsBankEntry ? x.ID : y.ID, group,
+                        x.SubAccountID || y.SubAccountID, x.SubAccountName || y.SubAccountName, x.Date, x.Description));
                     x.TagSum -= matchAmount; y.TagSum -= matchAmount;
                     if (BankUtil.isCloseToZero(x.TagSum)) { x.Tagged = true; }
                     if (BankUtil.isCloseToZero(y.TagSum)) { y.Tagged = true; }
@@ -113,7 +121,8 @@ export class StageGroup {
         m2m = this.items.filter( x => !x.Tagged);
         if (m2m.length > 0) {
             m2m.forEach( x => {
-                list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : 0, x.IsBankEntry ? 0 : x.ID, group));
+                list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : 0, x.IsBankEntry ? 0 : x.ID, group,
+                    x.SubAccountID, x.SubAccountName, x.Date, x.Description));
             });
         }
 
@@ -123,12 +132,25 @@ export class StageGroup {
         if (a.TagSum <= 0 && b.TagSum <= 0) { return a.TagSum > b.TagSum ? a.TagSum : b.TagSum; }
         return Math.abs(a.TagSum) > Math.abs(b.TagSum) ? a.TagSum : b.TagSum;
     }
-    newMatch(amount: number, bankID: number, journalID: number, group?: any) {
+    newMatch(
+        amount: number,
+        bankID: number,
+        journalID: number,
+        group?: any,
+        subAccountID: number = null,
+        subAccountName: string = '',
+        financialDate: Date = null,
+        description: string = ''
+    ) {
         const mx = new BankStatmentMatchDto();
         if (bankID) { mx.BankStatementEntryID = bankID; }
         if (journalID) { mx.JournalEntryLineID = journalID; }
         if (group) { mx.Group = group; }
         mx.Amount = amount;
+        mx.SubAccountID = subAccountID;
+        mx.SubAccountName = subAccountName;
+        mx.Date = financialDate;
+        mx.Description = description;
         return mx;
     }
     findMatch(item: IMatchEntry, list: IMatchEntry[], checkDelta = true, allowSameSide = true): IMatchEntry {

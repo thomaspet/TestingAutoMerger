@@ -1,38 +1,52 @@
-<section class="slide-panel uni-redesign active" (clickOutside)="close.emit()" @container>
+<section class="slide-panel uni-redesign active busy-spinner-container" (clickOutside)="closeView()" @container>
+
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+
+
     <section class="header">
-        <span>Koblede transaksjoner</span>
-        <i (click)="close.emit()" class="material-icons">close</i>
+        <span> Avstemte poster </span>
+        <i (click)="closeView()" class="material-icons" title="Lukk sidemeny">close</i>
     </section>
 
     <section class="actions">
         <span>
-            <i class="material-icons">link</i>
-            {{session.closedGroups?.length || 0}} koblede transaksjoner
+            {{ matchList?.length || 0 }} avstemte poster funnet
         </span>
 
-        <button (click)="reset()" class="secondary">Fjern alle</button>
-        <button (click)="save()"class="good">Lagre</button>
+        <button (click)="openAll()" class="secondary" title="Løser opp alle avstemte poster under">Løs opp alle</button>
     </section>
 
-    <section class="closed-groups closed-group-panel" *ngFor="let group of session.closedGroups">
-        <section class="panel-header"
-            (click)="group['_expanded'] = !group['_expanded']">
+    <section class="closed-groups closed-group-panel" *ngFor="let match of matchList">
 
-            <i class="material-icons delete" (click)="removeGroup($event, group)">delete_outline</i>
+        <section class="panel-header" (click)="match['_expanded'] = !match['_expanded']">
 
-            <span>{{getGroupHeader(group)}}</span>
+            <i class="material-icons delete" (click)="open($event, match.ID)" title="Løs opp kobling">delete_outline</i>
 
-            <i class="material-icons">
-                {{group['_expanded'] ? 'expand_less' : 'expand_more'}}
-            </i>
+            <span class="panel-match-date">{{ match.JLFinancialDate | date: 'dd.MM.yyyy' }}</span>
+
+            <span class="panel-match-text" [class.open]="match['_expanded']">{{ match.BEDescription }}</span>
+
+            <span class="panel-match-total">{{ match.BankStatementMatchAmount | uninumberformat: 'money' }}</span>
+
+            <i class="material-icons"> {{ match['_expanded'] ? 'arrow_drop_up' : 'arrow_drop_down'}} </i>
         </section>
 
-        <section class="panel-content" *ngIf="group['_expanded']">
-            <section class="entry" *ngFor="let item of group.items">
-                <span>{{item.Date | date: 'dd.MM.yy'}}</span>
-                <span class="description">{{item.Description}}</span>
-                <span class="amount">{{item.Amount | uninumberformat: 'money'}}</span>
+        <section *ngIf="match['_expanded']" class="line-container">
+
+           <section class="entry">
+                <span class="line-date">{{ match.BEBookingDate | date: 'dd.MM.yyyy' }}</span>
+                <span class="description"><strong>Bank:</strong> {{ match.BEDescription }} </span>
+                <span class="amount">{{ match.BEAmount | uninumberformat: 'money' }}</span>
             </section>
+
+            <section class="entry">
+                <span class="line-date">{{ match.JLFinancialDate | date: 'dd.MM.yyyy' }}</span>
+                <span class="description"><strong>Regnskap:</strong> {{ match.JLDescription }} </span>
+                <span class="amount">{{ match.JLAmount | uninumberformat: 'money' }}</span>
+            </section>
+
         </section>
     </section>
 </section>

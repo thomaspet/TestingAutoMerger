@@ -1,0 +1,41 @@
+<section role="dialog" class="uni-modal uni-redesign" style="width: 65rem;">
+	<header>Opprette bilag og matche poster</header>
+	<article>
+
+		<section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+		<section>
+			<span class="info-text">Systemet vil opprette bilag, avstemme med bank og lukke åpne poster. Under kan du se bilagene som er forslått.</span>
+
+			<section>
+				<ul class="modal-jl-list header">
+					<li>
+						<span class="account"> Konto </span>
+						<span class="date"> Dato</span>
+						<span class="desc"> Beskrivelse </span>
+						<span class="total"> Sum </span>
+					</li>
+				</ul>
+
+				<ul class="modal-jl-list" *ngFor="let suggestion of journalEntryLineSuggestions">
+					<li *ngFor="let line of suggestion.DraftLines">
+						<span class="account"> {{ line.Account }} </span>
+						<span class="date"> {{ line.FinancialDate | date: 'dd.MM.yyyy' }} </span>
+						<span class="desc"> {{ line.Description }} </span>
+						<span class="total"> {{ line.Amount | uninumberformat: 'money' }} </span>
+					</li>
+				</ul>
+			</section>
+
+			<span class="current-action"> {{ currentAction }} </span>
+		</section>
+
+	</article>
+
+	<footer class="center">
+		<button class="good" (click)="journal()">Bokfør og avstem</button>
+		<button class="c2a secondary" (click)="close(false)">Avbryt</button>
+	</footer>
+</section>

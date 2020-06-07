@@ -13,7 +13,7 @@ export class CustomDateAdapter extends UniDateAdapter {
 @Component({
     selector: 'month-picker',
     template: `
-        <i class="material-icons">calendar_today</i>
+        <i class="material-icons" >calendar_today</i>
         <input readonly
             (click)="datepicker.open()"
             [(ngModel)]="value"

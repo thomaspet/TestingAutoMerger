@@ -70,6 +70,7 @@ export interface IToolbarConfig {
     numberSeriesTasks?: any;
     buttons?: ToolbarButton[];
     hideDisabledActions?: boolean;
+    period?: Date;
 }
 
 export interface ICommentsConfig {
@@ -122,6 +123,8 @@ export class UniToolbar {
 
     @Output() statusSelectEvent = new EventEmitter();
     @Output() selectValueChanged = new EventEmitter();
+
+    @Output() monthChange = new EventEmitter();
 
     searchVisible: boolean;
 

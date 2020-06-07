@@ -4,21 +4,27 @@
     input
         width: 100%
         height: 100%
-        min-height: 2rem
         color: #1D1F25
         border: 1px solid rgba(112, 112, 112, 0.33)
-        border-radius: 3px
-        padding: 0 10px
+        border-radius: var(--button-radius)
+        padding: 0 1rem
         font-size: 14px
+        font-weight: 500
         text-transform: capitalize
         cursor: pointer
 
+        &:focus
+            outline: none
+
+        &:hover
+            border: 1px solid var(--color-c2a)
+
     i.material-icons
         position: absolute
-        right: 10px
+        right: 1rem
         top: 50%
         transform: translateY(-50%)
         font-size: 21px
-        color: rgba(58, 59, 60, 0.65)
+        color: var(--color-c2a)
         cursor: pointer
         pointer-events: none
