@@ -25,6 +25,7 @@ import {BoostChat} from './boostChat/boostChat';
 
 import {ChatBoxComponent} from './chat-box/chat-box.component';
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
+import {SupportAccessIndicator} from './navbar/support-access-indicator/support-access-indicator';
 
 @NgModule({
     imports: [
@@ -48,6 +49,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         UniSmartSearchItem,
         ChatBoxComponent,
         BoostChat,
+        SupportAccessIndicator,
     ],
     providers: [
         SmartSearchService,
@@ -61,6 +63,7 @@ import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
         YearModal,
         ChatBoxComponent,
         BoostChat,
+        SupportAccessIndicator,
     ]
 })
 export class LayoutModule {
