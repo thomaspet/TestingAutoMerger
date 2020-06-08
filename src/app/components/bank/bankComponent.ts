@@ -1332,6 +1332,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');
@@ -1487,6 +1488,7 @@ export class BankComponent {
 
             // Refresh list after paymentbatch has been generated
             this.tickerContainer.mainTicker.reloadData();
+            this.tickerContainer.mainTicker.table.clearSelection();
 
             // Run action to generate paymentfile based on batch
             this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
@@ -1540,6 +1542,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');
