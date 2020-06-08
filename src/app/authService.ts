@@ -33,7 +33,8 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info'
+    'license-info',
+    'accounting'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -237,6 +238,8 @@ export class AuthService {
             filterProtocolClaims: true,
             loadUserInfo: true,
             automaticSilentRenew: true,
+            accessTokenExpiringNotificationTime: 300, // 5 minute
+            silentRequestTimeout: 20000, // 20 seconds
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 

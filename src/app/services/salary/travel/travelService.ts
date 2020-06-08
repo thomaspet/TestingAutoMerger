@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
+import {BizHttp, UniHttp, RequestMethod, IHttpCacheStore} from '@uni-framework/core/http';
 import {
     Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
 } from '@uni-entities';
@@ -9,12 +9,15 @@ import {EmployeeService} from '../employee/employeeService';
 import {ApiKeyService} from '../../common/apikeyService';
 import {FileService} from '../../common/fileService';
 import {SupplierService} from '@app/services/accounting/supplierService';
+import { map, filter } from 'rxjs/operators';
+import { isArray } from 'util';
 
 @Injectable()
 export class TravelService extends BizHttp<Travel> {
 
     private emps$: BehaviorSubject<Employee[]> = new BehaviorSubject(null);
     private suppliers$: BehaviorSubject<Supplier[]> = new BehaviorSubject(null);
+    private fileStore: IHttpCacheStore<File[]> = {};
 
     constructor(
         protected http: UniHttp,
@@ -140,12 +143,40 @@ export class TravelService extends BizHttp<Travel> {
     }
 
     public importPdf(travel: Travel): Observable<File[]> {
-        return this.apiKeyService
+        if (this.fileStore[travel.ID]) {
+            return this.getFilesFromCache(travel);
+        }
+        const request = this.apiKeyService
             .getApiKey(TypeOfIntegration.TravelAndExpenses)
             .switchMap(key => key
                 ? super.PutAction(null, 'ttpdf', `apikeyID=${key.ID}&ID=${travel.ID}`)
                     .map((file: File) => file ? [file] : [])
-                : Observable.of([]));
+                : Observable.of([]))
+            .publishReplay(1)
+            .refCount();
+        this.fileStore[travel.ID] = {
+            data: request,
+            timeout: null,
+        };
+        return request;
+    }
+
+    private getFilesFromCache(travel: Travel): Observable<File[]> {
+        return this.fileStore[travel.ID]
+                .data
+                .pipe(
+                    map(files => {
+                        const fileList = [];
+                        files.forEach(f => {
+                            if (!isArray(f)) {
+                                fileList.push(f);
+                                return;
+                            }
+                            fileList.concat(f);
+                        });
+                        return fileList;
+                    })
+                );
     }
 
     public createTransactions(travels: Travel[], runID: number): Observable<SalaryTransaction[]> {

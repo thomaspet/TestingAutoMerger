@@ -43,7 +43,8 @@ import {
     BankBalanceWidget,
     LiquidityWidget,
     UniInfoTileWidget,
-    BankBalanceWidgetExt02
+    BankBalanceWidgetExt02,
+    EmployeeCounterWidget,
 } from './widgets/barrel';
 
 export interface IUniWidget {
@@ -98,7 +99,8 @@ export const WIDGET_MAP = {
     bank_balance: BankBalanceWidget,
     bank_balance_ext02: BankBalanceWidgetExt02,
     liquidity: LiquidityWidget,
-    info_tile: UniInfoTileWidget
+    info_tile: UniInfoTileWidget,
+    employee_counter: EmployeeCounterWidget,
 };
 
 @Directive({

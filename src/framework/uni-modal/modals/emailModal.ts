@@ -1,8 +1,10 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
+import {UniFieldLayout, FieldType, UniFormError} from '@uni-framework/ui/uniform';
 import {Email} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
+import { EmailService } from '@app/services/common/emailService';
+
 
 @Component({
     selector: 'uni-email-modal',
@@ -43,6 +45,10 @@ export class UniEmailModal implements IUniModal {
     formModel$  = new BehaviorSubject<Email>(null);
     formFields$ = new BehaviorSubject([]);
     initialEmail: Email;
+
+    constructor(
+        private emailService: EmailService
+    ) {}
 
     ngOnInit() {
         const email = this.options.data || {};
@@ -86,6 +92,7 @@ export class UniEmailModal implements IUniModal {
                 Property: 'EmailAddress',
                 FieldType: FieldType.EMAIL,
                 Label: 'Epostadresse',
+                Validations: [(value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)]
             },
             <any> {
                 EntityType: 'Email',

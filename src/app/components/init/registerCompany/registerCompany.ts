@@ -32,8 +32,8 @@ interface RegistrationOption {
 })
 export class RegisterCompany {
     hasInitialized: boolean;
-
     appName = theme.appName;
+
     tokenSubscription: Subscription;
 
     selectedCompanyType: string;

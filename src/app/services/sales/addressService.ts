@@ -27,40 +27,23 @@ export class AddressService extends BizHttp<Address> {
     }
 
     public addressToShipping(entity: any, a: Address) {
-        a = a || new Address();
-        entity.ShippingAddressLine1 = a.AddressLine1;
-        entity.ShippingAddressLine2 = a.AddressLine2;
-        entity.ShippingAddressLine3 = a.AddressLine3;
-        entity.ShippingPostalCode = a.PostalCode;
-        entity.ShippingCity = a.City;
-        entity.ShippingCountry = a.Country;
-        entity.ShippingCountryCode = a.CountryCode;
-    }
-
-    public invoiceToAddress(entity: any): Address {
-        const a = new Address();
-        a.AddressLine1 = entity.InvoiceAddressLine1;
-        a.AddressLine2 = entity.InvoiceAddressLine2;
-        a.AddressLine3 = entity.ShippingAddressLine3;
-        a.PostalCode = entity.InvoicePostalCode;
-        a.City = entity.InvoiceCity;
-        a.Country = entity.InvoiceCountry;
-        a.CountryCode = entity.InvoiceCountryCode;
-
-        return a;
-    }
-
-    public shippingToAddress(entity: any): Address {
-        const a = new Address();
-        a.AddressLine1 = entity.ShippingAddressLine1;
-        a.AddressLine2 = entity.ShippingAddressLine2;
-        a.AddressLine3 = entity.ShippingAddressLine3;
-        a.PostalCode = entity.ShippingPostalCode;
-        a.City = entity.ShippingCity;
-        a.Country = entity.ShippingCountry;
-        a.CountryCode = entity.ShippingCountryCode;
-
-        return a;
+        if (a) {
+            entity.ShippingAddressLine1 = a.AddressLine1;
+            entity.ShippingAddressLine2 = a.AddressLine2;
+            entity.ShippingAddressLine3 = a.AddressLine3;
+            entity.ShippingPostalCode = a.PostalCode;
+            entity.ShippingCity = a.City;
+            entity.ShippingCountry = a.Country;
+            entity.ShippingCountryCode = a.CountryCode;
+        } else {
+            entity.ShippingAddressLine1 = '';
+            entity.ShippingAddressLine2 = '';
+            entity.ShippingAddressLine3 = '';
+            entity.ShippingPostalCode = '';
+            entity.ShippingCity = '';
+            entity.ShippingCountry = '';
+            entity.ShippingCountryCode = '';
+        }
     }
 
     public displayAddress(address: Address): string {

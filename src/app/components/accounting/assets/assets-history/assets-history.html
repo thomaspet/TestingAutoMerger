@@ -1,0 +1,6 @@
+<uni-form [config]="{}" [model]="autoDepreciationModel" [fields]="autoDepreciationField" (changeEvent)="onChangeEvent($event)"></uni-form>
+<ag-grid-wrapper class="borders" style="height: 60vh"
+    [attr.aria-busy]="(state$ | async)?.loadingAssets"
+    [resource]="(state$ | async)?.currentAsset?.DepreciationLines || []"
+    [config]="tableConfig">
+></ag-grid-wrapper>

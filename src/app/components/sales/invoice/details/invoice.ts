@@ -668,9 +668,6 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        invoice.CurrencyCodeID = invoice.CurrencyCodeID || this.companySettings.BaseCurrencyCodeID;
-        this.currencyCodeID = invoice.CurrencyCodeID;
-
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
         this.currentInvoiceDate = invoice.InvoiceDate;

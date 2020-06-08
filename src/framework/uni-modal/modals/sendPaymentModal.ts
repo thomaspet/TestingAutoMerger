@@ -80,6 +80,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     }
 
     onGoodClick() {
+        this.busy = true;
         this.msg = '';
         if (!this.model.Password) {
             this.msg = 'Vennligst full ut passord';
@@ -159,6 +160,7 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                     } else {
                         this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
                             batchJobResponse.Result);
+                        this.onClose.emit(true);
                     }
                 });
 

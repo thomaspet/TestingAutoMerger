@@ -68,6 +68,7 @@ import {ApprovalRuleService} from './common/approvalRuleService';
 import {ApprovalSubstituteService} from './common/approvalSubstituteService';
 import {UniTranslationService} from './common/translationService';
 import {InitService} from './common/initService';
+import {AssetsService} from './common/assetsService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -137,6 +138,7 @@ export * from './common/approvalRuleService';
 export * from './common/approvalSubstituteService';
 export * from './common/translationService';
 export * from './common/initService';
+export * from  './common/assetsService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -212,7 +214,8 @@ export class CommonServicesModule {
                 UserRoleService,
                 EventplanService,
                 UniTranslationService,
-                InitService
+                InitService,
+                AssetsService
             ]
         };
     }

@@ -56,13 +56,13 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                         url: '/settings/sales',
                         showSubSettings: false,
                         subSettings: [
-                            {name: 'Salgsfaktura', activeInSidebar: false, url: '/settings/sales?index=0', keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Fakturaprint', 'EHF', 'Øredifferanse', 'Factoring']},
+                            {name: 'Salgsfaktura', activeInSidebar: false, url: '/settings/sales?index=0', keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Fakturaprint', 'EHF', 'Øredifferanse', 'Factoring', 'Inkluder PDF']},
                             {name: 'NAVBAR.TERMS', activeInSidebar: false, url: '/settings/sales?index=1', keyWords: ['Leveringsbetingelser', 'Leveringsdager', 'Betalingsbetingelser', 'Kredittdager']},
-                            {name: 'SETTINGS.KID_SETTINGS', activeInSidebar: false, url: '/settings/sales?index=2', keyWords: ['KID oppsett', 'KID']},
+                            {name: 'SETTINGS.KID_SETTINGS', activeInSidebar: false, url: '/settings/sales?index=2', keyWords: ['KID oppsett']},
                             {name: 'SETTINGS.FORM_SETTINGS', activeInSidebar: false, url: '/settings/sales?index=3', keyWords: ['Logo', 'Rapport', 'Språk', 'Faste tekster', 'Blankett', 'Vis KID i fakturablankett']},
                             {name: 'SETTINGS.COLLECTOR', activeInSidebar: false, url: '/settings/sales?index=4', keyWords: ['Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'Purreregler']}
                         ],
-                        keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Kredittdager', 'Øredifferanse', 'Potensiell kunde', 'Leveringsbetingelser', 'Leveringsdager', 'Betalingsbetingelser', 'Vis KID i fakturablankett', 'Factoring', 'Logo', 'Factoring', 'Purreregler', 'Rapporter', 'Språk', 'Faste tekster', 'Fakturaprint', 'EHF', 'Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'KID oppsett']
+                        keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Kredittdager', 'Øredifferanse', 'Potensiell kunde', 'Leveringsbetingelser', 'Inkluder PDF', 'Leveringsdager', 'Betalingsbetingelser', 'Vis KID i fakturablankett', 'Factoring', 'Logo', 'Factoring', 'Purreregler', 'Rapporter', 'Språk', 'Faste tekster', 'Fakturaprint', 'EHF', 'Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'KID oppsett']
                     },
                     {
                         name: 'NAVBAR.ACCOUNTING',
@@ -71,8 +71,9 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                         showSubSettings: false,
                         subSettings: [
                             {name: 'Regnskapsinnstilliger', activeInSidebar: false, url: '/settings/accounting?index=0', keyWords: ['Kundereskontro', 'Leverandørreskontro', 'EHF', 'OCR', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'Valutatap']},
-                            {name: 'Mva-innstillinger', activeInSidebar: false, url: '/settings/accounting?index=1', keyWords: ['Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']},
+                            {name: 'Mvakoder', activeInSidebar: false, url: '/settings/accounting?index=1', keyWords: ['Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']},
                             {name: 'Forholdsmessig MVA / fradrag', activeInSidebar: false, url: '/settings/accounting?index=2', keyWords: ['Fradragsprosent']},
+                            {name: 'Eiendeler', activeInSidebar: false, url: '/settings/accounting?index=3', keyWords: ['Eiendel', 'Eiendeler', 'Avskrivning']},
                         ],
                         keyWords: ['Kundereskontro', 'Leverandørreskontro', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'EHF', 'OCR', 'Valutatap', 'Fradragsprosent', 'Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']
                     },

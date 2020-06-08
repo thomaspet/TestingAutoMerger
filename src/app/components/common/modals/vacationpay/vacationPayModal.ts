@@ -120,11 +120,7 @@ export class VacationPayModal implements OnInit, IUniModal {
         const saveObservables: Observable<any>[] = [];
         this.vacationpayBasis
             .filter(line => !!line[DIRTY])
-            .forEach(vacationpayLine => {
-                vacationpayLine.ID > 0 ?
-                    saveObservables.push(this.vacationpaylineService.Put(vacationpayLine.ID, vacationpayLine)) :
-                    saveObservables.push(this.vacationpaylineService.Post(vacationpayLine));
-        });
+            .forEach(vacationpayLine => saveObservables.push(this.vacationpaylineService.save(vacationpayLine)));
 
         return Observable.forkJoin(saveObservables)
             .finally(() => this.busy = false)
@@ -614,7 +610,7 @@ export class VacationPayModal implements OnInit, IUniModal {
 
     private updateVacationPay(row: VacationPayLine, model: IVacationPayHeader) {
         row['_IncludeSixthWeek'] = model.SixthWeek && this.empOver60(row) ? 'Ja' : 'Nei';
-        if (!this.isEarlierPayline(row)) {
+        if (!this.isEarlierPayline(row) && row[DIRTY]) {
             return this.locallyCalcVacationPay(row, model);
         }
         row['_VacationPay'] = model.SixthWeek && this.empOver60(row)

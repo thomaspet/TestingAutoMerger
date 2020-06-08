@@ -1,0 +1,57 @@
+uni-assets-list-component
+    .asset-depreciation-link
+        color: var(--link-color)
+        &:hover
+            text-decoration: underline
+    .assets-list-warning
+        display: flex
+        align-items: center
+        color: var(--text-color)
+        position: absolute
+        right: 1.5rem
+        top: 9.6rem
+        padding: 0.2rem 1rem 0.2rem 1rem
+        background-color: var(--alert-warn)
+        font-weight: 500
+        font-size: 13px
+        i
+            color: var(--color-warn)
+            margin-right: 0.5rem
+tax-depreciation-form
+    p.info-box-link.form-info-box:before
+        left: 1.8rem
+asset-details-toolbar
+    statustrack-status
+        span.status.active
+            i
+                color: var(--color-good) !important
+register-asset-as-sold-modal
+    label.uni-label.label-left > span
+        width: 0
+    mat-radio-group
+        display: flex
+    .mat-radio-button
+        flex: 1
+    .form-label
+        width: 100%
+        font-weight: 500
+        margin-bottom: 0.4rem
+accounting-depreciation-form,eiendeler-settings
+    .auto-depreciation-form
+        uni-field
+            background-color: var(--body-background)
+            margin: 0.5rem
+            margin-bottom: 1rem
+            font-weight: 500
+            display: flex
+            align-items: flex-end
+        label.uni-label.label-left > span
+            width: unset
+            order: 2
+        uni-checkbox-input
+            display: flex
+            justify-content: flex-end
+            order: 1
+            width: 3rem
+            min-width: 3rem
+            margin-right: 1rem

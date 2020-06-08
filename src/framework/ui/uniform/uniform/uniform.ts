@@ -331,17 +331,24 @@ export class UniForm implements OnChanges, OnInit {
             nextField = this._layout.Fields[index];
         }
 
-        const fieldComponent = this.field(nextField.Property, nextField.Label);
+        let fieldProperty = nextField.Property;
+
+        // For multivalue fields we need to lookup on storeResultInProperty instead /shrug
+        if (nextField.Options && nextField.Options.storeResultInProperty) {
+            fieldProperty = nextField.Options.storeResultInProperty;
+        }
+
+        const fieldComponent = this.field(fieldProperty, nextField.Label);
         this.activeFieldComponent = fieldComponent;
         if (field.Section !== nextField.Section) {
             const section = this.section(nextField.Section);
-            if (!section.isOpen) {
+            if (section && !section.isOpen) {
                 section.toggle();
             }
 
-            setTimeout(() => fieldComponent.focus());
+            setTimeout(() => fieldComponent?.focus());
         } else {
-            fieldComponent.focus();
+            fieldComponent?.focus();
         }
     }
 

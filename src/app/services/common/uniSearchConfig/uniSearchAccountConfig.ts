@@ -1,12 +1,14 @@
 import {Injectable} from '@angular/core';
-import {UniEntity, Account} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {UniEntity, Account, StatusCodeProduct} from '../../../unientities';
+import {Observable, of as observableOf} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {StatisticsService} from '../statisticsService';
 import {ErrorService} from '../errorService';
 import {IUniSearchConfig} from '../../../../framework/ui/unisearch/index';
 import {AccountService} from '../../accounting/accountService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import {catchError, map} from 'rxjs/operators';
+import {ProductService} from '@app/services/common/productService';
 
 const MAX_RESULTS = 50;
 
@@ -23,8 +25,9 @@ export class UniSearchAccountConfig {
     constructor(
         private statisticsService: StatisticsService,
         private accountService: AccountService,
+        private productService: ProductService,
         private errorService: ErrorService,
-        private browserStorageService: BrowserStorageService
+        private browserStorageService: BrowserStorageService,
     ) {}
 
     public generateOnlyMainAccountsConfig(
@@ -170,5 +173,70 @@ export class UniSearchAccountConfig {
     private getNumberFromStartOfString(str: string): number {
         const match = str.match(/^\d+/);
         return match && +match[0];
+    }
+
+    public generateProductsConfig(createNewFn?: () => Observable<UniEntity>): IUniSearchConfig {
+        const productExpand = [
+            'Account',
+            'Account.MandatoryDimensions',
+            'Dimensions.Info',
+            'Dimensions.Project',
+            'Dimensions.Department'
+        ];
+        return <IUniSearchConfig>{
+            lookupFn: (input: string) => {
+                let filter = `statuscode eq '${StatusCodeProduct.Active}' and (contains(Name,'${input}') or startswith(PartName,'${input}'))`;
+
+                // Search for specific PartName with prefix =
+                if (input && input.charAt(0) === '=') {
+                    const searchText = input.split('=')[1];
+                    if (searchText) {
+                        filter = `PartName eq '${searchText.trim()}'`;
+                    }
+                }
+
+                return this.productService.GetAll(
+                    `filter=${filter}&top=100&orderby=PartName`, productExpand).pipe(
+                    catchError(err => {
+                        this.errorService.handle(err);
+                        return observableOf([]);
+                    }),
+                    map(res => {
+                        const sorted = (res || []).sort((item1, item2) => {
+                            const item1PartName = item1.PartName || '';
+                            const item2PartName = item2.PartName || '';
+
+                            if (+item1PartName && +item2PartName) {
+                                return +item1PartName - +item2PartName;
+                            }
+
+                            return item1PartName.localeCompare(item2PartName);
+                        });
+
+                        return sorted;
+                    })
+                );
+            },
+            onSelect: (selectedItem: CustomStatisticsResultItem) => {
+                if (selectedItem.ID) {
+                    return this.productService.Get(selectedItem.ID, productExpand)
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                } else {
+                    return this.productService.Post(selectedItem)
+                        .switchMap(item => this.productService.Get(selectedItem.ID, productExpand))
+                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                }
+            },
+            initialItem$: new BehaviorSubject(null),
+            tableHeader: ['Nr', 'Navn', 'Pris'],
+            rowTemplateFn: item => [
+                item.PartName,
+                item.Name,
+                item.PriceIncVat
+            ],
+            inputTemplateFn: item => item.Name ? `${item.PartName} - ${item.Name}` : item.PartName,
+            createNewFn: createNewFn,
+            maxResultsLength: MAX_RESULTS
+        };
     }
 }

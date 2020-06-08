@@ -1,0 +1,17 @@
+<i class="material-icons">calendar_today</i>
+<input readonly #input
+       (click)="datepicker.open()"
+       [(ngModel)]="value"
+       [matDatepicker]="datepicker"
+       [disabled]="readOnly$ | async"
+/>
+
+<mat-datepicker
+    #datepicker
+    startView="year"
+    panelClass="month-picker"
+    (monthSelected)="onMonthSelected($event, datepicker)"
+    (closed)="focus()"
+    [disabled]="readOnly$ | async"
+>
+</mat-datepicker>

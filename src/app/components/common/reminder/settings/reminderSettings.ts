@@ -30,10 +30,11 @@ export class ReminderSettings {
 
     reminderFields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
-    constructor(private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
+    constructor(
+        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
-        private jobService: JobService) {
-    }
+        private jobService: JobService
+    ) { }
 
     public ngOnChanges(change) {
         if (this.reminderSettings) {
@@ -54,6 +55,10 @@ export class ReminderSettings {
     public save(): Promise<any> {
         this.toggleDebtCollectionAutomationCronJob();
         return new Promise((resolve, reject) => {
+            if (this.reminderSettings.RemindersBeforeDebtCollection >= this.reminderSettings.CustomerInvoiceReminderRules.length) {
+                reject('Du har satt en verdi i feltet "Antall purringer før inkasso" som er større enn antall regler under "Purreregler" i bunn.');
+            }
+
             this.customerInvoiceReminderSettingsService.Put(this.reminderSettings.ID, this.reminderSettings).subscribe(() => {
                 this.isDirty = false;
                 resolve();
@@ -95,6 +100,14 @@ export class ReminderSettings {
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
+            },
+            {
+                Property: 'RemindersBeforeDebtCollection',
+                Label: 'Antall purringer før inkasso',
+                FieldType: FieldType.NUMERIC,
+                ReadOnly: !this.reminderSettings
+                    || !this.reminderSettings.CustomerInvoiceReminderRules
+                    || this.reminderSettings.CustomerInvoiceReminderRules.length < 2,
             }
         ]);
 

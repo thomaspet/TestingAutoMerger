@@ -73,7 +73,6 @@ export class TofDeliveryForm implements OnInit {
                     && addr.City === this.entity.ShippingCity
                     && addr.Country === this.entity.ShippingCountry;
             });
-
             if (shippingAddress) {
                 this.entity['_shippingAddress'] = shippingAddress;
             }
@@ -85,7 +84,6 @@ export class TofDeliveryForm implements OnInit {
 
     onFormChange(changes) {
         const model = this.model$.getValue();
-
         if (changes['PaymentTermsID']) {
             if (changes['PaymentTermsID'].currentValue) {
                 model.PaymentTerms = this.paymentTerms.find((term) => {
@@ -112,10 +110,9 @@ export class TofDeliveryForm implements OnInit {
                 model.DeliveryTerms = null;
             }
         }
-
         const address = model['_shippingAddress'];
-        if (changes['_shippingAddress'] && address) {
-            if (address['_isDirty']) {
+        if (changes['_shippingAddress']) {
+            if (address && address['_isDirty']) {
                 address['_isDirty'] = false;
                 this.saveAddressAndEmitChange(address);
                 return;
@@ -123,7 +120,6 @@ export class TofDeliveryForm implements OnInit {
                 this.addressService.addressToShipping(model, address);
             }
         }
-
         this.model$.next(model);
         this.entityChange.emit(model);
     }

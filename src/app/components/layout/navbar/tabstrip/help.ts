@@ -1,6 +1,7 @@
 import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 import {theme, THEMES} from 'src/themes/theme';
+import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -9,8 +10,8 @@ import {theme, THEMES} from 'src/themes/theme';
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a class="dropdown-menu-item" href="https://help.unieconomy.no" target="_blank" *ngIf="isUeEnvironment">
-                    Kundesenter
+                <a *ngIf="helpDeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
+                    Hjelpeside
                 </a>
 
                 <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="isUeEnvironment">
@@ -23,6 +24,10 @@ import {theme, THEMES} from 'src/themes/theme';
 
                 <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="isUeEnvironment">
                     Teamviewer nedlasting
+                </a>
+
+                <a class="dropdown-menu-item" (click)="openGiveSupportAccessModal()">
+                    Gi lesetilgang
                 </a>
 
                 <a class="dropdown-menu-item" routerLink="/about/versions">
@@ -53,9 +58,23 @@ export class UniTabstripHelp {
 
     showBoostChat = theme.theme === THEMES.SR || theme.theme === THEMES.EXT02;
 
+    helpdeskUrl;
+
+    constructor(private modalService: UniModalService) {
+        if (this.isUeEnvironment) {
+            this.helpdeskUrl = 'https://help.unieconomy.no';
+        } else if (this.isSrEnvironment) {
+            this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';
+        }
+    }
+
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {
             this.boost.openChatWithSupportCase();
         }
+    }
+
+    openGiveSupportAccessModal() {
+        this.modalService.open(GiveSupportAccessModal);
     }
 }

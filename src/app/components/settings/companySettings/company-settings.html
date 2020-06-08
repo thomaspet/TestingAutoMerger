@@ -44,6 +44,7 @@
                         [config]="{showLabelAbove: true, autoFocus: true}"
                         [fields]="electronicInvoiceFields$"
                         [model]="companySettings$"
+                        (inputEvent)="onFormInputChange($event)"
                         (changeEvent)="eifChange($event)">
                     </uni-form>
                 </section>

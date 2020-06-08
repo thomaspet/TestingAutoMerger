@@ -24,9 +24,9 @@
                     </section>
 
                     <ng-container *ngIf="bankStatementRules?.length">
-                        <section (click)="runAllRules()" class="dropdown-menu-item">
+                        <section *ngIf="numberOfActiveRules > 0" (click)="runAllRules()" class="dropdown-menu-item">
                             <i style="margin: 0 .5rem 0 0" class="material-icons">play_circle_filled</i>
-                            Kjør alle regler
+                            Kjør alle aktive regler ({{numberOfActiveRules}})
                         </section>
 
                         <section class="dropdown-menu-header">Kjør spesifikk regel</section>

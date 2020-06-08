@@ -72,6 +72,7 @@ import {ContractActivationWizard} from './contract-activation-wizard/contract-ac
 import {CompanyCreationWizard} from './company-creation-wizard/company-creation-wizard';
 import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
 
+import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
 
 @NgModule({
     imports: [
@@ -155,6 +156,7 @@ import {ContractTypesComparison} from './contract-types-comparison/contract-type
         ContractActivationWizard,
         CompanyCreationWizard,
         ContractTypesComparison,
+        RegisterAssetModal,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -212,6 +214,8 @@ import {ContractTypesComparison} from './contract-types-comparison/contract-type
         ContractActivationWizard,
         CompanyCreationWizard,
         ContractTypesComparison,
+
+        RegisterAssetModal,
     ]
 })
 export class AppCommonModule {}

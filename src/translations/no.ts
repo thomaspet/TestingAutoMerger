@@ -167,9 +167,9 @@ export const NO = {
         'CURRENCY_INFOTEXT': 'Valg av standard valuta for selskapet og hovedbokskonto for valutaposteringer.',
         'AGA_SETTINGS1': 'Firmanavn og organisasjonsnummer fylles automatisk ut dersom man har hentet opplysninger fra Brønnøysundregisteret under Firmaoppsett.',
         'AGA_SETTINGS2': 'Oppsett av sone og beregningsregel for arbeidsgiveravgift. Dersom virksomheten er omfattet av ordning for fribeløp får du oversikt over gjenstående fribeløp her.',
-        'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre.',
+        'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre. Antall purringer før inkasso må matche regler i bunnen av bilde.',
         'INKASSO_SETTINGS_INFOTEXT': 'Oppsett for integrasjon mot en av våre inkassopartnere.',
-        'REMINDER_RULES_INFOTEXT': 'Betingelser for at utgående faktura skal overføres til henholdsvis «Klar til purring» og «Klar til inkasso» i salgsmodulen. Merk at purring og faktura ikke sendes ut automatisk, dette er betingelser for at utgående faktura skal få disse statusene. Videre må det være minst 3 regler, vi anbefaler derfor å ikke fjerne noen av de 3 standardreglene under. Du kan fritt legge til ytterligere steg, og eventuelt fjerne disse.',
+        'REMINDER_RULES_INFOTEXT': 'Betingelser for at utgående faktura skal overføres til henholdsvis «Klar til purring» og «Klar til inkasso» i salgsmodulen. Merk at purring ikke sendes ut automatisk, dette er betingelser for når utgående faktura skal kunne purres/sendes til inkasso.',
         'FETCH_BR_REG_INFOTEXT': 'Du kan også hente opplysninger fra brønnøysundregistrene',
         'FETCH_FROM_BR_REG': 'Hent fra brreg',
 
@@ -177,11 +177,13 @@ export const NO = {
         'BANK_ACCOUNTS_INFOTEXT': 'Sett opp kontoer for bruk i systemet. Dersom lønnskonto ikke er fylt ut vil lønn bruke driftskonto ved utbetaling av lønn. Du kan sette opp flere kontoer, men valgt konto vil bli brukt som default av systemet.',
         'AUTO_BANK_INFOTEXT': 'Utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) blir ikke bokført',
         'REM_ACCOUNTS_INFOTEXT': 'Mellomkontoer for innbetaling, utbetaling og lønn',
-        'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks.',
+        'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks. Ved endring av e-postaddresse, lagre ny e-post med "Endre e-postaddresse"-knappen.',
         'SALARY_BOOKING_ACCOUNTS_INFOTEXT': 'Administrer systemkonti for postering av arbeidsgiveravgift og interimskonto for utbetaling av lønn. Aktiver automatisk postering av skattetrekk for å bokføre trekk til skattetrekkskonto når lønnskjøring bokføres. Huk av for «Utleggstrekk skatt til skattetrekkskonto» for å styre samlet beløp for utleggstrekk på skatt på lønnskjøringer mot skattetrekkskonto i remitteringsfil.',
         'SALARY_OTHER_INFOTEXT': 'Legg opp intervall for lønnskjøringer på selskapet. Dette angir standard datointervall ved opprettelse av lønnskjøringer. Dersom du aktiverer OTP-eksport må du også fylle ut feltet «Timer per årsverk», som er antall timer som tilsvarer et fullt årsverk i selskapet.',
         'VACATION_PAY_INFOTEXT': 'Oppsett for feriepengesats for ordinære lønnstakere, tilleggssats og startår, samt trekksats for fastlønn i feriepengemåned. Systemet bruker 10,2% som standard feriepengesats. Dersom noe av feriepengegrunnlaget er kjørt i annet system for inneværende år eller fjoråret kan feriepengegrunnlag registreres her.',
-        'FACTORING_INFOTEXT': 'Oppsett av factoring mot selskap'
+        'FACTORING_INFOTEXT': 'Oppsett av factoring mot selskap',
+        'CORPORATE_TAX_INFOTEXT': 'Kryss av og fyll inn hvis det skal beregnes og betales finansskatt av lønn.',
+        'FEE_INFOTEXT': 'Skatte- og avgiftsregler er en gruppe skatteregler for spesielle organisasjoner.  Aktiveres en skatteregel vil den bli tilgjengelig for dette selskapet som valg under a-meldingsinformasjon på lønnsarten. Et selskap kan aktivere flere regler, men en lønnsart kan bare kobles mot en skatte- og avgiftsregel.'
     },
 
     NAVBAR: {
@@ -283,6 +285,7 @@ export const NO = {
         'INBOX': 'Innboks',
         'BANK_PRODUCTS': 'Bankprodukter',
         'PURCHASES': 'Produktkjøp',
-        'BANK_SETTINGS': 'Bankinnstillinger'
+        'BANK_SETTINGS': 'Bankinnstillinger',
+        'ASSETS': 'Eiendeler',
     }
 };
