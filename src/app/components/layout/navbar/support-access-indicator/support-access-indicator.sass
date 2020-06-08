@@ -4,33 +4,32 @@
     position: absolute
     width: 100%
     height: 3.2rem
-    background-color: var(--button-good)
+    background-color: var(--alert-info)
+    color: var(--alert-info-text-color)
     left: 0%
     top: 0%
     z-index: 10
-    text-align: center
-    color: #fff
+
+    display: flex
+    align-items: center
+    justify-content: center
+    font-size: 17px
+
     svg
         overflow: visible
         margin-right: 1rem
-        position: relative
-        top: 2px
-    span
-        font-size: 17px
-        line-height: 3.1rem
-        a
-            margin-left: 1rem
-            text-decoration: underline
-            color: #fff
+        color: var(--alert-info-icon-color)
+
+    a
+        margin-left: 1rem
+        text-decoration: underline
+        color: var(--alert-info-link-color)
+
     .close-button
-        line-height: 3.1rem
-        float: right
-        margin-right: 2rem
+        position: absolute
+        right: 2rem
         font-size: 28px
         cursor: pointer
-        background-color: inherit
-        color: inherit
-        
 
 .demo-company-notifier
     cursor: pointer
@@ -41,10 +40,12 @@
         margin-right: 3px
         position: relative
         top: -1px
+        border-radius: var(--section-radius)
         svg
             width: inherit
             height: inherit
             overflow: visible
+            color: var(--alert-info-icon-color)
 
 .show-more-dialog
     z-index: 10
@@ -76,4 +77,4 @@
     border-left: 1px solid var(--border-color)
     border-top: 1px solid var(--border-color)
     z-index: 10
-            
+
