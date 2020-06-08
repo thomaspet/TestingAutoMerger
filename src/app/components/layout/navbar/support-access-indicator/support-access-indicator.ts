@@ -95,12 +95,13 @@ export class SupportAccessIndicator {
     }
 
     deactivateSupportUser() {
+        const userToBeDeactivatedEmail = this.supportUsers[0].Email ? this.supportUsers[0].Email : 'Denne brukeren';
         this.userService.PostAction(this.supportUsers[0].ID, 'inactivate').subscribe(() => {
             this.toastService.addToast(
                 'Support avsluttet',
                 ToastType.good,
                 ToastTime.medium,
-                `${this.supportUsers[0].Email} har ikke lenger lesetilgang til selskapet ditt`
+                `${userToBeDeactivatedEmail} har ikke lenger lesetilgang til selskapet ditt`
             );
             this.showDialog = false;
             this.checkForSupportUsers();
