@@ -15,6 +15,7 @@ export * from './checkbox/checkbox';
 export * from './button/button';
 export * from './local-date-picker/local-date-picker';
 export * from './uni-search-wrapper/uni-search-wrapper';
+export * from './month-picker/month-picker';
 
 import {UniTextInput} from './text/text';
 import {UniNumericInput} from './numeric/numeric';
@@ -34,6 +35,7 @@ import {LocalDatePickerInput} from './local-date-picker/local-date-picker';
 import {UniSearchWrapper} from './uni-search-wrapper/uni-search-wrapper';
 import { UniStaticTextInput } from '@uni-framework/ui/uniform/controls/static-text/static-text';
 import { UniMultiSelectInput } from '@uni-framework/ui/uniform/controls/multiselect/multiselect';
+import {MonthPickerInput} from './month-picker/month-picker';
 
 export const CONTROLS = [
     UniFormAutocomplete, // 0 - autocomplete
@@ -55,7 +57,8 @@ export const CONTROLS = [
     UniSearchWrapper, // 18 - uni search wrapper
     UniMultiSelectInput, // 19 - uni multy select
     UniStaticTextInput, // 20 - uni static text
-    UniTypeaheadInput // 21 - uni typeahead
+    UniTypeaheadInput, // 21 - uni typeahead
+    MonthPickerInput // 22 - uni monthpicker
 ];
 
 export enum CONTROLS_ENUM {
@@ -79,4 +82,5 @@ export enum CONTROLS_ENUM {
     UNI_MULTISELECT = 19, // 19 - multisearch
     UNI_STATIC_TEXT = 20, // 20 - static text
     UNI_TYPEAHEAD = 21, // 21 - typeahead
+    MONTH_PICKER = 22  // 22 - MONTH_PICKER
 }

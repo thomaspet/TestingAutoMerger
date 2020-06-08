@@ -36,6 +36,7 @@ export class BankStatementJournalModal implements IUniModal {
 
     matchEntries: IMatchEntry[];
     bankStatementRules: BankStatementRule[];
+    numberOfActiveRules: number;
     activeItem: DebitCreditEntry;
 
     constructor(
@@ -78,7 +79,12 @@ export class BankStatementJournalModal implements IUniModal {
 
     private loadRules() {
         this.ruleService.GetAll().subscribe(
-            rules => this.bankStatementRules = rules,
+            rules => {
+                this.bankStatementRules = rules || [];
+                this.numberOfActiveRules = this.bankStatementRules.reduce((count, rule) => {
+                    return rule.IsActive ? count + 1 : count;
+                }, 0);
+            },
             err => console.error(err)
         );
     }

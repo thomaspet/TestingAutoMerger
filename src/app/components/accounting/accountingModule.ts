@@ -79,7 +79,6 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
     imports: [
         LibraryImportsModule,
         UniFrameworkModule,
-
         LayoutModule,
         AppCommonModule,
         WidgetModule,

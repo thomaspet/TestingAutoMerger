@@ -84,12 +84,12 @@ export const BANK_DASHBOARD_CONFIG = {
 export const SALARY_DASHBOARD_CONFIG = {
     large: [
         { x: 5, y: 0, widgetID: 'shortcut_list_salary', },
-        { x: 0,y: 3,widgetID: 'transaction_salary', },
+        { x: 0, y: 3, widgetID: 'transaction_salary', },
         { x: 0, y: 0, widgetID: 'chart_employees_per_employment', },
         { x: 8, y: 0, widgetID: 'help_sr_accounting', },
-        { x: 8, y: 1, widgetID: 'sum_employees', },
-        { x: 8, y: 2, widgetID: 'sum_employments', },
-        { x: 8, y: 3, widgetID: 'sum_wagetypes', },
-        { x: 8, y: 4, widgetID: 'counter_salary_travels' },
+        { x: 8, y: 1, widgetID: 'sum_employments', },
+        { x: 8, y: 2, widgetID: 'sum_wagetypes', },
+        { x: 8, y: 3, widgetID: 'counter_salary_travels', },
+        { x: 8, y: 4, widgetID: 'sum_employees', },
     ]
-}
+};

@@ -211,6 +211,17 @@
             (inputEvent)="onInputHandler($event)"
             (focusEvent)="onFocusHandler($event)">
         </uni-typeahead-input>
+
+        <month-picker-input #selectedComponent
+             *ngSwitchCase="22"
+             [field]="field"
+             [model]="model"
+             [asideGuid]="asideGuid"
+             (readyEvent)="onReadyHandler($event)"
+             (changeEvent)="onChangeHandler($event)"
+             (inputEvent)="onInputHandler($event)"
+             (focusEvent)="onFocusHandler($event)">
+        </month-picker-input>
     </ng-container>
 </label>
 

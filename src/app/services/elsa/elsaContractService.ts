@@ -7,6 +7,7 @@ import {HttpClient} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
 import {theme, THEMES} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
+import {User} from '@uni-entities';
 
 @Injectable()
 export class ElsaContractService {
@@ -156,6 +157,18 @@ export class ElsaContractService {
             .usingEmptyDomain()
             .withEndPoint(endpoint)
             .send();
+    }
+
+    getSupportUsers(): Observable<User[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/support-users')
+            .send()
+            .pipe(
+                map(res => res.body),
+                catchError(() => of([]))
+            );
     }
 
     getContractTypeText(contractType: number) {

@@ -78,4 +78,21 @@ export class ElsaCustomersService {
             .send()
             .map(res => res.body);
     }
+
+    addSupportUserToCompany(companyID: number, email: string) {
+        const endpoint = `/api/companylicenses/${companyID}/grant-access-to-company/${email}`;
+        return this.uniHttp.asPOST()
+            .usingElsaDomain()
+            .withEndPoint(endpoint)
+            .withBody(null)
+            .send();
+    }
+
+    checkSupportUserExists(email: string) {
+        return this.uniHttp.asGET()
+            .usingElsaDomain()
+            .withEndPoint(`/api/supportwhitelist/isSupportUser?email=${email}`)
+            .send()
+            .map(res => res.body);
+    }
 }

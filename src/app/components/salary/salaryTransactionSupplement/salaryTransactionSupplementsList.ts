@@ -163,6 +163,7 @@ export class SalaryTransactionSupplementList implements OnInit {
                     .map(trans =>
                         trans
                             .Supplements
+                            .filter(supplement => !supplement.WageTypeSupplement?.GetValueFromTrans)
                             .map(supplement => {
                                 const wtSupp = supplement && supplement.WageTypeSupplement;
                                 supplement['_Employee'] = employees.find(emp => emp.ID === trans.EmployeeID);

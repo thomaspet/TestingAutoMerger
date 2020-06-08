@@ -23,6 +23,7 @@ export interface ElsaCustomer {
     Contracts?: ElsaContract[];
     CompanyTypeID?: number;
     PersonalNumber?: string;
+    IsBankCustomer: boolean;
 }
 
 export interface ElsaCompanyLicense {

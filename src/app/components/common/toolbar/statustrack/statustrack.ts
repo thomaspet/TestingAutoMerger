@@ -5,13 +5,19 @@ export enum STATUSTRACK_STATES {
     Active = 'active',    // Present
     Future = 'future',    // Potential
     Obsolete = 'obsolete',  // The data has changed since
+
+    // assets status track states
+    Depreciated = 'depreciated',
+    Sold = 'sold',
+    Lost = 'lost',
+    DepreciationFailed = 'depreciation failed'
 }
 
 export interface IStatus {
     title: string;
     class?: string;
     subtitle?: string;
-    state: STATUSTRACK_STATES;
+    state: STATUSTRACK_STATES | number;
     code?: number;
     timestamp?: Date;
     substatusList?: IStatus[];

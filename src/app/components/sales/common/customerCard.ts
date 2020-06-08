@@ -181,9 +181,9 @@ export class TofCustomerCard {
         }
     }
 
-    onCustomerSelected(customer: Customer) {
+    onCustomerSelected(customer: Customer, isNew = true) {
         const setCustomer = c => {
-            this.entity = this.tofHelper.mapCustomerToEntity(c, this.entity);
+            this.entity = this.tofHelper.mapCustomerToEntity(c, this.entity, isNew);
             this.entity = cloneDeep(this.entity);
             this.entityChange.emit(this.entity);
         };
@@ -206,7 +206,7 @@ export class TofCustomerCard {
             data: this.entity.Customer
         }).onClose.subscribe(editedCustomer => {
             if (editedCustomer) {
-                this.onCustomerSelected(editedCustomer);
+                this.onCustomerSelected(editedCustomer, false);
             }
         });
     }

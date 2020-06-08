@@ -49,6 +49,16 @@
 	margin-top: 1rem;
 }
 
+.uni-ehf .invoice-head .supplier-and-customer .info-and-delivery {	
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+}
+
+.uni-ehf .invoice-head .supplier-and-customer .info-and-delivery .customer-info {
+	margin-right: 2rem;
+}
+
 .uni-ehf dl {
     display: grid;
     grid-template-columns: auto auto;

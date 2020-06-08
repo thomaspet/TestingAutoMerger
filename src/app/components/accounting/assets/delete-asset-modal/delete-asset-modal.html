@@ -1,0 +1,16 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        Slett eiendel
+    </header>
+    <article>
+        <p class="info-box-link form-info-box">
+            <i class="material-icons ng-star-inserted"> info </i>
+            Hvis du registrerte eiendeler ved en feil, og den ikke skal avskrives i det hele tatt,
+            kan du slette den fra eiendelsregisteret. Slettningen kan ikke angres.
+        </p>
+    </article>
+    <footer style="justify-content: center;">
+        <button class="good" (click)="remove()">Slett</button>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+    </footer>
+</section>

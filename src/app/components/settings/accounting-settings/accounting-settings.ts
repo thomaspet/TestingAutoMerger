@@ -8,7 +8,9 @@ import {
     CurrencyCodeService,
     PageStateService,
     ElsaPurchaseService,
-    EHFService
+    EHFService,
+    AccountVisibilityGroupService,
+    CompanyAccountingSettingsService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -55,11 +57,13 @@ export class UniCompanyAccountingView {
     accountingPeriods: any[] = [];
     vatReportForms: any[] = [];
     currencyCodes: Array<CurrencyCode> = [];
+    accountVisibilityGroups: any[] = [];
     activeIndex: number = 0;
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
-        {name: 'Mva-innstillinger'},
-        {name: 'Forholdsmessig MVA / fradrag'}
+        {name: 'Mvakoder'},
+        {name: 'Forholdsmessig MVA / fradrag'},
+        {name: 'Eiendeler'}
     ];
 
     eInvoiceItems: any[] = [
@@ -71,6 +75,7 @@ export class UniCompanyAccountingView {
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsVat$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsCurrency$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    companyAccountingSettings = null;
 
     vatMandatoryOptions = [
         { ID: 1, Name: 'Avgiftsfri'},
@@ -89,6 +94,7 @@ export class UniCompanyAccountingView {
 
     constructor (
         private companySettingsService: CompanySettingsService,
+        private companyAccountingSettingsService: CompanyAccountingSettingsService,
         private periodeSeriesService: PeriodSeriesService,
         private tabService: TabService,
         private vatReportFormService: VatReportFormService,
@@ -101,6 +107,7 @@ export class UniCompanyAccountingView {
         private router: Router,
         private elsaPurchasesService: ElsaPurchaseService,
         private ehfService: EHFService,
+        private accountVisibilityGroupService: AccountVisibilityGroupService
     ) { }
 
     ngOnInit() {
@@ -131,12 +138,16 @@ export class UniCompanyAccountingView {
             this.periodeSeriesService.GetAll(null),
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
+            this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
         ).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
 
             this.accountingPeriods = this.periods.filter((value) => value.SeriesType.toString() === '1');
             this.vatPeriods = this.periods.filter((value) => value.SeriesType.toString() === '0');
+
+            // Get accountvisibilitygroups that are not specific for a companytype
+            this.accountVisibilityGroups = response[4].filter(x => x.CompanyTypes.length === 0);
 
             this.vatReportForms = response[2];
             this.currencyCodes = response[3];
@@ -145,7 +156,7 @@ export class UniCompanyAccountingView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
-
+            this.companyAccountingSettings = response[4][0];
         }, err => {
             this.errorService.handle(err);
         });
@@ -242,11 +253,11 @@ export class UniCompanyAccountingView {
             companySettings.AgioLossAccount = null;
             companySettings.BaseCurrencyCode = null;
             companySettings.AcceptableDelta4CustomerPaymentAccount = null;
-
             Observable.forkJoin(
                 this.companySettingsService.Put(companySettings.ID, companySettings),
                 this.vattypeList.saveVatType(),
-                this.vatDeducationView.saveVatDeductions()
+                this.vatDeducationView.saveVatDeductions(),
+                this.companyAccountingSettingsService.Put(this.companyAccountingSettings.ID, this.companyAccountingSettings)
             ).subscribe((response) => {
                 this.isDirty = false;
                 if (done) {
@@ -313,7 +324,19 @@ export class UniCompanyAccountingView {
                             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                             valueProperty: 'ID'
                         }
-                    }
+                    },
+                    {
+                        EntityType: 'CompanySettings',
+                        Property: 'AccountVisibilityGroupID',
+                        FieldType: FieldType.DROPDOWN,
+                        Label: 'Synlige kontoer',
+                        Options: {
+                            source: this.accountVisibilityGroups,
+                            valueProperty: 'ID',
+                            displayProperty: 'Name',
+                            debounceTime: 200
+                        }
+                    },
                 ];
                 break;
             case 1:
@@ -421,5 +444,8 @@ export class UniCompanyAccountingView {
                 break;
         }
         return fields;
+    }
+    onAssetSettingsChange() {
+        this.isDirty = true;
     }
 }

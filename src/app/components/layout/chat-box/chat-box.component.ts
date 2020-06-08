@@ -4,11 +4,13 @@ import { Comment, User } from '@uni-entities';
 import { AuthService } from '@app/authService';
 import { FormControl } from '@angular/forms';
 import { KeyCodes } from '@app/services/common/keyCodes';
-import { UserService, ErrorService } from '@app/services/services';
+import { UserService, ErrorService, CompanyService } from '@app/services/services';
 import { Router } from '@angular/router';
 import { CommentService } from '@uni-framework/comments/commentService';
 import { SignalRService } from '@app/services/common/signal-r.service';
 import { PushMessage, BusinessObject } from '@app/models';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'uni-chat-box',
@@ -34,12 +36,14 @@ export class ChatBoxComponent implements OnInit {
 
     constructor(
         public authService: AuthService,
+        public signalRService: SignalRService,
+        private httpClient: HttpClient,
         private chatBoxService: ChatBoxService,
         private commentService: CommentService,
         private errorService: ErrorService,
         private router: Router,
         private userService: UserService,
-        public signalRService: SignalRService
+        private companyService: CompanyService,
     ) {}
 
     ngOnInit() {
@@ -56,10 +60,23 @@ export class ChatBoxComponent implements OnInit {
             this.getComments();
         }
 
-        this.userService.GetAll('filter=statuscode eq 110001').subscribe(
-            users => this.users = users,
-            err => this.errorService.handle(err)
-        );
+        if (this.businessObject.CompanyKey) {
+            if (this.businessObject.CompanyKey === this.authService.activeCompany.Key) {
+                this.userService.GetAll('filter=statuscode eq 110001').subscribe(
+                    users => this.users = users,
+                    err => this.errorService.handle(err)
+                );
+            } else {
+                const url = environment.BASE_URL + '/api/biz/users?filter=statuscode eq 110001';
+                this.httpClient.get<User[]>(url, {
+                    headers: new HttpHeaders({'CompanyKey': this.businessObject.CompanyKey})
+                }).subscribe(
+                    users => this.users = users,
+                    err => this.errorService.handle(err)
+                );
+            }
+        }
+
 
         this.inputControl.valueChanges.subscribe((value: string) => {
             const inputWord = this.getCurrentWord(value);
@@ -118,13 +135,11 @@ export class ChatBoxComponent implements OnInit {
     }
 
     getComments() {
-        this.commentService
-            .getAll(
-                this.businessObject.EntityType,
-                this.businessObject.EntityID,
-                this.businessObject.CompanyKey
-            )
-            .subscribe((comments: Comment[]) => {
+        this.commentService.getAll(
+            this.businessObject.EntityType,
+            this.businessObject.EntityID,
+            this.businessObject.CompanyKey
+        ).subscribe((comments: Comment[]) => {
             this.unreadCount = 0;
             this.comments = comments.reverse();
 
@@ -158,7 +173,23 @@ export class ChatBoxComponent implements OnInit {
 
     navigateToBusinessObject(event: any) {
         event.stopPropagation();
-        this.router.navigateByUrl(this.chatBoxService.getBusinessObjectRoute(this.businessObject));
+        const url = this.chatBoxService.getBusinessObjectRoute(this.businessObject);
+        const companyKey = this.businessObject.CompanyKey;
+
+        if (companyKey === this.authService.activeCompany.Key) {
+            this.router.navigateByUrl(url);
+            return;
+        }
+
+        this.companyService.GetAll().subscribe(
+            companies => {
+                const company = (companies || []).find(c => c.Key === companyKey);
+                if (company) {
+                    this.authService.setActiveCompany(company, url);
+                }
+            },
+            err => console.error(err)
+        );
     }
 
     onKeyDown(event: KeyboardEvent) {

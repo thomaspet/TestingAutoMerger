@@ -42,7 +42,7 @@ export class NewsfeedWidget {
                         } else {
                             const baseUrl = this.getBaseUrl(item.Link);
                             const imgUrl = this.findImageUrl(html);
-                            item.Image = imgUrl ? (baseUrl + imgUrl) : null;
+                            item.Image = imgUrl?.startsWith('/') ? (baseUrl + imgUrl) : imgUrl;
                         }
 
                         return item;

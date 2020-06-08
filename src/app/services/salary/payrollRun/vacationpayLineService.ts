@@ -3,14 +3,12 @@ import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {VacationPayLine, WageDeductionDueToHolidayType} from '../../../unientities';
 import {Observable, of} from 'rxjs';
-import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 
 @Injectable()
 export class VacationpayLineService extends BizHttp<VacationPayLine> {
     constructor(
         protected http: UniHttp,
-        private salaryTransactionService: SalaryTransactionService,
         private yearService: FinancialYearService,
     ) {
         super(http);
@@ -30,15 +28,10 @@ export class VacationpayLineService extends BizHttp<VacationPayLine> {
         return super.GetAction(null, 'lines', `payrunID=${payrun}&year=${year || this.yearService.getActiveYear()}&showAll=${showAllEmps}`);
     }
 
-    public createVacationPay(year: number, payrun: number, payList: VacationPayLine[], hasSixthWeek: boolean) {
-        super.invalidateCache();
-        this.salaryTransactionService.invalidateCache();
-        return this.http
-            .asPUT()
-            .usingBusinessDomain()
-            .withEndPoint(this.relativeURL + `?action=pay-fromlines&payrollID=${payrun}&year=${year}&hasSixthWeek=${hasSixthWeek}`)
-            .withBody(payList)
-            .send();
+    public save(line: VacationPayLine): Observable<VacationPayLine> {
+        return line.ID
+            ? super.Put(line.ID, line)
+            : super.Post(line);
     }
 
     public toSalary(baseYear: number, run: number, payList: VacationPayLine[]): Observable<boolean> {
