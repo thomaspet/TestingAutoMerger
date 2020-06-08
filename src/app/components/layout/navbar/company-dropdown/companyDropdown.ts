@@ -136,7 +136,7 @@ export class UniCompanyDropdown {
     public promptToCreateNewYear(newSelectedYear: number, previousSelectedYear: number) {
         // add simple validation, max 5 years back, 2 years ahead
         const currentDateYear = new Date().getFullYear();
-        if (newSelectedYear > currentDateYear + 2 || newSelectedYear < currentDateYear - 5) {
+        if (newSelectedYear > currentDateYear + 2 || newSelectedYear < currentDateYear - 10) {
             this.toastService.addToast(
                 'Ugyldig år valgt',
                 ToastType.bad,

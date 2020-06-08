@@ -1241,6 +1241,24 @@ export class CustomerDetails implements OnInit {
         return this.modulusService.orgNrValidationUniForm(orgNr, field, isInternationalCustomer);
     }
 
+    private ssnValidator(ssn: string, field: UniFieldLayout) {
+        const customer = this.customer$.getValue();
+        let isInternationalCustomer: boolean;
+
+        try {
+            // Try/catch to avoid having to null guard everything here
+            // Consider empty contry code norwegian
+            isInternationalCustomer = customer.Info.Addresses[0].CountryCode
+                && customer.Info.Addresses[0].CountryCode !== 'NO';
+        } catch (e) {}
+
+        if (isInternationalCustomer) {
+            return;
+        }
+
+        return this.modulusService.ssnValidationUniForm(ssn, field);
+    }
+
     private getComponentLayout(): any {
         const layout = {
             Name: 'Customer',
@@ -1276,6 +1294,36 @@ export class CustomerDetails implements OnInit {
                     Label: 'Organisasjonsnummer',
                     Validations: [
                         (value, validatedField) => this.orgNrValidator(value, validatedField)
+                    ],
+                    Section: 0
+                },
+                {
+                    FieldSet: 1,
+                    EntityType: 'Customer',
+                    Property: 'SocialSecurityNumber',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Fødselsnummer',
+                    Options: {
+                        mask: '000000 00000'
+                    },
+                    Validations: [
+                        (value: number, validatedField: UniFieldLayout) => {
+                            if (!value) {
+                                return;
+                            }
+
+                            if (!isNaN(+value)) {
+                                return;
+                            }
+
+                            return {
+                                field: validatedField,
+                                value: value,
+                                errorMessage: 'Fødselsnummer skal bare inneholde tall',
+                                isWarning: false
+                            };
+                        },
+                        (value, validatedField) => this.ssnValidator(value, validatedField)
                     ],
                     Section: 0
                 },

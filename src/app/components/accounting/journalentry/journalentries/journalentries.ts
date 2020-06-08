@@ -304,7 +304,10 @@ export class JournalEntries {
                     // get data based on the JournalEntryDraftGroup - finding relevant data is done by the API
                     this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
                         .subscribe(journalEntryData => {
-                        
+
+                          
+
+                            
                             this.editmode = false;
                             this.journalEntryManual.currentJournalEntryID = null;
                             this.currentJournalEntryID = 0;
