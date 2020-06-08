@@ -57,9 +57,8 @@ export class SupportAccessIndicator {
 
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID).subscribe(isAdmin => {
             this.isAdmin = isAdmin;
+            this.checkForSupportUsers();
         });
-
-        this.checkForSupportUsers();
 
         this.signalRService.pushMessage$.subscribe((message: any) => {
             if (message && message.entityType === 'notification') {
