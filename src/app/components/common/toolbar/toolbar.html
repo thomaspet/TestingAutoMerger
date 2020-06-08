@@ -16,7 +16,7 @@
 
             <ng-template #textHeader>
                 <h1 class="toolbar-title" (click)="toggleSearch()">
-                    {{config?.title || searchConfig?.initValue | translate}}
+                    {{(config?.title || searchConfig?.initValue) | translate}}
                     <i class="material-icons" *ngIf="searchConfig">
                         search
                     </i>

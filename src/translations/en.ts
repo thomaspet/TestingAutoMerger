@@ -89,5 +89,6 @@ export const EN = {
         'MODULES': 'Modules',
         'WEBINAR': 'Webinar',
         'PURCHASES': 'Purchases',
+        'ASSETS': 'Assets'
     }
 };

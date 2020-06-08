@@ -1,0 +1,25 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        Registrere eiendel som tapt
+    </header>
+    <article>
+        <uni-form class="two-column-layout"
+            [fields]="mainForm"
+            [config]="config"
+            [model]="model"
+        ></uni-form>
+        <uni-form
+            [fields]="descriptionForm"
+            [config]="{showLabelAbove: true}"
+            [model]="model"
+        ></uni-form>
+        <p class="info-box-link form-info-box">
+            <i class="material-icons ng-star-inserted"> info </i>
+            Ved registrering av en eiendel som tapt regnskapføres restverdien som en utgift.
+        </p>
+    </article>
+    <footer style="justify-content: center;">
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="good" (click)="save()">Registrere som tapt</button>
+    </footer>
+</section>

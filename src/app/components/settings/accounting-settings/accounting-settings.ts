@@ -9,7 +9,8 @@ import {
     PageStateService,
     ElsaPurchaseService,
     EHFService,
-    AccountVisibilityGroupService
+    AccountVisibilityGroupService,
+    CompanyAccountingSettingsService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -61,7 +62,8 @@ export class UniCompanyAccountingView {
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
         {name: 'Mvakoder'},
-        {name: 'Forholdsmessig MVA / fradrag'}
+        {name: 'Forholdsmessig MVA / fradrag'},
+        {name: 'Eiendeler'}
     ];
 
     eInvoiceItems: any[] = [
@@ -73,6 +75,7 @@ export class UniCompanyAccountingView {
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsVat$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsCurrency$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    companyAccountingSettings = null;
 
     vatMandatoryOptions = [
         { ID: 1, Name: 'Avgiftsfri'},
@@ -91,6 +94,7 @@ export class UniCompanyAccountingView {
 
     constructor (
         private companySettingsService: CompanySettingsService,
+        private companyAccountingSettingsService: CompanyAccountingSettingsService,
         private periodeSeriesService: PeriodSeriesService,
         private tabService: TabService,
         private vatReportFormService: VatReportFormService,
@@ -152,7 +156,7 @@ export class UniCompanyAccountingView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
-
+            this.companyAccountingSettings = response[4][0];
         }, err => {
             this.errorService.handle(err);
         });
@@ -249,11 +253,11 @@ export class UniCompanyAccountingView {
             companySettings.AgioLossAccount = null;
             companySettings.BaseCurrencyCode = null;
             companySettings.AcceptableDelta4CustomerPaymentAccount = null;
-
             Observable.forkJoin(
                 this.companySettingsService.Put(companySettings.ID, companySettings),
                 this.vattypeList.saveVatType(),
-                this.vatDeducationView.saveVatDeductions()
+                this.vatDeducationView.saveVatDeductions(),
+                this.companyAccountingSettingsService.Put(this.companyAccountingSettings.ID, this.companyAccountingSettings)
             ).subscribe((response) => {
                 this.isDirty = false;
                 if (done) {
@@ -440,5 +444,8 @@ export class UniCompanyAccountingView {
                 break;
         }
         return fields;
+    }
+    onAssetSettingsChange() {
+        this.isDirty = true;
     }
 }

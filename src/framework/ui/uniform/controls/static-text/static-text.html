@@ -1,2 +1,5 @@
-<span #input>{{control.value}}</span>
+<span [ngClass]="field?.Classes" #input>
+    <i class="material-icons" *ngIf="field?.Options?.icon"> {{ field.Options.icon }} </i>
+    {{control.value}}
+</span>
 <ng-content></ng-content>

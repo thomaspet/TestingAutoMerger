@@ -18,9 +18,14 @@ import {Expense} from './bill/expense/expense';
 
 import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
+import {routes as AssetsRoutes} from './assets/asset-details.routes';
 import {CanDeactivateGuard} from '../../canDeactivateGuard';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 import {UniInbox} from './inbox/inbox';
+import {AssetsListComponent} from '@app/components/accounting/assets/assets-list/assets-list';
+import {AssetsDetailComponent} from '@app/components/accounting/assets/asset-detail/asset-detail';
+import {AssetsHistoryComponent} from '@app/components/accounting/assets/assets-history/assets-history';
+import {AssetDetailsTab} from '@app/components/accounting/assets/asset-details-tab';
 
 export const accountingRoutes: Routes = [
     {
@@ -104,6 +109,13 @@ export const accountingRoutes: Routes = [
     {
         path: 'expense',
         component: Expense,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'assets',
+        loadChildren: () => import('./assets/assets.module').then(m => {
+            return m.AssetsModule;
+        }),
         canDeactivate: [CanDeactivateGuard]
     }
 ];

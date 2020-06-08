@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        Registrere eiendel som solgt
+    </header>
+    <article>
+        <uni-form class="two-column-layout"
+            [fields]="form"
+            [config]="config"
+            [model]="model"
+        ></uni-form>
+        <p class="info-box-link form-info-box">
+            <i class="material-icons ng-star-inserted"> info </i>
+            Salgssummen regnes mot restverdien av eiendelen og eventuelt tap/gevinst regnskapføres. Merk at du i tillegg
+            til denne registreringen også må sende en faktura til kjøper og inntektsføre denne.
+        </p>
+        <uni-form
+            [fields]="radioButtonField"
+            [config]="{}"
+            [model]="model"
+        ></uni-form>
+        <p class="form-label">Kunde</p>
+        <autocomplete class="customer-select"
+              [options]="customerAutocompleteOptions"
+              [readonly]="false"
+              [value]="customer"
+              (valueChange)="onCustomerChange($event)">
+        </autocomplete>
+        <p class="info-box-link form-info-box">
+            <i class="material-icons ng-star-inserted"> info </i>
+            En fakturakladd vil bli basert på salg av denne eiendelen
+        </p>
+    </article>
+    <footer style="justify-content: center;">
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="good" (click)="save()">Registrere eiendel som solgt</button>
+    </footer>
+</section>

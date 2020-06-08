@@ -1,0 +1,28 @@
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Regnskapsmessig avskrivning</h1>
+            <p>Eiendeler avskrives lineært i regnskapet - det vil si med en like stor sum hver måned.</p>
+            <p>Denne summen blir da en utgift i regnskapet ditt, og gjenspeiller eiendelens reduserte verdi etter hvert som den blir eldre.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form class="auto-depreciation-form"
+                    [config]="{}"
+                    [model]="asset"
+                    [fields]="checkboxConfig"
+                    (changeEvent)="onChangeEvent($event)"
+                ></uni-form>
+                <uni-form *ngIf="fieldsConfig" class="two-column-layout"
+                    [config]="{showLabelAbove: true}"
+                    [model]="asset"
+                    [fields]="fieldsConfig"
+                    (changeEvent)="onChangeEvent($event)"
+                ></uni-form>
+            </section>
+        </section>
+    </section>
+</section>

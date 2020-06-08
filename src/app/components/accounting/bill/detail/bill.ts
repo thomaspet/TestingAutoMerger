@@ -2,7 +2,7 @@ import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angul
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
+import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
 import {filterInput, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
@@ -55,6 +55,7 @@ import {
     FileFromInboxModal
 } from '@uni-framework/uni-modal';
 import {
+    AccountService, AssetsService,
     AssignmentDetails,
     BankAccountService,
     BankService,
@@ -93,7 +94,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {finalize} from 'rxjs/operators';
+import {finalize, map, tap} from 'rxjs/operators';
 
 interface ITab {
     name: string;
@@ -262,7 +263,9 @@ export class BillView implements OnInit, AfterViewInit {
         private browserStorageService: BrowserStorageService,
         private reinvoicingService: ReInvoicingService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private accountService: AccountService,
+        private assetsService: AssetsService
     ) {
         this.actions = this.rootActions;
 
@@ -2539,7 +2542,13 @@ export class BillView implements OnInit, AfterViewInit {
             case 'journal':
                 this.journal(true, href).subscribe(result => {
                     if (result) {
-                        done('');
+                        this.itCanBeAnAsset(current).pipe(
+                            finalize(() => done('Bokført'))
+                        ).subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(current);
+                            }
+                        });
                     } else {
                         done('Bokføring feilet');
                     }
@@ -2550,7 +2559,13 @@ export class BillView implements OnInit, AfterViewInit {
             case 'smartbooking':
                 this.supplierInvoiceService.Action(current.ID, key).subscribe((result) => {
                     this.userMsg(JSON.stringify(result));
-                    done('ok');
+                    this.itCanBeAnAsset(current)
+                        .pipe(finalize(() => done('ok')))
+                        .subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(current);
+                            }
+                        });
                 }, (err) => {
                     this.errorService.handle(err);
                     done(err);
@@ -2603,6 +2618,13 @@ export class BillView implements OnInit, AfterViewInit {
                             })
                             .subscribe(result => {
                                 this.fetchInvoice(current.ID, false);
+                                this.itCanBeAnAsset(current)
+                                    .pipe(finalize(() => done('ok')))
+                                    .subscribe(canBeAnAsset => {
+                                        if (canBeAnAsset) {
+                                            this.assetsService.openRegisterModal(current);
+                                        }
+                                    });
                                 done(result ? 'Godkjent og bokført' : '');
                             });
                     } else {
@@ -2632,7 +2654,16 @@ export class BillView implements OnInit, AfterViewInit {
                                     : Observable.of(false);
                             })
                             .subscribe(result => {
-                                this.updateInvoicePayments().add(done(result ? 'Godkjent, bokført og til betaling' : ''));
+                                this.updateInvoicePayments()
+                                    .add(() => {
+                                        this.itCanBeAnAsset(current)
+                                            .pipe(finalize(() => done(result ? 'Godkjent, bokført og til betaling' : '')))
+                                            .subscribe(canBeAnAsset => {
+                                                if (canBeAnAsset) {
+                                                    this.assetsService.openRegisterModal(current);
+                                                }
+                                            });
+                                    });
                             });
                     } else {
                         done('Ikke mulig å godkjenne');
@@ -2654,7 +2685,16 @@ export class BillView implements OnInit, AfterViewInit {
                             : Observable.of(false);
                     })
                     .subscribe(result => {
-                        this.updateInvoicePayments().add(done(result ? 'Bokført og til betaling' : ''));
+                        this.updateInvoicePayments().add(
+                            () => {
+                                done(result ? 'Bokført og til betaling' : '');
+                                this.itCanBeAnAsset(current).subscribe(canBeAnAsset => {
+                                    if (canBeAnAsset) {
+                                        this.assetsService.openRegisterModal(current);
+                                    }
+                                });
+                            }
+                        );
                     });
 
                 return true;
@@ -4312,5 +4352,20 @@ export class BillView implements OnInit, AfterViewInit {
                 }
             });
         });
+    }
+
+    private itCanBeAnAsset(current: SupplierInvoice) {
+        if (current?.JournalEntry?.DraftLines?.length > 0) {
+            const line = current?.JournalEntry?.DraftLines[0];
+            return this.accountService.Get(line.AccountID).pipe(
+                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                map((account) => {
+                    return account.AccountNumber.toString().startsWith('10')
+                        || account.AccountNumber.toString().startsWith('11')
+                        || account.AccountNumber.toString().startsWith('12');
+                })
+            );
+        }
+        return of(false);
     }
 }

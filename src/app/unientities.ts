@@ -230,8 +230,8 @@ export class WorkRelation extends UniEntity {
     public WorkerID: number;
     public WorkPercentage: number;
     public WorkProfileID: number;
-    public WorkProfile: WorkProfile;
     public Worker: Worker;
+    public WorkProfile: WorkProfile;
     public Items: Array<WorkItem>;
     public Team: Team;
     public CustomFields: any;
@@ -2780,6 +2780,23 @@ export class CurrencyOverride extends UniEntity {
 }
 
 
+export class AccountAssetGroup extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AccountAssetGroup';
+
+    public _createguid: string;
+    public AssetGroupCode: string;
+    public BalanceAccountNumber: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public ID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CustomFields: any;
+}
+
+
 export class AccountGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountGroupSetup';
@@ -2933,6 +2950,27 @@ export class Agreement extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public ValidFrom: Date;
+    public CustomFields: any;
+}
+
+
+export class AssetGroup extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AssetGroup';
+
+    public _createguid: string;
+    public Code: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DepreciationAccountNumber: number;
+    public DepreciationRate: number;
+    public DepreciationYears: number;
+    public ID: number;
+    public Name: string;
+    public ToDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -3742,6 +3780,7 @@ export class CompanySettings extends UniEntity {
     public TwoStageAutobankEnabled: boolean;
     public UpdatedAt: Date;
     public UpdatedBy: string;
+    public UseAssetRegister: boolean;
     public UseNetsIntegration: boolean;
     public UseOcrInterpretation: boolean;
     public UsePaymentBankValues: boolean;
@@ -6263,6 +6302,41 @@ export class AccrualPeriod extends UniEntity {
 }
 
 
+export class Asset extends UniEntity {
+    public static RelativeUrl = 'assets';
+    public static EntityType = 'Asset';
+
+    public _createguid: string;
+    public AssetGroupCode: string;
+    public AutoDepreciation: boolean;
+    public BalanceAccountID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public CurrentNetFinancialValue: number;
+    public Deleted: boolean;
+    public DepreciationAccountID: number;
+    public DepreciationCycle: number;
+    public DepreciationStartDate: LocalDate;
+    public DimensionsID: number;
+    public ID: number;
+    public Lifetime: number;
+    public Name: string;
+    public NetFinancialValue: number;
+    public PurchaseAmount: number;
+    public PurchaseDate: LocalDate;
+    public ScrapValue: number;
+    public Status: string;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public BalanceAccount: Account;
+    public DepreciationAccount: Account;
+    public Dimensions: Dimensions;
+    public DepreciationLines: Array<DepreciationLine>;
+    public CustomFields: any;
+}
+
+
 export class Bank extends UniEntity {
     public static RelativeUrl = 'banks';
     public static EntityType = 'Bank';
@@ -6533,6 +6607,11 @@ export class CompanyAccountingSettings extends UniEntity {
     public static EntityType = 'CompanyAccountingSettings';
 
     public _createguid: string;
+    public AssetSaleAccountID: number;
+    public AssetSaleLossNoVatAccountID: number;
+    public AssetSaleLossVatAccountID: number;
+    public AssetSaleProfitNoVatAccountID: number;
+    public AssetSaleProfitVatAccountID: number;
     public CreatedAt: Date;
     public CreatedBy: string;
     public Deleted: boolean;
@@ -6640,6 +6719,26 @@ export class CustomLiquidityPayment extends UniEntity {
     public UpdatedAt: Date;
     public UpdatedBy: string;
     public currency: CurrencyCode;
+    public CustomFields: any;
+}
+
+
+export class DepreciationLine extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'DepreciationLine';
+
+    public _createguid: string;
+    public AssetID: number;
+    public AssetJELineID: number;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public Deleted: boolean;
+    public DepreciationJELineID: number;
+    public DepreciationType: number;
+    public ID: number;
+    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CustomFields: any;
 }
 
@@ -7749,9 +7848,9 @@ export class WorkBalanceDto extends UniEntity {
     public ValidFrom: Date;
     public ValidTimeOff: number;
     public WorkRelationID: number;
-    public WorkRelation: WorkRelation;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
+    public WorkRelation: WorkRelation;
     public CustomFields: any;
 }
 
@@ -8668,6 +8767,29 @@ export class AccountDimension extends UniEntity {
     public AccountNumber: number;
     public DimensionsID: number;
     public Dimensions: Dimensions;
+}
+
+
+export class AssetReportDTO extends UniEntity {
+    public BalanceAccountName: string;
+    public BalanceAccountNumber: number;
+    public CurrentValue: number;
+    public DepreciationAccountNumber: number;
+    public GroupCode: string;
+    public GroupName: string;
+    public LastDepreciation: LocalDate;
+    public Lifetime: number;
+    public Name: string;
+    public Number: number;
+    public Lines: Array<AssetReportLineDTO>;
+}
+
+
+export class AssetReportLineDTO extends UniEntity {
+    public Date: LocalDate;
+    public Type: string;
+    public TypeID: number;
+    public Value: number;
 }
 
 
@@ -10128,6 +10250,15 @@ export enum StatusCodeAltinnSigning{
 export enum StatusCodeAccrualPeriod{
     Registered = 33001,
     Accrued = 33002,
+}
+
+
+export enum AssetStatusCode{
+    Active = 46200,
+    Sold = 46205,
+    Depreciated = 46210,
+    Lost = 46215,
+    DepreciationFailed = 46220,
 }
 
 

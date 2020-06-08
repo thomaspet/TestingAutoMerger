@@ -110,4 +110,6 @@
     <!-- VAT DEDUCTION SETTINGS -->
     <vat-deduction-settings [hidden]="activeIndex !== 2"></vat-deduction-settings>
 
+    <!-- EIENDELER SETTINGS -->
+    <eiendeler-settings [hidden]="activeIndex !== 3" [model]="companyAccountingSettings" (changeEvent)="onAssetSettingsChange()"></eiendeler-settings>
 </section>

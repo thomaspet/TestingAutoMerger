@@ -1,0 +1,21 @@
+<section class="bill-right-side uni-container">
+    <header>Dokument ({{startUpFileIDs?.length || 0}})</header>
+
+    <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+            <i class="material-icons">get_app</i>
+            Hent fra innboks
+        </span>
+
+    <uni-image
+        [singleImage]="false"
+        [uploadWithoutEntity]="!(this.state$ | async)?.currentAsset?.ID"
+        [fileIDs]="startUpFileIDs?.length ? startUpFileIDs: []"
+        [entity]="'Asset'"
+        [entityID]="(this.state$ | async)?.currentAsset?.ID"
+        [size]="1200"
+        [splitAllowed]="true"
+        [rotateAllowed]="true"
+        (imageDeleted)="onImageDeleted($event)"
+        (imageUnlinked)="imageUnlinked($event)">
+    </uni-image>
+</section>

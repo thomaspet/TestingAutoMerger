@@ -215,6 +215,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 name: '',
                 links: [
                     {
+                        name: 'NAVBAR.ASSETS',
+                        url: '/accounting/assets',
+                        moduleID: UniModules.Accounting,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.JOURNALENTRY',
                         url: '/accounting/journalentry',
                         moduleID: UniModules.Accounting,

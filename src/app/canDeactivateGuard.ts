@@ -12,7 +12,7 @@ export class CanDeactivateGuard implements CanDeactivate<any> {
             return true;
         }
 
-        if (component.canDeactivate) {
+        if (component?.canDeactivate) {
             const routeToActivate = nextState && nextState.url;
             if (nextState.url === '/reload') {
                 const showWarningDialog = !localStorage.getItem('changing_company_warning_hidden');

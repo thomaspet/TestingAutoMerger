@@ -18,5 +18,6 @@ export enum FieldType {
     UNI_SEARCH = 18,
     UNI_MULTISELECT = 19,
     STATIC_TEXT = 20,
-    TYPEAHEAD = 21
+    TYPEAHEAD = 21,
+    MONTH_PICKER = 22
 }
