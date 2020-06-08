@@ -34,7 +34,7 @@ uni-field
         margin-top: .25rem
 
 
-uni-hyperlink-input a, uni-static-text-input span, p
+uni-hyperlink-input a
     display: block
     line-height: 2.2rem
 
@@ -43,27 +43,35 @@ uni-hyperlink-input a, uni-static-text-input span, p
         display: flex
         align-items: center
         background-color: var(--alert-info)
+        color: var(--color-c2a)
         padding-left: 1rem
-        font-size: 13px
-        i
-            color: var(--color-c2a)
-    &.form-info-box
-        line-height: 1.1rem
-        padding: 1rem 1rem 1rem 1rem
-        height: auto !important
-        color: var(--text-color)
-        position: relative
-        &:before
-            content: ""
-            height: 0.8rem
-            width: 0.9rem
-            background-color: var(--color-c2a)
-            position: absolute
-            left: 1.3rem
-        i
-            color: var(--body-background) !important
-            z-index: 1
-            margin-right: 1rem
+        font-size: 15px
+
+
+.info-box-link
+    height: 3rem
+    align-items: center
+    background-color: var(--alert-info)
+    color: var(--color-c2a)
+    padding-left: 1rem
+    display: block
+    line-height: 2.2rem
+    font-size: 13px
+    i
+        color: var(--color-c2a)
+        width: 0.8rem
+        margin-bottom: 0.2rem
+.form-info-box
+    display: block
+    line-height: 1.1rem
+    padding: 1rem 1rem 1rem 1rem
+    height: auto !important
+    color: var(--text-color)
+    position: relative
+    i
+        z-index: 1
+        margin-right: 1rem
+
 
 uni-field.visuallyHideLabel label > span
     @extend %visuallyHidden
