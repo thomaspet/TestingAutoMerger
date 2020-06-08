@@ -188,6 +188,10 @@ export class UniTickerContainer {
                 filterString = filter.Filter  || 'ID gt 0';
             }
 
+            if (filter.Code === 'incomming_without_match') {
+                filterString = filterString.replace(')', ` and Payment.StatusCode ne '44020')`);
+            }
+
             return `sum(casewhen(${filterString}\\,1\\,0)) as FilterCount${index}`;
         });
 

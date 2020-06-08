@@ -166,7 +166,7 @@ export const NO = {
         'CURRENCY_INFOTEXT': 'Valg av standard valuta for selskapet og hovedbokskonto for valutaposteringer.',
         'AGA_SETTINGS1': 'Firmanavn og organisasjonsnummer fylles automatisk ut dersom man har hentet opplysninger fra Brønnøysundregisteret under Firmaoppsett.',
         'AGA_SETTINGS2': 'Oppsett av sone og beregningsregel for arbeidsgiveravgift. Dersom virksomheten er omfattet av ordning for fribeløp får du oversikt over gjenstående fribeløp her.',
-        'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre.',
+        'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre. Antall purringer før inkasso må matche regler i bunnen av bilde.',
         'INKASSO_SETTINGS_INFOTEXT': 'Oppsett for integrasjon mot en av våre inkassopartnere.',
         'REMINDER_RULES_INFOTEXT': 'Betingelser for at utgående faktura skal overføres til henholdsvis «Klar til purring» og «Klar til inkasso» i salgsmodulen. Merk at purring ikke sendes ut automatisk, dette er betingelser for når utgående faktura skal kunne purres/sendes til inkasso.',
         'FETCH_BR_REG_INFOTEXT': 'Du kan også hente opplysninger fra brønnøysundregistrene',

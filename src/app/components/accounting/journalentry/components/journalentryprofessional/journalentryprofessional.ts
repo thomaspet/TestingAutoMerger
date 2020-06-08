@@ -720,9 +720,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (account.VatTypeID) {
                     const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                     const overrideVatCodes = ['3', '31', '32', '33'];
+                    const overrideVatCodesNone = ['1', '11', '12', '13'];
                     if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
                         const vatType6 = this.vattypes.find(x => x.VatCode === '6');
                         rowModel.DebitVatType = vatType6;
+                    } else if (overrideVatCodesNone.indexOf(vatType.VatCode) !== -1) {
+                        rowModel.DebitVatType = null;
                     } else {
                         rowModel.DebitVatType = vatType;
                     }
@@ -758,9 +761,12 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 if (account.VatTypeID) {
                     const vatType = this.vattypes.find(x => x.ID === account.VatTypeID);
                     const overrideVatCodes = ['3', '31', '32', '33'];
+                    const overrideVatCodesNone = ['1', '11', '12', '13'];
                     if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
                         const vatType6 = this.vattypes.find(x => x.VatCode === '6');
                         rowModel.CreditVatType = vatType6;
+                    } else if (overrideVatCodesNone.indexOf(vatType.VatCode) !== -1) {
+                        rowModel.DebitVatType = null;
                     } else {
                         rowModel.CreditVatType = vatType;
                     }
@@ -2909,7 +2915,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     if (text === null) {
                         return completeCallback('');
                     }
-                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text, this.selectedNumberSeries.ID)
+                    this.journalEntryService.saveJournalEntryDataAsDrafts(tableData, text)
                         .subscribe(data => {
                             completeCallback('Lagret som kladd');
 

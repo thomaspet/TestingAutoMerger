@@ -225,13 +225,17 @@ function getTaxSummary(taxData, isCreditNote: boolean) {
 }
 
 function getDeliveryInfo(deliveryData) {
+    const country = get(deliveryData, 'cac:DeliveryLocation.cac:Address.cac:Country.cbc:IdentificationCode', '');
+    const address = get(deliveryData, 'cac:DeliveryLocation.cac:Address', '');
     return {
         date: getDateText(get(deliveryData, 'cbc:ActualDeliveryDate', '')),
         address: {
-            addressLine: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:StreetName', ''),
-            city: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:CityName', ''),
-            postalCode: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cbc:PostalZone', ''),
-            country: get(deliveryData, 'cac:DeliveryLocation.cac:Address.cac:Country.cbc:IdentificationCode.#text', '')
+            addressLine: get(address, 'cbc:StreetName.#text', '') || get(address, 'cbc:StreetName', ''),
+            addressLine2: get(address, 'cbc:AdditionalStreetName.#text', '') || get(address, 'cbc:AdditionalStreetName', ''),
+            addressLine3: get(address, 'cac:AddressLine.cbc:Line.#text', '') || get(address, 'cac:AddressLine.cbc:Line', ''),
+            city: get(address, 'cbc:CityName.#text', '') || get(address, 'cbc:CityName', ''),
+            postalCode: get(address, 'cbc:PostalZone.#text', '') || get(address, 'cbc:PostalZone', ''),
+            country: get(country, '#text', null) ?? country
         }
     };
 }

@@ -218,7 +218,7 @@ export class TabService {
         }
 
         // Set document title so browser history makes sense
-        const appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+        const appName = environment.appTitle;
         const documentTitle = this.currentActiveTab
             ? this.translateService.translate(this.currentActiveTab.name)
             : appName;

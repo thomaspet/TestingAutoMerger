@@ -1,42 +1,46 @@
 ﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BehaviorSubject} from 'rxjs';
-import {IUniSaveAction} from '../../../../framework/save/save';
-import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {SubEntityList} from './subEntityList';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
-import {GrantModal} from './modals/grantModal';
-import {FreeAmountModal} from './modals/freeamountModal';
+import {SubEntityList} from '@app/components/settings/agaAndSubEntitySettings/subEntityList';
+import {GrantModal} from '@app/components/settings/agaAndSubEntitySettings/modals/grantModal';
+import {FreeAmountModal} from '@app/components/settings/agaAndSubEntitySettings/modals/freeamountModal';
 import {Observable} from 'rxjs';
-import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/uniSearchAccountConfig';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable/index';
+
+
+import {VacationPaySettingsModal} from '@app/components/common/modals/vacationpay/vacationPaySettingsModal';
+import {VacationPayModal} from '@app/components/common/modals/vacationpay/vacationPayModal';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import * as moment from 'moment';
 import {
     CompanySalary,
-    Account,
     SubEntity,
     AGAZone,
     AGASector,
+    CompanyVacationRate,
+    CompanySettings,
     CompanySalaryPaymentInterval,
     LocalDate,
-    CompanyVacationRate
-} from '../../../unientities';
+    Account
+} from '@uni-entities';
+import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
+import { IUniSaveAction } from '@uni-framework/save/save';
 import {
     CompanySalaryService,
     AccountService,
     SubEntityService,
     AgaZoneService,
     ErrorService,
+    UniSearchAccountConfig,
     PageStateService,
     VacationpayLineService,
     CompanyVacationRateService,
-    FinancialYearService
-} from '../../../services/services';
-import {VacationPaySettingsModal} from '../../common/modals/vacationpay/vacationPaySettingsModal';
-import {VacationPayModal} from '@app/components/common/modals/vacationpay/vacationPayModal';
-import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import * as moment from 'moment';
+    FinancialYearService,
+    CompanySettingsService
+} from '@app/services/services';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 declare var _;
 
 @Component({
@@ -53,7 +57,7 @@ export class AgaAndSubEntitySettings implements OnInit {
 
     private agaSoneOversiktUrl: string = 'https://www.skatteetaten.no/no/Tabeller-og-satser/Arbeidsgiveravgift/';
 
-    fields$= new BehaviorSubject<UniFieldLayout[]>([]);
+    fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fields$2 = new BehaviorSubject<UniFieldLayout[]>([]);
 
     specialFields = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -115,7 +119,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         private router: Router,
         private vacationpayLineService: VacationpayLineService,
         private companyVacationRateService: CompanyVacationRateService,
-        private financialYearService: FinancialYearService
+        private financialYearService: FinancialYearService,
+        private companySettingsService: CompanySettingsService,
     ) { }
 
     ngOnInit() {
@@ -185,10 +190,11 @@ export class AgaAndSubEntitySettings implements OnInit {
             this.agazoneService.GetAll(''),
             this.agazoneService.getAgaRules(),
             this.companyVacationRateService.GetAll(''),
-            this.companyVacationRateService.getCurrentRates(this.activeYear)
+            this.companyVacationRateService.getCurrentRates(this.activeYear),
+            this.companySettingsService.getCompanySettings(),
         ).finally(() => this.busy = false).subscribe(
             (dataset: any) => {
-                const [companysalary, mainOrg, zones, rules, rates, currentRates] = dataset;
+                const [companysalary, mainOrg, zones, rules, rates, currentRates, companySettings] = dataset;
 
                 if (!companysalary) {
                     this.toastService.addToast('En feil oppstod', ToastType.warn, 10, 'Systemet klarte ikke finne innstillinger for lønn. Prøv å last inn bilde på nytt. Hvis feil vedvarer, ta kontakt med support');
@@ -205,7 +211,7 @@ export class AgaAndSubEntitySettings implements OnInit {
                 this.vacationRates = rates;
                 this.stdCompVacRate = currentRates;
 
-                this.buildForms();
+                this.buildForms(companysalary, companySettings);
                 this.setTableConfig();
 
                 mainOrg[0]['_AgaSoneLink'] = this.agaSoneOversiktUrl;
@@ -215,7 +221,7 @@ export class AgaAndSubEntitySettings implements OnInit {
             );
     }
 
-    private buildForms() {
+    private buildForms(companySalary?: CompanySalary, companySettings?: CompanySettings) {
         const mainOrgName = new UniFieldLayout();
         mainOrgName.Label = 'Firmanavn';
         mainOrgName.EntityType = 'mainOrganization';
@@ -280,10 +286,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         freeAmountBtn.FieldType = FieldType.BUTTON;
         freeAmountBtn.Classes = 'uni-aga-settings-buttons';
         freeAmountBtn.Options = {
+            class: 'tertiary c2a',
             click: (event) => {
                 this.openFreeamountModal();
-            },
-            class: ''
+            }
         };
 
         const grantBtn = new UniFieldLayout();
@@ -293,6 +299,7 @@ export class AgaAndSubEntitySettings implements OnInit {
         grantBtn.FieldType = FieldType.BUTTON;
         grantBtn.Classes = 'uni-aga-settings-buttons';
         grantBtn.Options = {
+            class: 'tertiary c2a',
             click: (event) => {
                 this.openGrantsModal();
             }
@@ -437,6 +444,8 @@ export class AgaAndSubEntitySettings implements OnInit {
             'til bankkonto for skattetrekk når lønnsavregningen utbetales. Husk at Skattetrekkskonto ' +
             'må fylles ut, og bør være ulik Lønnskonto/Driftskonto.'
         };
+        postGarnishmentToTaxAccount.ReadOnly = !companySettings?.TaxBankAccountID
+            && !companySalary?.PostGarnishmentToTaxAccount;
 
         const hourFTEs = new UniFieldLayout();
         hourFTEs.EntityType = 'CompanySalary';

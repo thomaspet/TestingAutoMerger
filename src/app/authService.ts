@@ -214,6 +214,8 @@ export class AuthService {
             filterProtocolClaims: true,
             loadUserInfo: true,
             automaticSilentRenew: true,
+            accessTokenExpiringNotificationTime: 300, // 5 minute
+            silentRequestTimeout: 20000, // 20 seconds
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
 

@@ -6,6 +6,7 @@
 export const environment = {
     useProdMode: false,
     isSrEnvironment: false,
+    appTitle: 'SoftRig',
 
     authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',

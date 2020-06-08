@@ -557,6 +557,7 @@ export class SalaryTransactionEmployeeList extends UniView implements OnChanges,
 
     public onSupplementModalClose(trans: SalaryTransaction) {
         if (trans && trans.Supplements && trans.Supplements.length) {
+            trans[DIRTY_FLAG] = true;
             this.updateTransStateBasedOnChange(trans, true);
         }
     }

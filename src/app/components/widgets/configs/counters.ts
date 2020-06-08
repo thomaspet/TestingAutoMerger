@@ -249,6 +249,14 @@ export const COUNTERS = [
         }
     },
     {
+        id: 'employee_counter',
+        description: 'Oversikt ansatte',
+        permissions: ['ui_salary'],
+        width: 3,
+        height: 3,
+        widgetType: 'employee_counter'
+    },
+    {
         id: 'sum_employments',
         description: 'Antall stillingskoder',
         permissions: ['ui_salary'],

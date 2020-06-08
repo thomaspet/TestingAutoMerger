@@ -1436,9 +1436,7 @@ export class EmployeeDetails extends UniView implements OnDestroy {
                     return of([]);
                 }
                 return from(this.runTransSave(obsList))
-                    .pipe(
-                        tap(() => this.payrollRunService.recalulateOnEmp(this.employeeID).subscribe()),
-                        finalize(() => {
+                    .pipe(finalize(() => {
                             this.saveStatus.completeCount++;
                             if (hasErrors) {
                                 this.saveStatus.hasErrors = true;

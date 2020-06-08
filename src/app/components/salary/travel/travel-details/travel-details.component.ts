@@ -63,6 +63,7 @@ export class TravelDetailsComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     private emitChange(travel: Travel) {
+        travel.TravelLines = travel.TravelLines.filter(x => !(x['_isEmpty'] === true));
         this.travelChange.next(travel);
     }
     private refreshForm(change: SimpleChange): boolean {

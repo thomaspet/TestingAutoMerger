@@ -29,6 +29,7 @@ import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
 import {BankBalanceWidget} from './bank-balance-widget';
 import {LiquidityWidget} from './liquidity-widget/liquidity-widget';
 import { UniInfoTileWidget } from './infoTileWidget';
+import { EmployeeCounterWidget } from './employee-counter/employee-counter-widget';
 
 export const UNI_WIDGETS = [
     UniShortcutWidget,
@@ -60,7 +61,8 @@ export const UNI_WIDGETS = [
     PublicDueDatesWidget,
     BankBalanceWidget,
     LiquidityWidget,
-    UniInfoTileWidget
+    UniInfoTileWidget,
+    EmployeeCounterWidget,
 ];
 
 export * from './shortcuts';
@@ -93,3 +95,4 @@ export * from './public-duedates-widget/public-duedates';
 export * from './bank-balance-widget';
 export * from './liquidity-widget/liquidity-widget';
 export * from './infoTileWidget';
+export * from './employee-counter/employee-counter-widget';

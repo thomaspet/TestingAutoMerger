@@ -226,6 +226,7 @@
     [field]="field"
     [model]="model"
     [ngClass]="field?.Classes"
+    [class.offset-left]="!formConfig?.showLabelAbove"
     [asideGuid]="asideGuid"
     (readyEvent)="onReadyHandler($event)"
     (changeEvent)="onChangeHandler($event)"

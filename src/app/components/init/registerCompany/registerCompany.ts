@@ -32,7 +32,7 @@ interface RegistrationOption {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
-    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    appName = environment.appTitle;
     tokenSubscription: Subscription;
 
     selectedCompanyType: string;

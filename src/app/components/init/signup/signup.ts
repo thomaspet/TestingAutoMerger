@@ -15,7 +15,7 @@ import {theme} from 'src/themes/theme';
 })
 export class Signup {
     @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
-    appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
+    appName = environment.appTitle;
     confirmationCode: string;
     busy: boolean;
 

@@ -15,4 +15,5 @@ export const billStatusflowLabels = {
     'rejectInvoice': 'Avvis faktura',
     'rejectAssignment': 'Avvis tildeling',
     'restore': 'Gjenopprett',
+    'revertFinish': 'Tilbakestill til forrige status',
 };

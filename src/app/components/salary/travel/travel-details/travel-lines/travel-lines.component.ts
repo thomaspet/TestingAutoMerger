@@ -132,10 +132,6 @@ export class TravelLinesComponent implements OnInit {
             );
 
         this.config = new UniTableConfig('salary.travel.traveldetails.travellines', true)
-            .setDefaultRowData(
-                {
-                    _createguid: this.travelLineService.getNewGuid()
-                })
             .setColumns(
                 [
                     travelTypeColumn,
@@ -156,11 +152,13 @@ export class TravelLinesComponent implements OnInit {
 
     private handleChange(event: IRowChangeEvent): Observable<TravelLine> {
         return Observable.of(event.rowModel).pipe(
-            map(travelLine => {
+            map((travelLine: TravelLine) => {
+                if (!travelLine.ID && !travelLine._createguid) {
+                    travelLine._createguid = this.travelLineService.getNewGuid();
+                }
                 if (!travelLine.From) {
                     travelLine.From = new Date();
                 }
-
                 if (event.field === ACCOUNT_FIELD) {
                     this.mapAccountToTravelLine(travelLine);
                 }
