@@ -13,7 +13,7 @@ import {IUniWidget} from '../uniWidget';
             </section>
 
             <section *ngIf="missingData" class="no-content" style="flex-direction: column; text-align: center; padding: 2rem;">
-                <i class="material-icons" style="margin-bottom: 1rem; font-size: 3rem; color: var(--alert-info);"> {{ icon }} </i>
+                <img [src]="icon" class="material-icons" style="margin-bottom: 1rem; font-size: 3rem; width: 8rem;">
                 <span [innerHtml]="msg" style="font-size: 14px"></span>
                 <span style="font-size: 14px"><a (click)="startOnboarding()" [innerHtml]="actionLink"></a> <span [innerHtml]="actionMsg"></span></span>
             </section>
@@ -32,6 +32,10 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
     actionLink: string;
     actionMsg: string;
     icon: string = '';
+
+    iconWarning: string = 'themes/ext02/ext02BankBalanceWidget-Warning.svg';
+    iconPending: string = 'themes/ext02/ext02BankBalanceWidget-Pending.svg';
+    iconConfig: string = 'themes/ext02/ext02BankBalanceWidget-Config.svg';
 
     showChart: boolean;
 
@@ -73,24 +77,24 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
 
                     if (!this.agreement) {
                         this.msg = 'For å se saldo på bankkonto, trenger du en autobankavtale med banken. <br/>';
-                        this.actionLink = 'Gå til bank';
+                        this.actionLink = 'Klikk her';
                         this.actionMsg = ' for å koble sammen bank og regnskap.';
-                        this.icon = 'sync_disabled';
+                        this.icon = this.iconConfig;
                         this.missingData = true;
                         this.cdr.markForCheck();
                     } else if (this.brunoOnboardingService.isPendingAgreement(this.agreement)) {
                         this.msg = 'Du har bestilt integrasjon med nettbanken din og vi jobber <br/> med å sette den opp. ' +
                             'Dette kan ta inntil 3 arbeidsdager.';
-                        this.actionLink = 'Gå til bank';
-                        this.actionMsg = ' for å bestille på nytt.';
-                        this.icon = 'domain_disabled';
+                        this.actionLink = 'Ble du avbrutt? Start på nytt';
+                        this.actionMsg = '';
+                        this.icon = this.iconPending;
                         this.missingData = true;
                         this.cdr.markForCheck();
                     } else if (this.brunoOnboardingService.isNeedConfigOnBankAccounts(this.agreement)) {
                         this.msg = 'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
                         this.actionLink = ' Sett opp kontoen(e) her';
                         this.actionMsg = '';
-                        this.icon = 'domain_disabled';
+                        this.icon = this.iconWarning;
                         this.missingData = true;
                         this.cdr.markForCheck();
                     }
@@ -99,7 +103,7 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                     this.msg = 'Kunne ikke hente data';
                     this.actionLink = '';
                     this.actionMsg = '';
-                    this.icon = 'sync_problem';
+                    this.icon = this.iconWarning;
                     this.missingData = true;
                     this.cdr.markForCheck();
                 }
