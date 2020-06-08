@@ -38,7 +38,7 @@ import {theme, THEMES} from 'src/themes/theme';
                 </a>
             </ng-template>
         </dropdown-menu>
-        <section *ngIf="isSrEnvironment" class="boost-icon">
+        <section *ngIf="showBoostChat" class="boost-icon">
             <boost-chat></boost-chat>
         </section>
     `,
@@ -50,6 +50,8 @@ export class UniTabstripHelp {
 
     isUeEnvironment = theme.theme === THEMES.UE;
     isSrEnvironment = theme.theme === THEMES.SR;
+
+    showBoostChat = theme.theme === THEMES.SR || theme.theme === THEMES.EXT02;
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {
