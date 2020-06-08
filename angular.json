@@ -696,6 +696,10 @@
                   "with": "src/environments/environment.ext02.ts"
                 },
                 {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext02.ico"
+                },
+                {
                   "replace": "src/themes/logo.svg",
                   "with": "src/themes/ext02/logo.svg"
                 },
@@ -732,6 +736,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.ext02-rc.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext02.ico"
                 },
                 {
                   "replace": "src/themes/logo.svg",
@@ -772,6 +780,10 @@
                   "with": "src/themes/ext02/logo.svg"
                 },
                 {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext02.ico"
+                },
+                {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext02/logo.svg"
                 },
@@ -804,6 +816,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.ext02-rc.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext02.ico"
                 },
                 {
                   "replace": "src/themes/logo.svg",
@@ -842,6 +858,10 @@
                 {
                   "replace": "src/environments/environment.ts",
                   "with": "src/environments/environment.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext02.ico"
                 },
                 {
                   "replace": "src/themes/logo.svg",
