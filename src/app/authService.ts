@@ -176,21 +176,6 @@ export class AuthService {
         });
     }
 
-    // REMOVE ME
-    mockSetProductBundle(name) {
-        const currentUrl = this.router.url;
-        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
-            this.authentication$.take(1).subscribe(authDetails => {
-                this.featurePermissionService.setFeatureBlacklist(name);
-
-                // Trigger sidebar link filtering
-                this.authentication$.next(authDetails);
-
-                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
-            });
-        });
-    }
-
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         const spinner = document.getElementById('app-spinner');
         if (spinner) {

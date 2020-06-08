@@ -22,26 +22,6 @@
             matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
             Kun for testing
         </section>
-
-        <section class="bundle-test" style="margin-left: 1rem;">
-            <a #trigger style="font-weight: 500; font-size: 15px; text-decoration: none;">
-                Test produktpakke
-                <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
-            </a>
-            <dropdown-menu [trigger]="trigger" minWidth="8rem">
-                <ng-template>
-                    <section (click)="authService.mockSetProductBundle('Mini')" class="dropdown-menu-item">
-                        Mini
-                    </section>
-                    <section (click)="authService.mockSetProductBundle('Plus')" class="dropdown-menu-item">
-                        Pluss
-                    </section>
-                    <section (click)="authService.mockSetProductBundle('Complete')" class="dropdown-menu-item">
-                        Komplett
-                    </section>
-                </ng-template>
-            </dropdown-menu>
-        </section>
     </section>
 
     <section class="navbar-right">
