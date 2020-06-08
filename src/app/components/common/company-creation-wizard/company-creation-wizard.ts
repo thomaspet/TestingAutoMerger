@@ -7,6 +7,7 @@ import {ModulusService, InitService, ErrorService, CompanyService} from '@app/se
 import {map, catchError} from 'rxjs/operators';
 import {get} from 'lodash';
 import {of} from 'rxjs';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'company-creation-wizard',
@@ -20,10 +21,11 @@ export class CompanyCreationWizard {
     @Input() orgNumber: string;
     @Input() createDemoCompany: boolean;
 
+    isBrunoEnv = theme.theme === THEMES.EXT02;
     busyCreatingCompany: boolean;
     autocompleteOptions: AutocompleteOptions;
 
-    companyDetailsForm = new FormGroup({
+    step1Form = new FormGroup({
         CompanyName: new FormControl('', Validators.required),
         Address: new FormControl('', Validators.required),
         PostalCode: new FormControl('', Validators.required),
@@ -33,11 +35,15 @@ export class CompanyCreationWizard {
         OrganizationNumber: new FormControl('', Validators.required),
     });
 
-    isEnk: boolean;
-    templateIncludeSalary: boolean;
-    templateIncludeVat: boolean;
+    step2Form = new FormGroup({
+        // AccountNumber added in constructor (needs env check)
+        TemplateIncludeSalary: new FormControl(undefined, Validators.required),
+        TemplateIncludeVat: new FormControl(undefined, Validators.required),
+    });
 
-    currentStep = 0;
+    isEnk: boolean;
+
+    currentStep = 1;
 
     constructor(
         private authService: AuthService,
@@ -55,6 +61,10 @@ export class CompanyCreationWizard {
             placeholder: 'Hent selskapsdetaljer fra brønnøysundregistrene',
             lookup: (value) => this.orgNumberLookup(value)
         };
+
+        if (this.isBrunoEnv) {
+            this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
+        }
     }
 
     ngOnChanges(changes) {
@@ -84,23 +94,14 @@ export class CompanyCreationWizard {
         }));
     }
 
-    next() {
-        this.companyDetailsForm.markAllAsTouched();
-        if (this.companyDetailsForm.valid) {
-            this.currentStep++;
-        }
-    }
-
     onBrRegCompanyChange(brRegCompany) {
         if (!brRegCompany) {
             return;
         }
 
         this.isEnk = get(brRegCompany, 'organisasjonsform.kode') === 'ENK';
-        this.templateIncludeSalary = undefined;
-        this.templateIncludeVat = undefined;
 
-        this.companyDetailsForm.patchValue({
+        this.step1Form.patchValue({
             CompanyName: brRegCompany.navn,
             Address: get(brRegCompany, 'forretningsadresse.adresse[0]', ''),
             PostalCode: get(brRegCompany, 'forretningsadresse.postnummer'),
@@ -113,13 +114,26 @@ export class CompanyCreationWizard {
         setTimeout(() => this.companyNameInput?.nativeElement?.focus());
     }
 
+    next() {
+        this.step1Form.markAllAsTouched();
+        if (this.step1Form.valid) {
+            this.currentStep++;
+        }
+    }
 
     createCompany() {
-        const companyDetails = this.companyDetailsForm.value;
-        this.busyCreatingCompany = true;
-        this.companyDetailsForm.disable();
+        const companyDetails = this.step1Form.value;
+        const step2FormDetails = this.step2Form.value;
 
+        this.busyCreatingCompany = true;
         this.getCompanyTemplate().subscribe(template => {
+            const companySettings = companyDetails;
+            if (step2FormDetails.AccountNumber) {
+                companySettings.CompanyBankAccount = {
+                    AccountNumber: step2FormDetails.AccountNumber
+                };
+            }
+
             const body = {
                 CompanyName: companyDetails.CompanyName,
                 ContractID: this.contractID,
@@ -133,7 +147,6 @@ export class CompanyCreationWizard {
                 err => {
                     this.errorService.handle(err);
                     this.busyCreatingCompany = false;
-                    this.companyDetailsForm.enable();
                 }
             );
         });
@@ -169,6 +182,9 @@ export class CompanyCreationWizard {
                     }
 
                     const name = template.Name || '';
+                    const includeVat = this.step2Form.value?.TemplateIncludeVat;
+                    const includeSalary = this.step2Form.value?.TemplateIncludeSalary;
+
                     if (this.isEnk && name.includes('MAL AS')) {
                         return false;
                     }
@@ -177,19 +193,19 @@ export class CompanyCreationWizard {
                         return false;
                     }
 
-                    if (this.templateIncludeVat && name.includes('uten mva')) {
+                    if (includeVat && name.includes('uten mva')) {
                         return false;
                     }
 
-                    if (!this.templateIncludeVat && name.includes('med mva')) {
+                    if (!includeVat && name.includes('med mva')) {
                         return false;
                     }
 
-                    if (this.templateIncludeSalary && name.includes('uten lønn')) {
+                    if (includeSalary && name.includes('uten lønn')) {
                         return false;
                     }
 
-                    if (!this.templateIncludeSalary && name.includes('med lønn')) {
+                    if (!includeSalary && name.includes('med lønn')) {
                         return false;
                     }
 

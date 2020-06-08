@@ -7,7 +7,13 @@ export class AutoFocusDirective {
 
     ngAfterViewInit() {
         try {
-            this.elementRef.nativeElement.focus();
+            const el: HTMLElement = this.elementRef.nativeElement;
+            if (el.tagName === 'FORM') {
+                const input = el.querySelector('input');
+                input?.focus();
+            } else {
+                this.elementRef.nativeElement.focus();
+            }
         } catch (e) {}
     }
 }

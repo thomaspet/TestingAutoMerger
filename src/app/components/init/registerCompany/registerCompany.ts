@@ -3,10 +3,9 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
-import {InitService, ElsaContractService, ErrorService} from '@app/services/services';
+import {ElsaContractService, ErrorService} from '@app/services/services';
 import {Subscription, forkJoin} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
-import {ElsaContractType, ElsaContract} from '@app/models';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -53,7 +52,6 @@ export class RegisterCompany {
     @HostBinding('class.ext02') usingExt02Theme = theme.theme === THEMES.EXT02;
 
     constructor(
-        private initService: InitService,
         private router: Router,
         private route: ActivatedRoute,
         private authService: AuthService,
@@ -84,10 +82,9 @@ export class RegisterCompany {
 
     init() {
         forkJoin(
-            // this.initService.getContracts(),
             this.elsaContractService.getAll(),
             this.elsaContractService.getContractTypes(),
-        ).subscribe(([contracts, contractTypes]: [ElsaContract[], ElsaContractType[]]) => {
+        ).subscribe(([contracts, contractTypes]) => {
             const contract = contracts && contracts[0];
             if (contracts) {
                 this.contractID = contract.ID;
@@ -97,7 +94,7 @@ export class RegisterCompany {
 
                 const demoContractType = (contractTypes || []).find(type => type.Name === 'Demo');
 
-                const isDemo = true; // demoContractType && contract.ContractType === demoContractType.ContractType;
+                const isDemo = demoContractType && contract.ContractType === demoContractType.ContractType;
                 this.hasActiveContract = !isDemo && contract.AgreementAcceptances?.length > 0;
             } else {
                 this.missingContract = true;
