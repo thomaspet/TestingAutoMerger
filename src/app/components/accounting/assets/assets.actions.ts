@@ -305,7 +305,10 @@ export class AssetsActions {
                 TaxPercent: null,
                 CustomerID: null
             }
-        }).onClose.pipe(tap(x => console.log(x)));
+        }).onClose.pipe(
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openRegisterDepreciationModal(asset?: Asset) {
         return this.modalService.open(RegisterDepreciationModal, {
@@ -324,7 +327,7 @@ export class AssetsActions {
     openDeleteModal(asset?: Asset) {
         return this.modalService.open(DeleteAssetModal, {
             data: { assetID: asset.ID }
-        }).onClose.pipe(tap(x => console.log(x)));
+        }).onClose.pipe(tap(x => ''));
     }
     openRegisterAsLostModal(asset?: Asset) {
         return this.modalService.open(RegisterAssetAsLostModal, {
@@ -333,7 +336,10 @@ export class AssetsActions {
                 DepreciationDate: new LocalDate(new Date()),
                 NetFinancialValue: asset.NetFinancialValue,
             }
-        }).onClose.pipe(tap(x => console.log(x)));
+        }).onClose.pipe(
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openAskForSaveAssetModal() {
         const modalOptions = {
