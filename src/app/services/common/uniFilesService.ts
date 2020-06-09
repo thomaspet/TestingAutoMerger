@@ -97,6 +97,15 @@ export class UniFilesService {
         });
     }
 
+    public runOcr(id: string): Observable<any> {
+        return this.http.get(this.uniFilesBaseUrl + '/api/ocr/analyze?id=' + id, {
+            observe: 'body',
+            headers: {
+                'Key': this.activeCompany.Key
+            }
+        });
+    }
+
     public getOcrStatistics(): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + '/api/client/get-ocr-stats', {
             observe: 'body',
