@@ -1,36 +1,43 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        Registrere eiendel som solgt
-    </header>
+<section role="dialog" class="uni-modal">
+    <header>Registrere eiendel som solgt</header>
+
     <article>
         <uni-form class="two-column-layout"
             [fields]="form"
             [config]="config"
             [model]="model"
         ></uni-form>
-        <p class="info-box-link form-info-box">
-            <i class="material-icons ng-star-inserted"> info_outlined </i>
-            Salgssummen regnes mot restverdien av eiendelen og eventuelt tap/gevinst regnskapføres. Merk at du i tillegg
-            til denne registreringen også må sende en faktura til kjøper og inntektsføre denne.
-        </p>
-        <uni-form
-            [fields]="radioButtonField"
-            [config]="{}"
-            [model]="model"
-        ></uni-form>
-        <p class="form-label">Kunde</p>
-        <autocomplete class="customer-select"
-              [options]="customerAutocompleteOptions"
-              [readonly]="false"
-              [value]="customer"
-              (valueChange)="onCustomerChange($event)">
-        </autocomplete>
-        <p class="info-box-link form-info-box">
-            <i class="material-icons ng-star-inserted"> info_outlined </i>
-            En fakturakladd vil bli basert på salg av denne eiendelen
-        </p>
+
+        <section class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>
+                Salgssummen regnes mot restverdien av eiendelen og eventuelt tap/gevinst regnskapføres. Merk at du i tillegg
+                til denne registreringen også må sende en faktura til kjøper og inntektsføre denne.
+            </span>
+        </section>
+
+        <mat-radio-group [(ngModel)]="model['_createInvoice']" class="horizontal" style="margin: 1rem 0" aria-label="Opprett faktura?">
+            <mat-radio-button [value]="true">Opprett faktura</mat-radio-button>
+            <mat-radio-button [value]="false">Ikke opprett faktura</mat-radio-button>
+        </mat-radio-group>
+
+        <label class="uni-label">
+            <span style="font-weight: 500">Kunde</span>
+            <autocomplete
+                [options]="customerAutocompleteOptions"
+                [readonly]="false"
+                [value]="customer"
+                (valueChange)="onCustomerChange($event)">
+            </autocomplete>
+        </label>
+
+        <section class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>En fakturakladd vil bli basert på salg av denne eiendelen</span>
+        </section>
     </article>
-    <footer style="justify-content: center;">
+
+    <footer class="center">
         <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
         <button class="good" (click)="save()">Registrere eiendel som solgt</button>
     </footer>

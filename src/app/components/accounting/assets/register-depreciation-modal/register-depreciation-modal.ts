@@ -18,16 +18,8 @@ export class RegisterDepreciationModal {
         DepreciationDate: new LocalDate(new Date()),
         Description: '',
     };
-    descriptionForm = [
-        {
-            Section: 0,
-            FieldSet: 0,
-            FieldSetColumn: 1,
-            Property: 'Description',
-            Label: 'Beskrivelse',
-            FieldType: FieldType.TEXTAREA
-        }
-    ];
+
+
     mainForm = [
         {
             Section: 0,
@@ -69,6 +61,15 @@ export class RegisterDepreciationModal {
             Property: 'NewNetFinancialValue',
             Label: 'Ny Regnskapsverdi',
             FieldType: FieldType.NUMERIC,
+        },
+        {
+            Section: 0,
+            FieldSet: 0,
+            FieldSetColumn: 1,
+            Property: 'Description',
+            Label: 'Beskrivelse',
+            FieldType: FieldType.TEXTAREA,
+            Classes: 'full-width'
         }
     ];
 

@@ -272,11 +272,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         agaSoneLink.EntityType = 'mainOrganization';
         agaSoneLink.Property = '_AgaSoneLink';
         agaSoneLink.FieldType = FieldType.HYPERLINK;
-        agaSoneLink.Classes = 'info-box-link';
         agaSoneLink.Options = {
+            linkClass: 'alert info',
             description: 'Arbeidsgiveravgift soner',
             target: '_blank',
-            icon: 'info_outlinee'
+            icon: 'info_outline'
         };
 
         const freeAmountBtn = new UniFieldLayout();
@@ -581,11 +581,11 @@ export class AgaAndSubEntitySettings implements OnInit {
         taxRuleHelper.EntityType = 'CompanySalary';
         taxRuleHelper.Property = '_TaxFreeOrgHelp';
         taxRuleHelper.FieldType = FieldType.HYPERLINK;
-        taxRuleHelper.Classes = 'info-box-link';
         taxRuleHelper.Options = {
+            linkClass: 'alert info',
             description: 'Hjelp skattefri organisasjon',
             target: '_blank',
-            icon: 'info_outlinee'
+            icon: 'info_outline'
         };
 
 
