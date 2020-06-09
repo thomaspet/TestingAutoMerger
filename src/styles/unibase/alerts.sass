@@ -1,28 +1,49 @@
-.alert
-    display: block
-    padding: .75rem
-    margin: 0 0 1rem
-    font-weight: 500
-    font-size: 13px
-    box-sizing: border-box
+@mixin alert-coloring($type)
+    background-color: var(--alert-#{$type})
+    color: var(--alert-#{$type}-text-color)
 
-    border: 1px solid rgba(0, 0, 0, .15)
-    border-radius: var(--section-radius, 3px)
-    background-color: var(--alert-info)
-    color: var(--text-color) !important
+    > i
+        color: var(--alert-#{$type}-icon-color)
 
     a
-        font-size: 13px
+        color: var(--alert-#{$type}-link-color)
+
+.alert
+    display: flex
+    padding: 1rem 1.25rem
+    margin: 0 0 1rem
+    font-size: .9rem
+    box-sizing: border-box
+
+    border: var(--alert-border)
+    border-radius: var(--section-radius)
+
+    &.bold
         font-weight: 500
+        a
+            font-weight: 500
+
+    &.small
+        padding: 0.75rem
+        font-size: 14px
+
+
+    > i + *, > * + i
+        margin-left: 1rem
+
+    a
+        text-decoration: underline
+
+    @include alert-coloring(info)
 
     &.error, &.bad
-        background-color: var(--alert-bad)
+        @include alert-coloring(bad)
 
     &.good, &.success
-        background-color: var(--alert-good)
+        @include alert-coloring(good)
 
     &.warn
-        background-color: var(--alert-warn)
+        @include alert-coloring(warn)
 
     &.center
         text-align: center
