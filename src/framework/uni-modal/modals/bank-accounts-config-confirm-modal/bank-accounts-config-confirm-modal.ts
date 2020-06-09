@@ -23,7 +23,7 @@ export class ConfigBankAccountsConfirmModal implements IUniModal {
     @Input() modalService: UniModalService;
     @Output() onClose = new EventEmitter();
 
-    icon: string = 'themes/ext02/success-accountconfig.png'; // TODO: The icon will be replaced monday morning
+    icon: string = 'themes/ext02/ext02-success-accountconfig.svg';
 
     close() {
         this.onClose.emit(null);
