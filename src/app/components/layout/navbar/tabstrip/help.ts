@@ -10,7 +10,7 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a *ngIf="helpDeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
+                <a *ngIf="helpdeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
                     Hjelpeside
                 </a>
 
