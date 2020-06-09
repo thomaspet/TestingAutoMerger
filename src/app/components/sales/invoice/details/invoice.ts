@@ -700,7 +700,12 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        this.invoice = {...invoice};
+        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('InvoiceDate')) {
+            // { ... invoice} will corrupt validation, so only do it for neccessary functions
+            this.invoice = { ...invoice };
+        } else {
+            this.invoice = invoice;
+        }
         this.updateSaveActions();
     }
 
