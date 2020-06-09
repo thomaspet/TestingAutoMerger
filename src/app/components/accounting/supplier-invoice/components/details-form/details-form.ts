@@ -282,6 +282,10 @@ export class DetailsForm {
                 FieldType: FieldType.NUMERIC,
                 Classes: 'bill-small-field',
                 ReadOnly: this.readonly,
+                Options: {
+                    format: 'money',
+                    decimalSeparator: ','
+                }
             },
             {
                 EntityType: 'SupplierInvoice',

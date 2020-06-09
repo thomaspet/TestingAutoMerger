@@ -281,11 +281,7 @@ export class SupplierInvoiceView {
     }
 
     public canDeactivate() {
-        if (!this.store.changes$.value) {
-            return of(true);
-        } else {
-            return this.store.saveChanges().switchMap(res => of(true)).catch(res => of(false));
-        }
+        return of(true);
     }
 
 }
