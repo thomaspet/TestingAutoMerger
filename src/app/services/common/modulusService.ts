@@ -86,6 +86,10 @@ export class ModulusService {
     }
 
     public ssnValidationUniForm = (ssn: string, field: UniFieldLayout) => {
+        if (!ssn || typeof ssn !== 'string') {
+            return null;
+        }
+
         if (this.validSSN(ssn)) {
             return;
         }
