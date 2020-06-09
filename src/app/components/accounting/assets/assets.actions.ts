@@ -79,7 +79,7 @@ export class AssetsActions {
         return this.assetsService.createAsset(supplierInvoiceID).pipe(
             take(1),
             tap((asset) => this.store.currentAsset = asset),
-            switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID,['JournalEntry', 'JournalEntry.DraftLines'])),
+            switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID, ['JournalEntry', 'JournalEntry.DraftLines'])),
             map((supplierInvoice: SupplierInvoice) => {
                 const currentAsset = this.store.currentAsset;
                 currentAsset.Name = supplierInvoice.JournalEntry.DraftLines[0].Description;
@@ -303,12 +303,15 @@ export class AssetsActions {
         return this.modalService.open(RegisterDepreciationModal, {
             data: {
                 AssetID: asset.ID,
-                NetFinancialValue: asset.NetFinancialValue,
-                ScrapValue: asset.ScrapValue,
-                NewNetFinancialValue: asset.NetFinancialValue - asset.ScrapValue,
+                CurrentNetFinancialValue: asset.CurrentNetFinancialValue,
+                DepreciationValue: 0,
+                NewNetFinancialValue: asset.CurrentNetFinancialValue,
                 Description: '',
             }
-        }).onClose.pipe(tap(x => console.log(x)));
+        }).onClose.pipe(
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openDeleteModal(asset?: Asset) {
         return this.modalService.open(DeleteAssetModal, {
