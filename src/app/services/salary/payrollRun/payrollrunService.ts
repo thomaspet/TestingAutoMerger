@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod} from '@uni-framework/core/http';
-import { PayrollRun, LocalDate, WorkItemToSalary, PostingSummaryDraft, EmployeeCategory, Employee, Payment, FieldType, TaxDrawFactor } from '@uni-entities';
+import { PayrollRun, LocalDate, WorkItemToSalary, PostingSummaryDraft, EmployeeCategory, Employee, Payment, TaxDrawFactor } from '@uni-entities';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { ITag } from '@app/components/common/toolbar/tags';
-import { UniFieldLayout } from '@uni-framework/ui/uniform';
+import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 import { Observable, forkJoin, of } from 'rxjs';
 import { tap, filter, switchMap, map } from 'rxjs/operators';
 import { SalaryTransactionService } from '@app/services/salary/salaryTransaction/salaryTransactionService';
