@@ -1,9 +1,13 @@
 <a #element
-   [href]="getValue()"
-   [attr.target]="field?.Options?.target"
-   [attr.aria-describedby]="asideGuid"
-   (focus)="focusHandler()"
-   [ngClass]="field?.Classes"
-   [title]="field?.Options?.description"
-> <i class="material-icons" *ngIf="field?.Options?.icon"> {{ field.Options.icon }} </i> {{field?.Options?.description}}</a>
+    [href]="getValue()"
+    [attr.target]="field?.Options?.target"
+    [attr.aria-describedby]="asideGuid"
+    (focus)="focusHandler()"
+    [ngClass]="field?.Options?.linkClass"
+    [title]="field?.Options?.description">
+
+    <i class="material-icons" *ngIf="field?.Options?.icon"> {{ field.Options.icon }}</i>
+    <span>{{field?.Options?.description}}</span>
+</a>
+
 <ng-content></ng-content>
