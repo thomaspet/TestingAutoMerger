@@ -78,7 +78,10 @@ export class AssetsActions {
     createAsset(supplierInvoiceID: number) {
         return this.assetsService.createAsset(supplierInvoiceID).pipe(
             take(1),
-            tap((asset) => this.store.currentAsset = asset),
+            tap((asset) => {
+                asset._createguid = this.assetsService.getNewGuid();
+                this.store.currentAsset = asset;
+            }),
             switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID, ['JournalEntry', 'JournalEntry.DraftLines'])),
             map((supplierInvoice: SupplierInvoice) => {
                 const currentAsset = this.store.currentAsset;
@@ -151,8 +154,8 @@ export class AssetsActions {
                     ' automatisk nå. Fremtidige avskrivninger blir så gjennomført fortløpende.',
                 buttonLabels: {
                     accept: asset.AutoDepreciation ? 'Ok' : 'Start med avskrivninger nå',
-                    reject: 'Nei',
-                    cancel: 'Avbryt'
+                    reject: asset.AutoDepreciation ? null : 'Nei',
+                    cancel: asset.AutoDepreciation ? null : 'Avbryt'
                 }
             };
             source = this.modalService.confirm(modalOptions).onClose;
@@ -175,6 +178,9 @@ export class AssetsActions {
             take(1),
             switchMap(_asset => {
                 asset = _asset;
+                if(asset.Dimensions) { // save dimensions from object, not from ID.
+                    asset.DimensionsID = undefined;
+                }
                 return this.startDepreciation(_asset);
             }),
             switchMap(result => {
@@ -182,14 +188,6 @@ export class AssetsActions {
                     asset.AutoDepreciation = true;
                 } else if (result === ConfirmActions.REJECT) {
                     asset.AutoDepreciation = false;
-                }
-                if (result !== ConfirmActions.CANCEL) {
-                    const assetsDoNotShowModalIDs: number[] = this.browserStorageService
-                        .getItemFromCompany('assetsDoNotShowModalIDs') || [];
-                    if (!assetsDoNotShowModalIDs.includes(asset.ID)) {
-                        assetsDoNotShowModalIDs.push(asset.ID);
-                    }
-                    this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);
                 }
                 return this.assetsService.saveAsset(asset).pipe(
                     catchError(err => throwError(err)),
@@ -200,6 +198,16 @@ export class AssetsActions {
                         _asset['_DepreciationStartYear'] = this.calculateDepreciationStartYear(_asset);
                         _asset['_DepreciationEndDate'] = this.calculateDepreciationEndDate(_asset);
                         return {..._asset};
+                    }),
+                    tap(_asset => {
+                        if (result !== ConfirmActions.CANCEL) {
+                            const assetsDoNotShowModalIDs: number[] = this.browserStorageService
+                                .getItemFromCompany('assetsDoNotShowModalIDs') || [];
+                            if (!assetsDoNotShowModalIDs.includes(_asset.ID)) {
+                                assetsDoNotShowModalIDs.push(_asset.ID);
+                            }
+                            this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);
+                        }
                     }),
                     tap(_asset => this.markAssetAsClean()),
                     tap(_asset => this.store.currentAsset = _asset)
