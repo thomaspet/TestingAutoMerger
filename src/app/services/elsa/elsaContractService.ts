@@ -142,23 +142,6 @@ export class ElsaContractService {
             .send();
     }
 
-    activateContract(contractID: number, isBureau: boolean = false, statusCode: number = null) {
-        let endpoint = `/api/elsa/contracts/${contractID}/activate`;
-        if (isBureau) {
-            endpoint += `&ContractType=${ContractType.Bureau}`;
-        }
-
-        if (statusCode) {
-            endpoint += '?companyStatusCode=' + statusCode;
-        }
-
-        return this.uniHttp
-            .asPUT()
-            .usingEmptyDomain()
-            .withEndPoint(endpoint)
-            .send();
-    }
-
     getSupportUsers(): Observable<User[]> {
         return this.uniHttp
             .asGET()
