@@ -45,8 +45,8 @@ export class BrunoOnboardingService {
         return agreement?.StatusCode === 700001 ? true : false;
     }
 
-    public isNeedConfigOnBankAccounts(agreement?: BankIntegrationAgreement): boolean {
-        return agreement?.StatusCode === 700007 ? true : false;
+    public hasNewAccountInfo(agreement): boolean {
+        return agreement?.HasNewAccountInformation ? true : false;
     }
 
     public isActiveAgreement(agreement?: BankIntegrationAgreement): boolean {
@@ -67,9 +67,9 @@ export class BrunoOnboardingService {
                                     });
                             }
                         });
-                } else if (this.isPendingAgreement(agreement)) {
+                } else if (this.isPendingAgreement(agreement) && !this.hasNewAccountInfo(agreement)) {
                     this.openExternalOnboarding();
-                } else if (this.isNeedConfigOnBankAccounts(agreement)) {
+                } else if (this.hasNewAccountInfo(agreement)) {
                     this.bankAccountService.getBankServiceBankAccounts()
                         .subscribe((accounts) => {
                             this.modalService.open(ConfigBankAccountsModal, {
