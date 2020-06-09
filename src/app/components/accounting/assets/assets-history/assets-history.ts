@@ -16,6 +16,7 @@ import {FieldType} from '@uni-framework/ui/uniform';
 })
 export class AssetsHistoryComponent {
     tableConfig = null;
+    depreciationLines: DepreciationLine[] = [];
     autoDepreciationModel = {
         AutoDepreciation: false
     };
@@ -60,6 +61,7 @@ export class AssetsHistoryComponent {
                     ...asset,
                     DepreciationLines: lines
                 };
+                this.depreciationLines = lines;
                 this.autoDepreciationModel = {
                     AutoDepreciation: asset.AutoDepreciation
                 };
