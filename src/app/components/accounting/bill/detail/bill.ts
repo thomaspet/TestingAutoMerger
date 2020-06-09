@@ -1039,7 +1039,7 @@ export class BillView implements OnInit, AfterViewInit {
 
     private runOcr(file: any) {
         this.userMsg('Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
-        this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+        this.uniFilesService.runOcr(file.StorageReference)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
