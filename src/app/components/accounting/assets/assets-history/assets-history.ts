@@ -48,9 +48,6 @@ export class AssetsHistoryComponent {
             take(1),
             map(params => safeInt(params.id)),
         ).subscribe((id: number) => {
-            if (this.assetsStore.currentAsset?.ID === id) {
-                return;
-            }
             this.assetsActions.getAsset(id).pipe(
                 tap(asset => this.assetsStore.currentAsset = asset),
                 switchMap(asset => this.assetsActions.getDepreciationLines(id)),
@@ -78,7 +75,6 @@ export class AssetsHistoryComponent {
     }
 
     ngOnDestroy() {
-        this.assetsActions.setCurrentAsset(null);
     }
 
     onChangeEvent(changes: SimpleChanges) {
