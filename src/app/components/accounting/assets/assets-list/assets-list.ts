@@ -31,9 +31,6 @@ export class AssetsListComponent {
             this.assetsActions.haveAssetsWithDepreciationNotStarted().subscribe(hasNotStartedDepreciations => {
                 this.hasNotStartedDepreciations = hasNotStartedDepreciations;
             });
-            this.lookupFunction = (httpParams: HttpParams) => {
-                return this.assetsActions.loadAssets(this.currentAssetType, httpParams);
-            };
         });
         this.tableConfig = assetsTableConfig(this.assetsActions, this.router);
         this.route.queryParams.pipe(takeUntil(this.onDestroy$))

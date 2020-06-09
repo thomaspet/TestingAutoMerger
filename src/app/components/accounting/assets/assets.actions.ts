@@ -296,30 +296,36 @@ export class AssetsActions {
     }
 
     openRegisterAsSoldModal(asset?: Asset) {
-        return this.modalService.open(RegisterAssetAsSoldModal, {
-            data: {
-                AssetID: asset.ID,
-                SoldDate: new LocalDate(new Date()),
-                NetFinancialValue: asset.NetFinancialValue,
-                SoldAmount: asset.NetFinancialValue,
-                TaxPercent: null,
-                CustomerID: null
-            }
-        }).onClose.pipe(
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterAssetAsSoldModal, {
+                    data: {
+                        AssetID: asset.ID,
+                        SoldDate: new LocalDate(new Date()),
+                        NetFinancialValue: asset.NetFinancialValue,
+                        SoldAmount: asset.NetFinancialValue,
+                        TaxPercent: null,
+                        CustomerID: null
+                    }
+                }).onClose;
+            }),
             switchMap(() => this.getAsset(asset.ID)),
             tap((_asset) => this.store.currentAsset = _asset)
         );
     }
     openRegisterDepreciationModal(asset?: Asset) {
-        return this.modalService.open(RegisterDepreciationModal, {
-            data: {
-                AssetID: asset.ID,
-                CurrentNetFinancialValue: asset.CurrentNetFinancialValue,
-                DepreciationValue: 0,
-                NewNetFinancialValue: asset.CurrentNetFinancialValue,
-                Description: '',
-            }
-        }).onClose.pipe(
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterDepreciationModal, {
+                    data: {
+                        AssetID: asset.ID,
+                        CurrentNetFinancialValue: asset.CurrentNetFinancialValue || asset.NetFinancialValue,
+                        DepreciationValue: 0,
+                        NewNetFinancialValue: asset.CurrentNetFinancialValue || asset.NetFinancialValue,
+                        Description: '',
+                    }
+                }).onClose;
+            }),
             switchMap(() => this.getAsset(asset.ID)),
             tap((_asset) => this.store.currentAsset = _asset)
         );
@@ -330,13 +336,16 @@ export class AssetsActions {
         }).onClose.pipe(tap(x => ''));
     }
     openRegisterAsLostModal(asset?: Asset) {
-        return this.modalService.open(RegisterAssetAsLostModal, {
-            data: {
-                AssetID: asset.ID,
-                DepreciationDate: new LocalDate(new Date()),
-                NetFinancialValue: asset.NetFinancialValue,
-            }
-        }).onClose.pipe(
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterAssetAsLostModal, {
+                    data: {
+                        AssetID: asset.ID,
+                        DepreciationDate: new LocalDate(new Date()),
+                        NetFinancialValue: asset.NetFinancialValue,
+                    }
+                }).onClose;
+            }),
             switchMap(() => this.getAsset(asset.ID)),
             tap((_asset) => this.store.currentAsset = _asset)
         );
