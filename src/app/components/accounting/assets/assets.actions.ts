@@ -318,10 +318,10 @@ export class AssetsActions {
             switchMap(_asset => {
                 return this.modalService.open(RegisterDepreciationModal, {
                     data: {
-                        AssetID: asset.ID,
-                        CurrentNetFinancialValue: asset.CurrentNetFinancialValue || asset.NetFinancialValue,
+                        AssetID: _asset.ID,
+                        CurrentNetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
                         DepreciationValue: 0,
-                        NewNetFinancialValue: asset.CurrentNetFinancialValue || asset.NetFinancialValue,
+                        NewNetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
                         Description: '',
                     }
                 }).onClose;
