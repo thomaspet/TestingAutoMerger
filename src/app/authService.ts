@@ -33,8 +33,7 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info',
-    'accounting'
+    'license-info'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -174,6 +173,21 @@ export class AuthService {
 
         this.userManager.events.addSilentRenewError(function(res) {
             console.log(res);
+        });
+    }
+
+    // REMOVE ME WHEN BRUNO IS DONE TESTING
+    mockSetProductBundle(name) {
+        const currentUrl = this.router.url;
+        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
+            this.authentication$.take(1).subscribe(authDetails => {
+                this.featurePermissionService.setFeatureBlacklist(name);
+
+                // Trigger sidebar link filtering
+                this.authentication$.next(authDetails);
+
+                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
+            });
         });
     }
 

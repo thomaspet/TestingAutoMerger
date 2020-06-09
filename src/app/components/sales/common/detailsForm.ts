@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
 import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller} from '@uni-entities';
+import {EmailService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import {set} from 'lodash';
 import * as moment from 'moment';
@@ -35,7 +36,10 @@ export class TofDetailsForm {
     formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     fields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
 
-    constructor(private featurePermissionService: FeaturePermissionService) {}
+    constructor(
+        private featurePermissionService: FeaturePermissionService,
+        private emailService: EmailService
+    ) {}
 
     ngOnInit() {
         this.entity$.next(this.entity);
@@ -156,6 +160,9 @@ export class TofDetailsForm {
                     FieldType: FieldType.TEXT,
                     Label: 'E-postadresse',
                     Section: 0,
+                    Validations: [
+                        (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
+                    ]
                 },
                 {
                     FieldSet: 1,

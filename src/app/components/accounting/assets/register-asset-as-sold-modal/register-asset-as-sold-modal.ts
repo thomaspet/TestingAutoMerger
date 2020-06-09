@@ -2,7 +2,7 @@ import {Component, ErrorHandler, EventEmitter} from '@angular/core';
 import {IModalOptions, UniModalService} from '@uni-framework/uni-modal';
 import {Customer, LocalDate, VatType} from '@uni-entities';
 import {VatTypeService} from '@app/services/accounting/vatTypeService';
-import {buildAssetSoldForm, radioButtonField} from '@app/components/accounting/assets/register-asset-as-sold-modal/buildAssetSoldForm';
+import {buildAssetSoldForm} from '@app/components/accounting/assets/register-asset-as-sold-modal/buildAssetSoldForm';
 import {AssetsService} from '@app/services/common/assetsService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {take} from 'rxjs/operators';
@@ -21,12 +21,9 @@ export class RegisterAssetAsSoldModal {
     model: any = {
         _createInvoice: true
     };
-    radioButtonField = radioButtonField;
     form = [];
     customer: Customer = null;
     customerAutocompleteOptions = {
-        placeholder: 'Velg kunde',
-        autofocus: true,
         canClearValue: false,
         lookup: query => this.customerLookup(query),
         displayFunction: item => {

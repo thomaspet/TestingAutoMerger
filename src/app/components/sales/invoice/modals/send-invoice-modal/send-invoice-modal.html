@@ -1,13 +1,13 @@
-<section role="dialog" class="uni-modal uni-redesign">
+<section role="dialog" class="uni-modal">
     <header>Sending av {{ invoice?.InvoiceType === 1 ? ' kreditnota ' : ' faktura ' }} {{invoice?.InvoiceNumber || ''}}</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section *ngIf="invoice?.StatusCode === 42004" class="alert info already-paid">
-            <i class="material-icons">info</i>
-            <span class="text">Denne fakturaen er allerede markert som betalt</span>
+        <section *ngIf="invoice?.StatusCode === 42004" class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>Denne fakturaen er allerede markert som betalt</span>
         </section>
 
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">

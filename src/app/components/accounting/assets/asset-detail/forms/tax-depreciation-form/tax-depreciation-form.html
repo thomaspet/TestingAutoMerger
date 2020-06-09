@@ -8,10 +8,11 @@
     <section class="col-md-8">
         <section class="uni-card">
             <section class="uni-card-content">
-                <p class="info-box-link form-info-box">
-                    <i class="material-icons ng-star-inserted" style="color:#0aa801;padding: 0.5rem"> info </i>
-                    Skattemessing avskrives eiendeler med en prosentsats hvert år. Denne følger samlet saldo for saldogruppe hvert år inntil denne når 15 000,00
-                </p>
+                <section class="alert info">
+                    <i class="material-icons">info</i>
+                    <span>Skattemessing avskrives eiendeler med en prosentsats hvert år. Denne følger samlet saldo for saldogruppe hvert år inntil denne når 15 000,00</span>
+                </section>
+
                 <uni-form *ngIf="fieldsConfig" class="two-column-layout"
                     [config]="{showLabelAbove: true}"
                     [model]="asset"

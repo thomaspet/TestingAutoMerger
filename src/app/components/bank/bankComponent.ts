@@ -1380,6 +1380,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');
@@ -1405,6 +1406,7 @@ export class BankComponent {
                 saveAs(blob, `payments_${fileID}.xml`);
                 this.tickerContainer.getFilterCounts();
                 this.tickerContainer.mainTicker.reloadData();
+                this.tickerContainer.mainTicker.table.clearSelection();
             },
                 err => {
                     doneHandler('Feil ved henting av utbetalingsfil');
@@ -1563,6 +1565,7 @@ export class BankComponent {
                             this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
                             this.tickerContainer.getFilterCounts();
                             this.tickerContainer.mainTicker.reloadData();
+                            this.tickerContainer.mainTicker.table.clearSelection();
                             doneHandler('');
                         });
                     }
@@ -1581,6 +1584,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');

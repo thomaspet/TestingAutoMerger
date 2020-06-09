@@ -78,7 +78,7 @@ export class ImportOrderModal implements OnInit, IUniModal {
                 type: OrderOptions.Draft
             },
             {
-                name: 'Bokfør',
+                name: 'Registrert',
                 type: OrderOptions.Post
             }
         ];

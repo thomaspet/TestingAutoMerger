@@ -3,7 +3,8 @@ import {
     CompanySettingsService,
     CompanyTypeService,
     CompanyService,
-    ErrorService
+    ErrorService,
+    EmailService
 } from '@app/services/services';
 import {AuthService} from '../../../authService';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
@@ -50,6 +51,7 @@ export class UniCompanySettingsView {
         private tabService: TabService,
         private authService: AuthService,
         private errorService: ErrorService,
+        private emailService: EmailService
     ) { }
 
     ngOnInit() {
@@ -120,7 +122,11 @@ export class UniCompanySettingsView {
                 Property: 'DefaultEmail.EmailAddress',
                 FieldType: FieldType.EMAIL,
                 Classes: 'bill-small-field',
-                Label: 'E-post'
+                Label: 'E-post',
+                Validations: [
+                    (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
+                ]
+
             },
             {
                 EntityType: 'CompanySettings',
@@ -319,7 +325,7 @@ export class UniCompanySettingsView {
             this.companySettingsService.PostAction(1, 'update-logo', `logoFileId=${companySettings.LogoFileID}`).subscribe(
                 () => {},
                 err => {
-                    console.error('Klarte ikke laste opp')
+                    console.error('Klarte ikke laste opp');
                 }
             );
         }
