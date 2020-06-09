@@ -16,6 +16,7 @@ export class RegisterAssetAsLostModal {
     model = {
         Description: ''
     };
+
     mainForm = [
         {
             Section: 0,
@@ -37,18 +38,19 @@ export class RegisterAssetAsLostModal {
                 decimalSeparator: ','
             },
             ReadOnly: true
-        }
-    ];
-    descriptionForm = [
+        },
         {
             Section: 0,
             FieldSet: 0,
             FieldSetColumn: 1,
             Property: 'Description',
             Label: 'Beskrivelse',
-            FieldType: FieldType.TEXT
+            FieldType: FieldType.TEXT,
+            Classes: 'full-width'
         }
     ];
+
+
     constructor(
         private assetsService: AssetsService,
         private errorHandler: ErrorHandler,

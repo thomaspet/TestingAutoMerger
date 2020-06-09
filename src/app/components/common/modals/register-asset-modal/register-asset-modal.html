@@ -1,19 +1,21 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        Registrere kjøp som eiendel?
-    </header>
+<section role="dialog" class="uni-modal">
+    <header>Registrere kjøp som eiendel?</header>
     <article>
         <p>
             Systemet har registrert at du har ført dette kjøpet mot en eiendelskonto.
             Vi anbefaler derfor at du også registrerer kjøpet i eiendelsregisteret.
         </p>
-        <p class="info-box-link form-info-box">
-            <i class="material-icons ng-star-inserted"> info </i>
-            Om du ikke ønsker å benytte eiendelsregisteret slår du bare av denne meldingen.
-            Ønsker du ved en senere anleding å ta det i bruk, slår du på meldingen under firmainnstillinger.
-        </p>
+
+        <section class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>
+                Om du ikke ønsker å benytte eiendelsregisteret slår du bare av denne meldingen.
+                Ønsker du ved en senere anleding å ta det i bruk, slår du på meldingen under firmainnstillinger.
+            </span>
+        </section>
     </article>
-    <footer style="justify-content: center;">
+
+    <footer class="center">
         <button class="secondary pull-left" (click)="cancel()">Avbryt</button>
         <button class="secondary" (click)="reject()">Slå av denne meldingen</button>
         <button class="good" (click)="accept()">Registrere eiendel</button>

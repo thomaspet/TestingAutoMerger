@@ -1,20 +1,6 @@
 import {FieldType} from '@uni-framework/ui/uniform';
 import {of} from 'rxjs';
 
-export const radioButtonField = [{
-    Section: 0,
-    FieldSet: 0,
-    FieldSetColumn: 1,
-    Property: '_createInvoice',
-    Label: '',
-    FieldType: FieldType.RADIOGROUP,
-    Options: {
-        source: [{value: true, text: 'Opprett faktura'}, {value: false, text: 'Ikke opprett faktura'}],
-        valueProperty: 'value',
-        labelProperty: 'text'
-    }
-}];
-
 export const buildAssetSoldForm = (vatTypes) => {
     return [
         {
