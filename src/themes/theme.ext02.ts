@@ -7,8 +7,8 @@ export * from './themes-enum';
 
 export const theme = {
     theme: THEMES.EXT02,
-    appName: 'Prosjekt Bruno',
-    appProvider: 'Bruno Systemer',
+    appName: 'Bruno',
+    appProvider: 'Bruno',
 
     translationOverrides: TRANSLATION_OVERRIDES,
     chatbotIcon: 'themes/ext02/chatbot-icon.svg',

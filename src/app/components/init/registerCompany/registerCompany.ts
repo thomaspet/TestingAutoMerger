@@ -163,11 +163,11 @@ export class RegisterCompany {
                 }]
             },
             {
-                header: 'Registrer din egen bedrift',
+                header: 'Registrer din bedrift',
                 textSections: [
-                    'Registrer din egen bedrift her for å starte opp med Uni Economy i dag.',
-                    'Prøveperioden vil fremdeles være gratis, men du kan begynne å jobbe med reelle data umiddelbart.',
-                    'Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.',
+                    `Registrer din bedrift her for å starte opp med ${theme.appName} i dag.`,
+                    `Prøveperioden vil fremdeles være gratis, men du kan begynne å jobbe med reelle data umiddelbart.`,
+                    `Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.`,
                 ],
                 buttons: [{
                     label: 'Registrer din bedrift',
