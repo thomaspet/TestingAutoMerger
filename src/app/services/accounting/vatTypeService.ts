@@ -40,12 +40,12 @@ export class VatTypeService extends BizHttp<VatType> {
                 // based on todays date - might need to consider checking based on
                 // accountingyear instead, but this really depends on the context,
                 // for invoicing current date is most likely what we want
-                let response: Array<VatType> = [];
+                const response: Array<VatType> = [];
 
-                let today = moment(new Date());
+                const today = moment(new Date());
 
                 vattypes.forEach((vatType) => {
-                    let currentPercentage =
+                    const currentPercentage =
                         vatType.VatTypePercentages.find(y =>
                             (moment(y.ValidFrom) <= today && y.ValidTo && moment(y.ValidTo) >= today)
                             || (moment(y.ValidFrom) <= today && !y.ValidTo));

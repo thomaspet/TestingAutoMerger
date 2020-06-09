@@ -1,0 +1,28 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>
+        Registrere nedskriving av eiendel
+    </header>
+    <article>
+        <uni-form class="two-column-layout"
+            [fields]="mainForm"
+            [config]="config"
+            [model]="model"
+            (changeEvent)="onChangeEvent($event)"
+        ></uni-form>
+        <uni-form
+            [fields]="descriptionForm"
+            [config]="{showLabelAbove: true}"
+            [model]="model"
+            (changeEvent)="onChangeEvent($event)"
+        ></uni-form>
+        <p class="info-box-link form-info-box">
+            <i class="material-icons"> info_outlined </i>
+            En eiendel kan nedskrives dersom verdien taper seg raskere enn antatt / det som er oppgitt som levetid for eiendelen.
+            Eksempel er ved skade eller om markedet endrer seg. Verdien eiendelen nedskrives med, regnskapføres som en utgift i selskapet.
+        </p>
+    </article>
+    <footer style="justify-content: center;">
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="good" (click)="reduce()">Registrere nedskriving</button>
+    </footer>
+</section>

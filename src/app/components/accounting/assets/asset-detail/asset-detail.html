@@ -1,0 +1,6 @@
+<section class="container-fluid uni-grid-container">
+    <asset-form [asset]="(state$ | async)?.currentAsset" [supplierInvoiceID]="supplierInvoiceID"></asset-form>
+    <depreciation-form [asset]="(state$ | async)?.currentAsset"></depreciation-form>
+    <accounting-depreciation-form [asset]="(state$ | async)?.currentAsset"></accounting-depreciation-form>
+    <tax-depreciation-form [asset]="(state$ | async)?.currentAsset"></tax-depreciation-form>
+</section>

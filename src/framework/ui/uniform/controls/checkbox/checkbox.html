@@ -2,6 +2,8 @@
     *ngIf="field?.Options?.slideToggle; else checkbox"
     [checked]="checked"
     [labelPosition]="'before'"
+    [disabled]="!!field?.ReadOnly"
+    [disableRipple]="true"
     (change)="onChange($event)">
 </mat-slide-toggle>
 

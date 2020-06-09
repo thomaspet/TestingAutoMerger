@@ -4,7 +4,7 @@
         "Code": "journalentryline_list",
         "RequiredUIPermissions": ["ui_accounting_journalentry"],
         "Type": "Table",
-        "IsTopLevelTicker": true,
+        "IsTopLevelTicker": "true",
         "Group": "Regnskap",
         "Model": "JournalEntryLine",
         "OrderBy": "ID desc",
