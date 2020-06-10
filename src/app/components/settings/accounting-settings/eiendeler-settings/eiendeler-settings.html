@@ -2,7 +2,7 @@
     <section class="col-md-4">
         <section class="form-info-section">
             <h1> Eiendeler </h1>
-            <p> Eiendeler settings  </p>
+            <p>Innstillinger for eiendeler. Dersom kontoene ikke er fylt ut vil systemet bruke standard kontoer ved salg, tap og nedskrivning av eiendeler.</p>
         </section>
     </section>
     <section class="col-md-8">
@@ -17,12 +17,6 @@
                 <uni-form class="two-column-layout"
                           [fields]="accountsFields"
                           [config]="{autofocus: true, showLabelAbove: true}"
-                          [model]="accountingCompanySettings"
-                          (changeEvent)="onChangeEvent($event)"
-                ></uni-form>
-                <uni-form
-                          [fields]="productField"
-                          [config]="{showLabelAbove: true}"
                           [model]="accountingCompanySettings"
                           (changeEvent)="onChangeEvent($event)"
                 ></uni-form>
