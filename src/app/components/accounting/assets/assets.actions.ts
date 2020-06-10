@@ -441,10 +441,10 @@ export class AssetsActions {
 
     private calculateDepreciationStartYear(asset: Asset) {
         if (asset.AssetGroupCode === 'X') {
-            return 0;
+            return null;
         }
         if (!asset.PurchaseDate) {
-            return 0;
+            return null;
         }
         const date = moment(asset.PurchaseDate, 'YYYY-MM-DD');
         return date.year();
