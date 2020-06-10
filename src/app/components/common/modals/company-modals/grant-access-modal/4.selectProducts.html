@@ -1,4 +1,11 @@
-<h1>Velg produktene du vil aktivere for brukerne</h1>
+<h1 style="margin-bottom: 1.5rem">Velg produktene du vil aktivere for brukerne</h1>
+
+<mat-checkbox [(ngModel)]="data.AddAdministratorRole">
+    Gi alle valgte brukere administratortilgang
+    <uni-tooltip 
+        [text]="'Administrator vil kunne invitere andre brukere til selskapet, samt kjøpe og deaktivere produkter i Markedsplassen.'">
+    </uni-tooltip>
+</mat-checkbox>
 
 <grant-access-selection-list
     [labelProperty]="'Label'"
