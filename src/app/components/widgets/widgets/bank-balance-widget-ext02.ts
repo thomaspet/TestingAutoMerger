@@ -83,8 +83,7 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                         this.icon = this.iconConfig;
                         this.missingData = true;
                         this.cdr.markForCheck();
-                    } else if (this.brunoOnboardingService.isPendingAgreement(this.agreement) &&
-                              !this.brunoOnboardingService.hasNewAccountInfo(this.agreement)) {
+                    } else if (this.brunoOnboardingService.isPendingAgreement(this.agreement)) {
                         this.msg = 'Du har bestilt integrasjon med nettbanken din og vi jobber <br/> med å sette den opp. ' +
                             'Dette kan ta inntil 3 arbeidsdager.';
                         this.actionLink = 'Ble du avbrutt? Start på nytt';
@@ -93,11 +92,7 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                         this.missingData = true;
                         this.cdr.markForCheck();
                     } else if (this.brunoOnboardingService.hasNewAccountInfo(this.agreement)) {
-                        if (this.brunoOnboardingService.isActiveAgreement(this.agreement)) {
-                            this.msg = 'Vi har mottatt nye kontoer fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
-                        } else {
-                            this.msg = 'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
-                        }
+                        this.msg = 'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
                         this.actionLink = ' Sett opp kontoen(e) her';
                         this.actionMsg = '';
                         this.icon = this.iconWarning;
