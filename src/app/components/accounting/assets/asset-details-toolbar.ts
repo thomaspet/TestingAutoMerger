@@ -123,9 +123,9 @@ export class AssetDetailsToolbar {
             label: 'Lagre',
             action: (done) => this.assetsActions.save().subscribe(asset => {
                 if (asset.ID === 0) {
-                    done('Asset ikke lagret');
+                    done('Eiendel ikke lagret');
                 } else {
-                    done('Asset Lagret');
+                    done('Eiendel lagret');
                 }
                 this.assetsStore.assetIsDirty = false;
                 this.assetsStore.currentAsset = asset;

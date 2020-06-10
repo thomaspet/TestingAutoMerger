@@ -139,6 +139,7 @@ export class UniCompanyAccountingView {
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
+            this.companyAccountingSettingsService.Get(1)
         ).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
@@ -156,7 +157,7 @@ export class UniCompanyAccountingView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
-            this.companyAccountingSettings = response[4][0];
+            this.companyAccountingSettings = response[5];
         }, err => {
             this.errorService.handle(err);
         });
