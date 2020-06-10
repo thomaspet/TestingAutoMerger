@@ -33,7 +33,7 @@ export class RegisterDepreciationModal {
             Section: 0,
             FieldSet: 0,
             FieldSetColumn: 1,
-            Property: 'NetFinancialValue',
+            Property: 'CurrentNetFinancialValue',
             Label: 'Regnskapverdi',
             FieldType: FieldType.NUMERIC,
             Options: {
@@ -46,7 +46,7 @@ export class RegisterDepreciationModal {
             Section: 0,
             FieldSet: 0,
             FieldSetColumn: 1,
-            Property: 'ScrapValue',
+            Property: 'DepreciationValue',
             Label: 'Nedskrives med (eks MVA)',
             FieldType: FieldType.NUMERIC,
             Options: {
@@ -61,6 +61,10 @@ export class RegisterDepreciationModal {
             Property: 'NewNetFinancialValue',
             Label: 'Ny Regnskapsverdi',
             FieldType: FieldType.NUMERIC,
+            Options: {
+                decimalLength: 2,
+                decimalSeparator: ','
+            }
         },
         {
             Section: 0,
@@ -85,9 +89,9 @@ export class RegisterDepreciationModal {
     onChangeEvent(changes: SimpleChanges) {
         const model = <any>this.model;
         if (changes.NewNetFinancialValue) {
-            model.ScrapValue = model.NetFinancialValue - model.NewNetFinancialValue;
-        } else if (changes.ScrapValue) {
-            model.NewNetFinancialValue = model.NetFinancialValue - model.ScrapValue;
+            model.DepreciationValue = model.CurrentNetFinancialValue - model.NewNetFinancialValue;
+        } else if (changes.DepreciationValue) {
+            model.NewNetFinancialValue = model.CurrentNetFinancialValue - model.DepreciationValue;
         }
         this.model = {...model};
     }
@@ -98,14 +102,14 @@ export class RegisterDepreciationModal {
             this.toast.addToast('Du må skrive en beskrivelse', ToastType.warn, 5);
             return;
         }
-        if (!model.ScrapValue) {
+        if (!(model.DepreciationValue >= 0)) {
             this.toast.addToast('Du må skrive nedskrives med verdien', ToastType.warn, 5);
             return;
         }
         this.assetsService.depreciateAsset(
             model.AssetID,
             new LocalDate(new Date()),
-            model.ScrapValue,
+            model.DepreciationValue,
             model.Description
         ).pipe(take(1)).subscribe(result => {
             this.toast.addToast('Eiendel er nedskrevet', ToastType.good, 5);

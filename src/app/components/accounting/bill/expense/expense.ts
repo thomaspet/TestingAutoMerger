@@ -42,7 +42,8 @@ export class Expense implements OnInit {
 
     busy = true;
     fileIds: number[] = [];
-    dataLoaded: boolean = false;;
+    files: Array<any> = [];
+    dataLoaded: boolean = false;
 
     saveActions: IUniSaveAction[] = [];
     toolbarConfig: IToolbarConfig;
@@ -97,6 +98,10 @@ export class Expense implements OnInit {
     }
 
     onFileListReady(files: Array<any>) {
+        // use concat to get a new reference, otherwise the changes made by
+        // the uni image component will not be detected by hasChangedFiles
+        this.files = files.concat();
+
         this.runConverter(files);
     }
 
@@ -301,11 +306,13 @@ export class Expense implements OnInit {
     }
 
     private runOcr(file?: any) {
-        file = file || this.fileIds && this.fileIds.length > 0 ? { ID: this.fileIds[0] } : undefined;
+        file = file || (this.files && this.files.length > 0 ? this.files[0] : undefined);
+
         return new Promise( (resolve, reject) => {
-            if (!file) { resolve(false); return; }
+            if (!file || !file.StorageReference) { resolve(false); return; }
+
             this.toast.addToast('OCR-scann startet', ToastType.good, 5);
-            this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+            this.uniFilesService.runOcr(file.StorageReference)
                 .subscribe((result: IOcrServiceResult) => {
                     const formattedResult = new OcrValuables(result);
                     if (formattedResult.InvoiceDate) {

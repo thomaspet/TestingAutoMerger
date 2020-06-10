@@ -95,7 +95,7 @@ export class AssetDetailsToolbar {
     }
     private setToolbarConfig(asset: Asset) {
         this.toolbarconfig = {
-            title: asset?.Name || 'New Eiendel',
+            title: asset?.Name || 'Ny Eiendel',
             statustrack: this.createStatus(asset),
             contextmenu: [
                 {
@@ -140,8 +140,11 @@ export class AssetDetailsToolbar {
     }
 
     private addTab(asset: Asset) {
-        const title = asset?.Name ? `Eiendeler ${asset?.ID}` : 'New eiendel';
+        let title = asset?.Name ? `Eiendeler ${asset?.ID}` : 'Ny eiendel';
         const id = asset?.ID ? asset.ID : 0;
+        if (id === 0) {
+            title = 'Ny eiendel';
+        }
         this.tabService.addTab({
             name: `${title}`, url: `/accounting/assets/${id}`,
             moduleID: UniModules.Accountsettings, active: true

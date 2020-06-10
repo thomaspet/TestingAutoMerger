@@ -98,19 +98,19 @@ export const assetsTableConfig = (assetsActions: AssetsActions, router: Router) 
 ).setContextMenu([
     {
         label: 'Registrer som solgt',
-        action: (rowModel) => assetsActions.openRegisterAsSoldModal(rowModel)
+        action: (rowModel) => assetsActions.openRegisterAsSoldModal(rowModel).subscribe(() => '') // action runs in modal
     },
     {
         label: 'Registrer som tapt',
-        action: (rowModel) => assetsActions.openRegisterAsLostModal(rowModel)
+        action: (rowModel) => assetsActions.openRegisterAsLostModal(rowModel).subscribe(() => '') // action runs in modal
     },
     {
         label: 'Nedskriv eiendel',
-        action: (rowModel) => assetsActions.openRegisterDepreciationModal(rowModel)
+        action: (rowModel) => assetsActions.openRegisterDepreciationModal(rowModel).subscribe(() => '') // action runs in modal
     },
     {
         label: 'Slett eiendel',
-        action: (rowModel) => assetsActions.openDeleteModal(rowModel)
+        action: (rowModel) => assetsActions.openDeleteModal(rowModel).subscribe(() => '') // action runs in modal
     }
 ])
 .setSortable(true)
