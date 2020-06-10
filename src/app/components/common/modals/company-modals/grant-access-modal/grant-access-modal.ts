@@ -21,6 +21,7 @@ export interface GrantAccessData {
     companies: ElsaCompanyLicense[];
     users: ElsaUserLicense[];
     products: ElsaProduct[];
+    AddAdministratorRole?: boolean;
 }
 
 @Component({
@@ -71,6 +72,7 @@ export class GrantAccessModal implements IUniModal {
         massInvite.CompanyLicenses = this.grantAccessData.companies;
         massInvite.UserLicenses = this.grantAccessData.users;
         massInvite.Products = this.grantAccessData.products;
+        massInvite.IsSelfInvite = this.grantAccessData.AddAdministratorRole;
 
         this.busy = true;
         this.jobService.startJob('MassInviteBureau', 0, massInvite).subscribe(
