@@ -309,10 +309,10 @@ export class AssetsActions {
             switchMap(_asset => {
                 return this.modalService.open(RegisterAssetAsSoldModal, {
                     data: {
-                        AssetID: asset.ID,
+                        AssetID: _asset.ID,
                         SoldDate: new LocalDate(new Date()),
-                        NetFinancialValue: asset.NetFinancialValue,
-                        SoldAmount: asset.NetFinancialValue,
+                        NetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                        SoldAmount: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
                         TaxPercent: null,
                         CustomerID: null
                     }
@@ -351,7 +351,7 @@ export class AssetsActions {
                     data: {
                         AssetID: asset.ID,
                         DepreciationDate: new LocalDate(new Date()),
-                        NetFinancialValue: asset.NetFinancialValue,
+                        NetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
                     }
                 }).onClose;
             }),
@@ -441,10 +441,10 @@ export class AssetsActions {
 
     private calculateDepreciationStartYear(asset: Asset) {
         if (asset.AssetGroupCode === 'X') {
-            return 0;
+            return null;
         }
         if (!asset.PurchaseDate) {
-            return 0;
+            return null;
         }
         const date = moment(asset.PurchaseDate, 'YYYY-MM-DD');
         return date.year();

@@ -16,7 +16,7 @@ export const buildAssetSoldForm = (vatTypes) => {
             FieldSet: 0,
             FieldSetColumn: 1,
             Property: 'CurrentNetFinancialValue',
-            Label: 'Regnskapverdi',
+            Label: 'Regnskapsverdi',
             FieldType: FieldType.NUMERIC,
             Options: {
                 decimalLength: 2,

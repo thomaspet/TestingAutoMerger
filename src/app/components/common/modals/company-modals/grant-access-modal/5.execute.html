@@ -20,11 +20,21 @@
     </section>
 
     <section>
-        <strong>Med produkttilganger ({{data.products.length}})</strong>
+        <strong>Med produkter ({{data.products.length}})</strong>
 
         <ul>
             <li *ngFor="let product of data.products">
                 <small>{{product.Label}}</small>
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <strong>Som administrator</strong>
+
+        <ul>
+            <li>
+                <small>{{data.AddAdministratorRole ? 'Ja' : 'Nei'}}</small>
             </li>
         </ul>
     </section>
