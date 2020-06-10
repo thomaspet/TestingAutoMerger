@@ -288,6 +288,15 @@ export class AssetsActions {
                 this.store.currentAsset = asset;
             });
         }
+        if (changes['ScrapValue']) {
+            const asset = this.store.currentAsset;
+            this.assetsService.calculateMonthlyDepreciation(asset).subscribe(amount => {
+                asset['_MonthlyDepreciationAmount'] = amount;
+                this.store.currentAsset = {...asset};
+                this.addTaxDepreciationRateFromGroupCode(asset)
+                    .subscribe(newAsset => this.store.currentAsset = newAsset);
+            });
+        }
         return of(null);
     }
 
