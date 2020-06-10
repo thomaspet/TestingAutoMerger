@@ -16,6 +16,7 @@ import * as lodash from 'lodash';
 import * as moment from 'moment';
 import {SupplierInvoiceService} from '@app/services/accounting/supplierInvoiceService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class AssetsActions {
@@ -296,6 +297,13 @@ export class AssetsActions {
                 this.addTaxDepreciationRateFromGroupCode(asset)
                     .subscribe(newAsset => this.store.currentAsset = newAsset);
             });
+        }
+        if (changes['PurchaseAmount']) {
+            if (isNullOrUndefined(currentAsset.NetFinancialValue)) {
+                const asset = this.store.currentAsset;
+                asset.NetFinancialValue = currentAsset.PurchaseAmount;
+                this.store.currentAsset = {...asset};
+            }
         }
         return of(null);
     }
