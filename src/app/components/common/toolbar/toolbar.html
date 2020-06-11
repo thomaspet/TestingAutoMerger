@@ -26,6 +26,11 @@
     </section>
 
     <section class="main-section">
+
+        <toolbar-info-banner *ngIf="config?.infoBannerConfig"
+            [config]="config?.infoBannerConfig">
+        </toolbar-info-banner>
+
         <uni-statustrack
             *ngIf="statustrack || config?.statustrack"
             [config]="statustrack || config.statustrack"

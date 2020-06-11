@@ -10,6 +10,7 @@ import {cloneDeep} from 'lodash';
 import {finalize, take} from 'rxjs/operators';
 import {ErrorService} from '@app/services/services';
 import {ToolbarSharingStatus} from './sharing-status/sharing-status';
+import { ToolbarInfoBanner } from './Info-banner/info-banner';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -71,6 +72,7 @@ export interface IToolbarConfig {
     buttons?: ToolbarButton[];
     hideDisabledActions?: boolean;
     period?: Date;
+    infoBannerConfig?: IInfoBannerConfig;
 }
 
 export interface ICommentsConfig {
@@ -93,6 +95,12 @@ export interface IContextMenuItem {
     label: string;
     action: (item?: any) => void | Observable<any>;
     disabled?: (item?: any) => boolean;
+}
+
+export interface IInfoBannerConfig {
+    message: string;
+    link: string;
+    action: () => void;
 }
 
 @Component({

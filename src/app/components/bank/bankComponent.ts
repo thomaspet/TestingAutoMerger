@@ -328,24 +328,58 @@ export class BankComponent {
                                             }
                                         });
                                 } else {
-                                    this.toolbarconfig.subheads.push({
-                                        title: 'Klikk her for å koble sammen bank og regnskap',
-                                        icon: 'sync_disabled',
-                                        classname: 'missing-agreement-link',
-                                        event: () => {
-                                            this.toolbarconfig.subheads = [];
-                                            this.toolbarconfig = Object.assign(this.toolbarconfig);
+                                    this.toolbarconfig.infoBannerConfig = {
+                                        message: 'Koble regnskap og bank sammen og få informasjon om inn- og utbetalinger i tillegg til å kunne betale direkte fra løsningen.',
+                                        link: 'Trykk her for å bestille',
+                                        action: () => {
                                             this.brunoOnboardingService.startOnboarding().subscribe(agreement => {
                                                 this.agreements = [agreement];
+                                                this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+                                                    this.toolbarconfig.infoBannerConfig.message = 'Du har bestilt integrasjon med nettbanken din og vi jobber med å sette den opp. Ble du avbrutt?',
+                                                    this.toolbarconfig.infoBannerConfig.link = 'Start på nytt',
+                                                    this.cdr.markForCheck();
+                                                });
                                             });
+                                            this.toolbarconfig = Object.assign(this.toolbarconfig);
                                         }
-                                    });
+                                    };
                                     this.initiateBank();
                                 }
                             } else {
-                                this.agreements = agreements;
-                                this.hasAccessToAutobank = true;
-                                this.initiateBank();
+                                if (theme.theme === THEMES.EXT02) {
+                                    if (brunoOnboardingService.isPendingAgreement(agreements[0])) {
+                                        this.toolbarconfig.infoBannerConfig = {
+                                            message: 'Du har bestilt integrasjon med nettbanken din og vi jobber med å sette den opp. Ble du avbrutt?',
+                                            link: 'Start på nytt',
+                                            action: () => {
+                                                this.brunoOnboardingService.startOnboarding().subscribe(agreement => {
+                                                    this.agreements = [agreement];
+                                                });
+                                                this.toolbarconfig = Object.assign(this.toolbarconfig);
+                                            }
+                                        };
+                                    } else if (this.brunoOnboardingService.hasNewAccountInfo(agreements[0])) {
+                                        this.toolbarconfig.infoBannerConfig = {
+                                            message: 'Integrasjon er klar fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
+                                            link: 'Sett opp kontoen(e) her',
+                                            action: () => {
+                                                this.brunoOnboardingService.startOnboarding().subscribe((agreement) => {
+                                                    this.agreements = [agreement];
+                                                    this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+                                                        this.toolbarconfig.infoBannerConfig = null;
+                                                        this.cdr.markForCheck();
+                                                    });
+                                                });
+                                                this.toolbarconfig = Object.assign(this.toolbarconfig);
+                                            }
+                                        };
+                                    }
+                                    this.initiateBank();
+                                } else {
+                                    this.agreements = agreements;
+                                    this.hasAccessToAutobank = true;
+                                    this.initiateBank();
+                                }
                             }
                         }, err => {
                             this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);

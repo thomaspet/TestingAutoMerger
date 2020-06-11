@@ -14,6 +14,7 @@ import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validat
 import {ToolbarSharingStatus} from './toolbar/sharing-status/sharing-status';
 import {ToolbarCustomStatus} from './toolbar/custom-status/custom-status';
 import {ToolbarMonthSelector} from './toolbar/month-selector/month-selector';
+import {ToolbarInfoBanner} from './toolbar/Info-banner/info-banner';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -94,6 +95,7 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         ToolbarSharingStatus,
         ToolbarCustomStatus,
         ToolbarMonthSelector,
+        ToolbarInfoBanner,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
