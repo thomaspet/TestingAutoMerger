@@ -359,20 +359,24 @@ export class BankComponent {
                                             }
                                         };
                                     } else if (this.brunoOnboardingService.hasNewAccountInfo(agreements[0])) {
-                                        this.toolbarconfig.infoBannerConfig = {
-                                            message: 'Integrasjon er klar fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
-                                            link: 'Sett opp kontoen(e) her',
-                                            action: () => {
-                                                this.brunoOnboardingService.startOnboarding().subscribe((agreement) => {
-                                                    this.agreements = [agreement];
-                                                    this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                                                        this.toolbarconfig.infoBannerConfig = null;
-                                                        this.cdr.markForCheck();
-                                                    });
-                                                });
-                                                this.toolbarconfig = Object.assign(this.toolbarconfig);
-                                            }
-                                        };
+                                        this.brunoOnboardingService.isFirstOnboarding(agreements[0]).subscribe((isFirstOnboarding) => {
+                                                this.toolbarconfig.infoBannerConfig = {
+                                                    message: isFirstOnboarding ?
+                                                    'Integrasjon er klar fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.' :
+                                                    'Vi har mottatt nye kontoer fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
+                                                    link: 'Sett opp kontoen(e) her',
+                                                    action: () => {
+                                                        this.brunoOnboardingService.startOnboarding().subscribe((agreement) => {
+                                                            this.agreements = [agreement];
+                                                            this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+                                                                this.toolbarconfig.infoBannerConfig = null;
+                                                                this.cdr.markForCheck();
+                                                            });
+                                                        });
+                                                        this.toolbarconfig = Object.assign(this.toolbarconfig);
+                                                    }
+                                                };
+                                        });
                                     }
                                     this.initiateBank();
                                 } else {

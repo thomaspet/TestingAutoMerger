@@ -92,12 +92,16 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                         this.missingData = true;
                         this.cdr.markForCheck();
                     } else if (this.brunoOnboardingService.hasNewAccountInfo(this.agreement)) {
-                        this.msg = 'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
-                        this.actionLink = ' Sett opp kontoen(e) her';
-                        this.actionMsg = '';
-                        this.icon = this.iconWarning;
-                        this.missingData = true;
-                        this.cdr.markForCheck();
+                        this.brunoOnboardingService.isFirstOnboarding(this.agreement).subscribe((isFirstOnboarding) => {
+                            this.msg = isFirstOnboarding ?
+                                'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>' :
+                                'Vi har mottatt nye kontoer fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
+                            this.actionLink = ' Sett opp kontoen(e) her';
+                            this.actionMsg = '';
+                            this.icon = this.iconWarning;
+                            this.missingData = true;
+                            this.cdr.markForCheck();
+                        });
                     }
                 },
                 err => {

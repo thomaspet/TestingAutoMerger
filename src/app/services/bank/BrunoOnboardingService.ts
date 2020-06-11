@@ -8,6 +8,7 @@ import { ConfigBankAccountsModal } from '@uni-framework/uni-modal/modals/bank-ac
 import { BankAccountService } from '../accounting/bankAccountService';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
 import { ConfigBankAccountsConfirmModal } from '@uni-framework/uni-modal/modals/bank-accounts-config-confirm-modal/bank-accounts-config-confirm-modal';
+import { StatisticsService } from '@app/services/common/statisticsService';
 
 
 
@@ -19,7 +20,8 @@ export class BrunoOnboardingService {
         private bankService: BankService,
         private authService: AuthService,
         private modalService: UniModalService,
-        private bankAccountService: BankAccountService
+        private bankAccountService: BankAccountService,
+        private statisticsService: StatisticsService
     ) { }
 
     agreementDetails: AutoBankAgreementDetails = {
@@ -51,6 +53,15 @@ export class BrunoOnboardingService {
 
     public isActiveAgreement(agreement?: BankIntegrationAgreement): boolean {
         return agreement?.StatusCode === 700005 ? true : false;
+    }
+
+    public isFirstOnboarding(agreement: BankIntegrationAgreement): Observable<boolean> {
+        return this.statisticsService.GetAll(
+            'model=AuditLog' +
+            '&select=count(id)' +
+            `&filter=AuditLog.EntityType eq 'BankIntegrationAgreement' and AuditLog.EntityID eq ${agreement.ID} and field eq 'HasNewAccountInformation' and oldValue eq 'true'` +
+            '&top=1'
+        ).map((data) => data.Data[0].countid < 1);
     }
 
     public startOnboarding(): Observable<void> {
