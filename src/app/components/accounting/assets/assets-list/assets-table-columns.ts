@@ -1,11 +1,8 @@
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AssetStatusCode, LocalDate} from '@uni-entities';
 import * as moment from 'moment';
 import {Router} from '@angular/router';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
-import {ConfirmActions} from '@uni-framework/uni-modal';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {AssetsListComponent} from '@app/components/accounting/assets/assets-list/assets-list';
 
 export const assetsColumns = (assetsActions: AssetsActions, router: Router) => [
     new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false),

@@ -1,6 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
-import {Observable, of, Subject} from 'rxjs';
-import {assetsColumns, assetsTableConfig} from '@app/components/accounting/assets/assets-list/assets-table-columns';
+import {Observable, Subject} from 'rxjs';
+import {assetsColumns} from '@app/components/accounting/assets/assets-list/assets-table-columns';
 import {ActivatedRoute, Router} from '@angular/router';
 import {takeUntil} from 'rxjs/operators';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
