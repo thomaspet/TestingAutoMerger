@@ -16,7 +16,7 @@
 
         <ng-container *ngFor="let line of lines; let idx = index">
             <section *ngIf="!line.Deleted" class="line">
-                <section *ngIf="idx > 0 && !readonly" class="line-header">
+                <section *ngIf="idx > 0" class="line-header">
                     <span>Konteringslinje {{idx + 1}}</span>
                     <button (click)="removeLine(idx)" class="tertiary c2a">
                         <i class="material-icons">close</i>
@@ -28,7 +28,6 @@
                         <span>Kostnadskonto</span>
                         <autocomplete
                             [options]="accountAutocompleteOptions"
-                            [readonly]="readonly"
                             [(value)]="line.Account"
                             (valueChange)="onAccountChange(idx, line)">
                         </autocomplete>
@@ -36,12 +35,12 @@
 
                     <label class="uni-label label-above">
                         <span>Beskrivelse</span>
-                        <input type="text" [(ngModel)]="line.Description" (change)="store.updateJournalEntryLine(idx, 'Description', line.Description)" [readonly]="readonly">
+                        <input type="text" [(ngModel)]="line.Description" (change)="store.updateJournalEntryLine(idx, 'Description', line.Description)">
                     </label>
 
                     <label class="uni-label label-above">
                         <span>Beløp</span>
-                        <input [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" type="number" [readonly]="readonly">
+                        <input [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" type="number">
                     </label>
 
                     <label class="uni-label label-above">
@@ -50,7 +49,6 @@
                             [config]="selectConfig"
                             [items]="store.vatTypes"
                             [value]="line.VatType"
-                            [readonly]="readonly"
                             (valueChange)="onVatTypeChange($event, idx)">
                         </uni-select>
                     </label>
@@ -58,7 +56,7 @@
             </section>
         </ng-container>
 
-        <button class="tertiary c2a" (click)="addDraftLine()" *ngIf="!readonly">
+        <button class="tertiary c2a" (click)="addDraftLine()">
             <i class="material-icons">add</i>
             Legg til konteringslinje (del beløp over flere kontoer)
         </button>

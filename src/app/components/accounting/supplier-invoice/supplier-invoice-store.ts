@@ -386,6 +386,7 @@ export class SupplierInvoiceStore {
         const fileIDs = this.fileIDs$.value;
         if (!invoice.ID && fileIDs?.length) {
             saveRequest$ = saveRequest$.pipe(switchMap(savedInvoice => {
+                this.changes$.next(false);
                 return this.linkFiles(savedInvoice.ID, fileIDs).pipe(
                     map(() => savedInvoice)
                 );

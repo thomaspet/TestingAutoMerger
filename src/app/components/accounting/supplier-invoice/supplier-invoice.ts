@@ -2,7 +2,7 @@ import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {SupplierInvoiceStore} from './supplier-invoice-store';
 import {SupplierInvoice, StatusCodeSupplierInvoice} from '@uni-entities';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Subject, of} from 'rxjs';
+import {Subject, of, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {DetailsForm} from './components/details-form/details-form';
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -11,7 +11,7 @@ import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/stat
 import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/components/common/toolbar/toolbar';
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
 import * as moment from 'moment';
-import { UniModalService } from '@uni-framework/uni-modal';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 
 declare const ResizeObserver;
 
@@ -51,6 +51,7 @@ export class SupplierInvoiceView {
         this.activeRoute.paramMap.pipe(
             takeUntil(this.onDestroy$)
         ).subscribe(params => {
+            this.store.fileIDs$.next([]);
             const invoiceID = +params.get('id');
             this.store.init(invoiceID);
             this.hasChanges = false;
@@ -280,8 +281,27 @@ export class SupplierInvoiceView {
         }
     }
 
-    public canDeactivate() {
-        return of(true);
+    canDeactivate(): boolean | Observable<boolean> {
+        if (!this.store.changes$.value) {
+            return of(true);
+        }
+
+        const modalOptions = {
+            header: 'Ulagrede endringer',
+            message: 'Du har endringer i innstillingene som ikke er lagret. Ønsker du å lagre disse før du fortsetter?',
+            buttonLabels: {
+                accept: 'Lagre',
+                reject: 'Forkast',
+                cancel: 'Avbryt'
+            }
+        };
+
+        return this.modalService.confirm(modalOptions).onClose.switchMap(confirm => {
+            if (confirm === ConfirmActions.ACCEPT) {
+                return this.store.saveChanges().toPromise().then(res => true).catch(res => false);
+            }
+            return Observable.of(confirm !== ConfirmActions.CANCEL);
+        });
     }
 
 }

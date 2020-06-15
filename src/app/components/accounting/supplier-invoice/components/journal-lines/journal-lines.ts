@@ -120,9 +120,8 @@ export class JournalLines {
 
         this.lines.filter(line => !line.Deleted).forEach(line => {
             line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
-            const vat = !line.VatType ? 0 : line.AmountCurrency * (line.VatType.VatPercent / 100);
-            this.total.vat += vat || 0;
-            this.total.net += (line.AmountCurrency - vat) || 0;
+            this.total.net = !line.VatType ? line.AmountCurrency : line.AmountCurrency / ( 1 + ( line.VatType.VatPercent / 100 ) );
+            this.total.vat += line.AmountCurrency - this.total.net;
             this.total.sum += line.AmountCurrency || 0;
         });
 
