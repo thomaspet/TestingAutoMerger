@@ -619,10 +619,7 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent)
-            .setMaxWidth(100)
-            .setTemplate(row => {
-                return row.DiscountPercent > 0 ? this.tradeItemHelper.round(row.DiscountPercent, 2).toString() : null;
-            });
+            .setMaxWidth(100);
 
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
