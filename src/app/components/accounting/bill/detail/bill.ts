@@ -2735,7 +2735,8 @@ export class BillView implements OnInit, AfterViewInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
-        paymentData['_accounts'] = this.companySettings.BankAccounts.filter(acc => acc.BankAccountType === 'company');
+        paymentData['_accounts'] = this.companySettings.BankAccounts
+            .filter(acc => acc.BankAccountType.toLowerCase() === 'company' || acc.BankAccountType.toLowerCase() === 'companysettings');
         paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
