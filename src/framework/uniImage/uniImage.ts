@@ -692,7 +692,7 @@ export class UniImage {
                     // the total possible wait time will be approx 1 minute (55 sec + response time)
                     const timeout = 50 + (10 * attempts);
                     setTimeout(() => {
-                        this.checkFileStatusAndLoadImage(file, attempts++);
+                        this.checkFileStatusAndLoadImage(file, attempts + 1);
                     }, timeout);
                 }
             });
