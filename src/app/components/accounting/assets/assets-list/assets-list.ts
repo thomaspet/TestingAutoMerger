@@ -6,7 +6,7 @@ import {takeUntil} from 'rxjs/operators';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
 import {HttpParams} from '@angular/common/http';
 import {AssetsStore, IAssetState} from '@app/components/accounting/assets/assets.store';
-import {Asset, AssetStatusCode} from '@uni-entities';
+import {Asset} from '@uni-entities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig} from '@uni-framework/ui/unitable';
 
@@ -54,25 +54,21 @@ export class AssetsListComponent {
         ).setContextMenu([
             {
                 label: 'Registrer som solgt',
-                disabled: (item) => item.StatusCode !== AssetStatusCode.Active,
                 action: (rowModel) => this.assetsActions.openRegisterAsSoldModal(rowModel)
                                                         .subscribe(() => this.table.refreshTableData())
             },
             {
                 label: 'Registrer som tapt',
-                disabled: (item) => item.StatusCode !== AssetStatusCode.Active,
                 action: (rowModel) => this.assetsActions.openRegisterAsLostModal(rowModel)
                                                         .subscribe(() => this.table.refreshTableData())
             },
             {
                 label: 'Nedskriv eiendel',
-                disabled: (item) => item.StatusCode !== AssetStatusCode.Active,
                 action: (rowModel) => this.assetsActions.openRegisterDepreciationModal(rowModel)
                                                         .subscribe(() => this.table.refreshTableData())
             },
             {
                 label: 'Slett eiendel',
-                disabled: (item) => false,
                 action: (rowModel) => this.assetsActions.openDeleteModal(rowModel)
                                                         .subscribe(() => this.table.refreshTableData())
             }

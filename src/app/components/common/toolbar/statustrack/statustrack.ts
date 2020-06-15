@@ -54,10 +54,6 @@ export class StatusTrack {
                     || status.state === STATUSTRACK_STATES.Depreciated
                 ));
             }
-        } else {
-            if ((this.config  && this.config.length === 0) || !this.config) {
-                this.activeStatus = null;
-            }
         }
     }
 }
