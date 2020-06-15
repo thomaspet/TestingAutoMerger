@@ -81,6 +81,7 @@ export class AssetsActions {
             take(1),
             tap((asset) => {
                 asset._createguid = this.assetsService.getNewGuid();
+                asset.ID = undefined; // we don't want to show a value on Nr. form field
                 this.store.currentAsset = asset;
             }),
             switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID, ['JournalEntry', 'JournalEntry.DraftLines'])),
@@ -204,7 +205,7 @@ export class AssetsActions {
                         if (result !== ConfirmActions.CANCEL) {
                             const assetsDoNotShowModalIDs: number[] = this.browserStorageService
                                 .getItemFromCompany('assetsDoNotShowModalIDs') || [];
-                            if (!assetsDoNotShowModalIDs.includes(_asset.ID)) {
+                            if (_asset.ID && !assetsDoNotShowModalIDs.includes(_asset.ID)) {
                                 assetsDoNotShowModalIDs.push(_asset.ID);
                             }
                             this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);

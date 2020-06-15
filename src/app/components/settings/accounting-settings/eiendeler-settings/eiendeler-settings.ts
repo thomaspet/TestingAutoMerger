@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, Output, SimpleChanges} from '@angular/co
 import {FieldType} from '@uni-framework/ui/uniform';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {AssetsService} from '@app/services/common/assetsService';
-import { CompanyAccountingSettingsService } from '@app/services/services';
+import {CompanyAccountingSettingsService, UniSearchProductConfig} from '@app/services/services';
 
 @Component({
     selector: 'eiendeler-settings',
@@ -103,7 +103,7 @@ export class EiendelerSettings {
             Label: 'Produkt',
             FieldType: FieldType.UNI_SEARCH,
             Options: {
-                uniSearchConfig: this.uniSearchAccountConfig.generateProductsConfig(),
+                uniSearchConfig: this.uniSearchProductConfig.generateProductsConfig(),
                 valueProperty: 'ID'
             }
         },
@@ -121,7 +121,9 @@ export class EiendelerSettings {
         },
     ];
 
-    constructor(private uniSearchAccountConfig: UniSearchAccountConfig,
+    constructor(
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private uniSearchProductConfig: UniSearchProductConfig,
         private assetsService: AssetsService,
         private companyAccountingSettingsService: CompanyAccountingSettingsService) {
     }

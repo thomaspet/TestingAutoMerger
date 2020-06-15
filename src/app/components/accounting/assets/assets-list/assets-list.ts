@@ -1,12 +1,14 @@
-import {Component} from '@angular/core';
-import {Observable, of, Subject} from 'rxjs';
-import {assetsTableConfig} from '@app/components/accounting/assets/assets-list/assets-table-config';
+import {Component, ViewChild} from '@angular/core';
+import {Observable, Subject} from 'rxjs';
+import {assetsColumns} from '@app/components/accounting/assets/assets-list/assets-table-columns';
 import {ActivatedRoute, Router} from '@angular/router';
 import {takeUntil} from 'rxjs/operators';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
 import {HttpParams} from '@angular/common/http';
 import {AssetsStore, IAssetState} from '@app/components/accounting/assets/assets.store';
 import {Asset} from '@uni-entities';
+import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {UniTableConfig} from '@uni-framework/ui/unitable';
 
 
 @Component({
@@ -14,6 +16,7 @@ import {Asset} from '@uni-entities';
     templateUrl: './assets-list.html'
 })
 export class AssetsListComponent {
+    @ViewChild(AgGridWrapper) table: AgGridWrapper;
     lookupFunction: (params: HttpParams) => Observable<Asset[]>;
     tableConfig = null;
     onDestroy$ = new Subject();
@@ -32,7 +35,7 @@ export class AssetsListComponent {
                 this.hasNotStartedDepreciations = hasNotStartedDepreciations;
             });
         });
-        this.tableConfig = assetsTableConfig(this.assetsActions, this.router);
+        this.tableConfig = this.createAssetsTableConfig();
         this.route.queryParams.pipe(takeUntil(this.onDestroy$))
             .subscribe(params => this.lookupFunction = (httpParams: HttpParams) => {
                 this.currentAssetType = params.assetType;
@@ -43,5 +46,37 @@ export class AssetsListComponent {
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
+    }
+
+    createAssetsTableConfig() {
+        return new UniTableConfig(
+            'accounting.assets.list', false, true, 15
+        ).setContextMenu([
+            {
+                label: 'Registrer som solgt',
+                action: (rowModel) => this.assetsActions.openRegisterAsSoldModal(rowModel)
+                                                        .subscribe(() => this.table.refreshTableData())
+            },
+            {
+                label: 'Registrer som tapt',
+                action: (rowModel) => this.assetsActions.openRegisterAsLostModal(rowModel)
+                                                        .subscribe(() => this.table.refreshTableData())
+            },
+            {
+                label: 'Nedskriv eiendel',
+                action: (rowModel) => this.assetsActions.openRegisterDepreciationModal(rowModel)
+                                                        .subscribe(() => this.table.refreshTableData())
+            },
+            {
+                label: 'Slett eiendel',
+                action: (rowModel) => this.assetsActions.openDeleteModal(rowModel)
+                                                        .subscribe(() => this.table.refreshTableData())
+            }
+        ])
+        .setSortable(true)
+        .setVirtualScroll(true)
+        .setSearchable(true)
+        .setColumnMenuVisible(true)
+        .setColumns(assetsColumns(this.assetsActions, this.router));
     }
 }

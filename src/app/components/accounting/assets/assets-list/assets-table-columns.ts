@@ -1,9 +1,8 @@
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {AssetStatusCode, LocalDate} from '@uni-entities';
 import * as moment from 'moment';
 import {Router} from '@angular/router';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
-import {ConfirmActions} from '@uni-framework/uni-modal';
 
 export const assetsColumns = (assetsActions: AssetsActions, router: Router) => [
     new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false),
@@ -92,29 +91,3 @@ export const assetsColumns = (assetsActions: AssetsActions, router: Router) => [
             }
         })
 ];
-
-export const assetsTableConfig = (assetsActions: AssetsActions, router: Router) => new UniTableConfig(
-    'accounting.assets.list', false, true, 15
-).setContextMenu([
-    {
-        label: 'Registrer som solgt',
-        action: (rowModel) => assetsActions.openRegisterAsSoldModal(rowModel).subscribe(() => '') // action runs in modal
-    },
-    {
-        label: 'Registrer som tapt',
-        action: (rowModel) => assetsActions.openRegisterAsLostModal(rowModel).subscribe(() => '') // action runs in modal
-    },
-    {
-        label: 'Nedskriv eiendel',
-        action: (rowModel) => assetsActions.openRegisterDepreciationModal(rowModel).subscribe(() => '') // action runs in modal
-    },
-    {
-        label: 'Slett eiendel',
-        action: (rowModel) => assetsActions.openDeleteModal(rowModel).subscribe(() => '') // action runs in modal
-    }
-])
-.setSortable(true)
-.setVirtualScroll(true)
-.setSearchable(true)
-.setColumnMenuVisible(true)
-.setColumns(assetsColumns(assetsActions, router));
