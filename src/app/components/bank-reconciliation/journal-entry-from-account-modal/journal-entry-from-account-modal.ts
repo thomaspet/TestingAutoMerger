@@ -18,8 +18,14 @@ export class JournalEntryFromAccountModal implements IUniModal {
     journalEntryLineSuggestions: any[] = [];
     selectedBankAccount: BankAccount;
     matches = [];
-    busy = false;
-    currentAction: string = '';
+    mode: number = 0;
+
+    // Boolean values storing changes during call chain
+    started = false;
+    bookingBusy = false;
+    matchBusy = false;
+    postpostBusy = false;
+    finished = false;
 
     constructor (
         private statisticsService: StatisticsService,
@@ -28,25 +34,31 @@ export class JournalEntryFromAccountModal implements IUniModal {
     ) { }
 
     ngOnInit() {
-        this.matches = this.options.data.matches;
+        this.matches = this.options.data.matches.map(m => {
+            m._date = moment(m.Date).format('YYYY-MM-DD');
+            return m;
+        });
+
         this.selectedBankAccount = this.options.data.selectedBankAccount;
+        this.mode = this.options.data.mode;
         this.journalEntryLineSuggestions = this.createJournalEntryLineSuggestions(this.matches, this.options.data.selectedBankAccount);
     }
 
     journal() {
-        this.busy = true;
-
-        this.currentAction = 'Lager bilag...';
+        this.started = true;
+        this.bookingBusy = true;
         this.bookJournalEntries(this.journalEntryLineSuggestions).subscribe(journalEntries => {
 
             // Get the lines created for each JournalEntry
             const ques = [];
             journalEntries.forEach(jl => ques.push(this.getJournalEntryLines(jl.ID)));
 
-            this.currentAction = 'Henter bilagslinjer...';
             Observable.forkJoin(ques).subscribe(response => {
                 const ids = [];
                 const postpostids = [];
+
+                this.bookingBusy = false;
+                this.matchBusy = true;
 
                 // Maps response from the JournalEntryLines just created. One is for bankreconciliation and on for postpost mark
                 response.forEach((res: any) => {
@@ -68,33 +80,27 @@ export class JournalEntryFromAccountModal implements IUniModal {
                     this.matches[index].JournalEntryLineID = id;
                 });
 
-
-                this.currentAction = 'Bankavstemmer...';
                 // Lets do the bank reconciliation first. Match bank entries with new created journalentrylines
                 this.bankStatementService.matchItems(this.matches).subscribe(() => {
+                    this.matchBusy = false;
+                    this.postpostBusy = true;
 
-                    this.currentAction = 'Postpost-marker...';
                     this.postpostMark(postpostPairs).subscribe(() => {
-                        this.busy = false;
-                        this.currentAction = '';
-                        this.close(true);
+                        this.postpostBusy = false;
+                        this.finished = true;
                     }, err => {
                         this.errorService.handle(err);
-                        this.busy = false;
                     });
 
                 }, err => {
                     this.errorService.handle(err);
-                    this.busy = false;
                 });
 
             }, err => {
                 this.errorService.handle(err);
-                this.busy = false;
             });
         }, err => {
             this.errorService.handle(err);
-            this.busy = false;
         });
     }
 

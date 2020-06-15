@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { forkJoin, Subject } from 'rxjs';
+import { forkJoin, Subject, BehaviorSubject } from 'rxjs';
 import { tap, finalize } from 'rxjs/operators';
 import { BankStatementMatch, BankStatementEntry, JournalEntryLine } from '@uni-entities';
 import { BankStatementEntryService } from './bankStatementEntryService';
@@ -17,7 +17,9 @@ export enum BankSessionStatus {
     UnmatchedJournal = 5,
     CompleteIfSaved = 6,
     Complete = 7,
-    HasPostsInOtherTabs = 8
+    HasPostsInOtherTabs = 8,
+    HasCustomerMatch = 9,
+    HasSupplierMatch = 10
 }
 
 export enum JournalEntryListMode {
@@ -45,6 +47,7 @@ export class BankStatementSession {
     stageHasOnlyBankEntries: boolean = false;
 
     journalEntryMode: JournalEntryListMode = 0;
+    hasCheckedOpenPosts = false;
 
     originalCounter = 0;
     customerCounter = 0;
@@ -57,6 +60,8 @@ export class BankStatementSession {
     status: BankSessionStatus = BankSessionStatus.NoData;
     statusText: string = '';
 
+    cantAddEntry = new Subject<string>();
+
     stageInfo = { bank: { count: 0, balance: 0 }, journal: { count: 0, balance: 0 } };
 
     private _prevStartDate: Date;
@@ -67,7 +72,7 @@ export class BankStatementSession {
         private bankStatementEntryService: BankStatementEntryService,
         private bankStatementService: BankStatementService,
         private statisticsService: StatisticsService
-    ) {}
+    ) { }
 
     reload() {
         return this.load(this._prevStartDate, this._prevEndDate, undefined, this._reconcileStartDate);
@@ -137,19 +142,15 @@ export class BankStatementSession {
                 this.bankEntries = this.sortEntries(bankEntries);
                 this.journalEntriesOriginal = this.mapJournalEntries(res[1] || []);
 
-                this.journalEntriesCustomer = this.mapJournalEntries(res[4] || []);
-                this.journalEntriesSupplier = this.mapJournalEntries(res[5] || []);
+                this.journalEntriesCustomer = this.mapJournalEntries(res[4] || [], JournalEntryListMode.Customer);
+                this.journalEntriesSupplier = this.mapJournalEntries(res[5] || [], JournalEntryListMode.Supplier);
 
-                if (!this.journalEntriesOriginal.length) {
-                    this.journalEntryMode = this.journalEntriesCustomer.length ? 1 : this.journalEntriesSupplier.length ? 2 : 0;
-                }
                 this.selectJournalEntries(this.journalEntryMode || JournalEntryListMode.Original);
 
                 this.bankBalance = res[2] && res[2].Balance;
                 this.journalEntryBalance = res[3] && res[3][0] && res[3][0].sum;
                 this.totalImbalance = (this.bankBalance || 0) - (this.journalEntryBalance || 0);
 
-                this.status = this.calcStatus();
                 this.loading$.next(false);
             }),
             finalize (() => this.busy = false)
@@ -188,7 +189,7 @@ export class BankStatementSession {
 
         this.refreshJournalEntryLineCounters();
         this.clearSuggestions();
-        this.tryNextSuggestion(undefined, { MaxDayOffset: 5, MaxDelta: 0.0 });
+        // this.tryNextSuggestion(undefined, { MaxDayOffset: 5, MaxDelta: 0.0 });
         this.status = this.calcStatus();
     }
 
@@ -245,7 +246,7 @@ export class BankStatementSession {
 
     tryCheck(item: IMatchEntry): boolean {
         if (item.Closed || item.StageGroupKey || item.Checked) { return false; }
-        this.stageTotal = this.stageAdd(item);
+        this.stageTotal = this.stageAdd(item, true);
         return true;
     }
 
@@ -351,13 +352,27 @@ export class BankStatementSession {
         return this.bankStatementService.suggestMatch(req).finally(() => this.preparing = false);
     }
 
-    tryNextSuggestion(list?: BankStatementMatch[], options?: {MaxDayOffset: number, MaxDelta: number} ): boolean {
+    requestSuggestionsOnAll(entries, options?: { MaxDayOffset: number, MaxDelta: number }) {
+        this.preparing = true;
+        this.suggestions = undefined;
+        const req = {
+            JournalEntries: entries,
+            BankEntries: this.bankEntries.filter( x => !x.Closed),
+            Settings: options || {
+                MaxDayOffset: 5, MaxDelta: 0.0
+            }
+        };
+        return this.bankStatementService.suggestMatch(req).finally(() => this.preparing = false);
+    }
+
+    tryNextSuggestion(list?: BankStatementMatch[], options?: {MaxDayOffset: number, MaxDelta: number}, force = false): boolean {
         this.clearStage();
         this.suggestions = list || this.suggestions;
         if (this.suggestions === undefined) {
             this.requestSuggestions(options).subscribe( x => { if (x) { this.tryNextSuggestion(x); } } );
             return false;
         }
+
         if (this.suggestions.length > 0) {
             const grp = this.suggestions.find( x => !this.isSuggestionUsed(x));
             if (grp) {
@@ -373,8 +388,24 @@ export class BankStatementSession {
                         suggestionAdded = used;
                     }
                 });
+
                 return suggestionAdded;
             }
+        } else if (this.journalEntryMode === 0 && (!this.hasCheckedOpenPosts || force)) {
+            const entries = [].concat(this.journalEntriesCustomer, this.journalEntriesSupplier).filter(x => !x.Closed);
+            this.requestSuggestionsOnAll(entries, options).subscribe(res => {
+                this.hasCheckedOpenPosts = true;
+                if (res?.length) {
+                    const currentEntryMatch = entries.find(entry => entry.ID === res[0].JournalEntryLineID);
+                    if (currentEntryMatch.Mode === JournalEntryListMode.Customer) {
+                        this.status = 9;
+                    } else {
+                        this.status = 10;
+                    }
+                }
+                return false;
+            });
+
         }
         return false;
     }
@@ -475,12 +506,33 @@ export class BankStatementSession {
             : a.Closed < b.Closed ? -1 : 1 );
     }
 
-    private stageAdd(item: IMatchEntry): number {
+    private stageAdd(item: IMatchEntry, systemCheck = false): number {
+        const checkedJE = this.journalEntries.filter(je => je.Checked).length;
+        const checkedBE = this.bankEntries.filter(je => je.Checked).length;
+
+        // Dont allow match many to many ?
+        if ((item.IsBankEntry && checkedBE >= 1 && checkedJE > 1) || (!item.IsBankEntry && checkedBE > 1 && checkedJE >= 1)) {
+            this.cantAddEntry.next('Kan ikke matche mange mot mange på begge sider. Du må avstemme imellom hver match eller bruke automatisk avstemming.');
+            return this.stageTotal;
+        }
+
         this.stage = this.stage || [];
         this.stage.push(item);
         item.Checked = true;
         this.stageTotal = this.sumStage();
         this.stageHasOnlyBankEntries = !this.stage.find(entry => !entry.IsBankEntry);
+
+        // If system suggested values, push the entries marked to the top of the list
+        if (systemCheck) {
+            if (item.IsBankEntry) {
+                const index = this.bankEntries.findIndex(entry => entry.ID === item.ID);
+                this.bankEntries.unshift(this.bankEntries.splice(index, 1)[0]);
+            } else {
+                const index = this.journalEntries.findIndex(entry => entry.ID === item.ID);
+                this.journalEntries.unshift(this.journalEntries.splice(index, 1)[0]);
+            }
+        }
+
         return this.stageTotal;
     }
 
@@ -519,7 +571,7 @@ export class BankStatementSession {
         return BankUtil.safeAdd(sum, item.OpenAmount * (item.IsBankEntry ? 1 : -1));
     }
 
-    private mapJournalEntries(list: Array<any>): IMatchEntry[] {
+    private mapJournalEntries(list: Array<any>, listMode: JournalEntryListMode = 0): IMatchEntry[] {
         return list.map( x => {
             const calcOpen = x.StatusCode === 31001 ? x.Amount : (x.OpenAmount === 0 ? 0 : (x.OpenAmount || x.Amount));
             const isClosed = x.StatusCode >= 31003;
@@ -531,6 +583,7 @@ export class BankStatementSession {
                 OpenAmount: calcOpen,
                 JournalEntryNumber: x.JournalEntryNumber || '',
                 IsBankEntry: false,
+                Mode: listMode,
                 Checked: false,
                 Closed: isClosed,
                 JournalEntryID: x.JournalEntryID,

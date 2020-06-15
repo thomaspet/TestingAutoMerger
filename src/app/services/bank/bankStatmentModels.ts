@@ -6,6 +6,7 @@ export interface IMatchEntry {
     Date: Date;
     Amount: number;
     OpenAmount: number;
+    Mode?: number;
     Description: string;
     IsBankEntry: boolean;
     Checked: boolean;

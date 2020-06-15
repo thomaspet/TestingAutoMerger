@@ -80,9 +80,20 @@
                             <article>Alle poster er avstemt for perioden</article>
                         </section>
 
-                        <section *ngIf="session.status == 8 || session.statusText" class="info-box good">
+                        <section *ngIf="session.status == 8 && session.statusText" class="info-box good">
                             <span> {{ session.statusText }} </span>
                         </section>
+
+                        <section *ngIf="session.status == 9" class="info-box good open-post">
+                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster kunde. </span>
+                            <button class="c2a secondary" (click)="changeMode(1);"> Se match </button>
+                        </section>
+
+                        <section *ngIf="session.status == 10" class="info-box good open-post">
+                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster leverandør. </span>
+                            <button class="c2a secondary" (click)="changeMode(2);"> Se match </button>
+                        </section>
+
 
                         <ul *ngIf="session.stage?.length" class="match-drafts">
                             <ng-container *ngFor="let entry of session.stage">
@@ -121,9 +132,9 @@
             <section class="list-section">
                 <section class="list-header">
                     <!-- <i class="material-icons-outlined">article</i> -->
-                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 0" (click)="session.selectJournalEntries(0); updateSaveActions();" title="Se alle poster i regnskapet i perioden">Regnskap - {{selectedBankAccount?.Account?.AccountNumber}} ({{ session.originalCounter }})</span>
-                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 1" (click)="session.selectJournalEntries(1); updateSaveActions();" title="Viser åpne poster på dine kunder">Kunde ({{session.customerCounter}})</span>
-                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 2" (click)="session.selectJournalEntries(2); updateSaveActions();" title="Viser åpne poster på dine leverandører">Leverandør ({{session.supplierCounter}})</span>
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 0" (click)="changeMode(0);" title="Se alle poster i regnskapet i perioden">Regnskap - {{selectedBankAccount?.Account?.AccountNumber}} ({{ session.originalCounter }})</span>
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 1" (click)="changeMode(1);" title="Viser åpne poster på dine kunder">Kunde ({{session.customerCounter}})</span>
+                    <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 2" (click)="changeMode(2);" title="Viser åpne poster på dine leverandører">Leverandør ({{session.supplierCounter}})</span>
                     <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'">
                         <i class="material-icons-outlined" *ngIf="session.totalImbalance" [matTooltip]="'Det er differanse mellom saldo i bank og saldo i regnskapet'"> info </i>
                         {{session.journalEntryBalance | uninumberformat: 'money' || '0.00'}}

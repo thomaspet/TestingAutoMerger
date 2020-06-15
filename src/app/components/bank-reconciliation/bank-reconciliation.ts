@@ -41,6 +41,8 @@ export class BankReconciliation {
     toolbarconfig: IToolbarConfig = this.setToolbarConfig();
     saveactions: IUniSaveAction[] = [];
 
+    sub;
+
     constructor(
         tabService: TabService,
         private statisticsService: StatisticsService,
@@ -60,6 +62,18 @@ export class BankReconciliation {
 
         this.initData();
         this.updateSaveActions();
+
+        this.sub = this.session.cantAddEntry.subscribe(msg => {
+            if (msg) {
+                this.toastService.addToast('Kan ikke markere post', ToastType.info, 7, msg);
+            }
+        });
+    }
+
+    ngOnDestroy() {
+        if (this.sub) {
+            this.sub.unsubscribe();
+        }
     }
 
     updateSaveActions() {
@@ -79,12 +93,16 @@ export class BankReconciliation {
         this.closedGroupDetailsVisible = false;
         this.saveBusy = true;
         this.session.saveChanges().subscribe(() => {
-            this.checkSuggest();
 
             this.saveBusy = false;
-            if (done) {
-                done('Poster avstemt');
-            }
+            setTimeout(() => {
+                this.checkSuggest();
+
+                if (done) {
+                    done('Poster avstemt');
+                }
+            });
+
         }, err => {
             this.errorHandler.handleError(err);
             this.saveBusy = false;
@@ -242,6 +260,12 @@ export class BankReconciliation {
         );
     }
 
+    changeMode(mode: number) {
+        this.session.selectJournalEntries(mode);
+        this.updateSaveActions();
+        this.checkSuggest();
+    }
+
     onDateChange(date: Date) {
 
         const fromDate = moment(date).startOf('month').toDate();
@@ -346,7 +370,8 @@ export class BankReconciliation {
         this.modalService.open(JournalEntryFromAccountModal,
             { data: {
                 matches: matches,
-                selectedBankAccount: this.selectedBankAccount
+                selectedBankAccount: this.selectedBankAccount,
+                mode: this.session.journalEntryMode
             }, closeOnClickOutside: false })
         .onClose.subscribe(response => {
             if (response) {
@@ -370,18 +395,12 @@ export class BankReconciliation {
 
         if (event) {
             this.session.reload().subscribe(() => this.checkSuggest());
-        } else {
-            setTimeout(() => {
-                this.checkSuggest();
-            });
         }
     }
 
-    checkSuggest(setFromUI = false) {
+    checkSuggest(forceNewPostPostCheck = false) {
         if (this.autoSuggest) {
-            this.session.tryNextSuggestion(undefined, this.settings);
-        } else if (setFromUI) {
-            this.session.clearStage();
+            this.session.tryNextSuggestion(undefined, this.settings, forceNewPostPostCheck);
         }
     }
 
@@ -418,7 +437,7 @@ export class BankReconciliation {
                 },
                 {
                     label: 'Se etter match-forslag',
-                    action: () => { this.checkSuggest(); }
+                    action: () => { this.checkSuggest(true); }
                 }
             ],
             period: this.bankPeriod

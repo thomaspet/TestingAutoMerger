@@ -2,14 +2,10 @@
 	<header>Opprette bilag og matche poster</header>
 	<article>
 
-		<section *ngIf="busy" class="modal-spinner">
-            <mat-spinner class="c2a"></mat-spinner>
-        </section>
-
 		<section>
-			<span class="info-text">Systemet vil opprette bilag, avstemme med bank og lukke åpne poster. Under kan du se bilagene som er forslått.</span>
+			<span class="info-text">Systemet vil opprette bilag, avstemme med bank og lukke åpne poster. Under kan du se bilagene ({{ journalEntryLineSuggestions.length }}) som er forslått.</span>
 
-			<section>
+			<section class="list-section">
 				<ul class="modal-jl-list header">
 					<li>
 						<span class="account"> Konto </span>
@@ -21,21 +17,40 @@
 
 				<ul class="modal-jl-list" *ngFor="let suggestion of journalEntryLineSuggestions">
 					<li *ngFor="let line of suggestion.DraftLines">
-						<span class="account"> {{ line.Account }} </span>
-						<span class="date"> {{ line.FinancialDate | date: 'dd.MM.yyyy' }} </span>
-						<span class="desc"> {{ line.Description }} </span>
-						<span class="total"> {{ line.Amount | uninumberformat: 'money' }} </span>
+						<span class="account" title="{{ line.Account }}"> {{ line.Account }} </span>
+						<span class="date" title="{{ line.FinancialDate }}"> {{ line.FinancialDate | date: 'dd.MM.yyyy' }} </span>
+						<span class="desc" title="{{ line.Description }}"> {{ line.Description }} </span>
+						<span class="total" title="{{ line.Amount }}"> {{ line.Amount | uninumberformat: 'money' }} </span>
 					</li>
 				</ul>
 			</section>
 
-			<span class="current-action"> {{ currentAction }} </span>
-		</section>
+			<section class="loading-indicator" *ngIf="started || finished">
+				<span class="step">
+					<mat-spinner *ngIf="bookingBusy" class="c2a" [diameter]="24"></mat-spinner>
+					<i class="material-icons" *ngIf="!bookingBusy">done_all</i>
+					<span>Bilagsføring</span>
+				</span>
 
+				<span class="step">
+					<mat-spinner *ngIf="matchBusy" class="c2a" [diameter]="24"></mat-spinner>
+					<i class="material-icons" *ngIf="!matchBusy">{{ bookingBusy ? 'schedule' : 'done_all'}}</i>
+					<span>Bankavstemming</span>
+				</span>
+
+				<span class="step">
+					<mat-spinner *ngIf="postpostBusy" class="c2a" [diameter]="24"></mat-spinner>
+					<i class="material-icons" *ngIf="!postpostBusy">{{ (matchBusy || bookingBusy) ? 'schedule' : 'done_all'}}</i>
+					<span>Postpost-anmerking</span>
+				</span>
+			</section>
+
+			<span class="current-action" *ngIf="finished"> {{ journalEntryLineSuggestions.length }} post{{ journalEntryLineSuggestions.length > 1 ? 'er' : '' }} bokført, avstemt og postpostanmerket </span>
+		</section>
 	</article>
 
 	<footer class="center">
-		<button class="good" (click)="journal()">Bokfør og avstem</button>
-		<button class="c2a secondary" (click)="close(false)">Avbryt</button>
+		<button class="good" (click)="journal()" [disabled]="started" *ngIf="!finished">Bokfør og avstem</button>
+		<button class="c2a secondary" (click)="close(finished)">Lukk</button>
 	</footer>
 </section>
