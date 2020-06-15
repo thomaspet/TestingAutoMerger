@@ -2938,11 +2938,12 @@ export class BillView implements OnInit, AfterViewInit {
 
     private fetchInvoice(id: number, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.files = undefined;
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
         if (this.current?.value?.ID !== id) {
+            this.files = undefined;
+
             // set diff to null until the journalentry is loaded, the data is calculated correctly
             // through the onJournalEntryManualDataLoaded event
             this.sumVat = null;
