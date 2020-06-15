@@ -97,21 +97,31 @@ export class AssetDetailsToolbar {
         this.toolbarconfig = {
             title: asset?.Name || 'Ny Eiendel',
             statustrack: this.createStatus(asset),
+            navigation: {
+                add: {
+                    label: '+',
+                    action: () => this.router.navigateByUrl('/accounting/assets/0/details')
+                }
+            },
             contextmenu: [
                 {
                     label: 'Register som solgt',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsSoldModal(this.asset)
                 },
                 {
                     label: 'Register som tapt',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsLostModal(this.asset)
                 },
                 {
                     label: 'Nedskriv eiendel',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterDepreciationModal(this.asset)
                 },
                 {
                     label: 'Slett eiendel',
+                    disabled: () => !asset?.ID,
                     action: () => this.assetsActions.openDeleteModal(this.asset)
                 },
             ]
