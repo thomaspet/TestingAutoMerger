@@ -8,6 +8,10 @@ label
     grid-row-gap: .5rem
     // padding: 0 .5rem
 
+    &.smaller
+        width: calc(50% - 1rem)
+        grid-template-columns: 1fr 1fr
+
     @media (max-width: 1400px)
         grid-template-columns: 1fr 1fr
 
@@ -19,7 +23,7 @@ label
     font-size: 18px
     color: var(--color-c2a-dark)
     padding: .5rem 0 .5rem 1rem
-    margin: 1.5rem 0 1rem
+    margin: .5rem 0 1rem
     border-radius: var(--section-radius)
 
     // TODO: replace with color var

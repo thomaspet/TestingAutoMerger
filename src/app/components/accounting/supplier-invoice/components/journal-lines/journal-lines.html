@@ -14,6 +14,29 @@
             <i role="button" class="material-icons pull-right" (click)="store.smartBookingResult.visible = false">close</i>
         </section>
 
+        <!-- Input for type of supplier invoice  -->
+        <section class="input-grid smaller" *ngIf="false">
+            <label class="uni-label label-above">
+                <span>Hvilke kjøp er dette?</span>
+                <uni-select
+                    [config]="invoiceTypeConfig"
+                    [items]="invoiceTypes"
+                    [value]="currentInvoiceType"
+                    (valueChange)="onInvoiceTypeChange($event)">
+                </uni-select>
+            </label>
+
+            <label class="uni-label label-above">
+                <span>Valuta</span>
+                <uni-select
+                    [config]="invoiceTypeConfig"
+                    [items]="invoiceTypes"
+                    [value]="currentInvoiceType"
+                    (valueChange)="onInvoiceTypeChange($event)">
+                </uni-select>
+            </label>
+        </section>
+
         <ng-container *ngFor="let line of lines; let idx = index">
             <section *ngIf="!line.Deleted" class="line">
                 <section *ngIf="idx > 0" class="line-header">

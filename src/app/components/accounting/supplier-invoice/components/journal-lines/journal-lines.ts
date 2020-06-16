@@ -50,6 +50,19 @@ export class JournalLines {
         ],
     };
 
+    invoiceTypeConfig = {
+        template: item => item.label,
+        searchable: false,
+        hideDeleteButton: true
+    };
+
+    invoiceTypes = [
+        { value: 0, label: 'Innkjøp i Norge' },
+        { value: 1, label: 'Varer kjøpt i utlandet' },
+        { value: 2, label: 'Tjenester kjøpt i utlandet' },
+    ];
+    currentInvoiceType = this.invoiceTypes[0];
+
     constructor(
         public store: SupplierInvoiceStore,
         private guidService: GuidService,
@@ -83,6 +96,8 @@ export class JournalLines {
             _createguid: this.guidService.guid(),
             FinancialDate: invoice?.InvoiceDate,
             VatDate: invoice?.InvoiceDate,
+            Amount: 0,
+            AmountCurrency: 0
         };
 
         lines.push(newLine);
@@ -106,6 +121,10 @@ export class JournalLines {
         this.store.updateJournalEntryLine(index, 'Account', line.Account);
     }
 
+    onInvoiceTypeChange(event) {
+        console.log(event);
+    }
+
     onVatTypeChange(event, index: number) {
         this.store.updateJournalEntryLine(index, 'VatType', event);
     }
@@ -119,10 +138,13 @@ export class JournalLines {
         this.total.diff = 0;
 
         this.lines.filter(line => !line.Deleted).forEach(line => {
-            line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
-            this.total.net = !line.VatType ? line.AmountCurrency : line.AmountCurrency / ( 1 + ( line.VatType.VatPercent / 100 ) );
-            this.total.vat += line.AmountCurrency - this.total.net;
-            this.total.sum += line.AmountCurrency || 0;
+            if (line.AmountCurrency) {
+                line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
+                const net = !line.VatType ? line.AmountCurrency : line.AmountCurrency / ( 1 + ( line.VatType.VatPercent / 100 ) );
+                this.total.vat += line.AmountCurrency - net;
+                this.total.sum += line.AmountCurrency || 0;
+                this.total.net += net;
+            }
         });
 
         if (invoice) {

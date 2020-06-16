@@ -130,20 +130,12 @@ export class SupplierInvoiceView {
                 disabled: !!invoice?.ID
             },
             {
-                label: 'Kjør OCR-tolk',
+                label: 'Bokfør og betal',
                 action: (done) => {
-                    done();
-                    this.store.runOcr();
+                    this.store.sendToPayment(false, done);
                 },
-                disabled: invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled
-            },
-            {
-                label: 'Kjør smart bokføring',
-                action: (done) => {
-                    done();
-                    this.store.runSmartBooking();
-                },
-                disabled: invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled
+                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes
             },
             {
                 label: 'Bokfør',
@@ -152,29 +144,21 @@ export class SupplierInvoiceView {
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes
             },
             {
-                label: 'Bokfør og betal',
-                action: (done) => {
-                    this.store.journalAndSendToPayment(done);
-                },
-                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft,
-                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes
-            },
-            {
                 label: 'Send til betaling',
                 action: (done) => {
-                    this.store.sendToPayment(done);
+                    this.store.sendToPayment(true, done);
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled && invoice.PaymentStatus <= 30109 ),
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
             },
-            {
-                label: 'Arkiver',
-                action: (done) => {
-                    this.store.finish(done);
-                },
-                main: false,
-                disabled: !invoice?.ID || changes
-            },
+            // {
+            //     label: 'Arkiver',
+            //     action: (done) => {
+            //         this.store.finish(done);
+            //     },
+            //     main: false,
+            //     disabled: !invoice?.ID || changes
+            // },
             {
                 label: 'Slett',
                 action: (done) => {
@@ -211,7 +195,17 @@ export class SupplierInvoiceView {
             entityType: SupplierInvoice.EntityType,
             showSharingStatus: true,
             hideDisabledActions: true,
-            buttons: []
+            buttons: [],
+            contextmenu: [
+                {
+                    label: 'Kjør OCR-tolk',
+                    action: () => { this.store.runOcr(); }
+                },
+                {
+                    label: 'Kjør smart bokføring',
+                    action: () => { this.store.runSmartBooking(); }
+                }
+            ]
         };
 
         this.commentsConfig = {

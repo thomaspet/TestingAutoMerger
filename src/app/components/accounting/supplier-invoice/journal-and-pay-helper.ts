@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
-import {SupplierInvoiceService, ErrorService, PaymentBatchService, PaymentService} from '@app/services/services';
-import {ConfirmActions, UniModalService, UniConfirmModalV2, IModalOptions} from '@uni-framework/uni-modal';
+import {SupplierInvoiceService, ErrorService} from '@app/services/services';
+import {ConfirmActions, UniModalService, UniConfirmModalV2} from '@uni-framework/uni-modal';
 import { SupplierInvoice, Payment } from '@uni-entities';
-import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 import { switchMap } from 'rxjs/operators';
 
 export enum ActionOnReload {
@@ -20,8 +19,6 @@ export class JournalAndPaymentHelper {
         private supplierInvoiceService: SupplierInvoiceService,
         private modalService: UniModalService,
         private errorSerivce: ErrorService,
-        private paymentBatchService: PaymentBatchService,
-        private paymentService: PaymentService
     ) { }
 
     journal(current: SupplierInvoice, ask: boolean): Observable<any> {
@@ -37,72 +34,6 @@ export class JournalAndPaymentHelper {
                 : of(false);
             })
         ).catch((err, obs) => of(null));
-    }
-
-    journalAndToPayment(current: SupplierInvoice): Observable<ActionOnReload> {
-        return this.openSelectPaymentMethodModal(false, current).pipe(
-            switchMap(response => {
-                if (!response) {
-                    return of(null);
-                }
-
-                return this.journal(current, false).switchMap(journaled => {
-                    if (journaled) {
-                        return response === 1
-                            ? this.createPaymentAndSendToBank(current).switchMap(res => of(response))
-                            : this.sendToPaymentList(current).switchMap(res => of(response));
-                    } else {
-                        return of(null);
-                    }
-                }).catch(err => of(false));
-            })
-        );
-    }
-
-    toPayment(current: SupplierInvoice) {
-        return this.openSelectPaymentMethodModal(true, current).pipe(
-            switchMap((response) => !response
-                ? of(null)
-                : response === 1 ? this.createPaymentAndSendToBank(current) : this.sendToPaymentList(current))
-        );
-    }
-
-    sendToPaymentList(current: SupplierInvoice): Observable<boolean> {
-        return this.supplierInvoiceService.sendForPayment(current.ID)
-            .switchMap(res => of(true))
-            .catch((err) => {
-                this.errorSerivce.handle(err);
-                return of(false);
-            });
-    }
-
-    createPaymentAndSendToBank(current: SupplierInvoice) {
-        return this.supplierInvoiceService.sendForPayment(current.ID)
-            .switchMap((payment: Payment) => {
-                return !!payment ? this.paymentService.createPaymentBatch([payment.ID], false) : of(null);
-            }).pipe(switchMap(batch => {
-                return this.paymentBatchService.sendToPayment(batch.ID, {Code: null, Password: null});
-            })).catch(err => of(err));
-    }
-
-    openSelectPaymentMethodModal(justSendToPayment: boolean = true, current: SupplierInvoice): Observable<any> {
-        return this.paymentBatchService.checkAutoBankAgreement().switchMap(agreements => {
-            const options = {
-                buttonLabels: {
-                    accept: justSendToPayment ? 'Betal' : 'Bokfør og betal',
-                },
-                data: {
-                    current: current,
-                    canSendToPayment: agreements?.length && agreements.filter(a => a.StatusCode === 700005).length > 0
-                }
-            };
-
-            return this.modalService.open(ToPaymentModal, options).onClose.pipe(
-                switchMap(response => of(response))
-            );
-        });
-
-
     }
 
     openAskBeforeJournalModal(current: SupplierInvoice, ask?) {

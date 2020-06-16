@@ -31,6 +31,7 @@ import {switchMap, catchError, map, tap} from 'rxjs/operators';
 import {SmartBookingHelperClass, ISmartBookingResult} from './smart-booking-helper';
 import {OCRHelperClass} from './ocr-helper';
 import {JournalAndPaymentHelper, ActionOnReload} from './journal-and-pay-helper';
+import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 import {set} from 'lodash';
 
 import * as moment from 'moment';
@@ -461,28 +462,23 @@ export class SupplierInvoiceStore {
         });
     }
 
-    journalAndSendToPayment(done?) {
-        this.journalAndPaymentHelper.journalAndToPayment(this.invoice$.value).subscribe(response => {
+    sendToPayment(isOnlyPayment = true, done) {
+
+        const options = {
+            data: {
+                current: this.invoice$.value,
+                onlyToPayment: isOnlyPayment
+            }
+        };
+
+        this.modalService.open(ToPaymentModal, options).onClose.subscribe(response => {
             if (response) {
-                done('');
+                done('Faktura sendt til betaling');
                 this.openJournaledAndPaidModal(response);
                 this.loadInvoice(this.invoice$.value.ID);
             } else {
-                done('Avbrutt');
+                done('Betaling avbrutt');
             }
-        });
-    }
-
-    sendToPayment(done?) {
-        this.journalAndPaymentHelper.toPayment(this.invoice$.value).subscribe((response) => {
-            if (response) {
-                done('Faktura sendt til betaling. Status oppdatert.');
-                this.loadInvoice(this.invoice$.value.ID);
-            } else {
-                done('Sending av faktura avbrutt. Ingen betaling oppdatert.');
-            }
-        }, err => {
-            this.errorService.handle(err);
         });
     }
 
