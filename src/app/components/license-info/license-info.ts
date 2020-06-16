@@ -37,12 +37,19 @@ export class LicenseInfo implements OnDestroy {
             url: '/license-info',
             moduleID: UniModules.LicenseInfo
         });
-        this.selectedContractID$.next(this.authService.currentUser.License.Company.ContractID);
+
+        if (sessionStorage.getItem('selectedContractID')) {
+            this.selectedContractID$.next(parseInt(sessionStorage.getItem('selectedContractID'), 10));
+        } else {
+            this.selectedContractID$.next(this.authService.currentUser.License.Company.ContractID);
+        }
+
         this.loadCustomers();
     }
 
     ngOnDestroy() {
         this.selectedContractID$.complete();
+        sessionStorage.removeItem('selectedContractID');
     }
 
     loadCustomers() {
@@ -58,5 +65,6 @@ export class LicenseInfo implements OnDestroy {
 
     selectContract(contract: ElsaContract) {
         this.selectedContractID$.next(contract.ID);
+        sessionStorage.setItem('selectedContractID', contract.ID.toString());
     }
 }

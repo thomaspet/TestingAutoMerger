@@ -1,7 +1,10 @@
-<h1>Velg selskapene du vil invitere til</h1>
+<h1 *ngIf="!busy">
+    {{data.StoredData.companylicenses ? 'Velg selskapene du vil invitere til' : 'Vi fant ingen selskaper på denne lisensen'}}
+</h1>
 
 <grant-access-selection-list
     [labelProperty]="'CompanyName'"
-    [(items)]="companyLicenses"
+    [busy]="busy"
+    [(items)]="data.StoredData.companylicenses"
     (itemsChange)="onSelectionChange()"
 ></grant-access-selection-list>

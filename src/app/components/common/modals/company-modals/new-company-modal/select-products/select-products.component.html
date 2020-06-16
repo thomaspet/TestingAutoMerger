@@ -1,12 +1,6 @@
-<ul class="uni-selection-list">
-    <li *ngFor="let product of products"
-        (click)="onSelectionChange(product)"
-        [ngClass]="{'selected': product['_selected']}">
-
-        <i class="material-icons">
-            {{product['_selected'] ? 'check_box' : 'check_box_outline_blank'}}
-        </i>
-
+<section class="uni-selection-list">
+    <label *ngFor="let product of products" class="selection-list-item">
+        <mat-checkbox [(ngModel)]="product['_selected']" (ngModelChange)="onSelectionChange()"></mat-checkbox>
         {{product.Label}}
-    </li>
-</ul>
+    </label>
+</section>

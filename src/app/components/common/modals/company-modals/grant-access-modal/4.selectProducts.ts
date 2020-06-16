@@ -13,7 +13,7 @@ export class SelectProductsForBulkAccess {
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    products: ElsaProduct[];
+    busy = false;
 
     constructor(
         private elsaProductService: ElsaProductService,
@@ -21,12 +21,14 @@ export class SelectProductsForBulkAccess {
     ) {}
 
     ngOnChanges() {
-        if (this.data) {
+        if (this.data && !this.data.StoredData?.products) {
             this.initData();
         }
     }
 
     initData() {
+        this.busy = true;
+        this.elsaProductService.invalidateCache();
         this.elsaProductService.GetAll().subscribe(
             products => {
                 products = products.filter(product => {
@@ -39,18 +41,22 @@ export class SelectProductsForBulkAccess {
                     products.forEach(product => {
                         if (this.data.products.some(p => p.ID === product.ID)) {
                             product['_selected'] = true;
+                            this.stepComplete.emit(true);
                         }
                     });
                 }
-
-                this.products = products;
+                this.busy = false;
+                this.data.StoredData.products = products;
             },
-            err => this.errorService.handle(err),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 
     onSelectionChange() {
-        this.data.products = this.products.filter(u => !!u['_selected']);
+        this.data.products = this.data.StoredData.products.filter(product => !!product['_selected']);
         this.stepComplete.emit(this.data.products.length > 0);
     }
 }

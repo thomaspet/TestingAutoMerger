@@ -13,7 +13,7 @@ export class SelectUsersForBulkAccess {
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    users: ElsaUserLicense[];
+    busy = false;
 
     constructor(
         private elsaContractService: ElsaContractService,
@@ -21,34 +21,34 @@ export class SelectUsersForBulkAccess {
     ) {}
 
     ngOnChanges() {
-        if (this.data) {
+        if (this.data.contract && !this.data.StoredData?.userlicenses) {
             this.initData();
         }
     }
 
-    private initData() {
-        if (this.data.customer) {
-            this.elsaContractService.getUserLicenses(
-                this.data.contract.ID
-            ).subscribe(
-                users => {
-                    if (this.data.users && this.data.users.length) {
-                        users.forEach(user => {
-                            if (this.data.users.some(u => u.UserIdentity === user.UserIdentity)) {
-                                user['_selected'] = true;
-                            }
-                        });
-                    }
-
-                    this.users = users;
-                },
-                err => this.errorService.handle(err)
-            );
-        }
+    initData() {
+        this.busy = true;
+        this.elsaContractService.getUserLicenses(this.data.contract.ID).subscribe(
+            users => {
+                if (this.data.users && this.data.users.length) {
+                    users.forEach(user => {
+                        if (this.data.users.some(u => u.UserIdentity === user.UserIdentity)) {
+                            user['_selected'] = true;
+                        }
+                    });
+                }
+                this.busy = false;
+                this.data.StoredData.userlicenses = users;
+            },
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
     }
 
     onSelectionChange() {
-        this.data.users = this.users.filter(u => !!u['_selected']);
+        this.data.users = this.data.StoredData.userlicenses.filter(user => !!user['_selected']);
         this.stepComplete.emit(this.data.users.length > 0);
     }
 }
