@@ -113,12 +113,9 @@ export class FileSplitModal implements IUniModal {
                         }
                     }
 
-                    // increase wait time by 10 ms for each attempt, starting at 50 ms, making
-                    // the total possible wait time will be approx 1 minute (55 sec + response time)
-                    const timeout = 50 + (10 * attempts);
                     setTimeout(() => {
                         this.checkFileStatusAndLoadImage(attempts + 1);
-                    }, timeout);
+                    }, 500);
                 }
             });
     }
