@@ -94,7 +94,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {finalize, map, tap} from 'rxjs/operators';
+import {finalize, map, tap, catchError} from 'rxjs/operators';
 
 interface ITab {
     name: string;
@@ -2492,7 +2492,7 @@ export class BillView implements OnInit, AfterViewInit {
 
             const invoice = this.current.getValue();
             if (invoice.ID) {
-                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).then(() => {
+                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).subscribe(() => {
                     this.numberOfDocuments++;
                     this.uniImage.refreshFiles();
                 });
@@ -2978,11 +2978,12 @@ export class BillView implements OnInit, AfterViewInit {
 
     private fetchInvoice(id: number, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.files = undefined;
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
         if (this.current?.value?.ID !== id) {
+            this.files = undefined;
+
             // set diff to null until the journalentry is loaded, the data is calculated correctly
             // through the onJournalEntryManualDataLoaded event
             this.sumVat = null;
@@ -3403,10 +3404,9 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUnsavedChanges = false;
                 done('Lagret og avvist!');
 
-                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                    () => {
-                        this.router.navigateByUrl('/accounting/bills/' + res.ID);
-                    });
+                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + res.ID);
+                });
             });
         });
     }
@@ -3416,19 +3416,6 @@ export class BillView implements OnInit, AfterViewInit {
         this.preSave();
 
         return new Promise((resolve, reject) => {
-
-            const reload = () => {
-                this.fetchInvoice(this.currentID, (!!done))
-                    .then(() => {
-                        resolve({ success: true });
-                        if (done) { done('Lagret'); }
-                    })
-                    .catch((msg) => {
-                        reject({ success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });
-            };
-
             let obs: any;
             const current = this.current.getValue();
 
@@ -3465,22 +3452,35 @@ export class BillView implements OnInit, AfterViewInit {
                     }
                     obs = this.supplierInvoiceService.Post(current);
                 }
+
                 obs.subscribe((result) => {
-                    if ((!current.ID) && updateRoute) {
+                    const onSaveComplete = () => {
+                        if ((!current.ID) && updateRoute) {
+                            this.currentID = result.ID;
+                            this.router.navigateByUrl('/accounting/bills/' + result.ID);
+                        }
                         this.currentID = result.ID;
-                        this.router.navigateByUrl('/accounting/bills/' + result.ID);
-                    }
-                    this.currentID = result.ID;
-                    this.hasUnsavedChanges = false;
-                    this.commentsConfig.entityID = result.ID;
-                    if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                            () => {
-                                this.resetDocuments();
-                                reload();
+                        this.hasUnsavedChanges = false;
+                        this.commentsConfig.entityID = result.ID;
+
+                        this.fetchInvoice(this.currentID, (!!done))
+                            .then(() => {
+                                resolve({ success: true });
+                                if (done) { done('Lagret'); }
+                            })
+                            .catch((msg) => {
+                                reject({ success: false, errorMessage: msg });
+                                if (done) { done(msg); }
                             });
+                    };
+
+                    if (this.unlinkedFiles.length > 0) {
+                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                            this.resetDocuments();
+                            onSaveComplete();
+                        });
                     } else {
-                        reload();
+                        onSaveComplete();
                     }
                 }, (err) => {
                     this.errorService.handle(err);
@@ -4178,16 +4178,20 @@ export class BillView implements OnInit, AfterViewInit {
         this.hasUnsavedChanges = true;
     }
 
-    private linkFiles(ID: any, fileIDs: Array<any>, flagFileStatus?: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            fileIDs.forEach(fileID => {
-                const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${ID}`;
-                if (flagFileStatus) {
-                    this.tagFileStatus(fileID, flagFileStatus);
-                }
-                this.supplierInvoiceService.send(route).subscribe(x => resolve(x));
-            });
+    private linkFiles(entityID: number, fileIDs: number[], newFileStatus?) {
+        const requests = (fileIDs || []).map(fileID => {
+            const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${entityID}`;
+            return this.supplierInvoiceService.send(route).pipe(
+                tap(() => {
+                    if (newFileStatus) {
+                        this.tagFileStatus(fileID, newFileStatus);
+                    }
+                }),
+                catchError(err => of(null))
+            );
         });
+
+        return requests.length ? forkJoin(requests) : of([]);
     }
 
     private checkPath() {
