@@ -1168,6 +1168,7 @@ export class CustomerDetails implements OnInit {
                 Section: 0
             },
             {
+                FeaturePermission: 'ui.debt-collection',
                 FieldSet: 1,
                 EntityType: 'Customer',
                 Property: 'ReminderEmailAddress',

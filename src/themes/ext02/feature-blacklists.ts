@@ -2,6 +2,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
     view_features: [
         'ui.distribution',
         'ui.bank_account_manual_setup',
+        'ui.sellers',
 
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
@@ -30,14 +31,15 @@ export const PLUS_PACKAGE_BLACKLIST = {
 export const MINI_PACKAGE_BLACKLIST = {
     view_features: [
         ...PLUS_PACKAGE_BLACKLIST.view_features,
-        'ui.sellers',
         'ui.dimensions',
         'ui.debt-collection',
 
         'ui.sales.customer.tof_report_setup',
         'ui.sales.customer.avtalegiro',
 
+        'ui.sales.invoice.reminder-stop',
         'ui.sales.invoice.accrual',
+
         'ui.sales.products.product_categories',
     ],
     ui_permissions: [

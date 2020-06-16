@@ -1505,6 +1505,7 @@ export class InvoiceDetails implements OnInit {
 
         this.saveActions.push({
             label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
+            featurePermission: 'ui.sales.invoice.reminder-stop',
             action: (done) => {
                 this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
                 this.save().subscribe(

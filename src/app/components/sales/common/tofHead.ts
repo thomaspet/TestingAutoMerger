@@ -13,6 +13,7 @@ import {TofDetailsForm} from './detailsForm';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {ValidationMessage} from '@app/models/validationResult';
 import {AccountMandatoryDimensionService} from '@app/services/services';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-tof-head',
@@ -57,6 +58,11 @@ export class TofHead implements OnChanges {
             {name: 'Dimensjoner', value: 'dimensions', featurePermission: 'ui.dimensions'},
             {name: 'Utsendelse', value: 'distribution', featurePermission: 'ui.distribution'}
         ];
+
+        // Remove "Betingelser og levering" in the bruno version
+        if (theme.theme === THEMES.EXT02) {
+            this.tabs.splice(1, 1);
+        }
 
         if (this.entityName === 'CustomerInvoice') {
             this.tabs.push({name: 'Purringer', value: 'reminders', featurePermission: 'ui.debt-collection'});

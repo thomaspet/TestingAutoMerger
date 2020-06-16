@@ -1,10 +1,12 @@
 import {Component, Input, ChangeDetectorRef} from '@angular/core';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export interface IUniSaveAction {
     label: string;
     action: (done: (statusMessage?: string) => any, file?: any) => void;
     main?: boolean;
     disabled?: boolean;
+    featurePermission?: string;
 }
 
 @Component({
@@ -23,13 +25,27 @@ export class UniSave {
     statusMessage: string;
     main: IUniSaveAction;
 
-    constructor(private cdr: ChangeDetectorRef) {}
+    constructor(
+        private cdr: ChangeDetectorRef,
+        private featurePermissionService: FeaturePermissionService
+    ) {}
 
     ngOnChanges() {
         if (this.actions && this.actions.length) {
-            this.filteredActions = this.hideDisabled && this.actions.length > 1
-                ? this.actions.filter(action => action.main || !action.disabled)
-                : this.actions;
+            if (this.actions.length > 1) {
+                this.filteredActions = this.actions.filter(action => {
+                    const hasPermission = !action.featurePermission
+                        || this.featurePermissionService.canShowUiFeature(action.featurePermission);
+
+                    if (hasPermission) {
+                        return !this.hideDisabled || (action.main || !action.disabled);
+                    } else {
+                        return false;
+                    }
+                });
+            } else {
+                this.filteredActions = this.actions;
+            }
 
             this.main = this.getMainAction();
         } else {
