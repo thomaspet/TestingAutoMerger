@@ -95,6 +95,7 @@ import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {finalize, map, tap} from 'rxjs/operators';
+import { PaymentStatus } from '@app/models/printStatus';
 
 interface ITab {
     name: string;
@@ -2706,6 +2707,9 @@ export class BillView implements OnInit, AfterViewInit {
 
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
+        if (current.RestAmount == 0)
+            return Observable.of(false);
+            
         return this.supplierInvoiceService.sendForPayment(current.ID)
             .switchMap(() => Observable.of(true))
             .catch(() => Observable.of(false));
@@ -2761,7 +2765,8 @@ export class BillView implements OnInit, AfterViewInit {
                     }, err => {
                         this.errorService.handle(err);
                         done();
-                    });
+                });
+                  
             }
             done();
         });
