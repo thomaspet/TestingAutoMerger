@@ -1,8 +1,8 @@
 import {Component, Input, Output, OnInit, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
-import {SupplementService} from '../../../services/services';
 import {ToastService, ToastType} from '@uni-framework//uniToast/toastService';
 import {Valuetype} from '@app/unientities';
+import { ISupplementLine, SalaryTransactionSupplementListService } from '@app/components/salary/salaryTransactionSupplement/salary-transaction-supplement-list.service';
 
 
 @Component({
@@ -13,7 +13,7 @@ import {Valuetype} from '@app/unientities';
             <article>
                 <span style="font-size: 14px;">
                     <strong>{{ line._Name }} </strong> for ansatt
-                    <strong>{{ line['_Employee'].EmployeeNumber }}: {{ line['_Employee'].BusinessRelationInfo.Name }} </strong>
+                    <strong>{{ line._EmployeeNumber }}: {{ line._EmployeeName }} </strong>
                 </span>
 
                 <form style="margin-top: 1rem;">
@@ -46,25 +46,25 @@ export class UniSupplementEditModal implements OnInit, IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
-    public line: any = {};
+    public line: ISupplementLine = <ISupplementLine>{};
     public type: Valuetype = 0;
 
     constructor(
-        private supplementService: SupplementService,
+        private supplementService: SalaryTransactionSupplementListService,
         private toast: ToastService
     ) { }
 
     public ngOnInit() {
         if (this.options && this.options.data) {
             this.line = this.options.data.line;
-            this.type = this.line.WageTypeSupplement.ValueType;
+            this.type = this.line._Type;
         } else {
             this.close();
         }
     }
 
     public save() {
-        this.supplementService.Put(this.line.ID, this.line).subscribe((res) => {
+        this.supplementService.save(this.line).subscribe((res) => {
             this.toast.addToast('Lagring vellykket', ToastType.good, 5);
             this.onClose.emit(this.line);
         }, err => this.toast.addToast('Lagring feilet', ToastType.bad, 5) );

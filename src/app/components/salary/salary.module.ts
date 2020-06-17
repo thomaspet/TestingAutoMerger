@@ -124,6 +124,7 @@ import { ReconciliationRequestComponent } from './amelding/reconciliation-reques
 import { SalaryTransSupplementsModal } from './shared/components/salaryTransSupplementModal/salaryTransSupplementsModal';
 import { ReconciliationModalComponent } from './amelding/reconciliation-modal/reconciliation-modal.component';
 import { ReconciliationResponseModalComponent } from './amelding/reconciliation-response-modal/reconciliation-response-modal.component';
+import { SalaryTransactionSupplementListService } from './salaryTransactionSupplement/salary-transaction-supplement-list.service';
 
 @NgModule({
     imports: [
@@ -265,6 +266,7 @@ import { ReconciliationResponseModalComponent } from './amelding/reconciliation-
         EmpCanActivateGuard,
         SalaryHelperMethods,
         WagetypeSyncGuard,
+        SalaryTransactionSupplementListService,
     ]
 })
 export class SalaryModule {}

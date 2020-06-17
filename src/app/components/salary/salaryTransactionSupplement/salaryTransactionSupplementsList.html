@@ -3,7 +3,7 @@
 <article class="application">
     <ag-grid-wrapper
         class="borders"
-        [(resource)]="model$"
+        [resource]="lookupFunction"
         [config]="tableConfig$ | async"
         (cellClick)="onCellClick($event)">
     </ag-grid-wrapper>
