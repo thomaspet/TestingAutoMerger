@@ -218,11 +218,21 @@ export class ProductPurchasesModal implements IUniModal {
                     purchase['_active'] = false;
                 }
 
+                if (product.ProductType === ElsaProductType.Package) {
+                    purchase['_readonly'] = true;
+                }
+
                 return purchase;
             });
 
             return entry;
         });
+    }
+
+    togglePurchase(purchase) {
+        if (!purchase['_readonly']) {
+            purchase['_active'] = !purchase['_active'];
+        }
     }
 
     onCheckAllChange() {
