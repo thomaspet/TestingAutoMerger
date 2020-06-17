@@ -1,73 +1,36 @@
-.list-section
-	max-height: 90vh
-	min-height: 11rem
-	overflow-x: auto
-	margin: 1rem 0
-
-.modal-jl-list
-	padding: 0
-	margin: 0
-	list-style: none
-	border-bottom: 1px solid var(--color-c2a)
-	padding-bottom: .5rem
-	margin-bottom: .5rem
-
-	&.header
-		font-weight: 500
-		padding-bottom: 0
-
-	&.last-of-type
-		border-bottom: none
-
-	li
-		display: flex
-		padding: .5rem 0
-
-		span
-			text-overflow: ellipsis
-			overflow: hidden
-			white-space: nowrap
-			padding-left: .5rem
-
-			&.account
-				width: 16rem
-
-			&.date
-				width: 10rem
-				font-weight: 500
-
-			&.desc
-				flex: 1
-
-			&.total
-				margin: 0 1rem
-				justify-content: flex-end
-				font-weight: 500
-
-.info-text
-	display: block
-	margin-bottom: 1rem
-
-.loading-indicator
+.main-container
 	display: flex
-	padding: 1rem 0
-	background-color: var(--sidebar-active-section-header-background)
-	border-radius: 3rem
 
-	span.step
-		display: flex
-		align-items: center
-		justify-content: center
-		flex: 1
+	.invoice-section
+		margin-left: 1rem
 
+	.bank-section
+		margin-right: 1rem
+
+	.bank-section, .invoice-section
+		width: 50%
 		span
-			margin-left: 1rem
+			display: block
 
+			&.section-header-name
+				font-weight: 500
+				font-size: 18px
+				margin-left: 1rem
 
+			&.section-sub-header
+				font-weight: 500
+				font-size: 16px
+				margin: .5rem 0 0 1rem
+				text-overflow: ellipsis
+				overflow: hidden
+				white-space: nowrap
 
-.current-action
-	display: flex
-	align-items: center
-	justify-content: center
-	color: var(--color-c2a)
-	margin-top: 2rem
+	.item-box
+		padding: 2rem 1rem
+		margin-top: 1rem
+
+		&.bank
+			background-color: #EDF7F9
+
+		&.invoice
+			background-color: #F2F4EC

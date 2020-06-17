@@ -270,6 +270,7 @@ export class BankReconciliation {
 
         const fromDate = moment(date).startOf('month').toDate();
         const toDate = moment(date).endOf('month').toDate();
+        this.session.hasCheckedOpenPosts = this.session.journalEntryMode !== JournalEntryListMode.Original;
 
         this.session
         .load(fromDate, toDate, this.selectedBankAccount.AccountID, this.reconcileStartDate)
@@ -375,7 +376,11 @@ export class BankReconciliation {
             }, closeOnClickOutside: false })
         .onClose.subscribe(response => {
             if (response) {
-                this.session.reload().subscribe(() => this.checkSuggest());
+                this.toastService.showLoadIndicator({ title: 'Lagret', message: 'Endringer lagret vellykket, oppdaterer poster.' });
+                this.session.reload().subscribe(() => {
+                    this.checkSuggest();
+                    this.toastService.hideLoadIndicator();
+                });
             } else {
                 this.session.preparing = false;
                 this.reset();

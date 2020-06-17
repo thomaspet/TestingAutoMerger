@@ -49,6 +49,8 @@ export class BankStatementSession {
     journalEntryMode: JournalEntryListMode = 0;
     hasCheckedOpenPosts = false;
 
+    savedJournalEntrySuggestionID: number = 0;
+
     originalCounter = 0;
     customerCounter = 0;
     supplierCounter = 0;
@@ -189,8 +191,28 @@ export class BankStatementSession {
 
         this.refreshJournalEntryLineCounters();
         this.clearSuggestions();
-        // this.tryNextSuggestion(undefined, { MaxDayOffset: 5, MaxDelta: 0.0 });
+
         this.status = this.calcStatus();
+    }
+
+    changeToSeeMatch(mode: number) {
+        this.journalEntryMode = mode;
+
+        if (mode === JournalEntryListMode.Customer) {
+            this.journalEntries = this.journalEntriesCustomer;
+        } else {
+            this.journalEntries = this.journalEntriesSupplier;
+        }
+
+        this.journalEntries = this.sortEntries([...this.journalEntries]);
+        const index = this.journalEntries.findIndex(e => e.ID === this.savedJournalEntrySuggestionID);
+
+        if (index) {
+            this.tryCheck(this.journalEntries[index]);
+        }
+
+        this.status = this.calcStatus();
+        this.savedJournalEntrySuggestionID = 0;
     }
 
     clear() {
@@ -392,16 +414,22 @@ export class BankStatementSession {
                 return suggestionAdded;
             }
         } else if (this.journalEntryMode === 0 && (!this.hasCheckedOpenPosts || force)) {
+
             const entries = [].concat(this.journalEntriesCustomer, this.journalEntriesSupplier).filter(x => !x.Closed);
             this.requestSuggestionsOnAll(entries, options).subscribe(res => {
                 this.hasCheckedOpenPosts = true;
                 if (res?.length) {
                     const currentEntryMatch = entries.find(entry => entry.ID === res[0].JournalEntryLineID);
+                    const bankEntry = this.bankEntries.find(entry => entry.ID === res[0].BankStatementEntryID);
                     if (currentEntryMatch.Mode === JournalEntryListMode.Customer) {
                         this.status = 9;
                     } else {
                         this.status = 10;
                     }
+                    if (bankEntry) {
+                        this.tryCheck(bankEntry);
+                    }
+                    this.savedJournalEntrySuggestionID = res[0].JournalEntryLineID;
                 }
                 return false;
             });

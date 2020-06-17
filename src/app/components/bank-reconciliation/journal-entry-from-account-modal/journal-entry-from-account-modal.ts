@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 import {StatisticsService, BankStatementService, ErrorService} from '@app/services/services';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import * as moment from 'moment';
 import { JournalEntryLine, BankAccount } from '@uni-entities';
 
@@ -18,14 +18,17 @@ export class JournalEntryFromAccountModal implements IUniModal {
     journalEntryLineSuggestions: any[] = [];
     selectedBankAccount: BankAccount;
     matches = [];
+    subaccount: string = '';
+
+    bankItems = [];
+    invoiceItems = [];
+
     mode: number = 0;
 
     // Boolean values storing changes during call chain
     started = false;
-    bookingBusy = false;
-    matchBusy = false;
-    postpostBusy = false;
     finished = false;
+    busy = true;
 
     constructor (
         private statisticsService: StatisticsService,
@@ -34,19 +37,47 @@ export class JournalEntryFromAccountModal implements IUniModal {
     ) { }
 
     ngOnInit() {
+        this.subaccount = this.options.data.matches[0].SubAccountName;
+
         this.matches = this.options.data.matches.map(m => {
-            m._date = moment(m.Date).format('YYYY-MM-DD');
+            m._date = moment(m.Date).format('DD.MM.YYYY');
+            m._pdate = moment(m.PaymentDate).format('DD.MM.YYYY');
+
+            if (this.subaccount !== m.SubAccountName) {
+                this.subaccount += ' & ' + m.SubAccountName;
+            }
+            if (!this.bankItems.length || this.bankItems[0].BankStatementEntryID !== m.BankStatementEntryID) {
+                this.bankItems.push({...m});
+            }
+
+            if (!this.invoiceItems.length || this.invoiceItems[0].JournalEntryLineID !== m.JournalEntryLineID) {
+                this.invoiceItems.push({...m});
+            }
+
             return m;
         });
+
+        if (this.invoiceItems.length > 1) {
+            this.bankItems[0].Amount = 0;
+            this.invoiceItems.forEach(item => {
+                this.bankItems[0].Amount += item.Amount;
+            });
+        } else if (this.bankItems.length > 1) {
+            this.invoiceItems[0].Amount = 0;
+            this.bankItems.forEach(item => {
+                this.invoiceItems[0].Amount += item.Amount;
+            });
+        }
 
         this.selectedBankAccount = this.options.data.selectedBankAccount;
         this.mode = this.options.data.mode;
         this.journalEntryLineSuggestions = this.createJournalEntryLineSuggestions(this.matches, this.options.data.selectedBankAccount);
+        this.busy = false;
     }
 
-    journal() {
+    journal(shouldMatch: Boolean) {
         this.started = true;
-        this.bookingBusy = true;
+        this.busy = true;
         this.bookJournalEntries(this.journalEntryLineSuggestions).subscribe(journalEntries => {
 
             // Get the lines created for each JournalEntry
@@ -56,9 +87,6 @@ export class JournalEntryFromAccountModal implements IUniModal {
             Observable.forkJoin(ques).subscribe(response => {
                 const ids = [];
                 const postpostids = [];
-
-                this.bookingBusy = false;
-                this.matchBusy = true;
 
                 // Maps response from the JournalEntryLines just created. One is for bankreconciliation and on for postpost mark
                 response.forEach((res: any) => {
@@ -81,25 +109,29 @@ export class JournalEntryFromAccountModal implements IUniModal {
                 });
 
                 // Lets do the bank reconciliation first. Match bank entries with new created journalentrylines
-                this.bankStatementService.matchItems(this.matches).subscribe(() => {
-                    this.matchBusy = false;
-                    this.postpostBusy = true;
+                const obs = shouldMatch ? this.bankStatementService.matchItems(this.matches) : of(true);
+                obs.subscribe(() => {
 
                     this.postpostMark(postpostPairs).subscribe(() => {
-                        this.postpostBusy = false;
                         this.finished = true;
+                        this.busy = false;
+                        this.close(true);
                     }, err => {
+                        this.busy = false;
                         this.errorService.handle(err);
                     });
 
                 }, err => {
+                    this.busy = false;
                     this.errorService.handle(err);
                 });
 
             }, err => {
+                this.busy = false;
                 this.errorService.handle(err);
             });
         }, err => {
+            this.busy = false;
             this.errorService.handle(err);
         });
     }

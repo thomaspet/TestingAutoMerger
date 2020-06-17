@@ -84,16 +84,6 @@
                             <span> {{ session.statusText }} </span>
                         </section>
 
-                        <section *ngIf="session.status == 9" class="info-box good open-post">
-                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster kunde. </span>
-                            <button class="c2a secondary" (click)="changeMode(1);"> Se match </button>
-                        </section>
-
-                        <section *ngIf="session.status == 10" class="info-box good open-post">
-                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster leverandør. </span>
-                            <button class="c2a secondary" (click)="changeMode(2);"> Se match </button>
-                        </section>
-
 
                         <ul *ngIf="session.stage?.length" class="match-drafts">
                             <ng-container *ngFor="let entry of session.stage">
@@ -112,6 +102,16 @@
                             </li>
                         </ul>
 
+                        <section *ngIf="session.status == 9" class="info-box good open-post">
+                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster kunde. </span>
+                            <button class="c2a secondary" (click)="session.changeToSeeMatch(1);"> Se match </button>
+                        </section>
+
+                        <section *ngIf="session.status == 10" class="info-box good open-post">
+                            <span> Det er ingen sammenfallende post i regnskapet, men vi har funnet en match i åpne poster leverandør. </span>
+                            <button class="c2a secondary" (click)="session.changeToSeeMatch(2);"> Se match </button>
+                        </section>
+
                         <button class="c2a link-posts-button"
                             *ngIf="session.canCloseStage || session.status == 3"
                             (click)="closeStage()"
@@ -122,7 +122,7 @@
                         </button>
                     </section>
 
-                    <button class="secondary book-button" *ngIf="session.stageHasOnlyBankEntries" (click)="openJournalModal(false)">
+                    <button class="secondary book-button" *ngIf="session.stageHasOnlyBankEntries && session.status <= 8" (click)="openJournalModal(false)">
                         Bokfør transaksjon <i class="material-icons">edit</i>
                     </button>
 
