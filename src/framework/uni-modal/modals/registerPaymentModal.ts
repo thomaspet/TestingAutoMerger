@@ -291,7 +291,7 @@ export class UniRegisterPaymentModal implements IUniModal {
 
         const agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment), 2);
         payment.AgioAmount = UniMath.round(
-            (payment.Amount - payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
+            (payment.Amount + payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
         , 2);
 
         this.SetAgioAccount(payment, previousAgioAmount);
@@ -305,7 +305,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         ); // Calculated in the same exchange rate as the invoice
 
         model.AgioAmount = UniMath.round(
-            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1
+            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1 
         );
 
         this.SetAgioAccount(model, previousAgioAmount);
