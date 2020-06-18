@@ -56,7 +56,7 @@ export class App {
         private router: Router,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
-        private logger: Logger
+        private logger: Logger // used for logging in Azure Application Insights
     ) {
         if (!this.titleService.getTitle()) {
             const title = this.title;
