@@ -34,6 +34,7 @@ import { IProduct } from '@uni-framework/interfaces/interfaces';
 import { ConfirmActions, IModalOptions, UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as _ from 'lodash';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'product-details',
@@ -226,17 +227,19 @@ export class ProductDetails {
         }
 
         subject.subscribe(response => {
-            this.product$.next(Object.assign({}, response[0])); // to avoid run over cached object in BizHttp
-            this.descriptionControl.setValue(response[0] && response[0].Description);
+            const product: Product = cloneDeep(response[0]);
+            product['_price'] = product.CalculateGrossPriceBasedOnNetPrice
+                ? product.PriceIncVat : product.PriceExVat;
+
+            this.product$.next(product);
+            this.descriptionControl.setValue(product?.Description);
 
             if (!this.modalMode) {
                 this.setTabTitle();
                 this.setupToolbar();
             }
 
-            this.showHidePriceFields(this.product$.getValue().CalculateGrossPriceBasedOnNetPrice);
-
-            if (response.length > 1 && response[1] !== null) {
+            if (response && response[1]) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
             }
 
@@ -287,20 +290,21 @@ export class ProductDetails {
 
     public change(changes: SimpleChanges) {
         this.isDirty = true;
-        if (changes['CalculateGrossPriceBasedOnNetPrice']) {
-            this.showHidePriceFields(changes['CalculateGrossPriceBasedOnNetPrice'].currentValue);
-        }
-        if (changes['PriceExVat']) {
-            if (!this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
-                this.calculateAndUpdatePrice();
+
+        let product = this.product$.getValue();
+
+        if (changes['_price'] || changes['CalculateGrossPriceBasedOnNetPrice']) {
+            if (product.CalculateGrossPriceBasedOnNetPrice) {
+                product.PriceIncVat = product['_price'];
+            } else {
+                product.PriceExVat = product['_price'];
             }
-        }
-        if (changes['PriceIncVat']) {
-            if (this.product$.getValue().CalculateGrossPriceBasedOnNetPrice) {
-                this.calculateAndUpdatePrice();
-            }
+
+            product = this.productService.calculatePriceLocal(product, this.vatTypes);
+            this.product$.next(product);
         }
     }
+
 
     public save() {
         const product = this.product$.getValue();
@@ -415,18 +419,6 @@ export class ProductDetails {
     private calculateAndUpdatePrice() {
         const product = this.productService.calculatePriceLocal(this.product$.getValue(), this.vatTypes);
         this.product$.next(product);
-    }
-
-    private showHidePriceFields(value: boolean) {
-        // show/hide price fields based on checkbox - this currenctly does not work, Jorge is working on a fix
-        const fields = this.fields$.getValue();
-        const priceExVat =  fields.find(x => x.Property === 'PriceExVat');
-        const priceIncVat = fields.find(x => x.Property === 'PriceIncVat');
-        priceIncVat.Hidden = !value;
-        priceExVat.Hidden = value;
-        this.fields$.next(fields);
-        this.product$.next(this.product$.getValue());
-        this.calculateAndUpdatePrice();
     }
 
     private previousProduct() {
@@ -689,7 +681,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'CostPrice',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Innpris ekskl. mva',
+                    Label: 'Innkjøpspris (uten moms)',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','
@@ -699,25 +691,14 @@ export class ProductDetails {
                     FieldSet: 2,
                     Section: 0,
                     EntityType: 'Product',
-                    Property: 'PriceExVat',
+                    Property: '_price',
                     FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris ekskl. mva',
+                    Label: 'Salgspris',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','
                     }
-                },
-                {
-                    FieldSet: 2,
-                    Section: 0,
-                    EntityType: 'Product',
-                    Property: 'PriceIncVat',
-                    FieldType: FieldType.NUMERIC,
-                    Label: 'Utpris inkl. mva',
-                    Options: {
-                        format: 'money',
-                        decimalSeparator: ','
-                    }
+
                 },
                 {
                     FieldSet: 2,
@@ -725,7 +706,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'CalculateGrossPriceBasedOnNetPrice',
                     FieldType: FieldType.CHECKBOX,
-                    Label: 'Utpris inkl. mva'
+                    Label: 'Salgspris inkluderer moms'
                 },
 
                 // Fieldset 3 (Regnskapsinnstillinger)
