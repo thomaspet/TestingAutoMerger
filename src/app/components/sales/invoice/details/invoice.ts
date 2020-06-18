@@ -88,6 +88,7 @@ import { AprilaCreditNoteModal } from '../modals/aprila-credit-note/aprila-credi
 import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-modal';
 import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {THEMES, theme} from 'src/themes/theme';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -1197,10 +1198,12 @@ export class InvoiceDetails implements OnInit {
         }
 
         if (!this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
-            toolbarconfig.buttons.push({
-                label: 'Lagre kladd',
-                action: () => this.save(true)
-            });
+            if (theme.theme !== THEMES.EXT02) {
+                toolbarconfig.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => this.save(true)
+                });
+            }
         }
 
         this.toolbarconfig = toolbarconfig;

@@ -70,6 +70,7 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'quote-details',
@@ -1023,14 +1024,18 @@ export class QuoteDetails implements OnInit {
                 label: 'Nytt tilbud',
                 action: () => this.router.navigateByUrl('sales/quotes/0')
             });
-        } else {
-            config.buttons.push({
-                label: 'Lagre kladd',
-                action: () => {
-                    this.quote.StatusCode = StatusCode.Draft;
-                    return this.saveQuote();
-                }
-            });
+        }
+
+        if (!this.quote.ID || this.quote.StatusCode === StatusCodeCustomerQuote.Draft) {
+            if (theme.theme !== THEMES.EXT02) {
+                config.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => {
+                        this.quote.StatusCode = StatusCode.Draft;
+                        return this.saveQuote();
+                    }
+                });
+            }
         }
 
         this.toolbarconfig = config;

@@ -36,6 +36,7 @@ export const MINI_PACKAGE_BLACKLIST = {
 
         'ui.sales.customer.tof_report_setup',
         'ui.sales.customer.avtalegiro',
+        'ui.sales.customer.documents',
 
         'ui.sales.invoice.reminder-stop',
         'ui.sales.invoice.accrual',

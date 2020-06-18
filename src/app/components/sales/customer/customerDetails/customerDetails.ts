@@ -303,7 +303,7 @@ export class CustomerDetails implements OnInit {
                     {name: 'Utsendelse', featurePermission: 'ui.distribution'},
                     {name: 'Åpne poster'},
                     {name: 'Produkter solgt'},
-                    {name: 'Dokumenter'},
+                    {name: 'Dokumenter', featurePermission: 'ui.sales.customer.documents'},
                     {name: 'Selskap', featurePermission: 'ui.sales.customer.sub_company'},
                 ];
 

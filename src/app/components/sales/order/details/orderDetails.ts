@@ -77,6 +77,7 @@ import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 import {switchMap, tap, catchError, map} from 'rxjs/operators';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'order-details',
@@ -1096,14 +1097,18 @@ export class OrderDetails implements OnInit {
                 label: 'Ny ordre',
                 action: () => this.router.navigateByUrl('sales/orders/0')
             });
-        } else {
-            config.buttons.push({
-                label: 'Lagre kladd',
-                action: () => {
-                    this.order.StatusCode = StatusCode.Draft;
-                    return this.saveOrder();
-                }
-            });
+        }
+
+        if (!this.order.ID || this.order.StatusCode === StatusCodeCustomerOrder.Draft) {
+            if (theme.theme !== THEMES.EXT02) {
+                config.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => {
+                        this.order.StatusCode = StatusCode.Draft;
+                        return this.saveOrder();
+                    }
+                });
+            }
         }
 
         this.toolbarconfig = config;
