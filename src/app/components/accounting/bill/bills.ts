@@ -104,74 +104,7 @@ export class BillsView implements OnInit {
     };
 
     public activeFilterIndex: number;
-    public filters: Array<IFilter> = [
-        {
-            label: 'Innboks',
-            name: 'Inbox',
-            route: 'filetags/' + this.inboxTagNames.join('|') + '/0?action=get-supplierInvoice-inbox',
-            onDataReady: (data) => this.onInboxDataReady(data),
-            hotCounter: true
-        },
-        {
-            label: 'Opprettet', name: 'Draft',
-            filter: 'isnull(statuscode,'
-                + StatusCodeSupplierInvoice.Draft
-                + ') eq ' + StatusCodeSupplierInvoice.Draft
-                + ' OR statuscode eq ' + StatusCodeSupplierInvoice.Rejected,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.Draft
-        },
-        {
-            label: 'Tildelt',
-            name: 'ForApproval',
-            filter: 'statuscode eq ' +
-            StatusCodeSupplierInvoice.ForApproval,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.ForApproval
-        },
-        {
-            label: 'Godkjent',
-            name: 'Approved',
-            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.Approved
-        },
-        {
-            label: 'Bokført',
-            name: 'Journaled',
-            filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,
-            showJournalID: true,
-            passiveCounter: true,
-            statusCode: StatusCodeSupplierInvoice.Journaled
-        },
-        {
-            label: 'Ubetalt',
-            name: 'unpaid',
-            filter: 'PaymentStatus eq 30109 and StatusCode ne ' + StatusCode.Completed,
-            passiveCounter: true
-        },
-        {
-            label: 'Betalingsliste',
-            name: 'issenttopayment',
-            filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
-            passiveCounter: true
-        },
-        {
-            label: 'Betalt',
-            name: 'paid',
-            filter: 'PaymentStatus eq 30112 and StatusCode ne ' + StatusCode.Completed,
-            passiveCounter: true
-        },
-        {
-            label: 'Alle',
-            name: 'All',
-            filter: '',
-            showStatus: true,
-            showJournalID: true,
-            passiveCounter: true,
-            statusCode: 0
-        }
-    ];
+    public filters: Array<IFilter> = this.getFiltersBasedOnTheme();
 
     public saveActions: IUniSaveAction[] = [];
 
@@ -929,6 +862,21 @@ export class BillsView implements OnInit {
             }]);
         }
 
+        if (this.currentFilter.name === 'Journaled' && theme.theme === THEMES.EXT02) {
+            config.setQuickFilters([{
+                field: '_onlyJournaled',
+                label: 'Se bare ubetalte',
+                type: 'checkbox',
+                filterGenerator: isChecked => {
+                    return isChecked && {
+                        field: 'PaymentStatus',
+                        operator: 'eq',
+                        value: 30109,
+                    };
+                }
+            }]);
+        }
+
         return config;
     }
 
@@ -983,17 +931,7 @@ export class BillsView implements OnInit {
         }
 
         if (params.assignee) {
-
-            if (params.assigneename) {
-
-                // this.searchParams$.next({ID:+params.assignee});
-
-                // this.searchControl.setValue(params.assigneename);
-
-            }
             this.currentUserFilter = params.assignee;
-           // this.searchParams$.next({userID:+this.currentUserFilter});
-
         }
 
 
@@ -1033,5 +971,119 @@ export class BillsView implements OnInit {
         pageSize = pageSize <= 100 ? 10 : Math.floor(pageSize / 45) - 1;
 
         return pageSize;
+    }
+
+    private getFiltersBasedOnTheme() {
+        if (theme.theme === THEMES.EXT02) {
+            return [
+                {
+                    label: 'Opprettet', name: 'Draft',
+                    filter: 'isnull(statuscode,'
+                        + StatusCodeSupplierInvoice.Draft
+                        + ') eq ' + StatusCodeSupplierInvoice.Draft
+                        + ' OR statuscode eq ' + StatusCodeSupplierInvoice.Rejected,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.Draft
+                },
+                {
+                    label: 'Bokført',
+                    name: 'Journaled',
+                    filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,
+                    showJournalID: true,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.Journaled
+                },
+                {
+                    label: 'Betalingsliste',
+                    name: 'issenttopayment',
+                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
+                    passiveCounter: true
+                },
+                {
+                    label: 'Betalt',
+                    name: 'paid',
+                    filter: 'PaymentStatus eq 30112 and StatusCode ne ' + StatusCode.Completed,
+                    passiveCounter: true
+                },
+                {
+                    label: 'Alle',
+                    name: 'All',
+                    filter: '',
+                    showStatus: true,
+                    showJournalID: true,
+                    passiveCounter: true,
+                    statusCode: 0
+                }
+            ];
+        } else {
+            return [
+                {
+                    label: 'Innboks',
+                    name: 'Inbox',
+                    route: 'filetags/' + this.inboxTagNames.join('|') + '/0?action=get-supplierInvoice-inbox',
+                    onDataReady: (data) => this.onInboxDataReady(data),
+                    hotCounter: true
+                },
+                {
+                    label: 'Opprettet', name: 'Draft',
+                    filter: 'isnull(statuscode,'
+                        + StatusCodeSupplierInvoice.Draft
+                        + ') eq ' + StatusCodeSupplierInvoice.Draft
+                        + ' OR statuscode eq ' + StatusCodeSupplierInvoice.Rejected,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.Draft
+                },
+                {
+                    label: 'Tildelt',
+                    name: 'ForApproval',
+                    filter: 'statuscode eq ' +
+                    StatusCodeSupplierInvoice.ForApproval,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.ForApproval
+                },
+                {
+                    label: 'Godkjent',
+                    name: 'Approved',
+                    filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.Approved
+                },
+                {
+                    label: 'Bokført',
+                    name: 'Journaled',
+                    filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,
+                    showJournalID: true,
+                    passiveCounter: true,
+                    statusCode: StatusCodeSupplierInvoice.Journaled
+                },
+                {
+                    label: 'Ubetalt',
+                    name: 'unpaid',
+                    filter: 'PaymentStatus eq 30109 and StatusCode ne ' + StatusCode.Completed,
+                    passiveCounter: true
+                },
+                {
+                    label: 'Betalingsliste',
+                    name: 'issenttopayment',
+                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
+                    passiveCounter: true
+                },
+                {
+                    label: 'Betalt',
+                    name: 'paid',
+                    filter: 'PaymentStatus eq 30112 and StatusCode ne ' + StatusCode.Completed,
+                    passiveCounter: true
+                },
+                {
+                    label: 'Alle',
+                    name: 'All',
+                    filter: '',
+                    showStatus: true,
+                    showJournalID: true,
+                    passiveCounter: true,
+                    statusCode: 0
+                }
+            ];
+        }
     }
 }
