@@ -40,22 +40,24 @@ export class UniBreadcrumbs {
         // Filter out empty parts
         urlParts = urlParts.filter(part => !!part);
 
-        // Remove last urlPart because we dont want a crumb for the current view
-        // e.g '/sales/invoices' should only give sales breadcrumb
-        urlParts.pop();
+
 
         if (urlParts.length) {
             let links = this.navbarLinkService.linkSections$;
             if (urlParts[0] === 'settings') {
-                 links = this.navbarLinkService.settingsSection$;
+                links = this.navbarLinkService.settingsSection$;
             }
 
             links.subscribe(linkSections => {
                 const routeSections = [];
-                const parentSection = linkSections.find(section => section.url === '/' + urlParts[0]);
+                const parentSection = this.getParentSection(linkSections, urlParts);
 
                 if (parentSection) {
                     routeSections.push(parentSection);
+
+                    // Remove last urlPart because we dont want a crumb for the current view
+                    // e.g '/sales/invoices' should only give sales breadcrumb
+                    urlParts.pop();
 
                     if (urlParts.length > 1) {
                         const childRoutes = [];
@@ -78,6 +80,33 @@ export class UniBreadcrumbs {
 
                     this.crumbs = routeSections;
                 }
+            });
+        }
+    }
+
+    private getParentSection(linkSections, urlParts) {
+        if (!urlParts?.length) {
+            return;
+        }
+
+        const possibleParentSections = linkSections.filter(section => {
+            return section.url === '/' + urlParts[0];
+        });
+
+        if (possibleParentSections.length === 1) {
+            return possibleParentSections[0];
+        } else {
+            // If we have more than one possible parent section
+            // (e.g both "Expense" and "Accounting" have /accounting as base url)
+            // we need to look at their links to find the correct section.
+            const fullUrl = '/' + urlParts.join('/');
+            return possibleParentSections.find(section => {
+                return section.linkGroups.some(linkGroup => {
+                    return linkGroup.links.some(link => {
+                        console.log(link.url + ' - ' + fullUrl);
+                        return link.url !== '/' && fullUrl.includes(link.url);
+                    });
+                });
             });
         }
     }
