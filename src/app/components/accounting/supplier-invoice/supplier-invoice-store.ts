@@ -519,7 +519,7 @@ export class SupplierInvoiceStore {
     openJournaledAndPaidModal(action: ActionOnReload) {
         let options: IModalOptions;
         switch (action) {
-            case ActionOnReload.SentToBank:
+            case ActionOnReload.JournaledAndSentToBank:
                 options = {
                     header: 'Bokført og betalt',
                     footerCls: 'center',
@@ -531,7 +531,7 @@ export class SupplierInvoiceStore {
                 };
 
                 break;
-            case ActionOnReload.SentToPaymentList:
+            case ActionOnReload.JournaledAndSentToPaymentList:
                 options = {
                     header: 'Bokført og sendt til betaling',
                     footerCls: 'center',
@@ -544,12 +544,42 @@ export class SupplierInvoiceStore {
                 };
 
                 break;
+
+            case ActionOnReload.SentToBank:
+                options = {
+                    header: 'Betaling fullført',
+                    footerCls: 'center',
+                    buttonLabels: {
+                        accept: 'Registrer ny utgift',
+                        reject: 'Lukk',
+                    },
+                    message: `Regningen er sendt til banken. Husk å logge inn i nettbanken og godkjenn utbetalingen.`
+                };
+
+                break;
+
+            case ActionOnReload.SentToPaymentList:
+                options = {
+                    header: 'Sendt til betalingsliste',
+                    footerCls: 'center',
+                    buttonLabels: {
+                        accept: 'Registrer ny utgift',
+                        reject: 'Gå til betalingsliste',
+                    },
+                    message: `Regningen er lagt til utbetaling i betalingslisten. <br/><br/> Regningen vil ikke bli betalt for du manuelt gjør dette. ` +
+                    `Du finner den i listen "Betalingsliste" under menyvalget "Bank - Utbetalinger" eller du kan trykke på knappen "Gå til betalingsliste" under.`
+                };
+
+                break;
+            default:
+                return;
         }
 
         this.modalService.confirm(options).onClose.subscribe((response) => {
             if (response === ConfirmActions.ACCEPT) {
                 this.router.navigateByUrl('/accounting/bills/0');
-            } else if (response === ConfirmActions.REJECT && action === ActionOnReload.SentToPaymentList) {
+            } else if (response === ConfirmActions.REJECT &&
+                (action === ActionOnReload.SentToPaymentList || action === ActionOnReload.JournaledAndSentToPaymentList)) {
                 this.router.navigateByUrl('/bank/ticker?code=payment_list');
             }
         });

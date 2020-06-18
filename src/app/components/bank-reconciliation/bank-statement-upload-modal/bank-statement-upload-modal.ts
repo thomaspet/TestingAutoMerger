@@ -141,6 +141,19 @@ export class BankStatementUploadModal implements IUniModal {
         }
     }
 
+    removeFile(ID: number, index: number) {
+        this.busy = true;
+
+        this.fileService.Remove(ID)
+            .finally(() => this.busy = false)
+            .subscribe(() => {
+                if (this.selectedFileID === ID) {
+                    this.selectedFileID = 0;
+                }
+                this.files.splice(index, 1);
+        });
+    }
+
     loadPreviewLines(template?: ImportTemplate) {
         this.busy = true;
         this.previewLines = [];

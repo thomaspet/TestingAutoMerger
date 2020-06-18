@@ -7,8 +7,10 @@ import { switchMap } from 'rxjs/operators';
 
 export enum ActionOnReload {
     DoNothing = 0,
-    SentToBank = 1,
-    SentToPaymentList = 2
+    JournaledAndSentToBank = 1,
+    JournaledAndSentToPaymentList = 2,
+    SentToBank = 3,
+    SentToPaymentList = 4
 }
 
 // HELPER CLASS FOR JOURNALING AND PAYMENT FUNCTIONS

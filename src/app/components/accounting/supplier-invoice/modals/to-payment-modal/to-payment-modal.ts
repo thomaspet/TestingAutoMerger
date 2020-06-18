@@ -2,6 +2,7 @@ import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import { SupplierInvoice } from '@uni-entities';
 import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService } from '@app/services/services';
+import {ActionOnReload} from '../../journal-and-pay-helper';
 import { of } from 'rxjs';
 
 @Component({
@@ -18,6 +19,7 @@ export class ToPaymentModal implements IUniModal {
     onlyToPayment = false;
     hasErrors = false;
     errorMessage = '';
+    shouldReloadOnClose = false;
     total = {
         net: 0,
         vat: 0,
@@ -89,6 +91,7 @@ export class ToPaymentModal implements IUniModal {
         this.busy = true;
 
         obs.subscribe(() => {
+            this.shouldReloadOnClose = !this.onlyToPayment;
             if (value === 1) {
                 this.createPaymentAndSendToBank();
             } else {
@@ -102,12 +105,14 @@ export class ToPaymentModal implements IUniModal {
     }
 
     close() {
-        this.onClose.emit(null);
+        // This emits true of false, and is only called when somehting went wrong.. Emits true when it
+        // fails on step > 1 and should reload invoice when the modal is closed.
+        this.onClose.emit(this.shouldReloadOnClose);
     }
 
     sendToPaymentList() {
         this.supplierInvoiceService.sendForPayment(this.current.ID).subscribe(res => {
-            this.onClose.emit(2);
+            this.onClose.emit(this.onlyToPayment ? ActionOnReload.SentToPaymentList : ActionOnReload.JournaledAndSentToPaymentList);
         }, err => {
             this.busy = false;
             this.errorMessage = 'Noe gikk galt ved oppretting av betaling, kunne ikke sende den til betalingslisten';
@@ -118,9 +123,10 @@ export class ToPaymentModal implements IUniModal {
     createPaymentAndSendToBank() {
         // Creates a payment for the supplier invoice
         this.supplierInvoiceService.sendForPayment(this.current.ID).subscribe(payment => {
+            this.shouldReloadOnClose = true;
             // Send that batch to the bank directly
             this.paymentBatchService.sendAutobankPayment({Code: null, Password: null, PaymentIds: [payment.ID]}).subscribe(() => {
-                this.onClose.emit(1);
+                this.onClose.emit(this.onlyToPayment ? ActionOnReload.SentToBank : ActionOnReload.JournaledAndSentToBank);
             }, err => {
                 this.busy = false;
                 this.errorMessage = 'Betaling ble opprettet, men kunne ikke sende den til banken. Gå til Bank - Utbetalinger og send den på nytt.';

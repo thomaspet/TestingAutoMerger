@@ -46,7 +46,17 @@ export class BankStatement {
             'Amount as Amount,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,StatusCode as StatusCode');
             urlParams = urlParams.set('join', 'BankStatement.ID eq BankStatementEntry.BankStatementID as Entry');
             urlParams = urlParams.set('expand', 'Account');
-            urlParams = urlParams.set('orderby', 'count(entry.ID) desc');
+            let orderBy = urlParams.get('orderby');
+
+            if (!orderBy || orderBy.includes('count')) {
+                if (orderBy.includes('asc')) {
+                    orderBy = 'count(entry.ID) desc';
+                } else {
+                    orderBy = 'count(entry.ID) asc';
+                }
+            }
+
+            urlParams = urlParams.set('orderby', orderBy);
 
             return this.statisticsService.GetAllByHttpParams(urlParams);
         };
@@ -106,15 +116,14 @@ export class BankStatement {
             new UniTableColumn('Amount', 'Sum', UniTableColumnType.Money),
         ];
 
-        return new UniTableConfig('bankstatement.statements.details', false, false)
-            .setPageable(true)
+        return new UniTableConfig('bankstatement.statements.details', false, true)
             .setSearchable(true)
             .setEntityType('BankStatement')
             .setContextMenu([
                 {
                     action: (item) => this.onActionClick('delete', item, item._originalIndex),
                     disabled: (item) => false,
-                    label: 'Slett avstemming'
+                    label: 'Slett kontoutskrift'
                 },
                 {
                     action: (item) => this.onActionClick('open', item, item._originalIndex),
