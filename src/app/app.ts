@@ -25,6 +25,7 @@ import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 import { environment } from 'src/environments/environment';
+import { Logger } from '@uni-framework/core/logger';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -55,6 +56,7 @@ export class App {
         private router: Router,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
+        private logger: Logger // used for logging in Azure Application Insights
     ) {
         if (!this.titleService.getTitle()) {
             const title = this.title;
