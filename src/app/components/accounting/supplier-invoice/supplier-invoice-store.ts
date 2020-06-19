@@ -387,7 +387,6 @@ export class SupplierInvoiceStore {
         const fileIDs = this.fileIDs$.value;
         if (!invoice.ID && fileIDs?.length) {
             saveRequest$ = saveRequest$.pipe(switchMap(savedInvoice => {
-                this.changes$.next(false);
                 return this.linkFiles(savedInvoice.ID, fileIDs).pipe(
                     map(() => savedInvoice)
                 );
@@ -480,16 +479,6 @@ export class SupplierInvoiceStore {
                 done('Betaling avbrutt');
             }
         });
-    }
-
-    finish(done?) {
-        this.supplierInvoiceService.PostAction(this.invoice$.value.ID, 'finish').subscribe(res => {
-            done('Faktura arkivert');
-            this.loadInvoice(this.invoice$.value.ID);
-        }, err => {
-            done('Kunne ikke arkivere faktura');
-        });
-
     }
 
     mapDimensions(current: SupplierInvoice, info: any): SupplierInvoice {

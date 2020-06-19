@@ -48,8 +48,8 @@ export class BankStatement {
             urlParams = urlParams.set('expand', 'Account');
             let orderBy = urlParams.get('orderby');
 
-            if (!orderBy || orderBy.includes('count')) {
-                if (orderBy.includes('asc')) {
+            if (!orderBy || orderBy?.includes('count')) {
+                if (orderBy?.includes('asc')) {
                     orderBy = 'count(entry.ID) desc';
                 } else {
                     orderBy = 'count(entry.ID) asc';

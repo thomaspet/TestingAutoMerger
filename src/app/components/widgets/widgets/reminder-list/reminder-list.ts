@@ -2,13 +2,14 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from
 import {Router} from '@angular/router';
 import {IUniWidget} from '../../uniWidget';
 import {AuthService} from '@app/authService';
-import {ApprovalService} from '@app/services/services';
+import {ApprovalService, TaskService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../../widgetDataService';
 import {NewTaskModal} from '../../../common/modals/new-task-modal/new-task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {ApprovalStatus } from '@uni-entities';
+import {ApprovalStatus, Task } from '@uni-entities';
 import {Observable} from 'rxjs';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
@@ -27,12 +28,13 @@ import {THEMES, theme} from 'src/themes/theme';
                 </span>
 
                 <ng-container *ngIf="dataLoaded && items?.length">
-                    <a *ngFor="let item of items" class="reminder-item" [routerLink]="item._url">
+                    <a *ngFor="let item of items; let i = index;" class="reminder-item" (click)="goToItemLink(item)">
                         <i class="material-icons-outlined">{{ item._icon }}</i>
                         <div>
                             <strong>{{ item._label }}</strong>
                             <span>{{ item._typeText }}</span>
                         </div>
+                        <i class="material-icons-outlined" *ngIf="item._isTaks" (click)="completeTask(item, i, $event)" title="Sett oppgave som fullført">archive</i>
                     </a>
                 </ng-container>
             </div>
@@ -49,6 +51,7 @@ export class ReminderListWidget {
     scrollbar: PerfectScrollbar;
     dataLoaded: boolean = false;
     approvals: any[] = [];
+    busy = false;
 
     constructor(
         private authService: AuthService,
@@ -56,7 +59,9 @@ export class ReminderListWidget {
         private cdr: ChangeDetectorRef,
         private widgetDataService: WidgetDataService,
         private modalService: UniModalService,
-        private approvalService: ApprovalService
+        private approvalService: ApprovalService,
+        private taskService: TaskService,
+        private toast: ToastService
     ) {}
 
     public ngAfterViewInit() {
@@ -84,6 +89,7 @@ export class ReminderListWidget {
                 item._label = item.Title;
                 item._typeText = item.Name ? this.getTranslatedTypeText(item.Name) : 'Huskelapp';
                 item._url = item.Name ? this.getEntityURL(item) : '/assignments/tasks';
+                item._isTaks = true;
                 return item;
             });
 
@@ -99,7 +105,7 @@ export class ReminderListWidget {
                         ? `${item.Counter} regninger til betaling`
                         : `${item.Counter} faktura klar for purring`;
                     item._typeText = this.getTranslatedTypeText(item.Name);
-                    item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=ToPayment' : '/sales/reminders/ready';
+                    item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=issenttopayment' : '/sales/reminders/ready';
                     return item;
                 });
 
@@ -157,6 +163,28 @@ export class ReminderListWidget {
         if (this.scrollbar) {
             this.scrollbar.destroy();
         }
+    }
+
+    completeTask(task: Task, index: number, event) {
+        event.stopPropagation();
+
+        if (this.busy) {
+            return;
+        }
+
+        this.busy = true;
+        this.taskService.PostAction(task.ID, 'complete').subscribe(res => {
+            this.items.splice(index, 1);
+            this.toast.addToast('Oppgave satt som fullført.', ToastType.good, 8, `Oppgave "${task.Title}" ferdistilt.`);
+            this.busy = false;
+            this.cdr.markForCheck();
+        }, err => {
+            this.busy = false;
+        });
+    }
+
+    goToItemLink(item) {
+        this.router.navigateByUrl(item._url);
     }
 
     newTask() {

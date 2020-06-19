@@ -106,6 +106,7 @@ export class SupplierInvoiceView {
                     const redirectAfterSave = !this.store.invoice$.value?.ID;
                     this.store.saveChanges().subscribe(
                         savedInvoice => {
+                            this.store.changes$.next(false);
                             done('Lagring fullført');
                             if (redirectAfterSave) {
                                 this.router.navigateByUrl('/accounting/bills/' + savedInvoice.ID);
@@ -119,7 +120,8 @@ export class SupplierInvoiceView {
                         }
                     );
                 },
-                main: changes
+                main: changes,
+                disabled: !changes
             },
             {
                 label: 'Tøm feltene',
@@ -150,15 +152,8 @@ export class SupplierInvoiceView {
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled && invoice.PaymentStatus <= 30109 ),
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
+                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112
             },
-            // {
-            //     label: 'Arkiver',
-            //     action: (done) => {
-            //         this.store.finish(done);
-            //     },
-            //     main: false,
-            //     disabled: !invoice?.ID || changes
-            // },
             {
                 label: 'Slett',
                 action: (done) => {
@@ -282,7 +277,7 @@ export class SupplierInvoiceView {
 
         const modalOptions = {
             header: 'Ulagrede endringer',
-            message: 'Du har endringer i innstillingene som ikke er lagret. Ønsker du å lagre disse før du fortsetter?',
+            message: 'Du har endringer som ikke er lagret. Ønsker du å lagre disse før du fortsetter?',
             buttonLabels: {
                 accept: 'Lagre',
                 reject: 'Forkast',
