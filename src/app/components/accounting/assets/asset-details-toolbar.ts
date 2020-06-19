@@ -99,7 +99,7 @@ export class AssetDetailsToolbar {
             statustrack: this.createStatus(asset),
             navigation: {
                 add: {
-                    label: '+',
+                    label: '',
                     action: () => this.router.navigateByUrl('/accounting/assets/0/details')
                 }
             },

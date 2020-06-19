@@ -1,11 +1,8 @@
 import {Component, Type, Input, Output, ViewChild, EventEmitter, OnInit} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {UniForm} from '../../../../../framework/ui/uniform/index';
-import {FieldLayout, Period, VatReport} from '../../../../../app/unientities';
-import {FieldType} from '../../../../../framework/ui/uniform/index';
+import {Period, VatReport} from '../../../../../app/unientities';
 import {PeriodDateFormatPipe} from '@uni-framework/pipes/periodDateFormatPipe';
-import {BehaviorSubject} from 'rxjs';
-
 import {
     PeriodService,
     VatReportService,
@@ -15,20 +12,34 @@ import {
 @Component({
     selector: 'create-corrected-vatreport-form',
     template: `
-        <article class='modal-content' *ngIf="config">
-            <h1>{{title}}</h1>
-            <uni-form
-                [config]="formConfig$"
-                [fields]="fields$"
-                [model]="model$"
-                (submitEvent)="onSubmit($event)">
-            </uni-form>
+        <section class='uni-modal' *ngIf="config">
+            <header>{{title}}</header>
+            <section class="create-message-options">
+                <article (click)="updateModel(1)" [class.selected]="model.correctionChoice === 1">
+                    <h1>
+                        <mat-radio-button [checked]="model.correctionChoice === 1"></mat-radio-button> Korrigert melding (anbefalt)
+                    </h1>
+                    <p>
+                        Denne meldingen korrigerer allerede innsendt mva-melding og vil erstatte meldingen
+                        du tidligere har sendt inn for denne terminen.
+                    </p>
+                </article>
+                <article (click)="updateModel(2)" [class.selected]="model.correctionChoice === 2">
+                    <h1>
+                        <mat-radio-button [checked]="model.correctionChoice === 2"></mat-radio-button>
+                        Tilleggsmelding
+                    </h1>
+                    <p>
+                        Denne meldingen vil sende inn et tillegg til mva-meldingen du tidligere har sendt inn for denne terminen.
+                    </p>
+                </article>
+            </section>
             <p>{{error}}</p>
             <footer>
-                <button *ngIf="createButtonVisible" (click)="submit()">Opprett endringsmelding</button>
                 <button *ngIf="config.hasCancelButton" (click)="config.cancel()">{{exitButton}}</button>
+                <button *ngIf="createButtonVisible" (click)="submit()" class="good">Opprett endringsmelding</button>
             </footer>
-        </article>
+        </section>
     `
 })
 export class CreateCorrectedVatReportForm implements OnInit {
@@ -38,9 +49,7 @@ export class CreateCorrectedVatReportForm implements OnInit {
 
     @Output() public formSubmitted: EventEmitter<number> = new EventEmitter<number>();
 
-    public fields$: BehaviorSubject<FieldLayout[]> = new BehaviorSubject([]);
-    public model$: BehaviorSubject<{ correctionChoice: number }> = new BehaviorSubject({ correctionChoice: 1 });
-    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
+    public model = { correctionChoice: 1 };
     public title: string = 'Opprett endringsmelding';
     public error: string = '';
     public exitButton: string = 'Avbryt';
@@ -61,49 +70,28 @@ export class CreateCorrectedVatReportForm implements OnInit {
         this.createButtonVisible = true;
         this.error = '';
         this.exitButton = 'Avbryt';
-
-
-        var radioGroup: any = {
-            Property: 'correctionChoice',
-            Placement: 1,
-            Hidden: false,
-            FieldType: FieldType.RADIOGROUP,
-            ReadOnly: false,
-            Label: '',
-            Description: '',
-            HelpText: '',
-            FieldSet: 0,
-            Section: 0,
-            Placeholder: 'Select',
-            Options: {
-                source: [
-                    { id: 1, text: 'Korrigert melding (Anbefalt)' },
-                    { id: 2, text: 'Tilleggsmelding' }
-                ],
-                labelProperty: 'text',
-                valueProperty: 'id'
-            }
-        };
-        this.fields$.next([radioGroup]);
     }
 
     public submit() {
-        switch (this.model$.getValue().correctionChoice) {
+        switch (this.model.correctionChoice) {
             case 1:
-                //console.log('submit() this.model.correctionChoice 1 for periodID: ' + this.period.ID);
                 this.createAdjustedVatReport();
                 break;
             case 2:
-                //console.log('submit() this.model.correctionChoice 2 for periodID: ' + this.period.ID);
                 this.createAdditionalVatReport();
                 break;
         }
         // this.formSubmitted.emit(this.model.correctionChoice); //TODO returner ID for ny vatReport
     }
 
+    public updateModel(option) {
+        this.model.correctionChoice = option;
+        const model = this.model;
+        this.model = {...model};
+    }
+
     private createAdjustedVatReport() {
         // this.busy = true;
-        this.uniform.Hidden = true;
         this.createButtonVisible = false;
         this.vatReportService.createAdjustedVatReport(this.vatReportID, this.period.ID)
             .subscribe((response: VatReport) => {
@@ -126,7 +114,6 @@ export class CreateCorrectedVatReportForm implements OnInit {
 
     private createAdditionalVatReport() {
         // this.busy = true;
-        this.uniform.Hidden = true;
         this.createButtonVisible = false;
         this.vatReportService.createAdditionalVatReport(this.vatReportID, this.period.ID)
             .subscribe((response: VatReport) => {
@@ -147,14 +134,8 @@ export class CreateCorrectedVatReportForm implements OnInit {
             });
     }
 
-    public onSubmit() {
-        this.formSubmitted.emit(this.model$.getValue().correctionChoice);
-    }
-
     public close() {
         this.initialize();
-        console.log('close()');
-        this.uniform.Hidden = false;
     }
 }
 
@@ -217,11 +198,9 @@ export class CreateCorrectedVatReportModal {
                 this.modal.open();
 
                 this.modal.getContent().then((modalContent: CreateCorrectedVatReportForm) => {
-                    console.log('openModal for period: ' + periodID);
-
                     modalContent.vatReportID = this.vatReportID;
                     modalContent.period = this.period;
-                    modalContent.model$.next({ correctionChoice: 1 });
+                    modalContent.model = Object.assign({}, { correctionChoice: 1 });
                     modalContent.title = 'Opprett endringsmelding for termin: '
                         + this.period.No + ' (' + this.periodDateFormat.transform(this.period) + ')';
                 });
