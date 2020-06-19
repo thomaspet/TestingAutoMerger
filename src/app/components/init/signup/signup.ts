@@ -15,11 +15,12 @@ import {theme} from 'src/themes/theme';
 })
 export class Signup {
     @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
+    isSrEnvironment = environment.isSrEnvironment;
     appName = environment.isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy';
     confirmationCode: string;
     busy: boolean;
 
-    headerText = 'Prøv gratis i 30 dager';
+    headerText = environment.isSrEnvironment ? 'Registrer bruker' : 'Prøv gratis i 30 dager';
 
     errorMessage: string;
 
