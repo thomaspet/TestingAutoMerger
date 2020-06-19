@@ -5,6 +5,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig, UniTableColumn} from '@uni-framework/ui/unitable';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import { SalaryHelperMethods } from '../../shared/services/salaryHelperMethods';
+import {EmailService} from '@app/services/common/emailService';
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'
@@ -35,6 +36,7 @@ export class PaycheckSending implements OnInit {
         private statisticsService: StatisticsService,
         private salaryHelper: SalaryHelperMethods,
         private errorService: ErrorService,
+        private emailService: EmailService
     ) {}
 
     ngOnInit() {
@@ -79,7 +81,8 @@ export class PaycheckSending implements OnInit {
                 if (
                     employee.BusinessRelationInfo &&
                     employee.BusinessRelationInfo.DefaultEmail &&
-                    employee.BusinessRelationInfo.DefaultEmail.EmailAddress
+                    employee.BusinessRelationInfo.DefaultEmail.EmailAddress &&
+                    this.emailService.isValidEmailAddress(employee.BusinessRelationInfo.DefaultEmail.EmailAddress)
                 ) {
                     employee['_paycheckFormat'] = PaycheckFormat.E_MAIL;
                 } else {
