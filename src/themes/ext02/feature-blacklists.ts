@@ -3,6 +3,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.distribution',
         'ui.bank_account_manual_setup',
         'ui.sellers',
+        'ui.kid-settings',
 
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
@@ -20,10 +21,13 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui_tickers',
         'ui_uniqueries',
         'ui_assignments',
+        'ui_admin_flow',
+        'ui_settings_teams',
+        'ui_approval-rules',
 
         'ui_accounting_budget',
         'ui_accounting_costallocation',
-        'ui_sales_kidsettings',
+        // 'ui_sales_kidsettings',
         'ui_sales_recurringinvoice',
     ],
 };
@@ -33,6 +37,9 @@ export const MINI_PACKAGE_BLACKLIST = {
         ...PLUS_PACKAGE_BLACKLIST.view_features,
         'ui.dimensions',
         'ui.debt-collection',
+        'ui.numberseries-others',
+
+        'ui.accounting.assets',
 
         'ui.sales.customer.tof_report_setup',
         'ui.sales.customer.avtalegiro',
@@ -42,6 +49,11 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.invoice.accrual',
 
         'ui.sales.products.product_categories',
+
+        // REVISIT
+        'ui.sales.quotes',
+        'ui.sales.orders',
+        'ui.sales.reminders'
     ],
     ui_permissions: [
         ...PLUS_PACKAGE_BLACKLIST.ui_permissions,
@@ -62,8 +74,12 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_accounting_postpost',
 
         'ui_dimensions',
+        'ui_import',
+        'ui_settings_webhooks',
+
         'ui_marketplace_integrations',
         'ui_marketplace_purchases',
+
         // 'ui_dimensions_projects_overview',
         // 'ui_dimensions_projects_hours',
     ],

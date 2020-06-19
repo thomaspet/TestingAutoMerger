@@ -14,7 +14,6 @@ export class FeaturePermissionDirective {
 
     @Input()
     set ifFeaturePermission(feature: string) {
-        console.log('directive', feature);
         if (this.featurePermissionService.canShowUiFeature(feature)) {
             this.viewContainer.createEmbeddedView(this.templateRef);
         } else {

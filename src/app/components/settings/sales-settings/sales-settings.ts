@@ -76,9 +76,9 @@ export class UniSalesSettingsView {
     tabs: IUniTab[] = [
         {name: 'SETTINGS.SALES_INVOICE'},
         {name: 'NAVBAR.TERMS'},
-        {name: 'SETTINGS.KID_SETTINGS'},
+        {name: 'SETTINGS.KID_SETTINGS', featurePermission: 'ui.kid-settings'},
         {name: 'SETTINGS.FORM_SETTINGS'},
-        {name: 'SETTINGS.COLLECTOR'}
+        {name: 'SETTINGS.COLLECTOR', featurePermission: 'ui.debt-collection'}
     ];
 
     decimals: {Decimals: number, Name: string}[] = [

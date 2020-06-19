@@ -84,14 +84,17 @@ export class NavbarLinkService {
         }
     }
 
-    public getSettingsFilteredByPermissions(user: UserDto): any[] {
+    public getSettingsFilteredByPermissions(user: UserDto) {
         const settingsSections: INavbarLinkSection[] = cloneDeep(SETTINGS_LINKS);
         // Filter out links the user doesnt have access to for every section
         settingsSections.forEach(section => {
             section.linkGroups = section.linkGroups.map(group => {
                 group.links = group.links.filter(link => {
                     const canActivate = this.authService.canActivateRoute(user, link.url);
-                    return canActivate;
+                    const hasFeaturePermission = !link.featurePermission
+                        || this.featurePermissionService.canShowUiFeature(link.featurePermission);
+
+                    return canActivate && hasFeaturePermission;
                 });
                 return group;
             });

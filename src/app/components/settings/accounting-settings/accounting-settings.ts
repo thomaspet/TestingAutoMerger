@@ -62,8 +62,8 @@ export class UniCompanyAccountingView {
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
         {name: 'Mvakoder'},
-        {name: 'Forholdsmessig MVA / fradrag'},
-        {name: 'Eiendeler'}
+        {name: 'Forholdsmessig MVA / fradrag', featurePermission: 'ui.accounting.vat-deduction-settings'},
+        {name: 'Eiendeler', featurePermission: 'ui.accounting.assets'}
     ];
 
     eInvoiceItems: any[] = [

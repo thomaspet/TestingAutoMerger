@@ -57,13 +57,6 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         {ID: true, DisplayName: 'Ja'}
     ];
 
-    public series: any[] = [
-        {ID: 'JournalEntry', Name: 'Regnskap'},
-        {ID: 'Sale', Name: 'Salg'},
-        {ID: 'Accounts', Name: 'Kontoer'},
-        {ID: 'Others', Name: 'Andre serier'}
-    ];
-
     public registers: any[] = [
         {EntityType: 'JournalEntry', DisplayName: 'Bilag', Sale: false},
         {EntityType: 'Customer', DisplayName: 'Kunde', Sale: false},
