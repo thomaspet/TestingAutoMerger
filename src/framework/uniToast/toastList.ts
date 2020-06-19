@@ -1,5 +1,5 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {ToastService, ToastType} from './toastService';
+import {ToastService, ToastType, IToast} from './toastService';
 
 @Component({
     selector: 'uni-toast-list',
@@ -32,11 +32,11 @@ export class UniToastList {
         public cdr: ChangeDetectorRef
     ) {}
 
-    public toastDismissed(toast) {
+    public toastDismissed(toast: IToast) {
         toast.done = true;
 
         setTimeout(() => {
-            if (ToastType.load) {
+            if (toast.type === ToastType.load) {
                 this.toastService.hideLoadIndicator();
             } else {
                 this.toastService.removeToast(toast.id);
