@@ -74,7 +74,7 @@ export class SalaryTransactionSupplementList implements OnInit {
 
         pageSize = pageSize <= 33 ? 10 : Math.floor(pageSize / 34);
 
-        return new UniTableConfig('salary.salaryTransactionSupplementsList', false, true)
+        return new UniTableConfig('salary.salaryTransactionSupplementsList.v2', false, true)
             .setAutoAddNewRow(false)
             .setColumns([employeeNumberCol, employeeNameCol, wageTypeCol, textCol, supplementTextCol, valueCol,
                 fromDate, toDate, runCol, amountCol, sumCol])
