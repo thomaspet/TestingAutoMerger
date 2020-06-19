@@ -84,5 +84,22 @@ export const MISC_WIDGETS = [
         width: 3,
         height: 3,
         widgetType: 'assignments'
+    },
+    {
+        id: 'help_sr_accounting',
+        description: 'Tilbud på regnskapsførsel',
+        permissions: [],
+        width: 3,
+        height: 1,
+        widgetType: 'info_tile',
+        config: {
+            dataEndpoint: ``,
+            title: 'Ønsker du hjelp? Få tilbud på regnskapsførsel',
+            positive: false,
+            externalLink: 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/faa_tilbud_paa_regnskapsforsel_bankogregnskap.html',
+            icon: '',
+            class: 'help-sraccounting',
+            srOnly: true
+        }
     }
 ];
