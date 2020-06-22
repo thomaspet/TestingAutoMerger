@@ -1465,7 +1465,7 @@ export class InvoiceDetails implements OnInit {
         }
 
         this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer og send',
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
             action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
@@ -1861,7 +1861,9 @@ export class InvoiceDetails implements OnInit {
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 } else {
-                                    onSendingComplete();
+                                    this.modalService.open(SendInvoiceModal, {
+                                        data: this.invoice
+                                    }).onClose.subscribe(() => onSendingComplete());
                                 }
                             });
                         },
