@@ -11,12 +11,22 @@
                 (rowSelectionChange)="onFileSelected($event)">
             </ag-grid-wrapper>
 
-            <uni-image *ngIf="selectedFile"
+            <section class="bill-preview">
+                <section *ngIf="busy" class="bill-preview-spinner">
+                    <section class="spinner-container">
+                        <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+                        <section class="spinner-text">Laster dokument</section>
+                    </section>
+                </section>
+
+                <uni-image *ngIf="selectedFile"
                 [singleImage]="true"
                 [readonly]="true"
                 [uploadWithoutEntity]="true"
-                [fileIDs]="[selectedFile.ID]">
+                [fileIDs]="[selectedFile.ID]"
+                (fileListReady)="onFileListReady($event)">
             </uni-image>
+            </section>
         </section>
     </article>
 
@@ -24,6 +34,7 @@
         <button class="secondary" (click)="onClose.emit()">Avbryt</button>
         <button
             (click)="onClose.emit(selectedFile)"
+            [disabled]="busy"
             class="c2a"
             style="min-width: 8rem">
 

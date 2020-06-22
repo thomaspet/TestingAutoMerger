@@ -83,6 +83,7 @@ export class UniImage {
     @Output() useWord = new EventEmitter();
     @Output() fileSplitCompleted = new EventEmitter();
     @Output() imageLoaded = new EventEmitter();
+    @Output() busyLoadingFiles = new EventEmitter<boolean>();
 
     private baseUrl: string = environment.BASE_URL_FILES;
     private keyListener: any;
@@ -259,7 +260,7 @@ export class UniImage {
                             const type = (file.ContentType || '').toLowerCase();
 
                             if (type.includes('bis/billing') || filename.includes('.ehf')) {
-                                const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
+                                const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference, false).pipe(
                                     catchError(err => {
                                         console.error('Error loading EHF data', err);
                                         return observableOf(null);
@@ -638,6 +639,7 @@ export class UniImage {
                 );
             } else {
                 this.uploadFile(newFile);
+                this.busyLoadingFiles.emit(true);
             }
         }
     }

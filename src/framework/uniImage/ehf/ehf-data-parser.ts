@@ -379,6 +379,7 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
         if (attachmentRef) {
             let label = get(docRef, 'cbc:DocumentDescription') || get(docRef, 'cbc:DocumentType') || get(docRef, 'cbc:ID');
+            const id = get(docRef, 'cdc:ID');
             if (get(label, '#text')) {
                 label = get(label, '#text');
             }
@@ -405,7 +406,19 @@ function getAttachments(additionalDocRefs): EHFAttachment[] {
 
                     attachments.push({
                         label: label,
+                        id: id,
                         resourceUrl: URL.createObjectURL(blob),
+                        mimeType: mimeCode
+                    });
+                } else if (mimeCode) {
+
+                    if (label === 'Commercial invoice') {
+                        label = 'Orginalfaktura';
+                    }
+
+                    attachments.push({
+                        label: label,
+                        id: id,
                         mimeType: mimeCode
                     });
                 }

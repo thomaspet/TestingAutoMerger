@@ -1,4 +1,4 @@
-import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
@@ -173,6 +173,8 @@ export class BillView implements OnInit, AfterViewInit {
     autocompleteOptions: any;
     public journalEntryManual: JournalEntryManual;
 
+    public loadingFiles: boolean;
+
     private supplierExpandOptions: Array<string> = [
         'Info',
         'Info.BankAccounts',
@@ -266,7 +268,7 @@ export class BillView implements OnInit, AfterViewInit {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService,
         private accountService: AccountService,
-        private assetsService: AssetsService
+        private assetsService: AssetsService,
     ) {
         this.actions = this.rootActions;
 
@@ -420,6 +422,7 @@ export class BillView implements OnInit, AfterViewInit {
                 }
 
                 if (links.length > 0) {
+                    this.loadingFiles = true;
                     if (links.length > 1) {
                         this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG1', ToastType.warn, ToastTime.medium);
                     } else  {
@@ -978,6 +981,10 @@ export class BillView implements OnInit, AfterViewInit {
         this.tagFileStatus(file.ID, 0);
     }
 
+    onBusyLoadingFiles(busyLoadingFiles: boolean) {
+        this.loadingFiles = busyLoadingFiles;
+    }
+
     private hasChangedFiles(files: Array<any>) {
         if ((!this.files) && (!files)) { return false; }
         if ((!this.files) || (!files)) { return true; }
@@ -1020,6 +1027,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.documentsInUse = this.unlinkedFiles;
             }
         }
+        this.loadingFiles = false;
     }
 
     public onJournalEntryManualDataLoaded(data) {
@@ -2487,10 +2495,10 @@ export class BillView implements OnInit, AfterViewInit {
 
     public openAddFileModal() {
         this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
-            if (!file) {
+            if ((!file) || this.files.filter(x => x.StorageReference === file.StorageReference).length) {
                 return;
             }
-
+            this.loadingFiles = true;
             const invoice = this.current.getValue();
             if (invoice.ID) {
                 this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).subscribe(() => {
@@ -4202,10 +4210,12 @@ export class BillView implements OnInit, AfterViewInit {
     private checkPath() {
         const pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
+            this.loadingFiles = true;
             this.loadFromFileID(pageParams.fileid);
         } else {
             this.modalService.open(BillInitModal).onClose.subscribe(fileID => {
                 if (fileID) {
+                    this.loadingFiles = true;
                     this.loadFromFileID(fileID);
                 }
             });
