@@ -12,8 +12,10 @@ import {
     CompanyVacationRateService,
     PeriodSeriesService,
     DistributionPlanService,
-    AccountService
+    AccountService,
+    EmailService
 } from '@app/services/services';
+import { EmailValidator } from '@angular/forms';
 
 enum SETTINGS_STEPS {
     CompanyAndAccounting = 0,
@@ -73,7 +75,8 @@ export class WizardSettingsModal implements IUniModal {
         private modalService: UniModalService,
         private periodeSeriesService: PeriodSeriesService,
         private distributionPlanService: DistributionPlanService,
-        private accountService: AccountService
+        private accountService: AccountService,
+        private emailService: EmailService
     ) { }
 
     ngOnInit() {
@@ -145,7 +148,8 @@ export class WizardSettingsModal implements IUniModal {
         if (this.currentStep === SETTINGS_STEPS.CompanyAndAccounting) {
             if  (!!this.companySettings.CompanyName
                 && !!this.companySettings.DefaultAddress.AddressLine1
-                && !!this.companySettings.DefaultEmail.EmailAddress) {
+                && !!this.companySettings.DefaultEmail.EmailAddress
+                && this.emailService.isValidEmailAddress(this.companySettings.DefaultEmail.EmailAddress) ) {
                 this.stepValidator[SETTINGS_STEPS.CompanyAndAccounting].isValid = true;
                 return true;
             }
