@@ -3,11 +3,13 @@ import {DomSanitizer} from '@angular/platform-browser';
 import {saveAs} from 'file-saver';
 import * as printJS from 'print-js';
 
-import {FileExtended, parseEHFData, EHFAttachment} from '../../uniImage';
+import {FileExtended} from '../../uniImage';
 import {FileService, UniFilesService} from '@app/services/services';
 import { catchError, map } from 'rxjs/operators';
 import {of as observableOf, Observable} from 'rxjs';
-import { EHFData } from '../ehf-model';
+import { EHFData, EHFAttachment } from '../ehf-model';
+import { parseEHFData } from '../ehf-data-parser';
+
 @Component({
     selector: 'ehf-viewer',
     templateUrl: './ehf-viewer.html',
