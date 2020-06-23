@@ -2,8 +2,9 @@ import {Component, EventEmitter} from '@angular/core';
 import {FormGroup, FormControl} from '@angular/forms';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UserService, ErrorService} from '@app/services/services';
-import {User} from '@app/unientities';
+import {UserDto} from '@app/unientities';
 import {forkJoin} from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { HttpClient } from '@angular/common/http';
 import {environment} from 'src/environments/environment';
@@ -18,7 +19,7 @@ export class UserSettingsModal implements IUniModal {
     onClose: EventEmitter<any> = new EventEmitter();
 
     busy: boolean;
-    user: User;
+    user: UserDto;
     userDetailsForm: FormGroup;
     autobankPasswordForm: FormGroup;
     epostButtonClicked: boolean;
@@ -38,21 +39,30 @@ export class UserSettingsModal implements IUniModal {
         this.userDetailsForm = new FormGroup({
             DisplayName: new FormControl(this.user.DisplayName),
             PhoneNumber: new FormControl(this.user.PhoneNumber),
-            Email: new FormControl(this.user.Email)
+            Email: new FormControl(this.user.Email),
+            TwoFactorEnabled: new FormControl(this.user.TwoFactorEnabled)
         });
     }
 
     save() {
         const saveRequests = [];
-
         if (this.userDetailsForm.dirty) {
             const model = this.userDetailsForm.value;
 
             this.user.DisplayName = model.DisplayName;
             this.user.PhoneNumber = model.PhoneNumber;
             this.user.Email = model.Email;
+            this.user.TwoFactorEnabled = model.TwoFactorEnabled;
 
             saveRequests.push(this.userService.Put(this.user.ID, this.user));
+            saveRequests.push(this.userService.updateUserTwoFactorAuth(this.user.TwoFactorEnabled).pipe(
+                catchError((e) => {
+                    this.userDetailsForm.get('TwoFactorEnabled').setValue(!this.user.TwoFactorEnabled);
+                    this.user.TwoFactorEnabled = !this.user.TwoFactorEnabled;
+                    e.error = `To-faktor pålogging er påkrevd for minst en lisens/selskap du har tilgang til. Kan ikke slå av to-faktor pålogging.`;
+                    throw e;
+                  }
+            )));
         }
 
         this.busy = true;

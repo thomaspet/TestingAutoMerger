@@ -11,7 +11,7 @@ import {User} from '@uni-entities';
 export class ElsaContractService {
     ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
-    constructor(private uniHttp: UniHttp, private http: HttpClient) {}
+    constructor(private uniHttp: UniHttp, private http: HttpClient) { }
 
     get(id: number, select?: string): Observable<ElsaContract> {
         const selectClause = select ? `$select=${select}&` : '';
@@ -115,5 +115,9 @@ export class ElsaContractService {
             default:
                 return '';
         }
+    }
+
+    updateTwoFactorAuthentication(contractID: number, body): Observable<ElsaContract> {
+        return this.http.put(this.ELSA_SERVER_URL + `/api/contracts/${contractID}`, body).pipe(map(res => res[0]));
     }
 }

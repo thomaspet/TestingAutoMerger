@@ -26,7 +26,18 @@
                 <a [attr.href]="changePasswordUrl">Endre passord</a>
             </label>
 
-            <label *ngIf="user?.BankIntegrationUserName" class="uni-label label-left">
+            <label class="uni-label label-left">
+                <span>To-faktor pålogging</span>
+                <mat-slide-toggle
+                    formControlName="TwoFactorEnabled"
+                    [labelPosition]="'before'">
+                </mat-slide-toggle>
+            </label>
+
+            <label
+                *ngIf="user?.BankIntegrationUserName"
+                class="uni-label label-left"
+            >
                 <span>Endre autobankpassord</span>
                 <button [disabled]="epostButtonClicked" (click)="resetAutobankPassword(); epostButtonClicked=true;">
                     Send E-post
