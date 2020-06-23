@@ -8,12 +8,6 @@
 ### Updating the entities file
 `yarn entities` / `npm run entities` 
 
-You also need to say which server you want to download unientites from with environment variables. E.g.
-<br>**Windows** `set SERVER_URL=https://devapi.unieconomy.no&&npm run entities`
-<br>**Unix/git bash** `export SERVER_URL=https://devapi.unieconomy.no && npm run entities`
-
-*Note that && to chain commands does not work in powershell, so use cmd on windows.*
-
 - - - -
 ### Checking for AOT errors before pushing
 
