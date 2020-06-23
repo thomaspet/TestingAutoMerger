@@ -119,6 +119,10 @@ export class Signup {
     }
 
     public submitStep2Form() {
+        if (this.busy) {
+            return;
+        }
+
         if (!this.step2Form.valid) {
             this.errorMessage = 'Skjemaet er ikke gyldig. Vennligst påse at alle felter er fylt ut i henhold til kravene.';
 

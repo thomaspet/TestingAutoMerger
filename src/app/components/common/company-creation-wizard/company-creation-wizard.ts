@@ -6,7 +6,7 @@ import {AuthService} from '@app/authService';
 import {ModulusService, InitService, ErrorService, CompanyService} from '@app/services/services';
 import {map, catchError} from 'rxjs/operators';
 import {get} from 'lodash';
-import {of} from 'rxjs';
+import {of, Subscription} from 'rxjs';
 import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
@@ -18,9 +18,10 @@ export class CompanyCreationWizard {
     @ViewChild('companyNameInput') companyNameInput: ElementRef<HTMLInputElement>;
 
     @Input() contractID: number;
-    @Input() orgNumber: string;
     @Input() createDemoCompany: boolean;
+    @Input() includeContractActivation: boolean;
 
+    contractActivated: boolean;
     isBrunoEnv = theme.theme === THEMES.EXT02;
     busyCreatingCompany: boolean;
     autocompleteOptions: AutocompleteOptions;
@@ -42,8 +43,12 @@ export class CompanyCreationWizard {
     });
 
     isEnk: boolean;
+    companyName: string;
+    orgNumber: string;
 
     currentStep = 1;
+    contractActivationVisible = false;
+    companyCreationFailed = false;
 
     constructor(
         private authService: AuthService,
@@ -64,16 +69,6 @@ export class CompanyCreationWizard {
 
         if (this.isBrunoEnv) {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
-        }
-    }
-
-    ngOnChanges(changes) {
-        if (changes['orgNumber'] && this.orgNumber) {
-            this.orgNumberLookup(this.orgNumber).subscribe(res => {
-                if (res && res[0]) {
-                    this.onBrRegCompanyChange(res[0]);
-                }
-            });
         }
     }
 
@@ -121,11 +116,31 @@ export class CompanyCreationWizard {
         }
     }
 
+    onCompanyFormSubmit() {
+        if (this.includeContractActivation && !this.contractActivated) {
+            const companyData = this.step1Form.value;
+            this.orgNumber = companyData.OrganizationNumber;
+            this.companyName = companyData.CompanyName;
+
+            this.contractActivationVisible = true;
+        } else {
+            this.createCompany();
+        }
+    }
+
+    onContractActivated() {
+        this.contractActivated = true;
+        this.contractActivationVisible = false;
+        this.createCompany();
+    }
+
     createCompany() {
         const companyDetails = this.step1Form.value;
         const step2FormDetails = this.step2Form.value;
 
         this.busyCreatingCompany = true;
+        this.companyCreationFailed = false;
+
         this.getCompanyTemplate().subscribe(template => {
             const companySettings = companyDetails;
             if (step2FormDetails.AccountNumber) {
@@ -146,6 +161,8 @@ export class CompanyCreationWizard {
                 () => this.checkCompanyCreationStatus(body.CompanyName),
                 err => {
                     this.errorService.handle(err);
+                    this.currentStep = 1;
+                    this.companyCreationFailed = true;
                     this.busyCreatingCompany = false;
                 }
             );

@@ -1,10 +1,8 @@
 import {Component, HostBinding} from '@angular/core';
+import {take} from 'rxjs/operators';
 
 import {AuthService} from '@app/authService';
 import {TabService} from '../layout/navbar/tabstrip/tabService';
-
-import {environment} from 'src/environments/environment';
-import {take} from 'rxjs/operators';
 
 @Component({
     selector: 'contract-activation',
@@ -14,13 +12,9 @@ import {take} from 'rxjs/operators';
 export class ContractActivation {
     @HostBinding('class.overlay') trialExpired: boolean;
 
-    lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
-
     contractID: number;
     canActivateContract: boolean;
-
     hasActiveContract = false;
-    orgNumber: string;
 
     constructor(
         private authService: AuthService,
@@ -32,7 +26,6 @@ export class ContractActivation {
         });
 
         this.authService.authentication$.pipe(take(1)).subscribe(auth => {
-            // FIX: the trialExpired check is probably incorrect after the onboarding refactor
             this.trialExpired = auth && !auth.hasActiveContract;
             try {
                 const license = auth.user.License;
@@ -50,11 +43,6 @@ export class ContractActivation {
                 console.error(e);
             }
         });
-    }
-
-    onContractActivated(orgNumber: string) {
-        this.orgNumber = orgNumber;
-        this.hasActiveContract = true;
     }
 
     canDeactivate(routeToActivate: string) {

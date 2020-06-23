@@ -1,38 +1,27 @@
 <section class="contract-types" *ngIf="!loadingData && contractTypes?.length && !selectedContractType">
-    <contract-type-card
-        *ngFor="let contractType of contractTypes"
-        [contractType]="contractType"
-        [recommended]="contractType.Name === 'Plus'"
-        (selected)="onContractTypeSelected(contractType)">
-    </contract-type-card>
+    <section class="contract-type-grid">
+        <contract-type-card
+            *ngFor="let contractType of contractTypes"
+            [contractType]="contractType"
+            [recommended]="contractType.Name === 'Plus'"
+            (selected)="onContractTypeSelected(contractType)">
+        </contract-type-card>
+    </section>
+
+    <button class="tertiary c2a" (click)="back.emit()">
+        <i class="material-icons">keyboard_backspace</i>
+        Tilbake
+    </button>
 </section>
 
 <section *ngIf="!loadingData && (!contractTypes?.length || selectedContractType)" class="uni-card shadow">
     <section class="uni-card-content">
         <h1>{{headerText}}</h1>
 
-        <h2>Lisenseier</h2>
-
-        <autocomplete
-            [options]="autocompleteOptions"
-            [readonly]="activationInProgress"
-            [(value)]="brRegCompany"
-            (valueChange)="onBrRegCompanyChange()">
-        </autocomplete>
-
-        <section class="alert good">
-            <span>
-                Lisenseier er selskapet som administrerer og faktureres for lisensen.
-                <br>Dette trenger ikke være selskapet du skal føre regnskap på,
-                <br>det opprettes i neste steg.
-            </span>
-        </section>
-
         <form [formGroup]="customerDetailsForm">
-            <h2>Kontaktperson</h2>
             <label class="uni-label">
                 <span>Navn</span>
-                <input type="text" formControlName="ContactPerson" />
+                <input uniAutoFocus type="text" formControlName="ContactPerson" />
             </label>
 
             <label class="uni-label">

@@ -42,11 +42,12 @@
                 [contractID]="contractID">
             </init-new-demo>
 
-            <init-new-company
+            <company-creation-wizard
                 *ngIf="selectedCompanyType === 'company'"
                 [contractID]="contractID"
-                [isTest]="isTest">
-            </init-new-company>
+                [createDemoCompany]="isTest"
+                [includeContractActivation]="!isTest">
+            </company-creation-wizard>
         </ng-container>
     </ng-container>
 </section>

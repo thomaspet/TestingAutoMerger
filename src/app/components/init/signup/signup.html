@@ -103,7 +103,7 @@
 
                     <label class="uni-label">
                         <span>Bekreft passord</span>
-                        <input type="password" formControlName="ConfirmPassword" />
+                        <input type="password" formControlName="ConfirmPassword" (keydown.enter)="submitStep2Form()" />
                         <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
                     </label>
                 </form>

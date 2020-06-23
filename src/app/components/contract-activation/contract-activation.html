@@ -4,15 +4,8 @@
 </section>
 
 <ng-container *ngIf="canActivateContract">
-    <contract-activation-wizard
-        *ngIf="!hasActiveContract"
-        [contractID]="contractID"
-        (contractActivated)="onContractActivated($event)">
-    </contract-activation-wizard>
-
     <company-creation-wizard
-        *ngIf="hasActiveContract"
         [contractID]="contractID"
-        [orgNumber]="orgNumber">
+        [includeContractActivation]="!hasActiveContract">
     </company-creation-wizard>
 </ng-container>

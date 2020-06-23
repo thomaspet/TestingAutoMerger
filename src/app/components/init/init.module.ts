@@ -11,7 +11,6 @@ import {ConfirmInvite} from './confirmInvite/confirmInvite';
 import {RegisterCompany} from './registerCompany/registerCompany';
 import {Signup} from './signup/signup';
 import {UniPasswordGuide} from './password-guide';
-import {NewCompany} from './registerCompany/new-company/new-company';
 import {NewDemo} from './registerCompany/new-demo/new-demo';
 import {UniRecaptcha} from './signup/recaptcha';
 
@@ -34,7 +33,6 @@ import {UniRecaptcha} from './signup/recaptcha';
         RegisterCompany,
         Signup,
         UniRecaptcha,
-        NewCompany,
         NewDemo
     ]
 })
