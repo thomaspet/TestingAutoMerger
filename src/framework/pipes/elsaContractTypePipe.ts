@@ -21,6 +21,12 @@ export class ElsaContractTypePipe implements PipeTransform {
                 return 'Byrå';
             case ContractType.NonProfit:
                 return 'Non-profit';
+            case ContractType.Mini:
+                return 'Mini';
+            case ContractType.Plus:
+                return 'Pluss';
+            case ContractType.Complete:
+                return 'Komplett';
             default:
                 return '';
         }

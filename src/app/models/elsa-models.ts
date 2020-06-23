@@ -121,6 +121,9 @@ export enum ContractType {
     Standard = 10,
     Bureau = 11,
     NonProfit = 12,
+    Mini = 21,
+    Plus = 22,
+    Complete = 23,
 }
 
 export interface ElsaProduct {

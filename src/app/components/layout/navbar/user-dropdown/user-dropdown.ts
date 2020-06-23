@@ -14,7 +14,8 @@ export class NavbarUserDropdown {
     @ViewChild(MatMenuTrigger, { static: true }) trigger: MatMenuTrigger;
 
     user: UserDto;
-    licenseRole: string;
+    contractType = '';
+    userLicenseType = '';
 
     constructor(
         private modalSerice: UniModalService,
@@ -24,21 +25,19 @@ export class NavbarUserDropdown {
             if (auth && auth.user) {
                 const user = auth.user;
 
-                const licenseRoles: string[] = [];
                 if (user['License'] && user['License'].ContractType) {
                     if (user['License'].ContractType.TypeName) {
-                        licenseRoles.push(user['License'].ContractType.TypeName);
+                        this.contractType = user['License'].ContractType.TypeName;
                     }
                 }
 
                 if (user['License'] && user['License'].UserType) {
                     if (user['License'].UserType.TypeName) {
-                        licenseRoles.push(user['License'].UserType.TypeName);
+                        this.userLicenseType = user['License'].UserType.TypeName;
                     }
                 }
 
                 this.user = user;
-                this.licenseRole = licenseRoles.join('/');
             }
         });
     }
