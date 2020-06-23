@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {Travel, state, linestate, costtype, WageType, Account} from '@uni-entities';
+import {Travel, state, costtype, WageType, Account} from '@uni-entities';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {TravelService, ErrorService, WageTypeService} from '@app/services/services';
 import {Observable} from 'rxjs';
@@ -10,6 +10,7 @@ import {IUniSaveAction} from '@uni-framework/save/save';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {IContextMenuItem} from '@uni-framework/ui/unitable';
+import { DimensionsColumnsService } from '@app/components/salary/travel/shared/services/dimensionsColumns/dimensions-columns.service';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
@@ -51,6 +52,7 @@ export class TravelComponent implements OnInit {
         private route: ActivatedRoute,
         private modalService: UniModalService,
         private router: Router,
+        private dimensionsColumnService: DimensionsColumnsService,
     ) {}
 
     public ngOnInit() {
@@ -163,7 +165,7 @@ export class TravelComponent implements OnInit {
 
     private getTravelsObs(): Observable<Travel[]> {
         return this.travelService
-            .GetAll('', ['TravelLines.TravelType', 'TravelLines.VatType.VatTypePercentages'])
+            .GetAll('', ['TravelLines.TravelType', 'TravelLines.VatType.VatTypePercentages', 'TravelLines.Dimensions.Info'])
             .map(travels => {
                 return travels.map(travel => {
                     travel.TravelLines = travel.TravelLines.map(line => {
@@ -215,6 +217,7 @@ export class TravelComponent implements OnInit {
                     return;
                 }
                 line['_wageType'] = WageTypes.find(wt => wt.WageTypeNumber === line.travelType.WageTypeNumber);
+                this.dimensionsColumnService.initializeDimensionFields(line);
             });
         }
         return travel;

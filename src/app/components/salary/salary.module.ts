@@ -126,6 +126,12 @@ import { ReconciliationModalComponent } from './amelding/reconciliation-modal/re
 import { ReconciliationResponseModalComponent } from './amelding/reconciliation-response-modal/reconciliation-response-modal.component';
 import { WageTypeTranslationService } from './wagetype/services/wage-type-translation.service';
 import { SalaryTransactionSupplementListService } from './salaryTransactionSupplement/salary-transaction-supplement-list.service';
+import { TravelLinesTableService } from './travel/shared/services/travel-lines-table.service';
+import { DimensionsColumnsGeneratorService } from './travel/shared/services/dimensionsColumns/logic/dimensions-columns-generator.service';
+import { DimensionsColumnsDataService } from './travel/shared/services/dimensionsColumns/logic/dimensions-columns-data.service';
+import { DimensionsColumnsFieldsService } from './travel/shared/services/dimensionsColumns/logic/dimensions-columns-fields.service';
+import { TravelLineTableChangeService } from './travel/shared/services/travel-line-table-change.service';
+import { DimensionsColumnsService } from './travel/shared/services/dimensionsColumns/dimensions-columns.service';
 
 @NgModule({
     imports: [
@@ -269,6 +275,12 @@ import { SalaryTransactionSupplementListService } from './salaryTransactionSuppl
         WagetypeSyncGuard,
         WageTypeTranslationService,
         SalaryTransactionSupplementListService,
+        TravelLinesTableService,
+        DimensionsColumnsGeneratorService,
+        DimensionsColumnsDataService,
+        DimensionsColumnsFieldsService,
+        DimensionsColumnsService,
+        TravelLineTableChangeService,
     ]
 })
 export class SalaryModule {}

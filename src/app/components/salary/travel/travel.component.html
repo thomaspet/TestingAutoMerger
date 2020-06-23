@@ -7,9 +7,9 @@
         </nav>
         <main class="splitview_detail">
             <uni-travel-details *ngIf="selectedTravel$ | async"
-            [fileIDs]="fileIDs$ | async"
-            [travel]="selectedTravel$ | async"
-            (travelChange)="travelChange($event)">
+                [fileIDs]="fileIDs$ | async"
+                [travel]="selectedTravel$ | async"
+                (travelChange)="travelChange($event)">
         </uni-travel-details>
         </main>
     </section>
