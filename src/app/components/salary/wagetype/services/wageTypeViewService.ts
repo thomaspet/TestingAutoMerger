@@ -1,10 +1,14 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '../../../../../framework/uni-modal';
-import {Observable} from 'rxjs';
+import {Observable, of, forkJoin} from 'rxjs';
 import {WageTypeService, ErrorService} from '../../../../services/services';
 import {WageType, SpecialTaxAndContributionsRule} from '../../../../unientities';
 import {IToolbarSearchConfig} from '../../../common/toolbar/toolbarSearch';
+import { WageTypeTranslationService, WageTypeTranslationDto } from './wage-type-translation.service';
+import { map, switchMap } from 'rxjs/operators';
+export const WAGETYPE_TRANSLATION_KEY = '_Translation';
+export const DIRTY_KEY = '_isDirty';
 
 @Injectable()
 export class WageTypeViewService {
@@ -26,8 +30,76 @@ export class WageTypeViewService {
         private wageTypeService: WageTypeService,
         private modalService: UniModalService,
         private errorService: ErrorService,
-        private router: Router
+        private router: Router,
+        private wageTypeTranslationService: WageTypeTranslationService,
     ) { }
+
+    public save(wageType: WageType) {
+        if (wageType.WageTypeNumber === null) {
+            wageType.WageTypeNumber = 0;
+        }
+
+        if (wageType.SupplementaryInformations) {
+            wageType.SupplementaryInformations.forEach(supplement => {
+                if (supplement['_setDelete']) {
+                    supplement['Deleted'] = true;
+                }
+            });
+        }
+        return this.getSaveObservable(wageType)
+            .pipe(
+                map((result: [WageType, WageTypeTranslationDto]) => {
+                    const [wagetype, translation] = result;
+                    wagetype[WAGETYPE_TRANSLATION_KEY] = translation;
+                    return wagetype;
+                }),
+            );
+    }
+
+    private getSaveObservable(wageType: WageType): Observable<[WageType, WageTypeTranslationDto]> {
+        const translation: WageTypeTranslationDto = wageType[WAGETYPE_TRANSLATION_KEY];
+        if (wageType.WageTypeNumber) {
+            translation.WageTypeNumber = wageType.WageTypeNumber;
+            return forkJoin(
+                this.wageTypeService.save(wageType),
+                this.saveTranslationIfNeeded(wageType[WAGETYPE_TRANSLATION_KEY]),
+            );
+        }
+        return this.wageTypeService
+            .save(wageType)
+            .pipe(
+                switchMap((savedWageType) => {
+                    translation.WageTypeNumber = savedWageType.WageTypeNumber;
+                    return forkJoin(
+                        of(savedWageType),
+                        this.saveTranslationIfNeeded(translation)
+                    );
+                }),
+            );
+    }
+
+    private saveTranslationIfNeeded(translation: WageTypeTranslationDto): Observable<WageTypeTranslationDto> {
+        return translation[DIRTY_KEY]
+            ? this.wageTypeTranslationService.save(translation)
+            : of(translation);
+    }
+
+    public fillInLanguageIfNeeded(wagetype: WageType) {
+        return wagetype[WAGETYPE_TRANSLATION_KEY]
+            ? of(wagetype)
+            : this.addLanguageToWageType(wagetype);
+    }
+
+    public addLanguageToWageType(wageType: WageType): Observable<WageType> {
+        return this.wageTypeTranslationService
+            .getTranslationForNumber(wageType.WageTypeNumber, 'en')
+            .pipe(
+                map(translation => {
+                    wageType[WAGETYPE_TRANSLATION_KEY] = translation;
+                    return wageType;
+                }),
+            );
+    }
 
     public deleteWageType(wagetype: WageType): void {
         const id = wagetype.ID;

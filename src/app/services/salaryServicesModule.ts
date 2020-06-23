@@ -30,6 +30,7 @@ import {PayrollRunOnCategoryService} from './salary/payrollRun/payrollRunOnCateg
 import {OtpExportWagetypesService} from './salary/otpExport/otpExportWagetypesService';
 import {RegulativeGroupService} from './salary/regulative/regulativeGroupService';
 import {RegulativeService} from './salary/regulative/regulativeService';
+import {EmployeeLanguageService} from './salary/employee/employee-language.service';
 
 export * from './salary/aMelding/aMeldingService';
 export * from './salary/basicAmount/basicAmountService';
@@ -62,6 +63,7 @@ export * from './salary/payrollRun/payrollRunOnCategoryService';
 export * from './salary/otpExport/otpExportWagetypesService';
 export * from './salary/regulative/regulativeGroupService';
 export * from './salary/regulative/regulativeService';
+export * from './salary/employee/employee-language.service';
 
 
 @NgModule({})
@@ -100,7 +102,8 @@ export class SalaryServicesModule {
                 PayrollRunOnCategoryService,
                 OtpExportWagetypesService,
                 RegulativeGroupService,
-                RegulativeService
+                RegulativeService,
+                EmployeeLanguageService,
             ]
         };
     }

@@ -6,6 +6,7 @@ import { UniForm } from '@uni-framework/ui/uniform';
 import { ActivatedRoute, Router } from '@angular/router';
 import { WageTypeService, ErrorService, UniCacheService, PageStateService } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { WAGETYPE_TRANSLATION_KEY, DIRTY_KEY } from '../services/wageTypeViewService';
 
 @Component({
   selector: 'uni-wage-type-settings',
@@ -81,6 +82,9 @@ export class WageTypeSettingsComponent extends UniView {
         const wagetype = this.wageType$.getValue();
         if (changes['SpecialAgaRule']) {
             this.wagetypeService.wagetypeMaintainanceNotify(wagetype);
+        }
+        if (changes[`${WAGETYPE_TRANSLATION_KEY}.WageTypeName`]) {
+            wagetype[WAGETYPE_TRANSLATION_KEY][DIRTY_KEY] = true;
         }
         this.updateFields(wagetype);
         super.updateState('wagetype', wagetype, true);

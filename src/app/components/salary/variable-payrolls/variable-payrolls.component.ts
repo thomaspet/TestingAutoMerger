@@ -670,7 +670,6 @@ export class VariablePayrollsComponent {
         }
         rowModel['WageTypeID'] = wagetype.ID;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
-        rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.selectedPayrollrun.FromDate;
         rowModel['ToDate'] = this.selectedPayrollrun.ToDate;

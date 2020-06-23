@@ -56,7 +56,7 @@ export class WageTypeDetailsComponent extends UniView {
 
     private supplementPackages: code[] = [];
 
-    private tilleggspakkeConfig: UniTableConfig;
+    public tilleggspakkeConfig: UniTableConfig;
     public showSupplementaryInformations: boolean = false;
     private hidePackageDropdown: boolean = true;
     private rateIsReadOnly: boolean;

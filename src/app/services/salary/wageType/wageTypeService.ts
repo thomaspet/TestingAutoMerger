@@ -16,6 +16,7 @@ export enum WageTypeBaseOptions {
     VacationPay = 0,
     AGA = 1
 }
+const WAGETYPE_TRANSLATION_KEY = '_Translation'
 
 @Injectable()
 export class WageTypeService extends BizHttp<WageType> {
@@ -431,6 +432,7 @@ export class WageTypeService extends BizHttp<WageType> {
                         this.getBaseSpecialSettingsFields(wagetypes),
                         this.getShipFields(companySalary),
                         this.getMacroFields(),
+                        this.getLanguageFields(),
                     );
                 }),
                 map(fieldLists => fieldLists.reduce((acc, curr) => [...acc, ...curr], [])),
@@ -597,5 +599,19 @@ export class WageTypeService extends BizHttp<WageType> {
                         ]
                     : [])
             );
+    }
+
+    private getLanguageFields(): Observable<UniFieldLayout[]> {
+        return of(<UniFieldLayout[]>[
+            {
+                EntityType: 'wagetype',
+                Property: `${WAGETYPE_TRANSLATION_KEY}.WageTypeName`,
+                FieldType: FieldType.TEXT,
+                Label: 'Alternativ tekst lønnsart',
+                FieldSet: 5,
+                Legend: 'Språk',
+                Section: 0
+            },
+        ]);
     }
 }

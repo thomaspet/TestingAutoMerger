@@ -45,6 +45,7 @@ export interface IPaycheckEmailInfo {
     Subject?: string;
     Message?: string;
     GroupByWageType?: boolean;
+    Localization?: string;
 }
 
 export interface IPaycheckReportSetup {
