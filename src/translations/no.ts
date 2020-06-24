@@ -285,6 +285,7 @@ export const NO = {
         'INBOX': 'Innboks',
         'BANK_PRODUCTS': 'Bankprodukter',
         'PURCHASES': 'Produktkjøp',
-        'BANK_SETTINGS': 'Bankinnstillinger'
+        'BANK_SETTINGS': 'Bankinnstillinger',
+        'ASSETS': 'Eiendeler',
     }
 };

@@ -1,5 +1,15 @@
-<h1>Bulk invitasjons log:</h1>
-<ul>
-    <li *ngFor="let message of messages">{{message}}</li>
-    <tr *ngIf="!messages"><td>Laster...</td></tr>
-</ul>
+<section class="receipt-header">
+    <div class="main-header">Jobb startet</div>
+    <div class="message-text">
+        Det er trygt å lukke denne dialogen, jobben vil fortsette å kjøre i bakgrunnen. <br>
+        Nedenfor vil du få meldinger om fremgangen:
+    </div>
+</section>
+<section class="receipt-body">
+    <section class="scroll-container" id="scrollContainer">
+        <ul>
+            <li *ngFor="let message of messages">{{message}}</li>
+            <tr *ngIf="messages.length === 0"><td>Laster...</td></tr>
+        </ul>
+    </section>
+</section>

@@ -3,36 +3,21 @@ input[type=search]
     min-width: 20rem
     margin-bottom: 1.5rem
 
-mat-checkbox.check-all
-    display: block
-    padding-left: .5rem
-    padding-bottom: .75rem
-    border-bottom: 1px solid #eee
-
 .scrolling-viewport
-    height: 23rem
+    height: 25rem
 
-li
+.selection-list-item
     margin-right: .5rem
 
-    > span
-        margin-left: auto
-        font-size: 13px
-
-.check-all
-    display: flex
-    cursor: pointer
-    margin: 0 .5rem .5rem 0
-    padding: 0 1rem .75rem
+.check-all-container
     border-bottom: 1px solid #eee
-    font-size: 15px
-
-    strong
-        margin-left: 5px
-
-    i.material-icons
-        margin-right: .5rem
-        color: #8C97AB
-        user-select: none
-        &.selected
-            color: #1565c0
+    margin-bottom: .5rem
+    .check-all
+        display: flex
+        max-width: fit-content
+        cursor: pointer
+        margin: 0 .5rem .5rem 0
+        padding: 0 1rem
+        font-size: 15px
+        strong
+            margin-left: 5px

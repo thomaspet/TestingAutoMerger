@@ -139,7 +139,7 @@ export class UniBankSettings {
             if (companySettings.CompanyBankAccount) {
                 if (!companySettings.CompanyBankAccount.ID) {
                     companySettings.CompanyBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.CompanyBankAccount.BankAccountType = 'companySettings';
+                    companySettings.CompanyBankAccount.BankAccountType = 'company';
                 }
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.CompanyBankAccount);
             }

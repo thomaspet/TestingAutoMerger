@@ -66,6 +66,7 @@ import { ImportVoucherModal } from '../import-central/modals/custom-component-mo
 import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
 import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 import {LibraryImportsModule} from '@app/library-imports.module';
+import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
 
 @NgModule({
     imports: [
@@ -144,6 +145,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
+        RegisterAssetModal
     ],
     exports: [
         PredefinedDescriptionList,
@@ -197,6 +199,8 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         InvoiceHours,
         VacationPayModal,
         VacationPaySettingsModal,
+
+        RegisterAssetModal
     ]
 })
 export class AppCommonModule {}

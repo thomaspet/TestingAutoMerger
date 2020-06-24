@@ -8,12 +8,6 @@
 ### Updating the entities file
 `yarn entities` / `npm run entities` 
 
-You also need to say which server you want to download unientites from with environment variables. E.g.
-<br>**Windows** `set SERVER_URL=https://devapi.unieconomy.no&&npm run entities`
-<br>**Unix/git bash** `export SERVER_URL=https://devapi.unieconomy.no && npm run entities`
-
-*Note that && to chain commands does not work in powershell, so use cmd on windows.*
-
 - - - -
 ### Checking for AOT errors before pushing
 
@@ -26,14 +20,6 @@ Since we run JIT compile when developing some AOT specific errors might sneak in
 `yarn start.test` / `npm run start.test` to start with test config<br>
 `yarn start.local` / `npm run start.local` to start with local backend</br>
 `yarn start.prod` / `npm run start.prod` to start app with proxy to prod api</br>
-
-That said we recommend using the `*.cheap` tasks for building. These tasks will build eval-sourcemaps instead of regular ones, and will compile/recompile quite a bit faster. The drawback is slightly "messy" sourcemaps, but debugging is still no problem.
-
-`yarn start.cheap` / `npm run start.cheap`<br>
-`yarn start.test.cheap` / `npm run start.test.cheap`<br>
-`yarn start.prod.cheap` / `npm run start.prod.cheap`<br>
-`yarn start.local.cheap` / `npm run start.local.cheap`<br>
-
 
 The app will run on localhost:3000</br>
 
@@ -59,7 +45,7 @@ To make it easier to find the commit you're looking for when checking history, r
 - Ideally describe the changes more in-depth here. Add an empty line between header and body.
 
 **Footer**
-- Reference jira issue so the commit. This will make a link to the commit appear on the jira issue
+- Reference jira issue to the commit. This will make a link to the commit appear on the jira issue
 
 <br>
 **Example**

@@ -1,9 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
-import { take, map, catchError, switchMap, filter } from 'rxjs/operators';
+import { take, map, catchError, switchMap, filter, tap } from 'rxjs/operators';
 import { UniView } from '@uni-framework/core/uniView';
 import { Subscription, BehaviorSubject, ReplaySubject, Observable, of } from 'rxjs';
-import { WageType, CompanySalary, SpecialAgaRule, SpecialTaxAndContributionsRule, TaxType, StdWageType, GetRateFrom } from '@uni-entities';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig, IToolbarSearchConfig, IContextMenuItem } from '@app/components/common/toolbar/toolbar';
 import { WageTypeService, UniCacheService, ErrorService, FinancialYearService, PageStateService, StatisticsService,
@@ -12,6 +11,11 @@ import { WageTypeService, UniCacheService, ErrorService, FinancialYearService, P
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { WageTypeViewService } from '@app/components/salary/wage-type/shared/services/wage-type-view.service';
+import {
+    WageType, SpecialAgaRule, SpecialTaxAndContributionsRule,
+    TaxType, StdWageType, GetRateFrom, CompanySalary
+} from '@uni-entities';
+import { WageTypeTranslationService } from '@app/components/salary/wage-type/shared/services/wage-type-translation.service';
 
 const WAGETYPE_KEY = 'wagetype';
 
@@ -47,6 +51,7 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
         private companySalaryService: CompanySalaryService,
+        private wageTypeTranslationService: WageTypeTranslationService,
     ) {
 
         super(router.url, cacheService);
@@ -76,24 +81,26 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
             super.updateCacheKey(this.router.url);
 
             super.getStateSubject(WAGETYPE_KEY)
-                .do(wt => this.searchConfig$.next(this.wageTypeViewService.setupSearchConfig(wt)))
+                .pipe(
+                    tap(wt => this.searchConfig$.next(this.wageTypeViewService.setupSearchConfig(wt))),
+                )
                 .subscribe((wageType: WageType) => {
-                this.wageType = wageType;
-                this.toolbarConfig = {
-                    title: this.wageType.ID ? this.wageType.WageTypeNumber + ' - ' + this.wageType.WageTypeName : 'Ny lønnsart',
-                    subheads: [{
-                        title: this.wageType.ID
-                            ? (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
-                            : ''
-                    }],
-                    navigation: {
-                        prev: this.previousWagetype.bind(this),
-                        next: this.nextWagetype.bind(this),
-                        add: this.newWagetype.bind(this)
-                    }
-                };
+                    this.wageType = wageType;
+                    this.toolbarConfig = {
+                        title: this.wageType.ID ? this.wageType.WageTypeNumber + ' - ' + this.wageType.WageTypeName : 'Ny lønnsart',
+                        subheads: [{
+                            title: this.wageType.ID
+                                ? (this.wageType.ValidYear ? ` - ${this.wageType.ValidYear}` : '')
+                                : ''
+                        }],
+                        navigation: {
+                            prev: this.previousWagetype.bind(this),
+                            next: this.nextWagetype.bind(this),
+                            add: this.newWagetype.bind(this)
+                        }
+                    };
 
-                this.checkDirty();
+                    this.checkDirty();
             }, err => this.errorService.handle(err));
             if (this.wageType && this.wageType.ID === +params['id']) {
                 super.updateState('wagetype', this.wageType, false);
@@ -229,33 +236,20 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
 
     private saveWageTypeObs(updateView: boolean): Observable<WageType> {
         return super.getStateSubject(WAGETYPE_KEY)
-        .take(1)
-        .map(wt => this.wageTypeService.washWageType(wt))
-        .map(wt => this.checkValidYearAndCreateNew(wt))
-        .map(wageType => {
-            if (wageType.WageTypeNumber === null) {
-                wageType.WageTypeNumber = 0;
-            }
-
-            if (wageType.SupplementaryInformations) {
-                wageType.SupplementaryInformations.forEach(supplement => {
-                    if (supplement['_setDelete']) {
-                        supplement['Deleted'] = true;
-                    }
+        .pipe(
+            take(1),
+            map(wt => this.wageTypeService.washWageType(wt)),
+            map(wt => this.checkValidYearAndCreateNew(wt)),
+            switchMap(wageType => this.wageTypeViewService.save(wageType)),
+            tap((wt: WageType) => {
+                this.tabService.addTab({
+                    name: wt.WageTypeNumber ? 'Lønnsartnr. ' + wt.WageTypeNumber : 'Ny lønnsart',
+                    url: this.pageStateService.getUrl(),
+                    moduleID: UniModules.Wagetypes,
+                    active: true
                 });
-            }
-
-            return wageType;
-        })
-        .switchMap(wageType => this.wageTypeService.save(wageType))
-        .do((wt: WageType) => {
-            this.tabService.addTab({
-                name: wt.WageTypeNumber ? 'Lønnsartnr. ' + wt.WageTypeNumber : 'Ny lønnsart',
-                url: this.pageStateService.getUrl(),
-                moduleID: UniModules.Wagetypes,
-                active: true
-            });
-        });
+            }),
+        );
     }
 
     private checkValidYearAndCreateNew(wageType: WageType): WageType {
@@ -289,6 +283,7 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
             .pipe(
                 catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
                 switchMap(wt => this.setDefaultValuesIfNeeded(wt)),
+                switchMap(wt => this.wageTypeViewService.addLanguageToWageType(wt)),
             )
             .subscribe((wageType: WageType) => super.updateState( WAGETYPE_KEY, wageType, false));
     }
@@ -321,53 +316,31 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
     }
 
     public previousWagetype() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                // TODO: should use BizHttp.getPreviousID() instead
-                this.wageTypeService.getPrevious(this.wageType.WageTypeNumber)
-                    .subscribe((prev: WageType) => {
-                        if (prev) {
-                            this.wageType = prev;
-                            const childRoute = this.router.url.split('/').pop();
-                            this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
-                        }
-                    }, err => this.errorService.handle(err));
-            }
-        });
+        this.rerouteToWageType(this.wageTypeService.getPrevious(this.wageType.WageTypeNumber));
     }
 
     public nextWagetype() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                // TODO: should use BizHttp.getNextID() instead
-                this.wageTypeService.getNext(this.wageType.WageTypeNumber)
-                    .subscribe((next: WageType) => {
-                        if (next) {
-                            this.wageType = next;
-                            const childRoute = this.router.url.split('/').pop();
-                            this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
-                        }
-                    }, err => this.errorService.handle(err));
-            }
-        });
+        this.rerouteToWageType(this.wageTypeService.getNext(this.wageType.WageTypeNumber));
     }
 
     public newWagetype() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.wageTypeService
-                    .GetNewEntity()
-                    .pipe(
-                        catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
-                        filter(wt => !!wt),
-                        switchMap(wt => this.setDefaultValuesIfNeeded(wt))
-                    )
-                    .subscribe((response) => {
-                        this.wageType = response;
-                        const childRoute = this.router.url.split('/').pop();
-                        this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
-                    });
-            }
-        });
+        this.rerouteToWageType(this.wageTypeService.GetNewEntity());
+    }
+
+    private rerouteToWageType(wageType$: Observable<WageType>) {
+        this.canDeactivate()
+            .pipe(
+                filter(canDeactivate => canDeactivate),
+                switchMap(() => wageType$),
+                filter(wagetype => !!wagetype),
+                switchMap(wt => this.setDefaultValuesIfNeeded(wt)),
+                switchMap(wt => this.wageTypeViewService.fillInLanguageIfNeeded(wt)),
+            )
+            .subscribe(wageType => {
+                this.wageType = wageType;
+                const childRoute = this.router.url.split('/').pop();
+                this.router
+                    .navigateByUrl(this.url + wageType.ID + '/' + childRoute);
+            }, error => this.errorService.handle(error));
     }
 }

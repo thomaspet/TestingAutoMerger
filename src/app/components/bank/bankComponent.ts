@@ -1274,14 +1274,27 @@ export class BankComponent {
                                         } else {
                                             this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
                                                 fileJobResponse.Result);
+                                            doneHandler('');
                                         }
+                                    }, err => {
+                                        this.errorService.handle(err);
+                                        doneHandler('');
                                     });
+                                } else {
+                                    doneHandler('');
                                 }
+                            }, err => {
+                                this.errorService.handle(err);
+                                doneHandler('');
                             });
                         } else {
                             this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
                                 batchJobResponse.Result);
+                            doneHandler('');
                         }
+                    }, err => {
+                        this.errorService.handle(err);
+                        doneHandler('');
                     });
                 } else {
                     // runs as non hangfire job
@@ -1293,19 +1306,23 @@ export class BankComponent {
                                     && fileJobResponse.Result.ID > 0) {
                                         return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
                                 } else {
-                                    this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
-                                        fileJobResponse.Result);
+                                    this.toastService.addToast('Generering av betalingsfil feilet',
+                                        ToastType.bad, 0, fileJobResponse.Result);
+                                    doneHandler('');
                                 }
                             });
                         } else {
                             return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
                         }
+                    }, err => {
+                        this.errorService.handle(err);
+                        doneHandler('');
                     });
                 }
 
             }, err => {
-                doneHandler('');
                 this.errorService.handle(err);
+                doneHandler('');
             });
         } else {
             this.modalService.open(UniSendPaymentModal, {
@@ -1315,6 +1332,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');
@@ -1470,6 +1488,7 @@ export class BankComponent {
 
             // Refresh list after paymentbatch has been generated
             this.tickerContainer.mainTicker.reloadData();
+            this.tickerContainer.mainTicker.table.clearSelection();
 
             // Run action to generate paymentfile based on batch
             this.paymentBatchService.generatePaymentFile(paymentBatch.ID)
@@ -1523,6 +1542,7 @@ export class BankComponent {
                 if (res) {
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
                     doneHandler('');
                 } else {
                     doneHandler('Sending avbrutt.');

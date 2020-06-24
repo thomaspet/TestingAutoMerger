@@ -1086,13 +1086,13 @@ export class UniRecurringInvoice implements OnInit {
         // If the recurring invoice is active and the client has not activated auto distribution in company settings
         if (this.invoice.StatusCode === 46002 && !this.companySettings.AutoDistributeInvoice) {
             this.toastService.addToast('Automatisk utsendelse avslått', ToastType.warn, 15,
-            'Du har ikke aktivert automatisk utsendelse. Det vil ikke sendes noe før du aktiverer det under firmainnstillinger.' +
-            '<br/><a href="/#/settings/company">Gå til firmainnstillinger</a>');
+            'Du har ikke aktivert automatisk utsendelse. Det vil ikke sendes noe før du aktiverer det under Innstillinger - Utsendelse.' +
+            '<br/><a href="/#/settings/distribution">Gå til innstillinger for utsendelse</a>');
             this.hasWarned = true;
         } else if (this.invoice.StatusCode === 46002 && !this.invoice.DistributionPlanID) {
             this.toastService.addToast('Utsendelsesplan mangler', ToastType.warn, 15,
             'Det er ikke definert en utsendelsesplan på denne faktura. Gå til fanen "Utsendelse" for å velge en,' +
-            ' eller gå til Innstillinger -> Utsendelse for å lage en ny plan.');
+            ' eller <a href="/#/settings/distribution">gå til innstillinger for utsendelse</a> for å lage en ny plan.');
             this.hasWarned = true;
         }
     }

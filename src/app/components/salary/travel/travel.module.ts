@@ -9,6 +9,12 @@ import { TravelTypeComponent } from './travel-type/travel-type.component';
 import { TravelComponent } from './travel.component';
 import { TravelLineService } from './shared/service/travel-line.service';
 import { TravelTypeService } from './shared/service/travel-type.service';
+import { TravelLinesTableService } from './shared/service/travel-lines-table.service';
+import { TravelLineTableChangeService } from './shared/service/travel-line-table-change.service';
+import { DimensionsColumnsService } from './shared/service/dimensionsColumns/dimensions-columns.service';
+import { DimensionsColumnsFieldsService } from './shared/service/dimensionsColumns/logic/dimensions-columns-fields.service';
+import { DimensionsColumnsGeneratorService } from './shared/service/dimensionsColumns/logic/dimensions-columns-generator.service';
+import { DimensionsColumnsDataService } from './shared/service/dimensionsColumns/logic/dimensions-columns-data.service';
 
 @NgModule({
     imports: [
@@ -26,6 +32,12 @@ import { TravelTypeService } from './shared/service/travel-type.service';
     providers: [
         TravelLineService,
         TravelTypeService,
+        TravelLinesTableService,
+        TravelLineTableChangeService,
+        DimensionsColumnsService,
+        DimensionsColumnsFieldsService,
+        DimensionsColumnsGeneratorService,
+        DimensionsColumnsDataService,
     ]
   })
 export class TravelModule { }

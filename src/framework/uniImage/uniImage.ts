@@ -83,6 +83,7 @@ export class UniImage {
     @Output() useWord = new EventEmitter();
     @Output() fileSplitCompleted = new EventEmitter();
     @Output() imageLoaded = new EventEmitter();
+    @Output() busyLoadingFiles = new EventEmitter<boolean>();
 
     private baseUrl: string = environment.BASE_URL_FILES;
     private keyListener: any;
@@ -251,54 +252,61 @@ export class UniImage {
                 res => {
                     res = res.body.filter(x => x !== null);
 
-                    // Get json data and generate markup for EHF files.
-                    // Resolve the rest the of the files without changes.
-                    const filesWithEHFData$ = res.map((file: FileExtended) => {
-                        const filename = (file.Name || '').toLowerCase();
-                        const type = (file.ContentType || '').toLowerCase();
+                    if (res.length) {
+                        // Get json data and generate markup for EHF files.
+                        // Resolve the rest the of the files without changes.
+                        const filesWithEHFData$ = res.map((file: FileExtended) => {
+                            const filename = (file.Name || '').toLowerCase();
+                            const type = (file.ContentType || '').toLowerCase();
 
-                        if (type.includes('bis/billing') || filename.includes('.ehf')) {
-                            const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference).pipe(
-                                catchError(err => {
-                                    console.error('Error loading EHF data', err);
-                                    return observableOf(null);
-                                }),
-                                map(ehfData => {
-                                    if (ehfData) {
-                                        const parsed = parseEHFData(ehfData);
-                                        if (parsed) {
-                                            file._ehfMarkup = generateEHFMarkup(parsed);
-                                            file._ehfAttachments = parsed.attachments;
+                            if (type.includes('bis/billing') || filename.includes('.ehf')) {
+                                const ehfDataRequest = this.uniFilesService.getEhfData(file.StorageReference, false).pipe(
+                                    catchError(err => {
+                                        console.error('Error loading EHF data', err);
+                                        return observableOf(null);
+                                    }),
+                                    map(ehfData => {
+                                        if (ehfData) {
+                                            const parsed = parseEHFData(ehfData);
+                                            if (parsed) {
+                                                file._ehfMarkup = generateEHFMarkup(parsed);
+                                                file._ehfAttachments = parsed.attachments;
+                                            }
                                         }
-                                    }
 
-                                    return file;
-                                })
-                            );
+                                        return file;
+                                    })
+                                );
 
-                            return ehfDataRequest;
-                        } else {
-                            return observableOf(file);
-                        }
-                    });
+                                return ehfDataRequest;
+                            } else {
+                                return observableOf(file);
+                            }
+                        });
 
-                    forkJoin(filesWithEHFData$).subscribe((files: FileExtended[]) => {
-                        this.files = this.setThumbnailUrls(files);
+                        forkJoin(filesWithEHFData$).subscribe((files: FileExtended[]) => {
+                            this.files = this.setThumbnailUrls(files);
+                            this.setFileViewerData(this.files);
+                            this.fileListReady.emit(this.files);
+
+                            if (this.files.length) {
+                                this.currentPage = 1;
+                                const file = this.files.find(f => f.ID === this.showFileID);
+                                this.showFile(file);
+                            }
+                        });
+                    } else {
+                        this.files = [];
                         this.setFileViewerData(this.files);
-                        this.fileListReady.emit(this.files);
-
-                        if (this.files.length) {
-                            this.currentPage = 1;
-                            const file = this.files.find(f => f.ID === this.showFileID);
-                            this.showFile(file);
-                        }
-                    });
+                        this.cdr.markForCheck();
+                    }
                 },
                 err => this.errorService.handle(err)
             );
         } else {
             this.files = [];
             this.setFileViewerData(this.files);
+            this.cdr.markForCheck();
         }
     }
 
@@ -631,6 +639,7 @@ export class UniImage {
                 );
             } else {
                 this.uploadFile(newFile);
+                this.busyLoadingFiles.emit(true);
             }
         }
     }
@@ -681,12 +690,9 @@ export class UniImage {
                     // (which will now have been updated)
                     this.fileListReady.emit(this.files);
                 } else {
-                    // increase wait time by 10 ms for each attempt, starting at 50 ms, making
-                    // the total possible wait time will be approx 1 minute (55 sec + response time)
-                    const timeout = 50 + (10 * attempts);
                     setTimeout(() => {
-                        this.checkFileStatusAndLoadImage(file, attempts++);
-                    }, timeout);
+                        this.checkFileStatusAndLoadImage(file, attempts + 1);
+                    }, 500);
                 }
             });
     }

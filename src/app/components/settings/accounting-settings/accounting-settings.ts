@@ -1,5 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import * as _ from 'lodash';
 import {
     CompanySettingsService,
     PeriodSeriesService,
@@ -9,7 +10,8 @@ import {
     PageStateService,
     ElsaPurchaseService,
     EHFService,
-    AccountVisibilityGroupService
+    AccountVisibilityGroupService,
+    CompanyAccountingSettingsService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -17,6 +19,7 @@ import {CompanySettings, CurrencyCode} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
+import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
     UniModalService,
     ConfirmActions,
@@ -61,7 +64,8 @@ export class UniCompanyAccountingView {
     tabs: IUniTab[] = [
         {name: 'Regnskapsinnstillinger'},
         {name: 'Mvakoder'},
-        {name: 'Forholdsmessig MVA / fradrag'}
+        {name: 'Forholdsmessig MVA / fradrag'},
+        {name: 'Eiendeler'}
     ];
 
     eInvoiceItems: any[] = [
@@ -73,6 +77,7 @@ export class UniCompanyAccountingView {
     fields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsVat$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsCurrency$ = new BehaviorSubject<UniFieldLayout[]>([]);
+    companyAccountingSettings = null;
 
     vatMandatoryOptions = [
         { ID: 1, Name: 'Avgiftsfri'},
@@ -91,6 +96,7 @@ export class UniCompanyAccountingView {
 
     constructor (
         private companySettingsService: CompanySettingsService,
+        private companyAccountingSettingsService: CompanyAccountingSettingsService,
         private periodeSeriesService: PeriodSeriesService,
         private tabService: TabService,
         private vatReportFormService: VatReportFormService,
@@ -135,6 +141,7 @@ export class UniCompanyAccountingView {
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
+            this.companyAccountingSettingsService.Get(1)
         ).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
@@ -152,10 +159,29 @@ export class UniCompanyAccountingView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
-
+            this.companyAccountingSettings = response[5];
         }, err => {
             this.errorService.handle(err);
         });
+    }
+
+    periodSeriesChange(changes) {
+        if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
+                data: {
+                    PeriodSeriesAccountID: (changes['PeriodSeriesAccountID'] && changes['PeriodSeriesAccountID'].previousValue) || null,
+                    PeriodSeriesVatID: (changes['PeriodSeriesVatID'] && changes['PeriodSeriesVatID'].previousValue) || null
+                }
+            }).onClose.subscribe(
+                result => {
+                    const companySettings = this.companySettings$.getValue();
+                    companySettings.PeriodSeriesAccountID = result.PeriodSeriesAccountID;
+                    companySettings.PeriodSeriesVatID = result.PeriodSeriesVatID;
+                    this.companySettings$.next(_.cloneDeep(companySettings));
+                    this.router.navigateByUrl('/settings/company');
+                }, err => this.errorService.handle
+            );
+        }
     }
 
     reloadOnlyCompanySettings() {
@@ -249,11 +275,11 @@ export class UniCompanyAccountingView {
             companySettings.AgioLossAccount = null;
             companySettings.BaseCurrencyCode = null;
             companySettings.AcceptableDelta4CustomerPaymentAccount = null;
-
             Observable.forkJoin(
                 this.companySettingsService.Put(companySettings.ID, companySettings),
                 this.vattypeList.saveVatType(),
-                this.vatDeducationView.saveVatDeductions()
+                this.vatDeducationView.saveVatDeductions(),
+                this.companyAccountingSettingsService.Put(this.companyAccountingSettings.ID, this.companyAccountingSettings)
             ).subscribe((response) => {
                 this.isDirty = false;
                 if (done) {
@@ -440,5 +466,8 @@ export class UniCompanyAccountingView {
                 break;
         }
         return fields;
+    }
+    onAssetSettingsChange() {
+        this.isDirty = true;
     }
 }

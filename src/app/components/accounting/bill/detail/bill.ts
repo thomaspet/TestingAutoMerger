@@ -1,8 +1,8 @@
-import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, forkJoin, Observable} from 'rxjs';
+import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
 import {filterInput, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
@@ -55,6 +55,7 @@ import {
     FileFromInboxModal
 } from '@uni-framework/uni-modal';
 import {
+    AccountService, AssetsService,
     AssignmentDetails,
     BankAccountService,
     BankService,
@@ -93,7 +94,8 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {finalize} from 'rxjs/operators';
+import {PaymentStatus} from '@app/models/printStatus';
+import {finalize, map, tap, catchError} from 'rxjs/operators';
 
 interface ITab {
     name: string;
@@ -170,6 +172,8 @@ export class BillView implements OnInit, AfterViewInit {
     public orgNumber: string;
     autocompleteOptions: any;
     public journalEntryManual: JournalEntryManual;
+
+    public loadingFiles: boolean;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -262,7 +266,9 @@ export class BillView implements OnInit, AfterViewInit {
         private browserStorageService: BrowserStorageService,
         private reinvoicingService: ReInvoicingService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private accountService: AccountService,
+        private assetsService: AssetsService,
     ) {
         this.actions = this.rootActions;
 
@@ -416,6 +422,7 @@ export class BillView implements OnInit, AfterViewInit {
                 }
 
                 if (links.length > 0) {
+                    this.loadingFiles = true;
                     if (links.length > 1) {
                         this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG1', ToastType.warn, ToastTime.medium);
                     } else  {
@@ -974,6 +981,10 @@ export class BillView implements OnInit, AfterViewInit {
         this.tagFileStatus(file.ID, 0);
     }
 
+    onBusyLoadingFiles(busyLoadingFiles: boolean) {
+        this.loadingFiles = busyLoadingFiles;
+    }
+
     private hasChangedFiles(files: Array<any>) {
         if ((!this.files) && (!files)) { return false; }
         if ((!this.files) || (!files)) { return true; }
@@ -1016,6 +1027,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.documentsInUse = this.unlinkedFiles;
             }
         }
+        this.loadingFiles = false;
     }
 
     public onJournalEntryManualDataLoaded(data) {
@@ -1039,7 +1051,7 @@ export class BillView implements OnInit, AfterViewInit {
 
     private runOcr(file: any) {
         this.userMsg('Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
-        this.supplierInvoiceService.fetch(`files/${file.ID}?action=ocranalyse`)
+        this.uniFilesService.runOcr(file.StorageReference)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
@@ -2483,13 +2495,13 @@ export class BillView implements OnInit, AfterViewInit {
 
     public openAddFileModal() {
         this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
-            if (!file) {
+            if ((!file) || this.files.filter(x => x.StorageReference === file.StorageReference).length) {
                 return;
             }
-
+            this.loadingFiles = true;
             const invoice = this.current.getValue();
             if (invoice.ID) {
-                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).then(() => {
+                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).subscribe(() => {
                     this.numberOfDocuments++;
                     this.uniImage.refreshFiles();
                 });
@@ -2539,7 +2551,13 @@ export class BillView implements OnInit, AfterViewInit {
             case 'journal':
                 this.journal(true, href).subscribe(result => {
                     if (result) {
-                        done('');
+                        this.itCanBeAnAsset(current).pipe(
+                            finalize(() => done('Bokført'))
+                        ).subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(current);
+                            }
+                        });
                     } else {
                         done('Bokføring feilet');
                     }
@@ -2550,7 +2568,13 @@ export class BillView implements OnInit, AfterViewInit {
             case 'smartbooking':
                 this.supplierInvoiceService.Action(current.ID, key).subscribe((result) => {
                     this.userMsg(JSON.stringify(result));
-                    done('ok');
+                    this.itCanBeAnAsset(current)
+                        .pipe(finalize(() => done('ok')))
+                        .subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(current);
+                            }
+                        });
                 }, (err) => {
                     this.errorService.handle(err);
                     done(err);
@@ -2603,6 +2627,13 @@ export class BillView implements OnInit, AfterViewInit {
                             })
                             .subscribe(result => {
                                 this.fetchInvoice(current.ID, false);
+                                this.itCanBeAnAsset(current)
+                                    .pipe(finalize(() => done('ok')))
+                                    .subscribe(canBeAnAsset => {
+                                        if (canBeAnAsset) {
+                                            this.assetsService.openRegisterModal(current);
+                                        }
+                                    });
                                 done(result ? 'Godkjent og bokført' : '');
                             });
                     } else {
@@ -2632,7 +2663,16 @@ export class BillView implements OnInit, AfterViewInit {
                                     : Observable.of(false);
                             })
                             .subscribe(result => {
-                                this.updateInvoicePayments().add(done(result ? 'Godkjent, bokført og til betaling' : ''));
+                                this.updateInvoicePayments()
+                                    .add(() => {
+                                        this.itCanBeAnAsset(current)
+                                            .pipe(finalize(() => done(result ? 'Godkjent, bokført og til betaling' : '')))
+                                            .subscribe(canBeAnAsset => {
+                                                if (canBeAnAsset) {
+                                                    this.assetsService.openRegisterModal(current);
+                                                }
+                                            });
+                                    });
                             });
                     } else {
                         done('Ikke mulig å godkjenne');
@@ -2654,7 +2694,16 @@ export class BillView implements OnInit, AfterViewInit {
                             : Observable.of(false);
                     })
                     .subscribe(result => {
-                        this.updateInvoicePayments().add(done(result ? 'Bokført og til betaling' : ''));
+                        this.updateInvoicePayments().add(
+                            () => {
+                                done(result ? 'Bokført og til betaling' : '');
+                                this.itCanBeAnAsset(current).subscribe(canBeAnAsset => {
+                                    if (canBeAnAsset) {
+                                        this.assetsService.openRegisterModal(current);
+                                    }
+                                });
+                            }
+                        );
                     });
 
                 return true;
@@ -2666,6 +2715,9 @@ export class BillView implements OnInit, AfterViewInit {
 
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
+        if (current.RestAmount == 0)
+            return Observable.of(false);
+
         return this.supplierInvoiceService.sendForPayment(current.ID)
             .switchMap(() => Observable.of(true))
             .catch(() => Observable.of(false));
@@ -2695,7 +2747,8 @@ export class BillView implements OnInit, AfterViewInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
-        paymentData['_accounts'] = this.companySettings.BankAccounts.filter(acc => acc.BankAccountType === 'company');
+        paymentData['_accounts'] = this.companySettings.BankAccounts
+            .filter(acc => acc.BankAccountType.toLowerCase() === 'company' || acc.BankAccountType.toLowerCase() === 'companysettings');
         paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2721,7 +2774,8 @@ export class BillView implements OnInit, AfterViewInit {
                     }, err => {
                         this.errorService.handle(err);
                         done();
-                    });
+                });
+
             }
             done();
         });
@@ -2937,11 +2991,12 @@ export class BillView implements OnInit, AfterViewInit {
 
     private fetchInvoice(id: number, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.files = undefined;
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
         if (this.current?.value?.ID !== id) {
+            this.files = undefined;
+
             // set diff to null until the journalentry is loaded, the data is calculated correctly
             // through the onJournalEntryManualDataLoaded event
             this.sumVat = null;
@@ -3362,10 +3417,9 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUnsavedChanges = false;
                 done('Lagret og avvist!');
 
-                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                    () => {
-                        this.router.navigateByUrl('/accounting/bills/' + res.ID);
-                    });
+                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + res.ID);
+                });
             });
         });
     }
@@ -3375,19 +3429,6 @@ export class BillView implements OnInit, AfterViewInit {
         this.preSave();
 
         return new Promise((resolve, reject) => {
-
-            const reload = () => {
-                this.fetchInvoice(this.currentID, (!!done))
-                    .then(() => {
-                        resolve({ success: true });
-                        if (done) { done('Lagret'); }
-                    })
-                    .catch((msg) => {
-                        reject({ success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });
-            };
-
             let obs: any;
             const current = this.current.getValue();
 
@@ -3424,22 +3465,35 @@ export class BillView implements OnInit, AfterViewInit {
                     }
                     obs = this.supplierInvoiceService.Post(current);
                 }
+
                 obs.subscribe((result) => {
-                    if ((!current.ID) && updateRoute) {
+                    const onSaveComplete = () => {
+                        if ((!current.ID) && updateRoute) {
+                            this.currentID = result.ID;
+                            this.router.navigateByUrl('/accounting/bills/' + result.ID);
+                        }
                         this.currentID = result.ID;
-                        this.router.navigateByUrl('/accounting/bills/' + result.ID);
-                    }
-                    this.currentID = result.ID;
-                    this.hasUnsavedChanges = false;
-                    this.commentsConfig.entityID = result.ID;
-                    if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                            () => {
-                                this.resetDocuments();
-                                reload();
+                        this.hasUnsavedChanges = false;
+                        this.commentsConfig.entityID = result.ID;
+
+                        this.fetchInvoice(this.currentID, (!!done))
+                            .then(() => {
+                                resolve({ success: true });
+                                if (done) { done('Lagret'); }
+                            })
+                            .catch((msg) => {
+                                reject({ success: false, errorMessage: msg });
+                                if (done) { done(msg); }
                             });
+                    };
+
+                    if (this.unlinkedFiles.length > 0) {
+                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                            this.resetDocuments();
+                            onSaveComplete();
+                        });
                     } else {
-                        reload();
+                        onSaveComplete();
                     }
                 }, (err) => {
                     this.errorService.handle(err);
@@ -4137,25 +4191,31 @@ export class BillView implements OnInit, AfterViewInit {
         this.hasUnsavedChanges = true;
     }
 
-    private linkFiles(ID: any, fileIDs: Array<any>, flagFileStatus?: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            fileIDs.forEach(fileID => {
-                const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${ID}`;
-                if (flagFileStatus) {
-                    this.tagFileStatus(fileID, flagFileStatus);
-                }
-                this.supplierInvoiceService.send(route).subscribe(x => resolve(x));
-            });
+    private linkFiles(entityID: number, fileIDs: number[], newFileStatus?) {
+        const requests = (fileIDs || []).map(fileID => {
+            const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${entityID}`;
+            return this.supplierInvoiceService.send(route).pipe(
+                tap(() => {
+                    if (newFileStatus) {
+                        this.tagFileStatus(fileID, newFileStatus);
+                    }
+                }),
+                catchError(err => of(null))
+            );
         });
+
+        return requests.length ? forkJoin(requests) : of([]);
     }
 
     private checkPath() {
         const pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
+            this.loadingFiles = true;
             this.loadFromFileID(pageParams.fileid);
         } else {
             this.modalService.open(BillInitModal).onClose.subscribe(fileID => {
                 if (fileID) {
+                    this.loadingFiles = true;
                     this.loadFromFileID(fileID);
                 }
             });
@@ -4312,5 +4372,20 @@ export class BillView implements OnInit, AfterViewInit {
                 }
             });
         });
+    }
+
+    private itCanBeAnAsset(current: SupplierInvoice) {
+        if (current?.JournalEntry?.DraftLines?.length > 0) {
+            const line = current?.JournalEntry?.DraftLines[0];
+            return this.accountService.Get(line.AccountID).pipe(
+                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                map((account) => {
+                    return account.AccountNumber.toString().startsWith('10')
+                        || account.AccountNumber.toString().startsWith('11')
+                        || account.AccountNumber.toString().startsWith('12');
+                })
+            );
+        }
+        return of(false);
     }
 }

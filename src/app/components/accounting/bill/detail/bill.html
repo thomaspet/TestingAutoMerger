@@ -100,7 +100,15 @@
     </section>
 
     <section class="bill-right-side uni-container">
-        <header>Dokument ({{this.files?.length || 0}})</header>
+        <section *ngIf="loadingFiles" class="bill-preview-spinner">
+            <section class="spinner-container">
+                <section class="spinner-container">
+                    <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+                    <section class="spinner-text">Laster dokument</section>
+                </section>
+            </section>
+        </section>
+        <header>Dokument ({{files?.length || 0}})</header>
 
         <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
             <i class="material-icons">get_app</i>
@@ -119,7 +127,8 @@
             (fileListReady)="onFileListReady($event)"
             (imageDeleted)="onImageDeleted($event)"
             (imageUnlinked)="imageUnlinked($event)"
-            (useWord)="onUseWord($event)">
+            (useWord)="onUseWord($event)"
+            (busyLoadingFiles)="onBusyLoadingFiles($event)">
         </uni-image>
     </section>
 </section>

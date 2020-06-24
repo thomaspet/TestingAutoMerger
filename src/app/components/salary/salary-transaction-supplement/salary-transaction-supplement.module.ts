@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { SalarySharedModule } from '../shared/salary-shared.module';
 import { UniSupplementEditModal } from './edit-value-modal.component';
 import { SalaryTransactionSupplementListComponent } from './salary-transaction-supplement-list.component';
+import { SalaryTransactionSupplementListService } from './shared/service/salary-transaction-supplement-list.service';
 
 @NgModule({
     imports: [
@@ -12,7 +13,7 @@ import { SalaryTransactionSupplementListComponent } from './salary-transaction-s
         SalaryTransactionSupplementListComponent,
     ],
     providers: [
-
+        SalaryTransactionSupplementListService
     ]
   })
   export class SalaryTransactionSupplementModule { }

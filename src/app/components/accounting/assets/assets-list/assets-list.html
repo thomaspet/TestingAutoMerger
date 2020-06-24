@@ -1,0 +1,12 @@
+<assets-list-toolbar></assets-list-toolbar>
+<section class="application">
+    <p *ngIf="hasNotStartedDepreciations" class="assets-list-warning">
+        <i class="material-icons ng-star-inserted"> info_outline </i>
+        Du har eiendeler som venter på start av automatisk avskrivning
+    </p>
+    <assets-list-tab></assets-list-tab>
+    <ag-grid-wrapper class="borders" style="height: 60vh"
+        [resource]="lookupFunction"
+        [config]="tableConfig">
+    ></ag-grid-wrapper>
+</section>

@@ -1,13 +1,13 @@
 import { Component, OnInit, OnChanges, SimpleChanges, ViewChild, Input, Output, EventEmitter } from '@angular/core';
 import { UniView } from '@uni-framework/core/uniView';
-import { ReplaySubject, BehaviorSubject, Subscription, Observable } from 'rxjs';
+import { ReplaySubject, BehaviorSubject, Subscription, Observable, of } from 'rxjs';
 import { SalaryBalance, SalBalType, Supplier, SalaryBalanceTemplate, WageType, StdWageType, SalaryBalanceLine } from '@uni-entities';
 import { UniImage } from '@uni-framework/uniImage/uniImage';
 import { UniForm } from '@uni-framework/ui/uniform';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SalarybalanceService, UniCacheService, ErrorService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { tap } from 'rxjs/operators';
+import { tap, switchMap, filter, take, map } from 'rxjs/operators';
 
 const SAVING_KEY = 'viewSaving';
 
@@ -63,7 +63,6 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
                     const employeeID: number = +params['employeeID'] || undefined;
                     const type: SalBalType = +params['instalmentType'] || undefined;
                     return this.cachedSalaryBalance$
-                        .asObservable()
                         .map(salaryBalance => {
                             if (salaryBalance.ID) {
                                 return salaryBalance;
@@ -124,58 +123,60 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
 
         public change(changes: SimpleChanges) {
             this.salarybalance$
-                .asObservable()
-                .take(1)
-                .filter(() => Object
-                    .keys(changes)
-                    .some(key => changes[key].currentValue !== changes[key].previousValue))
-                .map(model => {
-                    if (changes['SalaryBalanceTemplateID']) {
-                        this.mapTemplateToSalarybalance(changes['SalaryBalanceTemplateID']
-                            .currentValue, model).subscribe(x => console.log(x));
-                    }
+                .pipe(
+                    take(1),
+                    filter(() => Object
+                        .keys(changes)
+                        .some(key => changes[key].currentValue !== changes[key].previousValue)),
+                    switchMap(model => {
+                        const instalmentTypeOrEmployeeChange = (changes['InstalmentType'] || changes['EmployeeID'])
+                            && !model.SalaryBalanceTemplateID;
+                        return changes['SalaryBalanceTemplateID'] || instalmentTypeOrEmployeeChange
+                            ? this.salarybalanceService.fill(model)
+                            : of(model);
+                    }),
+                    map(model => {
 
-                    if (changes['InstalmentType']) {
-                        this.setWagetype(model);
-                        this.setText(model);
-                        this.salarybalanceService.resetFields(model);
-                    }
-
-                    if (changes['SupplierID']) {
-                        this.salarybalanceService.getSuppliers()
-                        .subscribe((suppliers: Supplier[]) => {
-                            model.Supplier = suppliers.find(supp => supp.ID === model.SupplierID);
-                        });
-                        if (!model.SupplierID) {
-                            this.salarybalanceService.resetCreatePayment(model);
+                        if (changes['InstalmentType']) {
+                            this.salarybalanceService.resetFields(model);
                         }
-                    }
 
-                    if (changes['Amount']) {
-                        if (changes['Amount'].currentValue < 0) {
-                            let message = '';
-                            switch (model.InstalmentType) {
-                                case SalBalType.Advance:
-                                    message = 'Du prøver å føre et forskudd med et negativt beløp';
-                                    break;
-                                default:
-                                    message = 'Du prøver å føre et trekk med negativ saldo';
-                            }
-                            if (message) {
-                                this.toastService.addToast('Feil i beløp',
-                                    ToastType.warn, ToastTime.medium,
-                                    message);
+                        if (changes['SupplierID']) {
+                            this.salarybalanceService.getSuppliers()
+                            .subscribe((suppliers: Supplier[]) => {
+                                model.Supplier = suppliers.find(supp => supp.ID === model.SupplierID);
+                            });
+                            if (!model.SupplierID) {
+                                this.salarybalanceService.resetCreatePayment(model);
                             }
                         }
-                    }
 
-                    if (changes['CreatePayment']) {
-                        this.salarybalanceService.validateCreatePaymentChange(model);
-                    }
+                        if (changes['Amount']) {
+                            if (changes['Amount'].currentValue < 0) {
+                                let message = '';
+                                switch (model.InstalmentType) {
+                                    case SalBalType.Advance:
+                                        message = 'Du prøver å føre et forskudd med et negativt beløp';
+                                        break;
+                                    default:
+                                        message = 'Du prøver å føre et trekk med negativ saldo';
+                                }
+                                if (message) {
+                                    this.toastService.addToast('Feil i beløp',
+                                        ToastType.warn, ToastTime.medium,
+                                        message);
+                                }
+                            }
+                        }
 
-                    return model;
-                })
-                .do(() => this.lastChanges$.next(changes))
+                        if (changes['CreatePayment']) {
+                            this.salarybalanceService.validateCreatePaymentChange(model);
+                        }
+
+                        return model;
+                    }),
+                    tap(() => this.lastChanges$.next(changes))
+                )
                 .subscribe((model: SalaryBalance) => {
                     this.updateSalaryBalance(model);
                     if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID'] || changes['EmployeeID']) {
@@ -242,26 +243,6 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
             .map(response => this.setText(salaryBalance));
         }
 
-        private mapTemplateToSalarybalance(salarybalanceTemplateID: number,
-                salarybalance: SalaryBalance): Observable<SalaryBalanceTemplate[]> {
-            return this.salarybalanceService.getTemplates()
-            .pipe(
-                tap((templates: SalaryBalanceTemplate[]) => {
-                const template = templates.find(tmp => tmp.ID === salarybalanceTemplateID);
-                salarybalance.InstalmentType = !!template ? template.InstalmentType : null;
-                salarybalance.Name = !!template ? template.SalarytransactionDescription : null;
-                salarybalance.WageTypeNumber = !!template ? template.WageTypeNumber : null;
-                salarybalance.Instalment = !!template ? template.Instalment : null;
-                salarybalance.InstalmentPercent = !!template ? template.InstalmentPercent : null;
-                salarybalance.SupplierID = !!template ? template.SupplierID : null;
-                salarybalance.Supplier = !!template ? template.Supplier : null;
-                salarybalance.KID = !!template ? template.KID : null;
-                salarybalance.CreatePayment = !!template ? template.CreatePayment : null;
-                salarybalance.MinAmount = !!template ? template.MinAmount : null;
-                salarybalance.MaxAmount = !!template ? template.MaxAmount : null;
-            }));
-        }
-
         private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
             const fields = this.fields$.getValue();
             if (fields.length > 0) {
@@ -326,7 +307,6 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
         public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {
             const obs = this.useExternalChangeDetection ? this.salarybalance$ : this.cachedSalaryBalance$;
             obs
-                .asObservable()
                 .take(1)
                 .map(salaryBalance => {
                     salaryBalance.Transactions = salaryBalance.Transactions || [];

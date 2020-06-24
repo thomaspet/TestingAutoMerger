@@ -13,23 +13,33 @@
                     <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
                         Ingen dokumenter i innboks
                     </section>
-                    <section class="list-item"
-                        *ngFor="let file of inboxFiles"
-                        (click)="selectedFile = file;preview(file);">
-                        <span>{{file.Name}}</span>
-                        <span class="date">{{file.CreatedAt | date: 'dd.MM.yyyy'}}</span>
-                    </section>
+
+                    <ag-grid-wrapper
+                        [resource]="inboxFiles"
+                        [config]="tableConfig"
+                        (rowSelectionChange)="preview($event)">
+                    </ag-grid-wrapper>
                 </section>
             </section>
-            <section class="image-preview" *ngIf="selectedFile">
-                <uni-image
+            <section class="image-preview">
+                <section *ngIf="loadingFiles" class="bill-preview-spinner">
+                    <section class="spinner-container">
+                        <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+                        <section class="spinner-text">Laster dokument</section>
+                    </section>
+                </section>
+
+                <uni-image *ngIf="selectedFile"
                    [singleImage]="true"
                    [readonly]="true"
                    [uploadWithoutEntity]="true"
-                   [fileIDs]="[selectedFile.ID]">
+                   [fileIDs]="[selectedFile.ID]"
+                   (fileListReady)="onFileListReady($event)">
                 </uni-image>
             </section>
         </section>
+    </article>
+    <footer>
 
         <label class="upload">
             <input type="file" (change)="uploadFile($event)" />
@@ -39,10 +49,8 @@
                 Last opp dokument
             </button>
         </label>
-    </article>
 
-    <footer>
-        <button class="good" (click)="onClose.emit(selectedFile.ID)">Velg</button>
+        <button class="good" (click)="onClose.emit(selectedFile.ID)" [disabled]="loadingFiles">Velg</button>
         <button class="secondary" (click)="onClose.emit()">Lukk</button>
     </footer>
 </section>

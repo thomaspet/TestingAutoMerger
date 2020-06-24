@@ -9,7 +9,7 @@
             <mat-step label="Lisens" [completed]="selectedContract && !companyLimitReached">
                 <uni-select-license
                     *ngIf="currentStep === steps.selectLicense"
-                    [customers]="customers"
+                    [currentContractID]="currentContractID"
                     [(selectedContract)]="selectedContract"
                     (selectedContractChange)="onContractSelected($event)"
                 ></uni-select-license>
@@ -39,6 +39,7 @@
                 <uni-select-template
                     [templateCompanies]="templateCompanies"
                     [(selectedTemplateCompany)]="selectedTemplateCompany"
+                    (selectedTemplateCompanyChange)="onTemplateSelected($event)"
                 ></uni-select-template>
             </mat-step>
         </mat-horizontal-stepper>

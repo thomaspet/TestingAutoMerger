@@ -328,7 +328,6 @@ export class RecurringPostComponent extends UniView {
         this.salaryTransViewService.mapEmploymentToTrans(rowModel, this.departments, this.projects);
 
         const wagetype = rowModel['_Wagetype'];
-        rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
         rowModel['WageTypeID'] = wagetype.ID;

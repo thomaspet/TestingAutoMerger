@@ -1,4 +1,10 @@
 <section class="ehf-header">
+    <section *ngIf="busy" class="bill-preview-spinner">
+        <section class="spinner-container">
+            <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+            <section class="spinner-text">Laster dokument</section>
+        </section>
+    </section>
     <span *ngIf="!attachmentData">{{file?.Name}}</span>
     <span *ngIf="attachmentData" (click)="attachmentData = undefined" class="hide-attachment">
         <i class="material-icons">keyboard_backspace</i>
@@ -18,7 +24,7 @@
                         [ngClass]="{'selectable': attachment.resourceUrl || attachment.externalUrl}">
 
                         <!-- File -->
-                        <section *ngIf="attachment.resourceUrl" class="file" (click)="showAttachment(attachment)">
+                        <section *ngIf="attachment.label" class="file" (click)="showAttachment(attachment)">
                             <span
                                 *ngIf="getFileType(attachment); let fileType"
                                 class="file-type-indicator"

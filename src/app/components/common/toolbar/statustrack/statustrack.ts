@@ -5,13 +5,19 @@ export enum STATUSTRACK_STATES {
     Active = 'active',    // Present
     Future = 'future',    // Potential
     Obsolete = 'obsolete',  // The data has changed since
+
+    // assets status track states
+    Depreciated = 'depreciated',
+    Sold = 'sold',
+    Lost = 'lost',
+    DepreciationFailed = 'depreciation failed'
 }
 
 export interface IStatus {
     title: string;
     class?: string;
     subtitle?: string;
-    state: STATUSTRACK_STATES;
+    state: STATUSTRACK_STATES | number;
     code?: number;
     timestamp?: Date;
     substatusList?: IStatus[];
@@ -40,7 +46,17 @@ export class StatusTrack {
         if (this.config && this.config.length) {
             this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Active);
             if (!this.activeStatus) {
-                this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Obsolete);
+                this.activeStatus = this.config.find(status => (
+                    status.state === STATUSTRACK_STATES.Obsolete
+                    || status.state === STATUSTRACK_STATES.Lost
+                    || status.state === STATUSTRACK_STATES.Sold
+                    || status.state === STATUSTRACK_STATES.DepreciationFailed
+                    || status.state === STATUSTRACK_STATES.Depreciated
+                ));
+            }
+        } else {
+            if ((this.config  && this.config.length === 0) || !this.config) {
+                this.activeStatus = null;
             }
         }
     }

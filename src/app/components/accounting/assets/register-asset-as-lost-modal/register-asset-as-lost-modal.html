@@ -1,0 +1,21 @@
+<section role="dialog" class="uni-modal">
+    <header>Registrere eiendel som tapt</header>
+
+    <article>
+        <uni-form class="two-column-layout"
+            [fields]="mainForm"
+            [config]="config"
+            [model]="model"
+        ></uni-form>
+
+        <section class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>Ved registrering av en eiendel som tapt regnskapføres restverdien som en utgift.</span>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+        <button class="good" (click)="save()">Registrere som tapt</button>
+    </footer>
+</section>

@@ -1,10 +1,14 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ChangeDetectorRef} from '@angular/core';
 import {DomSanitizer} from '@angular/platform-browser';
 import {saveAs} from 'file-saver';
 import * as printJS from 'print-js';
 
 import {FileExtended} from '../../uniImage';
-import {FileService} from '@app/services/services';
+import {FileService, UniFilesService} from '@app/services/services';
+import { catchError, map } from 'rxjs/operators';
+import {of as observableOf, Observable} from 'rxjs';
+import { EHFData, EHFAttachment } from '../ehf-model';
+import { parseEHFData } from '../ehf-data-parser';
 
 @Component({
     selector: 'ehf-viewer',
@@ -17,20 +21,64 @@ export class EHFViewer {
 
     attachmentData: any;
 
+    busy: boolean;
+
     constructor(
         private domSanitizer: DomSanitizer,
-        private fileService: FileService
+        private fileService: FileService,
+        private uniFilesService: UniFilesService,
+        private cdr: ChangeDetectorRef
     ) {}
 
-    showAttachment(attachment) {
+    reloadFileWithAttachments(): Observable<EHFData> {
+        return this.uniFilesService.getEhfData(this.file.StorageReference, true).pipe(
+            catchError(err => {
+                console.error('Error loading EHF data', err);
+                return observableOf(null);
+            }),
+            map(ehfData => {
+                if (ehfData) {
+                    const parsed = parseEHFData(ehfData);
+                    if (parsed) {
+                        return parsed;
+                    }
+                }
+            })
+        );
+    }
+
+    showAttachment(attachment: EHFAttachment) {
+        this.busy = true;
         this.attachmentData = undefined;
-        setTimeout(() => {
-            this.attachmentData = {
-                mimeType: attachment.mimeType,
-                url: this.domSanitizer.bypassSecurityTrustResourceUrl(attachment.resourceUrl),
-                printUrl: attachment.resourceUrl
-            };
-        });
+
+        if (!attachment.resourceUrl) {
+            this.reloadFileWithAttachments().subscribe((ehfdata: EHFData) => {
+                this.file._ehfAttachments = ehfdata.attachments;
+                this.file._ehfAttachments.forEach((loadedAttatchment) => {
+                    if (loadedAttatchment.id === attachment.id) {
+                        setTimeout(() => {
+                            this.attachmentData = {
+                                mimeType: loadedAttatchment.mimeType,
+                                url: this.domSanitizer.bypassSecurityTrustResourceUrl(loadedAttatchment.resourceUrl),
+                                printUrl: loadedAttatchment.resourceUrl
+                            };
+                            this.busy = false;
+                            this.cdr.markForCheck();
+                        });
+                    }
+                });
+            });
+        } else {
+            setTimeout(() => {
+                this.attachmentData = {
+                    mimeType: attachment.mimeType,
+                    url: this.domSanitizer.bypassSecurityTrustResourceUrl(attachment.resourceUrl),
+                    printUrl: attachment.resourceUrl
+                };
+                this.busy = false;
+                this.cdr.markForCheck();
+            });
+        }
     }
 
     print() {

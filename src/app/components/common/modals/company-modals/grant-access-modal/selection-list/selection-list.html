@@ -1,26 +1,27 @@
-<input type="search" [formControl]="filterControl" placeholder="Filtrer">
+<ng-container *ngIf="filteredItems && !busy">
+    <input type="search" [formControl]="filterControl" placeholder="Filtrer">
+    
+    <div class="check-all-container">
+        <mat-checkbox class="check-all" (click)="onCheckAllChange()">
+            Velg alle <strong *ngIf="filteredItems?.length">({{filteredItems?.length}})</strong>
+        </mat-checkbox>
+    </div>
+    
+    <section class="uni-selection-list">
+        <cdk-virtual-scroll-viewport itemSize="55" class="scrolling-viewport">
+            <label *cdkVirtualFor="let item of filteredItems" class="selection-list-item">
+                <mat-checkbox [(ngModel)]="item['_selected']" (ngModelChange)="onItemSelectionChange(item)"></mat-checkbox>
+                {{item[labelProperty]}}
+                <span *ngIf="item[secondLabelProperty]" class="pull-right">
+                    {{item[secondLabelProperty]}}
+                </span>
+            </label>
+        </cdk-virtual-scroll-viewport>
+    </section>
+</ng-container>
 
-<section class="check-all" (click)="onCheckAllChange()">
-    <i class="material-icons" [ngClass]="{'selected': checkAll}">
-        {{checkAll ? 'check_box' : 'check_box_outline_blank'}}
-    </i>
-
-    Velg alle <strong *ngIf="filteredItems?.length">({{filteredItems?.length}})</strong>
+<section *ngIf="busy" style="min-height: calc(100vh - 30rem)">
+    <section class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
 </section>
-
-<ul class="uni-selection-list">
-    <cdk-virtual-scroll-viewport itemSize="55" class="scrolling-viewport">
-        <li *cdkVirtualFor="let item of filteredItems"
-            (click)="onItemSelectionChange(item)"
-            [ngClass]="{'selected': item['_selected']}">
-            <i class="material-icons">
-                {{item['_selected'] ? 'check_box' : 'check_box_outline_blank'}}
-            </i>
-
-            {{item[labelProperty]}}
-            <span *ngIf="item[secondLabelProperty]">
-                {{item[secondLabelProperty]}}
-            </span>
-        </li>
-    </cdk-virtual-scroll-viewport>
-</ul>

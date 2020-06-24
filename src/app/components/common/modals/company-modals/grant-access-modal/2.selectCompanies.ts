@@ -14,7 +14,7 @@ export class SelectCompaniesForBulkAccess {
     @Input() data: GrantAccessData;
     @Output() stepComplete: EventEmitter<boolean> = new EventEmitter();
 
-    companyLicenses: ElsaCompanyLicense[];
+    busy = false;
 
     constructor(
         private elsaContractService: ElsaContractService,
@@ -22,35 +22,42 @@ export class SelectCompaniesForBulkAccess {
     ) {}
 
     ngOnChanges() {
-        if (this.data) {
+        if (this.data.contract && !this.data.StoredData?.companylicenses) {
             this.initData();
         }
     }
 
-    private initData() {
+    initData() {
+        this.busy = true;
         this.elsaContractService.getCompanyLicenses(this.data.contract.ID).subscribe(
             companyLicenses => {
+                const today = new Date();
                 companyLicenses = companyLicenses.filter(companyLicense => {
                     return !moment(companyLicense.EndDate).isValid()
-                        ||  moment(companyLicense.EndDate).isAfter(moment(new Date()));
+                        ||  moment(companyLicense.EndDate).isAfter(moment(today));
                 });
 
                 if (this.data.companies && this.data.companies.length) {
                     companyLicenses.forEach(license => {
                         if (this.data.companies.some(c => c.CompanyKey === license.CompanyKey)) {
                             license['_selected'] = true;
+                            this.stepComplete.emit(true);
                         }
                     });
                 }
+                this.busy = false;
+                this.data.StoredData.companylicenses = companyLicenses;
 
-                this.companyLicenses = companyLicenses;
             },
-            err => this.errorService.handle(err),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 
     onSelectionChange() {
-        this.data.companies = this.companyLicenses.filter(c => !!c['_selected']);
+        this.data.companies = this.data.StoredData.companylicenses.filter(company => !!company['_selected']);
         this.stepComplete.emit(this.data.companies.length > 0);
     }
 }

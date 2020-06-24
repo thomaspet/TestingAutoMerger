@@ -10,7 +10,6 @@ import {CanvasHelper} from '@app/components/widgets/canvasHelper';
 
 import {SelectReportsModal} from './widgets/report-list/select-reports-modal';
 import {ReportsModule} from '../reports/reportsModule';
-import {NewsfeedWidget} from './newsfeed/newsfeed';
 import {PublicDuedatesModal} from './widgets/public-duedates-widget/public-duedate-modal';
 import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-modal';
 
@@ -26,7 +25,6 @@ import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-moda
         UniWidget,
         WidgetContainer,
         SelectReportsModal,
-        NewsfeedWidget,
         PublicDuedatesModal,
         CustomPaymentModal,
         ...UNI_WIDGETS

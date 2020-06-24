@@ -430,7 +430,6 @@ export class SalaryTransactionListComponent extends UniView implements OnChanges
         }
         rowModel['WageTypeID'] = wagetype.ID;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
-        rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.payrollRun.FromDate;
         rowModel['ToDate'] = this.payrollRun.ToDate;

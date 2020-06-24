@@ -6,7 +6,7 @@
     </section>
 
     <article class="authentication-component">
-        <h1>{{headerText || 'Prøv gratis i 30 dager'}}</h1>
+        <h1>{{headerText}}</h1>
 
         <small class="alert error" *ngIf="errorMessage">
             {{errorMessage}}
@@ -14,7 +14,7 @@
 
         <!-- STEP 1 -->
         <section class="step1" *ngIf="!confirmationCode">
-            <section *ngIf="!step1Successful && !errorMessage" class="init-subtitle">
+            <section *ngIf="!step1Successful && !errorMessage && !isSrEnvironment" class="init-subtitle">
                 Registrer deg her og få tilgang til en 30 dagers prøveperiode av systemet.
             </section>
 

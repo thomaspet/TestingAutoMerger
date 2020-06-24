@@ -700,7 +700,12 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        this.invoice = {...invoice};
+        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('InvoiceDate')) {
+            // { ... invoice} will corrupt validation, so only do it for neccessary functions
+            this.invoice = { ...invoice };
+        } else {
+            this.invoice = invoice;
+        }
         this.updateSaveActions();
     }
 
@@ -1460,7 +1465,7 @@ export class InvoiceDetails implements OnInit {
         }
 
         this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer og send',
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
             action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
@@ -1856,7 +1861,9 @@ export class InvoiceDetails implements OnInit {
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 } else {
-                                    onSendingComplete();
+                                    this.modalService.open(SendInvoiceModal, {
+                                        data: this.invoice
+                                    }).onClose.subscribe(() => onSendingComplete());
                                 }
                             });
                         },

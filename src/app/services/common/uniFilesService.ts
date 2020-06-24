@@ -37,9 +37,10 @@ export class UniFilesService {
         });
     }
 
-    getEhfData(storageReference: string) {
+    getEhfData(storageReference: string, includeEhfAttachment: boolean) {
         const url = `${this.uniFilesBaseUrl}/api/download?format=json`
             + `&id=${storageReference}`
+            + `&includeEhfAttachment=${includeEhfAttachment}`
             + `&key=${this.activeCompany.Key}`
             + `&token=${this.authService.jwt}`;
 
@@ -90,6 +91,15 @@ export class UniFilesService {
 
     public getFileProcessingStatus(id: string): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/filestatus/' + id, {
+            observe: 'body',
+            headers: {
+                'Key': this.activeCompany.Key
+            }
+        });
+    }
+
+    public runOcr(id: string): Observable<any> {
+        return this.http.get(this.uniFilesBaseUrl + '/api/ocr/analyze?id=' + id, {
             observe: 'body',
             headers: {
                 'Key': this.activeCompany.Key

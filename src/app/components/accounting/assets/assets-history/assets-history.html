@@ -1,0 +1,5 @@
+<uni-form [config]="{}" [model]="autoDepreciationModel" [fields]="autoDepreciationField" (changeEvent)="onChangeEvent($event)"></uni-form>
+<ag-grid-wrapper class="borders" style="height: 60vh"
+    [(resource)]="depreciationLines"
+    [config]="tableConfig">
+></ag-grid-wrapper>

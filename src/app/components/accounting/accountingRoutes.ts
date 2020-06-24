@@ -105,5 +105,12 @@ export const accountingRoutes: Routes = [
         path: 'expense',
         component: Expense,
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'assets',
+        loadChildren: () => import('./assets/assets.module').then(m => {
+            return m.AssetsModule;
+        }),
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

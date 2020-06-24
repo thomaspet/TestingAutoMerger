@@ -16,6 +16,7 @@ export class SelectLicenseForBulkAccess {
 
     customers: ElsaCustomer[];
     selectedContractID: number;
+    busy = false;
 
     constructor(
         private errorService: ErrorService,
@@ -23,6 +24,7 @@ export class SelectLicenseForBulkAccess {
     ) {}
 
     ngOnInit() {
+        this.busy = true;
         this.elsaCustomersService.getAll('Contracts').subscribe(
             (customers: ElsaCustomer[]) => {
                 this.customers = customers;
@@ -35,8 +37,12 @@ export class SelectLicenseForBulkAccess {
                         }
                     });
                 }
+                this.busy = false;
             },
-            err => this.errorService.handle(err),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 
@@ -49,8 +55,11 @@ export class SelectLicenseForBulkAccess {
 
         this.data.customer = selectedCustomer;
         this.data.contract = contract;
+        this.data.StoredData = <any>{};
         this.data.companies = undefined;
+        this.data.users = undefined;
         this.data.products = undefined;
+        this.data.AddAdministratorRole = false;
 
         this.stepComplete.emit(true);
     }

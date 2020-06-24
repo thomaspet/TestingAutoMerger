@@ -91,7 +91,7 @@ export class EmailService extends BizHttp<Email> {
             value: email,
             errorMessage: `Ugyldig e-postadresse.`,
             field: field,
-            isWarning: true
+            isWarning: false
         };
     }
 }
