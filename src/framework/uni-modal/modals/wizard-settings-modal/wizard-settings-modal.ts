@@ -14,6 +14,7 @@ import {
     DistributionPlanService,
     AccountService
 } from '@app/services/services';
+import {theme} from 'src/themes/theme';
 
 enum SETTINGS_STEPS {
     CompanyAndAccounting = 0,
@@ -50,6 +51,7 @@ export class WizardSettingsModal implements IUniModal {
         { hasStep: true, isValid: false },
         { hasStep: true, isValid: false }
     ];
+    appName = theme.appName;
     busy = false;
     errorMessage: string = '';
     currentStep = SETTINGS_STEPS.CompanyAndAccounting;
