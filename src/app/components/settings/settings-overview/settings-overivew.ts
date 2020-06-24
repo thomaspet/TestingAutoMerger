@@ -47,20 +47,7 @@ export class SettingsOverview {
     ) {
         this.authService.authentication$.take(1).subscribe(authDetails => {
             if (authDetails.user) {
-                this.filterSettingsLinks = this.navbarLinkService.getSettingsFilteredByPermissions(authDetails.user)
-                  .map(linkSection => {
-                    linkSection.linkGroups.forEach(linkGroup => {
-                      linkGroup.links.forEach(link => {
-                        link.subSettings = link.subSettings?.filter(subSettingLink => {
-                          return !subSettingLink.featurePermission
-                            || this.featurePermissionService.canShowUiFeature(subSettingLink.featurePermission);
-                        });
-                      });
-                    });
-
-                    return linkSection;
-                  });
-
+                this.filterSettingsLinks = this.navbarLinkService.getSettingsFilteredByPermissions(authDetails.user);
                 this.route.queryParams.subscribe((params) => {
                     this.searchString = params['search'] || '';
                     this.updateTabState();

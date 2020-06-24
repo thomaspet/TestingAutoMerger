@@ -96,6 +96,16 @@ export class NavbarLinkService {
 
                     return canActivate && hasFeaturePermission;
                 });
+
+                group.links = group.links.map(link => {
+                    link.subSettings = link.subSettings?.filter(settingsLink => {
+                        return !settingsLink.featurePermission
+                            || this.featurePermissionService.canShowUiFeature(settingsLink.featurePermission);
+                    });
+
+                    return link;
+                });
+
                 return group;
             });
         });
