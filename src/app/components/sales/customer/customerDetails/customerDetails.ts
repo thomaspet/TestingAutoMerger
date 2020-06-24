@@ -397,18 +397,19 @@ export class CustomerDetails implements OnInit {
 
     private setupSaveActions() {
         this.saveactions = [
-             {
-                 label: 'Lagre',
-                 action: (completeEvent) => this.saveAction(completeEvent),
-                 main: true,
-                 disabled: !this.isDirty || this.hasErrors
-             },
-             {
-                 label: 'Lagre som potensiell kunde',
-                 action: (completeEvent) => this.saveAction(completeEvent, true),
-                 main: false,
-                 disabled: !this.isDirty || this.hasErrors
-             }
+            {
+                label: 'Lagre',
+                action: (completeEvent) => this.saveAction(completeEvent),
+                main: true,
+                disabled: !this.isDirty || this.hasErrors
+            },
+            {
+                label: 'Lagre som potensiell kunde',
+                action: (completeEvent) => this.saveAction(completeEvent, true),
+                main: false,
+                disabled: !this.isDirty || this.hasErrors,
+                featurePermission: 'ui.sales.customer.lead'
+            }
         ];
     }
 
@@ -1484,6 +1485,7 @@ export class CustomerDetails implements OnInit {
                 Property: 'CustomerNumberKidAlias',
                 FieldType: FieldType.TEXT,
                 Label: 'KID-Identifikator',
+                FeaturePermission: 'ui.kid-settings',
                 Tooltip: {
                     Text: 'Fyll kun ut verdi i dette feltet dersom du ønsker at ' +
                     'kundenummer-del av KID skal erstattes av dette nummeret.'

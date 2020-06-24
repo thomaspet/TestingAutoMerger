@@ -1306,6 +1306,7 @@ export class TickerFilter {
     public UseAllCriterias: boolean = true;
     public CurrentCount?: number;
     public IsMultiRowSelect: boolean = false;
+    public featurePermission?: string;
 }
 
 export class TickerAction {

@@ -4,7 +4,9 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.bank_account_manual_setup',
         'ui.sellers',
         'ui.kid-settings',
+        'ui.bureau.company-groups',
 
+        'ui.sales.customer.lead',
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
 
@@ -18,16 +20,17 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.bank.journaling-rules',
     ],
     ui_permissions: [
-        'ui_tickers',
+        'ui_overview',
         'ui_uniqueries',
         'ui_assignments',
+        'ui_sharings',
         'ui_admin_flow',
+        'ui_admin_jobs',
         'ui_settings_teams',
         'ui_approval-rules',
 
         'ui_accounting_budget',
         'ui_accounting_costallocation',
-        // 'ui_sales_kidsettings',
         'ui_sales_recurringinvoice',
     ],
 };
@@ -38,6 +41,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.dimensions',
         'ui.debt-collection',
         'ui.numberseries-others',
+        'ui.accountsettings-add-and-import',
 
         'ui.accounting.assets',
 

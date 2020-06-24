@@ -434,6 +434,7 @@
         {
             "Name": "Purret",
             "Code": "invoices_reminded",
+            "featurePermission": "ui.debt-collection",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {
@@ -456,6 +457,7 @@
         {
             "Name": "Sendt til inkasso",
             "Code": "invoices_sentforcollection",
+            "featurePermission": "ui.debt-collection",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {

@@ -192,6 +192,7 @@
             },
             {
                 "Name": "Potensiell kunde",
+                "featurePermission": "ui.sales.customer.lead",
                 "Code": "lead_customers",
                 "UseAllCriterias": true,
                 "FilterGroups": [

@@ -67,7 +67,7 @@ export class UniCompanyAccountingView {
     ];
 
     eInvoiceItems: any[] = [
-        { name: 'EHF', isActivated: false, value: 1 },
+        { name: 'EHF mottak', isActivated: false, value: 1 },
         { name: 'OCR-tolkning', isActivated: false, value: 2 }
     ];
 

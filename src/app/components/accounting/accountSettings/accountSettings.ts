@@ -17,6 +17,7 @@ import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'account-settings',
@@ -40,12 +41,6 @@ export class AccountSettings {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
-        navigation: {
-            add: {
-                label: 'Opprett ny',
-                action: () => this.account = <Account> {}
-            }
-        },
         contextmenu: [
             {
                 label: 'Synkroniser kontoplan NS4102',
@@ -67,13 +62,24 @@ export class AccountSettings {
         private modalService: UniModalService,
         private userService: UserService,
         private importCentralService: ImportCentralService,
-        private router: Router
+        private router: Router,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.tabService.addTab({
             name: 'Kontoplan', url: '/accounting/accountsettings',
             moduleID: UniModules.Accountsettings, active: true
         });
-        this.getImportAccess();
+
+        if (this.featurePermissionService.canShowUiFeature('ui.accountsettings-add-and-import')) {
+            this.toolbarconfig.navigation = {
+                add: {
+                    label: 'Opprett ny',
+                    action: () => this.account = <Account> {}
+                }
+            };
+        }
+
+        this.setImportActions();
     }
 
     updateSaveEnabledState(enabled: boolean) {
@@ -219,27 +225,29 @@ export class AccountSettings {
         });
     }
 
-    private getImportAccess() {
-        this.userService.getCurrentUser().subscribe(res => {
-            const permissions = res['Permissions'];
-            this.ledgerPermissions = this.importCentralService.getAccessibleComponents(permissions).ledger;
-            if (this.ledgerPermissions.hasComponentAccess) {
-                this.saveaction.push(...[{
-                    label: 'Importer kontoplan',
-                    action: (done) => this.openImportModal(done),
-                    main: true,
-                    disabled: false
-                },
-                {
-                    label: 'Importlogg',
-                    action: this.importLogs.bind(this),
-                    main: true,
-                    disabled: false
-                }]);
-            }
-        }, err => {
-            this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
-        });
+    private setImportActions() {
+        if (this.featurePermissionService.canShowUiFeature('ui.accountsettings-add-and-import')) {
+            this.userService.getCurrentUser().subscribe(res => {
+                const permissions = res['Permissions'];
+                this.ledgerPermissions = this.importCentralService.getAccessibleComponents(permissions).ledger;
+                if (this.ledgerPermissions.hasComponentAccess) {
+                    this.saveaction.push(...[{
+                        label: 'Importer kontoplan',
+                        action: (done) => this.openImportModal(done),
+                        main: true,
+                        disabled: false
+                    },
+                    {
+                        label: 'Importlogg',
+                        action: this.importLogs.bind(this),
+                        main: true,
+                        disabled: false
+                    }]);
+                }
+            }, err => {
+                this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
+            });
+        }
     }
 
     private importLogs() {

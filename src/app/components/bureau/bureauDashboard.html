@@ -6,7 +6,7 @@
 <section class="application bureau-splitview">
 
     <section class="uni-container bureau-company-list">
-        <section class="bureau-filters">
+        <section *ifFeaturePermission="'ui.bureau.company-groups'" class="bureau-filters">
 
             <button class="tertiary c2a" [matMenuTriggerFor]="groupMenu">
                 {{activeGroup?.name}}
