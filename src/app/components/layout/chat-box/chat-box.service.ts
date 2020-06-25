@@ -11,6 +11,20 @@ export class ChatBoxService {
 
     constructor() {}
 
+    addBusinessObject(objectToAdd: BusinessObject) {
+        const businessObjects = this.businessObjects.getValue();
+        const duplicate = businessObjects.some(obj => {
+            return obj.CompanyKey === objectToAdd.CompanyKey
+                && obj.EntityID === objectToAdd.EntityID
+                && obj.EntityType?.toLowerCase() === objectToAdd.EntityType?.toLowerCase();
+        });
+
+        if (!duplicate) {
+            businessObjects.unshift(objectToAdd);
+            this.businessObjects.next(businessObjects);
+        }
+    }
+
     getBusinessObjectRoute(businessObject: BusinessObject) {
         const entityType = businessObject.EntityType.toLowerCase();
         let route = '';

@@ -74,57 +74,43 @@ export class NotificationService extends BizHttp<Notification> {
     onNotificationClick(notification: Notification): void {
         const notificationRoute = this.getNotificationRoute(notification);
 
-        const businessObject: BusinessObject = {
-            EntityID: notification.EntityID,
-            EntityType: notification.EntityType,
-            CompanyKey: notification.CompanyKey,
-        };
-        const businessObjectExists = this.chatBoxService.businessObjects
-            .getValue()
-            .find(bo => bo.EntityID === businessObject.EntityID && bo.EntityType.toLowerCase() === businessObject.EntityType.toLowerCase());
-
+        // Check if we're already logged into the company or if we need to change
         if (notification.CompanyKey === this.authService.getCompanyKey()) {
             if (notification.SourceEntityType === 'Comment') {
-                if (!businessObjectExists) {
-                    this.chatBoxService.businessObjects
-                    .next([businessObject]
-                        .concat(this.chatBoxService.businessObjects.getValue())
-                    );
-                }
-                return;
+                this.chatBoxService.addBusinessObject({
+                    EntityID: notification.EntityID,
+                    EntityType: notification.EntityType,
+                    CompanyKey: notification.CompanyKey,
+                });
             }
-            this.router.navigateByUrl(notificationRoute);
-            return;
-        }
 
-        this.companyService.GetAll().subscribe(
-            companies => {
-                const company = companies.find(c => c.Key === notification.CompanyKey);
-                if (company) {
-                    if (notification.SourceEntityType === 'Comment' && !businessObjectExists) {
-                        this.chatBoxService.businessObjects.next(
-                            [
-                                {
-                                    EntityType: notification.EntityType,
-                                    EntityID: notification.EntityID,
-                                    CompanyKey: notification.CompanyKey,
-                                },
-                            ].concat(
-                                this.chatBoxService.businessObjects.getValue()
-                            )
+            this.router.navigateByUrl(notificationRoute);
+        } else {
+            this.companyService.GetAll().subscribe(
+                companies => {
+                    const company = companies.find(c => c.Key === notification.CompanyKey);
+                    if (company) {
+                        if (notification.SourceEntityType === 'Comment') {
+                            this.chatBoxService.addBusinessObject({
+                                EntityType: notification.EntityType,
+                                EntityID: notification.EntityID,
+                                CompanyKey: notification.CompanyKey,
+                            });
+                        } else {
+                            this.authService.setActiveCompany(company, notificationRoute);
+                        }
+                    } else {
+                        this.toastService.addToast(
+                            'Mistet tilgang',
+                            ToastType.warn, 10,
+                            `Det ser ut som du nå mangler tilgang til ${notification.CompanyName},
+                            vennligst kontakt selskapets administrator.`,
                         );
                     }
-                } else {
-                    this.toastService.addToast(
-                        'Mistet tilgang',
-                        ToastType.warn, 10,
-                        `Det ser ut som du nå mangler tilgang til ${notification.CompanyName},
-                        vennligst kontakt selskapets administrator.`,
-                    );
-                }
-            },
-            err => console.error(err)
-        );
+                },
+                err => console.error(err)
+            );
+        }
     }
 
     private getNotificationRoute(notification: Notification) {
