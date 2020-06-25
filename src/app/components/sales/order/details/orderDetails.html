@@ -26,17 +26,19 @@
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
-    <section class="uni-container tradeitem-container">
-        <header>Varelinjer
-            <ng-container *ngIf="hoursOnOrderCount && hasTimetrackingAccess">
-                <i class="material-icons notification_important icon-orange">notification_important</i>
-                <span class="orderHours">
-                    Du har <span class="boldHours">{{hoursOnOrderCount}}</span> timer knyttet til denne ordren
-                    <span class="orderHours" *ngIf="nonTransferredHoursOnOrderCount">({{nonTransferredHoursOnOrderCount}} ikke overført)</span>
-                    <a class="transferHours" (click)="openModal()">Vis/overfør timer</a>
-                </span>
-            </ng-container>
-        </header>
+    <section class="tradeitem-container">
+        <section class="order-hours" *ngIf="hoursOnOrderCount && hasTimetrackingAccess">
+            <i class="material-icons">notification_important</i>
+
+            <span>
+                Du har <strong>{{hoursOnOrderCount}}</strong> timer knyttet til denne ordren
+                <ng-container *ngIf="nonTransferredHoursOnOrderCount">
+                    ({{nonTransferredHoursOnOrderCount}} ikke overført)
+                </ng-container>
+            </span>
+
+            <button class="tertiary c2a" (click)="openModal()">Vis/overfør timer</button>
+        </section>
 
         <section class="tradeitem-container">
             <uni-tradeitem-table

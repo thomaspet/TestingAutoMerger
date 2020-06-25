@@ -28,58 +28,7 @@
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
-    <!-- <section class="uni-container tradeitem-container">
-        <header>Varelinjer</header>
-
-        <uni-tradeitem-table
-            *ngIf="invoice"
-            [configStoreKey]="'sales.invoice.tradeitemTable'"
-            [readonly]="readonly || readonlyDraft"
-            [projects]="projects"
-            [departments]="departments"
-            [vatTypes]="vatTypes"
-            [vatDate]="invoice.InvoiceDate"
-            [items]="invoiceItems"
-            [dimensionTypes]="dimensionTypes"
-            [currencyCodeID]="currencyCodeID"
-            [currencyExchangeRate]="currencyExchangeRate"
-            [defaultTradeItem]="newInvoiceItem"
-            (itemsChange)="onTradeItemsChange($event)">
-        </uni-tradeitem-table>
-
-        <section class="freetext-and-summary">
-            <section *ngIf="invoice" class="freetext">
-                <span>Fritekst</span>
-                <textarea
-                    [(ngModel)]="invoice.FreeTxt"
-                    (change)="onFreetextChange()">
-                </textarea>
-            </section>
-
-            <section class="tof-summary">
-                <section class="currency-and-db">
-                    <span>{{currencyInfo}}</span>
-                    <span *ngIf="itemsSummaryData?.DekningsGrad">
-                        DG: {{itemsSummaryData?.DekningsGrad | uninumberformat:'percent'}}%
-                    </span>
-                </section>
-
-                <section class="vertical-summary" *ngIf="summaryLines?.length">
-                    <section class="summary-line"
-                        *ngFor="let summaryLine of summaryLines"
-                        [ngClass]="{'total-sum': summaryLine.isTotalSum}">
-
-                        <label>{{summaryLine.label}}</label>
-                        <span>{{summaryLine.value}}</span>
-                    </section>
-                </section>
-            </section>
-        </section>
-    </section> -->
-
     <section class="tradeitem-container">
-        <!-- <strong>Varelinjer</strong> -->
-
         <uni-tradeitem-table
             *ngIf="invoice"
             [configStoreKey]="'sales.invoice.tradeitemTable'"
@@ -96,7 +45,7 @@
             (itemsChange)="onTradeItemsChange($event)">
         </uni-tradeitem-table>
 
-        <section style="display: flex;" class="freetext-and-summary">
+        <section class="freetext-and-summary">
             <section *ngIf="invoice" class="freetext">
                 <span>Fritekst</span>
                 <textarea
