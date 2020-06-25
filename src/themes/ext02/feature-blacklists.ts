@@ -19,6 +19,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.accounting.vat-deduction-settings',
         'ui.accounting.budget',
 
+        'ui.bank.payment-batch',
         'ui.bank.journaling-rules',
     ],
     routes: [

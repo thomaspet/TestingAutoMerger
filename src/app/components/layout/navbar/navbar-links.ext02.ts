@@ -296,14 +296,16 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                 {
                     name: 'NAVBAR.PAYMENT_BATCH',
                     url: '/bank/ticker?code=payment_batch_list',
+                    featurePermission: 'ui.bank.payment-batch',
                     moduleID: UniModules.Payment,
-                    activeInSidebar: false
+                    activeInSidebar: true
                 },
                 {
                     name: 'NAVBAR.PAYMENT_BATCH_AUTO',
                     url: '/bank/ticker?code=avtalegiro_list',
+                    featurePermission: 'ui.bank.payment-batch',
                     moduleID: UniModules.Payment,
-                    activeInSidebar: false
+                    activeInSidebar: true
                 },
                 {
                     name: 'NAVBAR.BANK_RECONCILIATION',

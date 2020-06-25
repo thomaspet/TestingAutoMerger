@@ -127,12 +127,14 @@ export class NavbarLinkService {
                 section.linkGroups = section.linkGroups.map(group => {
                     group.links = group.links.filter(link => {
                         const canActivate = this.authService.canActivateRoute(user, link.url);
+                        const hasFeaturePermission = !link.featurePermission
+                            || this.featurePermissionService.canShowUiFeature(link.featurePermission);
 
                         // Use saved config from localStorage
                         const savedState = valuesFromLS.find(value => value.name === link.name);
                         link.activeInSidebar = !!savedState ? savedState.activeInSidebar : link.activeInSidebar;
 
-                        return canActivate;
+                        return canActivate && hasFeaturePermission;
                     });
                     return group;
                 });
@@ -144,7 +146,10 @@ export class NavbarLinkService {
             section.linkGroups = section.linkGroups.map(group => {
                 group.links = group.links.filter(link => {
                     const canActivate = this.authService.canActivateRoute(user, link.url);
-                    return canActivate;
+                    const hasFeaturePermission = !link.featurePermission
+                        || this.featurePermissionService.canShowUiFeature(link.featurePermission);
+
+                    return canActivate && hasFeaturePermission;
                 });
 
                 return group;
