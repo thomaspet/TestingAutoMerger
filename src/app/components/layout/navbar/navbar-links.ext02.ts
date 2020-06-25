@@ -520,12 +520,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
-                        name: 'NAVBAR.EXTRACT',
-                        url: '/uniqueries',
-                        moduleID: UniModules.UniQuery,
-                        activeInSidebar: true,
-                    },
-                    {
                         name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,

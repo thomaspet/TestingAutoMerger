@@ -478,7 +478,7 @@ export class AuthService {
         const rootRoute = this.getRootRoute(url);
         const permissionKey: string = this.getPermissionKey(url);
 
-        if (!this.featurePermissionService.hasUIPermission(permissionKey)) {
+        if (!this.featurePermissionService.canShowRoute(permissionKey)) {
             return false;
         }
 

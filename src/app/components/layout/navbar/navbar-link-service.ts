@@ -55,7 +55,7 @@ export class NavbarLinkService {
         } else {
             const linkSections = this.getLinksFilteredByPermissions(this.user);
 
-            if (this.featurePermissionService.hasUIPermission('ui_dimensions')) {
+            if (this.featurePermissionService.canShowRoute('ui_dimensions')) {
                 this.getDimensionRouteSection(this.user).subscribe(
                     dimensionLinks => {
                         if (dimensionLinks) {

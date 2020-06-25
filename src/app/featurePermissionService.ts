@@ -6,21 +6,35 @@ import {theme} from 'src/themes/theme';
 @Injectable()
 export class FeaturePermissionService {
     viewFeatureBlacklist: string[];
-    uiPermissionBlacklist: string[];
+    routePermissionBlacklist: string[];
 
     setFeatureBlacklist(contractTypeName: string) {
         const blacklists = theme.featureBlacklists;
         if (blacklists && blacklists[contractTypeName]) {
             this.viewFeatureBlacklist = blacklists[contractTypeName].view_features;
-            this.uiPermissionBlacklist = blacklists[contractTypeName].ui_permissions;
+            this.routePermissionBlacklist = blacklists[contractTypeName].routes;
         } else {
             this.viewFeatureBlacklist = [];
-            this.uiPermissionBlacklist = [];
+            this.routePermissionBlacklist = [];
         }
     }
 
-    hasUIPermission(uiPermission: string) {
-        return !this.uiPermissionBlacklist || !this.uiPermissionBlacklist.includes(uiPermission);
+    canShowRoute(uiPermission: string) {
+        if (!this.routePermissionBlacklist) {
+            return true;
+        }
+
+        if (this.routePermissionBlacklist.includes(uiPermission)) {
+            return false;
+        } else {
+            // Check blacklisted permissions that ends with _*, for example ui_dimensions_*
+            // which means every route that includes /dimensions is blacklisted.
+            const rootRoutePermissionBlacklist = this.routePermissionBlacklist
+                .filter(permission => permission.includes('_*'))
+                .map(permission => permission.replace('_*', ''));
+
+            return !rootRoutePermissionBlacklist.some(rootPermission => uiPermission.includes(rootPermission));
+        }
     }
 
     canShowUiFeature(featureName: string) {

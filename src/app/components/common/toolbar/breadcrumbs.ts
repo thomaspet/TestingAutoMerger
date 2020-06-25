@@ -103,7 +103,6 @@ export class UniBreadcrumbs {
             return possibleParentSections.find(section => {
                 return section.linkGroups.some(linkGroup => {
                     return linkGroup.links.some(link => {
-                        console.log(link.url + ' - ' + fullUrl);
                         return link.url !== '/' && fullUrl.includes(link.url);
                     });
                 });

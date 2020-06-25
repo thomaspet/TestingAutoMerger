@@ -19,6 +19,7 @@ interface IMainGroup {
     name: string;
     label: string;
     groups: Array<ISubGroup>;
+    featurePermission?: string;
 }
 
 interface ISubGroup {
@@ -26,6 +27,7 @@ interface ISubGroup {
     label: string;
     reports: Array<Report>;
     keywords?: Array<string>;
+    featurePermission?: string;
 }
 
 @Component({
@@ -48,27 +50,47 @@ export class UniReports implements OnInit {
 
     public activeTabIndex: number = 0;
     public mainGroups: Array<IMainGroup> = [
-        { name: 'Sales', label: 'Salg', groups: [
-            { name: 'Quote', label: 'Tilbud', reports: [], keywords: ['Sales.Quote'] },
-            { name: 'Order', label: 'Ordre', reports: [], keywords: ['Sales.Order'] },
-            { name: 'Invoice', label: 'Faktura', reports: [], keywords: ['Sales.Invoice'] },
-        ] },
-        { name: 'Accounting', label: 'Regnskap', groups: [
-            { name: 'AccountStatement', label: 'Kontoutskrifter', reports: [],
-                keywords: ['Accounting.AccountStatement'] },
-            { name: 'Balance', label: 'Saldolister', reports: [], keywords: ['Accounting.Balance'] },
-            { name: 'Result', label: 'Resultat', reports: [], keywords: ['Accounting.Result'] },
-            { name: 'Tax', label: 'Merverdiavgift', reports: [], keywords: ['Accounting.Tax'] }
-        ] },
-        { name: 'Payroll', label: 'Lønn', groups:  [
-            { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },
-        ] },
-        { name: 'Timetracking', label: 'Timer', groups: [
-            { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
-        ] },
-        { name: 'Custom', label: 'Egendefinert', groups: [
-            { name: 'Custom', label: 'Ukategorisert', reports: [], keywords: [] },
-        ] },
+        {
+            name: 'Sales',
+            label: 'Salg',
+            groups: [
+                { name: 'Quote', label: 'Tilbud', featurePermission: 'ui.sales.quotes', reports: [], keywords: ['Sales.Quote'] },
+                { name: 'Order', label: 'Ordre', featurePermission: 'ui.sales.orders', reports: [], keywords: ['Sales.Order'] },
+                { name: 'Invoice', label: 'Faktura', reports: [], keywords: ['Sales.Invoice'] },
+            ]
+        },
+        {
+            name: 'Accounting',
+            label: 'Regnskap',
+            groups: [
+                { name: 'AccountStatement', label: 'Kontoutskrifter', reports: [], keywords: ['Accounting.AccountStatement'] },
+                { name: 'Balance', label: 'Saldolister', reports: [], keywords: ['Accounting.Balance'] },
+                { name: 'Result', label: 'Resultat', reports: [], keywords: ['Accounting.Result'] },
+                { name: 'Tax', label: 'Merverdiavgift', reports: [], keywords: ['Accounting.Tax'] }
+            ]
+        },
+        {
+            name: 'Payroll',
+            label: 'Lønn',
+            groups:  [
+                { name: 'Payroll', label: 'Lønn', reports: [], keywords: ['Salary', 'Payroll'] },
+            ]
+        },
+        {
+            name: 'Timetracking',
+            label: 'Timer',
+            groups: [
+                { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
+            ]
+        },
+        {
+            name: 'Custom',
+            label: 'Egendefinert',
+            featurePermission: 'ui.reports.custom',
+            groups: [
+                { name: 'Custom', label: 'Ukategorisert', reports: [], keywords: [] },
+            ]
+        },
     ];
 
     constructor(

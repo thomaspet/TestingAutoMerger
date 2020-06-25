@@ -60,7 +60,7 @@ export const TRANSLATION_OVERRIDES = {
         'KPI': 'Oversikt',
         'COMPANIES': 'Mine selskaper',
         'APPROVALS': 'Oppgaver og godkjenninger',
-        'OVERVIEW': 'Database',
+        'OVERVIEW': 'Uttrekk',
         'RECURRING_INVOICE': 'Gjentakende faktura',
         'JOURNALENTRY': 'Føre bilag',
         'SUPPLIER_INVOICE': 'Regninger',

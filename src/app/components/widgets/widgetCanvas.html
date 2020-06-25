@@ -19,7 +19,7 @@
         <newsfeed></newsfeed>
     </ng-container>
 
-    <button class="edit-toggle tertiary" (click)="toggleEditMode()" title="Rediger dashboard-layout">
+    <button *ifFeaturePermission="'ui.dashboard.edit'" class="edit-toggle tertiary" (click)="toggleEditMode()" title="Rediger dashboard-layout">
         <i class="material-icons-outlined">edit</i>
         <span>Rediger dashbord</span>
     </button>

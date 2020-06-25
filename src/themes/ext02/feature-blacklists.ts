@@ -5,6 +5,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.sellers',
         'ui.kid-settings',
         'ui.bureau.company-groups',
+        'ui.reports.custom',
 
         'ui.sales.customer.lead',
         'ui.sales.customer.ehf_setup',
@@ -16,10 +17,11 @@ export const PLUS_PACKAGE_BLACKLIST = {
 
         'ui.accounting.bill.delivery_date',
         'ui.accounting.vat-deduction-settings',
+        'ui.accounting.budget',
 
         'ui.bank.journaling-rules',
     ],
-    ui_permissions: [
+    routes: [
         'ui_overview',
         'ui_uniqueries',
         'ui_assignments',
@@ -42,6 +44,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.debt-collection',
         'ui.numberseries-others',
         'ui.accountsettings-add-and-import',
+        'ui.dashboard.edit',
 
         'ui.accounting.assets',
 
@@ -54,13 +57,12 @@ export const MINI_PACKAGE_BLACKLIST = {
 
         'ui.sales.products.product_categories',
 
-        // REVISIT
         'ui.sales.quotes',
         'ui.sales.orders',
         'ui.sales.reminders'
     ],
-    ui_permissions: [
-        ...PLUS_PACKAGE_BLACKLIST.ui_permissions,
+    routes: [
+        ...PLUS_PACKAGE_BLACKLIST.routes,
         'ui_sales_quotes',
         'ui_sales_orders',
         'ui_sales_batch-invoices',
@@ -68,13 +70,9 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_productgroups',
         'ui_sales_sellers',
 
-        'ui_sales_reminders',
-        'ui_sales_reminders_debtcollect',
-        'ui_sales_reminders_ready',
-        'ui_sales_reminders_reminded',
-        'ui_sales_reminders_senttodebtcollect',
+        'ui_sales_reminders_*',
+        'ui_dimensions_*',
 
-        'ui_dimensions',
         'ui_import',
         'ui_settings_webhooks',
 
