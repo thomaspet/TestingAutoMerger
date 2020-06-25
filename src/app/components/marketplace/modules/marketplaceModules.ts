@@ -51,6 +51,7 @@ export class MarketplaceModules implements AfterViewInit {
     private autobankAgreements: any[];
 
     contractTypes: ElsaContractType[];
+    currentContractType: number;
 
     priceListLink: string;
 
@@ -85,10 +86,10 @@ export class MarketplaceModules implements AfterViewInit {
             this.elsaContractService.getCustomContractTypes(),
             this.elsaContractService.getValidContractTypeUpgrades(),
         ).subscribe(([contractTypes, validUpgrades]) => {
-            const currentContractType = this.authService.currentUser.License?.ContractType?.TypeID;
+            this.currentContractType = this.authService.currentUser.License?.ContractType?.TypeID;
 
             this.contractTypes = contractTypes?.map(contractType => {
-                contractType['_isActive'] = contractType.ContractType === currentContractType;
+                contractType['_isActive'] = contractType.ContractType === this.currentContractType;
 
                 contractType['_isValidUpgrade'] = !contractType['_isActive']
                     && validUpgrades?.some(typeID => typeID === contractType.ContractType);
@@ -108,7 +109,7 @@ export class MarketplaceModules implements AfterViewInit {
             this.paymentBatchService.checkAutoBankAgreement()
                 .catch(() => Observable.of([])), // fail silently
 
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractTypes(this.currentContractType, `producttype ne 'Package'`),
             this.elsaPurchaseService.getAll(),
             this.userRoleService.hasAdminRole(userID),
         ).subscribe(

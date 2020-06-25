@@ -7,9 +7,12 @@
         <h1>Selskaper på lisensen</h1>
 
         <div class="actions">
-            <button (click)="createCompany()" class="tertiary c2a">
-                Opprett selskap
-            </button>
+            <!--This span and disabled attribute is a temporary solution until the UX team has decided on something else-->
+            <span [matTooltip]="companyLimitReached ? 'Du har nådd maks antall selskaper på denne lisensen' : ''" style="margin-right: 1rem">
+                <button (click)="createCompany()" class="tertiary c2a" [disabled]="companyLimitReached">
+                    Opprett selskap
+                </button>
+            </span>
 
             <button (click)="grantAccess()" class="tertiary c2a">
                 Gi tilgang til selskaper

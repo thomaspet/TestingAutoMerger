@@ -24,6 +24,7 @@ export class CompanyList {
     contractID: number;
     currentContractID: number;
     companies: ElsaCompanyLicense[];
+    companyLimitReached = false;
     customers: ElsaCustomer[];
     filteredCompanies: ElsaCompanyLicense[];
     filterValue: string;
@@ -82,7 +83,8 @@ export class CompanyList {
         if (this.contractID) {
             forkJoin(
                 this.elsaContractService.getCompanyLicenses(this.contractID),
-                this.companyService.GetAll()
+                this.companyService.GetAll(),
+                this.elsaContractService.get(this.contractID, 'contracttypes', 'contracttypes')
             ).subscribe(
                 res => {
                     const ueCompanies = res[1] || [];
@@ -104,6 +106,8 @@ export class CompanyList {
                         });
 
                     this.filteredCompanies = this.companies;
+                    this.companyLimitReached =
+                        res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
                 },
                 err => console.error(err)
             );

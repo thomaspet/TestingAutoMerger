@@ -1,18 +1,21 @@
 import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
-import {ElsaProduct, ContractType} from '@app/models';
+import {ElsaProduct} from '@app/models';
 import {map, take} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/authService';
 
 @Injectable()
 export class ElsaProductService {
     private cache: {[endpoint: string]: Observable<any>} = {};
+    ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
     constructor(
         private authService: AuthService,
-        private uniHttp: UniHttp
+        private uniHttp: UniHttp,
+        private http: HttpClient
     ) {
         this.authService.authentication$.subscribe(() => this.cache = {});
     }
@@ -78,6 +81,13 @@ export class ElsaProductService {
         }
 
         return this.cache[url].pipe(take(1));
+    }
+
+    // this does almost the same as the method above, and might replace it
+    getProductsOnContractTypes(id: number, filter?: string): Observable<ElsaProduct[]> {
+        const filterClause = filter ? `?$filter=${filter}` : '';
+        const endpoint = `/api/contracttypes/${id}/products` + filterClause;
+        return this.http.get<ElsaProduct[]>(this.ELSA_SERVER_URL + endpoint);
     }
 
     public ProductTypeToPriceText(product: ElsaProduct): string {

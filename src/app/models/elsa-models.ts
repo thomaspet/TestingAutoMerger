@@ -58,6 +58,7 @@ export interface ElsaContract {
     ID: number;
     CustomerID: number;
     ContractType: ContractType;
+    ContractTypes: ElsaContractType;
     StatusCode: number;
     StartDate: Date;
     EndDate?: Date;

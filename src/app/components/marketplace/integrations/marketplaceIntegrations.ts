@@ -86,7 +86,7 @@ export class MarketplaceIntegrations implements OnInit {
             forkJoin(
                 this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
                 this.elsaPurchaseService.getAll(),
-                this.elsaProductService.GetAll(filter),
+                this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID, filter),
                 this.companySettingsService.Get(1),
             ).subscribe(
                 res => {

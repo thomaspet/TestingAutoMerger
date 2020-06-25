@@ -19,9 +19,10 @@ export class ElsaContractService {
         private http: HttpClient
     ) {}
 
-    get(id: number, select?: string): Observable<ElsaContract> {
+    get(id: number, select?: string, expand?: string): Observable<ElsaContract> {
         const selectClause = select ? `$select=${select}&` : '';
-        return this.http.get<ElsaContract[]>(this.ELSA_SERVER_URL + `/api/contracts?${selectClause}$filter=id eq ${id}`)
+        const expandClause = expand ? `$expand=${expand}&` : '';
+        return this.http.get<ElsaContract[]>(this.ELSA_SERVER_URL + `/api/contracts?${selectClause}${expandClause}$filter=id eq ${id}`)
             .pipe(map(res => res[0]));
     }
 
@@ -56,6 +57,16 @@ export class ElsaContractService {
                         && contractType.ContractType > 20;
                 });
             });
+    }
+
+    getContractTypesLabel(contracttype: string): Observable<string> {
+        return this.http.get<ElsaContractType[]>(this.ELSA_SERVER_URL + `/api/contracttypes?$filter=contracttype eq '${contracttype}'&$select=label`)
+            .pipe(
+                catchError(err => {
+                    console.error(err);
+                    return of([]);
+                }),
+                map((types: ElsaContractType[]) => types[0].Label));
     }
 
     // used for comparing contract-types

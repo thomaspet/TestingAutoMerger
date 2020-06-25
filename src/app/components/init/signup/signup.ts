@@ -39,7 +39,7 @@ export class Signup {
 
     agreement = false;
     agreeementText = theme.theme === THEMES.EXT02
-        ? 'JA, jeg gir samtykke til behandling av mine personopplysninger for å kartlegge mine interesser som beskrevet her og er kjent med at samtykket kan trekkes tilbake når som helst'
+        ? 'Ved å trykke på «Start registrering» samtykker du til at DNB behandler personopplysninger om deg som du har oppgitt for å levere tilgang i prøveperioden, for markedsføringsformål til din bedrift, og for sikkerhetsformål.'
         : 'Jeg godtar lagring og bruk av mine data';
 
 
