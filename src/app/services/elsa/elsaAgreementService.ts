@@ -4,12 +4,18 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaAgreement} from '@app/models';
 import {map} from 'rxjs/operators';
+import {AuthService} from '@app/authService';
 
 @Injectable()
 export class ElsaAgreementService {
     private cache: {[endpoint: string]: Observable<HttpResponse<any>>} = {};
 
-    constructor(private uniHttp: UniHttp) {}
+    constructor(
+        private authService: AuthService,
+        private uniHttp: UniHttp
+    ) {
+        this.authService.authentication$.subscribe(() => this.cache = {});
+    }
 
     private requestData(endpoint: string): Observable<ElsaAgreement[]> {
         let request = this.cache[endpoint];
