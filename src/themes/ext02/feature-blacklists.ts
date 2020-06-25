@@ -74,17 +74,11 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_reminders_reminded',
         'ui_sales_reminders_senttodebtcollect',
 
-
-        'ui_accounting_postpost',
-
         'ui_dimensions',
         'ui_import',
         'ui_settings_webhooks',
 
         'ui_marketplace_integrations',
         'ui_marketplace_purchases',
-
-        // 'ui_dimensions_projects_overview',
-        // 'ui_dimensions_projects_hours',
     ],
 };

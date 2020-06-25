@@ -526,12 +526,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true,
                     },
                     {
-                        name: 'NAVBAR.DIMENSION',
-                        url: '/dimensions/overview/1',
-                        moduleID: UniModules.UniQuery,
-                        activeInSidebar: true,
-                    },
-                    {
                         name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
