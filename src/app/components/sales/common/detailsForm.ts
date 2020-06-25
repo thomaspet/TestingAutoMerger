@@ -1,9 +1,9 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
-import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller} from '@uni-entities';
+import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Department} from '@uni-entities';
 import {EmailService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
-import {set} from 'lodash';
+import {set, cloneDeep} from 'lodash';
 import * as moment from 'moment';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 
@@ -25,16 +25,17 @@ export class TofDetailsForm {
     @Input() entityType: string;
     @Input() entity: any;
     @Input() currencyCodes: CurrencyCode[];
-    @Input() projects: Project;
-    @Input() sellers: Seller[];
+    @Input() projects: Project[];
+    @Input() departments: Department[];
     @Input() contacts: Contact[];
     @Input() companySettings: CompanySettings;
 
     @Output() entityChange = new EventEmitter();
+    @Output() dimensionChange = new EventEmitter();
 
-    entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    fields$: BehaviorSubject<Partial<UniFieldLayout>[]> = new BehaviorSubject([]);
+    entity$ = new BehaviorSubject({});
+    formConfig$ = new BehaviorSubject({autofocus: false});
+    fields$ = new BehaviorSubject<Partial<UniFieldLayout>[]>([]);
 
     constructor(
         private featurePermissionService: FeaturePermissionService,
@@ -48,7 +49,7 @@ export class TofDetailsForm {
 
     ngOnChanges(changes) {
         this.entity$.next(this.entity);
-        if ((this.projects && this.entityType) || ((changes['readonly'] || changes['entity']))) {
+        if ((this.projects && this.departments && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
         }
     }
@@ -59,23 +60,32 @@ export class TofDetailsForm {
     }
 
     onFormChange(changes: SimpleChanges) {
-        const keys = Object.keys(changes);
-        this.entity['_updatedFields'] = keys;
-        keys.forEach(key => {
-            if (key.includes('ProjectID')) {
-                this.entity['_updatedField'] = Object.keys(changes)[0];
-            }
+        const changedFields = Object.keys(changes);
+        const changedField = changedFields && changedFields[0];
+        changedFields.forEach(key => {
             set(this.entity, key, changes[key].currentValue);
         });
 
         if (changes['QuoteDate'] && changes['QuoteDate'].currentValue) {
             this.setDates(changes['QuoteDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         } else if (changes['OrderDate'] && changes['OrderDate'].currentValue) {
             this.setDates(changes['OrderDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         } else if (changes['InvoiceDate'] && changes['InvoiceDate'].currentValue) {
             this.setDates(changes['InvoiceDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         }
+
         this.entityChange.emit(this.entity);
+
+        // Important that this happens after the entityChange emit!
+        if (changedField.includes('ProjectID') || changedField.includes('DepartmentID')) {
+            this.dimensionChange.emit({
+                field: changedField,
+                value: changes[changedField]?.currentValue
+            });
+        }
     }
 
     private initFormFields() {
@@ -184,18 +194,18 @@ export class TofDetailsForm {
                 {
                     FieldSet: 1,
                     FieldSetColumn: 2,
-                    FeaturePermission: 'ui.sellers',
+                    FeaturePermission: 'ui.dimensions',
                     EntityType: this.entityType,
-                    Property: 'DefaultSellerID',
+                    Property: 'DefaultDimensions.DepartmentID',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Hovedselger',
+                    Label: 'Avdeling',
                     Section: 0,
                     Options: {
-                        source: this.sellers,
+                        source: this.departments,
                         valueProperty: 'ID',
                         displayProperty: 'Name',
                         debounceTime: 200,
-                        addEmptyValue: true,
+                        addEmptyValue: true
                     },
                 },
             ];

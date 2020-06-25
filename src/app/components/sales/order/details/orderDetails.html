@@ -13,6 +13,7 @@
         [data]="order"
         [currencyCodes]="currencyCodes"
         [projects]="projects"
+        [departments]="departments"
         [sellers]="sellers"
         [contacts]="order?.Customer?.Info?.Contacts || []"
         [dimensionTypes]="dimensionTypes"
@@ -21,7 +22,8 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         [canSendEHF]="canSendEHF"
-        (dataChange)="onOrderChange($event)">
+        (dataChange)="onOrderChange($event)"
+        (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
     <section class="uni-container tradeitem-container">

@@ -2,7 +2,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
     view_features: [
         'ui.distribution',
         'ui.bank_account_manual_setup',
-        'ui.sellers',
+        // 'ui.sellers',
         'ui.kid-settings',
         'ui.bureau.company-groups',
         'ui.reports.custom',

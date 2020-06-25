@@ -7,6 +7,7 @@ import {
     User,
     ValidationLevel,
     Dimensions,
+    Department,
 } from '../../../unientities';
 import {TofCustomerCard} from './customerCard';
 import {TofDetailsForm} from './detailsForm';
@@ -26,8 +27,9 @@ export class TofHead implements OnChanges {
     @Input() entityName: string;
     @Input() readonly: boolean;
     @Input() data: any;
-    @Input() currencyCodes: Array<CurrencyCode>;
-    @Input() projects: Project;
+    @Input() currencyCodes: CurrencyCode[];
+    @Input() projects: Project[];
+    @Input() departments: Department[];
     @Input() sellers: Seller[];
     @Input() contacts: any[];
     @Input() companySettings: CompanySettings;
@@ -38,7 +40,8 @@ export class TofHead implements OnChanges {
     @Input() currentUser: User;
     @Input() canSendEHF: boolean = false;
 
-    @Output() dataChange: EventEmitter<any> = new EventEmitter();
+    @Output() dataChange = new EventEmitter();
+    @Output() dimensionChange = new EventEmitter();
 
     tabs: IUniTab[];
     activeTab = 'details';
@@ -89,10 +92,13 @@ export class TofHead implements OnChanges {
                 this.data.PaymentInfoTypeID = this.paymentInfoTypes[0].ID;
             }
         }
-    }
 
-    onSellersChange($event) {
-        this.dataChange.emit(this.data);
+        if (changes['dimensionTypes']) {
+            const dimensionTab = (this.tabs || []).find(tab => tab.value === 'dimensions');
+            if (dimensionTab) {
+                dimensionTab.hidden = !this.dimensionTypes?.length;
+            }
+        }
     }
 
     onDataChange(data?: any) {

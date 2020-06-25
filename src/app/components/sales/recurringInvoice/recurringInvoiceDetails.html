@@ -13,6 +13,7 @@
         [data]="invoice"
         [currencyCodes]="currencyCodes"
         [projects]="projects"
+        [departments]="departments"
         [sellers]="sellers"
         [contacts]="invoice?.Customer?.Info?.Contacts"
         [companySettings]="companySettings"
@@ -22,7 +23,7 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         (dataChange)="onInvoiceChange($event)"
-        (sellerDelete)="onSellerDelete($event)">
+        (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
     <section class="uni-container tradeitem-container">

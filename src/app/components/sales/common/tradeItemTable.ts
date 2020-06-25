@@ -682,9 +682,19 @@ export class TradeItemTable {
             const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
-                const dimension = rowModel?.Dimensions && rowModel?.Dimensions['Dimension' + type.Dimension];
-                if (dimension) {
-                    return dimension.Number + ': ' + dimension.Name;
+                const dimensions = rowModel?.Dimensions;
+                if (dimensions) {
+                    const dimID = dimensions['Dimension' + type.Dimension + 'ID'];
+                    const dimInfo = dimensions['Dimension' + type.Dimension];
+
+                    if (dimInfo && (dimInfo.Number || dimInfo.Name)) {
+                        return `${dimInfo.Number}: ${dimInfo.Name}`;
+                    } else if (dimID) {
+                        // On some companies the migration for dim10 in DimensionInfo
+                        // didnt run (?) so even if you've set the dimension we don't have any
+                        // info to show. Just show ID in that case..
+                        return dimID;
+                    }
                 }
 
                 return '';

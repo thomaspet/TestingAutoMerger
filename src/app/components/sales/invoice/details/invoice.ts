@@ -114,7 +114,7 @@ export class InvoiceDetails implements OnInit {
     itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private askedAboutSettingDimensionsOnItems: boolean;
+    // private askedAboutSettingDimensionsOnItems: boolean;
 
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private aprilaOption = {
@@ -535,13 +535,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private setUpDims(dims) {
-        this.dimensionTypes = [{
-            Label: 'Avdeling',
-            Dimension: 2,
-            IsActive: true,
-            Property: 'DefaultDimensions.DepartmentID',
-            Data: this.departments
-        }];
+        this.dimensionTypes = [];
 
         const queries = [];
 
@@ -557,8 +551,8 @@ export class InvoiceDetails implements OnInit {
         });
 
         Observable.forkJoin(queries).subscribe((res) => {
-            res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+            res.forEach((item, index) => {
+                this.dimensionTypes[index].Data = item;
             });
         });
     }
@@ -648,31 +642,9 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
-            this.askedAboutSettingDimensionsOnItems = false;
-        }
-
-        if (invoice['_updatedField']) {
-            this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
-            this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-
-            const dimension = invoice['_updatedField'].split('.');
-            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
-            if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
-            } else {
-                // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
-            }
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
-                this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
-            }
-        }
-
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
         this.currentInvoiceDate = invoice.InvoiceDate;
-        invoice['_updatedField'] = null;
 
         if (
             customerChanged && this.currentCustomer &&
@@ -703,13 +675,35 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('InvoiceDate')) {
-            // { ... invoice} will corrupt validation, so only do it for neccessary functions
-            this.invoice = { ...invoice };
-        } else {
-            this.invoice = invoice;
-        }
+
+        this.invoice = invoice;
         this.updateSaveActions();
+    }
+
+    onDimensionChange(event: {field: string, value: any}) {
+        if (event.field && event.value) {
+            const invoice = this.invoice;
+            this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
+
+            const fieldSplit = event.field.split('.');
+            const dimKey = parseInt(fieldSplit[1].replace(/\D/g, ''), 10);
+
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                // Custom dims
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[fieldSplit[0]][fieldSplit[1]]);
+            } else {
+                // Project, Department, Region and Reponsibility
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(fieldSplit[1], invoice.DefaultDimensions[fieldSplit[1]]);
+            }
+
+            if (
+                this.accountsWithMandatoryDimensionsIsUsed
+                && invoice.CustomerID
+                && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced
+            ) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
+            }
+        }
     }
 
     onFreetextChange() {

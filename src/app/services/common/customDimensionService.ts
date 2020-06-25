@@ -1,10 +1,20 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
+import {Observable} from 'rxjs';
+import {map, publishReplay, refCount, take} from 'rxjs/operators';
+import {cloneDeep} from 'lodash';
 
 @Injectable()
 export class CustomDimensionService {
+    private cache: {[endpoint: string]: Observable<any>} = {};
 
-    constructor(private http: UniHttp) { }
+    constructor(private http: UniHttp) {
+        this.http.authService.authentication$.subscribe(() => this.cache = {});
+    }
+
+    invalidateCache() {
+        this.cache = {};
+    }
 
     public getCustomDimensionList(dimension: number, odata?: string) {
         let endpoint = 'dimension' + dimension;
@@ -12,12 +22,29 @@ export class CustomDimensionService {
             endpoint += odata;
         }
 
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(endpoint)
-            .send()
-            .map(res => res.body);
+        let request = this.cache[endpoint];
+        if (!request) {
+            request = this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint(endpoint)
+                .send()
+                .pipe(
+                    map(res => res.body),
+                    publishReplay(1),
+                    refCount()
+                );
+
+            this.cache[endpoint] = request;
+        } else {
+            console.log('using cache');
+        }
+
+        return request.pipe(
+            take(1),
+            // cloneDeep to make sure our love for mutating data doesn't mess with the cache
+            map(data => cloneDeep(data)),
+        );
     }
 
     public getCustomDimension(dimension: number, id: number) {
@@ -30,6 +57,8 @@ export class CustomDimensionService {
     }
 
     public saveCustomDimension(dimension: number, body: any) {
+        this.invalidateCache();
+
         if (body.ID) {
             return this.http
             .asPUT()
@@ -70,6 +99,8 @@ export class CustomDimensionService {
     }
 
     public Remove(dimension: number, id: number) {
+        this.invalidateCache();
+
         return this.http
             .asDELETE()
             .usingBusinessDomain()

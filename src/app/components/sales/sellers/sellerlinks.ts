@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Router} from '@angular/router';
 import {SellerLink, Seller} from '@uni-entities';
-import {UniTableColumn, UniTableColumnType, UniTableConfig, IContextMenuItem} from '@uni-framework/ui/unitable';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {ErrorService, SellerService} from '@app/services/services';
 import {cloneDeep} from 'lodash';
 
@@ -22,7 +21,6 @@ export class SellerLinks {
     totalPercent = 0;
 
     constructor(
-        private router: Router,
         private errorService: ErrorService,
         private sellerService: SellerService,
     ) {
@@ -141,27 +139,9 @@ export class SellerLinks {
         const percentCol = new UniTableColumn('Percent', 'Prosent', UniTableColumnType.Number);
         const amountCol = new UniTableColumn('Amount', 'Beløp (ink.mva)', UniTableColumnType.Money, false);
 
-        const contextMenuItems: IContextMenuItem[] = [
-            {
-                label: 'Vis selgerdetaljer',
-                action: (rowModel) => {
-                    this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID);
-                },
-                disabled: (rowModel) => !rowModel.SellerID
-            },
-            {
-                label: 'Vis selger sine salg',
-                action: (rowModel) => {
-                    this.router.navigateByUrl('/sales/sellers/' + rowModel.Seller.ID + '/sales');
-                },
-                disabled: (rowModel) => !rowModel.SellerID
-            }
-        ];
-
         this.sellerTableConfig = new UniTableConfig('common.seller.sellerlinks', !this.readonly, true, 15)
             .setDefaultRowData({SellerID: 0})
             .setDeleteButton(!this.readonly)
-            .setContextMenu(contextMenuItems)
             .setColumns([sellerCol, percentCol, amountCol])
             .setChangeCallback(event => {
                 if (event && event.field === 'Seller') {
