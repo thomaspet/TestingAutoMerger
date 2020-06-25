@@ -55,7 +55,7 @@ export class InviteUsersModal implements IUniModal {
 
         forkJoin(
             this.roleService.GetAll(),
-            this.productService.GetAll()
+            this.productService.getProductsOnContractType()
         ).pipe(
             finalize(() => this.busy = false)
         ).subscribe(
@@ -134,7 +134,7 @@ export class InviteUsersModal implements IUniModal {
         this.adminRole = roles.find(role => role.Name === 'Administrator');
 
         const filteredProducts = products.filter(product => {
-            return product.ProductType === ElsaProductType.Module && product.Name !== 'Complete';
+            return product.ProductType === ElsaProductType.Module || product.ProductType === ElsaProductType.Package;
         });
 
         const groups: RoleGroup[] = filteredProducts.map(product => {
@@ -142,7 +142,9 @@ export class InviteUsersModal implements IUniModal {
                 label: product.Label,
                 roles: [],
                 selectedRoles: [],
-                product: product
+                product: product,
+                productPurchased: product.ProductType === ElsaProductType.Package,
+                readonlyPurchase: product.ProductType === ElsaProductType.Package
             };
         });
 
@@ -163,6 +165,12 @@ export class InviteUsersModal implements IUniModal {
                 });
             }
         });
+
+        const packageGroup = groups.find(group => group.product?.ProductType === ElsaProductType.Package);
+        if (packageGroup) {
+            this.checkDefaultRoles(packageGroup);
+            this.setActiveRoleCount(packageGroup);
+        }
 
         return groups.filter(group => group.roles && group.roles.length);
     }

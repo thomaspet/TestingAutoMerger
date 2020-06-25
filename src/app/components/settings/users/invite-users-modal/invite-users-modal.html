@@ -32,11 +32,14 @@
                         <mat-panel-title>
 
                             <mat-checkbox
+                                *ngIf="!group.readonlyPurchase"
                                 [(ngModel)]="group.productPurchased"
                                 (change)="onProductPurchaseChange(group)"
                                 (click)="$event.stopPropagation()">
                                 {{group.label}}
                             </mat-checkbox>
+
+                            <span *ngIf="group.readonlyPurchase">{{group.label}}</span>
 
                             <small class="active-role-count" *ngIf="group.productPurchased">
                                 ({{group._activeRoleCount}}
