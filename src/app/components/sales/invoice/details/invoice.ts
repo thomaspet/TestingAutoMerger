@@ -1861,9 +1861,39 @@ export class InvoiceDetails implements OnInit {
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 } else {
-                                    this.modalService.open(SendInvoiceModal, {
-                                        data: this.invoice
-                                    }).onClose.subscribe(() => onSendingComplete());
+                                    if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
+                                        const currentPlan = this.distributionPlans
+                                            .find(plan => plan.ID === this.invoice.DistributionPlanID);
+
+                                        // Only show sending of invoice if plan has elementtypes
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
+                                            this.toastService.toast({
+                                                title: 'Kreditering vellykket. Kreditnota sendes med valgt utsendingplan.',
+                                                type: ToastType.good,
+                                                duration: 5
+                                            });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kreditnota.');
+                                        }
+
+                                        onSendingComplete();
+                                    } else {
+                                        if (this.invoice.DistributionPlanID) {
+                                            const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                                            if (p && (!p.Elements || !p.Elements.length)) {
+                                                this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                    'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                    + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kredittnota.');
+                                                onSendingComplete();
+                                                return;
+                                            }
+                                        }
+                                        this.modalService.open(SendInvoiceModal, {
+                                            data: this.invoice
+                                        }).onClose.subscribe(() => onSendingComplete());
+                                    }
                                 }
                             });
                         },
