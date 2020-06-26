@@ -159,6 +159,8 @@ export interface ElsaProduct {
     ProductTypeName: string;
     Tags: string[];
     SubProducts?: ElsaProduct[];
+    IsMandatoryProduct?: boolean;
+    IsDefaultProduct?: boolean;
 }
 
 export enum ElsaCompanyLicenseStatus {

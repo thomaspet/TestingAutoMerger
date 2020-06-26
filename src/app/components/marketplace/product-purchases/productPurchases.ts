@@ -96,7 +96,7 @@ export class ProductPurchases implements OnInit {
 
     fetchPurchases() {
         forkJoin(
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID),
             this.elsaPurchaseService.getAll(),
             this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()

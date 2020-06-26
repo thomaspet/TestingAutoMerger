@@ -27,7 +27,8 @@
                 <section class="subscribe">
                     <button
                         class="c2a subscribe-button"
-                        (click)="manageUserPurchases(module)">
+                        (click)="manageUserPurchases(module)"
+                        [disabled]="module?.IsMandatoryProduct">
                         {{module['_isBought'] ? 'Velg brukere' : 'Abonner'}}
                     </button>
                 </section>
@@ -78,7 +79,8 @@
                     <section class="subscribe">
                         <button
                             class="c2a subscribe-button"
-                            (click)="manageUserPurchases(module)">
+                            (click)="manageUserPurchases(module)"
+                            [disabled]="module?.IsMandatoryProduct">
                             {{module['_isBought'] ? 'Velg brukere' : 'Abonner'}}
                         </button>
                     </section>
