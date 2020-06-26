@@ -9,6 +9,7 @@ import { BankAccountService } from '../accounting/bankAccountService';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
 import { ConfigBankAccountsConfirmModal } from '@uni-framework/uni-modal/modals/bank-accounts-config-confirm-modal/bank-accounts-config-confirm-modal';
 import { StatisticsService } from '@app/services/common/statisticsService';
+import { IModalOptions } from '@uni-framework/uni-modal';
 
 
 
@@ -90,7 +91,17 @@ export class BrunoOnboardingService {
                                     this.bankAccountService.createBankAccounts(res)
                                         .subscribe(() => {
                                             this.onAgreementStatusChanged.emit();
-                                            this.modalService.open(ConfigBankAccountsConfirmModal);
+
+                                            const options: IModalOptions = {
+                                                header: 'Integrasjonen med banken er klar!',
+                                                message: 'Alle bankkontoer er nå oppdatert i DNB Regnskap og er klar for bruk',
+                                                buttonLabels: {
+                                                    accept: 'OK'
+                                                },
+                                                icon: 'themes/ext02/ext02-success-accountconfig.svg'
+                                            };
+
+                                            this.modalService.open(ConfigBankAccountsConfirmModal, options);
                                         });
                                 }
                             });

@@ -1,103 +1,117 @@
 <uni-toolbar [config]="{ title: 'SETTINGS.BANK' }" [saveactions]="saveActions"></uni-toolbar>
 
 <section class="container-fluid uni-grid-container">
-    <!-- BANKINNSTILLINGER -->
-    <section class="row form-row">
-        <section class="col-md-4">
-            <section class="form-info-section">
-                <h1> {{ 'SETTINGS.BANK' | translate }}  </h1>
-                <p> {{ 'SETTINGS.BANK_INFOTEXT' | translate }} </p>
-            </section>
-        </section>
 
-        <section class="col-md-8">
-            <section class="uni-card">
-                <section class="uni-card-content">
-                    <uni-form
-                        [config]="{showLabelAbove: true, autoFocus: true}"
-                        [fields]="bankFields$"
-                        [model]="companySettings$"
-                        (changeEvent)="setAsDirty()">
-                    </uni-form>
+    <uni-tabs
+        [tabs]="tabs"
+        [(activeIndex)]="activeIndex"
+        (tabClick)="updateTabAndUrl()">
+    </uni-tabs>
+
+    <ng-container *ngIf="activeIndex === 0">
+        <!-- BANKINNSTILLINGER -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.BANK' | translate }}  </h1>
+                    <p> {{ 'SETTINGS.BANK_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="bankFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="setAsDirty()">
+                        </uni-form>
+                    </section>
                 </section>
             </section>
         </section>
-    </section>
 
 
-    <!-- BANKKONTOER -->
-    <section class="row form-row">
-        <section class="col-md-4">
-            <section class="form-info-section">
-                <h1> {{ 'SETTINGS.BANK_ACCOUNTS' | translate }} </h1>
-                <p> {{ 'SETTINGS.BANK_ACCOUNTS_INFOTEXT' | translate }} </p>
+        <!-- BANKKONTOER -->
+        <section class="row form-row" *ngIf="!isExt02Environment">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.BANK_ACCOUNTS' | translate }} </h1>
+                    <p> {{ 'SETTINGS.BANK_ACCOUNTS_INFOTEXT' | translate }} </p>
+                </section>
             </section>
-        </section>
 
-        <section class="col-md-8">
-            <section class="uni-card">
-                <section class="uni-card-content">
-                    <uni-form
-                        [config]="{showLabelAbove: true, autoFocus: true}"
-                        [fields]="accountFields$"
-                        [model]="companySettings$"
-                        (changeEvent)="setAsDirty()">
-                    </uni-form>
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="accountFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="setAsDirty()">
+                        </uni-form>
+                    </section>
                 </section>
             </section>
         </section>
-    </section>
 
-    <!-- AUTOBANK -->
-    <section class="row form-row">
-        <section class="col-md-4">
-            <section class="form-info-section">
-                 <h1> {{ 'SETTINGS.AUTO_BANK' | translate }} </h1>
-                 <p> {{ 'SETTINGS.AUTO_BANK_INFOTEXT' | translate }} </p>
+        <!-- AUTOBANK -->
+        <section class="row form-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.AUTO_BANK' | translate }} </h1>
+                    <p> {{ 'SETTINGS.AUTO_BANK_INFOTEXT' | translate }} </p>
+                </section>
             </section>
-        </section>
 
-        <section class="col-md-8">
-            <section class="uni-card">
-                <section class="uni-card-content">
-                    <uni-form
-                        [config]="{showLabelAbove: true, autoFocus: true}"
-                        [fields]="autobankFields$"
-                        [model]="companySettings$"
-                        (changeEvent)="onAutobankFormChange($event)">
-                    </uni-form>
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="autobankFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="onAutobankFormChange($event)">
+                        </uni-form>
+                    </section>
                 </section>
             </section>
         </section>
-    </section>
 
-    <!-- REMITTERING -->
-    <section class="row form-row last">
-        <section class="col-md-4">
-            <section class="form-info-section">
-                <h1> {{ 'SETTINGS.REM_ACCOUNTS' | translate }} </h1>
-                <p> {{ 'SETTINGS.REM_ACCOUNTS_INFOTEXT' | translate }} </p>
+        <!-- REMITTERING -->
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.REM_ACCOUNTS' | translate }} </h1>
+                    <p> {{ 'SETTINGS.REM_ACCOUNTS_INFOTEXT' | translate }} </p>
+                </section>
             </section>
-        </section>
 
-        <section class="col-md-8">
-            <section class="uni-card">
-                <section class="uni-card-content">
-                    <uni-form
-                        [config]="{showLabelAbove: true, autoFocus: true}"
-                        [fields]="remitteringFields$"
-                        [model]="companySettings$"
-                        (changeEvent)="setAsDirty()">
-                    </uni-form>
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="remitteringFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="setAsDirty()">
+                        </uni-form>
 
-                    <uni-form
-                        [config]="{showLabelAbove: true, autoFocus: true}"
-                        [fields]="remitteringFields$2"
-                        [model]="companySalary$"
-                        (changeEvent)="setCompanySalaryAsDirty()">
-                    </uni-form>
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="remitteringFields$2"
+                            [model]="companySalary$"
+                            (changeEvent)="setCompanySalaryAsDirty()">
+                        </uni-form>
+                    </section>
                 </section>
             </section>
         </section>
-    </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeIndex === 1 && companySettings && isExt02Environment">
+        <bank-setttings-accountlist  [(companySettings)]="companySettings" [agreements]="agreements" (changeAccount)="setAsDirty()"> </bank-setttings-accountlist>
+    </ng-container>
+
 </section>

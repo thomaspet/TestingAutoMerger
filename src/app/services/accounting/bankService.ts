@@ -9,6 +9,14 @@ import {StatisticsService} from '../common/statisticsService';
 @Injectable()
 export class BankService extends BizHttp<Bank> {
 
+    BANK_ACCOUNT_TYPES = [
+        { label: 'Drift', value: 'company', suggestion: 1920 },
+        { label: 'Skatt', value: 'tax', suggestion: 1950 },
+        { label: 'Lønn', value: 'salary', suggestion: null },
+        // { label: 'Kreditt', value: 'credit', suggestion: 1920 },
+        // { label: 'Utenlandsbetaling', value: 'foreign', suggestion: 1920 }
+    ];
+
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
 

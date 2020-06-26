@@ -9,7 +9,7 @@ import {IUniWidget} from '../uniWidget';
     template: `
         <section class="widget-wrapper">
             <section class="header">
-                <span>{{ widget.description }}</span>
+                <span> {{ widget.description }}</span>
             </section>
 
             <section *ngIf="missingData" class="no-content" style="flex-direction: column; text-align: center; padding: 2rem;">

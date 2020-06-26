@@ -1,7 +1,15 @@
 import {Component, SimpleChanges} from '@angular/core';
 import {CompanySettings, BankAccount, CompanySalary} from '@uni-entities';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
-import {CompanySettingsService, AccountService, CompanySalaryService, ErrorService} from '@app/services/services';
+import {
+    CompanySettingsService,
+    AccountService,
+    CompanySalaryService,
+    ErrorService,
+    PageStateService,
+    PaymentBatchService,
+    StatisticsService
+} from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {THEMES, theme} from 'src/themes/theme';
@@ -11,6 +19,8 @@ import {
     UniModalService,
     ConfirmActions
 } from '@uni-framework/uni-modal';
+import { IUniTab } from '@uni-framework/uni-tabs';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'bank-settings',
@@ -20,6 +30,7 @@ import {
 export class UniBankSettings {
 
     isSrEnvironment = theme.theme === THEMES.SR;
+    isExt02Environment = theme.theme === THEMES.EXT02;
     dataLoaded: boolean = false;
     hideBankValues: boolean = false;
     hideXtraPaymentOrgXmlTagValue: boolean = false;
@@ -43,8 +54,16 @@ export class UniBankSettings {
 
     companySalary$ = new BehaviorSubject<CompanySalary>(null);
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    companySettings: CompanySettings;
 
-    bankAccounts: any[] = [];
+    agreements = [];
+    activeIndex: number = 0;
+    tabs: IUniTab[] = [
+        {name: 'Bankinnstillinger'},
+        {name: 'Bankkontoer'}
+    ];
+    bankAccountQuery = 'model=BankAccount&filter=CompanySettingsID eq 1&join=BankAccount.ID eq Payment.FromBankAccountID&select=ID as ID,count(Payment.ID) as count';
+
     saveActions: any[] = [
         {
             label: 'Lagre innstillinger',
@@ -61,17 +80,22 @@ export class UniBankSettings {
         private modalService: UniModalService,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private tabService: TabService
+        private tabService: TabService,
+        private route: ActivatedRoute,
+        private pageStateService: PageStateService,
+        private paymentBatchService: PaymentBatchService,
+        private statisticsService: StatisticsService
     ) {}
 
     ngOnInit() {
-        this.loadAccountsDataAndInit();
-        this.tabService.addTab({
-            name: 'Innstillinger - Bank',
-            url: 'settings/bank',
-            moduleID: UniModules.SubSettings,
-            active: true
-       });
+        this.route.queryParams.subscribe(params => {
+            const index = +params['index'];
+            if (!isNaN(index) && index >= 0 && index < this.tabs.length) {
+                this.activeIndex = index;
+            }
+            this.loadAccountsDataAndInit();
+            this.updateTabAndUrl();
+        });
     }
 
     ngOnDestroy() {
@@ -88,16 +112,47 @@ export class UniBankSettings {
         Observable.forkJoin(
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
-        ).subscribe(([companySettings, companySalary]) => {
+            this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
+            this.paymentBatchService.checkAutoBankAgreement()
+        ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
+
+            if (agreements.length) {
+                agreements.forEach((a) => {
+                    const bankAccount = companySettings.BankAccounts.find(ba => ba.ID === a.BankAccountID);
+                    if (bankAccount) {
+                        bankAccount._agreement = a;
+                    }
+                });
+            }
+
+            // This should always be ordered the same way..
+            accountCounts.forEach((account, index) => {
+                const bankAccount = companySettings.BankAccounts.find(a => a.ID === account.ID);
+                if (bankAccount) {
+                    bankAccount['_count'] = account.count;
+                }
+            });
+
+            this.companySettings = companySettings;
             this.companySettings$.next(companySettings);
             this.companySalary$.next(companySalary);
             this.hideBankValues = !companySettings.UsePaymentBankValues;
             this.hideXtraPaymentOrgXmlTagValue = !companySettings.UseXtraPaymentOrgXmlTag;
 
-            this.bankAccounts = [].concat(companySettings.BankAccounts);
+            this.agreements = agreements;
 
             this.createFormFields();
         });
+    }
+
+    updateTabAndUrl() {
+        this.pageStateService.setPageState('index', this.activeIndex + '');
+        this.tabService.addTab({
+            name: 'Innstillinger - Bank',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.SubSettings,
+            active: true
+       });
     }
 
     setAsDirty() {
@@ -138,7 +193,7 @@ export class UniBankSettings {
             if (companySettings.CompanyBankAccount) {
                 if (!companySettings.CompanyBankAccount.ID) {
                     companySettings.CompanyBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.CompanyBankAccount.BankAccountType = 'companySettings';
+                    companySettings.CompanyBankAccount.BankAccountType = 'company';
                 }
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.CompanyBankAccount);
             }
@@ -146,7 +201,7 @@ export class UniBankSettings {
             if (companySettings.TaxBankAccount) {
                 if (!companySettings.TaxBankAccount.ID) {
                     companySettings.TaxBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.TaxBankAccount.BankAccountType = 'bankaccount';
+                    companySettings.TaxBankAccount.BankAccountType = 'tax';
                 }
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.TaxBankAccount);
             }
@@ -154,10 +209,24 @@ export class UniBankSettings {
             if (companySettings.SalaryBankAccount) {
                 if (!companySettings.SalaryBankAccount.ID) {
                     companySettings.SalaryBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.SalaryBankAccount.BankAccountType = 'salarybank';
+                    companySettings.SalaryBankAccount.BankAccountType = 'salary';
                 }
+
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.SalaryBankAccount);
             }
+
+            if (companySettings.SalaryBankAccountID) {
+                companySettings.SalaryBankAccount = null;
+            }
+
+            if (companySettings.TaxBankAccountID) {
+                companySettings.TaxBankAccount = null;
+            }
+
+            if (companySettings.CompanyBankAccountID) {
+                companySettings.CompanyBankAccount = null;
+            }
+
 
             if (companySettings.BankChargeAccountID) {
                 companySettings.BankChargeAccount = null;
