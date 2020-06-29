@@ -37,13 +37,11 @@ export class Signup {
     backgroundHeight = theme.init.signup_background_height;
     illustration = theme.init.illustration;
 
-    agreement = false;
     agreeementText = theme.theme === THEMES.EXT02
-        ? 'Ved å trykke på «Start registrering» samtykker du til at DNB behandler personopplysninger om deg som du har oppgitt for å levere tilgang i prøveperioden, for markedsføringsformål til din bedrift, og for sikkerhetsformål.'
+        ? 'Ved å trykke på «start registrering» nedenfor får du en gratis, begrenset lisens til å teste funksjonalitet i DNB Regnskap i 30 dager. DNB vil behandle opplysninger om deg som du har oppgitt for å levere testtilgangen, for markedsføringsformål til din bedrift og for sikkerhetsformål.'
         : 'Jeg godtar lagring og bruk av mine data';
 
 
-    recaptchaVisible = false;
     recaptchaCode: string;
 
     constructor(

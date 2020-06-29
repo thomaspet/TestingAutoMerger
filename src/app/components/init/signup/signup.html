@@ -38,15 +38,13 @@
                         <span>Telefon</span>
                         <input type="tel" formControlName="PhoneNumber" />
                     </label>
-
                 </form>
 
-                <label class="agreement-checkbox">
-                    <mat-checkbox [(ngModel)]="agreement" (change)="recaptchaVisible = true"></mat-checkbox>
-                    <span>{{agreeementText}}</span>
-                </label>
+                <section class="agreement-text">
+                    {{agreeementText}}
+                </section>
 
-                <section class="recaptcha-wrapper" [class.invisible]="!recaptchaVisible">
+                <section class="recaptcha-wrapper">
                     <uni-recaptcha (reCaptchaCode)="recaptchaCode = $event"></uni-recaptcha>
                 </section>
 
@@ -54,7 +52,7 @@
                     class="c2a"
                     (click)="submitStep1Form()"
                     [attr.aria-busy]="busy"
-                    [disabled]="busy || !step1Form?.valid || !agreement || !recaptchaCode">
+                    [disabled]="busy || !step1Form?.valid || !recaptchaCode">
                     Start registrering
                 </button>
 
