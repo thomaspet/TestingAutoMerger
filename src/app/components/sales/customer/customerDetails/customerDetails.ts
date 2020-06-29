@@ -1306,6 +1306,7 @@ export class CustomerDetails implements OnInit {
             {
                 FieldSet: 3,
                 EntityType: 'Customer',
+                FeaturePermission: 'ui.sales.customer.delivery-terms',
                 Property: 'DeliveryTermsID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Leveringsbetingelse',

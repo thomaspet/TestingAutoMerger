@@ -1489,6 +1489,7 @@ export class InvoiceDetails implements OnInit {
 
             this.saveActions.push({
                 label: 'Send purring',
+                featurePermission: 'ui.debt-collection',
                 action: (done) => {
                     this.sendReminderAction(done);
                 },
@@ -1502,7 +1503,7 @@ export class InvoiceDetails implements OnInit {
 
         this.saveActions.push({
             label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
-            featurePermission: 'ui.sales.invoice.reminder-stop',
+            featurePermission: 'ui.debt-collection',
             action: (done) => {
                 this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
                 this.save().subscribe(

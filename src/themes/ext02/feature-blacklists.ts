@@ -10,6 +10,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.sales.customer.lead',
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
+        'ui.sales.customer.delivery-terms',
 
         'ui.accounting.supplier.cost_allocation',
         'ui.accounting.supplier.ehf_setup',
@@ -55,7 +56,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.customer.avtalegiro',
         'ui.sales.customer.documents',
 
-        'ui.sales.invoice.reminder-stop',
         'ui.sales.invoice.accrual',
 
         'ui.sales.products.product_categories',
