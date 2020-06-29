@@ -1,4 +1,4 @@
-<input type="search" [formControl]="filterControl" placeholder="Filtrer">
+<input *ngIf="items?.length > 1" type="search" [formControl]="filterControl" placeholder="Søk">
 
 <section class="check-all" (click)="onCheckAllChange()">
     <i class="material-icons" [ngClass]="{'selected': checkAll}">
