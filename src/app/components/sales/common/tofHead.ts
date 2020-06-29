@@ -58,7 +58,9 @@ export class TofHead implements OnChanges {
             {name: 'Kommentar', value: 'comment'},
             {name: 'Selgere', value: 'sellers', featurePermission: 'ui.sellers'},
             {name: 'Dokumenter', value: 'attachments'},
-            {name: 'Dimensjoner', value: 'dimensions', featurePermission: 'ui.dimensions'},
+
+            // Dimension tab is shown/hidden in ngOnChanges
+            {name: 'Dimensjoner', value: 'dimensions', featurePermission: 'ui.dimensions', hidden: true},
             {name: 'Utsendelse', value: 'distribution', featurePermission: 'ui.distribution'}
         ];
 

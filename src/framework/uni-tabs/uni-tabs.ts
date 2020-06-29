@@ -71,9 +71,8 @@ export class UniTabs {
             }
 
             this.tabs.forEach(tab => {
-                if (!tab.hidden && tab.featurePermission) {
-                    tab.hidden = !this.featurePermissionService.canShowUiFeature(tab.featurePermission);
-                }
+                tab['_hasFeaturePermission'] = !tab.featurePermission
+                    || this.featurePermissionService.canShowUiFeature(tab.featurePermission);
             });
 
             setTimeout(() => {

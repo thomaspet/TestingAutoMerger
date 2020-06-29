@@ -1,7 +1,7 @@
 <section #tabContainer class="tab-container">
     <ng-container *ngFor="let tab of tabs; let idx = index">
         <!-- Regular tab -->
-        <a *ngIf="!useRouterLinkTabs && !tab.hidden"
+        <a *ngIf="!useRouterLinkTabs && !tab.hidden && tab['_hasFeaturePermission']"
             (click)="onTabClick(tab)"
             [class.active]="activeIndex === idx"
             [attr.aria-disabled]="tab.disabled"
@@ -18,7 +18,7 @@
         </a>
 
         <!-- Router link tab -->
-        <a *ngIf="useRouterLinkTabs && !tab.hidden"
+        <a *ngIf="useRouterLinkTabs && !tab.hidden && tab['_hasFeaturePermission']"
             (click)="onTabClick(tab)"
             [attr.aria-disabled]="tab.disabled"
             [routerLink]="tab.path"
@@ -93,7 +93,7 @@
             <ng-container *ngFor="let tab of tabs | slice: overflowIndex">
                 <!-- Regular tab -->
                 <a class="dropdown-menu-item"
-                    *ngIf="!useRouterLinkTabs && !tab.hidden"
+                    *ngIf="!useRouterLinkTabs && !tab.hidden && tab['_hasFeaturePermission']"
                     [attr.aria-disabled]="tab.disabled"
                     (click)="onTabClick(tab)">
 
@@ -112,7 +112,7 @@
 
                 <!-- Router link tab -->
                 <a class="dropdown-menu-item"
-                    *ngIf="useRouterLinkTabs && !tab.hidden"
+                    *ngIf="useRouterLinkTabs && !tab.hidden && tab['_hasFeaturePermission']"
                     (click)="onTabClick(tab)"
                     [attr.aria-disabled]="tab.disabled"
                     [routerLink]="tab.path">

@@ -74,6 +74,7 @@ export const MINI_PACKAGE_BLACKLIST = {
 
         'ui_sales_reminders_*',
         'ui_dimensions_*',
+        'ui_settings_dimension',
 
         'ui_import',
         'ui_settings_webhooks',
