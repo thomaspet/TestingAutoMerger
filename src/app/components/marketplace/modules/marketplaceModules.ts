@@ -133,10 +133,10 @@ export class MarketplaceModules implements AfterViewInit {
 
                 this.autobankAgreements = autobankAgreeements || [];
 
-                this.modules = (products || []).filter(p => p.ProductType === ElsaProductType.Module);
+                this.modules = (products || []).filter(p => p.ProductType === ElsaProductType.Module && !p.IsMandatoryProduct);
 
                 this.extensions = products
-                    .filter(p => p.ProductType === ElsaProductType.Extension)
+                    .filter(p => p.ProductType === ElsaProductType.Extension && !p.IsMandatoryProduct)
                     .map(extension => {
                         this.setActivationFunction(extension);
                         return extension;
