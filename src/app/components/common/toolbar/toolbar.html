@@ -112,7 +112,7 @@
 
     <toolbar-month-selector *ngIf="config?.period" [period]="config.period" (monthChange)="monthChange.emit($event)"> </toolbar-month-selector>
 
-    <uni-comments *ngIf="commentsConfig?.entityID > 0"
+    <uni-comments *ngIf="canShowChat && commentsConfig?.entityID > 0"
         [entity]="commentsConfig.entityType"
         [entityID]="commentsConfig.entityID"
         [toggleMode]="true">

@@ -11,6 +11,7 @@ import {finalize, take} from 'rxjs/operators';
 import {ErrorService} from '@app/services/services';
 import {ToolbarSharingStatus} from './sharing-status/sharing-status';
 import { ToolbarInfoBanner } from './Info-banner/info-banner';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -135,6 +136,7 @@ export class UniToolbar {
     @Output() monthChange = new EventEmitter();
 
     searchVisible: boolean;
+    canShowChat = true;
 
     uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
@@ -142,7 +144,12 @@ export class UniToolbar {
         hideDeleteButton: true
     };
 
-    constructor(private errorService: ErrorService) {}
+    constructor(
+        private errorService: ErrorService,
+        private permissionService: FeaturePermissionService
+    ) {
+        this.canShowChat = this.permissionService.canShowUiFeature('ui.chat');
+    }
 
     ngOnChanges(changes) {
         if (changes['selectConfig']) {

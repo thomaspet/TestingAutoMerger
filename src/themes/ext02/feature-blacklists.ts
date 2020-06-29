@@ -6,6 +6,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.kid-settings',
         'ui.bureau.company-groups',
         'ui.reports.custom',
+        'ui.chat',
 
         'ui.sales.customer.lead',
         'ui.sales.customer.ehf_setup',

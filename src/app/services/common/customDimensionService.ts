@@ -36,8 +36,6 @@ export class CustomDimensionService {
                 );
 
             this.cache[endpoint] = request;
-        } else {
-            console.log('using cache');
         }
 
         return request.pipe(
