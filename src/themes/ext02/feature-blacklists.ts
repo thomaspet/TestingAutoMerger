@@ -2,7 +2,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
     view_features: [
         'ui.distribution',
         'ui.bank_account_manual_setup',
-        // 'ui.sellers',
+        'ui.sellers',
         'ui.kid-settings',
         'ui.bureau.company-groups',
         'ui.reports.custom',
@@ -34,7 +34,9 @@ export const PLUS_PACKAGE_BLACKLIST = {
 
         'ui_accounting_budget',
         'ui_accounting_costallocation',
+
         'ui_sales_recurringinvoice',
+        'ui_sales_sellers',
     ],
 };
 
@@ -69,7 +71,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_batch-invoices',
 
         'ui_sales_productgroups',
-        'ui_sales_sellers',
 
         'ui_sales_reminders_*',
         'ui_dimensions_*',
