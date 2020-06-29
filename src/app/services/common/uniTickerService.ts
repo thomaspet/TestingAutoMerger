@@ -1252,6 +1252,7 @@ export interface IExpressionFilterValue {
 export class TickerColumn {
     public Header?: string;
     public Field: string;
+    public FeaturePermission?: string;
     public IsBankRuleField?: boolean;
     public SelectableFieldName?: string;
     public Format?: string;
@@ -1312,6 +1313,7 @@ export class TickerFilter {
 export class TickerAction {
     public Name: string;
     public Code: string;
+    public FeaturePermission?: string;
     public Type: string;
     public ConfirmBeforeExecuteMessage?: string;
     public ExecuteWithMultipleSelections?: boolean;

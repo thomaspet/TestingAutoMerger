@@ -22,7 +22,7 @@
         </uni-form>
 
         <ng-template [ngIf]="(customer$ | async)?.ID">
-            <article class="collapsable" [ngClass]="{'-is-open': showSellerSection}">
+            <article *ifFeaturePermission="'ui.sellers'" class="collapsable" [ngClass]="{'-is-open': showSellerSection}">
                 <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
                 <div class="collapsable-content">
                     <seller-links style="width: 100%;"

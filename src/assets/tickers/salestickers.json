@@ -90,6 +90,7 @@
             {
                 "Header": "Sist endret AvtaleGiro",
                 "Field": "getlatestauditlogtime('Customer',Customer.ID,'AvtaleGiro')",
+                "FeaturePermission": "ui.sales.customer.avtalegiro",
                 "Alias": "LatestAvtaleGiro",
                 "Type": "datetime",
                 "Format": "DateWithTime",
@@ -98,12 +99,14 @@
             {
                 "Header": "Påmeldt AvtaleGiro",
                 "Field": "Customer.AvtaleGiro",
+                "FeaturePermission": "ui.sales.customer.avtalegiro",
                 "DefaultHidden": true,
                 "SelectRequired": true
             },
             {
                 "Header": "Varsel AvtaleGiro",
                 "Field": "Customer.AvtaleGiroNotification",
+                "FeaturePermission": "ui.sales.customer.avtalegiro",
                 "DefaultHidden": true
             },
             {
@@ -140,6 +143,7 @@
             {
                 "Name": "Ny ordre",
                 "Code": "new_customer_order",
+                "FeaturePermission": "ui.sales.orders",
                 "Type": "action",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,
@@ -149,6 +153,7 @@
             {
                 "Name": "Nytt tilbud",
                 "Code": "new_customer_quote",
+                "FeaturePermission": "ui.sales.quotes",
                 "Type": "action",
                 "DisplayInContextMenu": true,
                 "DisplayInActionBar": false,

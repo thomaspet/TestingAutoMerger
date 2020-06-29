@@ -38,6 +38,10 @@ export class FeaturePermissionService {
     }
 
     canShowUiFeature(featureName: string) {
+        if (!featureName) {
+            return true;
+        }
+
         return !this.viewFeatureBlacklist || !this.viewFeatureBlacklist.includes(featureName);
     }
 
