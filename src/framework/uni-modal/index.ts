@@ -41,7 +41,7 @@ import {UniTermsModal} from './modals/terms-modal';
 import {UniPreviewModal} from './modals/previewModal';
 import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {ConfigBankAccountsModal} from './modals/bank-accounts-config-modal/bank-accounts-config-modal';
-import {ConfigBankAccountsConfirmModal} from './modals/bank-accounts-config-confirm-modal/bank-accounts-config-confirm-modal';
+import {ConfigBankAccountsInfoModal} from './modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 import {GiveSupportAccessModal} from './modals/give-support-access-modal/give-support-access-modal';
 
 export * from './modalService';
@@ -87,9 +87,8 @@ export * from './modals/terms-modal';
 export * from './modals/previewModal';
 export * from './modals/file-from-inbox-modal/file-from-inbox-modal';
 export * from './modals/bank-accounts-config-modal/bank-accounts-config-modal';
-export * from './modals/bank-accounts-config-confirm-modal/bank-accounts-config-confirm-modal';
+export * from './modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 export * from './modals/give-support-access-modal/give-support-access-modal';
-
 export const MODALS = [
     UniConfirmModalV2,
     UniConfirmModalWithList,
@@ -134,7 +133,7 @@ export const MODALS = [
     UniPreviewModal,
     FileFromInboxModal,
     ConfigBankAccountsModal,
-    ConfigBankAccountsConfirmModal,
+    ConfigBankAccountsInfoModal,
     GiveSupportAccessModal,
 ];
 

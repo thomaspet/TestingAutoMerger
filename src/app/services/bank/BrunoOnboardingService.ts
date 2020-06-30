@@ -7,14 +7,16 @@ import { AuthService } from '@app/authService';
 import { ConfigBankAccountsModal } from '@uni-framework/uni-modal/modals/bank-accounts-config-modal/bank-accounts-config-modal';
 import { BankAccountService } from '../accounting/bankAccountService';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
-import { ConfigBankAccountsConfirmModal } from '@uni-framework/uni-modal/modals/bank-accounts-config-confirm-modal/bank-accounts-config-confirm-modal';
+import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { IModalOptions } from '@uni-framework/uni-modal';
+import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 
 
 
 @Injectable()
 export class BrunoOnboardingService {
+    @Output() onExternalOnboardingOpened = new EventEmitter();
     @Output() onAgreementStatusChanged = new EventEmitter();
 
     constructor(
@@ -66,21 +68,49 @@ export class BrunoOnboardingService {
     }
 
     public startOnboarding(): Observable<void> {
+
+        const orderKidModalOptions: IModalOptions = {
+            header: 'Koble sammen regnskap og bankkonto',
+            message: 'Denne bestillingen må gjøres via nettbanken din i DNB Bedrift. Vi sender deg din TB-kode slik at du kommer rett inn i banken. Der må du velge hvilke konto di vil bestille kobling mot. <br/> <br/>'
+            + 'Før vi sender deg videre trenger vi å vite om du ønsker å sette opp KID-avtale og få innbetalingsdata rett inn i regnskapsløsning?',
+            footerCls: 'center',
+            checkboxLabel: 'Ja, jeg ønsker innbetalingsavtale/KID',
+            buttonLabels: {
+                accept: 'Bestill',
+                reject: 'Lukk'
+            },
+            buttonIcons: {
+                accept: 'launch'
+            },
+            icon: 'themes/ext02/ext02-success-accountconfig.svg'
+        };
+
         return this.getAgreement()
             .map((agreement) => {
                 if (!agreement) {
-                    this.createNewPendingAgreement(this.agreementDetails)
-                        .subscribe((pendingAgreementCreated) => {
-                            if (pendingAgreementCreated) {
-                                this.authService.reloadCurrentSession()
-                                    .subscribe(() => {
-                                        this.onAgreementStatusChanged.emit();
-                                        this.openExternalOnboarding();
+                    this.modalService.open(ConfigBankAccountsInfoModal, orderKidModalOptions).onClose
+                        .subscribe((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT || response === ConfirmActions.REJECT) {
+                                this.createNewPendingAgreement(this.agreementDetails)
+                                    .subscribe((pendingAgreementCreated) => {
+                                        if (pendingAgreementCreated) {
+                                            this.authService.reloadCurrentSession()
+                                                .subscribe(() => {
+                                                    this.onAgreementStatusChanged.emit();
+                                                    this.openExternalOnboarding(response === ConfirmActions.ACCEPT);
+                                                });
+                                        }
                                     });
                             }
                         });
                 } else if (this.isPendingAgreement(agreement) && !this.hasNewAccountInfo(agreement)) {
-                    this.openExternalOnboarding();
+
+                    this.modalService.open(ConfigBankAccountsInfoModal, orderKidModalOptions).onClose
+                        .subscribe((response: ConfirmActions) => {
+                            if (response === ConfirmActions.ACCEPT || response === ConfirmActions.REJECT) {
+                                this.openExternalOnboarding(response === ConfirmActions.ACCEPT);
+                            }
+                    });
                 } else if (this.hasNewAccountInfo(agreement)) {
                     this.bankAccountService.getBankServiceBankAccounts()
                         .subscribe((accounts) => {
@@ -92,16 +122,17 @@ export class BrunoOnboardingService {
                                         .subscribe(() => {
                                             this.onAgreementStatusChanged.emit();
 
-                                            const options: IModalOptions = {
+                                            const sucsessModalOptions: IModalOptions = {
                                                 header: 'Integrasjonen med banken er klar!',
                                                 message: 'Alle bankkontoer er nå oppdatert i DNB Regnskap og er klar for bruk',
+                                                footerCls: 'center',
                                                 buttonLabels: {
                                                     accept: 'OK'
                                                 },
                                                 icon: 'themes/ext02/ext02-success-accountconfig.svg'
                                             };
 
-                                            this.modalService.open(ConfigBankAccountsConfirmModal, options);
+                                            this.modalService.open(ConfigBankAccountsInfoModal, sucsessModalOptions);
                                         });
                                 }
                             });
@@ -120,8 +151,15 @@ export class BrunoOnboardingService {
             .map((res: BankIntegrationAgreement) => res);
     }
 
-    private openExternalOnboarding() {
-        window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=DNBRegnskap&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true&userid=' +
-        this.authService.currentUser.BankIntegrationUserName, '_blank');
+    public openExternalOnboarding(orderKID: boolean) {
+        if (orderKID) {
+            window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true&userid=' +
+            this.authService.currentUser.BankIntegrationUserName, '_blank');
+            this.onExternalOnboardingOpened.emit();
+        } else {
+            window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&utbetalingerval=true&userid=' +
+            this.authService.currentUser.BankIntegrationUserName, '_blank');
+            this.onExternalOnboardingOpened.emit();
+        }
     }
 }

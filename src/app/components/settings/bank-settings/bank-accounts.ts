@@ -1,11 +1,12 @@
 import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter} from '@angular/core';
 import { UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent } from '@uni-framework/ui/unitable';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import { UniModalService, IModalOptions, ConfirmActions, ConfigBankAccountsConfirmModal } from '@uni-framework/uni-modal';
+import { UniModalService, IModalOptions, ConfirmActions } from '@uni-framework/uni-modal';
 import { BankAccount, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
 import {CompanyBankAccountModal} from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
 import {BankAccountService} from '@app/services/services';
+import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 
 
 @Component({
@@ -179,7 +180,7 @@ export class BankSettingsAccountlist {
             icon: 'themes/ext02/ext02-success-accountconfig.svg'
         };
 
-        this.modalService.open(ConfigBankAccountsConfirmModal, options).onClose.subscribe((response: ConfirmActions) => {
+        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose.subscribe((response: ConfirmActions) => {
             if (response === ConfirmActions.ACCEPT) {
                 window.open('https://www.dnb.no', '_blank');
             }
@@ -196,13 +197,14 @@ export class BankSettingsAccountlist {
                 accept: 'Bestill',
                 reject: 'Lukk'
             },
+            checkboxLabel: 'Ja, jeg ønsker innbetalingsavtale/KID',
             buttonIcons: {
                 accept: 'launch'
             },
             icon: 'themes/ext02/ext02-success-accountconfig.svg'
         };
 
-        this.modalService.open(ConfigBankAccountsConfirmModal, options).onClose.subscribe((response: ConfirmActions) => {
+        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose.subscribe((response: ConfirmActions) => {
             if (response === ConfirmActions.ACCEPT) {
                 window.open('https://www.dnb.no', '_blank');
             }

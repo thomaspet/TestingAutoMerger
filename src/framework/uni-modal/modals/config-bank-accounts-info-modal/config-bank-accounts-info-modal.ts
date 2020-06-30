@@ -3,14 +3,21 @@ import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-mod
 
 @Component({
     selector: 'uni-brunoaccountsconfigconfirm-modal',
-    styleUrls: ['./bank-accounts-config-confirm-modal.sass'],
+    styleUrls: ['./config-bank-accounts-info-modal.sass'],
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 38rem">
             <header></header>
             <section Id="success-content">
-                <img Id="icon-success" [src]="options.icon">
+                <img Id="icon-success" [ngStyle]="{'width.rem': options?.modalConfig?.iconConfig?.size}" [src]="options.icon">
                 <section style="font-size: 25px; margin-bottom: 1rem;"> {{ options?.header }} </section>
                 <section style="padding-top: 10px; margin-bottom: 2.5rem;" [innerHTML]="options.message"> </section>
+
+                <section *ngIf="options?.checkboxLabel">
+                    <mat-checkbox [(ngModel)]="checkBoxValue">{{ options?.checkboxLabel }}</mat-checkbox> <span> (<a>se priser <i class="material-icons">open_in_new</i></a>)</span>
+                    <br/>
+                    <br/>
+                </section>
+
 
                 <footer [ngClass]="options?.footerCls">
                     <button *ngIf="options?.buttonLabels?.cancel" class="pull-left secondary" (click)="cancel()">
@@ -39,19 +46,29 @@ import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-mod
         </section>
     `
 })
-export class ConfigBankAccountsConfirmModal implements IUniModal {
+export class ConfigBankAccountsInfoModal implements IUniModal {
     @Input()
     options: IModalOptions = {};
 
     @Output()
     onClose = new EventEmitter();
 
+    checkBoxValue: boolean;
+
     accept() {
-        this.onClose.emit(ConfirmActions.ACCEPT);
+        if (this.options?.checkboxLabel) {
+            this.onClose.emit(this.checkBoxValue ? ConfirmActions.ACCEPT : ConfirmActions.REJECT);
+        } else {
+            this.onClose.emit(ConfirmActions.ACCEPT);
+        }
     }
 
     reject() {
-        this.onClose.emit(ConfirmActions.REJECT);
+        if (this.options?.checkboxLabel) {
+            this.onClose.emit(ConfirmActions.CANCEL);
+        } else {
+            this.onClose.emit(ConfirmActions.REJECT);
+        }
     }
 
     cancel() {

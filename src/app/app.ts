@@ -3,17 +3,18 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, StatisticsService} from './services/services';
+import {ErrorService, StatisticsService, BrunoOnboardingService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
 import {UserDto} from '@app/unientities';
-import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {
     UniModalService,
     UserLicenseAgreementModal,
     LicenseAgreementModal,
-    MissingRolesModal
+    MissingRolesModal,
+    ConfigBankAccountsInfoModal
 } from '@uni-framework/uni-modal';
 
 // Do not change this import! Since we don't use rx operators correctly
@@ -54,6 +55,7 @@ export class App {
         private router: Router,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
+        private brunoOnboardingService: BrunoOnboardingService
     ) {
         if (!this.titleService.getTitle()) {
             const title = theme.appName;
@@ -186,9 +188,47 @@ export class App {
                         () => {},
                         err => this.errorService.handle(err),
                     );
+
+                if (theme.theme === THEMES.EXT02) {
+                    this.showInitLoginModal();
+                }
             } else {
                 this.authService.clearAuthAndGotoLogin();
             }
         });
+    }
+
+    private showInitLoginModal() {
+        const options: IModalOptions = {
+            header: 'DNB regnskap er nå aktivert og klart for bruk',
+            message: '<b>Vil du koble DNB regnskap til nettbank bedrift? (anbefales)</b> <section>Du kan alltids sette det opp ved en senere anledning</section>',
+            footerCls: 'center',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei takk'
+            },
+            buttonIcons: {
+                accept: 'launch'
+            },
+            icon: 'themes/ext02/EXT02-companyInitDone-modal-icon.svg',
+            modalConfig: {
+                iconConfig: {
+                    size: 3
+                }
+            }
+        };
+
+        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose
+            .subscribe((action: ConfirmActions) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    this.brunoOnboardingService.startOnboarding().subscribe(() => {
+                        this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+                            // TODO: Open ComapnyActionsModal
+                        });
+                    });
+                } else {
+                    // TODO: Open ComapnyActionsModal
+                }
+            });
     }
 }
