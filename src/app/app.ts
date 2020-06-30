@@ -110,7 +110,7 @@ export class App {
                     });
                 }
 
-                if (!this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
+                if (theme.theme !== THEMES.EXT02 && !this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
                 }
             }
