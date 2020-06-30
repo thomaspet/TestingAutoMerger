@@ -32,31 +32,31 @@
 	<section [hidden]="activeIndex !== 1" class="integrations-container">
 		<header>
 			Bankintegrasjon
-			<span [class.active]="bankAccount._agreement"> {{ bankAccount._agreement ? 'Aktiv' : 'Ikke koblet til bank' }} </span>
+			<span [class.active]="bankAccount.IntegrationStatus === 700005"> {{ bankAccount.IntegrationStatus === 700005 ? 'Aktiv' : 'Ikke koblet til bank' }} </span>
 		</header>
 
-		<section class="integrations" [class.active]="bankAccount?._agreement?.IsBankBalance">
+		<section class="integrations" [class.active]="bankAccount?.HasStatements">
 			<span class="title"> Kontotransaksjoner/Bankavstemming </span>
-			<span *ngIf="!bankAccount?._agreement?.IsBankBalance"> Nei </span>
-			<i class="material-icons" *ngIf="bankAccount?._agreement?.IsBankBalance"> check_circle_outline </i>
+			<span *ngIf="!bankAccount?.HasStatements"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasStatements"> check_circle_outline </i>
 		</section>
 
-		<section class="integrations" [class.active]="bankAccount?._agreement?.IsInbound">
+		<section class="integrations" [class.active]="bankAccount?.HasIncomming">
 			<span class="title"> Innbetaling/KID </span>
-			<span *ngIf="!bankAccount?._agreement?.IsInbound"> Nei </span>
-			<i class="material-icons" *ngIf="bankAccount?._agreement?.IsInbound"> check_circle_outline </i>
+			<span *ngIf="!bankAccount?.HasIncomming"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasIncomming"> check_circle_outline </i>
 		</section>
 
-		<section class="integrations" [class.active]="bankAccount?._agreement?.IsOutgoing">
+		<section class="integrations" [class.active]="bankAccount?.HasOutgoing">
 			<span class="title"> Utbetaling </span>
-			<span *ngIf="!bankAccount?._agreement?.IsOutgoing"> Nei </span>
-			<i class="material-icons" *ngIf="bankAccount?._agreement?.IsOutgoing"> check_circle_outline </i>
+			<span *ngIf="!bankAccount?.HasOutgoing"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasOutgoing"> check_circle_outline </i>
 		</section>
 
 		<footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
             <!-- <button class="c2a secondary" *ngIf="bankAccount?._agreement" (click)="cancelAutobank()">Avbestill</button> -->
-			<button class="c2a" *ngIf="bankAccount?._agreement" (click)="makeChanges()">Gjør endringer</button>
-			<button class="c2a" *ngIf="!bankAccount?._agreement" (click)="connectBankAndAccounting()"> Bestill bankintegrasjon </button>
+			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChanges()">Gjør endringer</button>
+			<button class="c2a" *ngIf="!bankAccount?.IntegrationStatus" (click)="connectBankAndAccounting()"> Bestill bankintegrasjon </button>
         </footer>
 
 	</section>

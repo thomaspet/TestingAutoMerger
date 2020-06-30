@@ -107,7 +107,7 @@
                 <section class="form-info-section">
                     <h1>Bokføringskontoer</h1>
                     <p> {{ 'SETTINGS.SALARY_BOOKING_ACCOUNTS_INFOTEXT' | translate }} </p>
-                    <small> Systemets driftskonto, lønnskonto og skattetrekkskonto settes opp under <a routerLink="/settings/bank" title="Gå til bankinnstilliger">bankinnstilliger</a>.  </small>
+                    <small> Systemets driftskonto, lønnskonto og skattetrekkskonto settes opp under <a routerLink="/settings/bank" [queryParams]="{ index: 1 }" title="Gå til bankinnstilliger">bankinnstilliger</a>.  </small>
                 </section>
             </section>
 

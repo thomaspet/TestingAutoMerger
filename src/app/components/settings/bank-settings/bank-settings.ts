@@ -7,8 +7,8 @@ import {
     CompanySalaryService,
     ErrorService,
     PageStateService,
-    PaymentBatchService,
-    StatisticsService
+    StatisticsService,
+    BankService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -56,7 +56,6 @@ export class UniBankSettings {
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     companySettings: CompanySettings;
 
-    agreements = [];
     activeIndex: number = 0;
     tabs: IUniTab[] = [
         {name: 'Bankinnstillinger'},
@@ -83,8 +82,8 @@ export class UniBankSettings {
         private tabService: TabService,
         private route: ActivatedRoute,
         private pageStateService: PageStateService,
-        private paymentBatchService: PaymentBatchService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private bankService: BankService
     ) {}
 
     ngOnInit() {
@@ -113,17 +112,9 @@ export class UniBankSettings {
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
             this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
-            this.paymentBatchService.checkAutoBankAgreement()
-        ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
+        ).subscribe(([companySettings, companySalary, accountCounts]) => {
 
-            if (agreements.length) {
-                agreements.forEach((a) => {
-                    const bankAccount = companySettings.BankAccounts.find(ba => ba.ID === a.BankAccountID);
-                    if (bankAccount) {
-                        bankAccount._agreement = a;
-                    }
-                });
-            }
+            companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account));
 
             // This should always be ordered the same way..
             accountCounts.forEach((account, index) => {
@@ -138,8 +129,6 @@ export class UniBankSettings {
             this.companySalary$.next(companySalary);
             this.hideBankValues = !companySettings.UsePaymentBankValues;
             this.hideXtraPaymentOrgXmlTagValue = !companySettings.UseXtraPaymentOrgXmlTag;
-
-            this.agreements = agreements;
 
             this.createFormFields();
         });

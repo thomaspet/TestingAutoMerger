@@ -1,47 +1,50 @@
 <section role="dialog" class="uni-modal">
-    <header>
-        Bokføre bankdata
-        <label>
-            <span>Nummerserie</span>
-            <select class="nrserie" [(ngModel)]="session.selectedSerie">
-                <option *ngFor="let serie of session.series" [ngValue]="serie">
-                    {{serie.DisplayName}}
-                </option>
-            </select>
-        </label>
-
-        <section class="rules-dropdown">
-            <button #toggle class="tertiary c2a">
-                Bokføringsregler
-                <i class="material-icons">expand_more</i>
-            </button>
-
-            <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'15rem'">
-                <ng-template>
-                    <section (click)="openJournalingRulesModal()" class="dropdown-menu-item">
-                        <i style="margin: 0 .5rem 0 0" class="material-icons">edit</i>
-                        Rediger regler
-                    </section>
-
-                    <ng-container *ngIf="bankStatementRules?.length">
-                        <section *ngIf="numberOfActiveRules > 0" (click)="runAllRules()" class="dropdown-menu-item">
-                            <i style="margin: 0 .5rem 0 0" class="material-icons">play_circle_filled</i>
-                            Kjør alle aktive regler ({{numberOfActiveRules}})
-                        </section>
-
-                        <section class="dropdown-menu-header">Kjør spesifikk regel</section>
-                        <section *ngFor="let rule of bankStatementRules" (click)="runRule(rule)" class="dropdown-menu-item">
-                            {{rule.Name}}
-                        </section>
-                    </ng-container>
-                </ng-template>
-            </dropdown-menu>
-        </section>
-    </header>
+    <header> Bokføre bankdata </header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="rules-and-series-container">
+
+            <section class="quick-rules">
+                <button #toggle class="secondary c2a">
+                    Bokføringsregler
+                    <i class="material-icons">expand_more</i>
+                </button>
+
+                <dropdown-menu [trigger]="toggle" [alignRight]="true" [minWidth]="'15rem'">
+                    <ng-template>
+                        <section (click)="openJournalingRulesModal()" class="dropdown-menu-item">
+                            <i style="margin: 0 .5rem 0 0" class="material-icons">edit</i>
+                            Rediger regler
+                        </section>
+
+                        <ng-container *ngIf="bankStatementRules?.length">
+                            <section *ngIf="numberOfActiveRules > 0" (click)="runAllRules()" class="dropdown-menu-item">
+                                <i style="margin: 0 .5rem 0 0" class="material-icons">play_circle_filled</i>
+                                Kjør alle aktive regler ({{numberOfActiveRules}})
+                            </section>
+
+                            <section class="dropdown-menu-header">Kjør spesifikk regel</section>
+                            <section *ngFor="let rule of bankStatementRules" (click)="runRule(rule)" class="dropdown-menu-item">
+                                {{rule.Name}}
+                            </section>
+                        </ng-container>
+                    </ng-template>
+                </dropdown-menu>
+            </section>
+
+            <label class="uni-label label-above">
+                <span> Nummerserie </span>
+                <uni-select
+                    [config]="config"
+                    [items]="session.series"
+                    [value]="session.selectedSerie"
+                    (valueChange)="seriesChange($event)">
+                </uni-select>
+            </label>
         </section>
 
         <ag-grid-wrapper class="compactcells"
@@ -49,17 +52,18 @@
             [config]="tableConfig"
             (rowDelete)="onRowDeleted($event)">
         </ag-grid-wrapper>
+
+        <secttion *ngIf="session?.balance" class="diff-footer" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+            <i class="material-icons">error_outline</i>
+            <span> Differanse: <strong> {{ session?.balance | uninumberformat: 'money'}} </strong> </span>
+        </secttion>
+
     </article>
 
     <footer>
-        <span class="pull-left" *ngIf="session?.balance" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
-            <i class="material-icons">error</i>
-            Differanse: {{ session?.balance | uninumberformat: 'money'}}
-        </span>
+        <button class="secondary pull-left" (click)="closeWithoutSaving()">Avbryt</button>
 
-        <mat-checkbox [(ngModel)]="settings.journalAsDraft">Lagre som kladd</mat-checkbox>
-
-        <button class="secondary" (click)="closeWithoutSaving()">Avbryt</button>
+        <mat-checkbox [(ngModel)]="settings.journalAsDraft" style="margin-right: 1rem;">Lagre som kladd</mat-checkbox>
 
         <button [disabled]="session?.balance && !settings.journalAsDraft" class="c2a"
             (click)="save()">

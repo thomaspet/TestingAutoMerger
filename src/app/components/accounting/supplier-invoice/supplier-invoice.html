@@ -8,6 +8,6 @@
 
 <section class="layout-grid">
     <details-form></details-form>
-    <journal-lines></journal-lines>
+    <journal-lines [vatTypes]="store.vatTypes"></journal-lines>
     <supplier-invoice-attachments [style.height]="attachmentSectionHeight"></supplier-invoice-attachments>
 </section>

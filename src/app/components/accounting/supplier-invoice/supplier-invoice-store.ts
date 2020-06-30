@@ -24,7 +24,6 @@ import {
     VatTypeService,
     CompanySettingsService,
     ErrorService,
-    Dimension,
     BankService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
@@ -57,6 +56,7 @@ export class SupplierInvoiceStore {
     initDataLoaded$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     vatTypes = [];
+    currencyCodes = [];
     companySettings: CompanySettings;
 
     constructor(
@@ -82,7 +82,7 @@ export class SupplierInvoiceStore {
     init(invoiceID: number) {
         Observable.forkJoin(
             this.companySettingsService.Get(1, []),
-            this.vatTypeService.GetAll('filter=OutputVat eq false', [])
+            this.vatTypeService.GetAll()
         ).subscribe(([companySettings, types]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
@@ -210,6 +210,9 @@ export class SupplierInvoiceStore {
 
     getDescription(): string {
         const invoice = this.invoice$.value;
+        if (!invoice?.Supplier) {
+            return '';
+        }
         return invoice.Supplier.SupplierNumber + ' - ' + invoice.Supplier.Info.Name +
             (invoice.InvoiceNumber ? ' - fakturanr. ' + invoice.InvoiceNumber : '');
     }
@@ -247,7 +250,7 @@ export class SupplierInvoiceStore {
         this.changes$.next(true);
     }
 
-    updateJournalEntryLine(index: number, field: string, value: any) {
+    updateJournalEntryLine(index: number, field: string, value: any, shouldUpdateVat = false) {
         const lines = this.journalEntryLines$.value;
         const line = lines[index];
 
@@ -260,7 +263,7 @@ export class SupplierInvoiceStore {
 
             this.updateJournalEntryLine(index, 'Description', this.getDescription());
 
-            if (value?.VatTypeID) {
+            if (value?.VatTypeID && shouldUpdateVat) {
                 this.updateJournalEntryLine(index, 'VatType', this.findVatType(value.VatTypeID));
             }
         } else if (field === 'VatType') {

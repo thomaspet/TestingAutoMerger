@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Bank, BankRule} from '../../unientities';
+import {Bank, BankRule, BankAccount} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
@@ -171,6 +171,28 @@ export class BankService extends BizHttp<Bank> {
         + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
         + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
         + `&join=Tracelink.DestinationInstanceID eq Payment.ID`);
+    }
+
+    // This might be temporary
+    mapBankIntegrationValues(bankAccount: BankAccount): BankAccount {
+
+        if (!bankAccount['IntegrationSettings']) {
+            return bankAccount;
+        } else {
+            const bit = (bankAccount['IntegrationSettings']).toString(2);
+
+            if (bit.substr(0, 1) > 0) {
+                bankAccount['HasIncomming'] = true;
+            }
+            if (bit.substr(1, 1) > 0) {
+                bankAccount['HasOutgoing'] = true;
+            }
+            if (bit.substr(2, 1) > 0) {
+                bankAccount['HasStatements'] = true;
+            }
+        }
+
+        return bankAccount;
     }
 
     public getAllRules() {

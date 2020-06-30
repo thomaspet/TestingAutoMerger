@@ -36,8 +36,8 @@ export class SupplierInvoiceView {
     paymentStatusIndicator;
 
     constructor(
+        public store: SupplierInvoiceStore,
         private router: Router,
-        private store: SupplierInvoiceStore,
         private activeRoute: ActivatedRoute,
         private cdr: ChangeDetectorRef,
         private errorService: ErrorService,
