@@ -2,7 +2,7 @@ import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, Output, Ev
 import { UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent } from '@uni-framework/ui/unitable';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { UniModalService, IModalOptions, ConfirmActions, ConfigBankAccountsConfirmModal } from '@uni-framework/uni-modal';
-import { BankAccount, CompanySettings } from '@uni-entities';
+import { BankAccount, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
 import {CompanyBankAccountModal} from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
 import {BankAccountService} from '@app/services/services';
@@ -39,9 +39,6 @@ export class BankSettingsAccountlist {
 
     @Input()
     companySettings: CompanySettings;
-
-    @Input()
-    agreements: any[];
 
     @Output()
     changeAccount = new EventEmitter();
@@ -91,12 +88,11 @@ export class BankSettingsAccountlist {
                     .setTemplate( (row) => this.getIsStandardText(row))
                     .setCls('colored-pill-class')
                     .setWidth('5rem'),
-                new UniTableColumn('_agreement', 'Kobling mot bank', UniTableColumnType.Link)
+                new UniTableColumn('IntegrationStatus', 'Kobling mot bank', UniTableColumnType.Link)
                     .setAlignment('center')
                     .setWidth('5rem')
-                    .setTemplate( (row) => {
-                        return !row['_agreement'] ? 'Bestill' : 'Koblet sammen';
-                    }).setLinkClick((row) => {
+                    .setTemplate( (row) => this.getIntegrationStatusText(row))
+                    .setLinkClick((row) => {
                         this.activeIndex = 1;
                         this.bankAccount = {...row};
                     })
@@ -121,6 +117,26 @@ export class BankSettingsAccountlist {
                     label: 'Sett som standard skatt'
                 }
             ]);
+    }
+
+    getIntegrationStatusText(row: BankAccount): string {
+        if (!row['IntegrationStatus']) {
+            return 'Bestill';
+        }
+
+        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Active) {
+            return 'Koblet sammen';
+        }
+
+        if (row['IntegrationStatus'] > StatusCodeBankIntegrationAgreement.Active) {
+            return 'Avventer';
+        }
+
+        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Canceled) {
+            return 'Kansellert';
+        }
+
+        return '';
     }
 
     setAsStandard(index: number, row: BankAccount) {

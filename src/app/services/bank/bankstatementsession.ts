@@ -207,7 +207,7 @@ export class BankStatementSession {
         this.journalEntries = this.sortEntries([...this.journalEntries]);
         const index = this.journalEntries.findIndex(e => e.ID === this.savedJournalEntrySuggestionID);
 
-        if (index) {
+        if (index > -1) {
             this.tryCheck(this.journalEntries[index]);
         }
 

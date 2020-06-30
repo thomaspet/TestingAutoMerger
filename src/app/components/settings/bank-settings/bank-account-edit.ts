@@ -160,7 +160,6 @@ export class CompanyBankAccountEdit {
             : this.bankAccountService.Post<BankAccount>(account);
 
         const isStandard = account['_isStandard'];
-        const agreement = account['_agreement'];
 
         obs.subscribe(response => {
             this.bankAccountService.Get(response.ID, ['Bank', 'Account']).subscribe(savedAccount => {
@@ -169,7 +168,7 @@ export class CompanyBankAccountEdit {
 
                 // Add the old appended values to the new saved object
                 savedAccount['_isStandard'] = isStandard;
-                savedAccount['_agreement'] = agreement;
+                savedAccount = this.bankService.mapBankIntegrationValues(savedAccount);
 
                 this.saved.emit(savedAccount);
             }, err => {

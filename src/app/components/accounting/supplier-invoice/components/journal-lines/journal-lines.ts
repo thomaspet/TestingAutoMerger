@@ -1,9 +1,9 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
 import {JournalEntryLineDraft} from '@uni-entities';
 import {Subject, Observable} from 'rxjs';
 import {takeUntil, take, shareReplay, refCount} from 'rxjs/operators';
-import {GuidService, StatisticsService} from '@app/services/services';
+import {GuidService, StatisticsService, CurrencyCodeService} from '@app/services/services';
 
 interface ITotalObject {
     net?: number;
@@ -19,6 +19,11 @@ interface ITotalObject {
     styleUrls: ['./journal-lines.sass']
 })
 export class JournalLines {
+
+    @Input()
+    vatTypes = [];
+
+    filteredVatTypes = [];
     lines: JournalEntryLineDraft[];
     onDestroy$ = new Subject();
     readonly = true;
@@ -56,6 +61,15 @@ export class JournalLines {
         hideDeleteButton: true
     };
 
+    currencyConfig = {
+        template: item => item && item.Code !== item.Name ? item.Code + ' - ' + item.Name : item.Code,
+        searchable: false,
+        hideDeleteButton: true
+    };
+
+    currencyCodes = [];
+    currency;
+
     invoiceTypes = [
         { value: 0, label: 'Innkjøp i Norge' },
         { value: 1, label: 'Varer kjøpt i utlandet' },
@@ -66,26 +80,48 @@ export class JournalLines {
     constructor(
         public store: SupplierInvoiceStore,
         private guidService: GuidService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private currencyCodeService: CurrencyCodeService
     ) {
-        this.store.journalEntryLines$.pipe(
-            takeUntil(this.onDestroy$)
-        ).subscribe(lines => {
-            this.lines = (lines || []).map(line => {
-                line.VatType = line.VatType || null;
-                return line;
+        this.currencyCodeService.GetAll().subscribe(codes => {
+            this.currencyCodes = codes;
+            this.currency = codes[0];
+
+            this.store.journalEntryLines$.pipe(
+                takeUntil(this.onDestroy$)
+            ).subscribe(lines => {
+                this.lines = (lines || []).map(line => {
+                    line.VatType = line.VatType || null;
+                    return line;
+                });
+
+                this.recalcDiff();
             });
-
-            this.recalcDiff();
+            this.store.readonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => this.readonly = readonly);
         });
+    }
 
-        this.store.readonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => this.readonly = readonly);
-
+    ngOnChanges(event) {
+        if (event['vatTypes'] && event['vatTypes'].currentValue) {
+            this.filterVatTypesForDropdown();
+        }
     }
 
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
+    }
+
+    filterVatTypesForDropdown() {
+        this.filteredVatTypes = this.vatTypes.filter(type => {
+            if (this.currentInvoiceType.value === 0) {
+                return !['20', '21', '22', '86', '87', '88', '89'].includes(type.VatCode) && !type.OutputVat;
+            } else if (this.currentInvoiceType.value === 1) {
+                return ['20', '21', '22'].includes(type.VatCode);
+            } else {
+                return ['86', '87', '88', '89'].includes(type.VatCode);
+            }
+        });
     }
 
     addDraftLine() {
@@ -118,11 +154,34 @@ export class JournalLines {
     }
 
     onAccountChange(index: number, line: JournalEntryLineDraft) {
-        this.store.updateJournalEntryLine(index, 'Account', line.Account);
+        const shouldUpdateVat = line.Account?.VatTypeID && this.filteredVatTypes.map(v => v.ID).includes(line.Account?.VatTypeID);
+        this.store.updateJournalEntryLine(index, 'Account', line.Account, shouldUpdateVat);
     }
 
     onInvoiceTypeChange(event) {
-        console.log(event);
+        this.currentInvoiceType = event;
+        this.filterVatTypesForDropdown();
+        this.lines.forEach(line => {
+            line.VatType = null;
+            line.VatTypeID = null;
+        });
+
+        if (event.value === 0) {
+            this.onCurrencyChange(this.currencyCodes[0]);
+        } else if (event.value === 1) {
+            this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'EUR'));
+        } else {
+            this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'USD'));
+        }
+    }
+
+    onCurrencyChange(event) {
+        this.currency = event;
+        const invoice = this.store.invoice$.value;
+        invoice.CurrencyCodeID = event.ID;
+        this.store.invoice$.next(invoice);
+
+        this.lines.forEach(line => line.CurrencyCodeID = event.ID);
     }
 
     onVatTypeChange(event, index: number) {

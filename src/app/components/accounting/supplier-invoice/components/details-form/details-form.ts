@@ -1,11 +1,11 @@
 import { Component, ElementRef } from '@angular/core';
 import { SupplierInvoiceStore } from '../../supplier-invoice-store';
 import { BehaviorSubject } from 'rxjs';
-import { SupplierInvoice, BankAccount, Supplier, Dimensions } from '@uni-entities';
+import { SupplierInvoice, BankAccount } from '@uni-entities';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { UniModalService, UniBankAccountModal } from '@uni-framework/uni-modal';
 import { SupplierEditModal } from '@app/components/accounting/bill/edit-supplier-modal/edit-supplier-modal';
-import { StatisticsService, SupplierService, BankAccountService, ErrorService, CurrencyCodeService } from '@app/services/services';
+import { StatisticsService, SupplierService, BankAccountService, ErrorService } from '@app/services/services';
 import { trigger, transition, animate, style, state, group } from '@angular/animations';
 
 @Component({
@@ -59,7 +59,6 @@ export class DetailsForm {
     readonly = false;
     orgNumber: string;
     animationState = 'out';
-    currencyCodes = [];
 
     constructor(
         public elementRef: ElementRef, // used by supplier-invoice.ts
@@ -68,8 +67,7 @@ export class DetailsForm {
         private statisticsService: StatisticsService,
         private supplierService: SupplierService,
         private bankAccountService: BankAccountService,
-        private errorService: ErrorService,
-        private currencyCodeService: CurrencyCodeService
+        private errorService: ErrorService
     ) {
         this.store.invoice$.subscribe(invoice => this.supplierInvoice$.next(invoice));
 
@@ -113,16 +111,8 @@ export class DetailsForm {
             }
         };
 
-        this.currencyCodeService.GetAll().subscribe((codes) => {
-            this.currencyCodes = codes;
-
-            this.fields$.next(this.getFields());
-            this.addOnfields$.next(this.getAddOnFields());
-        }, err => {
-            this.errorService.handle(err);
-            this.fields$.next(this.getFields());
-            this.addOnfields$.next(this.getAddOnFields());
-        });
+        this.fields$.next(this.getFields());
+        this.addOnfields$.next(this.getAddOnFields());
     }
 
     ngOnDestroy() {
@@ -151,8 +141,6 @@ export class DetailsForm {
         this.openExtraFields = !this.openExtraFields;
         this.animationState = this.openExtraFields ? 'in' : 'out';
     }
-
-
 
     supplierLookup(query: string) {
         const expand = 'Info.DefaultPhone,Info.InvoiceAddress';
@@ -303,22 +291,6 @@ export class DetailsForm {
                 Property: 'FreeTxt',
                 Label: 'Fritekst',
                 FieldType: FieldType.TEXTAREA
-            },
-            {
-                Property: 'CurrencyCodeID',
-                FieldType: FieldType.DROPDOWN,
-                Label: 'Valuta',
-                ReadOnly: this.readonly,
-                Options: {
-                    source: this.currencyCodes,
-                    valueProperty: 'ID',
-                    // displayProperty: 'Code',
-                    template: (item) => {
-                        return item && item.Code !== item.Name ? item.Code + ' - ' + item.Name : item.Code;
-                    },
-                    debounceTime: 200,
-                    hideDeleteButton: true
-                }
             },
             {
                 Property: 'DefaultDimensions.ProjectID',

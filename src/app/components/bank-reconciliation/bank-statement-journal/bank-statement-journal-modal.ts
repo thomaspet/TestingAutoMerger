@@ -39,6 +39,12 @@ export class BankStatementJournalModal implements IUniModal {
     numberOfActiveRules: number;
     activeItem: DebitCreditEntry;
 
+    config = {
+        template: item => item.DisplayName,
+        searchable: false,
+        hideDeleteButton: true
+    };
+
     constructor(
         private modalService: UniModalService,
         private errorService: ErrorService,
@@ -62,7 +68,7 @@ export class BankStatementJournalModal implements IUniModal {
                     this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
                 });
 
-                this.session.ensureRowCount(5);
+                this.session.ensureRowCount(3);
                 this.resetTableLayout();
                 this.busy = false;
             },
@@ -75,6 +81,10 @@ export class BankStatementJournalModal implements IUniModal {
 
     public closeEditor() {
         return this.table.finishEdit();
+    }
+
+    seriesChange(numberSeries) {
+        this.session.series = numberSeries;
     }
 
     private loadRules() {

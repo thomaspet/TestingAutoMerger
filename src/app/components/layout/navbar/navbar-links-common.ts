@@ -80,7 +80,11 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                     },
                     {
                         name: 'NAVBAR.BANK', activeInSidebar: false, url: '/settings/bank',
-                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']
+                        subSettings: [
+                            {name: 'Bankinnstilliger', activeInSidebar: false, url: '/settings/bank?index=0', keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']},
+                            {name: 'Bankkontoer', activeInSidebar: false, url: '/settings/bank?index=1', keyWords: ['Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']},
+                        ],
+                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']
                     },
                     {
                         name: 'NAVBAR.SALARY', activeInSidebar: false, url: '/settings/aga-and-subentities',

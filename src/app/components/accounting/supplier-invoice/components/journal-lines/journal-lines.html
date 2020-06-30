@@ -15,7 +15,7 @@
         </section>
 
         <!-- Input for type of supplier invoice  -->
-        <section class="input-grid smaller" *ngIf="false">
+        <section class="input-grid smaller">
             <label class="uni-label label-above">
                 <span>Hvilke kjøp er dette?</span>
                 <uni-select
@@ -29,10 +29,10 @@
             <label class="uni-label label-above">
                 <span>Valuta</span>
                 <uni-select
-                    [config]="invoiceTypeConfig"
-                    [items]="invoiceTypes"
-                    [value]="currentInvoiceType"
-                    (valueChange)="onInvoiceTypeChange($event)">
+                    [config]="currencyConfig"
+                    [items]="currencyCodes"
+                    [value]="currency"
+                    (valueChange)="onCurrencyChange($event)">
                 </uni-select>
             </label>
         </section>
@@ -70,7 +70,7 @@
                         <span>MVA</span>
                         <uni-select
                             [config]="selectConfig"
-                            [items]="store.vatTypes"
+                            [items]="filteredVatTypes"
                             [value]="line.VatType"
                             (valueChange)="onVatTypeChange($event, idx)">
                         </uni-select>
