@@ -42,14 +42,14 @@ export const environment = {
         'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW',
 
     IMPORT_CENTRAL_TEMPLATE_URLS : {
-        CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
-        SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
-        PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',
-        MAIN_LEDGER: 'https://public-files.unieconomy.no/files/import/MainLedgerTemplate.xlsx',
-        PAYROLL: 'https://public-files.unieconomy.no/files/import/PayrollTemplate.xlsx',
-        VOUCHER: 'https://public-files.unieconomy.no/files/import/VoucherExcelTemplate.xlsx',
-        ORDER: 'https://public-files.unieconomy.no/files/import/OrderTemplate.xlsx'
+        CUSTOMER: 'https://public-files.dnbregnskap.dnb.no/files/import/CustomerTemplateFinal.xlsx',
+        SUPPLIER: 'https://public-files.dnbregnskap.dnb.no/files/import/SupplierTemplateFinal.xlsx',
+        PRODUCT: 'https://public-files.dnbregnskap.dnb.no/files/import/ProductTemplateFinal.xlsx',
+        MAIN_LEDGER: 'https://public-files.dnbregnskap.dnb.no/files/import/MainLedgerTemplate.xlsx',
+        PAYROLL: 'https://public-files.dnbregnskap.dnb.no/files/import/PayrollTemplate.xlsx',
+        VOUCHER: 'https://public-files.dnbregnskap.dnb.no/files/import/VoucherExcelTemplate.xlsx',
+        ORDER: 'https://public-files.dnbregnskap.dnb.no/files/import/OrderTemplate.xlsx'
     },
 
-    LICENSE_AGREEMENT_URL: 'https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
+    LICENSE_AGREEMENT_URL: 'https://public-files.dnbregnskap.dnb.no/files/license/Lisensavtale_DNBRegnskap.pdf'
 };

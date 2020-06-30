@@ -51,5 +51,5 @@ export const environment = {
         ORDER: 'https://public-files.dnbregnskap.dnb.no/files/import/OrderTemplate.xlsx'
     },
 
-    LICENSE_AGREEMENT_URL: 'https://public-files.dnbregnskap.dnb.no/files/license/Lisensavtale_UniEconomy_v2.pdf'
+    LICENSE_AGREEMENT_URL: 'https://public-files.dnbregnskap.dnb.no/files/license/Lisensavtale_DNBRegnskap.pdf'
 };
