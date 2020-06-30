@@ -21,21 +21,21 @@ export class LicenseInfo implements OnDestroy {
     tabs: IUniTab[] = [
         {name: 'Detaljer', path: 'details'},
         {name: 'Selskaper', path: 'companies'},
-        {name: 'Brukere', path: 'users'}
+        {name: 'Brukere', path: 'users'},
+        {name: 'Estimert forbruk', path: 'billing'}
     ];
 
-    constructor(tabService: TabService,
+    constructor(
+        tabService: TabService,
         private authService: AuthService,
-        private elsaCustomersService: ElsaCustomersService) {
-        if (theme.theme === THEMES.UE) {
-            this.tabs.push({name: 'Estimert forbruk', path: 'billing'});
-        }
-
+        private elsaCustomersService: ElsaCustomersService
+    ) {
         tabService.addTab({
             name: 'Lisensinformasjon',
             url: '/license-info',
             moduleID: UniModules.LicenseInfo
         });
+
         this.selectedContractID$.next(this.authService.currentUser.License.Company.ContractID);
         this.loadCustomers();
     }
