@@ -41,10 +41,10 @@
 			<i class="material-icons" *ngIf="bankAccount?.HasStatements"> check_circle_outline </i>
 		</section>
 
-		<section class="integrations" [class.active]="bankAccount?.HasIncomming">
+		<section class="integrations" [class.active]="bankAccount?.HasIncoming">
 			<span class="title"> Innbetaling/KID </span>
-			<span *ngIf="!bankAccount?.HasIncomming"> Nei </span>
-			<i class="material-icons" *ngIf="bankAccount?.HasIncomming"> check_circle_outline </i>
+			<span *ngIf="!bankAccount?.HasIncoming"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasIncoming"> check_circle_outline </i>
 		</section>
 
 		<section class="integrations" [class.active]="bankAccount?.HasOutgoing">

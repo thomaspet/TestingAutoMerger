@@ -182,7 +182,7 @@ export class BankService extends BizHttp<Bank> {
             const bit = (bankAccount['IntegrationSettings']).toString(2);
 
             if (bit.substr(0, 1) > 0) {
-                bankAccount['HasIncomming'] = true;
+                bankAccount['HasIncoming'] = true;
             }
             if (bit.substr(1, 1) > 0) {
                 bankAccount['HasOutgoing'] = true;
