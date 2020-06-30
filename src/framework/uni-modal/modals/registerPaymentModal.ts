@@ -273,7 +273,6 @@ export class UniRegisterPaymentModal implements IUniModal {
     }
 
     private calculateAgio(payment: InvoicePaymentData): InvoicePaymentData {
-        alert(this.config.isSupplierInvoice);
         const entityName = this.config.entityName;
         if (entityName === 'CustomerInvoice' || this.config.isSupplierInvoice === 1) {
             this.calculateAgio4CustomerInvoice(payment);
