@@ -129,7 +129,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=get-amelding`)
-            .send()
+            .send({responseType: 'text'})
             .map(response => response.body);
     }
 
