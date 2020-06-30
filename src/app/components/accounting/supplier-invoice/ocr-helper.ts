@@ -5,6 +5,7 @@ import {
     StatisticsService,
     BankService,
     BankAccountService,
+    UniFilesService,
 } from '@app/services/services';
 import {OcrValuables, IOcrServiceResult} from '@app/models/accounting/ocr';
 import {SupplierInvoice, LocalDate, Supplier, BankAccount, BusinessRelation} from '@uni-entities';
@@ -24,6 +25,7 @@ export class OCRHelperClass {
     ];
 
     constructor(
+        private uniFilesService: UniFilesService,
         private supplierInvoiceService: SupplierInvoiceService,
         private supplierService: SupplierService,
         private statisticsService: StatisticsService,
@@ -32,8 +34,8 @@ export class OCRHelperClass {
         private bankAccountService: BankAccountService,
     ) {}
 
-    runOcr(fileID: number, invoice: SupplierInvoice) {
-        return this.supplierInvoiceService.fetch(`files/${fileID}?action=ocranalyse`).pipe(
+    runOcr(file, invoice: SupplierInvoice) {
+        return this.uniFilesService.runOcr(file.StorageReference).pipe(
             switchMap((result: IOcrServiceResult) => {
                 const ocrData = new OcrValuables(result);
 

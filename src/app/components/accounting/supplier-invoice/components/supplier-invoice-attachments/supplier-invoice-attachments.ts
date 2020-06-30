@@ -65,7 +65,7 @@ export class Attachments {
         setTimeout(() => {
             const currentFile = this.uniImage?.currentFile;
             if (currentFile) {
-                this.store.setSelectedFileID(currentFile.ID);
+                this.store.setSelectedFile(currentFile);
             }
         });
     }

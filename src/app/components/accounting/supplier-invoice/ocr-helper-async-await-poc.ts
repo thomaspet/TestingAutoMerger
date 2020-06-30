@@ -5,6 +5,7 @@ import {
     StatisticsService,
     BankService,
     BankAccountService,
+    UniFilesService,
 } from '@app/services/services';
 import {OcrValuables} from '@app/models/accounting/ocr';
 import {SupplierInvoice, LocalDate, Supplier, BankAccount, BusinessRelation} from '@uni-entities';
@@ -35,6 +36,7 @@ export class OCRHelper {
     ];
 
     constructor(
+        private uniFilesService: UniFilesService,
         private supplierInvoiceService: SupplierInvoiceService,
         private supplierService: SupplierService,
         private statisticsService: StatisticsService,
@@ -43,8 +45,8 @@ export class OCRHelper {
         private bankAccountService: BankAccountService,
     ) {}
 
-    async runOcr(fileID: number, invoice: SupplierInvoice) {
-        const ocrResult = await this.supplierInvoiceService.fetch(`files/${fileID}?action=ocranalyse`).toPromise();
+    async runOcr(file, invoice: SupplierInvoice) {
+        const ocrResult = await this.uniFilesService.runOcr(file.StorageReference).toPromise();
         const ocrData = new OcrValuables(ocrResult);
 
         const getLocalDate = (date) => date && new LocalDate(moment(date).toDate());

@@ -11,6 +11,7 @@ import {
     LocalDate,
     StatusCodeSupplierInvoice,
     Payment,
+    File,
 } from '@uni-entities';
 import {
     SupplierInvoiceService,
@@ -44,7 +45,7 @@ export class SupplierInvoiceStore {
 
     startupFileID$ = new BehaviorSubject<number>(null);
     fileIDs$ = new BehaviorSubject<number[]>([]);
-    selectedFileID: number;
+    selectedFile: File;
     hasChanges = false;
 
     invoice$ = new BehaviorSubject<SupplierInvoice>(new SupplierInvoice());
@@ -165,9 +166,9 @@ export class SupplierInvoiceStore {
         this.initDataLoaded$.complete();
     }
 
-    setSelectedFileID(fileID: number) {
-        if (this.selectedFileID !== fileID) {
-            this.selectedFileID = fileID;
+    setSelectedFile(file: File) {
+        if (this.selectedFile?.ID !== file.ID) {
+            this.selectedFile = file;
 
             if (this.initDataLoaded$.value) {
                 this.runOcr();
@@ -184,13 +185,13 @@ export class SupplierInvoiceStore {
     runOcr() {
         const invoice = this.invoice$.value;
 
-        if (this.selectedFileID && invoice && !invoice?.SupplierID) {
+        if (this.selectedFile && invoice && !invoice?.SupplierID) {
             this.toastService.showLoadIndicator({
                 title: 'Et lite øyeblikk',
                 message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
             });
 
-            this.ocrHelper.runOcr(this.selectedFileID, invoice).subscribe(
+            this.ocrHelper.runOcr(this.selectedFile, invoice).subscribe(
                 updatedInvoice => {
                     this.invoice$.next(updatedInvoice);
 
