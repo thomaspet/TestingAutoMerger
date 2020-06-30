@@ -1,7 +1,7 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import * as _ from 'lodash';
-import {tap, finalize, map, filter, switchMap} from 'rxjs/operators';
+import {tap, finalize, map, filter, switchMap, isEmpty} from 'rxjs/operators';
 import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salary-balance-view.service';
 import { EmployeeLeaveService } from '@app/components/salary/employee/shared/services/employee-leave.service';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
@@ -23,7 +23,7 @@ import {
 } from '@uni-entities';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig, IToolbarSearchConfig, IToolbarValidation, IContextMenuItem, UniToolbar } from '@app/components/common/toolbar/toolbar';
-import { ReplaySubject, Subscription, Observable, of, forkJoin, from } from 'rxjs';
+import { ReplaySubject, Subscription, Observable, of, forkJoin, from, pipe } from 'rxjs';
 import { ITag, IUniTagsConfig } from '@app/components/common/toolbar/tags';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
@@ -432,31 +432,35 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     }
 
     public canDeactivate(): Observable<boolean> {
-        return Observable
-            .of(!super.isDirty() || this.savedNewEmployee)
-            .switchMap(isSaved => isSaved
-                ? Observable.of(ConfirmActions.REJECT)
-                : this.modalService.openUnsavedChangesModal().onClose)
-            .switchMap(action => Observable.forkJoin(this.createSaveObjects(), Observable.of(action)))
-            .map((result: [ISaveObject[], ConfirmActions]) => {
+        return of(!super.isDirty() || !!this.savedNewEmployee).pipe(
+            switchMap(isSaved => isSaved
+                ? of(ConfirmActions.ACCEPT)
+                : this.modalService.openUnsavedChangesModal().onClose),
+            switchMap(action => Observable.forkJoin(this.createSaveObjects(), Observable.of(action))),
+            switchMap((result: [ISaveObject[], ConfirmActions]) => {
                 const [saveObj, action] = result;
-                if (action !== ConfirmActions.CANCEL) {
+                return this.handleSavingOnNavigation(action, saveObj);
+            }),
+            tap(x => {
+                if (x) {
                     this.cacheService.clearPageCache(this.cacheKey);
                 }
-
-                return this.handleSavingOnNavigation(action, saveObj);
             })
-            .map(action => action !== ConfirmActions.CANCEL);
-    }
-
-    private handleSavingOnNavigation(action: ConfirmActions, saveObj: ISaveObject[]): ConfirmActions {
-        if (action !== ConfirmActions.ACCEPT || !saveObj.some(x => x.dirty)) {
-            return action;
+        );
         }
-        this.saveAllObs({done: (m) => {}, ignoreRefresh: true}, saveObj)
-            .subscribe();
 
-        return action;
+    private handleSavingOnNavigation(action: ConfirmActions, saveObj: ISaveObject[]): Observable<boolean> {
+        if ((action === ConfirmActions.ACCEPT && !saveObj.some(x => x.dirty)) || action === ConfirmActions.REJECT) {
+            return of(true);
+        }
+        if (action === ConfirmActions.CANCEL) {
+            return of(false);
+        }
+        this.busy = true;
+        return this.saveAllObs({done: (m) => {}, ignoreRefresh: true}, saveObj).pipe(
+            isEmpty(),
+            map(() => !this.saveStatus.hasErrors)
+        );
     }
 
 
@@ -504,40 +508,58 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     }
 
     public nextEmployee() {
-        this.employeeService
-            .getNext(this.employee.EmployeeNumber)
-            .filter(emp => !!emp)
-            .switchMap(emp => this.canDeactivate().filter(canDeactivate => !!canDeactivate).map(() => emp))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(next => {
-                this.employee = next;
-                const childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
-            });
+        this.employeeService.getNext(this.employee.EmployeeNumber).pipe(
+                filter(emp => !!emp),
+                switchMap(emp => this.canDeactivate().filter(bool => bool).map(() => emp)),
+            ).subscribe(
+                next => {
+                    this.employee = next;
+                    const childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
+                    this.busy = false;
+                },
+                error => {
+                    this.errorService.handle(error);
+                    this.busy = false;
+                }
+            );
     }
 
     public previousEmployee() {
-        this.employeeService
-            .getPrevious(this.employee.EmployeeNumber)
-            .filter(emp => !!emp)
-            .switchMap(emp => this.canDeactivate().filter(canDeactivate => !!canDeactivate).map(() => emp))
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-            .subscribe(prev => {
-                this.employee = prev;
-                const childRoute = this.router.url.split('/').pop();
-                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
-            });
+        this.employeeService.getPrevious(this.employee.EmployeeNumber).pipe(
+                filter(emp => !!emp),
+                switchMap(emp => this.canDeactivate().filter(bool => bool).map(() => emp)),
+            ).subscribe(
+                prev => {
+                    this.employee = prev;
+                    const childRoute = this.router.url.split('/').pop();
+                    this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
+                    this.busy = false;
+                },
+                error => {
+                    this.errorService.handle(error);
+                    this.busy = false;
+                }
+            );
     }
 
     public newEmployee() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.employeeService.get(0).subscribe((emp: Employee) => {
-                    this.employee = emp;
-                    this.router.navigateByUrl(this.url + emp.ID + '/personal-details');
-                }, err => this.errorService.handle(err));
+        this.canDeactivate().subscribe(
+            canDeactivate => {
+                this.busy = false;
+                if (canDeactivate) {
+                    this.employeeService.get(0).subscribe((emp: Employee) => {
+                        this.employee = emp;
+                        this.router.navigateByUrl(this.url + emp.ID + '/personal-details');
+                        this.busy = false;
+                    }, err => this.errorService.handle(err));
+                }
+            },
+            error => {
+                this.errorService.handle(error);
+                this.busy = false;
             }
-        });
+        );
     }
 
     private getEmployee() {
@@ -880,13 +902,8 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
 
     private saveAllObs(config: IEmployeeSaveConfig, saveObjects: ISaveObject[]): Observable<any[]> {
         return this.saveEmployee(saveObjects)
-            .catch((error, obs) => {
-                config.done('Feil ved lagring');
-                return this.errorService.handleRxCatch(error, obs);
-            })
             .switchMap(
                 (employee) => {
-
                     if (!this.employeeID && !config.ignoreRefresh) {
                         super.updateState(EMPLOYEE_KEY, this.employee, false);
 
@@ -905,10 +922,6 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                     // Anders is looking for a better way to solve this..
                     return this.employeeService
                         .get(employee.ID)
-                        .catch((err, obs) => {
-                            config.done('Feil ved lagring');
-                            return this.errorService.handleRxCatch(err, obs);
-                        })
                         .switchMap((emp) => {
                             if (!config.ignoreRefresh) {
                                 super.updateState(EMPLOYEE_KEY, emp, false);
