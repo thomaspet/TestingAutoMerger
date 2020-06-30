@@ -4,7 +4,7 @@ import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { StatisticsService } from '@app/services/common/statisticsService';
-import { CompanySettings } from '@app/unientities';
+import { CompanySettings, BankAccount } from '@app/unientities';
 import { UniModalService } from '../../modalService';
 
 @Component({
@@ -30,6 +30,8 @@ export class ConfigBankAccountsModal implements IUniModal {
 
     companySettings: CompanySettings;
 
+    inputData: [string, number][];
+
     accountsReceived: number;
     initialBankAccounts: string[];
     availableAccounts: string[];
@@ -50,7 +52,8 @@ export class ConfigBankAccountsModal implements IUniModal {
             placeholder: 'velg konto'
         };
 
-        this.initialBankAccounts = this.options.data;
+        this.inputData = this.options.data as [string, number][];
+        this.initialBankAccounts = this.inputData.map(x => x['AccountNumber']);
         this.accountsReceived = this.initialBankAccounts.length;
         this.checkForExistingCompanyAccounts();
     }
@@ -137,25 +140,37 @@ export class ConfigBankAccountsModal implements IUniModal {
             res = [
                 {
                     item1: this.standardAccount,
-                    item2: 1920
+                    item2: 1920,
+                    item3: this.getBankAccountIntegrationSetting(this.standardAccount)
                 }
             ];
             if (this.taxAccount) {
                 res.push(
                     {
                         item1: this.taxAccount,
-                        item2: 1950
+                        item2: 1950,
+                        item3: this.getBankAccountIntegrationSetting(this.taxAccount)
                     }
                 );
             }
-            nonConfigedAccounts.forEach(x => res.push({
-                item1: x,
-                item2: 0
-            }))
+            nonConfigedAccounts.forEach(account => res.push({
+                item1: account,
+                item2: 0,
+                item3: this.getBankAccountIntegrationSetting(account)
+            }));
             this.onClose.emit(res);
         } else {
             this.onClose.emit(null);
         }
+    }
+
+    private getBankAccountIntegrationSetting(accountNumber: string) {
+        debugger;
+        return this.inputData.find(x => x['AccountNumber'] === accountNumber) ?
+        this.inputData.find(x => x['AccountNumber'] === accountNumber)['ServiceSettings'] :
+        ((this.initialBankAccounts.find(x => x === accountNumber) &&
+        this.companySettings.BankAccounts.find(x => x.AccountNumber === accountNumber)) ?
+        this.companySettings.BankAccounts.find(x => x.AccountNumber === accountNumber)['IntegrationSettings'] : 0);
     }
 
     public updateForm() {
