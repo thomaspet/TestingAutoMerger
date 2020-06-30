@@ -165,7 +165,6 @@ export class ConfigBankAccountsModal implements IUniModal {
     }
 
     private getBankAccountIntegrationSetting(accountNumber: string) {
-        debugger;
         return this.inputData.find(x => x['AccountNumber'] === accountNumber) ?
         this.inputData.find(x => x['AccountNumber'] === accountNumber)['ServiceSettings'] :
         ((this.initialBankAccounts.find(x => x === accountNumber) &&
