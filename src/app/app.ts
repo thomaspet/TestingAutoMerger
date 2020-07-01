@@ -116,7 +116,7 @@ export class App {
                     this.showUserLicenseModal();
                 }
 
-                if (!browserStorage.getItemFromCompany('isNotInitialLogin')) {
+                if (!authDetails.isDemo && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
                     this.showInitLoginModal();
                     browserStorage.setItemOnCompany('isNotInitialLogin', true);
                 }
