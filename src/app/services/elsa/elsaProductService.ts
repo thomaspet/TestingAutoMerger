@@ -6,6 +6,7 @@ import {ElsaProduct} from '@app/models';
 import {map, take} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {AuthService} from '@app/authService';
+import {cloneDeep} from 'lodash';
 
 @Injectable()
 export class ElsaProductService {
@@ -39,7 +40,10 @@ export class ElsaProductService {
             this.cache[endpoint] = request;
         }
 
-        return request.pipe(take(1));
+        return request.pipe(
+            take(1),
+            map(data => cloneDeep(data)) // avoid components mutating cache
+        );
     }
 
     public Get(id: number): Observable<ElsaProduct> {
@@ -80,7 +84,10 @@ export class ElsaProductService {
                 .refCount();
         }
 
-        return this.cache[url].pipe(take(1));
+        return this.cache[url].pipe(
+            take(1),
+            map(data => cloneDeep(data)) // avoid components mutating cache
+        );
     }
 
     // this does almost the same as the method above, and might replace it

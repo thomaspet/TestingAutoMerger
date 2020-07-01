@@ -4,6 +4,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaPurchase} from '@app/models';
 import {cloneDeep} from 'lodash';
+import {map, take} from 'rxjs/operators';
 
 @Injectable()
 export class ElsaPurchaseService {
@@ -52,7 +53,10 @@ export class ElsaPurchaseService {
             this.cache[cacheKey] = cachedRequest;
         }
 
-        return cachedRequest.map(res => cloneDeep(res.body));
+        return cachedRequest.pipe(
+            take(1),
+            map(res => cloneDeep(res.body))
+        );
     }
 
     massUpdate(updates: ElsaPurchase[], companyKeyOverride?: string) {
@@ -74,6 +78,7 @@ export class ElsaPurchaseService {
     }
 
     cancelPurchase(productId: number) {
+        this.invalidateCache();
         return this.uniHttp
             .asDELETE()
             .usingEmptyDomain()
