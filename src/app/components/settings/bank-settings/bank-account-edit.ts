@@ -160,20 +160,20 @@ export class CompanyBankAccountEdit {
             : this.bankAccountService.Post<BankAccount>(account);
 
         const isStandard = account['_isStandard'];
-        const acc = account.Account;
-        const bank = account.Bank;
 
         obs.subscribe(response => {
-            this.toastService.addToast('Konto lagret', ToastType.good, 5);
+            this.bankAccountService.Get(response.ID, ['Bank', 'Account']).subscribe(savedAccount => {
+                this.setBusy.emit(false);
+                this.toastService.addToast('Konto lagret', ToastType.good, 5);
 
-            // Add the old appended values to the new saved object
-            response['_isStandard'] = isStandard;
-            response.Account = acc;
-            response.Bank = bank;
-            response = this.bankService.mapBankIntegrationValues(response);
+                // Add the old appended values to the new saved object
+                savedAccount['_isStandard'] = isStandard;
+                savedAccount = this.bankService.mapBankIntegrationValues(savedAccount);
 
-            this.setBusy.emit(false);
-            this.saved.emit(response);
+                this.saved.emit(savedAccount);
+            }, err => {
+                this.errorMsg = 'Bankkonto ble lagret, men vi klarte ikke hente den fram igjen. Lukk modalen og last inn data på nytt.';
+            });
 
         }, err => this.setBusy.emit(false) );
     }

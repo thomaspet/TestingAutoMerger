@@ -163,17 +163,11 @@ export class JournalLines {
         this.filterVatTypesForDropdown();
 
         let vatType = null;
-        if (event.value === 0) {
-            this.onCurrencyChange(this.currencyCodes[0]);
-        } else if (event.value === 1) {
-            this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'EUR'));
+        if (event.value === 1) {
             vatType = this.filteredVatTypes.find(vt => vt.VatCode === '21');
-        } else {
-            this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'USD'));
+        } else if (event.value === 2) {
             vatType = this.filteredVatTypes.find(vt => vt.VatCode === '86');
         }
-
-
 
         this.lines.forEach(line => {
             line.VatType = vatType;

@@ -191,7 +191,10 @@ export class SupplierInvoiceView {
             showSharingStatus: true,
             hideDisabledActions: true,
             buttons: [],
-            contextmenu: [
+        };
+
+        if (invoice?.StatusCode < StatusCodeSupplierInvoice.Journaled) {
+            this.toolbarconfig.contextmenu = [
                 {
                     label: 'Kjør OCR-tolk',
                     action: () => { this.store.runOcr(); }
@@ -200,8 +203,8 @@ export class SupplierInvoiceView {
                     label: 'Kjør smart bokføring',
                     action: () => { this.store.runSmartBooking(); }
                 }
-            ]
-        };
+            ];
+        }
 
         this.commentsConfig = {
             entityID: invoice.ID || 0,
