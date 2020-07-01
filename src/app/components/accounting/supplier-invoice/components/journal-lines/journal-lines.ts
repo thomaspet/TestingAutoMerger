@@ -161,18 +161,24 @@ export class JournalLines {
     onInvoiceTypeChange(event) {
         this.currentInvoiceType = event;
         this.filterVatTypesForDropdown();
-        this.lines.forEach(line => {
-            line.VatType = null;
-            line.VatTypeID = null;
-        });
 
+        let vatType = null;
         if (event.value === 0) {
             this.onCurrencyChange(this.currencyCodes[0]);
         } else if (event.value === 1) {
             this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'EUR'));
+            vatType = this.filteredVatTypes.find(vt => vt.VatCode === '21');
         } else {
             this.onCurrencyChange(this.currencyCodes.find(c => c.Code === 'USD'));
+            vatType = this.filteredVatTypes.find(vt => vt.VatCode === '86');
         }
+
+
+
+        this.lines.forEach(line => {
+            line.VatType = vatType;
+            line.VatTypeID = vatType?.ID || null;
+        });
     }
 
     onCurrencyChange(event) {
