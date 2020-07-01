@@ -115,6 +115,11 @@ export class App {
                 if (theme.theme !== THEMES.EXT02 && !this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
                 }
+
+                if (!browserStorage.getItemFromCompany('isNotInitialLogin')) {
+                    this.showInitLoginModal();
+                    browserStorage.setItemOnCompany('isNotInitialLogin', true);
+                }
             }
         });
 
@@ -188,10 +193,6 @@ export class App {
                         () => {},
                         err => this.errorService.handle(err),
                     );
-
-                if (theme.theme === THEMES.EXT02) {
-                    this.showInitLoginModal();
-                }
             } else {
                 this.authService.clearAuthAndGotoLogin();
             }
