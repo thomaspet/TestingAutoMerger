@@ -14,9 +14,9 @@
 
         <!-- STEP 1 -->
         <section class="signup-step" *ngIf="!confirmationCode">
-            <section *ngIf="!step1Successful && !errorMessage" class="init-subtitle">
+            <!-- <section *ngIf="!step1Successful && !errorMessage" class="init-subtitle">
                 Registrer deg her og få tilgang til en 30 dagers prøveperiode.
-            </section>
+            </section> -->
 
             <section class="init-subtitle" *ngIf="step1Successful">
                 En epost med mer informasjon er sendt til {{step1Form.controls['Email'].value}}
