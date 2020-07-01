@@ -17,6 +17,8 @@
     "build.prod": "npm run prebuild && npm run high-memory-build -- build --configuration=prod",
     "build.ext01": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01",
     "build.ext01-rc": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-rc",
+    "build.ext03-poc01": "npm run prebuild && npm run high-memory-build -- build --configuration=ext03-poc01",
+    "build.ext03-poc02": "npm run prebuild && npm run high-memory-build -- build --configuration=ext03-poc02",
     "build.ext01-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=ext01-dev",
     "build.softrig-dev": "npm run prebuild && npm run high-memory-build -- build --configuration=softrig-dev",
     "build.softrig": "npm run prebuild && npm run high-memory-build -- build --configuration=softrig",
