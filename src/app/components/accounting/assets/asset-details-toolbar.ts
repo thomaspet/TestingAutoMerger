@@ -105,12 +105,12 @@ export class AssetDetailsToolbar {
             },
             contextmenu: [
                 {
-                    label: 'Register som solgt',
+                    label: 'Registrer som solgt',
                     disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsSoldModal(this.asset)
                 },
                 {
-                    label: 'Register som tapt',
+                    label: 'Registrer som tapt',
                     disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsLostModal(this.asset)
                 },
