@@ -15,12 +15,16 @@
 </section>
 
 <section class="side-menu-container container-for-spinner" [@inOutAnimation] *ngIf="bankAccount">
-
 	<section *ngIf="busy" class="modal-spinner" style="width: calc(100% - 3rem); margin-left: 1,5rem; height: 99%">
 		<mat-spinner class="c2a"></mat-spinner>
 	</section>
 
-	<header> {{ bankAccount.Label }} <i class="material-icons header-close" (click)="bankAccount = null;">close</i> </header>
+	<header>
+		{{ bankAccount.Label || 'Rediger konto' }}
+		<button class="tertiary pull-right" (click)="bankAccount = null;">
+			<i class="material-icons header-close">close</i>
+		</button>
+	</header>
 
 	<uni-tabs
         [tabs]="[{name: 'Kontodetaljer'}, {name: 'Kobling mot bank'}]"
@@ -32,7 +36,9 @@
 	<section [hidden]="activeIndex !== 1" class="integrations-container">
 		<header>
 			Bankintegrasjon
-			<span [class.active]="bankAccount.IntegrationStatus === 700005"> {{ bankAccount.IntegrationStatus === 700005 ? 'Aktiv' : 'Ikke koblet til bank' }} </span>
+			<span class="pull-right" [class.active]="bankAccount.IntegrationStatus === 700005">
+				{{ bankAccount.IntegrationStatus === 700005 ? 'Aktiv' : 'Ikke koblet til bank' }}
+			</span>
 		</header>
 
 		<section class="integrations" [class.active]="bankAccount?.HasStatements">

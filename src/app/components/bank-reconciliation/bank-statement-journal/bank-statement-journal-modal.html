@@ -53,9 +53,12 @@
             (rowDelete)="onRowDeleted($event)">
         </ag-grid-wrapper>
 
-        <secttion *ngIf="session?.balance" class="diff-footer" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+        <secttion *ngIf="session?.balance" class="alert info diff-alert align-right" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
             <i class="material-icons">error_outline</i>
-            <span> Differanse: <strong> {{ session?.balance | uninumberformat: 'money'}} </strong> </span>
+            <span>
+                Differanse:
+                <strong>{{ session?.balance | uninumberformat: 'money'}}</strong>
+            </span>
         </secttion>
 
     </article>

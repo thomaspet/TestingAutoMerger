@@ -5,27 +5,23 @@
 			font-weight: 500 !important
 
 .side-menu-container
-	position: absolute
+	position: fixed
 	right: 0
-	top: -1rem
-	z-index: 300
+	top: 0
+	z-index: 999
 	width: 36rem
 	background-color: white
-	height: calc(100vh - 4.1rem)
-	padding: 4rem 3rem
-	box-shadow: -6px 4px 3px -6px rgba(150,150,150,1)
+	height: 100vh
+	padding: 2rem 3rem
+	border-left: 2px solid var(--border-color)
 	overflow-x: hidden
 	overflow-y: auto
 
 	header
-
+		display: flex
 		font-size: 22px
 		font-weight: 500
 		margin-bottom: 2rem
-
-		.header-close
-			float: right
-			cursor: pointer
 
 .integrations-container
 	margin-top: 3rem

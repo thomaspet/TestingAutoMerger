@@ -21,8 +21,8 @@ import {BehaviorSubject} from 'rxjs';
         <small style="color: red"> {{ errorMsg }} </small>
 
         <footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
-            <button class="c2a secondary" (click)="saved.emit(false)">Lukk</button>
-            <button class="c2a" (click)="save()">Lagre konto</button>
+            <button class="c2a secondary" style="min-width: 8rem" (click)="saved.emit(false)">Lukk</button>
+            <button class="c2a" style="min-width: 8rem"  (click)="save()">Lagre konto</button>
         </footer>
     `,
     styleUrls: ['./bank-accounts.sass']

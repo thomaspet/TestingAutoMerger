@@ -13,23 +13,12 @@ footer
 .negative
     color: var(--color-bad)
 
-.diff-footer
-    display: flex
-    justify-content: flex-end
-    align-items: center
-    padding: .5rem 1rem .5rem 0
-    background-color: #f3f6ed
-    margin-bottom: 1rem 0
-
-    span
-        font-size: 14px
-
+.diff-alert
     i
-        margin-right: .5rem
-        font-size: 20px
+        color: currentColor
+        & + span
+            margin-left: .5rem
 
-    &.positive
-        color: var(--color-c2a)
     &.negative
         color: var(--color-bad)
 
