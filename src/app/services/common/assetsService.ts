@@ -176,6 +176,18 @@ export class AssetsService extends BizHttp<Asset>{
             .pipe(catchError(() => of(0)));
     }
 
+    caluculateLifetime(asset: Asset) {
+        if (
+            !asset?.AssetGroupCode
+            || !asset?.PurchaseDate
+            || !asset?.DepreciationStartDate
+        ) {
+            return of(null);
+        }
+        return this.ActionWithBody(null, asset, 'calculate-lifetime', RequestMethod.Put)
+            .pipe(catchError(() => of(0)));
+    }
+
     saveAsset(asset: Asset) {
         let source;
         if (asset.ID > 0) {
@@ -278,7 +290,7 @@ export class AssetsService extends BizHttp<Asset>{
         if (asset?.BalanceAccountID && asset?.NetFinancialValue) {
             return this.GetAction(null, 'is-balance-ok', `accountID=${asset?.BalanceAccountID}&amount=${asset?.NetFinancialValue}`);
         }
-        return of(false);
+        return of(true);
     }
     openRegisterModal(supplierInvoice: SupplierInvoice) {
         this.getUseAsset().subscribe(useAsset => {
