@@ -138,7 +138,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(this.relativeURL + `/${id}?action=get-feedback`)
-            .send()
+            .send({responseType: 'text'})
             .map(response => response.body);
     }
 
