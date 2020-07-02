@@ -89,6 +89,7 @@ export const EN = {
         'MODULES': 'Modules',
         'WEBINAR': 'Webinar',
         'PURCHASES': 'Purchases',
-        'ASSETS': 'Assets'
+        'ASSETS': 'Assets',
+        'OPENING_BALANCE': 'Opening Balance'
     }
 };

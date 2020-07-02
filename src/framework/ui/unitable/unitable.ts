@@ -23,6 +23,7 @@ export interface IContextMenuItem {
     label: string;
     action: (item?: any) => void;
     disabled?: (item?: any) => boolean;
+    class?: string;
 }
 
 export interface ITableFilter {

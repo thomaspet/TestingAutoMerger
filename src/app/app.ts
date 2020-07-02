@@ -14,7 +14,7 @@ import {
     UserLicenseAgreementModal,
     LicenseAgreementModal,
     MissingRolesModal,
-    ConfigBankAccountsInfoModal
+    ConfigBankAccountsInfoModal, CompanyActionsModal
 } from '@uni-framework/uni-modal';
 
 // Do not change this import! Since we don't use rx operators correctly
@@ -224,11 +224,11 @@ export class App {
                 if (action === ConfirmActions.ACCEPT) {
                     this.brunoOnboardingService.startOnboarding().subscribe(() => {
                         this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                            // TODO: Open ComapnyActionsModal
+                            this.modalService.open(CompanyActionsModal);
                         });
                     });
                 } else {
-                    // TODO: Open ComapnyActionsModal
+                    this.modalService.open(CompanyActionsModal);
                 }
             });
     }

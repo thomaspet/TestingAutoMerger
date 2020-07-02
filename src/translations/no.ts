@@ -133,6 +133,8 @@ export const NO = {
         'AUTO_BANK': 'Autobank',
         'COMPANY': 'Firma',
         'CURRENCY': 'Valuta',
+        'OPENING_BALANCE': 'Åpningsbalanse',
+
         'COMPANY_EMAIL': 'E-postmottak',
         'FROM_BRREG': 'Hent opplysninger fra br-reg',
         'ACCOUNTING': 'Regnskapsinnstillinger',
@@ -165,6 +167,9 @@ export const NO = {
         'ELECTRONIC_INVOICE_INFOTEXT': 'Har kan du aktivere EHF og OCR-tolkning for faktura. Om du ikke har kjøpt tjenestene, vil vi ta deg til markedsplassen først.',
         'PERIODE_AND_VAT_INFOTEXT': 'Registrering av MVA-status for selskapet, MVA-perioder og type næring for MVA-formål. Her sperrer man også henholdsvis bokføring og MVA-føringer i regnskapet.',
         'CURRENCY_INFOTEXT': 'Valg av standard valuta for selskapet og hovedbokskonto for valutaposteringer.',
+        'OPENING_BALANCE_INFOTEXT': 'Har du et nystiftet aksjeselskap, kan du registrere åpningsbalansen din ved hjelp av denne veiviseren.',
+        'OPENING_BALANCE_TEXT': 'Kom i gang med regnskapet ditt, og register åpningsbalanse nå!',
+        'OPENING_BALANCE_BUTTON': 'Registrer åpningsbalanse',
         'AGA_SETTINGS1': 'Firmanavn og organisasjonsnummer fylles automatisk ut dersom man har hentet opplysninger fra Brønnøysundregisteret under Firmaoppsett.',
         'AGA_SETTINGS2': 'Oppsett av sone og beregningsregel for arbeidsgiveravgift. Dersom virksomheten er omfattet av ordning for fribeløp får du oversikt over gjenstående fribeløp her.',
         'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre. Antall purringer før inkasso må matche regler i bunnen av bilde.',
@@ -287,5 +292,6 @@ export const NO = {
         'PURCHASES': 'Produktkjøp',
         'BANK_SETTINGS': 'Bankinnstillinger',
         'ASSETS': 'Eiendeler',
+        'OPENING_BALANCE': 'Åpningsbalanse'
     }
 };

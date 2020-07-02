@@ -21,7 +21,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 
                 <dropdown-menu [trigger]="toggle" minWidth="12rem">
                     <ng-template>
-                        <a class="dropdown-menu-item" *ngFor="let item of filteredContextMenuItems" (click)="item.action(rowData)">
+                        <a class="dropdown-menu-item" *ngFor="let item of filteredContextMenuItems" (click)="item.action(rowData)" [ngClass]="item?.class">
                             {{item.label}}
                         </a>
                     </ng-template>

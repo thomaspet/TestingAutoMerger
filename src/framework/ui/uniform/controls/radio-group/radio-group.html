@@ -2,8 +2,8 @@
     <mat-radio-button
         *ngFor="let item of items"
         [value]="getRadioButtonValue(item)"
-        [disabled]="readOnly$ | async">
-
+        [disabled]="readOnly$ | async"
+        (focusin)="focusHandler()">
         {{getRadioButtonLabel(item)}}
     </mat-radio-button>
 </mat-radio-group>

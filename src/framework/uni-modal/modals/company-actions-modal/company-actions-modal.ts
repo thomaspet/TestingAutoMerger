@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {Router} from '@angular/router';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {theme, THEMES} from 'src/themes/theme';
@@ -14,7 +14,7 @@ export class CompanyActionsModal implements IUniModal {
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
     isSrEnvironment = theme.theme === THEMES.SR;
-
+    isBrunoEnvironment = theme.theme === THEMES.EXT02;
     constructor(private router: Router) {}
 
     navigate(url: string) {

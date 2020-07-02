@@ -80,7 +80,7 @@
             </section>
         </section>
 
-        <section class="row form-row last">
+        <section class="row form-row">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.CURRENCY' | translate }} </h1>
@@ -98,6 +98,24 @@
                             [model]="companySettings$"
                             (changeEvent)="isDirty = true">
                         </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.OPENING_BALANCE' | translate }} </h1>
+                    <p> {{ 'SETTINGS.OPENING_BALANCE_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content opening-balance-uni-card-content">
+                        <p> {{ 'SETTINGS.OPENING_BALANCE_TEXT' | translate }} </p>
+                        <button [routerLink]="['/settings/opening-balance']"> {{ 'SETTINGS.OPENING_BALANCE_BUTTON' | translate }} </button>
                     </section>
                 </section>
             </section>

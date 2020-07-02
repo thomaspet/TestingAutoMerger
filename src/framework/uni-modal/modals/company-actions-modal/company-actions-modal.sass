@@ -6,7 +6,7 @@
         flex-direction: column
 
         .material-icons.check
-            color: #7AC943
+            color: var(--color-c2a)
             font-size: 48px
             width: 100%
             text-align: center
@@ -30,7 +30,7 @@
                 height: 90px
                 width: 100%
                 cursor: pointer
-                border: 1px solid rgba(0,0,0,.12)
+                border: 1px solid #A5E1D2
                 border-radius: 3px
                 padding: 1rem 2rem
                 margin-bottom: 1rem
@@ -41,8 +41,11 @@
                 i.material-icons
                     flex: 0 0 auto
                     margin: auto 0
-                    color: #F5A623
+                    color: var(--color-c2a)
                     font-size: 42px
+                    &.with-border
+                        border: 2px solid var(--color-c2a)
+                        border-radius: 0.2rem
 
                 .link-info
                     flex: 1

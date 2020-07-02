@@ -41,6 +41,7 @@ import {MonthPicker} from './ui/month-picker/month-picker';
 import {UniIcon} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
+import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
 
 @NgModule({
     imports: [
@@ -78,6 +79,7 @@ import {AutoFocusDirective} from './autofocus.directive';
         FeaturePermissionDirective,
         MonthPicker,
         AutoFocusDirective,
+        UniFileUpload,
         ...MODALS
     ],
     providers: [
@@ -123,6 +125,7 @@ import {AutoFocusDirective} from './autofocus.directive';
         UniIcon,
         FeaturePermissionDirective,
         AutoFocusDirective,
+        UniFileUpload
     ]
 })
 export class UniFrameworkModule {}

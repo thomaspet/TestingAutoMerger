@@ -1,10 +1,17 @@
 <section role="dialog" class="uni-modal">
     <article>
         <i class="material-icons check">check_circle</i>
-        <h1>{{options.header}}</h1>
+        <h1>{{options.header || 'Du er nå klar til å ta systemet i bruk'}}</h1>
         <h2>Hva vil du gjøre nå?</h2>
 
         <ul>
+            <li (click)="navigate('/settings/opening-balance')" *ngIf="isBrunoEnvironment">
+                <i class="material-icons with-border">add</i>
+                <section class="link-info">
+                    <strong>Åpningsbalanse</strong>
+                    <span>Register åpningsbalanse</span>
+                </section>
+            </li>
             <li (click)="navigate('/bank/ticker?code=bank_list')" *ngIf="isSrEnvironment">
                 <i class="material-icons">account_balance</i>
                 <section class="link-info">
@@ -37,6 +44,6 @@
     </article>
 
     <footer class="center">
-        <button class="c2a rounded" (click)="onClose.emit()">Lukk</button>
+        <button class="c2a rounded" (click)="onClose.emit()">Gå til start side</button>
     </footer>
 </section>

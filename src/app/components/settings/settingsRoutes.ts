@@ -1,5 +1,4 @@
 import {Routes} from '@angular/router';
-import {CompanySettingsComponent} from './companySettings/companySettings';
 import {AgaAndSubEntitySettings} from './agaAndSubEntitySettings/agaAndSubEntitySettings';
 import {Teams} from './teams/teams';
 import {NumberSeries} from './numberSeries/numberSeries';
@@ -14,6 +13,8 @@ import {UniCompanySettingsView} from './companySettings/company-settings';
 import {UniCompanyAccountingView} from './accounting-settings/accounting-settings';
 import {UniSalesSettingsView} from './sales-settings/sales-settings';
 import {UniBankSettings} from './bank-settings/bank-settings';
+import {OpeningBalanceComponent} from '@app/components/settings/opening-balance/openingBalance';
+import {OpeningBalanceGuard} from '@app/components/settings/opening-balance/openingBalanceGuard';
 
 export const settingsRoutes: Routes = [
     {
@@ -78,6 +79,12 @@ export const settingsRoutes: Routes = [
     {
         path: 'dimension',
         component: UniDimensionSettings,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'opening-balance',
+        loadChildren: () => import('./opening-balance/OpeningBalanceModule').then(m => m.OpeningBalanceModule),
+        canActivate: [OpeningBalanceGuard],
         canDeactivate: [CanDeactivateGuard]
     }
 ];

@@ -1,0 +1,22 @@
+<div class="file-upload" >
+    <div class="upload-file" *ngIf='files.length > 0'>
+        <div class="file-card" *ngFor="let file of files; index as i">
+            <i class="material-icons-outlined file-icon">insert_drive_file</i>
+            <label class="file-name">{{file.name}}</label>
+            <button class="tertiary c2a" (click)="onFileDetach($event, file)">
+                <i class="material-icons cancel-icon">add_circle</i>
+            </button>
+        </div>
+    </div>
+    <label tabindex="0" class="select-file"
+           (keydown.enter)="selectFile()"
+           (keydown.space)="selectFile()"
+           (drop)="dropFile($event)"
+           (dragover)="dragFile($event)">
+        <i class="material-icons">cloud_upload</i>
+        <span>
+            Dra og slipp eller <span class="browse-link">bla i</span> dine filer
+        </span>
+        <input #file type='file' (change)="openFile($event)"/>
+    </label>
+</div>
