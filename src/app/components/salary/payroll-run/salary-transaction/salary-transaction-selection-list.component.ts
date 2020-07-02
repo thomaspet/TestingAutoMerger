@@ -627,10 +627,10 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
     }
 
     private createNewDrawLink(employeeID: number) {
-        return `#/salary/salarybalances/0/details;employeeID=${employeeID}`;
+        return `#/salary/salarybalances/0/details?employeeID=${employeeID}`;
     }
     private createNewAdvanceLink(employeeID: number) {
-        return `#/salary/salarybalances/0/details;employeeID=${employeeID};instalmentType=${SalBalType.Advance}`;
+        return `#/salary/salarybalances/0/details?employeeID=${employeeID}&instalmentType=${SalBalType.Advance}`;
     }
     private createSalaryBalanceListLink(employeeID: number) {
         return `#/salary/salarybalances;empID=${employeeID}`;

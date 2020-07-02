@@ -8,7 +8,6 @@ import {
     AnnualStatementSenderContainerComponent
 } from './annual-statement/annual-statement-sender-container/annual-statement-sender-container.component';
 import {routes as WageTypeRoutes} from './wage-type/wage-type.routes';
-import {AMeldingViewComponent} from './a-melding/a-melding-view.component';
 import {CategoryListComponent} from './category/category-list.component';
 import {CategoryViewComponent} from './category/category-view.component';
 import {SalaryTransactionSupplementListComponent} from './salary-transaction-supplement/salary-transaction-supplement-list.component';
@@ -22,8 +21,8 @@ import { SalaryBalanceTemplateListComponent } from './salary-balance-template/sa
 import { SalaryBalanceTemplateViewComponent } from './salary-balance-template/salary-balance-template-view.component';
 import { routes as SalarybalanceTemplateRoutes } from './salary-balance-template/salary-balance-template.routes';
 import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
-import { SalaryBalanceDetailsComponent } from './shared/components/salary-balance-details/salary-balance-details.component';
 import { CategoryDetailComponent } from './category/views/category-details.component';
+import { SalaryBalanceDetailsContainerComponent } from './balance/salary-balance-details-container/salary-balance-details-container.component';
 
 export const salaryRoutes: Routes = [
     {
@@ -89,7 +88,7 @@ export const salaryRoutes: Routes = [
             },
             {
                 path: 'details',
-                component: SalaryBalanceDetailsComponent
+                component: SalaryBalanceDetailsContainerComponent
             }
         ],
         canDeactivate: [CanDeactivateGuard]

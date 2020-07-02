@@ -31,7 +31,7 @@
     <legend>Poster</legend>
     <uni-salary-balance-summary
         [salaryBalance]="salarybalance$ | async"
-        [busy]="summaryBusy$ | async"
+        [busy]="busy"
         (changeEvent)="onSummaryChanges($event)">
     </uni-salary-balance-summary>
 </fieldset>

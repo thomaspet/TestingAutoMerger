@@ -1,15 +1,16 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { UniView } from '@uni-framework/core/uniView';
 import { SalaryBalance } from '@uni-entities';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig, IContextMenuItem, IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
-import { BehaviorSubject, Subscription, Observable } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
+import { BehaviorSubject, Subscription, Observable, of } from 'rxjs';
+import { ActivatedRoute, Router, Params } from '@angular/router';
 import { SalarybalanceService, ErrorService, UniCacheService, ReportDefinitionService } from '@app/services/services';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniModalService, ConfirmActions, UniPreviewModal } from '@uni-framework/uni-modal';
 import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salary-balance-view.service';
 import { SalaryBalanceLineModalComponent } from '@app/components/salary/balance/salary-balance-line-modal/salary-balance-line-modal.component';
+import { switchMap, map, filter, take, tap } from 'rxjs/operators';
 
 const SALARY_BALANCE_KEY = 'salarybalance';
 const SAVING_KEY = 'viewSaving';
@@ -19,7 +20,7 @@ const SAVING_KEY = 'viewSaving';
   templateUrl: './balance.component.html',
   styleUrls: ['./balance.component.sass']
 })
-export class BalanceComponent extends UniView implements OnDestroy {
+export class BalanceComponent extends UniView implements OnDestroy, OnInit {
         private url: string = '/salary/salarybalances/';
         private salarybalanceID: number;
         private salarybalance: SalaryBalance;
@@ -55,27 +56,30 @@ export class BalanceComponent extends UniView implements OnDestroy {
                 main: true,
                 disabled: true
             }];
+        }
 
+        public ngOnInit() {
             this.route
                 .params
-                .do(() => this.subscriptions.forEach(sub => sub.unsubscribe()))
-                .do(params => {
-                    this.salarybalanceID = +params['id'];
-                    this.updateTabStrip(this.salarybalanceID);
-                    this.contextMenuItems = [];
-                    this.setupCache(this.salarybalanceID);
-                })
-                .map(params => {
-                    if (this.salarybalance && this.salarybalance.ID === +params['id']) {
-                        super.updateState(SALARY_BALANCE_KEY, this.salarybalance, false);
-                    } else {
-                        this.salarybalance = undefined;
-                    }
-                    return params;
-                })
-                .map((params) => this.salarybalance)
-                .filter(salaryBalance => !salaryBalance)
-                .subscribe(salaryBalance => this.getSalarybalance());
+                .pipe(
+                    tap(params => {
+                        this.subscriptions.forEach(sub => sub.unsubscribe());
+                        this.salarybalanceID = +params['id'];
+                        this.updateTabStrip(this.salarybalanceID);
+                        this.contextMenuItems = [];
+                        this.setupCache(this.salarybalanceID);
+                    }),
+                    switchMap(() => this.route.queryParams),
+                    map(queryParams => {
+                        if (this.salarybalance && this.salarybalance.ID === this.salarybalanceID) {
+                            super.updateState(SALARY_BALANCE_KEY, this.salarybalance, false);
+                            return {balance: this.salarybalance, queryParams};
+                        }
+                        return {balance: undefined, queryParams};
+                    }),
+                    filter(info => !info.balance),
+                )
+                .subscribe(info => this.getSalarybalance(info.queryParams));
         }
 
         public ngOnDestroy() {
@@ -154,55 +158,37 @@ export class BalanceComponent extends UniView implements OnDestroy {
         }
 
         public previousSalarybalance() {
-            this.canDeactivate()
-                .take(1)
-                .subscribe(canDeactivate => {
-                    if (!canDeactivate) {
-                        return;
-                    }
-                    this.salarybalanceService
-                        .getPrevious(this.salarybalance.ID)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                        .subscribe(prev => this.handleNextPreviousNewSalaryBalance(prev));
-                });
+            this.handleSalaryBalanceRoute(
+                this.salarybalanceService
+                    .getPrevious(this.salarybalance.ID)
+            );
         }
 
         public nextSalarybalance() {
-            this.canDeactivate()
-                .take(1)
-                .subscribe(canDeactivate => {
-                    if (!canDeactivate) {
-                        return;
-                    }
-                    this.salarybalanceService
-                        .getNext(this.salarybalance.ID)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                        .subscribe(next => this.handleNextPreviousNewSalaryBalance(next));
-                });
+            this.handleSalaryBalanceRoute(
+                this.salarybalanceService
+                    .getNext(this.salarybalance.ID)
+            );
         }
 
         public newSalarybalance() {
-            this.canDeactivate()
-                .take(1)
-                .subscribe(canDeactivate => {
-                    if (!canDeactivate) {
-                        return;
-                    }
-
-                    this.salarybalanceService
-                        .GetNewEntity()
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                        .subscribe((response) => this.handleNextPreviousNewSalaryBalance(response));
-
-                });
+            this.handleSalaryBalanceRoute(of(null));
         }
 
-        public handleNextPreviousNewSalaryBalance(salBal: SalaryBalance) {
-            if (!salBal) {
-                return;
-            }
-            this.salarybalance = salBal;
-            this.router.navigate([this.url, salBal.ID]);
+        private handleSalaryBalanceRoute(salBal$: Observable<SalaryBalance>) {
+            this.canDeactivate()
+                .pipe(
+                    take(1),
+                    filter(canDeactivate => !!canDeactivate),
+                    switchMap(() => salBal$)
+                )
+                .subscribe(
+                    salBal => {
+                        this.salarybalance = salBal;
+                        this.router.navigate([this.url, salBal?.ID || 0]);
+                    },
+                    err => this.errorService.handle(err)
+                );
         }
 
         public openSalarybalancelineModal() {
@@ -220,12 +206,24 @@ export class BalanceComponent extends UniView implements OnDestroy {
                 });
         }
 
-        private getSalarybalance() {
+        private getSalarybalance(queryParams?: Params) {
             this.salarybalanceService.getSalarybalance(this.salarybalanceID,
                 ['Transactions', 'Employee', 'Employee.BusinessRelationInfo',
                     'Supplier', 'Supplier.Info', 'Supplier.Info.DefaultBankAccount'])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe((salbal: SalaryBalance) => super.updateState(SALARY_BALANCE_KEY, salbal, false));
+                .pipe(
+                    map(salaryBalance => salaryBalance.ID
+                        ? salaryBalance
+                        : {
+                            ...salaryBalance,
+                            EmployeeID: +queryParams['employeeID'] || undefined,
+                            InstalmentType: +queryParams['instalmentType'] || undefined,
+                            FromDate: salaryBalance.FromDate || new Date(),
+                        })
+                )
+                .subscribe(
+                    (salbal: SalaryBalance) => super.updateState(SALARY_BALANCE_KEY, salbal, false),
+                    err => this.errorService.handle(err),
+                );
         }
 
         private saveSalarybalance(done: (message: string) => void, updateView = true) {

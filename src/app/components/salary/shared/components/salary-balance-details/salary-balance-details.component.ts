@@ -1,28 +1,22 @@
-import { Component, OnInit, OnChanges, SimpleChanges, ViewChild, Input, Output, EventEmitter } from '@angular/core';
-import { UniView } from '@uni-framework/core/uniView';
-import { ReplaySubject, BehaviorSubject, Subscription, Observable, of } from 'rxjs';
+import { Component, OnChanges, SimpleChanges, ViewChild, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { SalaryBalance, SalBalType, Supplier, SalaryBalanceTemplate, WageType, StdWageType, SalaryBalanceLine } from '@uni-entities';
 import { UniImage } from '@uni-framework/uniImage/uniImage';
 import { UniForm } from '@uni-framework/ui/uniform';
-import { ActivatedRoute, Router } from '@angular/router';
-import { SalarybalanceService, UniCacheService, ErrorService } from '@app/services/services';
+import { SalarybalanceService, UniCacheService} from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { tap, switchMap, filter, take, map } from 'rxjs/operators';
-
-const SAVING_KEY = 'viewSaving';
 
 @Component({
   selector: 'uni-salary-balance-details',
   templateUrl: './salary-balance-details.component.html',
-  styleUrls: ['./salary-balance-details.component.sass']
+  styleUrls: ['./salary-balance-details.component.sass'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
-export class SalaryBalanceDetailsComponent extends UniView implements OnChanges {
-        private salarybalanceID: number;
-        private cachedSalaryBalance$: ReplaySubject<SalaryBalance> = new ReplaySubject<SalaryBalance>(1);
+export class SalaryBalanceDetailsComponent implements OnChanges {
         private lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({});
         public salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
-        private subscriptions: Subscription[] = [];
 
         public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
         public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
@@ -34,86 +28,20 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
         @ViewChild(UniForm, { static: true }) public form: UniForm;
 
         @Input() public salarybalance: SalaryBalance;
-        @Input() public useExternalChangeDetection: boolean = false;
         @Input() public ignoreFields: string[] = ['SalarytransactionDescription'];
+        @Input() busy: boolean;
         @Output() private salarybalanceChange: EventEmitter<SalaryBalance> = new EventEmitter<SalaryBalance>();
 
         constructor(
-            private route: ActivatedRoute,
-            private router: Router,
             private salarybalanceService: SalarybalanceService,
             private toastService: ToastService,
             protected cacheService: UniCacheService,
-            private errorService: ErrorService,
-        ) {
-            super(router.url, cacheService);
-
-            this.route.parent.params
-                .do(params => {
-                    this.subscriptions.forEach(sub => sub.unsubscribe());
-                    super.updateCacheKey(router.url);
-                    super.getStateSubject(SAVING_KEY)
-                        .subscribe(isSaving => this.summaryBusy$.next(isSaving));
-                })
-                .switchMap(params => this.getStateSubject('salarybalance'))
-                .subscribe(salaryBalance => this.cachedSalaryBalance$.next(salaryBalance));
-
-            this.route.params
-                .switchMap(params => {
-                    const employeeID: number = +params['employeeID'] || undefined;
-                    const type: SalBalType = +params['instalmentType'] || undefined;
-                    return this.cachedSalaryBalance$
-                        .map(salaryBalance => {
-                            if (salaryBalance.ID) {
-                                return salaryBalance;
-                            }
-                            if (employeeID) {
-                                salaryBalance.EmployeeID = employeeID;
-                            }
-                            if (type) {
-                                salaryBalance.InstalmentType = type;
-                            }
-
-                            return salaryBalance;
-                        })
-                        .switchMap((salarybalance: SalaryBalance) => (salarybalance.ID === this.salarybalanceID)
-                            ? Observable.of(salarybalance)
-                            : this.setup(salarybalance))
-                        .map(salarybalance => {
-                            if (!salarybalance.FromDate) {
-                                salarybalance.FromDate = new Date();
-                            }
-                            return salarybalance;
-                        })
-                        .switchMap(salarybalance => {
-                            return salarybalanceService.updateFields(
-                                salarybalance,
-                                'salarybalance',
-                                this.salarybalanceID !== salarybalance.ID,
-                                null,
-                                this.lastChanges$,
-                                this.form,
-                                this.fields$,
-                                this.ignoreFields,
-                                !!salarybalance.SalaryBalanceTemplateID);
-                            })
-                        .do((salarybalance) => {
-                            return this.lastChanges$.subscribe(change => {
-                                if (change['InstalmentType']) {
-                                    this.toggleReadOnly(salarybalance, 'InstalmentType');
-                                }
-                            });
-                        })
-                        .do(salarybalance => this.salarybalanceID = salarybalance.ID)
-                        .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                })
-                .subscribe(salaryBalance => this.salarybalance$.next(salaryBalance));
-        }
+        ) { }
 
         public ngOnChanges(changes: SimpleChanges) {
             Observable
                 .of(changes)
-                .filter(change => !!change['salarybalance'] && !!change['salarybalance'].currentValue)
+                .filter(change => !!change['salarybalance'] && !!change['salarybalance'].currentValue )
                 .map(change => change['salarybalance'])
                 .switchMap(salBalChange => !salBalChange.previousValue || salBalChange.previousValue.ID !== salBalChange.currentValue.ID
                     ? this.setup(salBalChange.currentValue)
@@ -139,6 +67,7 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
 
                         if (changes['InstalmentType']) {
                             this.salarybalanceService.resetFields(model);
+                            this.toggleReadOnly(model, 'InstalmentType');
                         }
 
                         if (changes['SupplierID']) {
@@ -198,9 +127,6 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
 
         private updateSalaryBalance(model: SalaryBalance) {
             this.salarybalanceChange.emit(model);
-            if (this.useExternalChangeDetection === false) {
-                super.updateState('salarybalance', model, true);
-            }
         }
 
         public onFileListReady(files: Array<any>) {
@@ -305,7 +231,7 @@ export class SalaryBalanceDetailsComponent extends UniView implements OnChanges 
         }
 
         public onSummaryChanges(salaryBalanceLines: SalaryBalanceLine[]) {
-            const obs = this.useExternalChangeDetection ? this.salarybalance$ : this.cachedSalaryBalance$;
+            const obs = this.salarybalance$;
             obs
                 .take(1)
                 .map(salaryBalance => {
