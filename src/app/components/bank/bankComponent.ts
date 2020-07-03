@@ -335,7 +335,7 @@ export class BankComponent {
                                             this.brunoOnboardingService.startOnboarding().subscribe(agreement => {
                                                 this.agreements = [agreement];
                                                 this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                                                    this.toolbarconfig.infoBannerConfig.message = 'Du har bestilt integrasjon med nettbanken din og vi jobber med å sette den opp. Ble du avbrutt?',
+                                                    this.toolbarconfig.infoBannerConfig.message = 'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
                                                     this.toolbarconfig.infoBannerConfig.link = 'Start på nytt',
                                                     this.cdr.markForCheck();
                                                 });
@@ -349,7 +349,7 @@ export class BankComponent {
                                 if (theme.theme === THEMES.EXT02) {
                                     if (brunoOnboardingService.isPendingAgreement(agreements[0])) {
                                         this.toolbarconfig.infoBannerConfig = {
-                                            message: 'Du har bestilt integrasjon med nettbanken din og vi jobber med å sette den opp. Ble du avbrutt?',
+                                            message: 'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
                                             link: 'Start på nytt',
                                             action: () => {
                                                 this.brunoOnboardingService.startOnboarding().subscribe(agreement => {

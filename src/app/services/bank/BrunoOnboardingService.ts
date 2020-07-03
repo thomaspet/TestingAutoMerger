@@ -70,11 +70,17 @@ export class BrunoOnboardingService {
     public startOnboarding(): Observable<void> {
 
         const orderKidModalOptions: IModalOptions = {
-            header: 'Koble sammen regnskap og bankkonto',
-            message: 'Denne bestillingen må gjøres via nettbanken din i DNB Bedrift. Vi sender deg din TB-kode slik at du kommer rett inn i banken. Der må du velge hvilke konto di vil bestille kobling mot. <br/> <br/>'
-            + 'Før vi sender deg videre trenger vi å vite om du ønsker å sette opp KID-avtale og få innbetalingsdata rett inn i regnskapsløsning?',
+            header: 'Koble sammen regnskap og bank',
+            message: 'Trykker du på «Bestill» sender vi deg  til DNB nettbank bedrift for å fullføre bestillingen. I bestillingsløpet må du velge hvilke konto(er) du ønsker å koble. <br/> <br/>'
+            + 'Før du sendes videre trenger vi å vite om du ønsker å sette opp en KID-avtale og få innbetalingsdata rett inn i DNB Regnskap?',
             footerCls: 'center',
             checkboxLabel: 'Ja, jeg ønsker innbetalingsavtale/KID',
+            modalConfig: {
+                checkboxLink: {
+                    text: 'se priser',
+                    link: 'https://www.dnb.no/bedrift/priser/dnbregnskap.html'
+                }
+            },
             buttonLabels: {
                 accept: 'Bestill',
                 reject: 'Lukk'

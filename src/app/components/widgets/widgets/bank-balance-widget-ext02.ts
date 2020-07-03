@@ -77,16 +77,18 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                     }
 
                     if (!this.agreement) {
-                        this.msg = 'For å se saldo på bankkonto, trenger du en autobankavtale med banken. <br/>';
+                        this.msg = '';
                         this.actionLink = 'Klikk her';
-                        this.actionMsg = ' for å koble sammen bank og regnskap.';
+                        this.actionMsg = ' for å koble sammen regnskap og bank.';
                         this.icon = this.iconConfig;
                         this.missingData = true;
                         this.cdr.markForCheck();
                     } else if (this.brunoOnboardingService.isPendingAgreement(this.agreement)) {
-                        this.msg = 'Du har bestilt integrasjon med nettbanken din og vi jobber <br/> med å sette den opp. ' +
-                            'Dette kan ta inntil 3 arbeidsdager.';
-                        this.actionLink = 'Ble du avbrutt? Start på nytt';
+                        this.msg = 'Du har bestilt kobling mellom regnskap og bank.  <br/> ' +
+                            'Når bestillingen er fullført skal du ha mottatt en bekreftelse pr epost. <br>' +
+                            'Det tar opptil tre virkedager å opprette koblingen. <br><br>' +
+                            'Dersom du ikke har mottatt bekreftelse eller <br> ble avbrutt kan du starte på ny.';
+                        this.actionLink = 'Start på nytt';
                         this.actionMsg = '';
                         this.icon = this.iconPending;
                         this.missingData = true;
