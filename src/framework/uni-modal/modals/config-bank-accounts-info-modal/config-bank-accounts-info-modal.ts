@@ -13,7 +13,10 @@ import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-mod
                 <section style="padding-top: 10px; margin-bottom: 2.5rem;" [innerHTML]="options.message"> </section>
 
                 <section *ngIf="options?.checkboxLabel">
-                    <mat-checkbox [(ngModel)]="checkBoxValue">{{ options?.checkboxLabel }}</mat-checkbox> <span> (<a>se priser <i class="material-icons">open_in_new</i></a>)</span>
+                    <mat-checkbox [(ngModel)]="checkBoxValue">{{ options?.checkboxLabel }}</mat-checkbox>
+                    <span *ngIf="options?.modalConfig?.checkboxLink">
+                        (<a (click)="openCheckboxLink()">{{options?.modalConfig?.checkboxLink.text}} <i class="material-icons">open_in_new</i></a>)
+                    </span>
                     <br/>
                     <br/>
                 </section>
@@ -73,5 +76,9 @@ export class ConfigBankAccountsInfoModal implements IUniModal {
 
     cancel() {
         this.onClose.emit(ConfirmActions.CANCEL);
+    }
+
+    openCheckboxLink() {
+        window.open(this.options?.modalConfig.checkboxLink?.link, '_Blank');
     }
 }
