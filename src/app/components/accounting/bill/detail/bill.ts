@@ -96,6 +96,8 @@ import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {PaymentStatus} from '@app/models/printStatus';
 import {finalize, map, tap, catchError} from 'rxjs/operators';
+import { O } from '@angular/cdk/keycodes';
+
 
 interface ITab {
     name: string;
@@ -2715,8 +2717,11 @@ export class BillView implements OnInit, AfterViewInit {
 
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
-        if (current.RestAmount == 0)
+
+        if (current.RestAmount == 0) {
+            this.toast.addToast('Legg til betaling', ToastType.bad, 5, 'Kan ikke legge en faktura med 0 i restbeløp til betaling',);
             return Observable.of(false);
+        }
 
         return this.supplierInvoiceService.sendForPayment(current.ID)
             .switchMap(() => Observable.of(true))
