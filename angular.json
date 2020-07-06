@@ -676,7 +676,7 @@
               ],
               "stylePreprocessorOptions": {
                 "includePaths": [
-                  "src/themes/softrig"
+                  "src/themes/ext03-poc01"
                 ]
               }
             },
@@ -698,19 +698,19 @@
                 },
                 {
                   "replace": "src/themes/favicon.ico",
-                  "with": "src/themes/favicon.softrig.ico"
+                  "with": "src/themes/favicon.ext01.ico"
                 },
                 {
-                  "replace": "src/themes/logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "replace": "src/themes/logo.png",
+                  "with": "src/themes/ext03-poc02/logo.png"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "replace": "src/themes/navbar_logo.png",
+                  "with": "src/themes/ext03-poc02/logo.png"
                 },
                 {
                   "replace": "src/themes/theme.ts",
-                  "with": "src/themes/theme.softrig.ts"
+                  "with": "src/themes/theme.ext03-poc02.ts"
                 },
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
@@ -719,7 +719,7 @@
               ],
               "stylePreprocessorOptions": {
                 "includePaths": [
-                  "src/themes/softrig"
+                  "src/themes/ext03-poc02"
                 ]
               }
             },
