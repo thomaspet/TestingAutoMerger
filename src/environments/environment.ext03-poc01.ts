@@ -5,7 +5,7 @@
 
 export const environment = {
     useProdMode: true,
-    isSrEnvironment: false,
+    isSrEnvironment: true,
     appTitle: 'Poc 01',
 
     authority: 'https://test-login.softrig.com',
@@ -61,4 +61,3 @@ export const environment = {
 
     LICENSE_AGREEMENT_URL: 'https://test-public-files.softrig.com/files/license/Lisensavtale_UniEconomy_v2.pdf'
 };
-
