@@ -8,6 +8,7 @@ import { catchError } from 'rxjs/operators';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { HttpClient } from '@angular/common/http';
 import {environment} from 'src/environments/environment';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'user-settings-modal',
@@ -29,18 +30,24 @@ export class UserSettingsModal implements IUniModal {
         private errorService: ErrorService,
         private userService: UserService,
         private toast: ToastService,
-        private http: HttpClient
+        private http: HttpClient,
+        private authService: AuthService,
     ) {}
 
     public ngOnInit() {
+        this.busy = true;
         this.user = this.options.data || {};
+
         this.epostButtonClicked = false;
 
-        this.userDetailsForm = new FormGroup({
-            DisplayName: new FormControl(this.user.DisplayName),
-            PhoneNumber: new FormControl(this.user.PhoneNumber),
-            Email: new FormControl(this.user.Email),
-            TwoFactorEnabled: new FormControl(this.user.TwoFactorEnabled)
+        this.authService.loadCurrentSession().subscribe((session) => {
+            this.busy = false;
+            this.userDetailsForm = new FormGroup({
+                DisplayName: new FormControl(this.user.DisplayName),
+                PhoneNumber: new FormControl(this.user.PhoneNumber),
+                Email: new FormControl(this.user.Email),
+                TwoFactorEnabled: new FormControl(session.user.TwoFactorEnabled)
+            });
         });
     }
 
