@@ -662,8 +662,8 @@
                   "with": "src/themes/ext03-poc01/logo.png"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.svg",
-                  "with": "src/themes/ext03-poc01/logo.svg"
+                  "replace": "src/themes/navbar_logo.png",
+                  "with": "src/themes/ext03-poc01/logo.png"
                 },
                 {
                   "replace": "src/themes/theme.ts",
