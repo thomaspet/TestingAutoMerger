@@ -671,7 +671,7 @@
                 },
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -714,7 +714,7 @@
                 },
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
