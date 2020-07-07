@@ -1,8 +1,12 @@
 import { Component, ViewChild, ElementRef } from '@angular/core';
-import { StatisticsService } from '@app/services/services';
-import { Employee, Employment } from '@uni-entities';
+import { StatisticsService, ErrorService } from '@app/services/services';
 import { UniMath } from '@uni-framework/core/uniMath';
-
+import { Observable, of } from 'rxjs';
+import { theme, THEMES } from 'src/themes/theme';
+import { StandardVacationPayModalComponent } from '@app/components/common/modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { tap, switchMap, map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -19,34 +23,51 @@ export class EmployeeCounterWidget {
     startDateThisYear: number = 0;
     endDateThisYear: number = 0;
     activeEmployments: number = 0;
+    isBruno: boolean = theme.theme === THEMES.EXT02;
+    isFirstTimeUser: boolean = false;
 
 
     constructor(
         private statisticsService: StatisticsService,
+        private modalService: UniModalService,
+        private errorService: ErrorService,
+        private router: Router,
     ) { }
 
     ngOnInit(): void {
-        this.statisticsService.GetAllUnwrapped('model=Employment&select=Employee.Sex as Sex,Employee.EmployeeNumber as EmployeeNumber&expand=Employee&filter=StartDate le getdate() and (setornull(EndDate) or EndDate ge getdate() )&distinct=true').subscribe(
-                (employees: Employee[]) => {
-                    this.activeEmployeesCount = employees.length;
-                    this.femaleEmployeesCount = employees.filter(x => x.Sex === 1).length;
-                    this.maleEmployeesCount = employees.filter(x => x.Sex === 2).length;
-                }
-            );
-        this.statisticsService.GetAllUnwrapped('model=Employment&select=min(StartDate),employeeID&having=year(min(StartDate)) eq activeyear()')
-            .subscribe((employments: Employment[]) => {
-                this.startDateThisYear = employments.length;
-                }
-            );
-        this.statisticsService.GetAllUnwrapped('model=Employment&select=max(EndDate),employeeID,sum(casewhen(setornull(EndDate),1,0))&having=year(max(EndDate)) eq activeyear() and sum(casewhen(setornull(EndDate),1,0)) le 0')
-            .subscribe((employments: Employment[]) => {
-                this.endDateThisYear = employments.length;
-                }
-            );
-        this.statisticsService.GetAllUnwrapped('model=Employment&select=divide(sum(WorkPercent),100) as sum&filter=setornull(EndDate) or EndDate gt getdate()')
-            .subscribe(x => {
-                this.activeEmployments = UniMath.round(Math.round(x[0].sum), 2);
-                }
-            );
+        Observable.forkJoin(
+            this.statisticsService.GetAllUnwrapped('model=Employment&select=Employee.Sex as Sex,Employee.EmployeeNumber as EmployeeNumber&expand=Employee&filter=StartDate le getdate() and (setornull(EndDate) or EndDate ge getdate() )&distinct=true'),
+            this.statisticsService.GetAllUnwrapped('model=Employee')
+        ).pipe(
+            map(([activeEmployees, employeeCount]) => {
+                this.activeEmployeesCount = activeEmployees.length;
+                this.femaleEmployeesCount = activeEmployees.filter(x => x.Sex === 1).length;
+                this.maleEmployeesCount = activeEmployees.filter(x => x.Sex === 2).length;
+                return !(employeeCount[0].countid > 0);
+            }),
+            switchMap((isFirstTimeUser: boolean) => {
+                this.isFirstTimeUser = isFirstTimeUser;
+                return isFirstTimeUser ? of() : Observable.forkJoin(
+                    this.statisticsService.GetAllUnwrapped('model=Employment&select=min(StartDate),employeeID&having=year(min(StartDate)) eq activeyear()'),
+                    this.statisticsService.GetAllUnwrapped('model=Employment&select=max(EndDate),employeeID,sum(casewhen(setornull(EndDate),1,0))&having=year(max(EndDate)) eq activeyear() and sum(casewhen(setornull(EndDate),1,0)) le 0'),
+                    this.statisticsService.GetAllUnwrapped('model=Employment&select=divide(sum(WorkPercent),100) as sum&filter=setornull(EndDate) or EndDate gt getdate()'),
+                    );
+                })
+        ).subscribe(
+            ([startDateThisYear, endDateThisYear, activeEmps]) => {
+                this.startDateThisYear = startDateThisYear.length;
+                this.endDateThisYear = endDateThisYear.length;
+                this.activeEmployments = UniMath.round(Math.round(activeEmps[0].sum), 2);
+            },
+            (error) => this.errorService.handle(error)
+        );
+    }
+
+    public openStandardVacationPayModal(): void {
+        this.modalService.open(StandardVacationPayModalComponent).onClose.subscribe((x: ConfirmActions) => {
+            if (x === ConfirmActions.ACCEPT) {
+                this.router.navigateByUrl('/salary/employees');
+            }
+        });
     }
 }

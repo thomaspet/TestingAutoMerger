@@ -3,7 +3,9 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
-import {PayrollrunService, ErrorService} from '../../../services/services';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { PayrollrunService, ErrorService, StatisticsService } from '@app/services/services';
+import { StandardVacationPayModalComponent } from '@app/components/common/modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
 
 @Component({
     selector: 'payrollrun-list',
@@ -24,7 +26,9 @@ export class PayrollrunList implements OnInit {
         private router: Router,
         private tabService: TabService,
         private payrollService: PayrollrunService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private modalService: UniModalService,
+        private statisticsService: StatisticsService,
     ) {}
 
     public ngOnInit() {
@@ -42,15 +46,13 @@ export class PayrollrunList implements OnInit {
         });
     }
 
-    newPayrollrun(done) {
-        this.router
-            .navigateByUrl('/salary/payrollrun/' + 0)
-            .then(succeeded => {
-                if (succeeded) {
-                    return;
-                }
-                done('Avbrutt');
-            });
+    public newPayrollrun(done) {
+        this.router.navigateByUrl('/salary/payrollrun/' + 0).then(succeeded => {
+            if (succeeded) {
+                return;
+            }
+            done('Avbrutt');
+        });
     }
 
     rowSelected(row) {

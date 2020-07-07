@@ -41,6 +41,7 @@ import {
     CompanySettingsService
 } from '@app/services/services';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { switchMap } from 'rxjs/operators';
 declare var _;
 
 @Component({
@@ -588,7 +589,6 @@ export class AgaAndSubEntitySettings implements OnInit {
             icon: 'info_outline'
         };
 
-
         // VACATION PAY SETTINGS
         this.vacationfields$.next([
             <UniFieldLayout> {
@@ -605,9 +605,13 @@ export class AgaAndSubEntitySettings implements OnInit {
             <UniFieldLayout> {
                 Label: 'Ignorer grunnbeløp',
                 Property: 'AllowOver6G',
-                FieldType: FieldType.CHECKBOX
+                FieldType: FieldType.CHECKBOX,
+                Tooltip: {
+                    Text: 'Ønsker du å utbetale ekstra feriepenger til ansatte over 60 år for feriepengegrunnlag over 6G (som er lovpålagt) så settes det kryss her.'
+                }
             }
-        ]);
+        ],
+        );
 
         this.fields$.next([ mainOrgName, mainOrgOrg, mainOrgFreeAmount ]);
 
@@ -672,8 +676,13 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.modalService.open(FreeAmountModal);
     }
 
-    public openVacationSettingsModal() {
-        this.modalService.open(VacationPaySettingsModal, {data: {}});
+    public openVacationSettingsModal(data: boolean = true) {
+        this.modalService.open(VacationPaySettingsModal, {data: data}).onClose.pipe(
+            switchMap(() => this.companyVacationRateService.getCurrentRates(this.activeYear))
+        ).subscribe(x => {
+            this.stdCompVacRate = x;
+        },
+        err => this.errorService.handle(err));
     }
 
     public openVacationPayModal() {

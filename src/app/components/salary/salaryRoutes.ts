@@ -32,6 +32,8 @@ import { SalarybalanceTemplateView } from './salary-balance-template/salarybalan
 import { routes as SalarybalanceTemplateRoutes } from './salary-balance-template/salarybalanceTemplateRoutes';
 import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
 import { routes as SalarybalanceRoutes } from './balance/salary-balance.routes';
+import { NewEmployeeGuard } from './employee/new-employee.guard';
+import { NewPayrollRunGuard } from './payrollrun/new-payroll-run.guard';
 
 export const salaryRoutes: Routes = [
     {
@@ -59,7 +61,7 @@ export const salaryRoutes: Routes = [
         component: EmployeeDetails,
         children: EmployeeRoutes,
         canDeactivate: [CanDeactivateGuard],
-        canActivate: [EmpCanActivateGuard]
+        canActivate: [EmpCanActivateGuard, NewEmployeeGuard]
     },
     {
         path: 'payrollrun',
@@ -69,7 +71,7 @@ export const salaryRoutes: Routes = [
         path: 'payrollrun/:id',
         component: PayrollrunDetails,
         canDeactivate: [CanDeactivateGuard],
-        canActivate: [WagetypeSyncGuard],
+        canActivate: [WagetypeSyncGuard, NewPayrollRunGuard],
     },
     {
         path: 'amelding',

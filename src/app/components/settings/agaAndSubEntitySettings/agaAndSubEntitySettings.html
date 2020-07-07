@@ -157,7 +157,8 @@
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1>Feriepenger</h1>
-                    <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT' | translate }} </p>
+                    <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT1' | translate }} </p>
+                    <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT2' | translate }} </p>
                 </section>
             </section>
 
@@ -166,7 +167,6 @@
                     <!-- <section class="uni-card-header">
                         <h1>Feriepenger</h1>
                     </section> -->
-
                     <section class="uni-card-content">
                         <uni-form
                             [config]="{showLabelAbove: true, autoFocus: true}"
@@ -174,10 +174,11 @@
                             [model]="companySalary$"
                             (changeEvent)="companySalaryChange()">
                         </uni-form>
-
-                        <ag-grid-wrapper style="margin-top: 1rem" [config]="tableConfig" [(resource)]="vacationRates" (rowDelete)="onRowDeleted($event)" (rowChange)="isDirty = true"></ag-grid-wrapper>
+                        <p style="padding: 0 0.5rem 10px;">
+                            Systemet benytter {{ stdCompVacRate?.Rate }} som feriepengesats og {{ stdCompVacRate?.Rate60 }} som tilleggssats for arbeidstakere over 60 år.
+                            <a (click)="openVacationSettingsModal(false)">Endre feriepengesats</a>
+                        </p>
                     </section>
-
                 </section>
 
                 <section class="uni-card">

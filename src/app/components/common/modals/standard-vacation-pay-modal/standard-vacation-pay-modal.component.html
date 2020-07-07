@@ -1,0 +1,29 @@
+<section role="dialog" class="uni-modal"
+        (clickOutside)="close(false)"
+        (keydown.esc)="close(false)">
+	<header>Standard feriepengesats</header>
+
+	<article>
+        <section>
+            Før du kan komme i gang med lønn må standard feriepengesats settes opp i systemet
+            og så kan ansatte registreres. Når begge deler er på plass kan du gjennomføre din første lønnskjøring.
+        </section>
+        <section *ngIf="!isStandardVacationPaySet">
+            <section class="second-header">
+                Feriepengesats
+            </section>
+            <section>
+                <label for="standard-vacation-pay">
+                    Velg standard feriepengesats
+                    <uni-tooltip [text]="'Feriepengene skal være minimum 10,2 prosent av feriepengegrunnlaget.\n\nDersom ditt firma avikler 5 uker ferie for de ansatte må du velge 12%'"></uni-tooltip>
+                    <input type="number" id="standard-vacation-pay" [(ngModel)]="standardVacationRate">
+                </label>
+            </section>
+        </section>
+    </article>
+
+	<footer>
+        <button (click)="close()">Avbryt</button>
+		<button class="good" (click)="save()">Fortsett til ansatte</button>
+	</footer>
+</section>

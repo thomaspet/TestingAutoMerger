@@ -74,6 +74,7 @@ import {CompanyCreationWizard} from './company-creation-wizard/company-creation-
 import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
 
 import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
+import { StandardVacationPayModalComponent } from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
 
 @NgModule({
     imports: [
@@ -159,6 +160,7 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         CompanyCreationWizard,
         ContractTypesComparison,
         RegisterAssetModal,
+        StandardVacationPayModalComponent,
     ],
     exports: [
         PredefinedDescriptionList,
@@ -218,6 +220,7 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         ContractTypesComparison,
 
         RegisterAssetModal,
+        StandardVacationPayModalComponent,
     ]
 })
 export class AppCommonModule {}
