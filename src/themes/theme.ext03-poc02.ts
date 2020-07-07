@@ -10,7 +10,7 @@ export const theme = {
 
 
     init: {
-        //illustration: 'themes/ext01/register-company-background.svg',
+        illustration: 'themes/ext01/register-company-background.svg',
         background: '#ebf6fb',
         login_background: 'url(themes/ext01/login_background.png)',
         login_background_height: '100%',
