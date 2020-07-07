@@ -521,12 +521,12 @@
                   "with": "src/themes/favicon.ext01.ico"
                 },
                 {
-                  "replace": "src/themes/logo.png",
-                  "with": "src/themes/ext03-poc01/logo.png"
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.png",
-                  "with": "src/themes/ext03-poc01/logo.png"
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -573,12 +573,12 @@
                   "with": "src/themes/favicon.ext01.ico"
                 },
                 {
-                  "replace": "src/themes/logo.png",
-                  "with": "src/themes/ext03-poc02/logo.png"
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.png",
-                  "with": "src/themes/ext03-poc02/logo.png"
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -658,12 +658,12 @@
                   "with": "src/themes/favicon.ext01.ico"
                 },
                 {
-                  "replace": "src/themes/logo.png",
-                  "with": "src/themes/ext03-poc01/logo.png"
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.png",
-                  "with": "src/themes/ext03-poc01/logo.png"
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -701,12 +701,12 @@
                   "with": "src/themes/favicon.ext01.ico"
                 },
                 {
-                  "replace": "src/themes/logo.png",
-                  "with": "src/themes/ext03-poc02/logo.png"
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
-                  "replace": "src/themes/navbar_logo.png",
-                  "with": "src/themes/ext03-poc02/logo.png"
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -977,7 +977,7 @@
             ],
             "assets": [
               "src/assets",
-              "src/favicon.png",
+              "src/favicon.svg",
               "src/robots.txt",
               "src/security.txt"
             ]
