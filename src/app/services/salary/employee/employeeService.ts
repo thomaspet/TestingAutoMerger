@@ -269,13 +269,13 @@ export class EmployeeService extends BizHttp<Employee> {
         }
     }
 
-    public getNext(employeeNumber: number, expand: string[] = null) {
+    public getNext(employeeNumber: number, expand: string[] = null): Observable<Employee> {
         const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber gt ${employeeNumber}&top=1&orderBy=EmployeeNumber`, expands)
             .map(resultSet => resultSet[0]);
     }
 
-    public getPrevious(employeeNumber: number, expand: string[] = null) {
+    public getPrevious(employeeNumber: number, expand: string[] = null): Observable<Employee> {
         const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber lt ${employeeNumber}&top=1&orderBy=EmployeeNumber desc`, expands)
             .map(resultSet => resultSet[0]);
