@@ -335,7 +335,7 @@ export class BankComponent {
 
                             if (this.hasAccessToAutobank) {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
-                                    this.agreements = agreements;
+                                    this.agreements = agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
                                     this.initiateBank();
                                 });
                             } else {
