@@ -19,7 +19,7 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
     public saveActions: ComboButtonAction[] = [];
     public checkedEmps: Employee[];
-    public busy: boolean;
+    public busy: boolean = true;
     public mailOptions: IPaycheckEmailInfo;
     report: ReportDefinition;
 

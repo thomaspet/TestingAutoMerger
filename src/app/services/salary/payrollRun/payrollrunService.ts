@@ -631,6 +631,7 @@ export class PayrollrunService extends BizHttp<PayrollRun> {
                     Property: 'FreeText',
                     FieldType: FieldType.TEXTAREA,
                     Label: 'Fritekst til lønnslipp',
+                    MaxLength: 255,
                     FieldSet: 2,
                     Section: 0,
                     LineBreak: true,
