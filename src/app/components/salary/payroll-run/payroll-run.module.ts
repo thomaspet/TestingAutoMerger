@@ -17,6 +17,7 @@ import { PayrollRunDetailsService } from './services/payroll-run-details.service
 import { PayrollRunDataService } from './services/payroll-run-data.service';
 import { SalaryHelperMethodsService } from './services/salary-helper-methods.service';
 import { PayrollRunRoutingModule } from './payroll-run-routing.module';
+import { SalaryTransactionChangeService } from './services/salary-transaction-change.service';
 
 @NgModule({
     imports: [
@@ -42,6 +43,7 @@ import { PayrollRunRoutingModule } from './payroll-run-routing.module';
         PayrollRunDetailsService,
         PayrollRunDataService,
         SalaryHelperMethodsService,
+        SalaryTransactionChangeService,
     ]
   })
   export class PayrollRunModule { }

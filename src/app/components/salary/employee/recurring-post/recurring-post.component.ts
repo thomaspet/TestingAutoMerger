@@ -257,7 +257,7 @@ export class RecurringPostComponent extends UniView {
                 }
 
                 if (event.field === 'Amount' || event.field === 'Rate') {
-                    this.calcItem(row);
+                    this.salaryTransViewService.calculateTransaction(row);
                 }
 
                 if (event.field === '_Account') {
@@ -287,7 +287,7 @@ export class RecurringPostComponent extends UniView {
 
                 if (obs) {
                     return obs
-                        .map((trans) => this.calcItem(trans))
+                        .map((trans) => this.salaryTransViewService.calculateTransaction(trans))
                         .switchMap(trans => this.suggestedValuesService.suggestFromDate(trans, true))
                         .do(trans => this.updateAndCacheSalaryTransactionRow(trans, true));
                 } else {
@@ -372,17 +372,6 @@ export class RecurringPostComponent extends UniView {
         }
 
         rowModel.Account = account.AccountNumber;
-    }
-
-    private calcItem(rowModel: SalaryTransaction): SalaryTransaction {
-        let decimals = rowModel.Amount ? rowModel.Amount.toString().split('.')[1] : null;
-        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
-        decimals = rowModel.Rate ? rowModel.Rate.toString().split('.')[1] : null;
-        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        const sum = (Math.round((amountPrecision * rowModel.Amount))
-            * Math.round((ratePrecision * rowModel.Rate))) / (amountPrecision * ratePrecision);
-        rowModel.Sum = sum;
-        return rowModel;
     }
 
     public onSupplementsClose(trans: SalaryTransaction) {

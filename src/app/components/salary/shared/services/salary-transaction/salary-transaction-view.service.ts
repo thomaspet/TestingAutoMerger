@@ -9,6 +9,8 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { SalaryTransactionSupplementService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-supplement.service';
 import { SalaryTransSupplementModalComponent } from '@app/components/salary/shared/components/salary-transaction-supplement-modal/salary-transaction-supplement-modal.component';
+import { UniMath } from '@uni-framework/core/uniMath';
+const DIRTY_FLAG: string = '_isDirty';
 
 @Injectable()
 export class SalaryTransactionViewService {
@@ -17,7 +19,7 @@ export class SalaryTransactionViewService {
     constructor(
         private supplementService: SalaryTransactionSupplementService,
         private modalService: UniModalService,
-        private vatTypesService: VatTypeService
+        private vatTypesService: VatTypeService,
     ) {}
 
     public createVatTypeColumn(visible: boolean = false, fromDateField: string = 'FromDate'): UniTableColumn {
@@ -262,5 +264,24 @@ export class SalaryTransactionViewService {
         trans.Employee = null;
         trans.employment = null;
         return trans;
+    }
+
+    public calculateTransaction(transaction: SalaryTransaction): SalaryTransaction {
+        if (!transaction[DIRTY_FLAG] || !this.needRecalc(transaction)) {
+            return transaction;
+        }
+        let decimals = transaction['Amount'] ? transaction['Amount'].toString().split('.')[1] : null;
+        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
+        decimals = transaction['Rate'] ? transaction['Rate'].toString().split('.')[1] : null;
+        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
+        const sum =
+            (Math.round((amountPrecision * transaction['Amount'])) * Math.round((ratePrecision * transaction['Rate'])))
+            / (amountPrecision * ratePrecision);
+        transaction['Sum'] = sum;
+        return transaction;
+    }
+
+    private needRecalc(transaction: SalaryTransaction): boolean {
+        return transaction.Sum !== UniMath.useFirstTwoDecimals(transaction.Amount * transaction.Rate);
     }
 }

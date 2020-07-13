@@ -10,7 +10,7 @@ import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-suggested-values.service';
 import {
     PayrollRun, WageType, SalaryTransaction, Employment, Dimensions, SalaryTransactionSupplement, WageTypeSupplement, LocalDate, Account
@@ -296,7 +296,7 @@ export class VariablePayrollsComponent {
     public getChangeCallback() {
         return (event) => {
             let row: SalaryTransaction = event.rowModel;
-            let obs: Observable<SalaryTransaction> = null;
+            let suggestions$: Observable<SalaryTransaction> = null;
 
             if (event.field === 'Employee') {
                 if (row['Employee']) {
@@ -316,7 +316,7 @@ export class VariablePayrollsComponent {
             }
 
             if (event.field === 'Amount' || event.field === 'Rate') {
-                this.calcItem(row);
+                this.salaryTransViewService.calculateTransaction(row);
             }
 
             if (event.field === 'VatType') {
@@ -326,7 +326,7 @@ export class VariablePayrollsComponent {
             if (event.field === '_Account') {
                 this.mapAccountToTrans(row);
                 this.mapVatToTrans(row);
-                obs = this.suggestVatType(row);
+                suggestions$ = this.suggestVatType(row);
             }
 
             if (event.field.startsWith('Dimensions')) {
@@ -350,20 +350,22 @@ export class VariablePayrollsComponent {
             }
 
             if ((event.field === 'Wagetype' || event.field === 'employment') || (event.field === 'Employee' && row.Wagetype)) {
-                obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
+                suggestions$ = suggestions$ ? suggestions$.switchMap(this.fillIn) : this.fillIn(row);
             }
 
             if (event.field === '_Account' || event.field === 'Wagetype') {
-                obs = obs ? obs.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
+                suggestions$ = suggestions$ ? suggestions$.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
             }
 
-            if (obs && !this.toggle) {
-                obs
-                    .take(1)
-                    .map(trans => this.calcItem(trans))
-                    .subscribe(trans => this.updateSalaryChanged(trans, !this.toggle));
+            if (suggestions$ && !this.toggle) {
+                suggestions$
+                    .pipe(
+                        take(1),
+                        map(salaryTransaction => this.salaryTransViewService.calculateTransaction(salaryTransaction))
+                    )
+                    .subscribe(salaryTrnsaction => this.updateSalaryChanged(salaryTrnsaction, !this.toggle));
             } else if (this.toggle) {
-                row = this.calcItem(row);
+                row = this.salaryTransViewService.calculateTransaction(row);
             } else {
                 this.updateSalaryChanged(row);
             }
@@ -745,18 +747,6 @@ export class VariablePayrollsComponent {
             rowModel.VatType = null;
             rowModel.VatTypeID = null;
         }
-    }
-
-    private calcItem(rowModel: SalaryTransaction): SalaryTransaction {
-        let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
-        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
-        decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
-        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        const sum =
-            (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
-            / (amountPrecision * ratePrecision);
-        rowModel['Sum'] = sum;
-        return rowModel;
     }
 
     private checkDates(rowModel) {
