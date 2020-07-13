@@ -68,6 +68,7 @@ import { RegulativeImportComponent } from './components/regulative-import/regula
         SalaryBalanceSummaryComponent,
         SalaryTransSupplementModalComponent,
         SyncWagetypesModalComponent,
+        RegulativeImportComponent,
     ],
     providers: [
         EmployeeCategoryService,
