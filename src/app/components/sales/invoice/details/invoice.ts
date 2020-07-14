@@ -645,10 +645,6 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice.CurrencyCodeID == null) {
-            invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
-        }
-
         if (invoice['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
             this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
