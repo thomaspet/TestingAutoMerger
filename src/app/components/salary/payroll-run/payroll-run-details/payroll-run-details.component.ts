@@ -185,7 +185,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
 
             payrollRunSubject
                 .pipe(
-                    tap(() => this.updateSum(this.payrollrunID).subscribe()),
+                    tap(() => this.updateSum(this.payrollrunID)),
                 )
                 .do((payrollRun: PayrollRun) => {
                     if (!this.journalEntry && payrollRun.JournalEntryNumber) {
@@ -463,19 +463,9 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
     }
 
     private updateSum(runID: number) {
-        return Observable
-            .of(runID)
-            .pipe(
-                filter(id => !!id),
-                switchMap(id => this.statisticsService
-                    .GetAll(
-                        `model=SalaryTransaction`
-                    +   `&select=sum(Sum) as sum`
-                    +   `&filter=Wagetype.Base_Payment ne 0 and PayrollRunID eq ${id}`
-                    +   `&expand=Wagetype`)),
-                map(res => res.Data[0] && res.Data[0].sum),
-                tap(sum => this.paymentSum = sum),
-            );
+        this.payrollrunDataService
+            .getSalaryPayBase(runID)
+            .subscribe(sum => this.paymentSum = sum);
     }
 
     private getSaveActions(payrollRun: PayrollRun): IUniSaveAction[] {
