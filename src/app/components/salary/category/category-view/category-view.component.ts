@@ -1,7 +1,7 @@
-import {Component, OnDestroy} from '@angular/core';
-import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
-import {Observable, forkJoin, BehaviorSubject, of as observableOf, Subject} from 'rxjs';
-import {map, switchMap, finalize, catchError, tap} from 'rxjs/operators';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { Observable, forkJoin, BehaviorSubject, of as observableOf, Subject, of } from 'rxjs';
+import { map, switchMap, finalize, catchError, tap, filter } from 'rxjs/operators';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
 import { EmployeeOnCategoryService } from '@app/components/salary/shared/services/category/employee-on-category.service';
 import { UniView, ISaveObject } from '@uni-framework/core/uniView';
@@ -11,7 +11,7 @@ import { IUniSaveAction } from '@uni-framework/save/save';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniCacheService, ErrorService, EmployeeService } from '@app/services/services';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
-import { CategoryViewService } from '@app/components/salary/category/shared/services/category-view.service';
+import { CategoryViewService } from '@app/components/salary/category/services/category-view.service';
 
 const EMP_CAT_LINKS_KEY = 'employeeCategoryLinks';
 const EMP_CAT_KEY = 'employeecategory';
@@ -36,11 +36,11 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
     public childRoutes: any[];
 
     constructor(
+        public cacheService: UniCacheService,
         private route: ActivatedRoute,
         private categoryService: EmployeeCategoryService,
         private router: Router,
         private tabService: TabService,
-        public cacheService: UniCacheService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private categoryViewService: CategoryViewService,
@@ -56,7 +56,7 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
 
         this.saveActions = [{
             label: 'Lagre',
-            action: done => this.saveAll(done),
+            action: this.save.bind(this),
             main: true,
             disabled: true
         }];
@@ -100,7 +100,7 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
         this.router.events.takeUntil(this.destroy$).subscribe((event: any) => {
             if (event instanceof NavigationEnd) {
                 if (!this.currentCategory) {
-                    this.getCategory();
+                    this.setCategory();
                 }
                 this.getEmployeeCategoryLinks(this.categoryID);
             }
@@ -108,34 +108,26 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
 
     }
 
-    public ngOnDestroy() {
+    public ngOnDestroy(): void {
         this.destroy$.next();
     }
 
     public canDeactivate(): Observable<boolean> {
-        if (this.saveComplete) {
-            return Observable.of(this.saveComplete);
-        }
-
-        return Observable
-            .of(super.isDirty())
-            .switchMap(dirty => dirty
-                ? this.modalService.openUnsavedChangesModal().onClose
-                : Observable.of(ConfirmActions.REJECT))
-            .map(result => {
-                if (result === ConfirmActions.ACCEPT) {
-                    this.saveAll(m => {}, false);
+        return this.saveComplete ? Observable.of(this.saveComplete)
+        : Observable.of(!!super.isDirty()).pipe(
+            switchMap(dirty => dirty ? this.modalService.openUnsavedChangesModal().onClose : Observable.of(ConfirmActions.REJECT)),
+            switchMap((canSave: ConfirmActions) => {
+                if (canSave === ConfirmActions.ACCEPT) {
+                    return this.saveAll(false);
                 }
-
-                return result !== ConfirmActions.CANCEL;
-            })
-            .map(allowed => {
-                if (allowed) {
+                return of(canSave === ConfirmActions.REJECT);
+            }),
+            tap(x => {
+                if (x) {
                     this.cacheService.clearPageCache(this.cacheKey);
                 }
-
-                return allowed;
-            });
+            })
+        );
     }
 
     private updateTabStrip(categoryID, category: EmployeeCategory) {
@@ -156,21 +148,26 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
         }
     }
 
-    private saveAll(done: (message: string) => void, updateView = true) {
+    private save(done: (message: string) => void): void {
+        this.saveAll().subscribe(
+            (x) => x ? done('lagring fullført') : done('Lagring feilet.'),
+            (error) => {
+                this.errorService.handle(error);
+                done('Lagring feilet.');
+            }
+        );
+    }
+
+    private saveAll(updateView = true): Observable<boolean> {
         if (this.currentCategory && !this.currentCategory.Name) {
-            return done('Lagring feilet. Sett navn på kategori');
+            return of(false);
         }
 
-        this.getSubSaveObjects()
+        return this.getSubSaveObjects()
             .pipe(
-                switchMap(saveObj => this.saveAllObs(done, updateView, saveObj.filter(x => x.dirty))),
-                finalize(() => done('lagring fullført')),
-                catchError((err, obs) => {
-                    done('Lagring feilet');
-                    return this.errorService.handleRxCatch(err, obs);
-                })
-            )
-            .subscribe();
+                switchMap(saveObj => this.saveAllObs(updateView, saveObj.filter(x => x.dirty))),
+                switchMap(() => of(true))
+            );
     }
 
     private getSubSaveObjects(): Observable<ISaveObject[]> {
@@ -179,7 +176,7 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
         );
     }
 
-    private saveAllObs(done: (message: string) => void, updateView: boolean, saveSubObjects: ISaveObject[]): Observable<any[]> {
+    private saveAllObs(updateView: boolean, saveSubObjects: ISaveObject[]): Observable<any[]> {
 
         return this.getSaveObject(EMP_CAT_KEY)
             .pipe(
@@ -210,9 +207,8 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
                     super.updateState(EMP_CAT_KEY, cat, false);
                     const childRoute = this.router.url.split('/').pop();
                     this.saveComplete = true;
-                    done('lagring fullført');
-                    this.saveActions[0].disabled = true;
                     this.router.navigateByUrl(this.url + cat.ID + '/' + childRoute);
+                    this.saveActions[0].disabled = true;
                 })
             );
     }
@@ -239,7 +235,7 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
             : this.categoryService.Post(category);
     }
 
-    private checkDirty() {
+    private checkDirty(): void {
         if (super.isDirty()) {
             this.saveActions[0].disabled = false;
         } else {
@@ -247,7 +243,7 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
         }
     }
 
-    private getCategory() {
+    private setCategory(): void {
         this.categoryService.getCategory(this.categoryID).subscribe((category: EmployeeCategory) => {
             this.currentCategory = category;
             super.updateState('employeecategory', category, false);
@@ -265,47 +261,52 @@ export class CategoryViewComponent extends UniView implements OnDestroy {
             .subscribe(empLinks => super.updateState(EMP_CAT_LINKS_KEY, empLinks));
     }
 
-    public previousCategory() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.categoryService.getPrevious(this.currentCategory.ID)
-                    .subscribe((prev: EmployeeCategory) => {
-                        if (prev) {
-                            this.currentCategory = prev;
-                            const childRoute = this.router.url.split('/').pop();
-                            this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute);
-                        }
-                    }, err => this.errorService.handle(err));
-            }
-        });
-    }
-
-    public nextCategory() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.categoryService.getNext(this.currentCategory.ID)
-                    .subscribe((next: EmployeeCategory) => {
-                        if (next) {
-                            this.currentCategory = next;
-                            const childRoute = this.router.url.split('/').pop();
-                            this.router.navigateByUrl(this.url + next.ID + '/' + childRoute);
-                        }
-                    }, err => this.errorService.handle(err));
-            }
-        });
-    }
-
-    public newCategory() {
-        this.canDeactivate().subscribe(canDeactivate => {
-            if (canDeactivate) {
-                this.categoryService.GetNewEntity([''], 'employeecategory').subscribe((response) => {
-                    if (response) {
-                        this.currentCategory = response;
-                        const childRoute = this.router.url.split('/').pop();
-                        this.router.navigateByUrl(this.url + response.ID + '/' + childRoute);
+    public previousCategory(): void {
+        this.categoryService.getPrevious(this.currentCategory.ID).pipe(
+            filter((category: EmployeeCategory) => !!category)
+        ).subscribe(
+            (prev: EmployeeCategory) => {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentCategory = prev;
                     }
-                }, err => this.errorService.handle(err));
-            }
-        });
+                });
+            },
+            (error) => {
+                this.errorService.handle(error);
+            });
+    }
+
+    public nextCategory(): void {
+        this.categoryService.getNext(this.currentCategory.ID).pipe(
+            filter((category: EmployeeCategory) => !!category)
+        ).subscribe(
+            (next: EmployeeCategory) => {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + next.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentCategory = next;
+                    }
+                });
+            },
+            (error) => {
+                this.errorService.handle(error);
+            });
+    }
+
+    public newCategory(): void {
+        this.categoryService.GetNewEntity([''], 'employeecategory').subscribe(
+            (category: EmployeeCategory) => {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + category.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentCategory = category;
+                    }
+                });
+            },
+            (error) => {
+                this.errorService.handle(error);
+            });
     }
 }

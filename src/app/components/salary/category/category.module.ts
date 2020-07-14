@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { SalarySharedModule } from '../shared/salary-shared.module';
-import { CategoryViewComponent } from './category-view.component';
-import { CategoryListComponent } from './category-list.component';
-import { CategoryDetailComponent } from './views/category-details.component';
-import { CategoryViewService } from './shared/services/category-view.service';
+import { CategoryViewComponent } from './category-view/category-view.component';
+import { CategoryListComponent } from './category.component';
+import { CategoryDetailComponent } from './category-details/category-details.component';
+import { CategoryViewService } from './services/category-view.service';
 
 @NgModule({
     imports: [

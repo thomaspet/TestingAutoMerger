@@ -11,7 +11,7 @@ import { SalaryTransactionSelectionListComponent } from './salary-transaction/sa
 import { PaycheckMailOptionsComponent } from './sending/paycheck-mail-options/paycheck-mail-options.component';
 import { PaycheckSenderModalComponent } from './sending/paycheck-sender-modal.component';
 import { PaycheckSendingComponent } from './sending/paycheck-sending.component';
-import { PayrollRunDetailsComponent } from './payroll-run-details.component';
+import { PayrollRunDetailsComponent } from './payroll-run-details/payroll-run-details.component';
 import { PayrollRunListComponent } from './payroll-run-list.component';
 import { PayrollRunDetailsService } from './services/payroll-run-details.service';
 import { PayrollRunDataService } from './services/payroll-run-data.service';

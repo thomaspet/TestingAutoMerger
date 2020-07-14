@@ -121,52 +121,47 @@ export class SalaryBalanceTemplateViewComponent extends UniView {
     }
 
     public previousTemplate() {
-        this.canDeactivate()
-            .filter(canDeactivate => canDeactivate)
-            .switchMap(() => {
-                return this.salarybalanceTemplateService.getPrevious(
-                    this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
-                );
-            })
-            .subscribe((prev: SalaryBalanceTemplate) => {
-                if (prev) {
-                    this.currentTemplate = prev;
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(URL + prev.ID + '/' + childRoute);
-                }
-            }, err => this.errorService.handle(err));
+        return this.salarybalanceTemplateService.getPrevious(
+            this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
+        ).subscribe((prev: SalaryBalanceTemplate) => {
+            if (prev) {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(URL + prev.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentTemplate = prev;
+                    }
+                });
+            }
+        }, err => this.errorService.handle(err));
     }
 
     public nextTemplate() {
-        this.canDeactivate()
-            .filter(canDeactivate => canDeactivate)
-            .switchMap(() => {
-                return this.salarybalanceTemplateService.getNext(
-                    this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
-                );
-            })
-            .subscribe((next: SalaryBalanceTemplate) => {
-                if (next) {
-                    this.currentTemplate = next;
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(URL + next.ID + '/' + childRoute);
-                }
-            }, err => this.errorService.handle(err));
+        this.salarybalanceTemplateService.getNext(
+            this.currentTemplate.ID, ['Supplier.Info.DefaultBankAccount.AccountNumber']
+        ).subscribe((next: SalaryBalanceTemplate) => {
+            if (next) {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(URL + next.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentTemplate = next;
+                    }
+                });
+            }
+        }, err => this.errorService.handle(err));
     }
 
     public newTemplate() {
-        this.canDeactivate()
-            .filter(canDeactivate => canDeactivate)
-            .switchMap(() => {
-                return this.salarybalanceTemplateService.GetNewEntity([''], 'salarybalancetemplate');
-            })
-            .subscribe(response => {
-                if (response) {
-                    this.currentTemplate = response;
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(URL + response.ID + '/' + childRoute);
-                }
-            }, err => this.errorService.handle(err));
+        this.salarybalanceTemplateService.GetNewEntity([''], 'salarybalancetemplate').subscribe(response => {
+            if (response) {
+
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(URL + response.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.currentTemplate = response;
+                    }
+                });
+            }
+        }, err => this.errorService.handle(err));
     }
 
     private updateTab() {

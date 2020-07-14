@@ -1,8 +1,7 @@
-import {Component, ViewChild, SimpleChanges, OnDestroy} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Subject, BehaviorSubject} from 'rxjs';
-import * as _ from 'lodash';
-import {catchError, map} from 'rxjs/operators';
+import { Component, ViewChild, SimpleChanges, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Subject, BehaviorSubject } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
 import { UniView } from '@uni-framework/core/uniView';
 import { EmployeeCategory, EmployeeCategoryLink, PayrollRun, Employee } from '@uni-entities';

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { PayrollRunListComponent } from './payroll-run-list.component';
-import { PayrollRunDetailsComponent } from './payroll-run-details.component';
+import { PayrollRunDetailsComponent } from './payroll-run-details/payroll-run-details.component';
 import { CanDeactivateGuard } from '@app/canDeactivateGuard';
 import { WagetypeSyncGuard } from '../wage-type/wage-type-sync.guard';
 

@@ -3,12 +3,12 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '@uni-framework/ui/unitable';
 import {ErrorService} from '@app/services/services';
 import {EmployeeCategory} from '@uni-entities';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
     selector: 'employeecategories',
-    templateUrl: './category-list.component.html',
+    templateUrl: './category.component.html',
 })
 export class CategoryListComponent implements OnInit {
     tableConfig: UniTableConfig;

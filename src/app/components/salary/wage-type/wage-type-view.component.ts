@@ -328,19 +328,19 @@ export class WageTypeViewComponent extends UniView implements OnDestroy, OnInit 
     }
 
     private rerouteToWageType(wageType$: Observable<WageType>) {
-        this.canDeactivate()
-            .pipe(
-                filter(canDeactivate => canDeactivate),
-                switchMap(() => wageType$),
+         wageType$.pipe(
                 filter(wagetype => !!wagetype),
                 switchMap(wt => this.setDefaultValuesIfNeeded(wt)),
                 switchMap(wt => this.wageTypeViewService.fillInLanguageIfNeeded(wt)),
             )
             .subscribe(wageType => {
-                this.wageType = wageType;
                 const childRoute = this.router.url.split('/').pop();
-                this.router
-                    .navigateByUrl(this.url + wageType.ID + '/' + childRoute);
+                this.router.navigateByUrl(this.url + wageType.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.wageType = wageType;
+                    }
+                }
+            );
             }, error => this.errorService.handle(error));
     }
 }
