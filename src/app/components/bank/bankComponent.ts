@@ -1379,9 +1379,22 @@ export class BankComponent {
             }).onClose.subscribe(response => {
                 if (response && response.action === ConfirmActions.ACCEPT) {
                     this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber, response.creditDate)
-                        .subscribe(() => {
-                            this.toastService.addToast('Kreditering utført', ToastType.good, ToastTime.short);
-                            this.tickerContainer.getFilterCounts();
+                        .subscribe(result => {
+                            if (result?.ProgressUrl) {
+                                this.toastService.addToast(
+                                    'Kreditering startet', ToastType.good, ToastTime.long,
+                                    'Det opprettes en jobb for krediteringen av bilaget. ' +
+                                    'Avhengig av antall linjer kan dette ta litt tid. Vennligst vent.'
+                                );
+
+                                this.journalEntryService.waitUntilJobCompleted(result.ID).subscribe(() => {
+                                    this.displayCreditJournalEntryDoneToast();
+                                },
+                                err => this.errorService.handle(err)
+                                );
+                            } else {
+                                this.displayCreditJournalEntryDoneToast();
+                            }
                             res();
                         }, err => {
                             this.errorService.handle(err);
@@ -1392,6 +1405,16 @@ export class BankComponent {
                 }
             });
         });
+    }
+
+    private displayCreditJournalEntryDoneToast() {
+        this.toastService.addToast(
+            'Kreditering utført',
+            ToastType.good,
+            ToastTime.short
+            );
+
+        this.tickerContainer.getFilterCounts();
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {
