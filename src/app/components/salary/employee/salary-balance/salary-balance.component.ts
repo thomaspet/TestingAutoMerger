@@ -79,6 +79,7 @@ export class SalaryBalanceComponent extends UniView implements OnInit {
 
     public onSalarybalanceChange(salarybalance: SalaryBalance) {
         salarybalance['_isDirty'] = true;
+        salarybalance[SELECTED_KEY] = true;
         let index = 0;
         if (this.salarybalances && this.salarybalances.length > 0) {
             index = this.salarybalances.findIndex((salbal) => {
