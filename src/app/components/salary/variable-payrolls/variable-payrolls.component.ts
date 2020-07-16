@@ -199,7 +199,7 @@ export class VariablePayrollsComponent {
     }
 
     public editSalaryTransaction(row: any) {
-        const config = new UniTableConfig('salary.salarytrans.list', true, false, 20)
+        const config = new UniTableConfig('salary.salarytrans.edit.list', true, false, 20)
         .setColumns(this.getColumns(false))
         .setAutoAddNewRow(false)
         .setContextMenu(this.getContextMenu())
@@ -216,7 +216,6 @@ export class VariablePayrollsComponent {
             },
             closeOnClickOutside: false
         };
-
         this.modalService.open(SalaryTransactionModalComponent, options).onClose.subscribe(result => {
             if (result) {
                 this.table.refreshTableData();
@@ -257,8 +256,8 @@ export class VariablePayrollsComponent {
             params = params.set('filter', filterString);
             params = params.set('select',
                 'ID as ID,Account as Account,Amount as Amount,Text as Text,IsRecurringPost,SalaryBalanceID,SystemType,'
-                + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,WageType.WageTypeNumber as WageTypeNumber,'
-                + 'WageType.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
+                + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,Wagetype.WageTypeNumber as WageTypeNumber,'
+                + 'Wagetype.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
                 + 'Employee.EmployeeNumber as EmployeeNumber,Project.ProjectNumber as ProjectNumber,Project.Name as ProjectName,'
                 + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
                 + `FileEntityLink.EntityType`);
@@ -557,7 +556,7 @@ export class VariablePayrollsComponent {
             });
 
         const payoutCol =
-        readOnly ? new UniTableColumn('WageType.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
+        readOnly ? new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate(dataItem => dataItem && dataItem.BasePayment ? 'Ja' : 'Nei')
             .setWidth('5.3rem')
             .setAlias('BasePayment')
@@ -567,7 +566,7 @@ export class VariablePayrollsComponent {
         }).setWidth('5.3rem');
 
         const wageTypeCol = readOnly
-        ? new UniTableColumn('WageType.WageTypeNumber', 'Lønnsart', UniTableColumnType.Text).setAlias('WageTypeNumber')
+        ? new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', UniTableColumnType.Text).setAlias('WageTypeNumber')
         : new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
             .setOptions({
