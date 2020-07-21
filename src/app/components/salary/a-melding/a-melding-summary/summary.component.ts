@@ -11,6 +11,7 @@ import { AMeldingService } from '@app/components/salary/a-melding/shared/service
 export class AmeldingSummaryViewComponent implements OnChanges {
     @Input() public currentSumUp: any;
     @Input() public currentAMelding: any;
+    @Input() public errorMessage: string;
     public employeeTableConfig: UniTableConfig;
     public leaveTableConfig: UniTableConfig;
     public transactionTableConfig: UniTableConfig;

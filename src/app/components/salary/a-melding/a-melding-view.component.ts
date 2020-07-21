@@ -1,9 +1,9 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus} from '../../../unientities';
+import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity} from '@uni-entities';
 import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
@@ -53,6 +53,7 @@ export class AMeldingViewComponent implements OnInit {
     public clarifiedDate: string = '';
     public submittedDate: string = '';
     public feedbackObtained: boolean = false;
+    public validationErrorMessage: string;
 
     public totalAGAFeedback: number = 0;
     public totalAGAFeedBackStr: string;
@@ -856,8 +857,14 @@ export class AMeldingViewComponent implements OnInit {
     }
 
     private sendAmelding(done) {
-        this._ameldingService.sendAMelding(this.currentAMelding.ID)
-        .subscribe((response: AmeldingData) => {
+        const [isValid, message] = this.validateAMelding(this.currentSumUp);
+        if (!isValid) {
+            this.validationErrorMessage = message;
+            done('Innsending avbrutt');
+            return;
+        }
+
+        this._ameldingService.sendAMelding(this.currentAMelding.ID).subscribe((response: AmeldingData) => {
             if (response) {
                 this.refresh(response);
                 if (this.currentAMelding.sent) {
@@ -870,6 +877,31 @@ export class AMeldingViewComponent implements OnInit {
             const msg = err.status === 500 ? 'Sjekk Altinn innstillinger, ' : '';
             done(msg + err.statusText);
         });
+    }
+
+    private validateAMelding(ameldingSumUp: AmeldingSumUp): [boolean, string] {
+        let errorMessages: string = '';
+        let isValid: boolean = true;
+        let employmentIDs: string = '';
+
+        if ((ameldingSumUp.period > 9 && ameldingSumUp.year > 2019) && (ameldingSumUp.entities?.length > 0)) {
+            ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
+                if (ameldingEntity.orgNumber === ameldingSumUp.LegalEntityNo) {
+                    isValid = false;
+                    ameldingEntity.employees.forEach((employee) => {
+                        employee.arbeidsforhold.forEach(employeement => {
+                            employmentIDs += employeement.arbeidsforholdId + ', ';
+                        });
+                    });
+                    errorMessages = 'Arbeidsforhold ' + employmentIDs
+                    + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
+                    + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '
+                    + 'virksomhet før du sender a-melding for oktober';
+                }
+            });
+        }
+
+        return [isValid, errorMessages];
     }
 
     private openAmeldingTypeModal(done) {
@@ -921,6 +953,7 @@ export class AMeldingViewComponent implements OnInit {
         this.aMeldingerInPeriod = [];
         this.currentSumsInPeriod = undefined;
         this.currentSumUp = undefined;
+        this.validationErrorMessage = null;
     }
 
     private spinner<T>(source: Observable<T>): Observable<T> {

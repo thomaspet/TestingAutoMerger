@@ -16,6 +16,10 @@
         <dt style="color: red">Validering av xml feilet</dt>
         <dd id="amelding_mainfile_validation_error_text">{{validationErrorsInAmelding}}</dd>
     </dl>
+    <dl class="amelding_summary_overview" *ngIf="!!errorMessage">
+        <dt style="color: red">Ugyldig virksomhet</dt>
+        <dd id="amelding_mainfile_validation_error_text">{{errorMessage}}</dd>
+    </dl>
 </section>
 
 <ul class="amelding_summary_sections" *ngIf="entitiesWithData">
