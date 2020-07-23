@@ -24,6 +24,7 @@ import { SalaryTransactionSuggestedValuesService } from './services/salary-trans
 import { SalaryTransactionSupplementService } from './services/salary-transaction/salary-transaction-supplement.service';
 import { SalaryTransactionViewService } from './services/salary-transaction/salary-transaction-view.service';
 import { RegulativeImportComponent } from './components/regulative-import/regulative-import.component';
+import { PayrollRunService } from './services/payroll-run/payroll-run.service';
 
 
 @NgModule({
@@ -79,6 +80,7 @@ import { RegulativeImportComponent } from './components/regulative-import/regula
         SalaryTransactionSuggestedValuesService,
         SalaryTransactionSupplementService,
         SalaryTransactionViewService,
+        PayrollRunService,
     ]
   })
   export class SalarySharedModule { }

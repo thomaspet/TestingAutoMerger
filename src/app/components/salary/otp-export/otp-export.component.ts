@@ -8,11 +8,12 @@ import { UniFieldLayout } from '@uni-framework/ui/uniform';
 import { FieldType } from '@uni-framework/ui/uniform/index';
 import { OTPFilterModalComponent } from './otp-filter-modal/otp-filter-modal.component';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { ErrorService, CompanySalaryService, PayrollrunService } from '@app/services/services';
+import { ErrorService, CompanySalaryService } from '@app/services/services';
 import { CompanySalary, TypeOfPaymentOtp } from '@uni-entities';
 import { Router } from '@angular/router';
 import { OTPPeriodWagetypeModalComponent } from './otp-period-wagetype-modal/otp-period-wagetype-modal.component';
 import { IUniInfoConfig } from '@uni-framework/uniInfo/uniInfo';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
   selector: 'uni-otpexport',
@@ -79,7 +80,7 @@ export class OTPExportComponent implements OnInit {
     private modalService: UniModalService,
     private errorService: ErrorService,
     private companySalaryService: CompanySalaryService,
-    private payrollrunService: PayrollrunService,
+    private payrollrunService: PayrollRunService,
     private router: Router,
   ) {
     tabService.addTab({

@@ -16,11 +16,12 @@ import {
     PayrollRun, WageType, SalaryTransaction, Employment, Dimensions, SalaryTransactionSupplement, WageTypeSupplement, LocalDate, Account
 } from '@uni-entities';
 import {
-    AccountService, UniCacheService, ErrorService, SalaryTransactionService, PayrollrunService, ProjectService, DepartmentService,
+    AccountService, UniCacheService, ErrorService, SalaryTransactionService, SharedPayrollRunService, ProjectService, DepartmentService,
     WageTypeService, EmployeeService, PageStateService, StatisticsService, AccountMandatoryDimensionService
 } from '@app/services/services';
 import { SalaryTransactionViewService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-view.service';
 import { SalaryTransactionModalComponent } from '@app/components/salary/variable-payrolls/salary-transaction-modal.component';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -60,7 +61,7 @@ export class VariablePayrollsComponent {
         private salaryTransViewService: SalaryTransactionViewService,
         private salaryTransService: SalaryTransactionService,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
-        private payrollrunService: PayrollrunService,
+        private sharedPayrollRunService: SharedPayrollRunService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private wageTypeService: WageTypeService,
@@ -71,7 +72,8 @@ export class VariablePayrollsComponent {
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private payrollRunService: PayrollRunService
     ) {
         this.tabService.addTab({
             name: 'Variable lønnsposter',
@@ -81,7 +83,7 @@ export class VariablePayrollsComponent {
         });
 
         Observable.forkJoin(
-            this.payrollrunService.getAll('filter=StatusCode eq 0 or StatusCode eq null&orderby=ID desc'),
+            this.sharedPayrollRunService.getAll('filter=StatusCode eq 0 or StatusCode eq null&orderby=ID desc'),
             this.wageTypeService.GetAll('orderBy=WageTypeNumber', ['SupplementaryInformations'])
         ).subscribe(([payrollruns, wageTypes]) => {
             this.payrollruns = payrollruns;
@@ -124,7 +126,7 @@ export class VariablePayrollsComponent {
         .map(trans => this.salaryTransViewService.prepareTransForSave(trans))
         .filter(row => !row['_isEmpty']);
 
-        this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
+        this.payrollRunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
 
             if (payrollrun.transactions) {

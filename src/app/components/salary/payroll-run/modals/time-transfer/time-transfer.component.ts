@@ -5,7 +5,8 @@ import {BehaviorSubject} from 'rxjs';
 import {LocalDate, WorkItemToSalary, WorkItem} from '@uni-entities';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
-import {ErrorService, PayrollrunService} from '@app/services/services';
+import {ErrorService} from '@app/services/services';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
     selector: 'uni-time-transfer',
@@ -28,7 +29,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
 
     constructor(
         private errorService: ErrorService,
-        private payrollrunService: PayrollrunService,
+        private payrollRunService: PayrollRunService,
         private modalService: UniModalService
     ) {}
 
@@ -46,7 +47,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
     private getData(todate?: LocalDate) {
         this.busy = true;
         this.data = [];
-        this.payrollrunService
+        this.payrollRunService
             .getTimeToTransfer(this.options.data.ID, todate)
             .finally(() => this.busy = false)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
@@ -165,7 +166,7 @@ export class TimeTransferComponent implements OnInit, IUniModal {
             .filter(response => response === ConfirmActions.ACCEPT)
             .switchMap(response => {
                 this.busy = true;
-                return this.payrollrunService
+                return this.payrollRunService
                     .createTimeTransactions(
                         this.options.data.ID,
                         this.getSelectedWorkItemIDs())

@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, SimpleChanges } from '@angular/core';
 import { IUniModal } from '@uni-framework/uni-modal';
 import { PayrollRun } from '@uni-entities';
-import { PayrollrunService, ErrorService, FinancialYearService } from '../../../../services/services';
+import { SharedPayrollRunService, ErrorService, FinancialYearService } from '@app/services/services';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/index';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -45,7 +45,7 @@ export class OTPFilterModalComponent implements OnInit, IUniModal {
   }
 
   constructor(
-    private payrollrunService: PayrollrunService,
+    private sharedPayrollRunService: SharedPayrollRunService,
     private financialYearService: FinancialYearService,
     private errorService: ErrorService
   ) {
@@ -129,7 +129,7 @@ export class OTPFilterModalComponent implements OnInit, IUniModal {
   private getData() {
     this.busy = true;
     const filter: string = `filter=year(PayDate) eq ${this.currentYear}`;
-    this.payrollrunService
+    this.sharedPayrollRunService
       .getAll(`${filter} &orderby=ID desc`)
       .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
       .finally(() => this.busy = false)

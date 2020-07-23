@@ -3,11 +3,12 @@ import {Router} from '@angular/router';
 import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../framework/ui/unitable/index';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {PayrollRun} from '../../../unientities';
-import {PayrollrunService, ErrorService} from '../../../services/services';
+import { SharedPayrollRunService, ErrorService } from '@app/services/services';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
     selector: 'payrollrun-list',
-    templateUrl: './payroll-run-list.component.html'
+    templateUrl: './payroll-run.component.html'
 })
 export class PayrollRunListComponent implements OnInit {
     payrollrunListConfig: UniTableConfig;
@@ -23,13 +24,14 @@ export class PayrollRunListComponent implements OnInit {
     constructor(
         private router: Router,
         private tabService: TabService,
-        private payrollService: PayrollrunService,
-        private errorService: ErrorService
+        private sharedPayrollRunService: SharedPayrollRunService,
+        private errorService: ErrorService,
+        private payrollRunService: PayrollRunService,
     ) {}
 
     public ngOnInit() {
         this.createTableConfig();
-        this.payrollService.getAll(`orderby=ID desc`, true).subscribe(
+        this.sharedPayrollRunService.getAll(`orderby=ID desc`, true).subscribe(
             res => this.payrollRuns = res,
             err => this.errorService.handle(err)
         );
@@ -63,14 +65,14 @@ export class PayrollRunListComponent implements OnInit {
         const nameCol = new UniTableColumn('Description', 'Navn', UniTableColumnType.Text);
         const statusCol = new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Text)
             .setTemplate((payrollRun) => {
-                const status = this.payrollService.getStatus(payrollRun);
+                const status = this.payrollRunService.getStatus(payrollRun);
                 return status.text;
             });
         const payStatusCol = new UniTableColumn(
-            this.payrollService.payStatusProp,
+            this.sharedPayrollRunService.payStatusProp,
             'Betalingsstatus',
             UniTableColumnType.Text)
-            .setTemplate((payrollRun) => this.payrollService.GetPaymentStatusText(payrollRun));
+            .setTemplate((payrollRun) => this.payrollRunService.GetPaymentStatusText(payrollRun));
 
         const paydateCol = new UniTableColumn('PayDate', 'Utbetalingsdato', UniTableColumnType.LocalDate);
         const fromdateCol = new UniTableColumn('FromDate', 'Fra dato', UniTableColumnType.LocalDate);

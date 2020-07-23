@@ -1,6 +1,6 @@
 import {Component, OnInit, EventEmitter, Output, Input, OnChanges, SimpleChanges} from '@angular/core';
 import {Travel, PayrollRun, state, costtype} from '@uni-entities';
-import {PayrollrunService} from '@app/services/services';
+import {SharedPayrollRunService} from '@app/services/services';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {BehaviorSubject} from 'rxjs';
 import {ReplaySubject} from 'rxjs';
@@ -36,7 +36,7 @@ export class TravelFilterComponent implements OnInit, OnChanges {
     public runs$: ReplaySubject<PayrollRun[]> = new ReplaySubject(1);
     public selectedRun: PayrollRun;
 
-    constructor(private payrollRunService: PayrollrunService) {}
+    constructor(private payrollRunService: SharedPayrollRunService) {}
 
     public ngOnInit() { }
 

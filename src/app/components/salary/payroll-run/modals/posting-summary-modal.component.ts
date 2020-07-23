@@ -7,17 +7,18 @@ import {
     JournalEntryLine, JournalEntryLineDraft, CompanySalary, SummaryJobStatus, PostingSummaryDraft,
 } from '../../../../unientities';
 import {
-    PayrollrunService,
+    SharedPayrollRunService,
     ErrorService,
     NumberSeriesService,
     BrowserStorageService,
     JournalEntryService,
     SalaryBookingType,
-} from '../../../../services/services';
+} from '@app/services/services';
 import * as moment from 'moment';
 import {BehaviorSubject, Observable, Subject} from 'rxjs';
 import {Router} from '@angular/router';
 import {switchMap, map, repeatWhen, skipWhile, take, tap, catchError, takeUntil, finalize, filter} from 'rxjs/operators';
+import { PayrollRunService } from '../../shared/services/payroll-run/payroll-run.service';
 const NUMBER_SERIES_KEY = 'numberSeriesID_salaryBooking';
 interface IBookingModel {
     date: LocalDate;
@@ -59,12 +60,13 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
     private state: SummaryJobStatus;
 
     constructor(
-        private payrollService: PayrollrunService,
+        private payrollRunService: PayrollRunService,
         private errorService: ErrorService,
         private numberseriesService: NumberSeriesService,
         private browserStorageService: BrowserStorageService,
         private journalEntryService: JournalEntryService,
         private router: Router,
+        private sharedPayrollRunService: SharedPayrollRunService,
     ) {}
 
     public ngOnInit() {
@@ -94,7 +96,7 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
     }
 
     private getDefaultNumberSeries(): Observable<number> {
-        return this.payrollService
+        return this.sharedPayrollRunService
             .getAll(`filter=StatusCode eq 5&orderby=PayDate desc&top=1`)
             .filter(run => run && !!run.length)
             .map(run => run[0])
@@ -162,7 +164,7 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
         this.formModel$
             .pipe(
                 take(1),
-                switchMap(model => this.payrollService.generateDraft(this.payrollrunID, model.bookingType)),
+                switchMap(model => this.payrollRunService.generateDraft(this.payrollrunID, model.bookingType)),
                 switchMap(() => this.getPostingSummary(this.payrollrunID)),
             )
             .subscribe(
@@ -186,8 +188,8 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
 
         this.busy = true;
         this.jobBusy = true;
-        this.payrollService.invalidateCache();
-        return this.payrollService
+        this.payrollRunService.invalidateCache();
+        return this.sharedPayrollRunService
             .getPostingSummaryDraft(payrollRunID)
             .pipe(
                 repeatWhen(draft => draft.debounceTime(2000)),
@@ -280,7 +282,7 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
         const bookingType = model.bookingType;
         this.cacheNumberSeriesID(model);
 
-        this.payrollService
+        this.payrollRunService
             .postTransactions(this.payrollrunID, date, numberseriesID)
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .do((response) => {

@@ -3,9 +3,9 @@ import { Employee } from '@uni-entities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniTableConfig, UniTableColumn } from '@uni-framework/ui/unitable';
 import { IUniTab } from '@uni-framework/uni-tabs';
-import { PayrollrunService, StatisticsService, ErrorService } from '@app/services/services';
-import { SalaryHelperMethodsService } from '@app/components/salary/payroll-run/services/salary-helper-methods.service';
-import {EmailService} from '@app/services/common/emailService';
+import { StatisticsService, ErrorService } from '@app/services/services';
+import { EmailService } from '@app/services/common/emailService';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 export enum PaycheckFormat {
     E_MAIL = 'E-post',
     PRINT = 'Utskrift'
@@ -32,9 +32,8 @@ export class PaycheckSendingComponent implements OnInit {
     tabs: IUniTab[];
 
     constructor(
-        private payrollrunService: PayrollrunService,
+        private payrollRunService: PayrollRunService,
         private statisticsService: StatisticsService,
-        private salaryHelper: SalaryHelperMethodsService,
         private errorService: ErrorService,
         private emailService: EmailService
     ) {}
@@ -74,7 +73,7 @@ export class PaycheckSendingComponent implements OnInit {
 
     private loadEmployeesInPayrollrun() {
         this.busy.next(true);
-        this.payrollrunService.getEmployeesOnPayroll(
+        this.payrollRunService.getEmployeesOnPayroll(
             this.runID, ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail']
         ).subscribe((employees: Employee[]) => {
             employees.forEach(employee => {

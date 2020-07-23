@@ -1,9 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {BehaviorSubject, Observable, of} from 'rxjs';
-import {BrowserStorageService, ReportDefinitionService, CompanySettingsService, IPaycheckEmailInfo, ReportNames} from '@app/services/services';
+import {BrowserStorageService, ReportDefinitionService, CompanySettingsService, ReportNames} from '@app/services/services';
 import {ReportDefinition, CompanySettings} from '@uni-entities';
 import {map, tap} from 'rxjs/operators';
+import { IPaycheckEmailInfo } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 const DEFAULT_OPTIONS_KEY = 'Default_Paycheck_Options';
 

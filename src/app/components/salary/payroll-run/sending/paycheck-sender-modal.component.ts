@@ -2,11 +2,12 @@ import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angula
 import {PaycheckSendingComponent, PaycheckFormat} from './paycheck-sending.component';
 import {IUniModal, IModalOptions, UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {Observable} from 'rxjs';
-import {ErrorService, PayrollrunService, ReportDefinitionService, IPaycheckEmailInfo} from '@app/services/services';
+import {ErrorService} from '@app/services/services';
 import {ToastTime, ToastType, ToastService} from '@uni-framework/uniToast/toastService';
 import {Employee, ReportDefinition} from '@uni-entities';
 import {filter, tap, switchMap, catchError, finalize, map} from 'rxjs/operators';
 import {ComboButtonAction} from '@uni-framework/ui/combo-button/combo-button';
+import { PayrollRunService, IPaycheckEmailInfo } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
     selector: 'paycheck-sender-modal',
@@ -26,9 +27,8 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
     constructor(
         private errorService: ErrorService,
         private modalService: UniModalService,
-        private payrollRunService: PayrollrunService,
+        private payrollRunService: PayrollRunService,
         private toastService: ToastService,
-        private reportdefinitionService: ReportDefinitionService,
     ) { }
 
     public ngOnInit() {

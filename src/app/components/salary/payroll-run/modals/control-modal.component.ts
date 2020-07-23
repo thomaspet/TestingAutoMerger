@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {
-    SalaryTransactionService, PayrollrunService, ErrorService, NumberFormat, VacationpayLineService, StatisticsService
+    SalaryTransactionService, ErrorService, NumberFormat, VacationpayLineService, StatisticsService
 } from '@app/services/services';
 import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '@uni-entities';
 import {BehaviorSubject, Subject, ReplaySubject, Observable, of} from 'rxjs';
@@ -12,6 +12,7 @@ import { PayrollRunDataService } from '@app/components/salary/payroll-run/servic
 import { IUniModal, IModalOptions, UniModalService, UniConfirmModalV2, ConfirmActions } from '@uni-framework/uni-modal';
 import { UniTableConfig, UniTableColumnType, UniTableColumn } from '@uni-framework/ui/unitable';
 import { SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 interface PaylistSection {
     employeeInfo: {
@@ -55,7 +56,7 @@ export class ControlModalComponent implements OnInit, IUniModal, OnDestroy {
 
     constructor(
         private salaryTransactionService: SalaryTransactionService,
-        private payrollRunService: PayrollrunService,
+        private payrollRunService: PayrollRunService,
         private router: Router,
         private errorService: ErrorService,
         private salarySumsService: SalarySumsService,
@@ -63,7 +64,7 @@ export class ControlModalComponent implements OnInit, IUniModal, OnDestroy {
         private vacationPayService: VacationpayLineService,
         private statisticsService: StatisticsService,
         private payrollRunDataService: PayrollRunDataService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
     ) {
         this.description$ = new ReplaySubject<string>(1);
      }

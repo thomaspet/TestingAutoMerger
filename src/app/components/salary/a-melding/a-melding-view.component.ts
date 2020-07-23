@@ -14,7 +14,7 @@ import {
     FinancialYearService,
     NumberFormat,
     PageStateService,
-    PayrollrunService,
+    SharedPayrollRunService,
     ReportDefinitionService,
     AltinnAuthenticationService
 } from '@app/services/services';
@@ -34,6 +34,7 @@ import { ReconciliationModalComponent } from './reconciliation-modal/reconciliat
 import { tap, filter, switchMap } from 'rxjs/operators';
 import { ITaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
 import { AMeldingService } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
     selector: 'amelding-view',
@@ -138,7 +139,6 @@ export class AMeldingViewComponent implements OnInit {
         private _tabService: TabService,
         private _ameldingService: AMeldingService,
         private _toastService: ToastService,
-        private _payrollService: PayrollrunService,
         private _salarySumsService: SalarySumsService,
         private financialYearService: FinancialYearService,
         private numberformat: NumberFormat,
@@ -150,6 +150,7 @@ export class AMeldingViewComponent implements OnInit {
         private companySalaryService: CompanySalaryService,
         private pageStateService: PageStateService,
         private altinnAuthService: AltinnAuthenticationService,
+        private payrollRunService: PayrollRunService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
@@ -219,7 +220,7 @@ export class AMeldingViewComponent implements OnInit {
 
         // Dont get periode if periode is set as queryparams
         if (!this.currentPeriod) {
-            this._payrollService.getLatestSettledPeriod(1, this.activeYear)
+            this.payrollRunService.getLatestSettledPeriod(1, this.activeYear)
             .subscribe(period => {
                 this.currentPeriod = period;
                 this.currentMonth = moment.months()[this.currentPeriod - 1];

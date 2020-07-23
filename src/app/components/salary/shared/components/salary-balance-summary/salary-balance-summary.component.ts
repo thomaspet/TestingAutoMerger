@@ -8,7 +8,8 @@ import {BehaviorSubject} from 'rxjs';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { SalaryBalance, SalaryBalanceLine, SalBalType, SalaryTransaction, Employee, PayrollRun } from '@uni-entities';
 import { UniTable, UniTableConfig, UniTableColumn, UniTableColumnType, IRowChangeEvent } from '@uni-framework/ui/unitable';
-import { SalaryBalanceLineService, ErrorService, SalaryTransactionService, EmployeeService, PayrollrunService } from '@app/services/services';
+import { SalaryBalanceLineService, ErrorService, SalaryTransactionService, EmployeeService } from '@app/services/services';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 @Component({
     selector: 'uni-salary-balance-summary',
@@ -36,7 +37,7 @@ export class SalaryBalanceSummaryComponent implements OnInit, OnChanges {
         private errorService: ErrorService,
         private salarytransactionService: SalaryTransactionService,
         private employeeService: EmployeeService,
-        private payrollrunService: PayrollrunService
+        private payrollRunService: PayrollRunService
     ) {
         this.salarybalanceLinesModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
         this.tableModel$ = new BehaviorSubject<SalaryBalanceLine[]>([]);
@@ -192,7 +193,7 @@ export class SalaryBalanceSummaryComponent implements OnInit, OnChanges {
         const statusCol = new UniTableColumn('_payrollrun', 'Status', UniTableColumnType.Text, false)
             .setTemplate((row: SalaryBalanceLine) => {
                 const run: PayrollRun = row['_payrollrun'];
-                const status = this.payrollrunService.getStatus(run);
+                const status = this.payrollRunService.getStatus(run);
                 return run ? `${status.text}` : '';
             });
 

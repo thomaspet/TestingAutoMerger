@@ -8,7 +8,6 @@ import {
     ReportDefinitionParameterService,
     ErrorService,
     FinancialYearService,
-    PayrollrunService
 } from '@app/services/services';
 
 type ModalConfig = {
@@ -26,7 +25,6 @@ export class VacationPayBaseReportFilterModalContent implements OnInit {
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<{ Yer: number }> = new BehaviorSubject({ Yer: new Date().getFullYear() });
     constructor(
-        private payrollRunService: PayrollrunService,
         private financialYearService: FinancialYearService
     ) { }
 

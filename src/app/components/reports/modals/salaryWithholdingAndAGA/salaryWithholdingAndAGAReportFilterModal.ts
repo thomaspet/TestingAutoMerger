@@ -4,7 +4,7 @@ import {ReportDefinition, ReportDefinitionParameter} from '@uni-entities';
 import {
     ReportDefinitionParameterService,
     ErrorService,
-    PayrollrunService,
+    SharedPayrollRunService,
     BrowserStorageService
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
@@ -39,7 +39,7 @@ export class SalaryWithholdingAndAGAReportFilterModalContent implements OnInit {
     new BehaviorSubject({FromPeriod: null, ToPeriod: null, Year: null, rememberChoice: false, isTerm: null});
 
     constructor(
-        private payrollRunService: PayrollrunService,
+        private payrollRunService: SharedPayrollRunService,
         private browserStorage: BrowserStorageService,
     ) {}
 

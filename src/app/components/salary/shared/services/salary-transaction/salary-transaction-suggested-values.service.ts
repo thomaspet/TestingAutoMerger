@@ -2,14 +2,14 @@ import {Injectable} from '@angular/core';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import {VatTypeService} from '@app/services/accounting/vatTypeService';
-import { PayrollrunService, EmploymentService } from '@app/services/services';
+import { EmploymentService, SharedPayrollRunService } from '@app/services/services';
 import { SalaryTransaction, LocalDate } from '@uni-entities';
 
 @Injectable()
 export class SalaryTransactionSuggestedValuesService {
 
     constructor(
-        private payrollRunService: PayrollrunService,
+        private sharedPayrollRunService: SharedPayrollRunService,
         private employmentService: EmploymentService,
         private vatTypeService: VatTypeService,
     ) { }
@@ -22,7 +22,7 @@ export class SalaryTransactionSuggestedValuesService {
             : this.employmentService.getStandardEmployment(salaryTransaction.EmployeeID);
         return Observable
             .forkJoin(
-                this.payrollRunService
+                this.sharedPayrollRunService
                     .getEarliestOpenRunOrLatestSettled(),
                 employmentObs)
             .map((result) => {

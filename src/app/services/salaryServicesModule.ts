@@ -4,7 +4,7 @@ import {CompanySalaryService} from './salary/companySalary/companySalaryService'
 import {CompanyVacationRateService} from './salary/companySalary/companyVacationRateService';
 import {EmployeeService} from './salary/employee/employeeService';
 import {EmploymentService} from './salary/employee/employmentService';
-import {PayrollrunService} from './salary/payrollRun/payrollrunService';
+import {SharedPayrollRunService} from './salary/payrollRun/shared-payroll-run.service';
 import {SalaryTransactionService} from './salary/salaryTransaction/salaryTransactionService';
 import {WageTypeService} from './salary/wageType/wageTypeService';
 import {GrantService} from './salary/grants/grantService';
@@ -21,7 +21,7 @@ export * from './salary/companySalary/companySalaryService';
 export * from './salary/companySalary/companyVacationRateService';
 export * from './salary/employee/employeeService';
 export * from './salary/employee/employmentService';
-export * from './salary/payrollRun/payrollrunService';
+export * from './salary/payrollRun/shared-payroll-run.service';
 export * from './salary/salaryTransaction/salaryTransactionService';
 export * from './salary/wageType/wageTypeService';
 export * from './salary/grants/grantService';
@@ -45,7 +45,7 @@ export class SalaryServicesModule {
                 CompanyVacationRateService,
                 EmployeeService,
                 EmploymentService,
-                PayrollrunService,
+                SharedPayrollRunService,
                 SalaryTransactionService,
                 WageTypeService,
                 GrantService,

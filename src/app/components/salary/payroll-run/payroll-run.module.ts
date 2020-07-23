@@ -12,12 +12,13 @@ import { PaycheckMailOptionsComponent } from './sending/paycheck-mail-options/pa
 import { PaycheckSenderModalComponent } from './sending/paycheck-sender-modal.component';
 import { PaycheckSendingComponent } from './sending/paycheck-sending.component';
 import { PayrollRunDetailsComponent } from './payroll-run-details/payroll-run-details.component';
-import { PayrollRunListComponent } from './payroll-run-list.component';
+import { PayrollRunListComponent } from './payroll-run.component';
 import { PayrollRunDetailsService } from './services/payroll-run-details.service';
 import { PayrollRunDataService } from './services/payroll-run-data.service';
 import { SalaryHelperMethodsService } from './services/salary-helper-methods.service';
 import { PayrollRunRoutingModule } from './payroll-run-routing.module';
 import { SalaryTransactionChangeService } from './services/salary-transaction-change.service';
+import { PayrollRunLayoutService } from './services/payroll-run-layout.service';
 
 @NgModule({
     imports: [
@@ -44,6 +45,7 @@ import { SalaryTransactionChangeService } from './services/salary-transaction-ch
         PayrollRunDataService,
         SalaryHelperMethodsService,
         SalaryTransactionChangeService,
+        PayrollRunLayoutService,
     ]
   })
   export class PayrollRunModule { }
