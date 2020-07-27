@@ -102,4 +102,8 @@ export class UserService extends BizHttp<User> {
         return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/Users/enable-two-factor`, null,
         { params: { enable: TwoFactorEnabled ? 'true' : 'false' } });
     }
+
+    getCountryCodes():  Observable<any> {
+        return this.commonHttp.get('/assets/countrycode.json');
+    }
 }

@@ -33,13 +33,25 @@
                     [labelPosition]="'before'">
                 </mat-slide-toggle>
             </label>
-
+            <label *ngIf="userDetailsForm.value.TwoFactorEnabled" class="uni-label label-left auth-number">
+                <span>To-faktor telefon</span>
+                <select formControlName="CountryCode">
+                    <option *ngFor="let countryCode of countryCodes; let i = index" 
+                    [ngValue]="countryCode.dialCode">
+                        {{ countryCode.name }} (+{{countryCode.dialCode}})
+                    </option>
+                </select>
+                <input formControlName="AuthPhoneNumber" type="number" required>
+            </label>
             <label
                 *ngIf="user?.BankIntegrationUserName"
                 class="uni-label label-left"
             >
                 <span>Endre autobankpassord</span>
-                <button [disabled]="epostButtonClicked" (click)="resetAutobankPassword(); epostButtonClicked=true;">
+                <button
+                    [disabled]="epostButtonClicked"
+                    (click)="resetAutobankPassword(); epostButtonClicked=true;"
+                >
                     Send E-post
                 </button>
             </label>

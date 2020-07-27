@@ -4,6 +4,7 @@ import {UserDto} from '@app/unientities';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UserSettingsModal} from './user-settings-modal';
+import { UserService } from '@app/services/services';
 
 @Component({
     selector: 'navbar-user-dropdown',
@@ -19,6 +20,7 @@ export class NavbarUserDropdown {
     constructor(
         private modalSerice: UniModalService,
         private authService: AuthService,
+        private userService: UserService
     ) {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
@@ -48,9 +50,11 @@ export class NavbarUserDropdown {
     }
 
     public openUserSettingsModal() {
-        this.trigger.closeMenu();
-        this.modalSerice.open(UserSettingsModal, {
-            data: this.user
+        this.userService.getCountryCodes().subscribe(res => {
+            this.trigger.closeMenu();
+            this.modalSerice.open(UserSettingsModal, {
+                data: { user: this.user, countryCodes: res }
+            });
         });
     }
 }

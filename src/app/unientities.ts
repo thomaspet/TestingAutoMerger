@@ -21,7 +21,7 @@ export class LocalDate {
         this.day = this.value.getDate();
     }
     public toJSON(): string {
-        const pad = function(x) { return ('00' + x).slice(-2); };
+        const pad = function (x) { return ('00' + x).slice(-2); };
         return this.year + '-' + pad(this.month + 1) + '-' + pad(this.day);
     }
     public toDate(): Date {
@@ -47,7 +47,7 @@ export class LocalTime {
     }
 }
 
-export class UniEntity {}
+export class UniEntity { }
 
 export class AuditLog extends UniEntity {
     public static RelativeUrl = 'auditlogs';
@@ -8672,6 +8672,7 @@ export class UserDto extends UniEntity {
     public CreatedBy: string;
     public DisplayName: string;
     public TwoFactorEnabled: boolean;
+    public AuthPhoneNumber: string;
     public PhoneNumber: string;
     public Protected: boolean;
     public GlobalIdentity: string;
@@ -9518,7 +9519,7 @@ export class AccountUsage extends UniEntity {
 }
 
 
-export enum WorkBalanceTypeEnum{
+export enum WorkBalanceTypeEnum {
     Hours = 1,
     Flex = 11,
     Overtime = 12,
@@ -9527,7 +9528,7 @@ export enum WorkBalanceTypeEnum{
 }
 
 
-export enum WorkTypeEnum{
+export enum WorkTypeEnum {
     IsHours = 1,
     IsFlexReduction = 8,
     IsPaidTimeOff = 9,
@@ -9539,14 +9540,14 @@ export enum WorkTypeEnum{
 }
 
 
-export enum BatchInvoiceOperation{
+export enum BatchInvoiceOperation {
     OneInvoiceEachCustomer = 0,
     OneInvoiceEachOrder = 1,
     OneInvoiceEachProject = 2,
 }
 
 
-export enum StatusCode{
+export enum StatusCode {
     Draft = 10001,
     Pending = 20001,
     Active = 30001,
@@ -9558,7 +9559,7 @@ export enum StatusCode{
 }
 
 
-export enum PaymentInfoTypeEnum{
+export enum PaymentInfoTypeEnum {
     Regular = 1,
     Balance = 2,
     Collection = 3,
@@ -9566,12 +9567,12 @@ export enum PaymentInfoTypeEnum{
 }
 
 
-export enum Modulus{
+export enum Modulus {
     Modulus10 = 10,
 }
 
 
-export enum RecurringPeriod{
+export enum RecurringPeriod {
     None = 0,
     Days = 1,
     Weeks = 2,
@@ -9581,38 +9582,38 @@ export enum RecurringPeriod{
 }
 
 
-export enum RecurringResult{
+export enum RecurringResult {
     Order = 0,
     Invoice = 1,
 }
 
 
-export enum PricingSource{
+export enum PricingSource {
     None = 0,
     LookupProduct = 1,
 }
 
 
-export enum CompanyRelation{
+export enum CompanyRelation {
     ChildOfBeurea = 1,
     Subsidiary = 2,
 }
 
 
-export enum TermsType{
+export enum TermsType {
     PaymentTerms = 1,
     DeliveryTerms = 2,
 }
 
 
-export enum PhoneTypeEnum{
+export enum PhoneTypeEnum {
     PtPhone = 150101,
     PtMobile = 150102,
     PtFax = 150103,
 }
 
 
-export enum AmeldingType{
+export enum AmeldingType {
     Standard = 0,
     Employments = 1,
     Nullstilling = 2,
@@ -9620,7 +9621,7 @@ export enum AmeldingType{
 }
 
 
-export enum SalaryRegistry{
+export enum SalaryRegistry {
     Employee = 0,
     Employment = 1,
     Trans = 2,
@@ -9629,7 +9630,7 @@ export enum SalaryRegistry{
 }
 
 
-export enum WageDeductionDueToHolidayType{
+export enum WageDeductionDueToHolidayType {
     Deduct4PartsOf26 = 0,
     Deduct3PartsOf22 = 1,
     Add1PartOf26 = 2,
@@ -9637,21 +9638,21 @@ export enum WageDeductionDueToHolidayType{
 }
 
 
-export enum CompanySalaryPaymentInterval{
+export enum CompanySalaryPaymentInterval {
     Monthly = 0,
     Pr14Days = 1,
     Weekly = 2,
 }
 
 
-export enum ForeignWorker{
+export enum ForeignWorker {
     notSet = 0,
     ForeignWorkerUSA_Canada = 1,
     ForeignWorkerFixedAga = 2,
 }
 
 
-export enum PaymentInterval{
+export enum PaymentInterval {
     Standard = 0,
     Monthly = 1,
     Pr14Days = 2,
@@ -9659,7 +9660,7 @@ export enum PaymentInterval{
 }
 
 
-export enum OtpStatus{
+export enum OtpStatus {
     A = 0,
     S = 1,
     P = 2,
@@ -9668,7 +9669,7 @@ export enum OtpStatus{
 }
 
 
-export enum InternationalIDType{
+export enum InternationalIDType {
     notSet = 0,
     Passportnumber = 1,
     SocialSecurityNumber = 2,
@@ -9677,34 +9678,34 @@ export enum InternationalIDType{
 }
 
 
-export enum TypeOfPaymentOtp{
+export enum TypeOfPaymentOtp {
     FixedSalary = 0,
     HourlyPay = 1,
     PaidOnCommission = 2,
 }
 
 
-export enum GenderEnum{
+export enum GenderEnum {
     NotDefined = 0,
     Woman = 1,
     Man = 2,
 }
 
 
-export enum FreeAmountType{
+export enum FreeAmountType {
     None = 0,
     WithAmount = 1,
     NoLimit = 2,
 }
 
 
-export enum TabellType{
+export enum TabellType {
     loenn = 0,
     pension = 1,
 }
 
 
-export enum Leavetype{
+export enum Leavetype {
     NotSet = 0,
     Leave = 1,
     LayOff = 2,
@@ -9715,7 +9716,7 @@ export enum Leavetype{
 }
 
 
-export enum WorkingHoursScheme{
+export enum WorkingHoursScheme {
     notSet = 0,
     NonShift = 1,
     OffshoreWork = 2,
@@ -9725,7 +9726,7 @@ export enum WorkingHoursScheme{
 }
 
 
-export enum ShipTypeOfShip{
+export enum ShipTypeOfShip {
     notSet = 0,
     Other = 1,
     DrillingPlatform = 2,
@@ -9733,14 +9734,14 @@ export enum ShipTypeOfShip{
 }
 
 
-export enum ShipTradeArea{
+export enum ShipTradeArea {
     notSet = 0,
     Domestic = 1,
     Foreign = 2,
 }
 
 
-export enum ShipRegistry{
+export enum ShipRegistry {
     notSet = 0,
     NorwegianInternationalShipRegister = 1,
     NorwegianOrdinaryShipRegister = 2,
@@ -9748,7 +9749,7 @@ export enum ShipRegistry{
 }
 
 
-export enum RemunerationType{
+export enum RemunerationType {
     notSet = 0,
     FixedSalary = 1,
     HourlyPaid = 2,
@@ -9758,7 +9759,7 @@ export enum RemunerationType{
 }
 
 
-export enum TypeOfEmployment{
+export enum TypeOfEmployment {
     notSet = 0,
     OrdinaryEmployment = 1,
     MaritimeEmployment = 2,
@@ -9767,27 +9768,27 @@ export enum TypeOfEmployment{
 }
 
 
-export enum TaxDrawFactor{
+export enum TaxDrawFactor {
     Standard = 1,
     Half = 2,
     None = 3,
 }
 
 
-export enum SummaryJobStatus{
+export enum SummaryJobStatus {
     running = 0,
     finished = 1,
     failed = 2,
 }
 
 
-export enum SalBalDrawType{
+export enum SalBalDrawType {
     FixedAmount = 0,
     InstalmentWithBalance = 1,
 }
 
 
-export enum SalBalSource{
+export enum SalBalSource {
     AdvanceRoutine = 1,
     NegativeSalary = 2,
     Loan = 3,
@@ -9795,7 +9796,7 @@ export enum SalBalSource{
 }
 
 
-export enum SalBalType{
+export enum SalBalType {
     Advance = 1,
     Contribution = 2,
     Outlay = 3,
@@ -9805,7 +9806,7 @@ export enum SalBalType{
 }
 
 
-export enum StdSystemType{
+export enum StdSystemType {
     None = 0,
     PercentTaxDeduction = 1,
     HolidayPayBasisLastYear = 2,
@@ -9816,7 +9817,7 @@ export enum StdSystemType{
 }
 
 
-export enum state{
+export enum state {
     Received = 0,
     Processed = 1,
     PartlyProcessed = 2,
@@ -9824,20 +9825,20 @@ export enum state{
 }
 
 
-export enum costtype{
+export enum costtype {
     Travel = 0,
     Expense = 1,
 }
 
 
-export enum linestate{
+export enum linestate {
     Received = 0,
     Processed = 1,
     Rejected = 3,
 }
 
 
-export enum StdWageType{
+export enum StdWageType {
     None = 0,
     TaxDrawTable = 1,
     TaxDrawPercent = 2,
@@ -9853,7 +9854,7 @@ export enum StdWageType{
 }
 
 
-export enum RateTypeColumn{
+export enum RateTypeColumn {
     none = 0,
     Employment = 1,
     Employee = 2,
@@ -9861,14 +9862,14 @@ export enum RateTypeColumn{
 }
 
 
-export enum LimitType{
+export enum LimitType {
     None = 0,
     Amount = 1,
     Sum = 2,
 }
 
 
-export enum SpecialTaxAndContributionsRule{
+export enum SpecialTaxAndContributionsRule {
     Standard = 0,
     NettoPayment = 1,
     SpesialDeductionForMaritim = 2,
@@ -9880,7 +9881,7 @@ export enum SpecialTaxAndContributionsRule{
 }
 
 
-export enum GetRateFrom{
+export enum GetRateFrom {
     WageType = 0,
     MonthlyPayEmployee = 1,
     HourlyPayEmployee = 2,
@@ -9888,14 +9889,14 @@ export enum GetRateFrom{
 }
 
 
-export enum SpecialAgaRule{
+export enum SpecialAgaRule {
     Regular = 0,
     AgaRefund = 1,
     AgaPension = 2,
 }
 
 
-export enum TaxType{
+export enum TaxType {
     Tax_None = 0,
     Tax_Table = 1,
     Tax_Percent = 2,
@@ -9903,7 +9904,7 @@ export enum TaxType{
 }
 
 
-export enum Valuetype{
+export enum Valuetype {
     IsString = 1,
     IsDate = 2,
     IsBool = 3,
@@ -9912,14 +9913,14 @@ export enum Valuetype{
 }
 
 
-export enum Alignment{
+export enum Alignment {
     Right = 0,
     Left = 1,
     Middle = 2,
 }
 
 
-export enum FieldType{
+export enum FieldType {
     AUTOCOMPLETE = 0,
     COMBOBOX = 1,
     DATE_TIME_PICKER = 2,
@@ -9941,17 +9942,17 @@ export enum FieldType{
 }
 
 
-export enum CurrencySourceEnum{
+export enum CurrencySourceEnum {
     NORGESBANK = 1,
 }
 
 
-export enum PlanTypeEnum{
+export enum PlanTypeEnum {
     NS4102 = 1,
 }
 
 
-export enum FinancialDeadlineType{
+export enum FinancialDeadlineType {
     MVA = 1,
     SALARY = 2,
     AS = 3,
@@ -9960,7 +9961,7 @@ export enum FinancialDeadlineType{
 }
 
 
-export enum i18nModule{
+export enum i18nModule {
     System = 0,
     Common = 1,
     Sales = 2,
@@ -9970,13 +9971,13 @@ export enum i18nModule{
 }
 
 
-export enum PeriodSeriesType{
+export enum PeriodSeriesType {
     m = 0,
     r = 1,
 }
 
 
-export enum RoundingType{
+export enum RoundingType {
     Up = 0,
     Down = 1,
     Integer = 2,
@@ -9984,7 +9985,7 @@ export enum RoundingType{
 }
 
 
-export enum SharingType{
+export enum SharingType {
     Unknown = 0,
     Print = 1,
     Email = 2,
@@ -9998,7 +9999,7 @@ export enum SharingType{
 }
 
 
-export enum EventplanType{
+export enum EventplanType {
     Webhook = 0,
     Custom = 1,
     Other = 2,
@@ -10006,12 +10007,12 @@ export enum EventplanType{
 }
 
 
-export enum PredefinedDescriptionType{
+export enum PredefinedDescriptionType {
     JournalEntryText = 1,
 }
 
 
-export enum TeamPositionEnum{
+export enum TeamPositionEnum {
     NoPosition = 0,
     Member = 1,
     ReadAll = 10,
@@ -10021,7 +10022,7 @@ export enum TeamPositionEnum{
 }
 
 
-export enum ApprovalRuleType{
+export enum ApprovalRuleType {
     SupplierInvoice = 0,
     Payment = 1,
     CustomerInvoice = 2,
@@ -10032,7 +10033,7 @@ export enum ApprovalRuleType{
 }
 
 
-export enum StatusCategoryCode{
+export enum StatusCategoryCode {
     Draft = 10000,
     Pending = 20000,
     Active = 30000,
@@ -10044,7 +10045,7 @@ export enum StatusCategoryCode{
 }
 
 
-export enum OperationType{
+export enum OperationType {
     Create = 10,
     Update = 20,
     CreateAndUpdate = 30,
@@ -10052,7 +10053,7 @@ export enum OperationType{
 }
 
 
-export enum Operator{
+export enum Operator {
     Min = 0,
     Max = 1,
     MinIncl = 2,
@@ -10067,36 +10068,36 @@ export enum Operator{
 }
 
 
-export enum TaskType{
+export enum TaskType {
     Task = 0,
     Approval = 1,
 }
 
 
-export enum ProductTypeEnum{
+export enum ProductTypeEnum {
     PStorage = 1,
     PHour = 2,
     POther = 3,
 }
 
 
-export enum Type{
+export enum Type {
     Payroll = 0,
 }
 
 
-export enum ContractEngine{
+export enum ContractEngine {
     JavaScript = 0,
     VBScript = 1,
 }
 
 
-export enum AddressType{
+export enum AddressType {
     Obyte = 100,
 }
 
 
-export enum ContractEventType{
+export enum ContractEventType {
     Deploy = 1,
     Kill = 2,
     Initialize = 3,
@@ -10108,13 +10109,13 @@ export enum ContractEventType{
 }
 
 
-export enum TypeOfIntegration{
+export enum TypeOfIntegration {
     TravelAndExpenses = 1,
     Aprila = 2,
 }
 
 
-export enum TypeOfLogin{
+export enum TypeOfLogin {
     none = 0,
     AltinnPin = 1,
     SMSPin = 2,
@@ -10122,13 +10123,13 @@ export enum TypeOfLogin{
 }
 
 
-export enum BackupStatus{
+export enum BackupStatus {
     BackedUp = 1,
     Restored = 2,
 }
 
 
-export enum FailedReasonEnum{
+export enum FailedReasonEnum {
     BadRequest = 400,
     CompanyNotFound = 404,
     Unsupported = 415,
@@ -10136,14 +10137,14 @@ export enum FailedReasonEnum{
 }
 
 
-export enum KpiValueType{
+export enum KpiValueType {
     ValueTypeCounter = 0,
     ValueTypeDecimal = 1,
     ValueTypeText = 2,
 }
 
 
-export enum KpiSourceType{
+export enum KpiSourceType {
     SourceStatistics = 0,
     SourceCountRecords = 1,
     SourceRecordValue = 2,
@@ -10151,7 +10152,7 @@ export enum KpiSourceType{
 }
 
 
-export enum KpiValueStatus{
+export enum KpiValueStatus {
     StatusUnknown = 0,
     StatusInProgress = 1,
     StatusError = 2,
@@ -10159,7 +10160,7 @@ export enum KpiValueStatus{
 }
 
 
-export enum ActionCodeBankRule{
+export enum ActionCodeBankRule {
     JournalWithoutMatch = 1,
     DoNotJournal = 2,
     IgnorePayment = 3,
@@ -10167,7 +10168,7 @@ export enum ActionCodeBankRule{
 }
 
 
-export enum CustomLiquidityPaymentInterval{
+export enum CustomLiquidityPaymentInterval {
     OneTime = 0,
     Weekly = 7,
     BiWeekly = 14,
@@ -10176,14 +10177,14 @@ export enum CustomLiquidityPaymentInterval{
 }
 
 
-export enum SuggestionSource{
+export enum SuggestionSource {
     InternalCompanyHistory = 1,
     CommonSupplierHistory = 2,
     CommonIndustryHistory = 3,
 }
 
 
-export enum VatCodeGroupingValueEnum{
+export enum VatCodeGroupingValueEnum {
     Costs = 1,
     Invoice = 2,
     Calculation = 3,
@@ -10194,21 +10195,21 @@ export enum VatCodeGroupingValueEnum{
 }
 
 
-export enum OnConflict{
+export enum OnConflict {
     Replace = 0,
     Ignore = 1,
     ManualResolve = 2,
 }
 
 
-export enum ValidationLevel{
+export enum ValidationLevel {
     Info = 1,
     Warning = 20,
     Error = 30,
 }
 
 
-export enum TimesheetWorkflow{
+export enum TimesheetWorkflow {
     Draft = 1,
     PartialAssign = 4,
     AwaitingApproval = 5,
@@ -10219,7 +10220,7 @@ export enum TimesheetWorkflow{
 }
 
 
-export enum WorkStatus{
+export enum WorkStatus {
     MissingFromWork = 0,
     Incomplete = 1,
     Complete = 2,
@@ -10228,7 +10229,7 @@ export enum WorkStatus{
 }
 
 
-export enum AmeldingStatus{
+export enum AmeldingStatus {
     IN_PROGRESS = 0,
     GENERATED = 1,
     SENT = 2,
@@ -10236,14 +10237,14 @@ export enum AmeldingStatus{
 }
 
 
-export enum State{
+export enum State {
     NoOp = 0,
     BalanceCreate = 1,
     Calculated = 2,
 }
 
 
-export enum LicenseEntityStatus{
+export enum LicenseEntityStatus {
     Draft = 0,
     Pending = 3,
     Active = 5,
@@ -10254,7 +10255,7 @@ export enum LicenseEntityStatus{
 }
 
 
-export enum ChallengeRequestResult{
+export enum ChallengeRequestResult {
     Ok = 0,
     InvalidCredentials = 1,
     NoPinFound = 2,
@@ -10265,7 +10266,7 @@ export enum ChallengeRequestResult{
 }
 
 
-export enum Maaned{
+export enum Maaned {
     Item01 = 0,
     Item02 = 1,
     Item03 = 2,
@@ -10281,7 +10282,7 @@ export enum Maaned{
 }
 
 
-export enum ReportType{
+export enum ReportType {
     regnearkOdsV2 = 0,
     regnearkOdsV1 = 1,
     xmlFormatV2 = 2,
@@ -10289,7 +10290,7 @@ export enum ReportType{
 }
 
 
-export enum StatusCodeBankIntegrationAgreement{
+export enum StatusCodeBankIntegrationAgreement {
     Pending = 700001,
     WaitForSigning = 700002,
     WaitForBankApprove = 700003,
@@ -10300,13 +10301,13 @@ export enum StatusCodeBankIntegrationAgreement{
 }
 
 
-export enum BankFileCustomFormat{
+export enum BankFileCustomFormat {
     MTNone = 0,
     MT940 = 1,
 }
 
 
-export enum BankfileField{
+export enum BankfileField {
     Date = 1,
     Text = 2,
     Amount = 3,
@@ -10320,7 +10321,7 @@ export enum BankfileField{
 }
 
 
-export enum BankfileDataType{
+export enum BankfileDataType {
     Text = 1,
     Decimal = 2,
     Decimal_00 = 3,
@@ -10330,14 +10331,14 @@ export enum BankfileDataType{
 }
 
 
-export enum BankBalanceType{
+export enum BankBalanceType {
     None = 0,
     BankAccount = 1,
     MainLedgerAccount = 2,
 }
 
 
-export enum StatusCodeJournalEntryLine{
+export enum StatusCodeJournalEntryLine {
     Open = 31001,
     PartlyMarked = 31002,
     Marked = 31003,
@@ -10345,14 +10346,14 @@ export enum StatusCodeJournalEntryLine{
 }
 
 
-export enum AltinnGetVatReportDataFromAltinnStatus{
+export enum AltinnGetVatReportDataFromAltinnStatus {
     WaitingForAltinnResponse = 1,
     RejectedByAltinn = 2,
     ReportReceived = 3,
 }
 
 
-export enum StatusCodeCustomerInvoice{
+export enum StatusCodeCustomerInvoice {
     Draft = 42001,
     Invoiced = 42002,
     PartlyPaid = 42003,
@@ -10361,13 +10362,13 @@ export enum StatusCodeCustomerInvoice{
 }
 
 
-export enum StatusCodeCustomerInvoiceItem{
+export enum StatusCodeCustomerInvoiceItem {
     Draft = 41301,
     Invoiced = 41302,
 }
 
 
-export enum StatusCodeCustomerInvoiceReminder{
+export enum StatusCodeCustomerInvoiceReminder {
     Registered = 42101,
     Sent = 42102,
     Paid = 42103,
@@ -10378,7 +10379,7 @@ export enum StatusCodeCustomerInvoiceReminder{
 }
 
 
-export enum StatusCodeCustomerOrder{
+export enum StatusCodeCustomerOrder {
     Draft = 41001,
     Registered = 41002,
     PartlyTransferredToInvoice = 41003,
@@ -10387,7 +10388,7 @@ export enum StatusCodeCustomerOrder{
 }
 
 
-export enum StatusCodeCustomerOrderItem{
+export enum StatusCodeCustomerOrderItem {
     Draft = 41101,
     Registered = 41102,
     TransferredToInvoice = 41103,
@@ -10395,7 +10396,7 @@ export enum StatusCodeCustomerOrderItem{
 }
 
 
-export enum StatusCodeCustomerQuote{
+export enum StatusCodeCustomerQuote {
     Draft = 40101,
     Registered = 40102,
     ShippedToCustomer = 40103,
@@ -10406,19 +10407,19 @@ export enum StatusCodeCustomerQuote{
 }
 
 
-export enum StatusCodePaymentInfoType{
+export enum StatusCodePaymentInfoType {
     Active = 42400,
     Disabled = 42401,
 }
 
 
-export enum StatusCodeRecurringInvoice{
+export enum StatusCodeRecurringInvoice {
     InActive = 46001,
     Active = 46002,
 }
 
 
-export enum StatusCodeRecurringInvoiceLog{
+export enum StatusCodeRecurringInvoiceLog {
     Draft = 46101,
     InProgress = 46102,
     Failed = 46103,
@@ -10426,7 +10427,7 @@ export enum StatusCodeRecurringInvoiceLog{
 }
 
 
-export enum InternalAmeldingStatus{
+export enum InternalAmeldingStatus {
     IN_PROGRESS = 0,
     GENERATED = 1,
     SENT = 2,
@@ -10434,14 +10435,14 @@ export enum InternalAmeldingStatus{
 }
 
 
-export enum NotificationStatus{
+export enum NotificationStatus {
     New = 900010,
     Read = 900020,
     Marked = 900030,
 }
 
 
-export enum StatusCodeSharing{
+export enum StatusCodeSharing {
     Pending = 70000,
     InProgress = 70001,
     Failed = 70002,
@@ -10450,28 +10451,28 @@ export enum StatusCodeSharing{
 }
 
 
-export enum ApprovalStatus{
+export enum ApprovalStatus {
     Active = 50120,
     Approved = 50130,
     Rejected = 50140,
 }
 
 
-export enum TaskStatus{
+export enum TaskStatus {
     Active = 50020,
     Complete = 50030,
     Pending = 50040,
 }
 
 
-export enum StatusCodeProduct{
+export enum StatusCodeProduct {
     Active = 35001,
     Discarded = 35002,
     Deleted = 35003,
 }
 
 
-export enum StatusCodeContract{
+export enum StatusCodeContract {
     Draft = 120000,
     Deploy = 120001,
     Running = 120002,
@@ -10479,20 +10480,20 @@ export enum StatusCodeContract{
 }
 
 
-export enum StatusCodeContractParameter{
+export enum StatusCodeContractParameter {
     Deploy = 121001,
     Run = 121002,
 }
 
 
-export enum StatusCodeContractRunLog{
+export enum StatusCodeContractRunLog {
     Started = 120100,
     Completed = 120101,
     Failed = 120102,
 }
 
 
-export enum StatusCodeApiKey{
+export enum StatusCodeApiKey {
     Active = 80000,
     InProgress = 80010,
     WaitingForApproval = 80020,
@@ -10502,7 +10503,7 @@ export enum StatusCodeApiKey{
 }
 
 
-export enum StatusCodeAltinnSigning{
+export enum StatusCodeAltinnSigning {
     NotSigned = 43001,
     PartialSigned = 43002,
     Signed = 43003,
@@ -10511,13 +10512,13 @@ export enum StatusCodeAltinnSigning{
 }
 
 
-export enum StatusCodeAccrualPeriod{
+export enum StatusCodeAccrualPeriod {
     Registered = 33001,
     Accrued = 33002,
 }
 
 
-export enum AssetStatusCode{
+export enum AssetStatusCode {
     Active = 46200,
     Sold = 46205,
     Depreciated = 46210,
@@ -10526,20 +10527,20 @@ export enum AssetStatusCode{
 }
 
 
-export enum StatusCodeJournalEntryLineDraft{
+export enum StatusCodeJournalEntryLineDraft {
     Journaled = 34001,
     Credited = 34002,
 }
 
 
-export enum StatusCodeReInvoice{
+export enum StatusCodeReInvoice {
     Marked = 30201,
     Ready = 30202,
     ReInvoiced = 30203,
 }
 
 
-export enum StatusCodeSupplierInvoice{
+export enum StatusCodeSupplierInvoice {
     Draft = 30101,
     ForApproval = 30102,
     Approved = 30103,
@@ -10548,7 +10549,7 @@ export enum StatusCodeSupplierInvoice{
 }
 
 
-export enum StatusCodeVatReport{
+export enum StatusCodeVatReport {
     Executed = 32001,
     Submitted = 32002,
     Rejected = 32003,
@@ -10558,7 +10559,7 @@ export enum StatusCodeVatReport{
 }
 
 
-export enum VippsProcessStatus{
+export enum VippsProcessStatus {
     Created = 41000,
     Rejected = 42000,
     Pending = 43000,
@@ -10569,7 +10570,7 @@ export enum VippsProcessStatus{
 }
 
 
-export enum CustomFieldStatus{
+export enum CustomFieldStatus {
     Draft = 110100,
     Active = 110101,
 }
