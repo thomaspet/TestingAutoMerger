@@ -12,6 +12,7 @@ import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/component
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
 import * as moment from 'moment';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 declare const ResizeObserver;
 
@@ -43,7 +44,8 @@ export class SupplierInvoiceView {
         private errorService: ErrorService,
         private supplierInvoiceService: SupplierInvoiceService,
         private modalService: UniModalService,
-        private paymentService: PaymentService
+        private paymentService: PaymentService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.store.changes$.subscribe((change) => this.updateSaveActions(change));
         this.store.invoice$.subscribe((invoice) => this.updateToolbar(invoice || {} ));

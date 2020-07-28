@@ -986,6 +986,22 @@ export class BillsView implements OnInit {
                     statusCode: StatusCodeSupplierInvoice.Draft
                 },
                 {
+                    label: 'Tildelt',
+                    name: 'ForApproval',
+                    filter: 'statuscode eq ' + StatusCodeSupplierInvoice.ForApproval,
+                    passiveCounter: true,
+                    featurePermission: 'ui.assigning',
+                    statusCode: StatusCodeSupplierInvoice.ForApproval
+                },
+                {
+                    label: 'Godkjent',
+                    name: 'Approved',
+                    filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Approved,
+                    passiveCounter: true,
+                    featurePermission: 'ui.assigning',
+                    statusCode: StatusCodeSupplierInvoice.Approved
+                },
+                {
                     label: 'Bokført',
                     name: 'Journaled',
                     filter: 'statuscode eq ' + StatusCodeSupplierInvoice.Journaled,

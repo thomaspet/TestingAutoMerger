@@ -35,7 +35,7 @@ import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 import {set} from 'lodash';
 
 import * as moment from 'moment';
-import {ToastService} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
 import { IModalOptions, UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 
@@ -119,7 +119,6 @@ export class SupplierInvoiceStore {
                 }));
             }),
             catchError(err => {
-                this.errorService.handle(err);
                 return of(null);
             })
         ).subscribe((invoice: SupplierInvoice) => {
@@ -127,6 +126,7 @@ export class SupplierInvoiceStore {
             // The store should be route agnostic, since it might be used by multiple route components
             // e.g simple/advanced variations of supplier-invoice, very specific whitelabel versions etc.
             if (!invoice) {
+                this.changes$.next(false);
                 this.router.navigateByUrl('/accounting/bills/0');
                 return;
             }
@@ -467,6 +467,12 @@ export class SupplierInvoiceStore {
 
     sendToPayment(isOnlyPayment = true, done) {
 
+        if (!this.invoice$?.value?.BankAccountID) {
+            this.toastService.addToast('Ukomplett regning', ToastType.warn, 8, 'Kan ikke opprette betaling uten at feltet "Betal til bankkonto" er fylt ut');
+            done();
+            return;
+        }
+
         const options = {
             data: {
                 current: this.invoice$.value,
@@ -532,7 +538,7 @@ export class SupplierInvoiceStore {
                         accept: 'Registrer ny utgift',
                         reject: 'Gå til betalingsliste',
                     },
-                    message: `Regningen er bokført i regnskapet ditt og er lagt til utbetaling i betalingslisten. <br/><br/> Regningen vil ikke bli betalt for du manuelt gjør dette. ` +
+                    message: `Regningen er bokført i regnskapet ditt og er lagt til utbetaling i betalingslisten. <br/><br/> Regningen vil ikke bli betalt før du manuelt gjør dette. ` +
                     `Du finner den i listen "Betalingsliste" under menyvalget "Bank - Utbetalinger" eller du kan trykke på knappen "Gå til betalingsliste" under.`
                 };
 
@@ -559,7 +565,7 @@ export class SupplierInvoiceStore {
                         accept: 'Registrer ny utgift',
                         reject: 'Gå til betalingsliste',
                     },
-                    message: `Regningen er lagt til utbetaling i betalingslisten. <br/><br/> Regningen vil ikke bli betalt for du manuelt gjør dette. ` +
+                    message: `Regningen er lagt til utbetaling i betalingslisten. <br/><br/> Regningen vil ikke bli betalt før du manuelt gjør dette. ` +
                     `Du finner den i listen "Betalingsliste" under menyvalget "Bank - Utbetalinger" eller du kan trykke på knappen "Gå til betalingsliste" under.`
                 };
 
