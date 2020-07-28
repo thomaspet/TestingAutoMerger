@@ -14,6 +14,9 @@ import {TofDetailsForm} from './detailsForm';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {ValidationMessage} from '@app/models/validationResult';
 import {AccountMandatoryDimensionService} from '@app/services/services';
+import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+
+const MAXFILESIZEEMAIL: number = 1024*1024*30;
 
 @Component({
     selector: 'uni-tof-head',
@@ -46,7 +49,10 @@ export class TofHead implements OnChanges {
     validationMessage: ValidationMessage;
     accountsWithMandatoryDimensionsIsUsed = true;
 
-    constructor (private accountMandatoryDimensionService: AccountMandatoryDimensionService) {}
+    constructor (
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private toastService: ToastService
+    ) {}
 
     ngOnInit() {
         this.tabs = [
@@ -83,6 +89,12 @@ export class TofHead implements OnChanges {
                 ["CustomerOrder", "CustomerInvoice", "RecurringInvoice"].includes(this.entityName)) {
                 this.data.PaymentInfoTypeID = this.paymentInfoTypes[0].ID;
             }
+        }
+    }
+
+    onSelectedFileSize(fileSize: number) {
+        if (fileSize > 0 && fileSize > MAXFILESIZEEMAIL) {
+            this.toastService.addToast('Størrelse vedlegg', ToastType.warn, 10, 'Du har nådd grensen på totalt 30MB for e-post, ved sending av EHF kan du ha inntil 50MB');
         }
     }
 

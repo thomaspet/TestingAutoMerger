@@ -28,6 +28,11 @@ export interface IUploadConfig {
             <i class="material-icons">cloud_upload</i>
             <span>Last opp dokument</span>
 
+            <span class="tooltip" *ngIf="tooltip">
+                <i class="material-icons">info_outline</i>
+                {{tooltip}}
+            </span>
+
             <input type="file"
                 (change)="uploadFileChange($event)"
                 [attr.aria-disabled]="uploadConfig?.isDisabled"
@@ -54,8 +59,10 @@ export class UniAttachments {
     @Input() showFileList: boolean = true;
     @Input() uploadWithoutEntity: boolean = false;
     @Input() canSendEHF: boolean = false;
+    @Input() tooltip: string;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
+    @Output() selectedFileSize: EventEmitter<number> = new EventEmitter();
 
     private baseUrl: string = environment.BASE_URL_FILES;
 
@@ -65,7 +72,7 @@ export class UniAttachments {
     uploading: boolean;
     files: File[] = [];
     tableConfig: UniTableConfig;
-
+    
     constructor(
         private ngHttp: HttpClient,
         private http: UniHttp,
@@ -215,6 +222,9 @@ export class UniAttachments {
                 );
             }
         });
+
+        var selectedSize = selectedFiles.map(file => parseInt(file.Size)).reduce((a, b) => a + b, 0);
+        this.selectedFileSize.emit(selectedSize);
     }
 
     onRowDeleted(file) {

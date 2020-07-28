@@ -72,23 +72,28 @@
         </section>
 
         <section class="tof-attachments" *ngIf="activeTab === 'attachments'">
-            <p *ngIf="!data?.ID">
+            <label class="uni-label" *ngIf="!data?.ID">
                 <span *ngIf="entityName == 'CustomerInvoice' || entityName === 'RecurringInvoice'">
+                    <i class="material-icons">info_outline</i>
                     Du må lagre faktura som kladd før du kan legge til dokumenter.
                 </span>
                 <span *ngIf="entityName == 'CustomerOrder'">
+                    <i class="material-icons">info_outline</i>
                     Du må lagre ordre som kladd eller registrere ordre før du kan legge til dokumenter.
                 </span>
                 <span *ngIf="entityName == 'CustomerQuote'">
+                    <i class="material-icons">info_outline</i>
                     Du må lagre tilbud som kladd eller registrere tilbud før du kan legge til dokumenter.
                 </span>
-            </p>
+            </label>
 
             <uni-attachments *ngIf="data?.ID"
                 id="attachments"
                 [entity]="entityName"
                 [entityID]="data?.ID"
-                [canSendEHF]="canSendEHF">
+                [canSendEHF]="canSendEHF"
+                [tooltip]="'Maks total vedleggstørrelse er 30MB for e-post og 50MB for EHF'"
+                (selectedFileSize)="onSelectedFileSize($event)">
             </uni-attachments>
         </section>
 
