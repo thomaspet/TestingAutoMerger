@@ -25,6 +25,11 @@ export const TRANSLATION_OVERRIDES = {
         }
     },
 
+    SETTINGS: {
+        'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra SR-Bank Regnskap',
+        'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra SR-Bank Regnskap" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
+    },
+
     TIMETRACKING: {
         'PERSON_NEW': 'Ny timebruker'
     },

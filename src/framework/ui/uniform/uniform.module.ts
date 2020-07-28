@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {ClickOutsideModule} from '../../click-outside/click-outside.module';
+import {UniTranslatePipesModule} from '../../pipes/translate.module';
 
 import {UniForm} from './uniform/uniform';
 
@@ -37,7 +38,8 @@ import {DateAdapter} from '@angular/material/core';
         NgSelectModule,
         UniSelectModule,
         InputDropdownModule,
-        ClickOutsideModule
+        ClickOutsideModule,
+        UniTranslatePipesModule
     ],
     declarations: [
         UniForm,

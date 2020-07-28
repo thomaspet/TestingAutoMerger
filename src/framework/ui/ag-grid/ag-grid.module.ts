@@ -3,6 +3,7 @@ import {MatNativeDateModule, DateAdapter} from '@angular/material/core';
 import {LibraryImportsModule} from '@app/library-imports.module';
 
 import {UniPipesModule} from '../../pipes/pipes.module';
+import {UniTranslatePipesModule} from '../../pipes/translate.module';
 import {AgGridModule} from 'ag-grid-angular';
 import {AgGridWrapper} from './ag-grid-wrapper';
 import {ColumnMenuNew} from './column-menu-modal';
@@ -29,6 +30,7 @@ import {TableLoadIndicator} from './table-load-indicator';
         DatepickerModule,
 
         UniPipesModule,
+        UniTranslatePipesModule,
         DropdownMenuModule,
         InputDropdownModule,
         AgGridModule.withComponents([

@@ -7,6 +7,7 @@ import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
 import {UniPipesModule} from './pipes/pipes.module';
+import {UniTranslatePipesModule} from './pipes/translate.module';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 import {UniMultiLevelSelect} from './controls/multiLevelSelect';
@@ -48,6 +49,7 @@ import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
         LibraryImportsModule,
         ClickOutsideModule,
         UniPipesModule,
+        UniTranslatePipesModule,
         UniSearchModule,
         UniTooltipModule,
         UniDateselectorpModule,
@@ -94,6 +96,7 @@ import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
         // Modules
         LibraryImportsModule,
         UniPipesModule,
+        UniTranslatePipesModule,
         UniSearchModule,
         UniFormModule,
         UniTableModule,

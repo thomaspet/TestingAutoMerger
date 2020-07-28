@@ -404,7 +404,7 @@ export class UniBankSettings {
                 EntityType: 'CompanySettings',
                 Property: 'IgnorePaymentsWithoutEndToEndID',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Bokfør kun utbetalinger fra UE'
+                Label: 'SETTINGS.BOOK_FROM_SYSTEM'
             }
         ]);
 

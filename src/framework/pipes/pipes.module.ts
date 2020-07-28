@@ -5,7 +5,6 @@ import {UniAccountNumberPipe} from './uniAccountNumberPipe';
 import {UniCurrencyPipe} from './uniCurrencyPipe';
 import {UniNumberFormatPipe} from './uniNumberFormatPipe';
 import {SkipSanitizationPipe} from './skipSanitizationPipe';
-import {UniTranslatePipe} from './uniTranslatePipe';
 import {EntitytypeTranslationPipe} from './entitytype-translation.pipe';
 import {ElsaContractTypePipe} from './elsaContractTypePipe';
 import {ProductPurchaseStatusPipe} from './productPurchaseStatusPipe';
@@ -21,7 +20,6 @@ import {ProductTypePipe} from './productTypePipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniNumberFormatPipe,
-        UniTranslatePipe,
         EntitytypeTranslationPipe,
         ElsaContractTypePipe,
         ProductPurchaseStatusPipe,
@@ -33,7 +31,6 @@ import {ProductTypePipe} from './productTypePipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniNumberFormatPipe,
-        UniTranslatePipe,
         EntitytypeTranslationPipe,
         ElsaContractTypePipe,
         ProductPurchaseStatusPipe,
@@ -46,7 +43,6 @@ import {ProductTypePipe} from './productTypePipe';
         UniAccountNumberPipe,
         UniCurrencyPipe,
         UniNumberFormatPipe,
-        UniTranslatePipe,
         EntitytypeTranslationPipe,
         ElsaContractTypePipe,
         ProductPurchaseStatusPipe,

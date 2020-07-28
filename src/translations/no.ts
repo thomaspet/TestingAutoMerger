@@ -134,6 +134,8 @@ export const NO = {
         'COMPANY': 'Firma',
         'CURRENCY': 'Valuta',
         'OPENING_BALANCE': 'Åpningsbalanse',
+        'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra UniEconomy',
+        'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra UniEconomy" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
 
         'COMPANY_EMAIL': 'E-postmottak',
         'FROM_BRREG': 'Hent opplysninger fra br-reg',
@@ -180,7 +182,6 @@ export const NO = {
 
         'BANK_INFOTEXT': 'Definer akseptabelt beløp for differanse for å bokføre, og konto for føringer av gebyr',
         'BANK_ACCOUNTS_INFOTEXT': 'Sett opp kontoer for bruk i systemet. Dersom lønnskonto ikke er fylt ut vil lønn bruke driftskonto ved utbetaling av lønn. Du kan sette opp flere kontoer, men valgt konto vil bli brukt som default av systemet.',
-        'AUTO_BANK_INFOTEXT': 'Utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) blir ikke bokført',
         'REM_ACCOUNTS_INFOTEXT': 'Mellomkontoer for innbetaling, utbetaling og lønn',
         'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks. Ved endring av e-postaddresse, lagre ny e-post med "Endre e-postaddresse"-knappen.',
         'SALARY_BOOKING_ACCOUNTS_INFOTEXT': 'Administrer systemkonti for postering av arbeidsgiveravgift og interimskonto for utbetaling av lønn. Aktiver automatisk postering av skattetrekk for å bokføre trekk til skattetrekkskonto når lønnskjøring bokføres. Huk av for «Utleggstrekk skatt til skattetrekkskonto» for å styre samlet beløp for utleggstrekk på skatt på lønnskjøringer mot skattetrekkskonto i remitteringsfil.',
