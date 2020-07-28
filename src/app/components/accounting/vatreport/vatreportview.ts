@@ -248,6 +248,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 .valueChanges
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.Comment !== change)
+                .filter(() => this.currentVatReport.ID > 0)
                 .map(change => this.currentVatReport.Comment = change)
                 .debounceTime(400)
                 .distinctUntilChanged()
@@ -264,6 +265,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 .valueChanges
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.InternalComment !== change)
+                .filter(() => this.currentVatReport.ID > 0)
                 .map(change => this.currentVatReport.InternalComment = change)
                 .debounceTime(400)
                 .distinctUntilChanged()
