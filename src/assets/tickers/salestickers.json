@@ -345,7 +345,7 @@
             {
                 "Header": "Forfallsdato",
                 "Field": "PaymentDueDate",
-                "Format": "DatePassed",
+                "Format": "DueDate",
                 "FilterOperator": "gt",
                 "Width": 100
             },

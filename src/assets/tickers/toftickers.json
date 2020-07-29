@@ -51,7 +51,7 @@
         {
             "Header": "Forfallsdato",
             "Field": "PaymentDueDate",
-            "Format": "DatePassed",
+            "Format": "DueDate",
             "FilterOperator": "gt",
             "Width": 100
         },
@@ -403,9 +403,9 @@
                             "Value": "0"
                         },
                         {
-                            "Field": "PaymentDueDate",
-                            "Operator": "lt",
-                            "Value": "getdate()"
+                            "Field": "datediff('day',PaymentDueDate,getdate())",
+                            "Operator": "ge",
+                            "Value": "1"
                         },
                         {
                             "Field": "add(TaxInclusiveAmount, CreditedAmount)",

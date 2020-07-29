@@ -1113,6 +1113,13 @@ export class UniTicker {
                                     : 'date-good';
                             });
                             break;
+                        case 'DueDate':
+                            col.setConditionalCls(row => {
+                                return moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}))
+                                    ? 'date-bad'
+                                    : 'date-good';
+                            });
+                            break;
                         case 'SharingStatus':
                             col.setConditionalCls(row => {
                                 switch (row[column.Alias]) {
