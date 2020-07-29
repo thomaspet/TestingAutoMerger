@@ -134,6 +134,43 @@ export class SupplierInvoiceView {
                 disabled: !!invoice?.ID
             },
             {
+                label: 'Tildel',
+                action: (done) => {
+                    this.store.assignInvoice().subscribe(details => {
+                        if (details) {
+                            const ID = this.store.invoice$.value.ID;
+                            this.supplierInvoiceService.assign(ID, details).subscribe(res => {
+                                this.store.loadInvoice(ID);
+                                done('Faktura tildelt');
+                            }, err => {
+                                done();
+                            });
+                        } else {
+                            done();
+                        }
+                    });
+                },
+                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
+                || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
+            },
+            {
+                label: 'Godkjenn',
+                action: (done) => {
+                    this.store.approveOrRejectInvoice('approve', done);
+                },
+                main: invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && this.featurePermissionService.canShowUiFeature('ui.assigning'),
+                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
+                || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
+            },
+            {
+                label: 'Avvis',
+                action: (done) => {
+                    this.store.approveOrRejectInvoice('reject', done);
+                },
+                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
+                || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
+            },
+            {
                 label: 'Bokfør og betal',
                 action: (done) => {
                     this.store.sendToPayment(false, done);
@@ -154,7 +191,7 @@ export class SupplierInvoiceView {
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled && invoice.PaymentStatus <= 30109 ),
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
-                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112
+                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111 ||  invoice.PaymentStatus === 30112
             },
             {
                 label: 'Slett',

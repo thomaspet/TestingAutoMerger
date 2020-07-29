@@ -37,7 +37,8 @@ import {set} from 'lodash';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
-import { IModalOptions, UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal } from '@uni-framework/uni-modal';
+import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -99,7 +100,7 @@ export class SupplierInvoiceStore {
         ];
 
         const invoice$ = id > 0
-            ? this.supplierInvoiceService.Get(id, expands)
+            ? this.supplierInvoiceService.Get(id, expands, true)
             : of(<SupplierInvoice> {});
 
         invoice$.pipe(
@@ -487,6 +488,33 @@ export class SupplierInvoiceStore {
                 this.loadInvoice(this.invoice$.value.ID);
             } else {
                 done('Betaling avbrutt');
+            }
+        });
+    }
+
+    assignInvoice() {
+        return this.modalService.open(BillAssignmentModal, {
+            closeOnClickOutside: false
+        }).onClose.pipe(switchMap(details => {
+            return of (details);
+        }), catchError(err => {
+            return of(null);
+        }));
+    }
+
+    approveOrRejectInvoice(key: string, done) {
+        this.modalService.open(InvoiceApprovalModal, {
+            data: {
+                task: this.invoice$.value['_task'],
+                entityType: 'SupplierInvoice',
+                action: key
+            }
+        }).onClose.subscribe(approvedOrRejected => {
+            if (approvedOrRejected) {
+                this.loadInvoice(this.invoice$.value.ID);
+                done('Faktura ' + (key === 'approve' ? 'godkjent' : 'avvist'));
+            } else {
+                done();
             }
         });
     }
