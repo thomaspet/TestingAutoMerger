@@ -88,7 +88,7 @@
                     <uni-timeoff-edit [currentDay]="currentDay" (dataChanged)="getData()"> </uni-timeoff-edit>
                 </section>
 
-                <div *ngIf="currentView.value === 'year'" >
+                <div *ngIf="currentView.value === 'year'" style="display: flex; flex-direction: column; align-items: center;">
                     <div class="year-navigation">
                         <span (click)="yearSelect(thisYear)" [class.yearselected]="thisYear === currentYear" title="Se kalenderår {{ thisYear }}"> {{ thisYear }} </span>
                         <span (click)="yearSelect(nextYear)" [class.yearselected]="nextYear === currentYear" title="Se kalenderår {{ nextYear }}"> {{ nextYear }} </span>
