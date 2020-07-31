@@ -111,12 +111,24 @@ export class BankSettingsAccountlist {
                 },
                 {
                     action: (row) => { this.setAsStandard(2, row); },
-                    label: 'Sett som standard lønn'
+                    label: 'Sett som standard lønn',
+                    disabled: (row) => row.ID === this.companySettings.SalaryBankAccountID
+                },
+                {
+                    action: (row) => { this.removeStandard(2, row); },
+                    label: 'Fjern som standard lønn',
+                    disabled: (row) => row.ID !== this.companySettings.SalaryBankAccountID
                 },
                 {
                     action: (row) => { this.setAsStandard(3, row); },
-                    label: 'Sett som standard skatt'
-                }
+                    label: 'Sett som standard skatt',
+                    disabled: (row) => row.ID === this.companySettings.TaxBankAccountID
+                },
+                {
+                    action: (row) => { this.removeStandard(3, row); },
+                    label: 'Fjern som standard skatt',
+                    disabled: (row) => row.ID !== this.companySettings.TaxBankAccountID
+                },
             ]);
     }
 
@@ -140,7 +152,28 @@ export class BankSettingsAccountlist {
         return '';
     }
 
+    removeStandard(index: number, row: BankAccount) {
+        if (index === 2) {
+            this.companySettings.SalaryBankAccountID = null;
+            this.companySettings.SalaryBankAccount = null;
+        } else if (index === 3) {
+            this.companySettings.TaxBankAccountID = null;
+            this.companySettings.TaxBankAccount = null;
+        }
+
+        this.changeAccount.emit();
+
+        this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
+        this.toast.addToast('Standardkonto endret', ToastType.info, 8, 'Standard konto fjernet fra bankinnstillinger. Husk å lagre innstillinger.');
+    }
+
     setAsStandard(index: number, row: BankAccount) {
+
+        if (row.ID === this.companySettings.CompanyBankAccountID) {
+            this.toast.addToast('Konto er allerede standard', ToastType.info, 12, 'Denne konto er allerede standard driftskonto. Standard driftskonto brukes som standard for skatt og lønn også, om ikke de er definert.');
+            return;
+        }
+
         if (index === 1) {
             this.companySettings.CompanyBankAccountID = row.ID;
         } else if (index === 2) {
@@ -152,7 +185,7 @@ export class BankSettingsAccountlist {
         this.changeAccount.emit();
 
         this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
-        this.toast.addToast('Standardkonto endret', ToastType.info, 8, 'Standard konto endret på bankinnstillinger. Husk å lagre innstillinger.')
+        this.toast.addToast('Standardkonto endret', ToastType.info, 8, 'Standard konto endret på bankinnstillinger. Husk å lagre innstillinger.');
     }
 
     deleteAccount(row) {
