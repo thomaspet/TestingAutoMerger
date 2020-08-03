@@ -77,6 +77,10 @@ export class OCRHelperClass {
         );
     }
 
+    getOCRCount() {
+        return this.uniFilesService.getOcrStatistics();
+    }
+
     private getOrCreateSupplier(ocrData: OcrValuables): Observable<Supplier> {
         const orgNumber = ocrData.Orgno;
 

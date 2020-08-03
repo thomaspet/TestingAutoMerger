@@ -232,11 +232,11 @@ export class SupplierInvoiceView {
             buttons: [],
         };
 
-        if (invoice?.StatusCode < StatusCodeSupplierInvoice.Journaled) {
+        if (!invoice.StatusCode || invoice?.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.toolbarconfig.contextmenu = [
                 {
                     label: 'Kjør OCR-tolk',
-                    action: () => { this.store.runOcr(); }
+                    action: () => { this.store.runOcr(true); }
                 },
                 {
                     label: 'Kjør smart bokføring',

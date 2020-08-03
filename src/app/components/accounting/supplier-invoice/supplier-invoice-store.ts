@@ -37,7 +37,7 @@ import {set} from 'lodash';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
-import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal } from '@uni-framework/uni-modal';
+import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 
 @Injectable()
@@ -183,10 +183,10 @@ export class SupplierInvoiceStore {
         }
     }
 
-    runOcr() {
+    runOcr(force: boolean = false) {
         const invoice = this.invoice$.value;
 
-        if (this.selectedFile && invoice && !invoice?.SupplierID) {
+        const run = () => {
             this.toastService.showLoadIndicator({
                 title: 'Et lite øyeblikk',
                 message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
@@ -206,6 +206,40 @@ export class SupplierInvoiceStore {
                 },
                 () => this.toastService.hideLoadIndicator()
             );
+        };
+
+        if (this.selectedFile && invoice && !invoice?.SupplierID) {
+            if (this.companySettings.UseOcrInterpretation) {
+                run();
+            } else if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
+                this.ocrHelper.getOCRCount().subscribe((res) => {
+                    if (res?.CountOcrDataUsed <= 10) {
+                        run();
+                    } else {
+                        this.companySettingsService.PostAction(1, 'ocr-trial-used').subscribe(success => {
+                            this.companySettings.UseOcrInterpretation = false;
+
+                            this.modalService.open(UniConfirmModalV2, {
+                                header: 'OCR tolkning er ikke aktivert',
+                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning)'
+                                + ' 10 ganger gratis. For å bruke tjenesten'
+                                + ' videre må du aktivere OCR tolkning under regnskapsinnstillinger.',
+                                buttonLabels: {
+                                    accept: 'OK',
+                                }
+                            });
+                        }, err => this.errorService.handle(err));
+                    }
+                });
+            } else if (force) {
+                this.modalService.open(UniConfirmModalV2, {
+                    header: 'OCR tolkning er deaktivert',
+                    message: 'Vennligst aktiver OCR tolkning under regnskapsinnstillinger for å benytte OCR tolkning av fakturaer',
+                    buttonLabels: {
+                        accept: 'OK'
+                    }
+                });
+            }
         }
     }
 
