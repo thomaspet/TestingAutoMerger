@@ -31,10 +31,10 @@ interface RegistrationOption {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
-    hasInitialized: boolean;
     appName = theme.appName;
 
     tokenSubscription: Subscription;
+    routeSubscription: Subscription;
 
     selectedCompanyType: string;
     isTest: boolean;
@@ -58,15 +58,15 @@ export class RegisterCompany {
         private errorService: ErrorService,
         private elsaContractService: ElsaContractService
     ) {
-        this.route.queryParamMap.subscribe(params => {
-            this.isTest = params.get('isTest') === 'true' || false;
-            this.selectedCompanyType = params.get('type') || undefined;
-        });
-
         this.tokenSubscription = this.authService.token$.subscribe(token => {
             if (token) {
-                if (!this.hasInitialized) {
-                    this.init();
+                this.init();
+
+                if (!this.routeSubscription) {
+                    this.routeSubscription = this.route.queryParamMap.subscribe(params => {
+                        this.isTest = params.get('isTest') === 'true' || false;
+                        this.selectedCompanyType = params.get('type') || undefined;
+                    });
                 }
             } else {
                 this.router.navigateByUrl('/init/login');
@@ -75,9 +75,8 @@ export class RegisterCompany {
     }
 
     ngOnDestroy() {
-        if (this.tokenSubscription) {
-            this.tokenSubscription.unsubscribe();
-        }
+        this.tokenSubscription?.unsubscribe();
+        this.routeSubscription?.unsubscribe();
     }
 
     init() {
@@ -88,6 +87,11 @@ export class RegisterCompany {
             const contract = contracts && contracts[0];
             if (contracts) {
                 this.contractID = contract.ID;
+
+                if (contract.Customer?.SignUpReferrer === 'CustomerProspect') {
+                    this.router.navigateByUrl('/init/register-company?type=company');
+                }
+
                 this.registrationOptions = theme.theme === THEMES.SR
                     ? this.getSrOptions()
                     : this.getUeOptions();
@@ -101,10 +105,6 @@ export class RegisterCompany {
             }
 
         }, err => this.errorService.handle(err));
-    }
-
-    navigate(url: string) {
-        this.router.navigateByUrl(url);
     }
 
     // tslint:disable

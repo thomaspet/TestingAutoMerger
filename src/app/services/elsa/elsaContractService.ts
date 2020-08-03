@@ -30,7 +30,7 @@ export class ElsaContractService {
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint('/api/contracts?$expand=AgreementAcceptances')
+            .withEndPoint('/api/contracts?$expand=AgreementAcceptances,Customer')
             .send()
             .map(req => req.body);
     }

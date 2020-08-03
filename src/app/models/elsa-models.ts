@@ -24,6 +24,7 @@ export interface ElsaCustomer {
     CompanyTypeID?: number;
     PersonalNumber?: string;
     IsBankCustomer: boolean;
+    SignUpReferrer: string;
 }
 
 export interface ElsaCompanyLicense {
@@ -57,6 +58,7 @@ export enum ElsaPurchaseStatus {
 export interface ElsaContract {
     ID: number;
     CustomerID: number;
+    Customer: ElsaCustomer;
     ContractType: ContractType;
     ContractTypes: ElsaContractType;
     StatusCode: number;

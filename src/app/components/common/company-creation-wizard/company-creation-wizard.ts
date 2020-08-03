@@ -3,7 +3,7 @@ import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {AuthService} from '@app/authService';
-import {ModulusService, InitService, ErrorService, CompanyService} from '@app/services/services';
+import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService} from '@app/services/services';
 import {map, catchError} from 'rxjs/operators';
 import {get} from 'lodash';
 import {of, Subscription} from 'rxjs';
@@ -57,6 +57,7 @@ export class CompanyCreationWizard {
         private initService: InitService,
         private errorService: ErrorService,
         private companyService: CompanyService,
+        private elsaContractService: ElsaContractService,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -70,6 +71,16 @@ export class CompanyCreationWizard {
         if (this.isBrunoEnv) {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
         }
+
+        this.elsaContractService.getAll().subscribe(contracts => {
+            const contract = contracts && contracts[0];
+            if (contract?.Customer?.OrgNumber?.length) {
+                this.orgNumberLookup(contract.Customer.OrgNumber).subscribe(
+                    res => this.onBrRegCompanyChange(res[0]),
+                    err => console.error(err)
+                );
+            }
+        });
     }
 
     private orgNumberLookup(query) {
