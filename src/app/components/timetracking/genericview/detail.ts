@@ -130,24 +130,12 @@ export class GenericDetailview implements OnInit, OnChanges {
                 add: () => {
                     this.onCreateNew();
                 }
-            },
-            contextmenu: [
-                { label: labels.action_delete,
-                    action: () => {
-                        this.onDelete();
-                    }
-                }
-            ]
+            }
         };
-
     }
 
     public onReady() {
         this.loadCurrent(this.ID);
-    }
-
-    public onDelete() {
-        this.delete();
     }
 
     public onShowList() {
