@@ -80,7 +80,7 @@ export class CompanyCreationWizard {
                     err => console.error(err)
                 );
             }
-        });
+        }, err => console.error(err));
     }
 
     private orgNumberLookup(query) {
