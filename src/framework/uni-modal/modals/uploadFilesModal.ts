@@ -225,7 +225,7 @@ export class UniFileUploadModal implements IUniModal {
             f.ContentType !== 'bank/PAIN002').length) {
 
                 this.hasErrors = true;
-                this.message += 'Noen filer har feil filtype og vil ikke bli lastet opp';
+                this.message += 'Noen filer har feil filtype og vil ikke bli lastet opp. Aksepterte filtyper er OCR, Camt054, og Pain002';
 
                 this.files = this.files.filter(f =>
                     f.ContentType === 'bank/OCR' ||
