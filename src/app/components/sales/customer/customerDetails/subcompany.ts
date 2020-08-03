@@ -1,258 +1,178 @@
-import {Component, Input, OnInit, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {Customer} from '@uni-entities';
+import {Customer, SubCompany, CompanyRelation} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
-import {GuidService} from '@app/services/services';
-import {FieldType, UniForm} from '@uni-framework/ui/uniform';
+import {GuidService, ElsaContractService, ErrorService} from '@app/services/services';
+import {FieldType} from '@uni-framework/ui/uniform';
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense} from '@app/models';
-
-export interface ISubCompany {
-    ID?: number;
-    CustomerID?: number;
-    CompanyName: string;
-    CompanyID?: number;
-    CompanyType?: CompanyTypeEnum;
-    CompanyKey?: string;
-    StatusCode?: number;
-    Deleted?: boolean;
-    _createguid?: string;
-}
-
-export enum CompanyTypeEnum {
-    ChildOfBureau = 1,
-    Subsidiary = 2
-}
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'subcompanycomponent',
+    styleUrls: ['./subcompany.sass'],
     template: `
-        <article [attr.aria-busy]="busy">
-            <uni-form
-                [config]="{}"
-                [fields]="fields$"
-                [model]="subCompany$"
-                (changeEvent)="onChange($event)">
-            </uni-form>
-        </article>
+
+        <section class="uni-card">
+            <section class="uni-card-header">
+                <h1>Kobling mot underselskap</h1>
+                <button class="tertiary bad pull-right"
+                    *ngIf="isLicenseAdmin"
+                    (click)="removeSubCompany()"
+                    [disabled]="!(subCompany$ | async)?.CompanyKey"
+                    [attr.aria-busy]="deleteBusy">
+
+                    Slett kobling
+                </button>
+            </section>
+
+            <section class="uni-card-content">
+                <section *ngIf="!isLicenseAdmin || licenseCompanies?.length === 0" class="alert warn">
+                    Det er kun lisensadministratorer som kan redigere kobling mot underselskap
+                </section>
+
+                <uni-form
+                    [config]="{autoFocus: true}"
+                    [fields]="fields$"
+                    [model]="subCompany$"
+                    (changeEvent)="onFormChange()">
+                </uni-form>
+            </section>
+        </section>
     `
 })
-export class SubCompanyComponent implements OnInit {
-    @Input() public customer: BehaviorSubject<Customer> = new BehaviorSubject(null);
-    @Output() public change: EventEmitter<ISubCompany> = new EventEmitter<ISubCompany>();
-    @ViewChild(UniForm, { static: true }) private uniForm: UniForm;
+export class SubCompanyComponent {
+    @Input() customer: Customer;
+    @Output() customerChange = new EventEmitter<Customer>();
 
-    public subCompany$: BehaviorSubject<ISubCompany> = new BehaviorSubject(null);
-    public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
-    public canDelete = false;
-    public candidates: ElsaCompanyLicense[] = [];
-    public busy = false;
+    deleteBusy: boolean;
+    isLicenseAdmin: boolean;
+    licenseCompanies: ElsaCompanyLicense[];
 
-    private layout: { Name: string, BaseEntity: string, Fields: Array<any> };
-    private activeCompanyKey = '';
-    private activated = false;
-    private subCompanies = [];
-    public currentCustomerID = 0;
+    fields$ = new BehaviorSubject([]);
+    subCompany$ = new BehaviorSubject<Partial<SubCompany>>(null);
 
-    constructor(private http: UniHttp, private guidService: GuidService, authService: AuthService) {
-        authService.authentication$.take(1).subscribe(auth => {
-            this.activeCompanyKey = auth && auth.activeCompany.Key;
-        });
-    }
+    constructor(
+        private http: UniHttp,
+        private guidService: GuidService,
+        private authService: AuthService,
+        private elsaContractService: ElsaContractService,
+        private errorService: ErrorService,
+    ) {}
 
-    ngOnInit(): void {
-        this.layout = this.createFormLayout();
-        this.fields$.next(this.layout.Fields);
+    ngOnInit() {
+        this.isLicenseAdmin = this.authService.currentUser?.License?.CustomerAgreement?.CanAgreeToLicense;
 
-        if (this.customer) {
-            this.customer.subscribe( c => this.onParentCustomerChange(c) );
-        }
-    }
-
-    public activate() {
-        if (!this.activated) {
-            this.activated = true;
-            this.getLicenseCustomers();
-            this.onParentCustomerChange(this.customer.getValue());
+        if (this.isLicenseAdmin) {
+            const contractID = this.authService.currentUser.License.Company?.ContractID;
+            this.elsaContractService.getCompanyLicenses(contractID).subscribe(
+                companies => {
+                    this.licenseCompanies = companies;
+                    this.fields$.next(this.getFields());
+                },
+                err => this.errorService.handle(err)
+            );
         } else {
-            if (this.candidates.length === 0) {
-                this.getLicenseCustomers();
+            this.fields$.next(this.getFields());
+        }
+    }
+
+    ngOnChanges() {
+        if (this.customer) {
+            let subCompany: Partial<SubCompany> = this.customer.Companies && this.customer.Companies[0];
+            if (!subCompany) {
+                subCompany = {
+                    CompanyKey: null,
+                    CustomerID: this.customer.ID,
+                    _createguid: this.guidService.guid()
+                };
             }
+
+            this.subCompany$.next(cloneDeep(subCompany));
         }
     }
 
-    public refresh() {
-        this.currentCustomerID = 0;
-        this.canDelete = false;
-        this.uniForm.ngOnInit();
-        this.onParentCustomerChange(this.customer.getValue());
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.subCompany$.complete();
     }
 
-    public onChange(event) {
-        const value = this.subCompany$.getValue();
-        const change = event['_licenseCompany'];
-        if (change) {
-            const match = this.candidates.find( x => x.ID === change.currentValue);
-            if (match) {
-                value.CompanyKey = match.CompanyKey;
-                value.CompanyName = match.CompanyName;
-                this.subCompany$.next(value);
-            }
-        }
-        this.updateParent(value);
-    }
+    onFormChange() {
+        const subCompany = <SubCompany> this.subCompany$.getValue();
+        if (subCompany.CompanyKey) {
+            const company = this.licenseCompanies.find(c => c.CompanyKey === subCompany.CompanyKey);
+            subCompany.CompanyName = company?.CompanyName;
+            subCompany.CompanyType = subCompany.CompanyType || CompanyRelation.ChildOfBeurea,
 
-    public onDelete() {
-        const item = this.subCompany$.getValue();
-        if (item.ID) {
-            item.Deleted = true;
-            this.canDelete = false;
-            this.uniForm.readMode();
-            this.updateParent(item);
+            this.subCompany$.next(subCompany);
+            this.customer.Companies = [subCompany];
+            this.customerChange.emit(cloneDeep(this.customer));
         }
     }
 
-    private updateParent(item: ISubCompany) {
-        this.subCompanies[0] = item;
-        const cust = this.customer.getValue();
-        cust['Companies'] = this.subCompanies;
-        this.customer.next(cust);
-        this.change.emit(item);
-    }
+    removeSubCompany() {
+        const subCompanyID = this.subCompany$.value?.ID;
 
-    public onParentCustomerChange(c: Customer) {
-        if (!this.activated) { return; }
-        if (c && c.ID && (c.ID !== this.currentCustomerID)) {
-            this.busy = true;
-            this.currentCustomerID = c.ID;
-
-            this.http.asGET()
+        if (subCompanyID) {
+            this.deleteBusy = true;
+            this.http.asDELETE()
                 .usingBusinessDomain()
-                .withEndPoint(`subcompanies?filter=customerid eq ${c.ID}`)
+                .withEndPoint('subcompanies/' + subCompanyID)
                 .send()
-                .map(res => res.body)
                 .subscribe(
-                    res => {
-                        if (res && res.length) {
-                            this.subCompanies = res;
-                        } else {
-                            this.subCompanies = [{
-                                CompanyName: '',
-                                _createguid: this.guidService.guid()
-                            }];
-                        }
-
-                        this.canDelete = this.subCompanies[0].ID !== undefined;
-                        this.attachLicense(this.subCompanies[0]);
-                        this.subCompany$.next(this.subCompanies[0]);
-                        this.busy = false;
+                    () => {
+                        this.customer.Companies = null;
+                        this.customerChange.emit(cloneDeep(this.customer));
+                        this.deleteBusy = false;
                     },
                     err => {
-                        console.error(err);
-                        this.busy = false;
+                        this.errorService.handle(err);
+                        this.deleteBusy = false;
                     }
                 );
+        } else {
+            this.customer.Companies = null;
+            this.customerChange.emit(cloneDeep(this.customer));
         }
-
-        this.subCompanies = this.subCompanies || [];
     }
 
-    private createFormLayout() {
-        return {
-            Name: 'SubCompany',
-            BaseEntity: 'SubCompany',
-            Fields: [
-                {
-                    FieldSet: 1,
-                    Legend: 'Kobling mot underselskap',
-                    Property: '_licenseCompany',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Oppslag',
-                    ReadOnly: false,
-                    Options:  {
-                        source: [],
-                        valueProperty: 'ID',
-                        template: (item: ElsaCompanyLicense) => item.CompanyName,
-                        hideDeleteButton: false
-                    }
-                 },
-                {
-                    FieldSet: 1,
-                    Property: 'CompanyName',
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: true,
-                    Label: 'Navn',
-                },
-                {
-                    FieldSet: 1,
-                    Property: 'CompanyKey',
-                    FieldType: FieldType.TEXT,
-                    ReadOnly: true,
-                    Label: 'Selskapsnøkkel',
-                },
-                {
-                    FieldSet: 1,
-                    Property: 'CompanyType',
-                    FieldType: FieldType.DROPDOWN,
-                    Label: 'Type',
-                    Options:  {
-                        source: [ { ID: 1, Name: 'Byråklient' }, { ID: 2, Name: 'Datterselskap' }],
-                        valueProperty: 'ID',
-                        template: item => item.Name,
-                        hideDeleteButton: true
-                    }
-                 },
-                 {
-                    FieldSet: 1,
-                    Property: 'DeleteButton',
-                    FieldType: FieldType.BUTTON,
-                    Label: 'Fjern kobling',
-                    Options: {
-                        class: 'bad',
-                        click: () => {
-                            this.onDelete();
-                        }
-                    }
+    private getFields() {
+        let companyField;
+        if (this.isLicenseAdmin && this.licenseCompanies?.length) {
+            companyField = {
+                Property: 'CompanyKey',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Selskap',
+                Options:  {
+                    source: this.licenseCompanies,
+                    valueProperty: 'CompanyKey',
+                    template: (item: ElsaCompanyLicense) => item.CompanyName,
+                    hideDeleteButton: true
                 }
-            ]
-        };
-    }
-
-    private getLicenseCustomers() {
-        return this.http.asGET()
-            .usingElsaDomain()
-            .withEndPoint('/api/companylicenses')
-            .send()
-            .subscribe(
-                res => this.showLicenses(res.body),
-                err => console.error(err)
-            );
-    }
-
-    private showLicenses(list: ElsaCompanyLicense[]) {
-        this.candidates = (list || [])
-            .filter( x => x.CompanyKey !== this.activeCompanyKey )
-            .sort((a, b) => (a.CompanyName || '').localeCompare(b.CompanyName));
-
-        // Set the combo-value?
-        const current = this.subCompany$.getValue();
-        if (current && current.CompanyKey) {
-            this.attachLicense(current);
-            this.subCompany$.next(current);
+            };
+        } else {
+            companyField = {
+                Property: 'CompanyName',
+                FieldType: FieldType.TEXT,
+                Label: 'Selskap',
+                ReadOnly: true
+            };
         }
 
-        // Update combo in form-view:
-        const combo = this.layout.Fields.find( x => x.Property === '_licenseCompany');
-        if (combo) {
-            combo.ReadOnly = this.candidates.length === 0;
-            combo.Options.source = this.candidates;
-            this.fields$.next(this.layout.Fields);
-        }
-    }
-
-    private attachLicense(value: ISubCompany) {
-        const match = this.candidates.find( x => x.CompanyKey === value.CompanyKey);
-        value.CompanyType = value.CompanyType || 1;
-        value['_licenseCompany'] = match ? match.ID : undefined;
+        return [
+            companyField,
+            {
+                Property: 'CompanyType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Type',
+                ReadOnly: !this.isLicenseAdmin,
+                Options:  {
+                    source: [ { ID: 1, Name: 'Byråklient' }, { ID: 2, Name: 'Datterselskap' }],
+                    valueProperty: 'ID',
+                    template: item => item.Name,
+                    hideDeleteButton: true
+                }
+            },
+        ];
     }
 }
