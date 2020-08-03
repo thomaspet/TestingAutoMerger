@@ -305,9 +305,9 @@ export class JournalEntries {
                     this.journalEntryService.getJournalEntryDataByJournalEntryDraftGroup(selectedLine.JournalEntryDraftGroup)
                         .subscribe(journalEntryData => {
 
-                          
 
-                            
+
+
                             this.editmode = false;
                             this.journalEntryManual.currentJournalEntryID = null;
                             this.currentJournalEntryID = 0;
@@ -315,7 +315,7 @@ export class JournalEntries {
                             setTimeout(() => {
                                 this.journalEntryManual.setJournalEntryData(journalEntryData);
                                 this.journalEntryManual.isDirty = true;
-                                
+
                             });
                         }, err => this.errorService.handle(err)
                     );
@@ -374,20 +374,37 @@ export class JournalEntries {
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
                 this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
-                    .subscribe(
-                        res => {
+                    .subscribe(res => {
+                        if (res?.ProgressUrl) {
                             this.toastService.addToast(
-                                'Kreditering utført',
-                                ToastType.good,
-                                ToastTime.short
+                                'Kreditering startet', ToastType.good, ToastTime.long,
+                                'Det opprettes en jobb for krediteringen av bilaget. ' +
+                                'Avhengig av antall linjer kan dette ta litt tid. Vennligst vent.'
                             );
 
-                            this.journalEntryManual.loadData();
-                        },
-                        err => this.errorService.handle(err)
+                            this.journalEntryService.waitUntilJobCompleted(res.ID).subscribe(() => {
+                                this.displayCreditJournalEntryDoneToast();
+                            },
+                            err => this.errorService.handle(err)
+                            );
+                        } else {
+                            this.displayCreditJournalEntryDoneToast();
+                        }
+                    },
+                    err => this.errorService.handle(err)
                     );
             }
         });
+    }
+
+    private displayCreditJournalEntryDoneToast() {
+        this.toastService.addToast(
+            'Kreditering utført',
+            ToastType.good,
+            ToastTime.short
+            );
+
+        this.journalEntryManual.loadData();
     }
 
     public onDataCleared() {
