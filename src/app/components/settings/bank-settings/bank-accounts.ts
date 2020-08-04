@@ -234,8 +234,11 @@ export class BankSettingsAccountlist {
             buttonIcons: {
                 accept: 'launch'
             },
-            icon: 'themes/ext02/ext02-success-accountconfig.svg'
+            icon: 'themes/ext02/ext02-success-accountconfig.svg',
+            closeOnClickOutside: false
         };
+
+        this.bankAccount = null;
 
         this.modalService.open(ConfigBankAccountsInfoModal, options).onClose.subscribe((response: ConfirmActions) => {
             if (response === ConfirmActions.ACCEPT) {
