@@ -82,6 +82,5 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_settings_webhooks',
 
         'ui_marketplace_integrations',
-        'ui_marketplace_purchases',
     ],
 };
