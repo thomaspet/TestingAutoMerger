@@ -8,6 +8,7 @@ import {OpeningBalanceService} from '@app/components/settings/opening-balance/op
 import {forkJoin} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {GoToPostModal} from '@app/components/settings/opening-balance/goToPostModal';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'opening-balance-component',
@@ -27,6 +28,7 @@ export class OpeningBalanceComponent {
             ).subscribe(() => {
                 done('Lagret og bokført');
                 this.disableSaveButton();
+                this.router.navigateByUrl('/');
             }, err => this.errorHandler.handleError(err)),
             main: true,
             disabled: true
@@ -48,7 +50,8 @@ export class OpeningBalanceComponent {
     constructor(
         private modalService: UniModalService,
         private openingBalanceService: OpeningBalanceService,
-        private errorHandler: ErrorHandler
+        private errorHandler: ErrorHandler,
+        private router: Router
     ) {
         this.tableconfig = this.createTableConfig();
     }
