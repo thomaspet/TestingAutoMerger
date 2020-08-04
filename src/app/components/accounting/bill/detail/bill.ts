@@ -4,7 +4,7 @@ import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastS
 import {ActivatedRoute, Router} from '@angular/router';
 import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
-import {filterInput, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
+import {filterInput, getNewGuid, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
     Approval,
     ApprovalStatus,
@@ -3443,10 +3443,19 @@ export class BillView implements OnInit, AfterViewInit {
                     current.Items = null;
                     // if the journalentry is already booked, clear the object before saving as we don't
                     // want to resave a booked journalentry
+                    // also clean up _createguid property if that was saved before
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                         current.JournalEntry = null;
                     } else {
+                        if (current.JournalEntry?.ID) {
+                            current.JournalEntry._createguid = undefined // avoid push to server
+                        }
                         current.JournalEntry.DraftLines.forEach(line => {
+                            if (line.ID && line._createguid) {
+                                line._createguid = undefined; // avoid push to server
+                            } else if (!line.ID && line._createguid) {
+                                line._createguid = getNewGuid();
+                            }
                             if (!line.VatDeductionPercent) {
                                 line.VatDeductionPercent = 0;
                             }
