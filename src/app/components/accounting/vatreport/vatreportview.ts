@@ -36,6 +36,7 @@ import {
     VatTypeService
 } from '../../../services/services';
 import {IUniTab} from '@uni-framework/uni-tabs';
+import {filter, switchMap, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'vat-report-view',
@@ -618,10 +619,12 @@ export class VatReportView implements OnInit, OnDestroy {
         let authData;
         this.modalService
             .open(AltinnAuthenticationModal)
-            .onClose
-            .filter(auth => !!auth)
-            .do(auth => authData = auth)
-            .switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            .onClose.pipe(
+                tap(auth => !auth ? done('Signering avbrutt') : ''), // if auth is false show done message and let filter stop propagation
+                filter(auth => !!auth),
+                tap(auth => authData = auth),
+                switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            )
             .subscribe(text => {
                 this.modalService.open(UniConfirmModalV2, {
                     header: 'Vennligst bekreft',
