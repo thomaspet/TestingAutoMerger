@@ -96,7 +96,7 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
                     } else if (this.brunoOnboardingService.hasNewAccountInfo(this.agreement)) {
                         this.brunoOnboardingService.isFirstOnboarding(this.agreement).subscribe((isFirstOnboarding) => {
                             this.msg = isFirstOnboarding ?
-                                'Integrasjon er klar fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>' :
+                                'Kobling mellom regnskap og bank er klar.<br/> Husk å sette opp kontoene riktig. <br/>' :
                                 'Vi har mottatt nye kontoer fra banken. <br/> Hjelp oss å knytte riktige kontoer til DNB Regnskap. <br/>';
                             this.actionLink = ' Sett opp kontoen(e) her';
                             this.actionMsg = '';

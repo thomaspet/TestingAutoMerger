@@ -129,7 +129,7 @@ export class BrunoOnboardingService {
                                             this.onAgreementStatusChanged.emit();
 
                                             const sucsessModalOptions: IModalOptions = {
-                                                header: 'Integrasjonen med banken er klar!',
+                                                header: 'Kobling mellom regnskap bank er klar!',
                                                 message: 'Alle bankkontoer er nå oppdatert i DNB Regnskap og er klar for bruk',
                                                 footerCls: 'center',
                                                 buttonLabels: {

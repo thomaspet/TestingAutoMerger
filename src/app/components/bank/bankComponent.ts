@@ -362,7 +362,7 @@ export class BankComponent {
                                         this.brunoOnboardingService.isFirstOnboarding(agreements[0]).subscribe((isFirstOnboarding) => {
                                                 this.toolbarconfig.infoBannerConfig = {
                                                     message: isFirstOnboarding ?
-                                                    'Integrasjon er klar fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.' :
+                                                    'Kobling mellom regnskap og bank er klar. Husk å sette opp kontoene riktig.' :
                                                     'Vi har mottatt nye kontoer fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
                                                     link: 'Sett opp kontoen(e) her',
                                                     action: () => {
