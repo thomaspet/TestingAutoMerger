@@ -51,6 +51,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.numberseries-others',
         'ui.accountsettings-add-and-import',
         'ui.dashboard.edit',
+        'ui.timetracking',
 
         'ui.accounting.assets',
 
@@ -82,5 +83,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_settings_webhooks',
 
         'ui_marketplace_integrations',
+        'ui_timetracking_*',
     ],
 };

@@ -79,6 +79,7 @@ export class UniReports implements OnInit {
         {
             name: 'Timetracking',
             label: 'Timer',
+            featurePermission: 'ui.timetracking',
             groups: [
                 { name: 'Timeracking', label: 'Timeregistrering', reports: [], keywords: ['Timer'] },
             ]
