@@ -6,6 +6,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {BankService, ErrorService, BankAccountService, StatisticsService} from '@app/services/services';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {BehaviorSubject} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'company-bankaccount-edit',
@@ -144,6 +145,12 @@ export class CompanyBankAccountEdit {
 
         if (!account.Bank || !account.Bank.BIC) {
             this.errorMsg = 'Kan ikke lagre bankkonto uten gyldig bank og BIC. Du må velge en bank og oppgi en BIC for Banken.';
+            return;
+        }
+
+        // Only allow DnB accounts when in ext02 theme
+        if (theme.theme === THEMES.EXT02 && !account.ID && account.Bank.BIC !== 'DNBANOKK') {
+            this.errorMsg = 'DNB-Regnskap tillatter kun gyldige kontoer fra DNB som systemkontoer';
             return;
         }
 
