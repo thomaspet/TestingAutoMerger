@@ -21,6 +21,8 @@ import {
 } from '@uni-framework/uni-modal';
 import { IUniTab } from '@uni-framework/uni-tabs';
 import { ActivatedRoute } from '@angular/router';
+import { FeaturePermissionDirective } from '@uni-framework/featurePermission.directive';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'bank-settings',
@@ -31,6 +33,7 @@ export class UniBankSettings {
 
     isSrEnvironment = theme.theme === THEMES.SR;
     isExt02Environment = theme.theme === THEMES.EXT02;
+    showRemAccounts: boolean = true;
     dataLoaded: boolean = false;
     hideBankValues: boolean = false;
     hideXtraPaymentOrgXmlTagValue: boolean = false;
@@ -58,8 +61,9 @@ export class UniBankSettings {
 
     activeIndex: number = 0;
     tabs: IUniTab[] = [
-        {name: 'Bankinnstillinger'},
-        {name: 'Bankkontoer'}
+        {name: 'Bankkontoer'},
+        {name: 'Bankinnstillinger'}
+
     ];
     bankAccountQuery = 'model=BankAccount&filter=CompanySettingsID eq 1&join=BankAccount.ID eq Payment.FromBankAccountID&select=ID as ID,count(Payment.ID) as count';
 
@@ -83,10 +87,12 @@ export class UniBankSettings {
         private route: ActivatedRoute,
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
-        private bankService: BankService
+        private bankService: BankService,
+        private featurePermissionService: FeaturePermissionService
     ) {}
 
     ngOnInit() {
+        this.showRemAccounts = !(this.isExt02Environment) || this.featurePermissionService.canShowUiFeature('ui.accountsettings.interrimaccounts');
         this.route.queryParams.subscribe(params => {
             const index = +params['index'];
             if (!isNaN(index) && index >= 0 && index < this.tabs.length) {

@@ -81,8 +81,8 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.BANK', activeInSidebar: false, url: '/settings/bank',
                         subSettings: [
-                            {name: 'Bankinnstilliger', activeInSidebar: false, url: '/settings/bank?index=0', keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']},
-                            {name: 'Bankkontoer', activeInSidebar: false, url: '/settings/bank?index=1', keyWords: ['Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']},
+                            {name: 'Bankkontoer', activeInSidebar: false, url: '/settings/bank?index=0', keyWords: ['Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']},
+                            {name: 'Bankinnstilliger', activeInSidebar: false, url: '/settings/bank?index=1', keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']},
                         ],
                         keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']
                     },

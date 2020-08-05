@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {Observable} from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {BankAccount} from '@app/unientities';
+import {BankAccount, CompanySettings} from '@app/unientities';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {BankService, ErrorService, BankAccountService, StatisticsService} from '@app/services/services';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -21,7 +21,7 @@ import {BehaviorSubject} from 'rxjs';
         <small style="color: red"> {{ errorMsg }} </small>
 
         <footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
-            <button class="c2a secondary" style="min-width: 8rem" (click)="saved.emit(false)">Lukk</button>
+            <button class="c2a secondary" style="min-width: 8rem" (click)="saved.emit(false);">Lukk</button>
             <button class="c2a" style="min-width: 8rem"  (click)="save()">Lagre konto</button>
         </footer>
     `,
@@ -34,6 +34,9 @@ export class CompanyBankAccountEdit {
 
     @Input()
     isNew: boolean = false;
+
+    @Input()
+    companySettings: CompanySettings;
 
     @Output()
     saved = new EventEmitter();
@@ -60,6 +63,7 @@ export class CompanyBankAccountEdit {
 
     public ngOnChanges() {
         this.bankAccount['_link'] = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/konto/skattetrekkskonto.html?noredirect=true';
+        this.bankAccount['_hasChangedStandard'] = this.bankAccount['_hasChangedStandard'] || false;
         this.bankAccount.CompanySettingsID = 1;
 
         if (!this.bankAccount) {
@@ -160,6 +164,7 @@ export class CompanyBankAccountEdit {
             : this.bankAccountService.Post<BankAccount>(account);
 
         const isStandard = account['_isStandard'];
+        const changedStandard = account['_hasChangedStandard'];
 
         obs.subscribe(response => {
             this.bankAccountService.Get(response.ID, ['Bank', 'Account']).subscribe(savedAccount => {
@@ -168,6 +173,7 @@ export class CompanyBankAccountEdit {
 
                 // Add the old appended values to the new saved object
                 savedAccount['_isStandard'] = isStandard;
+                savedAccount['_hasChangedStandard'] = changedStandard;
                 savedAccount = this.bankService.mapBankIntegrationValues(savedAccount);
 
                 this.saved.emit(savedAccount);
@@ -195,6 +201,7 @@ export class CompanyBankAccountEdit {
             if (accountType?.suggestion > 1500 && (!this.formModel$.value.AccountID || this.isNew)) {
                 this.getDefaultAccountFromAccountNumber(accountType.suggestion);
             }
+            this.formFields$.next(this.getFormFields(true));
         }
 
         if (changes['AccountID'] && changes['AccountID'].currentValue === null) {
@@ -208,6 +215,17 @@ export class CompanyBankAccountEdit {
             const account = this.formModel$.getValue();
             this.validMainAccount = true;
             this.getBankAccountsConnectedToAccount(changes['AccountID'].currentValue);
+        }
+
+        if (changes['_isStandard']) {
+            const account = this.formModel$.value;
+            if (changes['_isStandard'].previousValue && account.BankAccountType === 'company' && !account['_hasChangedStandard']) {
+                account['_isStandard'] = true;
+                this.formModel$.next(account);
+                this.toastService.addToast('Ugyldig handlig', ToastType.warn, 10, 'Kan ikke fjerne standard driftskonto. Om du skal sette ny konto som standard, velg den konto og sett som standard');
+            } else {
+                account['_hasChangedStandard'] = !account['_hasChangedStandard'];
+            }
         }
     }
 
@@ -289,7 +307,7 @@ export class CompanyBankAccountEdit {
         });
     }
 
-    private getFormFields(): Partial<UniFieldLayout>[] {
+    private getFormFields(hideStandard: boolean = false): Partial<UniFieldLayout>[] {
         const ba = this.formModel$.value;
         return [
             {
@@ -364,8 +382,8 @@ export class CompanyBankAccountEdit {
                 EntityType: 'BankAccount',
                 Property: '_isStandard',
                 FieldType: FieldType.CHECKBOX,
-                ReadOnly: false,
-                Hidden: !this.isNew,
+                ReadOnly: this.formModel$.value['_isStandard'] && this.formModel$.value.ID === this.companySettings.CompanyBankAccountID,
+                Hidden: hideStandard && !this.isNew,
                 Label: 'Standard ' + (ba.BankAccountType === 'company' ? 'driftskonto' : ba.BankAccountType === 'salary' ? 'lønnskonto' : 'skattekonto'),
             }
         ];

@@ -31,7 +31,7 @@
         [(activeIndex)]="activeIndex">
 	</uni-tabs>
 
-	<company-bankaccount-edit [hidden]="activeIndex !== 0" [(bankAccount)]="bankAccount" (setBusy)="setBusy($event)" (saved)="savedFromSidemenu($event)"> </company-bankaccount-edit>
+	<company-bankaccount-edit [hidden]="activeIndex !== 0" [(bankAccount)]="bankAccount" [companySettings]="companySettings" (setBusy)="setBusy($event)" (saved)="savedFromSidemenu($event)"> </company-bankaccount-edit>
 
 	<section [hidden]="activeIndex !== 1" class="integrations-container">
 		<header>

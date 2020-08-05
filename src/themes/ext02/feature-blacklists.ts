@@ -17,6 +17,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.accounting.supplier.cost_allocation',
         'ui.accounting.supplier.ehf_setup',
         'ui.accounting.supplier.self_employed',
+        'ui.accountsettings.interrimaccounts',
 
         'ui.accounting.bill.delivery_date',
         'ui.accounting.vat-deduction-settings',

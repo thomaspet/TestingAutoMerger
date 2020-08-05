@@ -282,6 +282,7 @@ export class BankSettingsAccountlist {
     }
 
     onRowClick(row) {
+        row['_isStandard'] = this.isStandard(row.ID);
         this.bankAccount = {...row};
     }
 
@@ -294,9 +295,23 @@ export class BankSettingsAccountlist {
             const index = this.bankAccount['_originalIndex'];
             this.companySettings.BankAccounts.splice(index, 1, response);
             this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
+
+            const i = response.BankAccountType === 'company' ? 1 : response.BankAccountType === 'salary' ? 2 : 3;
+            if (response['_hasChangedStandard'] && response['_isStandard']) {
+                this.setAsStandard(i, response);
+            } else if (response['_hasChangedStandard'] && this.isStandard(response.ID)) {
+                this.removeStandard(i, response);
+            }
+            this.bankAccount = null;
         } else {
             this.bankAccount = null;
         }
+    }
+
+    isStandard(ID: number) {
+        return ID === this.companySettings.CompanyBankAccountID ||
+            ID === this.companySettings.SalaryBankAccountID ||
+            ID === this.companySettings.TaxBankAccountID;
     }
 
     getAccountType(row: BankAccount): string {

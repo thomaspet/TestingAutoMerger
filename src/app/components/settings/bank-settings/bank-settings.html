@@ -8,7 +8,34 @@
         (tabClick)="updateTabAndUrl()">
     </uni-tabs>
 
-    <ng-container *ngIf="activeIndex === 0">
+    <ng-container *ngIf="activeIndex === 0 && companySettings">
+        <bank-setttings-accountlist *ngIf="isExt02Environment" [(companySettings)]="companySettings" (changeAccount)="setAsDirty()"> </bank-setttings-accountlist>
+
+        <!-- BANKKONTOER -->
+        <section class="row form-row last" *ngIf="!isExt02Environment">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> {{ 'SETTINGS.BANK_ACCOUNTS' | translate }} </h1>
+                    <p> {{ 'SETTINGS.BANK_ACCOUNTS_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="accountFields$"
+                            [model]="companySettings$"
+                            (changeEvent)="setAsDirty()">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeIndex === 1">
         <!-- BANKINNSTILLINGER -->
         <section class="row form-row">
             <section class="col-md-4">
@@ -33,7 +60,7 @@
         </section>
 
         <!-- AUTOBANK -->
-        <section class="row form-row">
+        <section class="row form-row" *ngIf="!isExt02Environment">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.AUTO_BANK' | translate }} </h1>
@@ -56,7 +83,7 @@
         </section>
 
         <!-- REMITTERING -->
-        <section class="row form-row last">
+        <section class="row form-row last" *ngIf="showRemAccounts">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.REM_ACCOUNTS' | translate }} </h1>
@@ -79,33 +106,6 @@
                             [fields]="remitteringFields$2"
                             [model]="companySalary$"
                             (changeEvent)="setCompanySalaryAsDirty()">
-                        </uni-form>
-                    </section>
-                </section>
-            </section>
-        </section>
-    </ng-container>
-
-    <ng-container *ngIf="activeIndex === 1 && companySettings">
-        <bank-setttings-accountlist *ngIf="isExt02Environment" [(companySettings)]="companySettings" (changeAccount)="setAsDirty()"> </bank-setttings-accountlist>
-
-        <!-- BANKKONTOER -->
-        <section class="row form-row" *ngIf="!isExt02Environment">
-            <section class="col-md-4">
-                <section class="form-info-section">
-                    <h1> {{ 'SETTINGS.BANK_ACCOUNTS' | translate }} </h1>
-                    <p> {{ 'SETTINGS.BANK_ACCOUNTS_INFOTEXT' | translate }} </p>
-                </section>
-            </section>
-
-            <section class="col-md-8">
-                <section class="uni-card">
-                    <section class="uni-card-content">
-                        <uni-form
-                            [config]="{showLabelAbove: true, autoFocus: true}"
-                            [fields]="accountFields$"
-                            [model]="companySettings$"
-                            (changeEvent)="setAsDirty()">
                         </uni-form>
                     </section>
                 </section>
