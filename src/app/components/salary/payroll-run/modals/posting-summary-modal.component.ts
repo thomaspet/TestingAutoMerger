@@ -188,7 +188,7 @@ export class PostingSummaryModalComponent implements OnInit, IUniModal, OnDestro
 
         this.busy = true;
         this.jobBusy = true;
-        this.payrollRunService.invalidateCache();
+        this.sharedPayrollRunService.invalidateCache();
         return this.sharedPayrollRunService
             .getPostingSummaryDraft(payrollRunID)
             .pipe(

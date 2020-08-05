@@ -1,7 +1,7 @@
 import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
 import {Router} from '@angular/router';
 import {
-    SalaryTransactionService, ErrorService, NumberFormat, VacationpayLineService, StatisticsService
+    SalaryTransactionService, ErrorService, NumberFormat, VacationpayLineService, StatisticsService, SharedPayrollRunService
 } from '@app/services/services';
 import { SalaryTransactionSums, SalaryTransaction, VacationPayLine } from '@uni-entities';
 import {BehaviorSubject, Subject, ReplaySubject, Observable, of} from 'rxjs';
@@ -65,6 +65,7 @@ export class ControlModalComponent implements OnInit, IUniModal, OnDestroy {
         private statisticsService: StatisticsService,
         private payrollRunDataService: PayrollRunDataService,
         private modalService: UniModalService,
+        private sharedPayrollRunService: SharedPayrollRunService,
     ) {
         this.description$ = new ReplaySubject<string>(1);
      }
@@ -96,7 +97,7 @@ export class ControlModalComponent implements OnInit, IUniModal, OnDestroy {
             )
             .subscribe(transes => this.transes = transes);
 
-        this.payrollRunService
+        this.sharedPayrollRunService
             .Get(runID)
             .subscribe(payrollrun => this.description$.next(`Kontroll av lønnsavregning ${payrollrun.ID} - ${payrollrun.Description}`));
 

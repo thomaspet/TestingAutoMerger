@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
-import { PayrollRun, PostingSummaryDraft } from '@uni-entities';
+import { PayrollRun, PostingSummaryDraft, EmployeeCategory } from '@uni-entities';
 import { Observable, forkJoin, of } from 'rxjs';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { FinancialYearService } from '@app/services/accounting/financialYearService';
@@ -103,6 +103,16 @@ export class SharedPayrollRunService extends BizHttp<PayrollRun> {
                 + `&top=1`
                 + `&orderby=PayDate ASC`)
             .map(result => result[0]);
+    }
+
+    public saveCategory(id: number, category: EmployeeCategory) {
+        const saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
+        return saveObs
+        .usingBusinessDomain()
+        .withEndPoint(this.relativeURL + '/' + id + '/category/' + category.ID)
+        .withBody(category)
+        .send()
+        .map(response => response.body);
     }
 
     private getPaymentsOnRun(runs: PayrollRun[], year: number) {

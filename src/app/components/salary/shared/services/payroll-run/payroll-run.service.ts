@@ -3,7 +3,7 @@ import { PayrollRun, LocalDate, WorkItemToSalary, EmployeeCategory, Employee } f
 import { Observable } from 'rxjs';
 import {
     ErrorService, SalarybalanceService, SalaryBalanceLineService, SalaryTransactionService,
-    StatisticsService, SalaryBookingType, BrowserStorageService
+    StatisticsService, SalaryBookingType, BrowserStorageService, SharedPayrollRunService
 } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { tap, filter, switchMap, map } from 'rxjs/operators';
@@ -32,7 +32,7 @@ export interface IPaycheckEmailInfo {
 }
 
 @Injectable()
-export class PayrollRunService extends BizHttp<PayrollRun> {
+export class PayrollRunService {
 
     readonly payStatusProp = '_payStatus';
 
@@ -48,7 +48,6 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
     ];
 
     constructor(
-        http: UniHttp,
         private errorService: ErrorService,
         private salaryBalanceService: SalarybalanceService,
         private salaryBalanceLineService: SalaryBalanceLineService,
@@ -56,54 +55,52 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
         private salaryTransactionService: SalaryTransactionService,
         private statisticsService: StatisticsService,
         private browserStorage: BrowserStorageService,
-    ) {
-        super(http);
-        super.relativeURL = PayrollRun.RelativeUrl;
-    }
+        private sharedPayrollRunService: SharedPayrollRunService
+    ) { }
 
     public get(id: number | string, expand: string[] = null) {
         if (id === 0) {
             if (expand) {
-                return super.GetNewEntity(expand);
+                return this.sharedPayrollRunService.GetNewEntity(expand);
             }
-            return super.GetNewEntity([''], this.relativeURL);
+            return this.sharedPayrollRunService.GetNewEntity([''], this.sharedPayrollRunService.relativeURL);
         } else {
             if (expand) {
-                return super.Get(id, expand);
+                return this.sharedPayrollRunService.Get(id, expand);
             }
-            return super.Get(id);
+            return this.sharedPayrollRunService.Get(id);
         }
     }
 
     public getOTPExportData(payrollIDs: string, otpPeriode: number, otpYear: number, asXml: boolean = false) {
-        return super.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
+        return this.sharedPayrollRunService.GetAction(null, 'otp-export', `runs=${payrollIDs}&month=${otpPeriode}&year=${otpYear}&&asXml=${asXml}`);
     }
 
     public getTimeToTransfer(id: number, todate?: LocalDate): Observable<WorkItemToSalary> {
-        return super.GetAction(id, 'time-to-salary-selection', todate ? `toDate=${todate}` : '');
+        return this.sharedPayrollRunService.GetAction(id, 'time-to-salary-selection', todate ? `toDate=${todate}` : '');
     }
 
     public createTimeTransactions(payrun: number, timeList: number[]) {
-        super.invalidateCache();
+        this.sharedPayrollRunService.invalidateCache();
         this.salaryTransactionService.invalidateCache();
-        return super.ActionWithBody(payrun, timeList, 'work-items-to-transes');
+        return this.sharedPayrollRunService.ActionWithBody(payrun, timeList, 'work-items-to-transes');
     }
 
     public getPrevious(ID: number) {
         const year = this.getYear();
-        return super.GetAll(`filter=ID lt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
+        return this.sharedPayrollRunService.GetAll(`filter=ID lt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getNext(ID: number) {
         const year = this.getYear();
-        return super.GetAll(`filter=ID gt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID ASC`)
+        return this.sharedPayrollRunService.GetAll(`filter=ID gt ${ID}${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID ASC`)
             .map(resultSet => resultSet[0]);
     }
 
     public getLatest() {
         const year = this.getYear();
-        return super.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
+        return this.sharedPayrollRunService.GetAll(`filter=ID gt 0${year ? ' and year(PayDate) eq ' + year : ''}&top=1&orderBy=ID DESC`)
             .map(resultSet => resultSet[0]);
     }
 
@@ -113,23 +110,23 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
     }
 
     public controlPayroll(ID): Observable<boolean> {
-        return super.PutAction(ID, 'control').pipe(map(() => true));
+        return this.sharedPayrollRunService.PutAction(ID, 'control').pipe(map(() => true));
     }
 
     public recalculateTax(ID: number) {
-        return super.PutAction(ID, 'recalculatetax');
+        return this.sharedPayrollRunService.PutAction(ID, 'recalculatetax');
     }
 
     public sendPaymentList(payrollrunID: number) {
-        return super.PostAction(payrollrunID, 'sendpaymentlist');
+        return this.sharedPayrollRunService.PostAction(payrollrunID, 'sendpaymentlist');
     }
 
     public generateDraft(ID: number, bookingType: SalaryBookingType) {
-        return super.PutAction(ID, 'rebuildpostings', `bookingType=${bookingType}`);
+        return this.sharedPayrollRunService.PutAction(ID, 'rebuildpostings', `bookingType=${bookingType}`);
     }
 
     public postTransactions(ID: number, date: LocalDate = null, numberseriesID: number = null) {
-        return super.PutAction(
+        return this.sharedPayrollRunService.PutAction(
             ID,
             'book',
             `accountingDate=${date}&numberseriesID=${numberseriesID}`);
@@ -137,14 +134,8 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
 
     public saveCategoryOnRun(id: number, category: EmployeeCategory): Observable<EmployeeCategory> {
         if (id && category) {
-            this.invalidateCache();
-            const saveObs = category.ID ? this.http.asPUT() : this.http.asPOST();
-            return saveObs
-                .usingBusinessDomain()
-                .withEndPoint(this.relativeURL + '/' + id + '/category/' + category.ID)
-                .withBody(category)
-                .send()
-                .map(response => response.body);
+            this.sharedPayrollRunService.invalidateCache();
+            return this.sharedPayrollRunService.saveCategory(id, category);
         }
         return Observable.of(null);
     }
@@ -158,7 +149,7 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
     }
 
     public deleteCategoryOnRun(id: number, catID: number): Observable<boolean> {
-        return super.Remove(`${id}/category/${catID}`);
+        return this.sharedPayrollRunService.Remove(`${id}/category/${catID}`);
     }
 
     public deletePayrollTag(runID, tag: ITag): Observable<boolean> {
@@ -169,26 +160,26 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
 
     public getCategoriesOnRun(id: number) {
         return id
-            ? super.Get(`${id}/category`)
+            ? this.sharedPayrollRunService.Get(`${id}/category`)
             : Observable.of([]);
     }
 
     public getEmployeesOnPayroll(id: number, expands: string[]): Observable<Employee[]> {
-        return super.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
+        return this.sharedPayrollRunService.GetAction(id, 'employeesonrun', `expand=${expands.join(',')}`);
     }
 
     public emailPaychecks(runID: number, setup: IPaycheckReportSetup) {
-        return super.ActionWithBody(runID, setup, 'email-paychecks', RequestMethod.Put);
+        return this.sharedPayrollRunService.ActionWithBody(runID, setup, 'email-paychecks', RequestMethod.Put);
     }
 
     public deletePayrollRun(payrollRunID: number): Observable<any> {
-        return super.Remove(payrollRunID)
+        return this.sharedPayrollRunService.Remove(payrollRunID)
             .do(() => this.clearRelatedCaches())
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
 
     public resetSettling(ID: number) {
-        return super.PutAction(ID, 'resetrun').do(() => this.clearRelatedCaches());
+        return this.sharedPayrollRunService.PutAction(ID, 'resetrun').do(() => this.clearRelatedCaches());
     }
 
     public runSettling(ID: number, done: (message: string) => void = null) {
@@ -201,15 +192,15 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
                     done('Avregning avbrutt');
                 }),
                 filter((validates: boolean) => validates),
-                switchMap(() => super.PutAction(ID, 'calculate')),
+                switchMap(() => this.sharedPayrollRunService.PutAction(ID, 'calculate')),
                 tap(() => this.clearRelatedCaches()),
             );
     }
 
     public savePayrollRun(payrollRun: PayrollRun): Observable<PayrollRun> {
         return payrollRun.ID
-            ? super.Put(payrollRun.ID, payrollRun)
-            : super.Post(payrollRun);
+            ? this.sharedPayrollRunService.Put(payrollRun.ID, payrollRun)
+            : this.sharedPayrollRunService.Post(payrollRun);
     }
 
     public GetPaymentStatusText(payrollRun: PayrollRun) {
@@ -245,7 +236,7 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
     }
 
     public getLatestSettledPeriod(id: number, yr: number) {
-        return super.GetAction(id, 'latestperiod', `currYear=${yr}`);
+        return this.sharedPayrollRunService.GetAction(id, 'latestperiod', `currYear=${yr}`);
     }
 
     private validateAccountsOnTranses(runID: number): Observable<boolean> {
@@ -318,6 +309,4 @@ export class PayrollRunService extends BizHttp<PayrollRun> {
         this.salaryBalanceService.invalidateCache();
         this.salaryTransactionService.invalidateCache();
     }
-
-
 }

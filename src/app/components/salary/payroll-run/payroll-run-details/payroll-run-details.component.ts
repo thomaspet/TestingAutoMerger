@@ -19,7 +19,7 @@ import {
     SalaryTransactionService, WageTypeService, ErrorService, ReportDefinitionService,
     CompanySalaryService, ProjectService, DepartmentService, FinancialYearService,
     FileService, JournalEntryService,
-    StatisticsService, SubEntityService, AccountMandatoryDimensionService, EmployeeService
+    StatisticsService, SubEntityService, AccountMandatoryDimensionService, EmployeeService, SharedPayrollRunService
 } from '@app/services/services';
 import { IToolbarSearchConfig, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
@@ -145,6 +145,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         private payrollrunDataService: PayrollRunDataService,
         private payrollRunLayoutService: PayrollRunLayoutService,
         private payrollRunService: PayrollRunService,
+        private sharedPayrollRunService: SharedPayrollRunService,
     ) {
         super(router.url, cacheService);
         this.getLayout();
@@ -574,7 +575,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
                     const entity = this.payrollrun$.getValue();
-                    this.payrollRunService.Put(entity.ID, entity).subscribe(
+                    this.sharedPayrollRunService.Put(entity.ID, entity).subscribe(
                         res => {
                             this.refreshTranses();
                             super.updateState(PAYROLL_RUN_KEY, res, false);

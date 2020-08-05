@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {Router} from '@angular/router';
-import { ErrorService, FinancialYearService } from '@app/services/services';
+import { ErrorService, FinancialYearService, SharedPayrollRunService } from '@app/services/services';
 import {Observable} from 'rxjs';
 import {PayrollRun, CompanySalary, LocalDate, CompanySalaryPaymentInterval} from '@uni-entities';
 import * as moment from 'moment';
@@ -20,6 +20,7 @@ export class PayrollRunDetailsService {
         private router: Router,
         private toastService: ToastService,
         private financialYearService: FinancialYearService,
+        private sharedPayrollRunService: SharedPayrollRunService,
     ) {}
 
     public deletePayrollRun(id: number): void {
@@ -62,7 +63,7 @@ export class PayrollRunDetailsService {
         + `or contains(Description, '${query}')) and year(PayDate) eq ${year}`
         + `&top=50&hateoas=false`;
 
-        return this.payrollRunService.GetAll(odataQuery);
+        return this.sharedPayrollRunService.GetAll(odataQuery);
     }
 
     public suggestFromToDates(latest: PayrollRun, companysalary: CompanySalary, payrollRun: PayrollRun, activeYear: number) {
