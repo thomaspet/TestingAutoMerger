@@ -1397,7 +1397,8 @@ export class InvoiceDetails implements OnInit {
             || (this.invoice.InvoiceNumber && this.invoice.InvoiceType === InvoiceTypes.CreditNote)) {
             this.saveActions.push({
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
-                main: this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced,
+                main: theme.theme !== THEMES.EXT02 ? this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced :
+                this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced && this.companySettings.HasAutobank,
                 action: (done) => {
                     if (this.invoice.DistributionPlanID) {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
