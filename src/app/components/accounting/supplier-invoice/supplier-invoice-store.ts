@@ -12,6 +12,7 @@ import {
     StatusCodeSupplierInvoice,
     Payment,
     File,
+    InvoicePaymentData,
 } from '@uni-entities';
 import {
     SupplierInvoiceService,
@@ -24,7 +25,8 @@ import {
     VatTypeService,
     CompanySettingsService,
     ErrorService,
-    BankService
+    BankService,
+    CurrencyCodeService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
@@ -37,8 +39,9 @@ import {set} from 'lodash';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
-import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2 } from '@uni-framework/uni-modal';
+import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2, UniRegisterPaymentModal } from '@uni-framework/uni-modal';
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
+import { roundTo } from '@app/components/common/utils/utils';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -77,16 +80,19 @@ export class SupplierInvoiceStore {
         private errorService: ErrorService,
         private toastService: ToastService,
         private modalService: UniModalService,
-        private bankService: BankService
+        private bankService: BankService,
+        private currencyCodeService: CurrencyCodeService
     ) {}
 
     init(invoiceID: number) {
         Observable.forkJoin(
             this.companySettingsService.Get(1, []),
-            this.vatTypeService.GetAll()
-        ).subscribe(([companySettings, types]) => {
+            this.vatTypeService.GetAll(),
+            this.currencyCodeService.GetAll()
+        ).subscribe(([companySettings, types, codes]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
+            this.currencyCodes = codes;
             this.loadInvoice(invoiceID);
         });
     }
@@ -485,13 +491,24 @@ export class SupplierInvoiceStore {
     }
 
     // JOURNAL AND PAYMENT FUNCTIONS - OWN INJECTABLE?
-    journal(done?) {
+    journal(done?, alsoPay: boolean = false, payment?) {
         // TODO: validations?
+        const invoice = this.invoice$.value;
 
-        this.journalAndPaymentHelper.journal(this.invoice$.value, true).subscribe(response => {
+        this.journalAndPaymentHelper.journal(invoice, true && !alsoPay).subscribe(response => {
             if (response) {
-                this.loadInvoice(this.invoice$.value.ID);
-                done('Faktura er bokført. Bilagsnummer med link vises i toppen.');
+                if (alsoPay) {
+                    this.supplierInvoiceService.payinvoice(invoice.ID, payment).subscribe(() => {
+                        this.loadInvoice(invoice.ID);
+                        done('Faktura er bokført og registrert som betalt. Bilagsnummer med link vises i toppen.');
+                    }, err => {
+                        this.errorService.handle(err);
+                        done('Betaling feilet');
+                    });
+                } else {
+                    this.loadInvoice(this.invoice$.value.ID);
+                    done('Faktura er bokført. Bilagsnummer med link vises i toppen.');
+                }
             } else {
                 done('Bokføring avbrutt, ingenting endret.');
             }
@@ -522,6 +539,56 @@ export class SupplierInvoiceStore {
                 this.loadInvoice(this.invoice$.value.ID);
             } else {
                 done('Betaling avbrutt');
+            }
+        });
+    }
+
+    registerPayment(done, isAlsoBook: boolean = false) {
+        const invoice = this.invoice$.getValue();
+
+        const paymentData = <InvoicePaymentData> {
+            Amount: roundTo(invoice.RestAmount),
+            AmountCurrency: roundTo(invoice.RestAmountCurrency),
+            BankChargeAmount: 0,
+            CurrencyCodeID: invoice.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: new LocalDate(Date()),
+            AgioAccountID: 0,
+            BankChargeAccountID: 0,
+            AgioAmount: 0,
+            PaymentID: null,
+            DimensionsID: invoice.DefaultDimensionsID
+        };
+
+        this.modalService.open(UniRegisterPaymentModal, {
+            header: isAlsoBook ? 'Bokfør og registrer gjennomført betaling' : 'Registrer gjennomført betaling',
+            message: 'Regningen vil ble registrert som betalt i DNB Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
+            data: paymentData,
+            modalConfig: {
+                entityName: 'SupplierInvoice',
+                currencyCode: this.currencyCodes.find(code => code.ID === invoice.CurrencyCodeID).Code,
+                currencyExchangeRate: invoice.CurrencyExchangeRate,
+                entityID: invoice.SupplierID,
+                supplierID: invoice.SupplierID,
+            },
+            buttonLabels: {
+                accept: isAlsoBook ? 'Bokfør og registrer betaling' : 'Registrer betaling'
+            }
+        }).onClose.subscribe((payment) => {
+            if (payment) {
+                if (isAlsoBook) {
+                    this.journal(done, true, payment);
+                } else {
+                    this.supplierInvoiceService.payinvoice(invoice.ID, payment).subscribe(() => {
+                        this.loadInvoice(invoice.ID);
+                        done('Faktura registrert som betalt');
+                    }, err => {
+                        this.errorService.handle(err);
+                        done('Betaling feilet');
+                    });
+                }
+            } else {
+                done();
             }
         });
     }

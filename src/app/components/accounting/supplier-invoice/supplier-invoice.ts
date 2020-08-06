@@ -100,6 +100,7 @@ export class SupplierInvoiceView {
 
     updateSaveActions(changes: boolean) {
         const invoice = this.store.invoice$.value;
+        const hasAutobank = this.store.companySettings?.HasAutobank;
 
         this.saveActions = [
             {
@@ -175,8 +176,16 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.sendToPayment(false, done);
                 },
-                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft,
-                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes
+                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft && hasAutobank,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || !hasAutobank
+            },
+            {
+                label: 'Bokfør og registrer betaling',
+                action: (done) => {
+                    this.store.registerPayment(done, true);
+                },
+                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft && !hasAutobank,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || hasAutobank
             },
             {
                 label: 'Bokfør',
@@ -189,9 +198,22 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.sendToPayment(true, done);
                 },
-                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled && invoice.PaymentStatus <= 30109 ),
+                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled
+                    && invoice.PaymentStatus <= 30109 ) && hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
-                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111 ||  invoice.PaymentStatus === 30112
+                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
+                    || invoice.PaymentStatus === 30112 || !hasAutobank
+            },
+            {
+                label: 'Registrer betaling',
+                action: (done) => {
+                    this.store.registerPayment(done);
+                },
+                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled
+                    && invoice.PaymentStatus <= 30109 ) && !hasAutobank,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
+                    || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
+                    || invoice.PaymentStatus === 30112 || hasAutobank
             },
             {
                 label: 'Slett',
