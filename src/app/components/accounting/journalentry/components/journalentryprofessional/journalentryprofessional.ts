@@ -2994,14 +2994,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     }
 
-    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number, creditDate?: LocalDate) {
+    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number) {
         const tableData = this.table.getTableData();
 
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
 
-        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID, creditDate)
+        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID)
             .subscribe(data => {
                 this.toastService.addToast(
                     'Lagring var vellykket.',
