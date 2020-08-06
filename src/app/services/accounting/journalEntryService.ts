@@ -1273,13 +1273,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return jed;
     }
 
-    public creditJournalEntry(journalEntryNumber: string, date?: Date): Observable<any> {
+    public creditJournalEntry(journalEntryNumber): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(
                 this.relativeURL + '?action=credit-journal-entry&journalEntryNumber='
-                + journalEntryNumber + '&creditDate=' + date + '&acceptjob=true'
+                + journalEntryNumber + '&acceptjob=true'
             )
             .send()
             .map(response => response.body);

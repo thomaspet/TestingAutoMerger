@@ -373,7 +373,7 @@ export class JournalEntries {
             }
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber, response.creditDate)
+                this.journalEntryService.creditJournalEntry(this.currentJournalEntryNumber)
                     .subscribe(res => {
                         if (res?.ProgressUrl) {
                             this.toastService.addToast(
