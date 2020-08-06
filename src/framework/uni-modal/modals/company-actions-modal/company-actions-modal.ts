@@ -13,6 +13,7 @@ export class CompanyActionsModal implements IUniModal {
     @Input() options: IModalOptions = {};
     @Output() onClose: EventEmitter<any> = new EventEmitter();
 
+    appName = theme.appName;
     isSrEnvironment = theme.theme === THEMES.SR;
     isBrunoEnvironment = theme.theme === THEMES.EXT02;
     constructor(private router: Router) {}
