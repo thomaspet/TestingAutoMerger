@@ -13,7 +13,7 @@
     </section>
     <section *ngIf="!contractActivationVisible && currentStep > 0" class="uni-card shadow">
         <section class="uni-card-content">
-            <h1>{{includeContractActivation ? 'Aktivering av kundeforhold' : 'Opprett selskap'}}</h1>
+            <h1>{{headerText}}</h1>
 
             <ng-container *ngIf="currentStep === 1">
                 <autocomplete

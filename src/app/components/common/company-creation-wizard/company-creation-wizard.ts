@@ -58,6 +58,7 @@ export class CompanyCreationWizard {
 
     routeSubscription: Subscription;
     isTest: boolean;
+    headerText: string;
 
     constructor(
         private authService: AuthService,
@@ -89,6 +90,7 @@ export class CompanyCreationWizard {
             this.createDemoCompany = this.isTest;
             this.includeContractActivation = !this.isTest;
             this.currentStep = this.isTest ? 1 : 0;
+            this.setHeaderText();
         });
 
         forkJoin([
@@ -105,9 +107,25 @@ export class CompanyCreationWizard {
         this.routeSubscription?.unsubscribe();
     }
 
+    setHeaderText() {
+        if (this.includeContractActivation) {
+            if (this.currentStep === 1) {
+                this.headerText = 'Selskapsinformasjon';
+            } else if (this.currentStep === 2) {
+                this.headerText = 'Selskapsinnstillinger';
+            } else {
+                this.headerText = 'Aktiver kundeforhold';
+            }
+
+        } else {
+            this.headerText = 'Opprett selskap';
+        }
+    }
+
     onContractTypeSelected(type: ElsaContractType) {
         this.selectedContractType = type.ContractType;
         this.currentStep = 1;
+        this.setHeaderText();
         if (this.contract?.Customer?.OrgNumber?.length) {
             this.orgNumberLookup(this.contract.Customer.OrgNumber).subscribe(
                 res => this.onBrRegCompanyChange(res[0]),
@@ -156,6 +174,7 @@ export class CompanyCreationWizard {
     back() {
         if ((this.includeContractActivation && this.currentStep > 0) || (!this.includeContractActivation && this.currentStep === 2)) {
             this.currentStep--;
+            this.setHeaderText();
         } else {
             this.router.navigateByUrl('/init/register-company');
         }
@@ -165,6 +184,7 @@ export class CompanyCreationWizard {
         this.step1Form.markAllAsTouched();
         if (this.step1Form.valid) {
             this.currentStep++;
+            this.setHeaderText();
         }
     }
 

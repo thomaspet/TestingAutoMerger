@@ -4,7 +4,7 @@ import {theme, THEMES} from 'src/themes/theme';
 import {ElsaContractService, ErrorService} from '@app/services/services';
 
 import {environment} from 'src/environments/environment';
-import {ElsaContractType, ElsaCustomer} from '@app/models';
+import {ElsaCustomer} from '@app/models';
 
 @Component({
     selector: 'contract-activation-wizard',
@@ -24,7 +24,7 @@ export class ContractActivationWizard {
 
     termsAgreed = false;
 
-    headerText = theme.theme === THEMES.SR ? 'Bestill Bank+Regnskap' : 'Aktivering av kundeforhold';
+    headerText = theme.theme === THEMES.SR ? 'Bestill Bank+Regnskap' : 'Kontaktinformasjon';
     submitButtonText = theme.theme === THEMES.SR ? 'Bestill' : 'Aktiver kundeforhold';
     lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
 
