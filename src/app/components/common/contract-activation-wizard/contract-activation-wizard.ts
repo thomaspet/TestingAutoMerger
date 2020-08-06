@@ -1,11 +1,10 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {theme, THEMES} from 'src/themes/theme';
-import {ElsaContractService, ElsaCustomersService, ErrorService} from '@app/services/services';
+import {ElsaContractService, ErrorService} from '@app/services/services';
 
-import {forkJoin} from 'rxjs';
 import {environment} from 'src/environments/environment';
-import {ElsaContractType} from '@app/models';
+import {ElsaContractType, ElsaCustomer} from '@app/models';
 
 @Component({
     selector: 'contract-activation-wizard',
@@ -16,15 +15,12 @@ export class ContractActivationWizard {
     @Input() contractID: number;
     @Input() companyName: string;
     @Input() orgNumber: string;
+    @Input() contractType: number;
+    @Input() customer: ElsaCustomer;
     @Output() contractActivated = new EventEmitter();
     @Output() back = new EventEmitter();
 
-    loadingData: boolean;
     activationInProgress: boolean;
-
-    contractTypes: ElsaContractType[];
-
-    selectedContractType: number;
 
     termsAgreed = false;
 
@@ -41,7 +37,6 @@ export class ContractActivationWizard {
 
     constructor(
         private errorService: ErrorService,
-        private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
     ) {
         if (theme.theme === THEMES.SR) {
@@ -53,24 +48,9 @@ export class ContractActivationWizard {
     }
 
     ngOnChanges(changes) {
-        if (changes['contractID'] && this.contractID) {
-            this.loadingData = true;
-            forkJoin(
-                this.elsaContractService.getCustomContractTypes(),
-                this.elsaCustomerService.getByContractID(this.contractID),
-            ).subscribe(
-                ([contractTypes, customer]) => {
-                    this.contractTypes = contractTypes || [];
-                    this.customerDetailsForm.patchValue(customer);
-                    this.loadingData = false;
-                },
-                err => console.error(err)
-            );
+        if (changes['contractID'] && this.customer) {
+            this.customerDetailsForm.patchValue(this.customer);
         }
-    }
-
-    onContractTypeSelected(type: ElsaContractType) {
-        this.selectedContractType = type.ContractType;
     }
 
     activateContract() {
@@ -89,7 +69,7 @@ export class ContractActivationWizard {
         this.elsaContractService.activate(
             this.contractID,
             customerDetails,
-            this.selectedContractType
+            this.contractType
         ).subscribe(
             () => this.contractActivated.emit(customerDetails.OrgNumber),
             err => {

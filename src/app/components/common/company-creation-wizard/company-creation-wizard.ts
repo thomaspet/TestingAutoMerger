@@ -6,8 +6,10 @@ import {AuthService} from '@app/authService';
 import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService} from '@app/services/services';
 import {map, catchError} from 'rxjs/operators';
 import {get} from 'lodash';
-import {of, Subscription} from 'rxjs';
+import {of, Subscription, forkJoin} from 'rxjs';
 import {THEMES, theme} from 'src/themes/theme';
+import {ElsaContractType, ElsaContract} from '@app/models/elsa-models';
+import {ActivatedRoute, Router} from '@angular/router';
 
 @Component({
     selector: 'company-creation-wizard',
@@ -18,13 +20,17 @@ export class CompanyCreationWizard {
     @ViewChild('companyNameInput') companyNameInput: ElementRef<HTMLInputElement>;
 
     @Input() contractID: number;
-    @Input() createDemoCompany: boolean;
-    @Input() includeContractActivation: boolean;
 
     contractActivated: boolean;
     isBrunoEnv = theme.theme === THEMES.EXT02;
     busyCreatingCompany: boolean;
     autocompleteOptions: AutocompleteOptions;
+    contract: ElsaContract;
+    contractTypes: ElsaContractType[];
+    selectedContractType: number;
+
+    createDemoCompany: boolean;
+    includeContractActivation: boolean;
 
     step1Form = new FormGroup({
         CompanyName: new FormControl('', Validators.required),
@@ -46,9 +52,12 @@ export class CompanyCreationWizard {
     companyName: string;
     orgNumber: string;
 
-    currentStep = 1;
+    currentStep: number;
     contractActivationVisible = false;
     companyCreationFailed = false;
+
+    routeSubscription: Subscription;
+    isTest: boolean;
 
     constructor(
         private authService: AuthService,
@@ -58,6 +67,8 @@ export class CompanyCreationWizard {
         private errorService: ErrorService,
         private companyService: CompanyService,
         private elsaContractService: ElsaContractService,
+        private route: ActivatedRoute,
+        private router: Router,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -72,15 +83,37 @@ export class CompanyCreationWizard {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
         }
 
-        this.elsaContractService.getAll().subscribe(contracts => {
-            const contract = contracts && contracts[0];
-            if (contract?.Customer?.OrgNumber?.length) {
-                this.orgNumberLookup(contract.Customer.OrgNumber).subscribe(
-                    res => this.onBrRegCompanyChange(res[0]),
-                    err => console.error(err)
-                );
-            }
-        }, err => console.error(err));
+        this.routeSubscription = this.route.queryParamMap.subscribe(params => {
+            this.isTest = params.get('isTest') === 'true' || false;
+
+            this.createDemoCompany = this.isTest;
+            this.includeContractActivation = !this.isTest;
+            this.currentStep = this.isTest ? 1 : 0;
+        });
+
+        forkJoin([
+            this.elsaContractService.getAll(),
+            this.elsaContractService.getCustomContractTypes()
+        ]).subscribe(
+            ([contracts, contractTypes]) => {
+                this.contract = contracts && contracts[0];
+                this.contractTypes = contractTypes || [];
+            }, err => console.error(err));
+    }
+
+    ngOnDestroy() {
+        this.routeSubscription?.unsubscribe();
+    }
+
+    onContractTypeSelected(type: ElsaContractType) {
+        this.selectedContractType = type.ContractType;
+        this.currentStep = 1;
+        if (this.contract?.Customer?.OrgNumber?.length) {
+            this.orgNumberLookup(this.contract.Customer.OrgNumber).subscribe(
+                res => this.onBrRegCompanyChange(res[0]),
+                err => console.error(err)
+            );
+        }
     }
 
     private orgNumberLookup(query) {
@@ -118,6 +151,14 @@ export class CompanyCreationWizard {
         });
 
         setTimeout(() => this.companyNameInput?.nativeElement?.focus());
+    }
+
+    back() {
+        if ((this.includeContractActivation && this.currentStep > 0) || (!this.includeContractActivation && this.currentStep === 2)) {
+            this.currentStep--;
+        } else {
+            this.router.navigateByUrl('/init/register-company');
+        }
     }
 
     next() {

@@ -1,20 +1,4 @@
-<section class="contract-types" *ngIf="!loadingData && contractTypes?.length && !selectedContractType">
-    <section class="contract-type-grid">
-        <contract-type-card
-            *ngFor="let contractType of contractTypes"
-            [contractType]="contractType"
-            [recommended]="contractType.Name === 'Plus'"
-            (selected)="onContractTypeSelected(contractType)">
-        </contract-type-card>
-    </section>
-
-    <button class="tertiary c2a" (click)="back.emit()">
-        <i class="material-icons">keyboard_backspace</i>
-        Tilbake
-    </button>
-</section>
-
-<section *ngIf="!loadingData && (!contractTypes?.length || selectedContractType)" class="uni-card shadow">
+<section *ngIf="contractType && customer" class="uni-card shadow">
     <section class="uni-card-content">
         <h1>{{headerText}}</h1>
 
@@ -61,8 +45,7 @@
 
     <section class="uni-card-footer">
         <button class="secondary pull-left"
-            *ngIf="contractTypes?.length"
-            (click)="selectedContractType = undefined">
+            (click)="back.emit()">
             Tilbake
         </button>
 

@@ -44,9 +44,7 @@
 
             <company-creation-wizard
                 *ngIf="selectedCompanyType === 'company'"
-                [contractID]="contractID"
-                [createDemoCompany]="isTest"
-                [includeContractActivation]="!isTest">
+                [contractID]="contractID">
             </company-creation-wizard>
         </ng-container>
     </ng-container>

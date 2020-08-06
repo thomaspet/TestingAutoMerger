@@ -37,7 +37,6 @@ export class RegisterCompany {
     routeSubscription: Subscription;
 
     selectedCompanyType: string;
-    isTest: boolean;
     busy: boolean;
     missingContract = false;
     contractID: number;
@@ -64,7 +63,6 @@ export class RegisterCompany {
 
                 if (!this.routeSubscription) {
                     this.routeSubscription = this.route.queryParamMap.subscribe(params => {
-                        this.isTest = params.get('isTest') === 'true' || false;
                         this.selectedCompanyType = params.get('type') || undefined;
                     });
                 }

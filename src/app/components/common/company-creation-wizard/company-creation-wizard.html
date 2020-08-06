@@ -1,5 +1,17 @@
 <ng-container *ngIf="!busyCreatingCompany">
-    <section *ngIf="!contractActivationVisible" class="uni-card shadow">
+    <section class="contract-types" *ngIf="currentStep === 0 && includeContractActivation && contractTypes?.length">
+        <section class="contract-type-grid">
+            <contract-type-card
+                *ngFor="let contractType of contractTypes"
+                [contractType]="contractType"
+                [recommended]="contractType.Name === 'Plus'"
+                (selected)="onContractTypeSelected(contractType)">
+            </contract-type-card>
+        </section>
+
+        <contract-types-comparison></contract-types-comparison>
+    </section>
+    <section *ngIf="!contractActivationVisible && currentStep > 0" class="uni-card shadow">
         <section class="uni-card-content">
             <h1>{{includeContractActivation ? 'Aktivering av kundeforhold' : 'Opprett selskap'}}</h1>
 
@@ -72,7 +84,7 @@
         </section>
 
         <section class="uni-card-footer">
-            <button class="secondary pull-left" (click)="currentStep = 1" *ngIf="currentStep > 1">
+            <button class="secondary pull-left" (click)="back()">
                 Tilbake
             </button>
 
@@ -95,8 +107,10 @@
         [contractID]="contractID"
         [companyName]="companyName"
         [orgNumber]="orgNumber"
+        [contractType]="selectedContractType"
+        [customer]="contract.Customer"
         (contractActivated)="onContractActivated()"
-        (back)="contractActivationVisible = false">
+        (back)="contractActivationVisible = false; currentStep = 2">
     </contract-activation-wizard>
 </ng-container>
 
