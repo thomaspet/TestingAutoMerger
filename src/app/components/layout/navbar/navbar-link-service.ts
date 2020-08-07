@@ -1,18 +1,17 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, Observable} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {cloneDeep} from 'lodash';
 import {AuthService} from '@app/authService';
 import {NAVBAR_LINKS} from './navbar-links';
 import {INavbarLinkSection, SETTINGS_LINKS} from './navbar-links-common';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
-import {BrowserStorageService, DimensionSettingsService} from '@app/services/services';
+import {BrowserStorageService, DimensionSettingsService, StatisticsService} from '@app/services/services';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {theme, THEMES} from 'src/themes/theme';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export type SidebarState = 'collapsed' | 'expanded';
-
 
 @Injectable()
 export class NavbarLinkService {
@@ -33,12 +32,13 @@ export class NavbarLinkService {
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
         browserStorage: BrowserStorageService,
+        private statisticsService: StatisticsService
     ) {
         const initState = browserStorage.getItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
         this.sidebarState$.subscribe(state => browserStorage.setItem('sidebar_state', state));
 
-        authService.authentication$.subscribe(authDetails => {
+        this.authService.authentication$.subscribe(authDetails => {
             this.company = authDetails.activeCompany;
             if (authDetails.user) {
                 this.user = authDetails.user;
@@ -48,12 +48,12 @@ export class NavbarLinkService {
         });
     }
 
-    public resetNavbar() {
+    public async resetNavbar() {
         this.settingsSection$.next(this.getSettingsFilteredByPermissions(this.user));
         if (theme.theme === THEMES.SR) {
             this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
         } else {
-            const linkSections = this.getLinksFilteredByPermissions(this.user);
+            const linkSections = await this.checkbankAccess(this.getLinksFilteredByPermissions(this.user));
 
             if (this.featurePermissionService.canShowRoute('ui_dimensions')) {
                 this.getDimensionRouteSection(this.user).subscribe(
@@ -148,7 +148,6 @@ export class NavbarLinkService {
                     const canActivate = this.authService.canActivateRoute(user, link.url);
                     const hasFeaturePermission = !link.featurePermission
                         || this.featurePermissionService.canShowUiFeature(link.featurePermission);
-
                     return canActivate && hasFeaturePermission;
                 });
 
@@ -160,6 +159,34 @@ export class NavbarLinkService {
         return routeSections.filter(section => {
             return section.isOnlyLinkSection || section.linkGroups.some(group => group.links.length > 0);
         });
+    }
+
+    // Hopefully temporary check to see if EXT02 users has autobank, and if not hide bank links in sidebar
+    // I really dont see the value with this, they can just add them..
+    checkbankAccess(linkSection: INavbarLinkSection[]): Promise<INavbarLinkSection[]> {
+        const hasLocalStored = this.company.Key ? !!localStorage.getItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`) : false;
+        if (theme.theme !== THEMES.EXT02 || hasLocalStored) {
+            return of(linkSection).toPromise();
+        } else {
+            return new Promise((resolve, reject) => {
+                this.statisticsService.GetAllUnwrapped('model=CompanySettings&select=HasAutobank as HasAutobank').subscribe((cs) => {
+                    const hasAutobank = cs[0]['HasAutobank'];
+                    if (!hasAutobank) {
+                        const section = linkSection.find(s => s.name === 'NAVBAR.BANK');
+                        if (section?.linkGroups[0]?.links) {
+                            section.linkGroups[0].links = section.linkGroups[0].links.map(link => {
+                                if (link.name !== 'NAVBAR.BANK_RECONCILIATION') {
+                                    link.activeInSidebar = false;
+                                }
+                                return link;
+                            });
+                        }
+                    }
+
+                    resolve(linkSection);
+                }, err => resolve(linkSection));
+            });
+        }
     }
 
     private getDimensionRouteSection(user): Observable<INavbarLinkSection> {

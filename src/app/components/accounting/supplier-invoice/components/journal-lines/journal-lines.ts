@@ -226,7 +226,7 @@ export class JournalLines {
             }
         }
 
-        filter = (filter ? `( ${filter} ) and ` : '') + 'accountnumber ge 4000 and accountnumber le 9000';
+        filter = (filter ? `( ${filter} ) and ` : '') + 'accountnumber ge 1000 and accountnumber le 9000';
 
         const odata = `model=Account&select=Account.*&filter=${filter}&orderby=${orderby}&top=50&distinct=false`;
 
