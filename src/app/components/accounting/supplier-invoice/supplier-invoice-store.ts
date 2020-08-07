@@ -562,7 +562,7 @@ export class SupplierInvoiceStore {
 
         this.modalService.open(UniRegisterPaymentModal, {
             header: isAlsoBook ? 'Bokfør og registrer gjennomført betaling' : 'Registrer gjennomført betaling',
-            message: 'Regningen vil ble registrert som betalt i DNB Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
+            message: 'Regningen vil bli registrert som betalt i DNB Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',

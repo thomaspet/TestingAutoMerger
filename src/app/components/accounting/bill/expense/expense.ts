@@ -30,6 +30,7 @@ import {DoneRedirectModal} from './done-redirect-modal/done-redirect-modal';
 import {CompanySettings} from '@app/unientities';
 import * as moment from 'moment';
 import { safeDec } from '@app/components/common/utils/utils';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'expense',
@@ -123,10 +124,17 @@ export class Expense implements OnInit {
 
     setUpSaveActions() {
         if (this.session.payment.Mode === PaymentMode.PrepaidByEmployee) {
-           this.saveActions = [{
-                label: 'Bokfør og lag utbetaling',
-                action: (done) => setTimeout(() => this.save(true).then( () => done() )), main: true, disabled: false
-            }];
+            if (theme.theme === THEMES.EXT02 && !this.companySettings.HasAutobank) {
+                this.saveActions = [{
+                    label: 'Bokfør og registrer utbetaling',
+                    action: (done) => setTimeout(() => this.save(true, true).then( () => done() )), main: true, disabled: false
+                }];
+            } else {
+                this.saveActions = [{
+                    label: 'Bokfør og lag utbetaling',
+                    action: (done) => setTimeout(() => this.save(true).then( () => done() )), main: true, disabled: false
+                }];
+            }
         } else {
             this.saveActions = [{
                 label: 'Bokfør',
@@ -167,7 +175,7 @@ export class Expense implements OnInit {
         });
     }
 
-    save(withPayment = false): Promise<boolean> {
+    save(withPayment = false, shouldPay = false): Promise<boolean> {
 
         // Payment only possible with mode == PaymentMode.PrepaidByEmployee
         const createPayment = withPayment && this.session.payment.Mode === PaymentMode.PrepaidByEmployee;
@@ -188,11 +196,11 @@ export class Expense implements OnInit {
             this.setDefaultText();
 
             // Ask user to confirm before saving
-            this.openSummary(createPayment).then( ok => {
+            this.openSummary(createPayment, shouldPay).then( ok => {
                 if (ok) {
                     this.busy = true;
-                    this.session.save(false, this.fileIds, createPayment).subscribe( x => {
-                        this.showSavedJournalToast(x, createPayment);
+                    this.session.save(false, this.fileIds, createPayment && !shouldPay).subscribe( x => {
+                        this.showSavedJournalToast(x, createPayment && !shouldPay);
                         resolve(true);
                     }, err => {
                         this.errorService.handle(err);
@@ -241,14 +249,15 @@ export class Expense implements OnInit {
         });
     }
 
-    openSummary(withPayment = false) {
+    openSummary(withPayment = false, shouldPay = false) {
         return new Promise((resolve, reject) => {
             const xpl = this.session.convertToExpense(this.fileIds);
             if (xpl === undefined || xpl.length === 0) { resolve(false); return; }
             this.modalService.open(ExpenseSummaryModal, {
                 data: {
                     session: this.session,
-                    withPayment: withPayment
+                    withPayment: withPayment,
+                    shouldPay: shouldPay
                 }
             }).onClose.subscribe(value => {
                 resolve(value);

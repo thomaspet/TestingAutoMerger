@@ -67,6 +67,7 @@ export const NO = {
             'JOURNALING_TYPE': 'Bilagstype'
         },
         SUPPLIER_INVOICE: {
+            'REFUND_INFO': 'Tilbakebetalingen vil bli registrert som betalt i UniEconomy. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
             'NEW': 'Ny leverandørfaktura',
             'SINGLE': 'Leverandørfaktura',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Leverandørfaktura mangler enten fakturabeløp eller leverandør med orgnr.',
