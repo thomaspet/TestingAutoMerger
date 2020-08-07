@@ -25,7 +25,7 @@
                     <span>{{contractType}}</span>
                 </section>
 
-                <section class="info-field">
+                <section class="info-field" *ngIf="!isExt02">
                     <span>Brukertype:</span>
                     <span>{{userLicenseType}}</span>
                 </section>

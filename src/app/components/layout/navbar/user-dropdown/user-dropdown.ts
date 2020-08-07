@@ -6,6 +6,7 @@ import {UniModalService} from '@uni-framework/uni-modal';
 import {UserSettingsModal} from './user-settings-modal';
 import {ElsaContractService} from '@app/services/services';
 import {ElsaUserLicenseType} from '@app/models';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'navbar-user-dropdown',
@@ -18,6 +19,7 @@ export class NavbarUserDropdown {
     user: UserDto;
     contractType = '';
     userLicenseType = '';
+    isExt02 = theme.theme === THEMES.EXT02;
 
     constructor(
         private modalSerice: UniModalService,
