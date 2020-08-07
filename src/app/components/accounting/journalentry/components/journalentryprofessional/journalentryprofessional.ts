@@ -2510,7 +2510,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 this.onModalChanged(item, res.model);
-            } else if (res && res.action === 'deleted') {
+            } else if (res && res.action === 'remove') {
                 this.onModalDeleted(item);
             }
         });
