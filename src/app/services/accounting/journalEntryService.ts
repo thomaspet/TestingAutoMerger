@@ -423,7 +423,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .usingBusinessDomain()
             .withBody(journalEntries)
             .withEndPoint(
-                this.relativeURL + '?action=credit-and-book-journal-entry&journalEntryID=' + journalEntryID)
+                this.relativeURL + '?action=credit-and-book-journalentry&journalEntryID=' + journalEntryID)
             .send()
             .map(response => response.body);
     }
@@ -1278,7 +1278,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(
-                this.relativeURL + '?action=credit-journal-entry&journalEntryNumber='
+                this.relativeURL + '?action=credit-journalentry&journalEntryNumber='
                 + journalEntryNumber + '&acceptjob=true'
             )
             .send()
