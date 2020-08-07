@@ -48,7 +48,7 @@ export class SendInvoiceModal implements IUniModal {
     ];
 
     selectedOption = this.sendingOptions[0];
-
+    journalEntryUrl = '';
     constructor(
         private distributionPlanService: DistributionPlanService,
         private router: Router,
@@ -66,7 +66,7 @@ export class SendInvoiceModal implements IUniModal {
     public ngOnInit() {
         this.busy = true;
         this.invoice = this.options.data;
-
+        this.journalEntryUrl = this.buildJournalEntryNumberUrl(this.invoice.JournalEntry.JournalEntryNumber);
         this.sendingOptions = [
             { label: 'Send på epost', action: () => this.sendEmail() },
             { label: 'Skriv ut', action: () => this.print() },
@@ -352,5 +352,16 @@ export class SendInvoiceModal implements IUniModal {
                 }
             });
         }
+    }
+
+    private buildJournalEntryNumberUrl(journalEntryNumber: string) {
+        const numberAndYear = journalEntryNumber.split('-');
+        let url: string = `/#/accounting/transquery?JournalEntryNumber=${numberAndYear[0]}&AccountYear=`;
+        if (numberAndYear.length > 1) {
+            url += numberAndYear[1];
+        } else {
+            url += this.invoice.InvoiceDate ? moment(this.invoice.InvoiceDate).year() : moment().year();
+        }
+        return url;
     }
 }

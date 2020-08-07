@@ -1,15 +1,19 @@
 <section role="dialog" class="uni-modal">
-    <header>Sending av {{ invoice?.InvoiceType === 1 ? ' kreditnota ' : ' faktura ' }} {{invoice?.InvoiceNumber || ''}}</header>
+    <header>
+        Faktura {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}}
+    </header>
     <article>
+        <p>
+            Faktura {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}} er fakturert og bokført med bilagsnummer
+            <a [href]="journalEntryUrl">{{invoice?.JournalEntry?.JournalEntryNumber}}</a>
+        </p>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
-
         <section *ngIf="invoice?.StatusCode === 42004" class="alert info">
             <i class="material-icons-outlined">info</i>
             <span>Denne fakturaen er allerede markert som betalt</span>
         </section>
-
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">
                 <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
@@ -17,17 +21,14 @@
                 <span class="status">{{getSharingStatus(sharing)}}</span>
             </section>
         </section>
-
-
+        <h2>Hvordan vil du sende fakturaen?</h2>
         <label class="uni-label">
             <span>Velg utsendingsmetode</span>
-
             <div #toggle class="sending-dropdown">
                 <span>{{selectedOption?.label}}</span>
                 <small *ngIf="selectedOption.small" style="padding-left: .5rem">{{selectedOption.small}}</small>
                 <i class="material-icons toggle">expand_more</i>
             </div>
-
             <dropdown-menu [trigger]="toggle">
                 <ng-template>
                     <section class="dropdown-menu-item"
