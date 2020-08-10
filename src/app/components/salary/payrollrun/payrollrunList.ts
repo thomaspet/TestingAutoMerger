@@ -48,10 +48,9 @@ export class PayrollrunList implements OnInit {
 
     public newPayrollrun(done) {
         this.router.navigateByUrl('/salary/payrollrun/' + 0).then(succeeded => {
-            if (succeeded) {
-                return;
+            if (!succeeded) {
+                done('Avbrutt');
             }
-            done('Avbrutt');
         });
     }
 

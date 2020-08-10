@@ -17,15 +17,20 @@ export class NewPayrollRunGuard implements CanActivate {
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
         if (Number(route.params.id) === 0) {
             return this.statisticsService.GetAllUnwrapped('model=Employee').pipe(
-                switchMap(x => (Number(x[0].countid) === 0) ? this.modalService.open(StandardVacationPayModalComponent).onClose
-                : of(ConfirmActions.CANCEL)),
-                switchMap(x  => {
-                    if (x === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/salary/employees');
-                    }
-                    return of(false);
-            }));
+                switchMap(x => (Number(x[0].countid) === 0) ? this.redirectUserToEmployees() : of(true))
+            );
         }
         return of(true);
+    }
+
+    redirectUserToEmployees(): Observable<boolean> {
+        return this.modalService.open(StandardVacationPayModalComponent).onClose.pipe(
+            switchMap(x  => {
+                if (x === ConfirmActions.ACCEPT) {
+                    this.router.navigateByUrl('/salary/employees');
+                }
+                return of(false);
+            })
+        );
     }
 }
