@@ -66,7 +66,8 @@ export const MINI_PACKAGE_BLACKLIST = {
 
         'ui.sales.quotes',
         'ui.sales.orders',
-        'ui.sales.reminders'
+        'ui.sales.reminders',
+        'ui.bank.reconciliation.auto-match',
     ],
     routes: [
         ...PLUS_PACKAGE_BLACKLIST.routes,

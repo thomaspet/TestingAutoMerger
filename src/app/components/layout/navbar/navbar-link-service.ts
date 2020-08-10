@@ -34,9 +34,9 @@ export class NavbarLinkService {
         browserStorage: BrowserStorageService,
         private statisticsService: StatisticsService
     ) {
-        const initState = browserStorage.getItem('sidebar_state') || 'expanded';
+        const initState = browserStorage.getSessionItem('sidebar_state') || 'expanded';
         this.sidebarState$ = new BehaviorSubject(initState);
-        this.sidebarState$.subscribe(state => browserStorage.setItem('sidebar_state', state));
+        this.sidebarState$.subscribe(state => browserStorage.setSessionItem('sidebar_state', state));
 
         this.authService.authentication$.subscribe(authDetails => {
             this.company = authDetails.activeCompany;

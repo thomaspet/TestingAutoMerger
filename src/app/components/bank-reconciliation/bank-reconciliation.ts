@@ -15,6 +15,7 @@ import {BankStatementSettings} from './bank-statement-settings/bank-statement-se
 import * as moment from 'moment';
 import {Observable, of} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -51,7 +52,8 @@ export class BankReconciliation {
         private modalService: UniModalService,
         public session: BankStatementSession,
         private pageStateService: PageStateService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private permissionService: FeaturePermissionService,
     ) {
         tabService.addTab({
             url: '/bank/reconciliationmatch',
@@ -77,11 +79,13 @@ export class BankReconciliation {
     }
 
     updateSaveActions() {
-        this.saveactions = [{
-            label: 'Avstem automatisk',
-            action: done => this.openSettings(done),
-            disabled: this.session.journalEntryMode !== JournalEntryListMode.Original
-        }];
+        if (this.permissionService.canShowUiFeature('ui.bank.reconciliation.auto-match')) {
+            this.saveactions = [{
+                label: 'Avstem automatisk',
+                action: done => this.openSettings(done),
+                disabled: this.session.journalEntryMode !== JournalEntryListMode.Original
+            }];
+        }
     }
 
     save(done?) {
