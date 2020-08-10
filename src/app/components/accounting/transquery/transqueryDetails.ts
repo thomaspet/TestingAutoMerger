@@ -501,7 +501,7 @@ export class TransqueryDetails implements OnInit {
             data: {JournalEntryID: item.JournalEntryID}
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber)
                     .subscribe(
                         res => {
                             if (res?.ProgressUrl) {

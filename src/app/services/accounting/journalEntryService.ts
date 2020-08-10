@@ -362,7 +362,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             });
     }
 
-    public creditAndPostCorrectedJournalEntryData(journalEntryData: Array<JournalEntryData>, journalEntryID: number, creditDate?: LocalDate)
+    public creditAndPostCorrectedJournalEntryData(journalEntryData: Array<JournalEntryData>, journalEntryID: number)
         : Observable<any> {
 
         // dont post any rows that are already booked, they will be credited with by the action
@@ -380,11 +380,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             return this.GetAll(this.fixInsaneFilter(existingJournalEntryIDs))
                 .flatMap(existingJournalEntries => {
                     const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, existingJournalEntries);
-                    return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID, creditDate);
+                    return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID);
                 });
         } else {
             const journalEntries = this.createJournalEntryObjects(journalEntryDataNew, []);
-            return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID, creditDate);
+            return this.creditAndBookCorrectedJournalEntries(journalEntries, journalEntryID);
         }
     }
 
@@ -416,15 +416,14 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.body);
     }
 
-    private creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number, creditDate?: LocalDate)
+    private creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number)
     : Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
             .withBody(journalEntries)
             .withEndPoint(
-                this.relativeURL + '?action=credit-and-book-journal-entry&journalEntryID=' + journalEntryID +
-                (creditDate ? '&creditDate=' + creditDate : ''))
+                this.relativeURL + '?action=credit-and-book-journalentry&journalEntryID=' + journalEntryID)
             .send()
             .map(response => response.body);
     }
@@ -1274,13 +1273,13 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return jed;
     }
 
-    public creditJournalEntry(journalEntryNumber: string, date?: Date): Observable<any> {
+    public creditJournalEntry(journalEntryNumber): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
             .withEndPoint(
-                this.relativeURL + '?action=credit-journal-entry&journalEntryNumber='
-                + journalEntryNumber + '&creditDate=' + date + '&acceptjob=true'
+                this.relativeURL + '?action=credit-journalentry&journalEntryNumber='
+                + journalEntryNumber + '&acceptjob=true'
             )
             .send()
             .map(response => response.body);
