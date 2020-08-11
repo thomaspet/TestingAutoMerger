@@ -7,23 +7,25 @@
     </section>
 
     <section *ngIf="filterSettingsLinks" class="settings-link-section">
-        <ul class="main-links" *ngFor="let group of filterSettingsLinks[0].linkGroups">
-            <li class="list-header">
-                {{ group.name | translate }}
-            </li>
-            <li *ngFor="let link of group.links" class="list-item" [class.open]="link.showSubSettings" (click)="goToView(link)" [ngClass]="getClass(link)">
-                <span class="list-item-name-and-icon-container">
-                    <span> {{ link.name | translate }} </span>
-                    <i class="material-icons" *ngIf="link.subSettings"> {{ link.showSubSettings ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
-                </span>
-                <section *ngIf="link.subSettings && link.showSubSettings">
-                    <ul [@listAnimation]="link.subSettings.length" class="sub-links">
-                        <li *ngFor="let subSetting of link.subSettings" (click)="$event.stopPropagation(); goToView(subSetting)" [ngClass]="getClass(subSetting)">
-                            {{ subSetting.name | translate }}
-                        </li>
-                    </ul>
-                </section>
-            </li>
-        </ul>
+        <ng-container *ngFor="let group of filterSettingsLinks[0].linkGroups">
+            <ul class="main-links" *ngIf="group.links.length">
+                <li class="list-header">
+                    {{ group.name | translate }}
+                </li>
+                <li *ngFor="let link of group.links" class="list-item" [class.open]="link.showSubSettings" (click)="goToView(link)" [ngClass]="getClass(link)">
+                    <span class="list-item-name-and-icon-container">
+                        <span> {{ link.name | translate }} </span>
+                        <i class="material-icons" *ngIf="link.subSettings"> {{ link.showSubSettings ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }} </i>
+                    </span>
+                    <section *ngIf="link.subSettings && link.showSubSettings">
+                        <ul [@listAnimation]="link.subSettings.length" class="sub-links">
+                            <li *ngFor="let subSetting of link.subSettings" (click)="$event.stopPropagation(); goToView(subSetting)" [ngClass]="getClass(subSetting)">
+                                {{ subSetting.name | translate }}
+                            </li>
+                        </ul>
+                    </section>
+                </li>
+            </ul>
+        </ng-container>
     </section>
 </article>
