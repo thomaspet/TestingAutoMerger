@@ -332,7 +332,8 @@
                         }
                     ]
                 }
-            ]
+            ],
+            "featurePermission": "ui.sales.invoice-list.my_invoices"
         },
         {
             "Name": "Kladd",
