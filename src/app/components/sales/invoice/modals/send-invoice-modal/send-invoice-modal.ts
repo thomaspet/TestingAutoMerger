@@ -72,7 +72,9 @@ export class SendInvoiceModal implements IUniModal {
             { label: 'Skriv ut', action: () => this.print() },
         ];
 
-        if (this.invoice.DistributionPlanID) {
+        // Might be added back later. Same with runDistributionPlan(), which is only used here.
+
+        /* if (this.invoice.DistributionPlanID) {
             this.distributionPlanService.Get(
                 this.invoice.DistributionPlanID, ['Elements.ElementType']
             ).subscribe(
@@ -105,7 +107,7 @@ export class SendInvoiceModal implements IUniModal {
                 }
 
             );
-        }
+        } */
 
         this.selectedOption = this.sendingOptions[0];
 
@@ -232,7 +234,7 @@ export class SendInvoiceModal implements IUniModal {
         });
     }
 
-    private runDistributionPlan() {
+    /* private runDistributionPlan() {
         if (moment(this.invoice.InvoiceDate).isAfter(moment(), 'days')) {
             const invoiceDate = moment(this.invoice.InvoiceDate).format('DD.MM.YYYY');
             const dialogMessage = `Fakturadato er satt til ${invoiceDate}. `
@@ -292,7 +294,7 @@ export class SendInvoiceModal implements IUniModal {
                 }
             );
         }
-    }
+    } */
 
     private sendEHF() {
         if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {
