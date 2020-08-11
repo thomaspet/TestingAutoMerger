@@ -104,7 +104,7 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
             {
                 name: 'Verktøy',
                 links: [
-                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution'},
+                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution', featurePermission: 'ui.distribution'},
                     {name: 'Jobber', url: '/admin/jobs', moduleID: UniModules.Jobs, activeInSidebar: false, keyWords: ['Export', 'SAF-T', 'SAFT']},
                     {name: 'NAVBAR.IMPORT_CENTRAL', activeInSidebar: true, url: '/import'},
                     {
