@@ -844,6 +844,7 @@ export class BankComponent {
                     newPayment.IsCustomerPayment = payment.IsCustomerPayment;
                     newPayment.CurrencyCodeID = payment.CurrencyCodeID;
                     newPayment.CurrencyCode = payment.CurrencyCode;
+                    newPayment.SupplierInvoiceID = payment.SupplierInvoiceID;
 
                     if (showModal) {
                         // show addPaymentModel
