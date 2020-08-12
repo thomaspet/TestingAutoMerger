@@ -5,6 +5,8 @@ import {ElsaContractService} from '@app/services/services';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 import {LicenseInfo} from '../license-info';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {RelatedOrdersModal} from './related-orders-modal/related-orders-modal';
 
 export interface BillingDataItem {
     ProductID: number;
@@ -29,6 +31,7 @@ export interface BillingData {
     TotalDiscount: number;
     OrderDays: number;
     Items: BillingDataItem[];
+    RelatedOrders: BillingData[];
 }
 
 @Component({
@@ -61,6 +64,7 @@ export class Billing {
         private http: UniHttp,
         private contractService: ElsaContractService,
         private licenseInfo: LicenseInfo,
+        private modalService: UniModalService,
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -101,6 +105,10 @@ export class Billing {
     onRowClick(row) {
         this.selectedRow = row;
         this.detailsVisible = true;
+    }
+
+    openRelatedOrders() {
+        this.modalService.open(RelatedOrdersModal, {data:  this.billingData.RelatedOrders});
     }
 
     export() {

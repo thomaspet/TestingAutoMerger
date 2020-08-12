@@ -20,6 +20,7 @@ import {AddAdminModal} from './add-admin-modal/add-admin-modal';
 import {DeletedCompaniesModal} from './company-list/deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './company-list/delete-company-modal/delete-company-modal';
 import {AppCommonModule} from '../common/appCommonModule';
+import {RelatedOrdersModal} from './billing/related-orders-modal/related-orders-modal';
 
 @NgModule({
     imports: [
@@ -54,7 +55,8 @@ import {AppCommonModule} from '../common/appCommonModule';
         ListView,
         AddAdminModal,
         DeletedCompaniesModal,
-        DeleteCompanyModal
+        DeleteCompanyModal,
+        RelatedOrdersModal,
     ]
 })
 export class LicenseInfoModule {}
