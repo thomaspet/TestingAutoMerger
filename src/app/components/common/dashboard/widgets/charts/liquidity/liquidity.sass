@@ -1,0 +1,56 @@
+.content
+    padding-top: 0
+
+.bank-balance-section
+    background: var(--alert-warn)
+    color: var(--alert-warn-text-color)
+    font-size: 14px
+    margin: 0 auto 1rem 0
+    padding: .25rem 1rem
+    border-radius: var(--section-radius)
+    strong
+        padding-left: 4px
+
+table
+    border-collapse: collapse
+    font-size: 14px
+    color: var(--text-color)
+    margin: 0 auto
+
+    thead tr th
+        text-align: center
+        font-weight: 500
+        width: 10rem
+
+    tbody tr
+        td
+            height: 2.6rem
+            border: 1px solid var(--border-color)
+            text-align: right
+            padding-right: 1rem
+            &.good
+                background-color: var(--alert-good)
+            &.bad
+                background-color: var(--alert-bad)
+            &:first-of-type
+                border: none
+                font-weight: 500
+
+            a
+                font-weight: 500
+                text-decoration: none
+                i.material-icons
+                    font-size: 21px
+                    margin-left: 4px
+
+        &.sum-row
+            font-weight: 500
+            td:not(:first-of-type)
+                background-color: #fafafa
+
+        &.liquidity-row
+            font-weight: 500
+
+widget-chart
+    max-height: calc(100% - 4rem)
+    margin-top: .5rem

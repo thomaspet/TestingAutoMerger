@@ -1,28 +1,13 @@
 import {Component} from '@angular/core';
-import {TabService, UniModules} from '../layout/navbar/tabstrip/tabService';
-import {DefaultWidgetLayout} from '../widgets/widgetCanvas';
-import { theme } from '../../../themes/theme';
+import {theme} from '../../../themes/theme';
+import {DashboardConfig} from '../common/dashboard/dashboard';
 
 
 @Component({
     selector: 'uni-salary',
-    template: `
-        <uni-widget-canvas
-            [defaultLayout]="widgetLayout"
-            [layoutName]="'salary'">
-        </uni-widget-canvas>
-    `,
+    template: `<dashboard [config]="config"></dashboard>`,
 })
 export class UniSalary {
-    widgetLayout: DefaultWidgetLayout = theme.salaryDashboardConfig;
-
-    constructor(tabService: TabService) {
-        tabService.addTab({
-             name: 'Lønn',
-             url: '/salary',
-             moduleID: UniModules.Salary,
-             active: true
-        });
-    }        
+    config: DashboardConfig = theme.dashboardConfigs?.salary;
 }
 

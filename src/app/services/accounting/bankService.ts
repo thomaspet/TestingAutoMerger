@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Bank, BankRule, BankAccount} from '../../unientities';
+import {Bank, BankRule, BankAccount, BankIntegrationAgreement} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
@@ -299,5 +299,12 @@ export class BankService extends BizHttp<Bank> {
             .withBody(payload)
             .send()
             .map(response => response.body);
+    }
+
+    deleteAgreement(agreement: BankIntegrationAgreement) {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements/' + agreement.ID)
+            .send();
     }
 }

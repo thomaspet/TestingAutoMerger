@@ -125,9 +125,9 @@ body
     --button-bad: #D63731
     --button-bad-hover: #DC223E
 
-    --button-warn: #FF9E2C
-    --button-warn-hover: #ffa733
-
+    --button-warn: #fdbb31
+    --button-warn-hover: #fdbb31
+    --button-warn-text-color: #00343e
 
     // Dropdown menus
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
@@ -143,7 +143,7 @@ body
     --table-row-select-background: #E9F8F4
     --table-icon-color: #007272
     --table-border: 1px solid #D2F0E9
-    --row-border: 1px solid #D2F0E9
+    --row-border: none
 
     --alt-table-header-background: var(--table-header-background)
     --alt-table-header-color: var(--table-header-color)
@@ -154,8 +154,8 @@ body
     // Alerts
     --alert-border: none
 
-    --alert-info: #F2F4EC
-    --alert-info-text-color: var(--text-color)
+    --alert-info: #E9F8F4
+    --alert-info-text-color: var(--color-c2a-dark)
     --alert-info-icon-color: var(--color-c2a-dark)
     --alert-info-link-color: var(--link-color)
 
@@ -165,14 +165,14 @@ body
     --alert-good-link-color: var(--link-color)
 
     --alert-warn: #FBF6EC
-    --alert-warn-text-color: var(--text-color)
-    --alert-warn-icon-color: var(--color-c2a)
+    --alert-warn-text-color: var(--color-c2a-dark)
+    --alert-warn-icon-color: var(--color-c2a-dark)
     --alert-warn-link-color: var(--link-color)
 
-    --alert-bad: #DC2A2A
-    --alert-bad-text-color: #fff
-    --alert-bad-icon-color: #fff
-    --alert-bad-link-color: #fff
+    --alert-bad: #FDEEEE
+    --alert-bad-text-color: #DC2A2A
+    --alert-bad-icon-color: #DC2A2A
+    --alert-bad-link-color: #DC2A2A
 
     // Toasts
     --toast-info: #F2F4EC
@@ -211,4 +211,15 @@ body
     --chat-header-background: #007272
     --panel-header-background: #D2F0E9
 
+    widget
+        --primary: #007272
+        --primary-soft: #D2F0E9
 
+        --secondary: #A5E1D2
+        --secondary-soft: #E9F8F4
+
+        --warn: #FDBB31
+        --warn-soft: #FBF6EC
+
+        --bad: #DC2A2A
+        --bad-soft: #FDEEEE

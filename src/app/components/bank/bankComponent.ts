@@ -311,79 +311,28 @@ export class BankComponent {
                     this.companySettings = companySettings;
                     if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
-                            if (!agreements || !agreements.length) {
-                                if (theme.theme === THEMES.SR) {
-                                    this.modalService.open(BankInitModal,
-                                        {
-                                            data: { user: this.authService.currentUser, cs: this.companySettings },
-                                            closeOnClickOutside: false
-                                        })
-                                        .onClose.subscribe((agreement: any) => {
-                                            if (!agreement) {
-                                                this.router.navigateByUrl('/');
-                                            } else {
-                                                this.agreements = [agreement];
-                                                this.hasAccessToAutobank = true;
-                                                this.initiateBank();
-                                            }
-                                        });
-                                } else {
-                                    this.toolbarconfig.infoBannerConfig = {
-                                        message: 'Koble regnskap og bank sammen og få informasjon om inn- og utbetalinger i tillegg til å kunne betale direkte fra løsningen.',
-                                        link: 'Trykk her for å bestille',
-                                        action: () => {
-                                            this.brunoOnboardingService.startOnboarding().subscribe(agreement => {
-                                                this.agreements = [agreement];
-                                                this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                                                    this.toolbarconfig.infoBannerConfig.message = 'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
-                                                    this.toolbarconfig.infoBannerConfig.link = 'Start på nytt',
-                                                    this.cdr.markForCheck();
-                                                });
-                                            });
-                                            this.toolbarconfig = Object.assign(this.toolbarconfig);
-                                        }
-                                    };
-                                    this.initiateBank();
-                                }
-                            } else {
-                                if (theme.theme === THEMES.EXT02) {
-                                    if (brunoOnboardingService.isPendingAgreement(agreements[0])) {
-                                        this.toolbarconfig.infoBannerConfig = {
-                                            message: 'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
-                                            link: 'Start på nytt',
-                                            action: () => {
-                                                this.brunoOnboardingService.startOnboarding().subscribe(agreement => {
-                                                    this.agreements = [agreement];
-                                                });
-                                                this.toolbarconfig = Object.assign(this.toolbarconfig);
-                                            }
-                                        };
-                                    } else if (this.brunoOnboardingService.hasNewAccountInfo(agreements[0])) {
-                                        this.brunoOnboardingService.isFirstOnboarding(agreements[0]).subscribe((isFirstOnboarding) => {
-                                                this.toolbarconfig.infoBannerConfig = {
-                                                    message: isFirstOnboarding ?
-                                                    'Kobling mellom regnskap og bank er klar. Husk å sette opp kontoene riktig.' :
-                                                    'Vi har mottatt nye kontoer fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
-                                                    link: 'Sett opp kontoen(e) her',
-                                                    action: () => {
-                                                        this.brunoOnboardingService.startOnboarding().subscribe((agreement) => {
-                                                            this.agreements = [agreement];
-                                                            this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                                                                this.toolbarconfig.infoBannerConfig = null;
-                                                                this.cdr.markForCheck();
-                                                            });
-                                                        });
-                                                        this.toolbarconfig = Object.assign(this.toolbarconfig);
-                                                    }
-                                                };
-                                        });
-                                    }
-                                    this.initiateBank();
-                                } else {
+                            if (theme.theme === THEMES.SR) {
+                                if (agreements && agreements.length) {
                                     this.agreements = agreements;
                                     this.hasAccessToAutobank = true;
-                                    this.initiateBank();
+                                } else {
+                                    this.modalService.open(BankInitModal, {
+                                        data: { user: this.authService.currentUser, cs: this.companySettings },
+                                        closeOnClickOutside: false
+                                    }).onClose.subscribe((agreement: any) => {
+                                        if (agreement) {
+                                            this.agreements = [agreement];
+                                            this.hasAccessToAutobank = true;
+                                            this.initiateBank();
+                                        } else {
+                                            this.router.navigateByUrl('/');
+                                        }
+                                    });
                                 }
+                            } else if (theme.theme === THEMES.EXT02) {
+                                this.agreements = (agreements || []).filter(agreement => agreement.IsOutgoing);
+                                this.checkBrunoOnboardingState();
+                                this.initiateBank();
                             }
                         }, err => {
                             this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
@@ -400,7 +349,6 @@ export class BankComponent {
                             if (this.hasAccessToAutobank) {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
                                     this.agreements = agreements;
-                                    this.initiateBank();
                                 });
                             } else {
                                 this.initiateBank();
@@ -414,6 +362,57 @@ export class BankComponent {
                 });
             }
         });
+    }
+
+    private checkBrunoOnboardingState() {
+        if (!this.toolbarconfig) {
+            return;
+        }
+
+        const agreement = this.agreements && this.agreements[0];
+
+        if (agreement) {
+            // Pending agreement
+            if (this.brunoOnboardingService.isPendingAgreement(agreement)) {
+                this.toolbarconfig.infoBannerConfig = {
+                    message: 'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
+                    link: 'Start på nytt',
+                    action: () => this.brunoOnboardingService.restartOnboarding(agreement)
+                };
+            // Agreement has new account info
+            } else if (this.brunoOnboardingService.hasNewAccountInfo(agreement)) {
+                this.toolbarconfig.infoBannerConfig = {
+                    message: 'Vi har mottatt ny kontoinformasjon fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
+                    link: 'Sett opp kontoer her',
+                    action: () => {
+                        this.brunoOnboardingService.connectBankAccounts().subscribe(configurationSaved => {
+                            if (configurationSaved) {
+                                this.toolbarconfig.infoBannerConfig = undefined;
+                                this.hasAccessToAutobank = true;
+                            }
+                        });
+                    }
+                };
+            // Onboarding completed
+            } else {
+                this.toolbarconfig.infoBannerConfig = undefined;
+                this.hasAccessToAutobank = true;
+            }
+        } else {
+            this.toolbarconfig.infoBannerConfig = {
+                message: 'Koble regnskap og bank sammen og få informasjon om inn- og utbetalinger i tillegg til å kunne betale direkte fra løsningen.',
+                link: 'Trykk her for å bestille',
+                action: () => {
+                    this.brunoOnboardingService.createAgreement().subscribe(newAgreement => {
+                        this.agreements = [newAgreement];
+                        this.checkBrunoOnboardingState();
+                    });
+                }
+            };
+        }
+
+        this.toolbarconfig = Object.assign({}, this.toolbarconfig);
+        this.cdr.markForCheck();
     }
 
     public initiateBank() {
@@ -481,7 +480,7 @@ export class BankComponent {
             });
         }
 
-        if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements.length) &&
+        if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements?.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
 
             // Unavailable for both SR and Bruno
@@ -493,7 +492,7 @@ export class BankComponent {
                 });
             }
 
-            if (this.isAutobankAdmin && this.agreements.length) {
+            if (this.isAutobankAdmin && this.agreements?.length) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
@@ -1614,7 +1613,7 @@ export class BankComponent {
                     });
 
             // User clicked for autobank payment (Should only be clickable if agreements.length > 0)
-        } else if (this.agreements.length) {
+        } else if (this.agreements?.length) {
             this.modalService.open(UniSendPaymentModal, {
                 closeOnClickOutside: false,
                 data: { PaymentIds: paymentIDs, hasTwoStage: this.companySettings.TwoStageAutobankEnabled }

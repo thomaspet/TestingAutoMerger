@@ -43,6 +43,7 @@ import {UniIcon} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
 import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
+import {SimpleTable} from './ui/simple-table/simple-table';
 
 @NgModule({
     imports: [
@@ -82,6 +83,7 @@ import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
         MonthPicker,
         AutoFocusDirective,
         UniFileUpload,
+        SimpleTable,
         ...MODALS
     ],
     providers: [
@@ -128,7 +130,8 @@ import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
         UniIcon,
         FeaturePermissionDirective,
         AutoFocusDirective,
-        UniFileUpload
+        UniFileUpload,
+        SimpleTable,
     ]
 })
 export class UniFrameworkModule {}

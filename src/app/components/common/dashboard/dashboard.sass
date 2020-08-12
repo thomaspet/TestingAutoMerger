@@ -1,0 +1,103 @@
+$widget-spacing: .75rem
+
+\:host
+    display: flex
+    flex-direction: column
+    width: 100%
+    max-width: 1500px
+    margin: 0 auto
+
+    @media screen and (max-width: 1500px)
+        padding: 0 1rem
+
+
+.dashboard-header
+    display: flex
+    align-items: center
+    margin: 1rem 1rem 0
+    h1
+        margin: 0
+        font-size: 22px
+        font-weight: 400
+
+    button.icon-button
+        svg
+            width: 18px
+            color: var(--color-c2a)
+        &:hover svg, &:focus svg
+            color: var(--color-c2a-dark)
+
+    .edit-header
+        display: flex
+        flex-direction: column
+        span
+            margin-bottom: .5rem
+
+.dashboard-edit-footer
+    display: flex
+    align-items: center
+    position: fixed
+    bottom: 0
+    left: 0
+    width: 100vw
+    height: 5rem
+    z-index: 499
+    background: #fff
+    border-top: 1px solid var(--border-color)
+    padding: 0 5rem
+
+    button
+        min-width: 8rem
+
+
+// Muri (careful editing stuff here, the lib might be depending on this styling!)
+#widget-grid
+    position: relative
+    width: 100%
+    &.editable .widget-grid-cell
+        cursor: move
+
+    .widget-grid-cell
+        position: absolute
+        display: block
+
+        box-sizing: border-box
+        padding: $widget-spacing
+
+        z-index: 1
+        height: 28rem
+
+        &.small
+            width: calc((100% / 12) * 4)
+        &.large
+            width: calc((100% / 12) * 8)
+
+        @media screen and (max-width: 1500px)
+            &.small
+                width: 50%
+            &.large
+                width: 100%
+
+
+        .remove-widget-button
+            position: absolute
+            top: 0
+            right: 0
+            width: 1.75rem
+            height: 1.75rem
+
+.muuri-item-dragging
+    z-index: 3
+    cursor: move
+
+.muuri-item-releasing
+    z-index: 2
+
+.muuri-item-hidden
+    z-index: 0
+
+
+
+
+
+

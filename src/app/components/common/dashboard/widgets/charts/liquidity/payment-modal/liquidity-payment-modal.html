@@ -1,0 +1,90 @@
+<section role="dialog" class="uni-modal">
+    <header>{{editMode ? 'Registrer betaling' : 'Andre inn- og utbetalinger'}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <ng-container *ngIf="!editMode && !busy">
+            <section *ngIf="!payments?.length">Ingen betalinger registrert</section>
+
+            <simple-table *ngIf="payments.length">
+                <thead>
+                    <tr>
+                        <th>Beskrivelse</th>
+                        <th class="sum-col align-right">Sum</th>
+                        <th class="date-col">Dato</th>
+                        <th class="button-col"></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let payment of payments">
+                        <td>{{payment.Description}}</td>
+                        <td class="align-right">{{payment.Amount | uninumberformat: 'money'}}</td>
+                        <td>
+                            <ng-container *ngIf="payment.CustomLiquidityPaymentType === 0">
+                                {{payment.DueDate | date:'dd.MM.yyyy'}}
+                            </ng-container>
+
+                            <ng-container *ngIf="payment.CustomLiquidityPaymentType !== 0">
+                                {{payment.CustomLiquidityPaymentType === 365 ? 'Årlig' : 'Månedlig'}}
+                            </ng-container>
+                        </td>
+                        <td class="button-col">
+                            <button (click)="startEdit(payment)" aria-label="Rediger betaling" class="icon-button">
+                                <i class="material-icons-outlined">edit</i>
+                            </button>
+
+                            <button (click)="deletePayment(payment)" aria-label="Slett betaling" class="icon-button">
+                                <i class="material-icons-outlined">delete</i>
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </simple-table>
+        </ng-container>
+
+        <form *ngIf="editMode && editModel">
+            <mat-radio-group [(ngModel)]="editModel.IsCustomerPayment" name="Type" class="horizontal">
+                <mat-radio-button [value]="true">Innbetaling</mat-radio-button>
+                <mat-radio-button [value]="false">Utbetaling</mat-radio-button>
+            </mat-radio-group>
+
+
+            <label class="uni-label">
+                <span>Beskrivelse</span>
+                <input type="text" uniAutoFocus [(ngModel)]="editModel.Description" name="Description">
+            </label>
+
+
+
+            <section class="input-row">
+                <label class="uni-label">
+                    <span>Sum</span>
+                    <input type="number" [(ngModel)]="editModel.Amount" name="Beløp">
+                </label>
+
+                <label class="uni-label">
+                    <span>Dato</span>
+                    <uni-datepicker [(value)]="editModel._date"></uni-datepicker>
+                </label>
+            </section>
+
+            <mat-radio-group [(ngModel)]="editModel.CustomLiquidityPaymentType" name="Intervall" class="horizontal">
+                <mat-radio-button [value]="0">Kun en gang</mat-radio-button>
+                <mat-radio-button [value]="30">Månedlig</mat-radio-button>
+                <mat-radio-button [value]="365">Årlig</mat-radio-button>
+            </mat-radio-group>
+        </form>
+    </article>
+
+    <footer>
+        <button *ngIf="!editMode" (click)="onClose.emit(dirty)" class="secondary">Lukk</button>
+        <button *ngIf="!editMode" (click)="startEdit()" class="c2a">Registrer ny inn- eller utbetaling</button>
+
+        <button *ngIf="editMode" (click)="editMode = false" class="secondary">Tilbake</button>
+        <button *ngIf="editMode" (click)="savePayment()" class="c2a">Lagre</button>
+    </footer>
+</section>

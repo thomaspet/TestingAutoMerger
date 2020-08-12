@@ -27,6 +27,8 @@ export const theme = {
     },
 
     widgets: {
+        empty_state_illustration: 'themes/empty_state.svg',
+
         pie_colors: ['#005AA4', '#0071CD', '#008ED2', '#7FC6E8', '#A1DFFF', '#CEEEFF', '#DFF1F9', '#f6dc8d', '#4DB6AC'],
         due_date_colors: ['#008A00', '#E7A733', '#FF9100', '#DA3D00', '#A20076'],
         bar_chart_colors: ['#0071cd', '#E3E3E3'],

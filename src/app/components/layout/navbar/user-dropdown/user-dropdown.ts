@@ -32,8 +32,9 @@ export class NavbarUserDropdown {
 
                 if (user['License'] && user['License'].ContractType) {
                     if (user['License'].ContractType.TypeName) {
-                        this.elsaContractService.getContractTypesLabel(user['License'].ContractType.TypeName)
-                            .subscribe(label => this.contractType = label);
+                        this.elsaContractService.getContractTypesLabel(
+                            user['License'].ContractType.TypeName
+                        ).subscribe(label => this.contractType = label);
                     }
                 }
 

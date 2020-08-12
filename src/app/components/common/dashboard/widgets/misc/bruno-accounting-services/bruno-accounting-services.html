@@ -1,0 +1,24 @@
+<section class="header">
+    <h1>Bestille regnskapstjenester</h1>
+</section>
+
+<section class="content">
+    <section class="image-wrapper">
+        <img src="/themes/ext02/illustration-saving.svg" alt="">
+    </section>
+
+    <p>Få gratis hjelp av regnskapsfører?</p>
+
+    <section *ngIf="hasMiniPackage" class="alert warn">
+        <i class="material-icons-outlined">info</i>
+
+        <span>
+            Du har nå minipakken. For å få tilgang til hjelp må du
+            <a routerLink="/marketplace/modules">oppgradere til Pluss eller Komplett</a>
+        </span>
+    </section>
+
+    <button *ngIf="!hasMiniPackage" (click)="orderAccountingHelp()" class="c2a">
+        Bestill
+    </button>
+</section>

@@ -1,0 +1,14 @@
+<section class="header">
+    <h1>Banksaldo</h1>
+</section>
+
+<section class="content">
+    <widget-empty-state *ngIf="onboardingState === 'none'" class="horizontal">
+        For å se saldo på bankkonto trenger du en autobankavtale med banken. <br>
+        <button routerLink="/bank/ticker" class="c2a">
+            Koble sammen bank og regnskap
+        </button>
+    </widget-empty-state>
+
+    <bank-balance-widget-content *ngIf="onboardingState === 'complete'"></bank-balance-widget-content>
+</section>

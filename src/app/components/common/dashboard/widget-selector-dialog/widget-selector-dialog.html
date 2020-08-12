@@ -1,0 +1,19 @@
+<section role="dialog" class="uni-modal">
+    <header>Legg til eller fjern widgeter</header>
+
+    <article>
+        <section class="widget-group" *ngFor="let group of widgetGroups">
+            <h2>{{group.header}}</h2>
+            <section class="widget-list">
+                <mat-checkbox *ngFor="let widget of group.widgets" [(ngModel)]="widget['_active']">
+                    {{widget.label}}
+                </mat-checkbox>
+            </section>
+        </section>
+    </article>
+
+    <footer>
+        <button (click)="onClose.emit()" class="secondary">Avbryt</button>
+        <button (click)="submit()" class="c2a">Lagre</button>
+    </footer>
+</section>

@@ -4,7 +4,6 @@ import {CompanyKeyRouteGuard} from './companyKeyRouteGuard';
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
 
-import {Dashboard} from './components/dashboard/dashboard';
 import {UniTickerOverview} from './components/uniticker/overview/overview';
 import {UniInit} from './components/init/init';
 import {initRoutes} from './components/init/init.routes';
@@ -19,6 +18,8 @@ import {UniReports} from './components/reports/reports';
 import {ContactDetails} from './components/common/contact/contactDetails';
 import {PredefinedDescriptionList} from './components/common/predefinedDescriptions/predefinedDescriptionList';
 import {ReloadHelper} from './reload';
+import {DashboardNew} from './components/common/dashboard/dashboard';
+import {Dashboard} from './components/dashboard/dashboard';
 
 const routes = [
     {

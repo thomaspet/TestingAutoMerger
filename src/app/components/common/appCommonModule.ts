@@ -74,12 +74,14 @@ import {CompanyCreationWizard} from './company-creation-wizard/company-creation-
 import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
 
 import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
-import { StandardVacationPayModalComponent } from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
+import {StandardVacationPayModalComponent} from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
+import {DashboardModule} from './dashboard/dashboard.module';
 
 @NgModule({
     imports: [
         LibraryImportsModule,
         UniFrameworkModule,
+        DashboardModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -163,6 +165,8 @@ import { StandardVacationPayModalComponent } from './modals/standard-vacation-pa
         StandardVacationPayModalComponent,
     ],
     exports: [
+        DashboardModule,
+
         PredefinedDescriptionList,
         ConfirmCreditedJournalEntryWithDate,
         ContextMenu,

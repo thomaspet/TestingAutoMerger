@@ -81,6 +81,7 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
+
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
                 if (authDetails.user.License.Company['StatusCode'] === 3) {
@@ -117,8 +118,8 @@ export class App {
                 }
 
 
-                if (!authDetails.activeCompany.IsTest && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
-                    this.showInitLoginModal();
+                if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
+                    this.showInitialBrunoLoginModal();
                     browserStorage.setItemOnCompany('isNotInitialLogin', true);
                 }
             }
@@ -200,7 +201,7 @@ export class App {
         });
     }
 
-    private showInitLoginModal() {
+    private showInitialBrunoLoginModal() {
         const options: IModalOptions = {
             header: 'DNB regnskap er nå aktivert og klart for bruk',
             message: '<b>Vil du koble DNB regnskap til nettbank bedrift? (anbefales)</b> <section>Du kan alltids sette det opp ved en senere anledning</section>',
@@ -223,10 +224,8 @@ export class App {
         this.modalService.open(ConfigBankAccountsInfoModal, options).onClose
             .subscribe((action: ConfirmActions) => {
                 if (action === ConfirmActions.ACCEPT) {
-                    this.brunoOnboardingService.startOnboarding().subscribe(() => {
-                        this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                            this.modalService.open(CompanyActionsModal);
-                        });
+                    this.brunoOnboardingService.createAgreement().subscribe(() => {
+                        this.modalService.open(CompanyActionsModal);
                     });
                 } else {
                     this.modalService.open(CompanyActionsModal);

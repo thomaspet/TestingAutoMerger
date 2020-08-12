@@ -9,7 +9,7 @@ import {take} from 'rxjs/operators';
     selector: 'dropdown-menu',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <section *cdkPortal class="dropdown-menu" (click)="hide()">
+        <section *cdkPortal class="dropdown-menu" (click)="closeOnClick && hide()">
             <ng-container *ngTemplateOutlet="content"></ng-container>
         </section>
     `
@@ -20,6 +20,7 @@ export class DropdownMenu {
     @Input() trigger: any;
     @Input() minWidth: number | string;
     @Input() alignRight: boolean;
+    @Input() closeOnClick: boolean = true;
 
     protected overlayRef: OverlayRef;
     clickSubscription: Subscription;

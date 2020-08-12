@@ -1,8 +1,14 @@
 a
-  cursor: pointer
-  text-decoration: none
-  color: var(--link-color)
-  font-weight: 400
+    cursor: pointer
+    text-decoration: none
+    color: var(--link-color)
+    font-weight: 400
 
-  &:hover, &:focus
-    text-decoration: underline
+    &:hover, &:focus
+        text-decoration: underline
+
+    &.unstyled-link
+        color: var(--text-color)
+
+        &:hover, &:focus
+            text-decoration: none

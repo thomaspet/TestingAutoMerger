@@ -1,0 +1,96 @@
+<section class="header">
+    <h1>Huskeliste</h1>
+
+    <a class="pull-right" (click)="createTask()" tabindex="0">Opprett huskelapp</a>
+
+    <!-- <button #toggle class="tertiary c2a pull-right">
+        <i class="material-icons">filter_list</i>
+        Alle
+    </button>
+
+    <dropdown-menu [trigger]="toggle" [closeOnClick]="false" minWidth="10rem">
+        <ng-template>
+            <section *ngIf="options?.showPublicDueDates" class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.publicDueDates">
+                    Offentlige frister
+                </mat-checkbox>
+            </section>
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.tasks">Huskelapper</mat-checkbox>
+            </section>
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Godkjenninger</mat-checkbox>
+            </section>
+
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Innboks</mat-checkbox>
+            </section>
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Betalinger uten match</mat-checkbox>
+            </section>
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Betalingsliste</mat-checkbox>
+            </section>
+            <section class="dropdown-menu-item">
+                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Purreliste</mat-checkbox>
+            </section>
+        </ng-template>
+    </dropdown-menu> -->
+</section>
+
+<section class="content" id="reminder-list">
+    <section *ngFor="let item of publicDueDates" class="reminder-item duedate-item">
+        <i class="material-icons">date_range</i>
+        <span class="description">{{item.AdditionalInfo}}</span>
+        <span class="date pull-right" [ngClass]="item['_class']" [title]="item.Deadline | date: 'dd.MM.yyyy'">
+            {{item['_daysLabel']}}
+        </span>
+    </section>
+
+    <a *ngFor="let task of tasks" class="reminder-item unstyled-link" routerLink="/assignments/tasks">
+        <i class="material-icons-outlined">note</i>
+        <span>{{task.Title}}</span>
+    </a>
+
+    <!-- Invoice approvals -->
+    <a *ngFor="let approval of invoiceApprovals" [routerLink]="approval['_route']" class="reminder-item unstyled-link">
+        <i class="material-icons-outlined">receipt_long</i>
+        <span>{{approval['_label']}}</span>
+    </a>
+
+    <!-- Timesheet approvals -->
+    <a *ngIf="timesheetApprovals?.length" routerLink="/assignments/approvals" class="reminder-item unstyled-link">
+        <i class="material-icons-outlined">event_available</i>
+        <span>{{timesheetApprovals.length}} {{timesheetApprovals.length > 1 ? 'timelister' : 'timeliste'}} å godkjenne</span>
+    </a>
+
+    <!-- Inbox -->
+    <a *ngIf="counters.inbox" routerLink="/accounting/inbox" class="reminder-item unstyled-link">
+        <i class="material-icons-outlined">mail</i>
+        <span>{{counters.inbox}} {{counters.inbox > 1 ? 'filer' : 'fil'}} i innboks</span>
+    </a>
+
+    <!-- Invoices ready for payment -->
+    <a *ngIf="counters.invoicesReadyForPayment" class="reminder-item unstyled-link" routerLink="/bank/ticker" [queryParams]="{code: 'payment_list'}">
+        <i class="material-icons-outlined">credit_card</i>
+        <span>
+            {{counters.invoicesReadyForPayment}}
+            {{counters.invoicesReadyForPayment > 1 ? 'regning' : 'regninger'}}
+            til betaling
+        </span>
+    </a>
+
+    <!-- Invoices ready for payment -->
+    <a *ngIf="counters.invoicesReadyForReminder" routerLink="/sales/reminders/ready" class="reminder-item unstyled-link">
+        <i class="material-icons-outlined">add_alert</i>
+        <span>
+            {{counters.invoicesReadyForReminder}}
+            {{counters.invoicesReadyForReminder > 1 ? 'fakturaer' : 'fakturaer'}}
+            å purre på
+        </span>
+    </a>
+</section>
+
+<!-- <section class="footer center">
+    <a (click)="createTask()">Opprett huskelapp</a>
+</section> -->

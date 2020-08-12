@@ -1,0 +1,48 @@
+<section class="dashboard-header">
+    <ng-container *ngIf="!editMode">
+        <h1>
+            {{config?.header}}
+        </h1>
+        <button aria-label="Rediger dashbord" class="icon-button" (click)="startEdit()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.546 2.43824C10.9171 2.85019 11.4455 3.08538 12 3.08538C12.5545 3.08538 13.0829 2.85019 13.454 2.43824L14.4 1.40024C14.9556 0.785381 15.8379 0.586598 16.6035 0.903819C17.369 1.22104 17.8521 1.98564 17.81 2.81324L17.739 4.21324C17.7112 4.76551 17.9183 5.30378 18.309 5.69507C18.6997 6.08637 19.2377 6.2942 19.79 6.26724L21.19 6.19624C22.017 6.15546 22.7804 6.63909 23.0968 7.4043C23.4132 8.16952 23.2143 9.05102 22.6 9.60624L21.558 10.5462C21.1466 10.9179 20.9118 11.4463 20.9118 12.0007C20.9118 12.5551 21.1466 13.0836 21.558 13.4552L22.6 14.3952C23.2149 14.9508 23.4136 15.8331 23.0964 16.5987C22.7792 17.3642 22.0146 17.8474 21.187 17.8052L19.787 17.7342C19.2335 17.7058 18.6938 17.9132 18.3019 18.3051C17.91 18.6971 17.7025 19.2367 17.731 19.7902L17.802 21.1902C17.8387 22.0135 17.3563 22.7716 16.595 23.0872C15.8337 23.4027 14.9564 23.208 14.4 22.6002L13.459 21.5592C13.0876 21.1479 12.5593 20.9131 12.005 20.9131C11.4507 20.9131 10.9224 21.1479 10.551 21.5592L9.606 22.6002C9.0504 23.2109 8.17154 23.4078 7.40854 23.0923C6.64554 22.7769 6.1622 22.017 6.2 21.1922L6.272 19.7922C6.30047 19.2387 6.09302 18.6991 5.7011 18.3071C5.30918 17.9152 4.76952 17.7078 4.216 17.7362L2.816 17.8072C1.98873 17.8504 1.22381 17.3683 0.905883 16.6034C0.587955 15.8384 0.785828 14.9561 1.4 14.4002L2.441 13.4602C2.85242 13.0886 3.08722 12.5601 3.08722 12.0057C3.08722 11.4513 2.85242 10.9229 2.441 10.5512L1.4 9.60624C0.787888 9.05099 0.590308 8.1712 0.906222 7.40753C1.22214 6.64387 1.98351 6.16078 2.809 6.20024L4.209 6.27124C4.76359 6.3004 5.30448 6.09267 5.69699 5.69978C6.0895 5.30689 6.2967 4.7658 6.267 4.21124L6.2 2.81024C6.16129 1.98511 6.64431 1.22436 7.40754 0.908402C8.17076 0.592446 9.05017 0.789185 9.606 1.40024L10.546 2.43824Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" clip-rule="evenodd" d="M12 16.5012C14.4853 16.5012 16.5 14.4865 16.5 12.0012C16.5 9.51596 14.4853 7.50124 12 7.50124C9.51472 7.50124 7.5 9.51596 7.5 12.0012C7.5 14.4865 9.51472 16.5012 12 16.5012Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </ng-container>
+
+    <ng-container *ngIf="editMode">
+        <section class="edit-header">
+            <h1>Redigeringsmodus</h1>
+            <span>Du kan flytte rundt på elementene ved å dra dem med musepekeren.</span>
+        </section>
+
+        <button class="c2a pull-right" (click)="openWidgetSelector()">Legg til eller fjern elementer</button>
+    </ng-container>
+</section>
+
+<div id="widget-grid" [class.editable]="editMode">
+    <div *ngFor="let widgetDef of widgetDefinitions; let idx = index"
+        class="widget-grid-cell"
+        [ngClass]="widgetDef.size"
+        [attr.data-id]="widgetDef.name"
+        [attr.data-index]="widgetDef['_index']">
+
+        <widget [widgetDefinition]="widgetDef"></widget>
+
+        <button
+            *ngIf="editMode"
+            (click)="removeWidget(idx)"
+            class="remove-widget-button icon-button rounded warn"
+            aria-label="Remove widget">
+
+            <i class="material-icons">close</i>
+        </button>
+    </div>
+</div>
+
+<section *ngIf="editMode" class="dashboard-edit-footer">
+    <button (click)="resetToDefaultLayout()" class="secondary bad">
+        Gå tilbake til standard layout
+    </button>
+
+    <button class="secondary pull-right" (click)="discardLayoutChanges()">Avbryt</button>
+    <button class="c2a" (click)="saveLayoutChanges()">Lagre</button>
+</section>

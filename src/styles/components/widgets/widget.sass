@@ -1,0 +1,149 @@
+widget
+    display: block
+    box-sizing: border-box
+    width: 100%
+    height: 100%
+    background: #fff
+    border: 1px solid var(--border-color)
+    border-radius: var(--section-radius)
+
+    > *
+        display: flex
+        flex-direction: column
+        height: 100%
+        overflow: hidden
+
+        .header
+            flex: 0 0 3rem
+            display: flex
+            align-items: center
+            padding: .5rem 1.5rem 0
+
+            h1
+                font-size: 18px
+                font-weight: 500
+                margin: 0
+
+            button.tertiary
+                padding-right: 0
+
+        .content
+            flex: 1
+            display: flex
+            flex-direction: column
+            overflow: hidden
+            position: relative // Necessary for PerfectScrollbar and responsive charts
+            padding: 1rem 1.5rem
+            box-sizing: border-box
+
+            &.flex-row
+                flex-direction: row
+
+            widget-chart
+                position: relative
+                flex: 1
+                max-width: 100%
+
+                &.center
+                    margin: auto
+                canvas
+                    width: 100%
+                    height: 100%
+
+        .footer
+            flex: 0 0 auto
+            display: flex
+            align-items: center
+            padding: .5rem 1.5rem
+
+            &.center
+                justify-content: center
+
+            &.border-top
+                border-top: 1px solid var(--border-color)
+
+            .footer-sum-item
+                flex: 1
+                display: flex
+                flex-direction: column
+                align-items: center
+                padding: .5rem 2rem
+
+                .value
+                    font-weight: 500
+
+                .label
+                    color: var(--scale1)
+                    padding-top: 5px
+                    display: flex
+                    align-items: center
+                    .indicator
+                        width: 12px
+                        height: 12px
+                        border-radius: 50%
+                        margin-right: .5rem
+
+    .chart-legend
+        display: flex
+        flex-direction: column
+
+        &.horizontal
+            flex-direction: row
+            align-items: center
+
+            .chart-legend-item
+                & + .chart-legend-item
+                    margin-top: 0
+                    margin-left: 2rem
+
+                span + span
+                    padding-left: .5rem
+
+        .chart-legend-item
+            display: flex
+            align-items: center
+
+            & + .chart-legend-item
+                margin-top: .75rem
+
+            span + span
+                padding-left: 1rem
+
+            .indicator
+                height: 12px
+                width: 12px
+                border-radius: 50%
+                box-sizing: border-box
+                &.bordered
+                    border: 1px solid #ccc
+
+            .label
+                color: var(--scale1)
+
+            .value
+                margin-left: auto
+                text-align: right
+
+
+    .chart-tooltip
+        position: absolute
+        opacity: 0
+        background: #454749
+        color: #e6e6e6
+        padding: 6px 12px
+        box-sizing: border-box
+        border-radius: var(--section-radius)
+        transition: opacity .5s
+        min-width: 150px
+        font-size: 14px
+        pointer-events: none
+        white-space: nowrap
+
+        .data-row
+            display: grid
+            grid-template-columns: 1fr 1fr
+            grid-gap: 1rem
+            span:first-of-type
+                color: #afafaf
+            span + span
+                text-align: right

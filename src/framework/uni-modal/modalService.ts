@@ -9,8 +9,9 @@ import {
 } from '@angular/core';
 import {UniUnsavedChangesModal} from './modals/unsavedChangesModal';
 import {UniConfirmModalV2} from './modals/confirmModal';
-import {Observable, fromEvent, Subscription} from 'rxjs';
+import {Observable, fromEvent, Subscription, of} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
+import {take, timeout, switchMap, catchError, filter} from 'rxjs/operators';
 
 @Injectable()
 export class UniModalService {
@@ -211,12 +212,21 @@ export class UniModalService {
         backdrop.classList.add('uni-modal-backdrop');
 
         if (options.closeOnClickOutside !== false) {
-            this.clickOutsideSubscription = fromEvent(backdrop, 'click').subscribe((event: MouseEvent) => {
-                const target = event.target || event.srcElement;
 
-                // Make sure we don't close on events that propagated from the modal,
-                // only clicks directly on the backdrop
-                if (target === backdrop) {
+            /*
+                Instead of simply subscribing to click events we subscribe to mousedown events,
+                verify that the event target is the backdrop and then switchMap
+                to the mouseup event, which causes the modal to close.
+
+                This way we ensure that the click started and ended outside the dialog,
+                and avoid an annoying bug where mousedrags that started inside but ended outside
+                (for example while marking text) would cause it to close.
+            */
+            this.clickOutsideSubscription =  fromEvent(backdrop, 'mousedown').pipe(
+                filter(event => (event.target || event.srcElement) === backdrop),
+                switchMap(() => fromEvent(backdrop, 'mouseup').pipe(take(1))),
+            ).subscribe(event => {
+                if (event && (event.target || event.srcElement) === backdrop) {
                     const activeModal = this.openModalRefs[this.openModalRefs.length - 1];
                     this.forceClose(activeModal);
                 }
@@ -224,7 +234,6 @@ export class UniModalService {
         }
 
         this.containerElement.appendChild(backdrop);
-
         return backdrop;
     }
 

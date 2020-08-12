@@ -5,7 +5,9 @@ import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { CompanySettings, BankAccount } from '@app/unientities';
-import { UniModalService } from '../../modalService';
+import { ErrorService } from '@app/services/common/errorService';
+import { BankAccountService } from '@app/services/accounting/bankAccountService';
+import { NumberFormat } from '@app/services/common/numberFormatService';
 
 @Component({
     selector: 'uni-brunoaccountsconfig-modal',
@@ -13,114 +15,164 @@ import { UniModalService } from '../../modalService';
     styleUrls: ['./bank-accounts-config-modal.sass']
 })
 export class ConfigBankAccountsModal implements IUniModal {
-    @Input() options: IModalOptions = {};
-    @Input() modalService: UniModalService;
-    @Output() onClose = new EventEmitter();
-
-    constructor(
-        private companySettingsService: CompanySettingsService,
-        private statisticsService: StatisticsService
-    ) { }
+    options: IModalOptions = {};
+    onClose = new EventEmitter();
 
     busy: boolean = true;
     setupFinished: boolean = false;
-    errorMsg: string = '';
+    showSalarySection: boolean = false;
 
-    SelectConfig: ISelectConfig;
-
+    selectConfig: ISelectConfig;
+    accountsReceivedCount: number;
     companySettings: CompanySettings;
 
-    inputData: [string, number][];
+    accounts: BankAccount[];
+    unassignedAccounts: BankAccount[];
 
-    accountsReceived: number;
-    initialBankAccounts: string[];
-    availableAccounts: string[];
+    standardAccount: BankAccount;
+    taxAccount: BankAccount;
 
-    standardAccount: string;
-    standardAccountAllreadyUsed: boolean;
+    standardAccountAlreadyUsed: boolean;
+    taxAccountAlreadyUsed: boolean;
 
-    hasSalary: boolean = false;
-    taxAccount: string;
-    taxAccountAllreadyUsed: boolean;
 
-    salaryAccount: string;
+    constructor(
+        private numberFormatter: NumberFormat,
+        private errorService: ErrorService,
+        private companySettingsService: CompanySettingsService,
+        private statisticsService: StatisticsService,
+        private bankAccountService: BankAccountService,
+    ) {}
 
     public ngOnInit() {
-        this.SelectConfig = {
-            template: (item) => typeof item === 'string' ? item.toString() : item,
+        this.selectConfig = {
+            template: (item) => this.numberFormatter.asBankAcct(item.AccountNumber),
             searchable: false,
-            placeholder: 'velg konto'
         };
 
-        this.inputData = this.options.data as [string, number][];
-        this.initialBankAccounts = this.inputData.map(x => x['AccountNumber']);
-        this.accountsReceived = this.initialBankAccounts.length;
+        this.accounts = this.options.data;
+        this.accountsReceivedCount = this.accounts.length;
         this.checkForExistingCompanyAccounts();
     }
 
     private checkForExistingCompanyAccounts() {
-        this.companySettingsService.getCompanySettings()
-            .subscribe((settings) => {
-                this.companySettings = settings;
+        this.companySettingsService.getCompanySettings().subscribe(settings => {
+            this.companySettings = settings;
 
-                this.standardAccount = this.companySettings?.CompanyBankAccount?.AccountNumber;
-                this.taxAccount = this.companySettings?.TaxBankAccount?.AccountNumber;
-                this.salaryAccount = this.companySettings?.SalaryBankAccount?.AccountNumber;
+            this.standardAccount = this.companySettings?.CompanyBankAccount;
+            this.taxAccount = this.companySettings?.TaxBankAccount;
+            const salaryAccount = this.companySettings?.SalaryBankAccount;
 
-                Observable.forkJoin(
-                    this.bankAccountIsUsed(this.standardAccount),
-                    this.bankAccountIsUsed(this.taxAccount),
-                    this.bankAccountIsUsed(this.salaryAccount)
-                ).subscribe(([standardAccountIsUsed, taxAccountIsUsed, salaryAccountIsUsed]) => {
-                    if (this.standardAccount) {
-                        if (standardAccountIsUsed) {
-                            this.standardAccountAllreadyUsed = true;
-                            this.removeUsedAccount(this.standardAccount);
-                        } else if (!this.initialBankAccounts.find(y => y === this.standardAccount)) {
-                            this.initialBankAccounts.push(this.standardAccount);
-                        }
+            Observable.forkJoin(
+                this.isBankAccountInUse(this.standardAccount?.AccountNumber),
+                this.isBankAccountInUse(this.taxAccount?.AccountNumber),
+                this.isBankAccountInUse(salaryAccount?.AccountNumber)
+            ).subscribe(([standardAccountIsUsed, taxAccountIsUsed, salaryAccountIsUsed]) => {
+
+                if (this.standardAccount) {
+                    if (standardAccountIsUsed) {
+                        this.standardAccountAlreadyUsed = true;
+                        this.removeAccountFromList(this.standardAccount.AccountNumber);
+                    } else {
+                        this.addAccountToList(this.standardAccount);
                     }
-                    if (this.taxAccount) {
-                        if (taxAccountIsUsed) {
-                            this.standardAccountAllreadyUsed = true;
-                            this.removeUsedAccount(this.taxAccount);
-                        } else if (!this.initialBankAccounts.find(y => y === this.taxAccount)) {
-                            this.initialBankAccounts.push(this.taxAccount);
-                        }
-                    }
-                    if (this.salaryAccount) {
-                        if (salaryAccountIsUsed) {
-                            this.removeUsedAccount(this.salaryAccount);
-                        } else if (!this.initialBankAccounts.find(y => y === this.salaryAccount)) {
-                            this.initialBankAccounts.push(this.salaryAccount);
-                        }
-                    }
+                }
 
-                    const otherCompanyAccounts = this.companySettings.BankAccounts
-                        .filter(x =>
-                            x.AccountNumber !== this.standardAccount &&
-                            x.AccountNumber !== this.taxAccount &&
-                            x.AccountNumber !== this.salaryAccount
-                        );
-
-                    for (let x = 0; x < otherCompanyAccounts.length; x++) {
-                        if ((!this.initialBankAccounts.find(y => y === otherCompanyAccounts[x].AccountNumber))) {
-                            this.initialBankAccounts.push(otherCompanyAccounts[x].AccountNumber);
-                        }
+                if (this.taxAccount) {
+                    if (taxAccountIsUsed) {
+                        this.taxAccountAlreadyUsed = true;
+                        this.removeAccountFromList(this.taxAccount.AccountNumber);
+                    } else {
+                        this.addAccountToList(this.taxAccount);
                     }
+                }
 
-                    this.updateForm();
-                    this.busy = false;
+                if (salaryAccount) {
+                    if (salaryAccountIsUsed) {
+                        this.removeAccountFromList(salaryAccount.AccountNumber);
+                    } else {
+                        this.addAccountToList(salaryAccount);
+                    }
+                }
+
+                const otherCompanyAccounts = this.companySettings.BankAccounts.filter(account => {
+                    return account.AccountNumber !== this.standardAccount?.AccountNumber
+                        && account.AccountNumber !== this.taxAccount?.AccountNumber
+                        && account.AccountNumber !== salaryAccount?.AccountNumber;
                 });
+
+                otherCompanyAccounts.forEach(account => this.addAccountToList(account));
+
+                this.updateUnassignedAccounts();
+                this.busy = false;
             });
+        });
     }
 
-    private removeUsedAccount(accountMuber: string) {
-        this.initialBankAccounts = this.initialBankAccounts
-            .filter(y => y !== accountMuber);
+    save() {
+        const body = [{
+            item1: this.standardAccount.AccountNumber,
+            item2: 1920,
+            item3: this.standardAccount['ServiceSettings'] || this.standardAccount['IntegrationSettings']
+        }];
+
+        if (this.taxAccount) {
+            body.push({
+                item1: this.taxAccount.AccountNumber,
+                item2: 1950,
+                item3: this.taxAccount['ServiceSettings'] || this.taxAccount['IntegrationSettings']
+            });
+        }
+
+        this.unassignedAccounts.forEach(account => {
+            body.push({
+                item1: account.AccountNumber,
+                item2: 0,
+                item3: account['ServiceSettings'] || account['IntegrationSettings']
+            });
+        });
+
+        this.busy = true;
+
+        this.bankAccountService.createBankAccounts(body).subscribe(
+            () => this.onClose.emit(true),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
     }
 
-    private bankAccountIsUsed(AccountNumber: string): Observable<boolean> {
+    updateUnassignedAccounts() {
+        this.unassignedAccounts = this.accounts.filter(account => {
+            return account.AccountNumber !== this.standardAccount?.AccountNumber
+                && account.AccountNumber !== this.taxAccount?.AccountNumber;
+        });
+    }
+
+    toggleTaxAccountField(show: boolean) {
+        this.showSalarySection = show;
+
+        // Reset taxAccount to companySettings value when hiding.
+        // (in case the user changed dropdown value before hiding the taxAccount section)
+        if (!show && !this.taxAccountAlreadyUsed) {
+            this.taxAccount = this.companySettings?.TaxBankAccount;
+        }
+
+        this.updateUnassignedAccounts();
+    }
+
+    private addAccountToList(account: BankAccount) {
+        if (!this.accounts.some(a => a.AccountNumber === account.AccountNumber)) {
+            this.accounts.push(account);
+        }
+    }
+
+    private removeAccountFromList(accountNumber: string) {
+        this.accounts = this.accounts.filter(a => a.AccountNumber !== accountNumber);
+    }
+
+    private isBankAccountInUse(AccountNumber: string): Observable<boolean> {
         if (AccountNumber) {
             return this.statisticsService.GetAll(
                 'model=BankAccount' +
@@ -131,62 +183,5 @@ export class ConfigBankAccountsModal implements IUniModal {
             ).map((data) => data.Data[0].countPaymentId > 0 ? true : false);
         }
         return Observable.of(false);
-    }
-
-    public close(emitValue?: boolean) {
-        const nonConfigedAccounts = this.availableAccounts;
-        let res: any[];
-        if (emitValue) {
-            res = [
-                {
-                    item1: this.standardAccount,
-                    item2: 1920,
-                    item3: this.getBankAccountIntegrationSetting(this.standardAccount)
-                }
-            ];
-            if (this.taxAccount) {
-                res.push(
-                    {
-                        item1: this.taxAccount,
-                        item2: 1950,
-                        item3: this.getBankAccountIntegrationSetting(this.taxAccount)
-                    }
-                );
-            }
-            nonConfigedAccounts.forEach(account => res.push({
-                item1: account,
-                item2: 0,
-                item3: this.getBankAccountIntegrationSetting(account)
-            }));
-            this.onClose.emit(res);
-        } else {
-            this.onClose.emit(null);
-        }
-    }
-
-    private getBankAccountIntegrationSetting(accountNumber: string) {
-        return this.inputData.find(x => x['AccountNumber'] === accountNumber) ?
-        this.inputData.find(x => x['AccountNumber'] === accountNumber)['ServiceSettings'] :
-        ((this.initialBankAccounts.find(x => x === accountNumber) &&
-        this.companySettings.BankAccounts.find(x => x.AccountNumber === accountNumber)) ?
-        this.companySettings.BankAccounts.find(x => x.AccountNumber === accountNumber)['IntegrationSettings'] : 0);
-    }
-
-    public updateForm() {
-        this.updateAvailableAccounts();
-        this.setupFinished = !this.hasSalary || (this.hasSalary && !!this.taxAccount);
-    }
-
-    private updateAvailableAccounts(): void {
-        this.availableAccounts = this.initialBankAccounts
-            .filter(x => x !== this.standardAccount && x !== this.taxAccount);
-    }
-
-    toggleTaxAccountField(show: boolean) {
-        this.hasSalary = show;
-        if (!show && !this.taxAccountAllreadyUsed) {
-            this.taxAccount = this.companySettings?.TaxBankAccount?.AccountNumber;
-        }
-        this.updateForm();
     }
 }

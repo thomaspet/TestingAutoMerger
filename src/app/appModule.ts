@@ -1,5 +1,5 @@
 /// <reference path='../../node_modules/immutable/dist/immutable.d.ts' />
-import {NgModule, ErrorHandler} from '@angular/core';
+import {NgModule, ErrorHandler, LOCALE_ID} from '@angular/core';
 import {HashLocationStrategy, LocationStrategy, registerLocaleData} from '@angular/common';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {BrowserModule} from '@angular/platform-browser';
@@ -118,7 +118,8 @@ moment.locale('nb');
         { provide: LocationStrategy, useClass: HashLocationStrategy },
         { provide: ErrorHandler, useClass: UniAngularErrorHandler },
         { provide: DateAdapter, useClass: UniDateAdapter },
-        { provide: HTTP_INTERCEPTORS, useClass: HeaderInterceptor, multi: true }
+        { provide: HTTP_INTERCEPTORS, useClass: HeaderInterceptor, multi: true },
+        { provide: LOCALE_ID, useValue: 'nb-NO' }
     ],
 })
 export class AppModule {}

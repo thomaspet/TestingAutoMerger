@@ -3,6 +3,7 @@ import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SA
 
 import {THEMES} from './themes-enum';
 import {PLUS_PACKAGE_BLACKLIST, MINI_PACKAGE_BLACKLIST} from './ext02/feature-blacklists';
+import {DASHBOARD_CONFIGS} from './ext02/dashboard-configs';
 export * from './themes-enum';
 
 export const theme = {
@@ -12,10 +13,15 @@ export const theme = {
 
     translationOverrides: TRANSLATION_OVERRIDES,
     chatbotIcon: 'themes/ext02/chatbot-icon.svg',
+
+    dashboardConfigs: DASHBOARD_CONFIGS,
+
+    // TODO: remove these when new dashboard is implemented everywhere
     dashboardConfig: DASHBOARD_CONFIG,
     accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
     bankDashboardConfig: BANK_DASHBOARD_CONFIG,
     salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
+    //
 
     featureBlacklists: {
         Mini: MINI_PACKAGE_BLACKLIST,
@@ -32,6 +38,8 @@ export const theme = {
     },
 
     widgets: {
+        empty_state_illustration: 'themes/ext02/empty_state.svg',
+
         pie_colors: ['#007272', '#DAF0CD', '#FBBE11', '#7FC6E8', '#F8598B', '#FF9E2C', '#FBBE11', '#01A901', '#DAF0CD'],
         due_date_colors: ['#007272', '#DAF0CD', '#FBBE11', '#FF9E2C', '#D63731'],
         bar_chart_colors: ['#0070E0', '#E3E3E3'],

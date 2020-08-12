@@ -1,0 +1,32 @@
+<section class="header">
+    <h1>Banksaldo</h1>
+</section>
+
+<section class="content">
+
+    <widget-empty-state *ngIf="onboardingState === 'none'" class="horizontal">
+        For å se saldo på bankkonto trenger du en autobankavtale med banken. <br>
+        <button (click)="runOnboarding()" class="c2a">
+            Koble sammen bank og regnskap
+        </button>
+    </widget-empty-state>
+
+    <widget-empty-state *ngIf="onboardingState === 'pending'" class="horizontal">
+        Du har bestilt kobling mellom regnskap og bank.
+        Du får en bekreftelse på epost når bestillingen er fullført.
+        <br><br>
+        Denne prosessen kan ta opp til tre virkedager. Dersom du ikke har mottatt bekreftelse
+        eller ble avbrutt kan du <a (click)="runOnboarding()">starte på nytt her</a>.
+    </widget-empty-state>
+
+    <widget-empty-state *ngIf="onboardingState === 'connectAccounts'" class="horizontal">
+        Vi har mottatt kontoinformasjon fra banken.
+        Vennligst hjelp oss å knytte riktige kontoer til DNB Regnskap.<br>
+
+        <button (click)="runOnboarding()" class="c2a">
+            Sett opp kontoer
+        </button>
+    </widget-empty-state>
+
+    <bank-balance-widget-content *ngIf="onboardingState === 'complete'"></bank-balance-widget-content>
+</section>

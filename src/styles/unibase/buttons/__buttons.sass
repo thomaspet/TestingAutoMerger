@@ -6,13 +6,13 @@
 
 @mixin primary-btn($type)
     border: none
-    color: #fff
+    color: var(--button-#{$type}-text-color, #fff)
     background-color: var(--button-#{$type})
     font-weight: var(--button-primary-font-weight)
 
     &:focus, &:active
         background-color: var(--button-#{$type}-hover)
-        color: #fff
+        color: var(--button-#{$type}-text-color, #fff)
 
     &:hover
         color: if($btn-inversed-hover-state, var(--button-#{$type}-hover), #fff)
@@ -74,12 +74,18 @@ button, a.button
         outline: none
 
     &.icon-button
+        display: inline-flex
+        align-items: center
+        justify-content: center
         background-color: unset
         padding: 0
         border: none
         width: 2.5rem
         i
             margin-bottom: 0
+
+        &.rounded
+            border-radius: 50%
 
     i
         vertical-align: middle

@@ -1,0 +1,43 @@
+<section class="header">
+    <h1>Timeføring {{calendarMonthName}}</h1>
+
+    <section class="month-selector pull-right">
+        <button (click)="prevMonth()" class="icon-button">
+            <i class="material-icons">chevron_left</i>
+        </button>
+
+        <button (click)="nextMonth()" class="icon-button">
+            <i class="material-icons">chevron_right</i>
+        </button>
+    </section>
+</section>
+
+<section *ngIf="!loading" class="content">
+    <widget-empty-state *ngIf="missingWorker">
+        Det ser ikke ut brukeren din er satt opp for timeføring på dette selskapet.
+        <button class="c2a" [attr.aria-busy]="activating" (click)="activateWorker()">
+            Aktiver timeføring
+        </button>
+    </widget-empty-state>
+
+    <section *ngIf="!missingWorker && calendar" class="timeentry-widget-calendar">
+        <section class="calendar-dates">
+            <!-- Header -->
+            <section class="calendar-header-cell">Uke</section>
+            <section *ngFor="let day of dayLabels" class="calendar-header-cell">{{day}}</section>
+
+            <!-- Body -->
+            <ng-container *ngFor="let week of calendar; let idx = index">
+                <section class="calendar-cell week-number">
+                    {{week[0]?.weekNumber}}
+                </section>
+
+                <section *ngFor="let day of week" (click)="openTimeEntryDialog(day)" class="calendar-cell day" [ngClass]="day.classList">
+                    <span>{{day.date | date: 'd'}}</span>
+                    <!-- <span *ngIf="day.flexClass" [ngClass]="day.flexClass" class="flex-indicator"></span> -->
+                </section>
+            </ng-container>
+        </section>
+    </section>
+
+</section>

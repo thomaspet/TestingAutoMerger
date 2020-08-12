@@ -1,100 +1,77 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>{{options.header || 'Sett opp kontoene dine i DNB regnskap'}}</header>
+<section role="dialog" class="uni-modal">
+    <header>Sett opp kontoene dine i DNB regnskap</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section id="text-subline">
-            Vi har mottatt {{ accountsReceived }} bankkontoer fra DNB og trenger din hjelp til å
-             koble kontoene riktig i regnskapsprogrammet.
+        <section class="alert good">
+            Vi har mottatt informasjon om {{accountsReceivedCount}} nye bankkontoer og trenger din hjelp til å
+            koble kontoene riktig i systemet.
         </section>
 
-        <br/>
-        <section>
-            Velg hvilke bankkontoer du skal benytte som standard for dine betalinger (driftskonto):
-        </section>
-        <br/>
         <label class="uni-label label-above">
             <span>
-                Standard driftskonto
+                Standard konto for betalinger (driftskonto)
                 <i
-                    *ngIf="standardAccountAllreadyUsed"
+                    *ngIf="standardAccountAlreadyUsed"
                     class="material-icons tooltip-icon"
                     matTooltip="Firmaet har allerede en driftskonto som er i bruk, standard driftskonto kan derfor ikke endres.">
                     error_outline
                 </i>
             </span>
             <uni-select
-            [items]="availableAccounts"
-            [config]="SelectConfig"
-            [(value)]="standardAccount"
-            [readonly]="standardAccountAllreadyUsed"
-            (valueChange)="updateForm()">
-        </uni-select>
+                [items]="unassignedAccounts"
+                [config]="selectConfig"
+                [(value)]="standardAccount"
+                [readonly]="standardAccountAlreadyUsed"
+                (valueChange)="updateUnassignedAccounts()">
+            </uni-select>
         </label>
-        <br/>
-        <span>
-            <b>Lønn</b>
-            <i class="material-icons tooltip-icon" matTooltip="Du kan benytte lønn uten å sette opp egen konto for skattetrekk.">help_outline</i>
-        </span>
 
-        <section>
-            Skal du benytte lønn og ønsker å bruke en av disse kontoene som skattetrekkskonto?
-        </section>
-        <br/>
-        <span>
-            <button
-                class="butt-taxtoggle"
-                [class.c2a]="hasSalary"
-                id="butt-yes"
-                (click)="toggleTaxAccountField(true)">
-                Ja
-            </button>
-            <button
-                class="butt-taxtoggle"
-                [class.c2a]="!hasSalary"
-                id="butt-no"
-                (click)="toggleTaxAccountField(false)">
-                Nei
-            </button>
-        </span>
+        <section class="salary-section">
+            <strong>
+                Lønn
+                <i matTooltip="Du kan benytte lønn uten å sette opp egen konto for skattetrekk." class="material-icons tooltip-icon">help_outline</i>
+            </strong>
 
-        <br/>
-        <br/>
-        <label class="uni-label label-above" *ngIf="hasSalary">
-            <span>
-                Skattetrekkskonto
+            <span>Skal du benytte lønn og ønsker å bruke en av disse kontoene som skattetrekkskonto?</span>
+
+            <section class="tax-toggle">
+                <button [class.c2a]="showSalarySection" (click)="toggleTaxAccountField(true)">Ja</button>
+                <button [class.c2a]="!showSalarySection" (click)="toggleTaxAccountField(false)">Nei</button>
+            </section>
+
+            <label class="uni-label label-above" *ngIf="showSalarySection">
+                <span>
+                    Skattetrekkskonto
                     <uni-tooltip
-                        *ngIf="taxAccountAllreadyUsed"
+                        *ngIf="taxAccountAlreadyUsed"
                         [type]="'warn'"
-                    [text]="'Firmaet har allerede en skattetrekkskonto som er i bruk, standard skattetrekkskonto kan derfor ikke endres.'">
+                        [text]="'Firmaet har allerede en skattetrekkskonto som er i bruk, standard skattetrekkskonto kan derfor ikke endres.'">
                     </uni-tooltip>
-            </span>
-            <uni-select
-            [items]="availableAccounts"
-            [config]="SelectConfig"
-            [(value)]="taxAccount"
-            [readonly]="taxAccountAllreadyUsed"
-            (valueChange)="updateForm()">
-        </uni-select>
-        </label>
-
-        <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
+                </span>
+                <uni-select
+                    [items]="unassignedAccounts"
+                    [config]="selectConfig"
+                    [(value)]="taxAccount"
+                    [readonly]="taxAccountAlreadyUsed"
+                    (valueChange)="updateUnassignedAccounts()">
+                </uni-select>
+            </label>
+        </section>
     </article>
+
     <footer>
-        <button
-            class="secondary"
-            (click)="close(false)"
-            (keydown.shift.tab)="$event.preventDefault()">
+        <button class="secondary" (click)="onClose.emit(false)">
             Avbryt
         </button>
 
         <button class="c2a"
-            (click)="close(true)"
+            (click)="save()"
             (keydown.tab)="$event.preventDefault()"
-            [disabled]="!setupFinished">
-            Neste
+            [disabled]="!!!this.standardAccount && (!this.showSalarySection || !!this.taxAccount)">
+            Lagre
         </button>
     </footer>
 </section>

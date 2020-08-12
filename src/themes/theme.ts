@@ -2,6 +2,7 @@ import {TRANSLATION_OVERRIDES} from './ue/translation-overrides';
 import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ue/dashboard-config';
 
 import {THEMES} from './themes-enum';
+import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
 export * from './themes-enum';
 
 export const theme = {
@@ -11,10 +12,15 @@ export const theme = {
 
     translationOverrides: TRANSLATION_OVERRIDES,
     chatbotIcon: undefined,
+
+    dashboardConfigs: DASHBOARD_CONFIGS,
+
+    // TODO: remove these when new dashboard is implemented everywhere
     dashboardConfig: DASHBOARD_CONFIG,
     accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
     bankDashboardConfig: BANK_DASHBOARD_CONFIG,
     salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
+    //
 
     featureBlacklists: undefined,
 
@@ -27,6 +33,8 @@ export const theme = {
     },
 
     widgets: {
+        empty_state_illustration: 'themes/empty_state.svg',
+
         pie_colors: ['#132F9A', '#0070E0', '#2699FB', '#7FC6E8', '#F8598B', '#FF9E2C', '#FBBE11', '#01A901', '#DAF0CD'],
         due_date_colors: ['#01A901', '#DAF0CD', '#FBBE11', '#FF9E2C', '#D63731'],
         bar_chart_colors: ['#0070E0', '#E3E3E3'],

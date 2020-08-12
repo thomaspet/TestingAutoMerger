@@ -46,12 +46,12 @@ export class BankBalanceWidgetExt02 implements AfterViewInit {
     ) {}
 
     startOnboarding() {
-        this.brunoOnboardingService.startOnboarding()
-            .subscribe(() => {
-                this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
-                    this.ngAfterViewInit();
-                });
-            });
+        // this.brunoOnboardingService.startOnboarding()
+        //     .subscribe(() => {
+        //         this.brunoOnboardingService.onAgreementStatusChanged.subscribe(() => {
+        //             this.ngAfterViewInit();
+        //         });
+        //     });
     }
 
     public ngAfterViewInit() {

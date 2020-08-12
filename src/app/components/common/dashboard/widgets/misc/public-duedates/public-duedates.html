@@ -1,0 +1,32 @@
+<section class="header">
+    <h1>Offentlige frister</h1>
+
+    <button #toggle class="secondary pull-right">
+        {{numberOfDays}} dager
+        <i class="material-icons">expand_more</i>
+    </button>
+
+    <dropdown-menu [trigger]="toggle">
+        <ng-template>
+            <section *ngFor="let value of numberOfDaysOptions" (click)="updateNumberOfDays(value)" class="dropdown-menu-item">
+                {{value}} dager
+            </section>
+        </ng-template>
+    </dropdown-menu>
+</section>
+
+<section class="content" id="duedate-content">
+    <section *ngFor="let item of dueDates" class="list-item">
+        <section class="description">{{item['_text']}}</section>
+        <span class="date pull-right" [ngClass]="item['_class']" [title]="item.Deadline | date: 'dd.MM.yyyy'">
+            {{item['_daysLabel']}}
+        </span>
+    </section>
+</section>
+
+<section class="footer center">
+    <a (click)="seeAll()">
+        Se alle offentlige frister
+        <i class="material-icons">chevron_right</i>
+    </a>
+</section>

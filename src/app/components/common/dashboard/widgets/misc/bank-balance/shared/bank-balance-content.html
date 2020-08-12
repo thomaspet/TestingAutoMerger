@@ -1,0 +1,35 @@
+<widget-empty-state *ngIf="missingData" class="horizontal">
+    Det ser ikke ut som vi har mottatt saldoinformasjon.
+    Dersom du nylig har aktivert bankintegrasjonen kan det ta litt tid før systemet får data.
+</widget-empty-state>
+
+<ng-container *ngIf="!missingData && accountBalanceItems?.length">
+    <widget-chart class="chart" [chartConfig]="chartConfig"></widget-chart>
+
+    <section class="accounts">
+        <simple-table>
+            <thead>
+                <tr>
+                    <th>Konto</th>
+                    <th class="align-right">Saldo</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let item of accountBalanceItems; let idx = index">
+                    <td>
+                        <span class="pie-indicator" [style.background]="colors[idx]"></span>
+                        {{item.accountName}}
+                    </td>
+
+                    <td class="align-right">{{item.balanceAvailable | uninumberformat: 'money'}}</td>
+                </tr>
+            </tbody>
+        </simple-table>
+
+        <section *ngIf="reconciliationCount >= 0" class="reconciliation-info alert warn">
+            <span>{{reconciliationCount || 'Ingen'}} poster å avstemme</span>
+            <button routerLink="/bank/reconciliation" class="c2a">Til bankavstemming</button>
+        </section>
+    </section>
+</ng-container>

@@ -42,13 +42,20 @@ export class NumberFormat {
         return _value.substr(0, 3) + THINSPACE + _value.substr(3, 3) + THINSPACE + _value.substr(6);
     }
 
-    public asBankAcct(value: number) {
-        if (value.toString().length !== 11) {
-            return value.toString();
+    public asBankAcct(value) {
+        try {
+            const valueAsString = value && value.toString();
+            if (valueAsString && valueAsString.length === 11) {
+                const match = /(\d{4})(\d{2})(\d{5})/.exec(valueAsString);
+                if (match) {
+                    return match.splice(1).join(' ');
+                }
+            }
+            return value;
+        } catch (err) {
+            console.error(err);
+            return value;
         }
-
-        let _value: string = value + '';
-        return _value.substr(0, 4) + '.' + _value.substr(4, 2) + '.' + _value.substr(6)
     }
 
     private formatter(value: number, options: INumberOptions) {

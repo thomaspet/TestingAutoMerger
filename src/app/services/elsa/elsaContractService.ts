@@ -66,7 +66,7 @@ export class ElsaContractService {
                     console.error(err);
                     return of([]);
                 }),
-                map((types: ElsaContractType[]) => types[0].Label));
+                map((types: ElsaContractType[]) => types && types[0]?.Label));
     }
 
     // used for comparing contract-types

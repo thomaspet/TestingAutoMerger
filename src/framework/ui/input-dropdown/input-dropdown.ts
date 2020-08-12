@@ -33,10 +33,6 @@ export class InputDropdownMenu {
 
             if (current !== previous) {
                 if (this.visible) {
-                    if (this.overlayRef) {
-                        console.log(this.overlayRef, this.overlayRef.hasAttached());
-                    }
-
                     this.show();
                 } else {
                     this.hide();
