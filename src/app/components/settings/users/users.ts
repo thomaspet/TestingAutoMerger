@@ -16,6 +16,7 @@ import {AuthService} from '@app/authService';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {UniRoleModal} from './role-modal/role-modal';
 
 @Component({
     selector: 'user-management',
@@ -162,8 +163,20 @@ export class UserManagement {
     }
 
     openInviteUserModal() {
-        this.modalService.open(InviteUsersModal).onClose.subscribe(userInvited => {
-            if (userInvited) {
+        this.modalService.open(InviteUsersModal).onClose.subscribe((user: User) => {
+            if (user) {
+                this.selectedUser = user;
+                this.loadUsers();
+                this.openRoleModal();
+            }
+        });
+    }
+
+    openRoleModal() {
+        this.modalService.open(UniRoleModal, {
+            data: { user: this.selectedUser }
+        }).onClose.subscribe(rolesChanged => {
+            if (rolesChanged) {
                 this.loadUsers();
             }
         });
