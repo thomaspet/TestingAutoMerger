@@ -10,12 +10,4 @@ export class SelectTemplate {
     @Input() templateCompanies: Company[];
     @Input() selectedTemplateCompany: Company;
     @Output() selectedTemplateCompanyChange = new EventEmitter();
-
-    onTemplateCompanyClick(company) {
-        if (this.selectedTemplateCompany && this.selectedTemplateCompany.ID === company.ID) {
-            this.selectedTemplateCompanyChange.emit(undefined);
-        } else {
-            this.selectedTemplateCompanyChange.emit(company);
-        }
-    }
 }

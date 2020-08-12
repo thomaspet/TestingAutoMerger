@@ -39,6 +39,7 @@ export interface ElsaCompanyLicense {
     UpdatedAt: Date;
     UpdatedBy: string;
     UpdatedByEmail: string;
+    TwoFactorEnabled?: boolean;
 }
 
 export interface ElsaPurchase {
@@ -68,6 +69,7 @@ export interface ElsaContract {
     Note?: any;
     Limit: number;
     AgreementAcceptances: any[];
+    TwoFactorEnabled?: boolean;
 }
 
 export interface ElsaContractType {

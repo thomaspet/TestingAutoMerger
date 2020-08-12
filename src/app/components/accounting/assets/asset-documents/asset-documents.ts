@@ -52,7 +52,7 @@ export class AssetDocumentsComponent {
                         || 0;
                     let source: any = this.assetsActions.getNewAsset().pipe(take(1));
                     if (this.supplierInvoiceID) {
-                        source = this.assetsActions.createAsset(this.supplierInvoiceID).pipe(take(1))
+                        source = this.assetsActions.createAsset(this.supplierInvoiceID).pipe(take(1));
                         this.assetsStore.assetIsDirty = true;
                     }
                     source.subscribe(asset => {

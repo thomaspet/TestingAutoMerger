@@ -13,6 +13,7 @@ interface CompanyInfo {
 
 export interface EHFAttachment {
     label: string;
+    id?: string;
     plaintext?: string;
     externalUrl?: string;
     resourceUrl?: string;

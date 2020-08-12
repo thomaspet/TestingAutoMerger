@@ -1,6 +1,6 @@
-ul.uni-selection-list
-    list-style: none
-    li
+.uni-selection-list
+    margin-top: 1rem
+    .selection-list-item
         display: flex
         height: 55px
         align-items: center
@@ -8,16 +8,8 @@ ul.uni-selection-list
         background: #f7f7f7
         padding: 0 1rem
         font-size: 14px
-        border-radius: 2px
-
-        + li
+        border-radius: var(--section-radius)
+        & + label
             margin-top: .5rem
-
-        i.material-icons
-            margin-right: .5rem
-            color: #8C97AB
-            user-select: none
-
-        &.selected
-            i.material-icons
-                color: var(--color-c2a)
+        > *
+            margin-right: 8px

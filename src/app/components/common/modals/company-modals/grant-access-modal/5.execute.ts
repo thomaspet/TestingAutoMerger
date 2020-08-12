@@ -28,6 +28,7 @@ export class ExecuteForBulkAccess {
             massInvite.CompanyLicenses = this.data.companies;
             massInvite.UserLicenses = this.data.users;
             massInvite.Products = this.data.products;
+            massInvite.IsSelfInvite = this.data.AddAdministratorRole;
 
             this.jobService.startJob('MassInviteBureau', 0, massInvite).subscribe(
                 res => {

@@ -1,74 +1,111 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { ErrorService } from '@app/services/services';
-import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { UniHttp } from '@uni-framework/core/http/http';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {ErrorService, ElsaContractService} from '@app/services/services';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {UniHttp} from '@uni-framework/core/http/http';
+import {KpiCompany} from '@app/components/bureau/kpiCompanyModel';
+import {AuthService} from '@app/authService';
+import {SubCompany} from '@uni-entities';
 
 @Component({
     selector: 'uni-subcompany-modal',
     template: `
         <section role="dialog" class="uni-modal">
-
             <header>Opprett selskap i lokalt kunderegister</header>
 
-            <article [attr.aria-busy]="busy" *ngIf="subCompany === undefined">
-                <h3>Opprette ny kunde: {{options?.data?.Name}}</h3>
-            </article>
+            <article>
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
 
-            <article *ngIf="subCompany">
-                <h3>Allerede knyttet mot kundenr. {{subCompany?.CustomerNumber}} - {{subCompany?.Name}}</h3>
+                <section *ngIf="existingSubCompany && !errorMessage" class="alert warn">
+                    Selskapet er allerede knyttet mot en kunde
+                </section>
+
+                <section *ngIf="errorMessage" class="alert warn">
+                    {{errorMessage}}
+                </section>
+
+                <section *ngIf="!existingSubCompany && !errorMessage">
+                    Vennligst bekreft oppretting av kunde "{{options?.data?.Name}}"?
+                </section>
+
             </article>
 
             <footer>
-                <button [disabled]="subCompany || busy" (click)="onCloseAction('ok')" class="good">OK</button>
-                <button (click)="onCloseAction('cancel')" class="bad">Avbryt</button>
+                <button (click)="onClose.emit(false)" class="secondary">Avbryt</button>
+
+                <button
+                    class="c2a"
+                    [disabled]="existingSubCompany || errorMessage"
+                    [attr.aria-busy]="busy"
+                    (click)="createCustomer()">
+
+                    Opprett kunde
+                </button>
             </footer>
         </section>
     `
 })
 export class SubCompanyModal implements IUniModal {
+    @Input() options: IModalOptions = {};
+    @Output() onClose = new EventEmitter<boolean>();
 
-    @Input()
-    public options: IModalOptions = {};
+    busy = false;
 
-    @Output()
-    public onClose: EventEmitter<boolean> = new EventEmitter();
+    kpiCompany: KpiCompany;
+    existingSubCompany: SubCompany;
 
-    public busy = false;
-
-    public get subCompany(): { ID: number, Name: string, CompanyKey: string } {
-        return this.options.data ? this.options.data.SubCompany : undefined;
-    }
-
-    public get company(): { Name: string, Key: string } {
-        return this.options.data ? this.options.data : undefined;
-    }
+    errorMessage: string;
 
     constructor(
         private errorService: ErrorService,
-        private http: UniHttp
+        private http: UniHttp,
+        private authService: AuthService,
+        private elsaContractService: ElsaContractService,
     ) {}
 
-    public onCloseAction(src: 'ok' | 'cancel') {
+    ngOnInit() {
+        this.kpiCompany = this.options?.data;
+        this.existingSubCompany = this.kpiCompany && this.kpiCompany['SubCompany'];
 
-        if (src === 'ok') {
+        const isLicenseAdmin = this.authService.currentUser?.License?.CustomerAgreement?.CanAgreeToLicense;
+
+        if (isLicenseAdmin) {
             this.busy = true;
-            this.createCustomerWithSubCompany()
-                .finally( () => this.busy = false )
-                .subscribe( customer => {
-                    this.onClose.emit(true);
-                }, err => this.errorService.handle(err));
-            return;
-        }
+            const contractID = this.authService.currentUser.License.Company?.ContractID;
+            this.elsaContractService.getCompanyLicenses(contractID).subscribe(
+                companies => {
+                    const companyIsOnLicense = companies.some(c => c.CompanyKey === this.kpiCompany.Key);
+                    if (!companyIsOnLicense) {
+                        this.errorMessage = `${this.kpiCompany?.Name || 'Selskapet'} er ikke knyttet til samme lisens som selskapet du er logget inn på`;
+                    }
 
-        this.onClose.emit(false);
+                    this.busy = false;
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.errorMessage = `${this.kpiCompany?.Name || 'Selskapet'} er ikke knyttet til samme lisens som selskapet du er logget inn på`;
+                    this.busy = false;
+                }
+            );
+        } else {
+            this.errorMessage = 'Det er kun lisensadministratorer som kan sette opp kobling mot lokal kunde';
+        }
     }
 
-    public close() {
-        this.onClose.emit(false);
+    createCustomer() {
+        this.busy = true;
+        this.createCustomerWithSubCompany().subscribe(
+            () => this.onClose.emit(true),
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
     }
 
     private createCustomerWithSubCompany() {
-        const company = this.company;
+        const company = this.kpiCompany;
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -86,22 +123,3 @@ export class SubCompanyModal implements IUniModal {
             .map(response => response.body);
     }
 }
-
-class ICustomer {
-    ID?: number;
-    Info: IINfo;
-    Companies: ISubCompany[];
-}
-
-class IINfo {
-    ID?: number;
-    Name: string;
-}
-
-class ISubCompany {
-    ID?: number;
-    CustomerID?: number;
-    CompanyKey: string;
-    CompanyName: string;
-}
-

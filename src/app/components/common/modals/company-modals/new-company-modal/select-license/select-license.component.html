@@ -1,18 +1,14 @@
-<ul class="uni-selection-list">
+<section class="uni-selection-list" style="margin-top:1rem">
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
     <ng-container *ngFor="let customer of customers">
-        <li *ngFor="let contract of customer.Contracts"
-            (click)="selectedContractChange.emit(contract)"
-            [ngClass]="{'selected': selectedContract?.ID === contract.ID}">
-
-            <i class="material-icons">
-                {{selectedContract?.ID === contract.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
-            </i>
-
-            <span>{{customer.Name}}</span>
-            <span class="contract-type">
-                <span class="license-type-label">Lisenstype:</span>
-                {{contract.ContractType | elsaContractType}}
+        <label *ngFor="let contract of customer.Contracts" class="selection-list-item" (click)="selectContract(contract)">
+            <mat-radio-button (click)="$event.preventDefault()" [checked]="selectedContract.ID === contract.ID"></mat-radio-button>
+            {{customer.Name}}
+            <span class="pull-right">
+                Lisenstype: {{contract.ContractType | elsaContractType}}
             </span>
-        </li>
+        </label>
     </ng-container>
-</ul>
+</section>

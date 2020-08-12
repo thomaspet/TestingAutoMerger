@@ -227,6 +227,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
+                        name: 'NAVBAR.ASSETS',
+                        url: '/accounting/assets',
+                        moduleID: UniModules.Accounting,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.RESULT_BALANCE',
                         url: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports,

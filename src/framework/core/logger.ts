@@ -1,14 +1,14 @@
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 import * as raygun from 'raygun4js';
-import {RAYGUN_API_KEY} from 'src/environments/raygun';
-import {APP_METADATA} from 'src/environments/metadata';
-import {environment} from 'src/environments/environment';
-import {AppInsights} from 'applicationinsights-js';
+import { RAYGUN_API_KEY } from 'src/environments/raygun';
+import { APP_METADATA } from 'src/environments/metadata';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
+import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class Logger {
     private raygunEnabled: boolean;
-    private appInsightsEnabled: boolean;
+    appInsights: ApplicationInsights;
 
     constructor() {
         if (RAYGUN_API_KEY) {
@@ -18,40 +18,45 @@ export class Logger {
 
             this.raygunEnabled = true;
         }
-
-        const isDevBuild = window.location.host && window.location.host.includes('localhost');
-        if (!isDevBuild && environment.APP_INSIGHTS_KEY) {
-            this.appInsightsEnabled = true;
-            if (!AppInsights.config) {
-                AppInsights.downloadAndSetup({
-                    instrumentationKey: environment.APP_INSIGHTS_KEY,
-                });
-
-                AppInsights.queue.push(() => {
-                    AppInsights.context.addTelemetryInitializer(envelope => {
-                        envelope.tags['ai.cloud.role'] = 'UE Frontend';
-                    });
-                });
+        this.appInsights = new ApplicationInsights({
+            config: {
+                instrumentationKey: environment.APP_INSIGHTS_KEY,
+                enableAutoRouteTracking: true // option to log all route changes
             }
-        }
+        });
+        this.appInsights.loadAppInsights();
+        this.appInsights.addTelemetryInitializer((telemetryItem) => {
+            telemetryItem.tags['ai.cloud.role'] = 'UE Frontend';
+        });
     }
 
-    log(err: any) {
+    logPageView(name?: string, url?: string) {
+        this.appInsights.trackPageView({
+            name: name,
+            uri: url
+        });
+    }
+
+    logEvent(name: string, properties?: { [key: string]: any }) {
+        this.appInsights.trackEvent({ name: name }, properties);
+    }
+
+    logMetric(name: string, average: number, properties?: { [key: string]: any }) {
+        this.appInsights.trackMetric({ name: name, average: average }, properties);
+    }
+
+    logError(err: any, severityLevel?: number) {
         const error = err instanceof Error ? err : new Error(err);
         if (this.raygunEnabled) {
             try {
                 raygun('send', { error: error });
-            } catch (e) {}
+            } catch (e) { }
         }
+        this.appInsights.trackException({ exception: error, severityLevel: severityLevel });
+    }
 
-        if (this.appInsightsEnabled) {
-            const location = window.location.href.split('/#/')[1] || '';
-            const metadata = {
-                version: APP_METADATA.GIT_REVISION,
-                companyKey: localStorage.getItem('lastActiveCompanyKey') || ''
-            };
-
-            AppInsights.trackException(error, location, metadata);
-        }
+    logTrace(message: string, properties?: { [key: string]: any }) {
+        this.appInsights.trackTrace({ message: message }, properties);
     }
 }
+

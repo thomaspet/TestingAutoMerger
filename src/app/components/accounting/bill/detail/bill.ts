@@ -1,10 +1,10 @@
-import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit} from '@angular/core';
+import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
 import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
-import {filterInput, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
+import {filterInput, getNewGuid, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
     Approval,
     ApprovalStatus,
@@ -94,7 +94,10 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {finalize, map, tap} from 'rxjs/operators';
+import {PaymentStatus} from '@app/models/printStatus';
+import {finalize, map, tap, catchError} from 'rxjs/operators';
+import { O } from '@angular/cdk/keycodes';
+
 
 interface ITab {
     name: string;
@@ -170,6 +173,8 @@ export class BillView implements OnInit, AfterViewInit {
     public orgNumber: string;
     autocompleteOptions: any;
     public journalEntryManual: JournalEntryManual;
+
+    public loadingFiles: boolean;
 
     private supplierExpandOptions: Array<string> = [
         'Info',
@@ -264,7 +269,7 @@ export class BillView implements OnInit, AfterViewInit {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService,
         private accountService: AccountService,
-        private assetsService: AssetsService
+        private assetsService: AssetsService,
     ) {
         this.actions = this.rootActions;
 
@@ -417,6 +422,7 @@ export class BillView implements OnInit, AfterViewInit {
                 }
 
                 if (links.length > 0) {
+                    this.loadingFiles = true;
                     if (links.length > 1) {
                         this.toast.addToast('ACCOUNTING.SUPPLIER_INVOICE.MULTIPLE_USE_MSG1', ToastType.warn, ToastTime.medium);
                     } else  {
@@ -976,6 +982,10 @@ export class BillView implements OnInit, AfterViewInit {
         this.tagFileStatus(file.ID, 0);
     }
 
+    onBusyLoadingFiles(busyLoadingFiles: boolean) {
+        this.loadingFiles = busyLoadingFiles;
+    }
+
     private hasChangedFiles(files: Array<any>) {
         if ((!this.files) && (!files)) { return false; }
         if ((!this.files) || (!files)) { return true; }
@@ -1018,6 +1028,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.documentsInUse = this.unlinkedFiles;
             }
         }
+        this.loadingFiles = false;
     }
 
     public onJournalEntryManualDataLoaded(data) {
@@ -2485,13 +2496,13 @@ export class BillView implements OnInit, AfterViewInit {
 
     public openAddFileModal() {
         this.modalService.open(FileFromInboxModal).onClose.subscribe(file => {
-            if (!file) {
+            if ((!file) || this.files.filter(x => x.StorageReference === file.StorageReference).length) {
                 return;
             }
-
+            this.loadingFiles = true;
             const invoice = this.current.getValue();
             if (invoice.ID) {
-                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).then(() => {
+                this.linkFiles(invoice.ID, [file.ID], StatusCode.Completed).subscribe(() => {
                     this.numberOfDocuments++;
                     this.uniImage.refreshFiles();
                 });
@@ -2705,6 +2716,12 @@ export class BillView implements OnInit, AfterViewInit {
 
     private sendForPayment(): Observable<boolean> {
         const current = this.current.getValue();
+
+        if (current.RestAmount == 0) {
+            this.toast.addToast('Legg til betaling', ToastType.bad, 5, 'Kan ikke legge en faktura med 0 i restbeløp til betaling',);
+            return Observable.of(false);
+        }
+
         return this.supplierInvoiceService.sendForPayment(current.ID)
             .switchMap(() => Observable.of(true))
             .catch(() => Observable.of(false));
@@ -2734,7 +2751,8 @@ export class BillView implements OnInit, AfterViewInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
-        paymentData['_accounts'] = this.companySettings.BankAccounts.filter(acc => acc.BankAccountType === 'company');
+        paymentData['_accounts'] = this.companySettings.BankAccounts
+            .filter(acc => acc.BankAccountType.toLowerCase() === 'company' || acc.BankAccountType.toLowerCase() === 'companysettings');
         paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2760,7 +2778,8 @@ export class BillView implements OnInit, AfterViewInit {
                     }, err => {
                         this.errorService.handle(err);
                         done();
-                    });
+                });
+
             }
             done();
         });
@@ -2976,11 +2995,12 @@ export class BillView implements OnInit, AfterViewInit {
 
     private fetchInvoice(id: number, flagBusy: boolean): Promise<any> {
         if (flagBusy) { this.busy = true; }
-        this.files = undefined;
 
         this.journalEntryService.setSessionData(JournalEntryMode.SupplierInvoice, null);
 
         if (this.current?.value?.ID !== id) {
+            this.files = undefined;
+
             // set diff to null until the journalentry is loaded, the data is calculated correctly
             // through the onJournalEntryManualDataLoaded event
             this.sumVat = null;
@@ -3401,10 +3421,9 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUnsavedChanges = false;
                 done('Lagret og avvist!');
 
-                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                    () => {
-                        this.router.navigateByUrl('/accounting/bills/' + res.ID);
-                    });
+                this.linkFiles(res.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                    this.router.navigateByUrl('/accounting/bills/' + res.ID);
+                });
             });
         });
     }
@@ -3414,19 +3433,6 @@ export class BillView implements OnInit, AfterViewInit {
         this.preSave();
 
         return new Promise((resolve, reject) => {
-
-            const reload = () => {
-                this.fetchInvoice(this.currentID, (!!done))
-                    .then(() => {
-                        resolve({ success: true });
-                        if (done) { done('Lagret'); }
-                    })
-                    .catch((msg) => {
-                        reject({ success: false, errorMessage: msg });
-                        if (done) { done(msg); }
-                    });
-            };
-
             let obs: any;
             const current = this.current.getValue();
 
@@ -3436,10 +3442,19 @@ export class BillView implements OnInit, AfterViewInit {
                     current.Items = null;
                     // if the journalentry is already booked, clear the object before saving as we don't
                     // want to resave a booked journalentry
+                    // also clean up _createguid property if that was saved before
                     if (current.JournalEntry.DraftLines.filter(x => x.StatusCode).length > 0) {
                         current.JournalEntry = null;
                     } else {
+                        if (current.JournalEntry?.ID) {
+                            current.JournalEntry._createguid = undefined // avoid push to server
+                        }
                         current.JournalEntry.DraftLines.forEach(line => {
+                            if (line.ID && line._createguid) {
+                                line._createguid = undefined; // avoid push to server
+                            } else if (!line.ID && line._createguid) {
+                                line._createguid = getNewGuid();
+                            }
                             if (!line.VatDeductionPercent) {
                                 line.VatDeductionPercent = 0;
                             }
@@ -3463,22 +3478,35 @@ export class BillView implements OnInit, AfterViewInit {
                     }
                     obs = this.supplierInvoiceService.Post(current);
                 }
+
                 obs.subscribe((result) => {
-                    if ((!current.ID) && updateRoute) {
+                    const onSaveComplete = () => {
+                        if ((!current.ID) && updateRoute) {
+                            this.currentID = result.ID;
+                            this.router.navigateByUrl('/accounting/bills/' + result.ID);
+                        }
                         this.currentID = result.ID;
-                        this.router.navigateByUrl('/accounting/bills/' + result.ID);
-                    }
-                    this.currentID = result.ID;
-                    this.hasUnsavedChanges = false;
-                    this.commentsConfig.entityID = result.ID;
-                    if (this.unlinkedFiles.length > 0) {
-                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).then(
-                            () => {
-                                this.resetDocuments();
-                                reload();
+                        this.hasUnsavedChanges = false;
+                        this.commentsConfig.entityID = result.ID;
+
+                        this.fetchInvoice(this.currentID, (!!done))
+                            .then(() => {
+                                resolve({ success: true });
+                                if (done) { done('Lagret'); }
+                            })
+                            .catch((msg) => {
+                                reject({ success: false, errorMessage: msg });
+                                if (done) { done(msg); }
                             });
+                    };
+
+                    if (this.unlinkedFiles.length > 0) {
+                        this.linkFiles(result.ID, this.unlinkedFiles, StatusCode.Completed).subscribe(() => {
+                            this.resetDocuments();
+                            onSaveComplete();
+                        });
                     } else {
-                        reload();
+                        onSaveComplete();
                     }
                 }, (err) => {
                     this.errorService.handle(err);
@@ -4176,25 +4204,31 @@ export class BillView implements OnInit, AfterViewInit {
         this.hasUnsavedChanges = true;
     }
 
-    private linkFiles(ID: any, fileIDs: Array<any>, flagFileStatus?: any): Promise<any> {
-        return new Promise((resolve, reject) => {
-            fileIDs.forEach(fileID => {
-                const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${ID}`;
-                if (flagFileStatus) {
-                    this.tagFileStatus(fileID, flagFileStatus);
-                }
-                this.supplierInvoiceService.send(route).subscribe(x => resolve(x));
-            });
+    private linkFiles(entityID: number, fileIDs: number[], newFileStatus?) {
+        const requests = (fileIDs || []).map(fileID => {
+            const route = `files/${fileID}?action=link&entitytype=SupplierInvoice&entityid=${entityID}`;
+            return this.supplierInvoiceService.send(route).pipe(
+                tap(() => {
+                    if (newFileStatus) {
+                        this.tagFileStatus(fileID, newFileStatus);
+                    }
+                }),
+                catchError(err => of(null))
+            );
         });
+
+        return requests.length ? forkJoin(requests) : of([]);
     }
 
     private checkPath() {
         const pageParams = this.pageStateService.getPageState();
         if (pageParams.fileid) {
+            this.loadingFiles = true;
             this.loadFromFileID(pageParams.fileid);
         } else {
             this.modalService.open(BillInitModal).onClose.subscribe(fileID => {
                 if (fileID) {
+                    this.loadingFiles = true;
                     this.loadFromFileID(fileID);
                 }
             });

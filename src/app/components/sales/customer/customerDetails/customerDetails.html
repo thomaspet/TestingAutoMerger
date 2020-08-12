@@ -137,9 +137,9 @@
 
     <!-- Company tab -->
     <subcompanycomponent
-        [hidden]="activeTabIndex !== 5"
-        [customer]="customer$"
-        (change)="onSubCompanyChange($event)">
+        *ngIf="activeTabIndex === 5"
+        [customer]="customer$ | async"
+        (customerChange)="onSubCompanyChange($event)">
     </subcompanycomponent>
 
     <!-- TOF tabs  -->

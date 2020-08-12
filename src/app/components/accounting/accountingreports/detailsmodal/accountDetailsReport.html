@@ -31,7 +31,7 @@
     <uni-tabs [tabs]="tabs" [(activeIndex)]="tabIndex" (activeIndexChange)="tabChange($event)"></uni-tabs>
 
     <section class="uni-container" *ngIf="tabIndex === 0">
-        Viser perioder:
+        <span class="show-period">Viser perioder: </span>
         <period-picker
             [periodFilter]="periodFilter"
             (periodFilterChanged)="onPeriodFilterChanged($event)">

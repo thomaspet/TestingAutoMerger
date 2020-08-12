@@ -1,7 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
-import { RegulativeService } from '@app/services/services';
-
+import { RegulativeService } from '@app/components/salary/regulative/shared/service/regulative.service';
 
 @Component({
     selector: 'uni-confirm-modal',

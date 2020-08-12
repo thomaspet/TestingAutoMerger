@@ -16,7 +16,10 @@
         <!-- <a class="dashboard-link" routerLink="/overview">Oversikt</a> -->
         <button class="tertiary" routerLink="/overview">Oversikt</button>
 
-        <newsfeed></newsfeed>
+        <a href="https://support.unimicro.no/?PageID=5996&ItemID=5623" target="_blank" class="dashboard-link">
+            <i class="material-icons-outlined">mail</i>
+            Nyhetsbrev
+        </a>
     </ng-container>
 
     <button *ifFeaturePermission="'ui.dashboard.edit'" class="edit-toggle tertiary" (click)="toggleEditMode()" title="Rediger dashboard-layout">

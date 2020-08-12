@@ -45,12 +45,12 @@ export class AssetFormComponent {
             },
             {
                 Property: 'PurchaseDate',
-                Label: 'Kjøpt dato',
+                Label: 'Kjøpsdato',
                 FieldType: FieldType.LOCAL_DATE_PICKER,
             },
             {
                 Property: 'PurchaseAmount',
-                Label: 'Kjøpt pris',
+                Label: 'Kjøpspris',
                 FieldType: FieldType.NUMERIC,
                 ReadOnly: this.asset.ID || this.supplierInvoiceID,
                 Options: {

@@ -105,7 +105,7 @@ export enum CollectorStatus {
 export class InvoiceDetails implements OnInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
-    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
@@ -114,7 +114,6 @@ export class InvoiceDetails implements OnInit {
     itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    // private askedAboutSettingDimensionsOnItems: boolean;
 
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private aprilaOption = {
@@ -1469,7 +1468,7 @@ export class InvoiceDetails implements OnInit {
         }
 
         this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer og send',
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
             action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
@@ -1867,7 +1866,39 @@ export class InvoiceDetails implements OnInit {
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 } else {
-                                    onSendingComplete();
+                                    if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
+                                        const currentPlan = this.distributionPlans
+                                            .find(plan => plan.ID === this.invoice.DistributionPlanID);
+
+                                        // Only show sending of invoice if plan has elementtypes
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
+                                            this.toastService.toast({
+                                                title: 'Kreditering vellykket. Kreditnota sendes med valgt utsendingplan.',
+                                                type: ToastType.good,
+                                                duration: 5
+                                            });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kreditnota.');
+                                        }
+
+                                        onSendingComplete();
+                                    } else {
+                                        if (this.invoice.DistributionPlanID) {
+                                            const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                                            if (p && (!p.Elements || !p.Elements.length)) {
+                                                this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                    'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                    + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kredittnota.');
+                                                onSendingComplete();
+                                                return;
+                                            }
+                                        }
+                                        this.modalService.open(SendInvoiceModal, {
+                                            data: this.invoice
+                                        }).onClose.subscribe(() => onSendingComplete());
+                                    }
                                 }
                             });
                         },
@@ -2187,15 +2218,21 @@ export class InvoiceDetails implements OnInit {
     }
 
     onTradeItemsChange(items) {
-        setTimeout(() => {
-            this.invoiceItems = items;
-            if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
-                this.isDirty = true;
-            }
+        if (items.length > 0) {
+            setTimeout(() => {
+                this.invoiceItems = items;
+                if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
+                    this.isDirty = true;
+                }
+                this.invoice.Items = this.invoiceItems;
+                this.invoice = cloneDeep(this.invoice);
+                this.recalcDebouncer.emit(this.invoiceItems);
+            });
+        } else {
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
-        });
+        }
     }
 
     sellInvoiceToAprila(done) {

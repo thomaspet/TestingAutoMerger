@@ -1,7 +1,19 @@
-<h1>Velg produktene du vil aktivere for brukerne</h1>
+<h1 *ngIf="!busy" style="margin-bottom: 1.5rem">
+    {{data.StoredData.products ? 'Velg produktene du vil aktivere for brukerne' : 'Vi fant ingen produkter'}}
+</h1>
+
+<div *ngIf="!busy" class="admin-checkbox">
+    <mat-checkbox [(ngModel)]="data.AddAdministratorRole">
+        Gi alle valgte brukere administratortilgang
+        <uni-tooltip 
+            [text]="'Administrator vil kunne invitere andre brukere til selskapet, samt kjøpe og deaktivere produkter i markedsplassen.'">
+        </uni-tooltip>
+    </mat-checkbox>
+</div>
 
 <grant-access-selection-list
     [labelProperty]="'Label'"
-    [(items)]="products"
+    [busy]="busy"
+    [(items)]="data.StoredData.products"
     (itemsChange)="onSelectionChange()"
 ></grant-access-selection-list>

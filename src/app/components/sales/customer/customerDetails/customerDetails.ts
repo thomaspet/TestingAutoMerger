@@ -62,7 +62,6 @@ import {
     IModalOptions,
 } from '../../../../../framework/uni-modal';
 import {AuthService} from '@app/authService';
-import {SubCompanyComponent} from './subcompany';
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@uni-framework/uni-tabs';
@@ -95,7 +94,6 @@ export class CustomerDetails implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
     @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
-    @ViewChild(SubCompanyComponent, { static: true }) private subCompany: SubCompanyComponent;
 
     private customerID: any;
     public fields$ = new BehaviorSubject([]);
@@ -223,7 +221,8 @@ export class CustomerDetails implements OnInit {
         'Sellers',
         'Sellers.Seller',
         'DefaultSeller',
-        'Distributions'
+        'Distributions',
+        'Companies',
     ];
 
     private newEntityExpandOptions: string[] = [
@@ -442,9 +441,12 @@ export class CustomerDetails implements OnInit {
             );
     }
 
-    public onSubCompanyChange(event) {
-        this.isDirty = true;
-        this.setupSaveActions();
+    public onSubCompanyChange(customer: Customer) {
+        this.customer$.next(customer);
+        if (customer.Companies && customer.Companies[0]) {
+            this.isDirty = true;
+            this.setupSaveActions();
+        }
     }
 
     public addCustomer() {
@@ -553,10 +555,6 @@ export class CustomerDetails implements OnInit {
             return;
         }
         this.showReportWithID = tab['id'];
-
-        if (tab.name === 'Selskap') {
-            this.subCompany.activate();
-        }
 
         this.addTab();
     }
@@ -924,7 +922,6 @@ export class CustomerDetails implements OnInit {
                         this.customer$.next(updatedCustomer);
 
                         this.mapDistibutionPlans();
-                        this.subCompany.refresh();
                         this.setTabTitle();
                     });
                 } else {

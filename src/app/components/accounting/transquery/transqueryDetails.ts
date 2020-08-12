@@ -501,17 +501,24 @@ export class TransqueryDetails implements OnInit {
             data: {JournalEntryID: item.JournalEntryID}
         }).onClose.subscribe(response => {
             if (response && response.action === ConfirmActions.ACCEPT) {
-                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber, response.creditDate)
+                this.journalEntryService.creditJournalEntry(item.JournalEntryNumber)
                     .subscribe(
                         res => {
-                            this.toastService.addToast(
-                                'Kreditering utført',
-                                ToastType.good,
-                                ToastTime.short
-                            );
+                            if (res?.ProgressUrl) {
+                                this.toastService.addToast(
+                                    'Kreditering startet', ToastType.good, ToastTime.long,
+                                    'Det opprettes en jobb for krediteringen av bilaget. ' +
+                                    'Avhengig av antall linjer kan dette ta litt tid. Vennligst vent.'
+                                );
 
-                            this.table.refreshTableData();
-
+                                this.journalEntryService.waitUntilJobCompleted(res.ID).subscribe(() => {
+                                    this.displayCreditJournalEntryDoneToast();
+                                },
+                                err => this.errorService.handle(err)
+                                );
+                            } else {
+                                this.displayCreditJournalEntryDoneToast();
+                            }
                             // Force summary recalc
                             if (this.lastFilterString) {
                                 this.onFiltersChange(this.lastFilterString);
@@ -521,6 +528,16 @@ export class TransqueryDetails implements OnInit {
                     );
             }
         });
+    }
+
+    private displayCreditJournalEntryDoneToast() {
+        this.toastService.addToast(
+            'Kreditering utført',
+            ToastType.good,
+            ToastTime.short
+            );
+
+        this.table.refreshTableData();
     }
 
     private editJournalEntryLine(journalEntryLine: any) {

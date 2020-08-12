@@ -9,11 +9,23 @@
     display: flex
     flex-direction: row
     align-items: stretch
-.image-preview
-    flex: 1
-    width: 50vw
-    height: 50vh
-    overflow-y: scroll
+
+    .image-preview
+        position: relative
+        display: flex
+        flex-direction: column
+        flex: 1
+        margin-left: 1rem
+
+        uni-image
+            position: relative
+            display: flex
+            flex-direction: column
+            flex: 1
+            margin-left: 1.5rem
+            height: calc(100vh - 18rem)
+            overflow: auto
+
 .inbox
     flex: 1
     display: flex
@@ -22,7 +34,6 @@
     overflow: hidden
     margin-bottom: 1rem
     margin-right: 1rem
-    border: 1px solid var(--border-color)
     border-radius: var(--section-radius)
 
     .header, .list-item, .no-inbox-items
@@ -39,23 +50,11 @@
     .file-list
         flex: 1
         overflow-y: auto
-        .list-item
-            cursor: pointer
-            justify-content: space-between
-            font-size: 14px
-            &:hover
-                background: var(--dropdown-select-background)
-                color: var(--dropdown-select-color)
-            span
-                white-space: nowrap
-                overflow: hidden
-                text-overflow: ellipsis
-                &.date
-                    width: 5rem
-                    margin-left: 2rem
-                    text-align: right
 
 .upload
+    flex: 1
+    display: flex
+    flex-wrap: wrap
     cursor: pointer
 
     input

@@ -52,6 +52,12 @@
 
         <!-- Detail -->
         <section class="uni-container bill-preview" *ngIf="previewVisible">
+            <section *ngIf="busy" class="bill-preview-spinner">
+                <section class="spinner-container">
+                    <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+                    <section class="spinner-text">Laster dokument</section>
+                </section>
+            </section>
             <section *ngIf="fileID" class="accounting-preview-actions">
                 <button class="secondary" (click)="documentSelected(true)">
                     {{ 'ACCOUNTING.SUPPLIER_INVOICE.CREATE' | translate }}
@@ -67,6 +73,7 @@
                 [uploadWithoutEntity]="true"
                 [readonly]="true"
                 [fileIDs]="fileID"
+                (fileListReady)="onFileListReady($event)"
                 (fileSplitCompleted)="onFileSplitCompleted()">
             </uni-image>
         </section>

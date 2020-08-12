@@ -5,7 +5,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {ReplaySubject} from 'rxjs';
 import {TravelService} from '@app/services/services';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {TravelRejectModal} from '@app/components/salary/travel/travel-modal/travelRejectModal';
+import {TravelRejectModalComponent} from '@app/components/salary/travel/travel-reject-modal/travel-reject-modal.component';
 
 const SELECTED_KEY = '_rowSelected';
 const DIRTY = '_isDirty';
@@ -88,7 +88,7 @@ export class TravelListComponent implements OnInit, AfterViewInit, OnChanges {
 
     private rejectTravel(travel: Travel) {
         this.modalService
-            .open(TravelRejectModal, {data: travel})
+            .open(TravelRejectModalComponent, {data: travel})
             .onClose
             .subscribe((result) => {
                 if (result.reject) {

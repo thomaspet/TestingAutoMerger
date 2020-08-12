@@ -244,7 +244,7 @@ export class DistributionPeriodReportPart implements OnChanges {
                 subject = Observable.forkJoin(
                     this.statisticsService.GetAll(periodQuery),
                     this.statisticsService.GetAll('model=JournalEntryLine&expand=Period,SubAccount,Account.TopLevelAccountGroup,'
-                    + `Dimensions&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter} `
+                    + `Dimensions&filter=${accountIdFilter}${dimensionFilter}${projectFilter}${departmentFilter}${creditedFilter} `
                     + `and (Period.No ge ${this.fromPeriod} and Period.No le ${this.toPeriod})`
                     + `&select=sum(casewhen(Period.AccountYear lt ${this.accountYear1}\\,`
                     + `JournalEntryLine.Amount\\,0)) as SumIBPeriod1,sum(casewhen(Period.AccountYear `

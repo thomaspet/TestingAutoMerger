@@ -12,6 +12,7 @@ import {ITag} from '../../../components/common/toolbar/tags';
 import {FieldType, UniFieldLayout, UniFormError} from '../../../../framework/ui/uniform/index';
 import {ModulusService} from '@app/services/common/modulusService';
 import { StatisticsService } from '@app/services/common/statisticsService';
+import { EmployeeLanguageService } from '@app/services/salary/employee/employee-language.service';
 
 interface IFromToFilter {
     from: number;
@@ -102,7 +103,8 @@ export class EmployeeService extends BizHttp<Employee> {
         private companySettingsService: CompanySettingsService,
         private subEntityService: SubEntityService,
         private modulusService: ModulusService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private languageService: EmployeeLanguageService,
     ) {
         super(http);
         this.relativeURL = Employee.RelativeUrl;
@@ -267,13 +269,13 @@ export class EmployeeService extends BizHttp<Employee> {
         }
     }
 
-    public getNext(employeeNumber: number, expand: string[] = null) {
+    public getNext(employeeNumber: number, expand: string[] = null): Observable<Employee> {
         const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber gt ${employeeNumber}&top=1&orderBy=EmployeeNumber`, expands)
             .map(resultSet => resultSet[0]);
     }
 
-    public getPrevious(employeeNumber: number, expand: string[] = null) {
+    public getPrevious(employeeNumber: number, expand: string[] = null): Observable<Employee> {
         const expands = expand || this.defaultExpands;
         return super.GetAll(`filter=EmployeeNumber lt ${employeeNumber}&top=1&orderBy=EmployeeNumber desc`, expands)
             .map(resultSet => resultSet[0]);
@@ -522,8 +524,28 @@ export class EmployeeService extends BizHttp<Employee> {
                     FieldSet: 5,
                     Section: 0,
                 },
+                ...this.languageFields(),
             ]
         }]);
+    }
+
+    private languageFields(): UniFieldLayout[] {
+        return <UniFieldLayout[]>[
+            {
+                EntityType: 'Employee',
+                Property: 'EmployeeLanguageID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Språk lønnsslipp',
+                FieldSet: 6,
+                Section: 0,
+                Options: {
+                    source: this.languageService.getAllEmployeeLanguagesWithNames(),
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                },
+                Legend: 'Språk',
+            },
+        ];
     }
 
     public layoutOTP(layoutID: string) {

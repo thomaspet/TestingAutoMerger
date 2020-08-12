@@ -120,7 +120,7 @@
             <textarea
                 [formControl]="externalComment"
                 [ngModel]="currentVatReport.Comment"
-                [disabled]="currentVatReport?.ID == 0 || isSent()">
+                [readonly]="currentVatReport?.ID == 0 || isSent()">
             </textarea>
         </div>
 
@@ -129,7 +129,7 @@
             <textarea
                 [formControl]="internalComment"
                 [ngModel]="currentVatReport.InternalComment"
-                [disabled]="currentVatReport?.ID == 0">
+                [readonly]="currentVatReport?.ID == 0">
             </textarea>
         </div>
     </ng-template>

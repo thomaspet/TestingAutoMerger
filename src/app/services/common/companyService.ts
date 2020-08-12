@@ -6,10 +6,14 @@ import {environment} from 'src/environments/environment';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Company, CompanySettings, Address} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class CompanyService extends BizHttp<Company> {
-    constructor(http: UniHttp) {
+
+    ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
+
+    constructor(http: UniHttp, private commonHttp: HttpClient) {
         super(http);
         this.relativeURL = Company.RelativeUrl;
         this.entityType = Company.EntityType;
@@ -105,5 +109,9 @@ export class CompanyService extends BizHttp<Company> {
             .withEndPoint(`companies?action=undelete-company&key=${companyKey}`)
             .send({}, null, false)
             .do(() => super.invalidateCache());
+    }
+
+    updateTwoFactorAuthentication(companyID: number, body) {
+        return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/companylicenses/${companyID}`, body).pipe(map(res => res[0]));
     }
 }

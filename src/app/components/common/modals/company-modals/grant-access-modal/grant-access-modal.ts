@@ -1,10 +1,8 @@
 import {Component, ViewChild, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {ElsaProduct, ElsaContract, ElsaCompanyLicense, ElsaCustomer, ElsaUserLicense} from '@app/models';
-import { MatStepper } from '@angular/material/stepper';
+import {MatStepper} from '@angular/material/stepper';
 import {JobServerMassInviteInput, JobService, ErrorService} from '@app/services/services';
-
-import {ExecuteForBulkAccess} from './5.execute';
 
 export enum PAGE_TYPE {
     selectLicense = 0,
@@ -21,16 +19,23 @@ export interface GrantAccessData {
     companies: ElsaCompanyLicense[];
     users: ElsaUserLicense[];
     products: ElsaProduct[];
+    AddAdministratorRole?: boolean;
+    StoredData: StoredData;
+}
+
+interface StoredData {
+    companylicenses: ElsaCompanyLicense[];
+    userlicenses: ElsaUserLicense[];
+    products: ElsaProduct[];
 }
 
 @Component({
-    selector: 'uni-module-access-modal',
+    selector: 'grant-access-modal',
     templateUrl: './grant-access-modal.html',
     styleUrls: ['./grant-access-modal.sass']
 })
 export class GrantAccessModal implements IUniModal {
     @ViewChild(MatStepper) stepper: MatStepper;
-    @ViewChild(ExecuteForBulkAccess) confirmAndExecuteView: ExecuteForBulkAccess;
 
     options: IModalOptions = {};
     onClose: EventEmitter<void> = new EventEmitter<void>();
@@ -71,7 +76,7 @@ export class GrantAccessModal implements IUniModal {
         massInvite.CompanyLicenses = this.grantAccessData.companies;
         massInvite.UserLicenses = this.grantAccessData.users;
         massInvite.Products = this.grantAccessData.products;
-
+        massInvite.IsSelfInvite = this.grantAccessData.AddAdministratorRole;
         this.busy = true;
         this.jobService.startJob('MassInviteBureau', 0, massInvite).subscribe(
             res => {
@@ -79,7 +84,10 @@ export class GrantAccessModal implements IUniModal {
                 this.hangfireID = res;
                 this.showReceipt = true;
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 

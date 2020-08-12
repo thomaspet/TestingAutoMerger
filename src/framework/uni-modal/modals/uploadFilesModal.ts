@@ -63,13 +63,12 @@ export enum EntityForFileUpload {
 
                         </li>
                     </ul>
-
-                    <div class="unpload-file-modal-error-message-container" *ngIf="hasErrors">
-                        <i class="material-icons"> info </i>
-                        <small class="unpload-file-modal-error-message">
-                            {{ message }}
-                        </small>
-                    </div>
+                </div>
+                <div class="upload-file-modal-error-message-container" *ngIf="hasErrors">
+                    <i class="material-icons"> info </i>
+                    <small class="upload-file-modal-error-message">
+                        {{ message }}
+                    </small>
                 </div>
             </article>
 
@@ -150,29 +149,7 @@ export class UniFileUploadModal implements IUniModal {
                 }
 
                 if (this.CURRENT_ENTITY === EntityForFileUpload.BANK) {
-                    this.http
-                        .asPUT()
-                        .usingBusinessDomain()
-                        .withEndPoint('/paymentbatches?action=get-file-statuses-from-file-ids')
-                        .withBody(this.uploadedFileIds)
-                        .send()
-                        .map(res => res.body)
-                        .subscribe((statuses: number[]) => {
-                            this.loading$.next(false);
-                            this.files = this.files.map((f, i) => {
-                                f.selected = statuses[i] === 0 || statuses[i] === 30001;
-                                f.status = statuses[i];
-                                if (!f.selected) {
-                                    this.hasErrors = true;
-                                    this.message = 'Noen av filene du har valgt har blitt brukt før. Disse er ikke sjekket av.' +
-                                    ' Hvis du vil kjøre de på nytt, må du krysse av checkboksen for de.';
-                                }
-                                return f;
-                            });
-                        }, err => {
-                            this.errorService.handle('Kunne ikke hente status på filene');
-                            this.loading$.next(false);
-                    });
+                    this.handleBankFiles();
                 } else if (this.CURRENT_ENTITY === EntityForFileUpload.EXPENSE) {
                     const tagQueries = [];
                     this.uploadedFileIds.forEach(id => {
@@ -210,6 +187,51 @@ export class UniFileUploadModal implements IUniModal {
         data.append('File', <any>file);
 
         return this.ngHttp.post(this.baseUrl + '/api/file', data, {observe: 'body'});
+    }
+
+    private handleBankFiles() {
+        this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/paymentbatches?action=get-file-statuses-from-file-ids')
+            .withBody(this.uploadedFileIds)
+            .send()
+            .map(res => res.body)
+            .subscribe((statuses: number[]) => {
+                this.loading$.next(false);
+                this.files = this.files.map((f, i) => {
+                    f.selected = statuses[i] === 0 || statuses[i] === 30001;
+                    f.status = statuses[i];
+                    if (!f.selected) {
+                        this.hasErrors = true;
+                        this.message = 'Noen av filene du har valgt har blitt brukt før. Disse er ikke sjekket av.' +
+                        ' Hvis du vil kjøre de på nytt, må du krysse av checkboksen for de. ';
+                    }
+                    return f;
+                });
+
+                this.filterBankFiles();
+
+            }, err => {
+                this.errorService.handle('Kunne ikke hente status på filene');
+                this.loading$.next(false);
+        });
+    }
+
+    private filterBankFiles() {
+        if (this.files.filter(f =>
+            f.ContentType !== 'bank/OCR' &&
+            f.ContentType !== 'bank/camt054' &&
+            f.ContentType !== 'bank/PAIN002').length) {
+
+                this.hasErrors = true;
+                this.message += 'Noen filer har feil filtype og vil ikke bli lastet opp. Aksepterte filtyper er OCR, Camt054, og Pain002';
+
+                this.files = this.files.filter(f =>
+                    f.ContentType === 'bank/OCR' ||
+                    f.ContentType === 'bank/camt054' ||
+                    f.ContentType === 'bank/PAIN002');
+        }
     }
 
     public removeFile(index) {

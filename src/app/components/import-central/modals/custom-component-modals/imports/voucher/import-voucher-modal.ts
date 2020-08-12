@@ -3,7 +3,7 @@ import { IModalOptions, IUniModal, UniModalService } from '@uni-framework/uni-mo
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
-import { JobService, ErrorService, PayrollrunService, UserService } from '@app/services/services';
+import { JobService, ErrorService, SharedPayrollRunService, UserService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { ImportFileType, TemplateType, VoucherOptions } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
@@ -41,7 +41,8 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     voucherOptions: VoucherOptions = VoucherOptions.Draft;
     draft: VoucherOptions = VoucherOptions.Draft;
     post: VoucherOptions = VoucherOptions.Post;
-    isVatEnabled: boolean = true;
+    isVatEnabled = true;
+    keepExistingVoucherNumber = true;
     draftDescription: string = '';
     config: ISelectConfig;
     operators: any[] = [];
@@ -188,6 +189,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
                             : false,
                         draftDescription: this.draftDescription,
                         importWithVAT: this.isVatEnabled,
+                        keepExistingVoucherNumber: this.keepExistingVoucherNumber,
                         user: this.user.UserName
                     }
                 };

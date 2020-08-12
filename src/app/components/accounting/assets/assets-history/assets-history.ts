@@ -16,6 +16,7 @@ import {FieldType} from '@uni-framework/ui/uniform';
 })
 export class AssetsHistoryComponent {
     tableConfig = null;
+    depreciationLines: DepreciationLine[] = [];
     autoDepreciationModel = {
         AutoDepreciation: false
     };
@@ -47,9 +48,6 @@ export class AssetsHistoryComponent {
             take(1),
             map(params => safeInt(params.id)),
         ).subscribe((id: number) => {
-            if (this.assetsStore.currentAsset?.ID === id) {
-                return;
-            }
             this.assetsActions.getAsset(id).pipe(
                 tap(asset => this.assetsStore.currentAsset = asset),
                 switchMap(asset => this.assetsActions.getDepreciationLines(id)),
@@ -60,6 +58,7 @@ export class AssetsHistoryComponent {
                     ...asset,
                     DepreciationLines: lines
                 };
+                this.depreciationLines = lines;
                 this.autoDepreciationModel = {
                     AutoDepreciation: asset.AutoDepreciation
                 };
@@ -76,7 +75,6 @@ export class AssetsHistoryComponent {
     }
 
     ngOnDestroy() {
-        this.assetsActions.setCurrentAsset(null);
     }
 
     onChangeEvent(changes: SimpleChanges) {

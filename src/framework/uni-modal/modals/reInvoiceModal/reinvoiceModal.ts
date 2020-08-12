@@ -340,7 +340,7 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
         this.currentReInvoice.OwnCostShare = this.reinvoicingCustomers[0].Share;
         this.currentReInvoice.OwnCostAmount = this.reinvoiceType === 0
             ? this.reinvoicingCustomers[0].GrossAmount
-            : this.reinvoicingCustomers[0].NetAmount
+            : this.reinvoicingCustomers[0].NetAmount;
         this.currentReInvoice.ProductID = this.items[0].Product.ID;
         this.currentReInvoice.Product = this.items[0].Product;
         this.currentReInvoice.Items = this.reinvoicingCustomers.reduce((prev: ReInvoiceItem[], current: ReInvoiceItem) => {
@@ -392,7 +392,9 @@ export class UniReinvoiceModal implements OnInit, IUniModal {
                                 this.isSaving = false;
                                 this.currentReInvoice = reinvoice;
                                 this.ngOnInit(true);
-
+                            }, (error) => {
+                                this.isSaving = false;
+                                this.errorService.handle(error);
                             });
                         } else {
                             this.currentReInvoice = reinvoice;

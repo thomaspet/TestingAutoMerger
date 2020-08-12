@@ -20,7 +20,6 @@
                     [data]="grantAccessData"
                     (stepComplete)="companiesSelected = $event"
                 ></select-companies-for-bulk-access>
-
             </mat-step>
 
             <mat-step label="Brukere" [completed]="usersSelected">
@@ -55,7 +54,7 @@
     </article>
 
     <footer>
-        <button class="secondary pull-left" (click)="close()">Avbryt</button>
+        <button class="secondary pull-left" (click)="close()">Lukk</button>
 
         <button class="secondary"
             *ngIf="!showReceipt"

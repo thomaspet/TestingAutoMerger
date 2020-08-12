@@ -1,5 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import * as _ from 'lodash';
 import {
     CompanySettingsService,
     PeriodSeriesService,
@@ -18,6 +19,7 @@ import {CompanySettings, CurrencyCode} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
+import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
     UniModalService,
     ConfirmActions,
@@ -139,6 +141,7 @@ export class UniCompanyAccountingView {
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
+            this.companyAccountingSettingsService.Get(1)
         ).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
@@ -156,10 +159,29 @@ export class UniCompanyAccountingView {
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
-            this.companyAccountingSettings = response[4][0];
+            this.companyAccountingSettings = response[5];
         }, err => {
             this.errorService.handle(err);
         });
+    }
+
+    periodSeriesChange(changes) {
+        if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
+                data: {
+                    PeriodSeriesAccountID: (changes['PeriodSeriesAccountID'] && changes['PeriodSeriesAccountID'].previousValue) || null,
+                    PeriodSeriesVatID: (changes['PeriodSeriesVatID'] && changes['PeriodSeriesVatID'].previousValue) || null
+                }
+            }).onClose.subscribe(
+                result => {
+                    const companySettings = this.companySettings$.getValue();
+                    companySettings.PeriodSeriesAccountID = result.PeriodSeriesAccountID;
+                    companySettings.PeriodSeriesVatID = result.PeriodSeriesVatID;
+                    this.companySettings$.next(_.cloneDeep(companySettings));
+                    this.router.navigateByUrl('/settings/company');
+                }, err => this.errorService.handle
+            );
+        }
     }
 
     reloadOnlyCompanySettings() {

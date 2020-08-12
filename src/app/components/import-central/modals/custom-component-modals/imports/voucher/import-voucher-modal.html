@@ -62,13 +62,16 @@
 
         <label class="uni-label label-left">
             <span>Med MVA-kode</span>
-            <mat-checkbox [(ngModel)]="isVatEnabled"
-                [disabled]="fileType === txtType"
+            <mat-checkbox [(ngModel)]="isVatEnabled" [disabled]="fileType === txtType"
                 (click)="$event.stopPropagation()">
             </mat-checkbox>
         </label>
-
-        <label class="uni-label label-left" *ngIf='selectedOption.type !== post'>
+        <label class="uni-label label-left" *ngIf="selectedOption.type === post">
+            <span>Bruk bilagsnr. fra fil</span>
+            <mat-checkbox [(ngModel)]="keepExistingVoucherNumber" (click)="$event.stopPropagation()">
+            </mat-checkbox>
+        </label>
+        <label class="uni-label label-left" *ngIf="selectedOption.type !== post">
             <span>Legg til beskrivelse</span>
             <input type="text" [(ngModel)]="draftDescription">
         </label>

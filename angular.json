@@ -532,7 +532,94 @@
                   "src/themes/softrig"
                 ]
               }
-            },"softrig": {
+            },
+            "ext03-poc01": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext03-poc01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
+            },
+            "ext03-poc02": {
+              "aot": true,
+              "optimization": true,
+              "buildOptimizer": true,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {"scripts": true, "styles": false, "vendor": false},
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext03-poc02.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.softrig.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.softrig.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/softrig"
+                ]
+              }
+            },
+            "softrig": {
               "aot": true,
               "optimization": true,
               "buildOptimizer": true,

@@ -1,8 +1,11 @@
-<h1>Velg brukerne du vil invitere</h1>
+<h1 *ngIf="!busy">
+    {{data.StoredData.userlicenses ? 'Velg brukerne du vil invitere' : 'Vi fant ingen brukere på denne lisensen'}}
+</h1>
 
 <grant-access-selection-list
     [labelProperty]="'UserName'"
     [secondLabelProperty]="'Email'"
-    [(items)]="users"
+    [busy]="busy"
+    [(items)]="data.StoredData.userlicenses"
     (itemsChange)="onSelectionChange()"
 ></grant-access-selection-list>
