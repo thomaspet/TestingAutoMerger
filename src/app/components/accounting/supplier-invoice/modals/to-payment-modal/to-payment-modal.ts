@@ -19,7 +19,8 @@ export class ToPaymentModal implements IUniModal {
     onlyToPayment = false;
     hasErrors = false;
     errorMessage = '';
-    shouldReloadOnClose = false;
+
+    errorOncloseValue = 0;
     total = {
         net: 0,
         vat: 0,
@@ -91,7 +92,6 @@ export class ToPaymentModal implements IUniModal {
         this.busy = true;
 
         obs.subscribe(() => {
-            this.shouldReloadOnClose = !this.onlyToPayment;
             if (value === 1) {
                 this.createPaymentAndSendToBank();
             } else {
@@ -101,13 +101,12 @@ export class ToPaymentModal implements IUniModal {
             this.busy = false;
             this.errorMessage = 'Noe gikk galt ved bokføring av regningen';
             this.errorSerivce.handle(err);
+            this.errorOncloseValue = ActionOnReload.FailedToJournal;
         });
     }
 
     close() {
-        // This emits true of false, and is only called when somehting went wrong.. Emits true when it
-        // fails on step > 1 and should reload invoice when the modal is closed.
-        this.onClose.emit(this.shouldReloadOnClose);
+        this.onClose.emit(this.errorOncloseValue);
     }
 
     sendToPaymentList() {
@@ -123,7 +122,6 @@ export class ToPaymentModal implements IUniModal {
     createPaymentAndSendToBank() {
         // Creates a payment for the supplier invoice
         this.supplierInvoiceService.sendForPayment(this.current.ID).subscribe(payment => {
-            this.shouldReloadOnClose = true;
             // Send that batch to the bank directly
             this.paymentBatchService.sendAutobankPayment({Code: null, Password: null, PaymentIds: [payment.ID]}).subscribe(() => {
                 this.onClose.emit(this.onlyToPayment ? ActionOnReload.SentToBank : ActionOnReload.JournaledAndSentToBank);
@@ -138,31 +136,4 @@ export class ToPaymentModal implements IUniModal {
             this.errorSerivce.handle(err);
         });
     }
-
-    // createPaymentAndSendToBank() {
-    //     // Creates a payment for the supplier invoice
-    //     this.supplierInvoiceService.sendForPayment(this.current.ID).subscribe(payment => {
-    //         // Use that payment to create a payment batch
-    //         this.paymentService.createPaymentBatch([payment.ID], false).subscribe(batch => {
-    //             // Send that batch to the bank directly
-    //             this.paymentBatchService.sendToPayment(batch.ID, {Code: null, Password: null}).subscribe(() => {
-    //                 this.onClose.emit(1);
-    //             }, err => {
-    //                 this.busy = false;
-    //                 this.errorMessage = 'Betalingsbunt ble opprettet, men kunne ikke sende den til banken. ' +
-    //                 'Gå til Bank - Utbetalingsbunter, legg den tilbake til ubetalt og send betalingen på nytt fra Utbetalinger.';
-    //                 this.errorSerivce.handle(err);
-    //             });
-    //         }, err => {
-    //             this.busy = false;
-    //             this.errorMessage = 'Betaling ble opprettet men kunne ikke sende den til banken.' +
-    //                  'Gå til Bank - Utbetalinger for å sende den igjen.';
-    //             this.errorSerivce.handle(err);
-    //         });
-    //     }, err => {
-    //         this.busy = false;
-    //         this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
-    //         this.errorSerivce.handle(err);
-    //     });
-    // }
 }

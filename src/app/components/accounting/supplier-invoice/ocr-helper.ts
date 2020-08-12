@@ -34,7 +34,7 @@ export class OCRHelperClass {
         private bankAccountService: BankAccountService,
     ) {}
 
-    runOcr(file, invoice: SupplierInvoice) {
+    runOcr(file, invoice: SupplierInvoice, ignoreSupplier: boolean = false) {
         return this.uniFilesService.runOcr(file.StorageReference).pipe(
             switchMap((result: IOcrServiceResult) => {
                 const ocrData = new OcrValuables(result);
@@ -44,11 +44,11 @@ export class OCRHelperClass {
                 invoice.PaymentID = ocrData.PaymentID;
                 invoice.InvoiceNumber = ocrData.InvoiceNumber;
                 invoice.TaxInclusiveAmountCurrency = +safeDec(ocrData.TaxInclusiveAmount).toFixed(2);
-                invoice.InvoiceDate = getLocalDate(ocrData.InvoiceDate);
-                invoice.DeliveryDate = getLocalDate(ocrData.InvoiceDate);
-                invoice.PaymentDueDate = getLocalDate(ocrData.PaymentDueDate);
+                invoice.InvoiceDate = ocrData.InvoiceDate ? getLocalDate(ocrData.InvoiceDate) : new LocalDate(new Date());
+                invoice.DeliveryDate = ocrData.InvoiceDate ? getLocalDate(ocrData.InvoiceDate) : new LocalDate(new Date());
+                invoice.PaymentDueDate = ocrData.PaymentDueDate ? getLocalDate(ocrData.PaymentDueDate) : new LocalDate(new Date());
 
-                if (ocrData.Orgno) {
+                if (ocrData.Orgno && !ignoreSupplier) {
                     return this.getOrCreateSupplier(ocrData).pipe(
                         catchError(err => {
                             console.error(err);

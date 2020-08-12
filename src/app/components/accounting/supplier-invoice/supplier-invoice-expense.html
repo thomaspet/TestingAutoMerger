@@ -1,0 +1,13 @@
+<uni-toolbar
+	[config]="toolbarconfig"
+	[saveactions]="saveActions"
+></uni-toolbar>
+
+<section class="layout-grid-expense">
+	<section class="layout-left-section">
+		<details-form-expense [currentMode]="currentMode"></details-form-expense>
+		<journal-lines [currentMode]="currentMode" [vatTypes]="store.vatTypes"></journal-lines>
+	</section>
+
+    <supplier-invoice-attachments></supplier-invoice-attachments>
+</section>

@@ -26,7 +26,9 @@ import {
     CompanySettingsService,
     ErrorService,
     BankService,
-    CurrencyCodeService
+    CurrencyCodeService,
+    PaymentMode,
+    StatisticsService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
@@ -42,6 +44,7 @@ import * as _ from 'lodash';
 import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2, UniRegisterPaymentModal } from '@uni-framework/uni-modal';
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
+import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -62,6 +65,7 @@ export class SupplierInvoiceStore {
     vatTypes = [];
     currencyCodes = [];
     companySettings: CompanySettings;
+    currentMode: number;
 
     constructor(
         private router: Router,
@@ -81,10 +85,12 @@ export class SupplierInvoiceStore {
         private toastService: ToastService,
         private modalService: UniModalService,
         private bankService: BankService,
-        private currencyCodeService: CurrencyCodeService
+        private currencyCodeService: CurrencyCodeService,
+        private statisticsService: StatisticsService
     ) {}
 
-    init(invoiceID: number) {
+    init(invoiceID: number, currentMode: number = 0) {
+        this.currentMode = currentMode;
         Observable.forkJoin(
             this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
@@ -137,6 +143,10 @@ export class SupplierInvoiceStore {
                 this.router.navigateByUrl('/accounting/bills/0');
                 return;
             }
+
+            // Lets set default to NOK
+            invoice.CurrencyCodeID = invoice.CurrencyCodeID || 1;
+            invoice.InvoiceDate = invoice.InvoiceDate || new LocalDate(new Date());
 
             if (!invoice.JournalEntry) {
                 invoice.JournalEntry = <JournalEntry> {
@@ -198,7 +208,7 @@ export class SupplierInvoiceStore {
                 message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
             });
 
-            this.ocrHelper.runOcr(this.selectedFile, invoice).subscribe(
+            this.ocrHelper.runOcr(this.selectedFile, invoice, this.currentMode === PaymentMode.PrepaidByEmployee).subscribe(
                 updatedInvoice => {
                     this.invoice$.next(updatedInvoice);
 
@@ -403,6 +413,21 @@ export class SupplierInvoiceStore {
         this.journalEntryLines$.next(lines);
     }
 
+    prepExpenseForSave(date?) {
+        const invoice = this.invoice$.value;
+        const total = this.journalEntryLines$.value.map(l => l.AmountCurrency).reduce((a, b) => a + b);
+
+        invoice.TaxInclusiveAmountCurrency = total;
+
+        if (date) {
+            invoice.InvoiceDate = new LocalDate(new Date(date));
+            invoice.PaymentDueDate = invoice.InvoiceDate;
+            invoice.DeliveryDate = invoice.InvoiceDate;
+        }
+
+        this.invoice$.next(invoice);
+    }
+
     /**
      * WARNING!
      *
@@ -460,6 +485,10 @@ export class SupplierInvoiceStore {
     runSmartBooking() {
         const orgNumber = this.invoice$.value?.Supplier?.OrgNumber;
 
+        if (this.currentMode === PaymentMode.PrepaidByEmployee) {
+            return;
+        }
+
         if (orgNumber && orgNumber.length === 9 && this.journalEntryLines$.value.length === 1) {
             this.toastService.showLoadIndicator({
                 title: 'Kjører smart bokføring',
@@ -490,8 +519,7 @@ export class SupplierInvoiceStore {
         }
     }
 
-    // JOURNAL AND PAYMENT FUNCTIONS - OWN INJECTABLE?
-    journal(done?, alsoPay: boolean = false, payment?) {
+    journal(done = (string) => {}, alsoPay: boolean = false, payment?) {
         // TODO: validations?
         const invoice = this.invoice$.value;
 
@@ -532,15 +560,88 @@ export class SupplierInvoiceStore {
             }
         };
 
-        this.modalService.open(ToPaymentModal, options).onClose.subscribe(response => {
-            if (response) {
-                done('Faktura sendt til betaling');
+        this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
+            if (response <= ActionOnReload.SentToPaymentList) {
                 this.openJournaledAndPaidModal(response);
                 this.loadInvoice(this.invoice$.value.ID);
+                done('Faktura sendt til betaling');
+            } else if (response >= ActionOnReload.FailedToSendToBank) {
+                this.loadInvoice(this.invoice$.value.ID);
+                done('Faktura ble bokført med kunne ikke sende til betaling');
             } else {
                 done('Betaling avbrutt');
             }
         });
+    }
+
+    showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {
+        const jnr = (response && response.length > 0) ? response[0].JournalEntryNumber : undefined;
+
+        this.modalService.open(DoneRedirectModal, {
+            closeOnClickOutside: false,
+            closeOnEscape: false,
+            hideCloseButton: true,
+            data: {
+                number: jnr.split('-')[0],
+                year: jnr.split('-')[1],
+                journalEntryNumber: jnr,
+                withPayment: withPayment
+            }
+        }).onClose.subscribe((url: string) => {
+            this.invoice$.next(null);
+            this.router.navigateByUrl(url, { replaceUrl: true });
+        });
+    }
+
+    registerExpensePayment(): Observable<any> {
+        const invoice = this.invoice$.getValue();
+
+        const paymentData = <InvoicePaymentData> {
+            Amount: roundTo(invoice.RestAmount),
+            AmountCurrency: roundTo(invoice.RestAmountCurrency),
+            BankChargeAmount: 0,
+            CurrencyCodeID: invoice.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: invoice.InvoiceDate,
+            AgioAccountID: 0,
+            BankChargeAccountID: 0,
+            AgioAmount: 0,
+            PaymentID: null,
+            DimensionsID: invoice.DefaultDimensionsID
+        };
+
+        return this.journalAndPaymentHelper.cleanJournal(invoice.ID).pipe(switchMap(i => {
+            return this.supplierInvoiceService.payinvoice(invoice.ID, paymentData);
+        })).pipe(switchMap(() => {
+            return this.statisticsService.GetAllUnwrapped(`model=JournalEntry&filter=ID eq ${invoice.JournalEntryID}&select=JournalEntryNumber as JournalEntryNumber`);
+        }));
+    }
+
+    sendExpenseToPayment(): Observable<any> {
+        return this.modalService.open(ToPaymentModal, {
+            data: {
+                current: this.invoice$.value,
+                onlyToPayment: false
+            }
+        }).onClose.pipe(switchMap((response: ActionOnReload) => {
+            return of(response);
+        })).pipe(switchMap((response) => {
+            if (response === ActionOnReload.JournaledAndSentToBank || response === ActionOnReload.JournaledAndSentToPaymentList) {
+                return this.statisticsService.GetAllUnwrapped(`model=JournalEntry&filter=ID eq ${this.invoice$.value.JournalEntryID}&select=JournalEntryNumber as JournalEntryNumber`);
+            } else if (response === ActionOnReload.FailedToJournal) {
+                this.toastService.addToast('Noe gikk galt med bokføring', ToastType.warn, 10, '<a href="/#/accounting/bills?filter=Draft">Gå til regninger for å fullføre tilbakebetalingen</a>');
+                throwError('');
+            } else {
+                this.toastService.addToast('Noe gikk galt med betaling', ToastType.warn, 10, 'Tilbakebetaling ble bokført, men klarte ikke fullføre betaling. <a href="/#/accounting/bills?filter=Journaled">Gå til regninger for å fullføre tilbakebetalingen</a>');
+                throwError('');
+            }
+        }));
+    }
+
+    journalExpense(): Observable<any> {
+        return this.journalAndPaymentHelper.cleanJournal(this.invoice$.value.ID).pipe(switchMap(() => {
+            return this.statisticsService.GetAllUnwrapped(`model=JournalEntry&filter=ID eq ${this.invoice$.value.JournalEntryID}&select=JournalEntryNumber as JournalEntryNumber`);
+        }));
     }
 
     registerPayment(done, isAlsoBook: boolean = false) {

@@ -15,7 +15,7 @@
         </section>
 
         <!-- Input for type of supplier invoice  -->
-        <section class="input-grid smaller">
+        <section class="input-grid smaller" *ngIf="currentMode === 3">
             <label class="uni-label label-above">
                 <span>Hvilke kjøp er dette?</span>
                 <uni-select
@@ -46,7 +46,7 @@
                     </button>
                 </section>
 
-                <section class="input-grid">
+                <section class="input-grid" [class.expense-lines]="currentMode < 3">
                     <label class="uni-label label-above">
                         <span>Kostnadskonto</span>
                         <autocomplete
@@ -89,9 +89,9 @@
     <section class="sum-bottom-container" *ngIf="!readonly">
         <span class="total-label"> Totalsum: </span>
 
-        <span class="diff-number" *ngIf="total?.diff"> ( Differanse:  {{ total.diff | uninumberformat:'money' }} )  </span>
+        <span class="diff-number" *ngIf="total?.diff && currentMode === 3"> ( Differanse:  {{ total.diff | uninumberformat:'money' }} )  </span>
 
-        <span class="net-and-vat"> Netto: {{ total.net | uninumberformat:'money' }} &nbsp; + &nbsp; MVA: {{ total.vat | uninumberformat:'money' }} &nbsp; = &nbsp; </span>
+        <span class="net-and-vat" *ngIf="currentMode === 3"> Netto: {{ total.net | uninumberformat:'money' }} &nbsp; + &nbsp; MVA: {{ total.vat | uninumberformat:'money' }} &nbsp; = &nbsp; </span>
 
         <span class="total-sum-number"> {{ total.sum | uninumberformat:'money' }} </span>
     </section>

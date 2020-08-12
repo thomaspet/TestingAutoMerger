@@ -23,6 +23,9 @@ export class JournalLines {
     @Input()
     vatTypes = [];
 
+    @Input()
+    currentMode: number = 3;
+
     filteredVatTypes = [];
     lines: JournalEntryLineDraft[];
     onDestroy$ = new Subject();

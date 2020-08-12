@@ -10,7 +10,10 @@ export enum ActionOnReload {
     JournaledAndSentToBank = 1,
     JournaledAndSentToPaymentList = 2,
     SentToBank = 3,
-    SentToPaymentList = 4
+    SentToPaymentList = 4,
+    FailedToJournal = 5,
+    FailedToSendToBank = 6,
+    FailedToSendToPaymentList = 7
 }
 
 // HELPER CLASS FOR JOURNALING AND PAYMENT FUNCTIONS
@@ -36,6 +39,10 @@ export class JournalAndPaymentHelper {
                 : of(false);
             })
         ).catch((err, obs) => of(null));
+    }
+
+    cleanJournal(ID): Observable<any> {
+        return this.supplierInvoiceService.journal(ID);
     }
 
     openAskBeforeJournalModal(current: SupplierInvoice, ask?) {

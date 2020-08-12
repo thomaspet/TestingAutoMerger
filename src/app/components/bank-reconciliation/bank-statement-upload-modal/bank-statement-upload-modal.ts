@@ -6,6 +6,7 @@ import {switchMap} from 'rxjs/operators';
 import {forkJoin} from 'rxjs';
 import { BankFileEditor } from './bank-file-editor';
 import { ImportTemplate } from './bankformatModels';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'bank-statement-upload-modal',
@@ -57,7 +58,7 @@ export class BankStatementUploadModal implements IUniModal {
         ).subscribe(
             res => {
                 this.files = res[0] || [];
-                this.importTemplates = res[1] || [];
+                this.importTemplates = this.filterImportTemplates(res[1] || []);
                 if (this.importTemplates.length) {
                     this.selectedImportTemplate = this.importTemplates[0];
                 }
@@ -69,6 +70,15 @@ export class BankStatementUploadModal implements IUniModal {
                 this.busy = false;
             }
         );
+    }
+
+    filterImportTemplates(templates: any[]): any[] {
+        if (theme.theme === THEMES.UE) {
+            return templates;
+        }
+
+        const keyword = theme.theme === THEMES.SR ? 'sparebank1' : 'dnb';
+        return templates.filter(temp => temp.Name.toLowerCase().includes(keyword) || temp.Name.toLowerCase().includes('standard'));
     }
 
     uploadFile(event) {
