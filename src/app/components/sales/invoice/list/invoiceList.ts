@@ -62,6 +62,10 @@ export class InvoiceList implements OnInit {
         });
     }
 
+    public onRowSelected(row) {
+        this.router.navigateByUrl('/sales/invoices/' + row.ID);
+    }
+
     private newInvoice() {
         this.router.navigateByUrl('/sales/invoices/' + 0);
     }

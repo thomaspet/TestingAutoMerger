@@ -6,5 +6,8 @@
 <uni-ticker-wrapper
     [tickerCode]="tickercode"
     [showFiltersAsNavbar]="true"
-    [actionOverrides]="actionOverrides">
+    [actionOverrides]="actionOverrides"
+    [disableSubTickers]="true"
+    (rowSelected)="onRowSelected($event)"
+>
 </uni-ticker-wrapper>

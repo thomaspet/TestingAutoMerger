@@ -20,7 +20,7 @@
     </uni-ticker>
 
     <uni-sub-ticker-container
-        *ngIf="showSubTickers && ticker?.SubTickers?.length"
+        *ngIf="!disableSubTickers && showSubTickers && ticker?.SubTickers?.length"
         (clickOutside)="hideSubTickers()"
         (close)="hideSubTickers()"
         [parentModel]="selectedRow"

@@ -70,4 +70,7 @@ export class QuoteList implements OnInit {
     public createQuote() {
         this.router.navigateByUrl('/sales/quotes/0');
     }
+    public onRowSelected(row) {
+        this.router.navigateByUrl(`/sales/quotes/${row.ID}`);
+    }
 }
