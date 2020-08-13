@@ -56,7 +56,7 @@ export class UniSearch {
     }
 
     onBlur() {
-        this.blurEvent.emit();
+        this.changeEvent.emit();
     }
 
     onFocus(event) {
