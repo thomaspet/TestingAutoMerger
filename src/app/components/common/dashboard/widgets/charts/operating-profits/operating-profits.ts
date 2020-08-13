@@ -1,8 +1,8 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Subscription, of} from 'rxjs';
-import {COLORS} from '../../../colors';
 import {StatisticsService} from '@app/services/services';
 import {catchError} from 'rxjs/operators';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'operating-profits',
@@ -11,7 +11,7 @@ import {catchError} from 'rxjs/operators';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OperatingProfitsWidget {
-    colors = [COLORS.primary, COLORS.bar_negative, COLORS.warn];
+    colors = [theme.widgets.primary, theme.widgets.bar_negative, theme.widgets.warn];
     year = new Date().getFullYear();
     years = [this.year, this.year - 1, this.year - 2, this.year - 3];
 

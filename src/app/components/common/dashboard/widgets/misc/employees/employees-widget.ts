@@ -2,7 +2,7 @@ import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from
 import {DashboardDataService} from '../../../dashboard-data.service';
 import {catchError, map} from 'rxjs/operators';
 import {of, forkJoin} from 'rxjs';
-import {COLORS} from '../../../colors';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'employees-widget',
@@ -14,7 +14,7 @@ export class EmployeesWidget {
     loading = true;
     hasData = false;
 
-    colors = [COLORS.primary, COLORS.secondary];
+    colors = [theme.widgets.primary, theme.widgets.secondary];
     chartConfig;
 
     activeEmployees: number;

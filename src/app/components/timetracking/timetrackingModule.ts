@@ -31,7 +31,6 @@ import {TimeApproveModal} from './components/popupapprove';
 import {TimeentryImportModal} from './components/file-import-modal';
 import {UniApproveTaskModal} from './timeentry/timetable/approvetaskmodal';
 import {TimetrackingDashboard} from './timetracking-dashboard';
-import {WidgetModule} from '../widgets/widgetModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
 import {EditVacationModal} from './timeentry/vacation/edit-vacation-modal';
 import {HourTotals} from './hourtotals/hourtotals';
@@ -46,7 +45,6 @@ import {HourTotalsDrilldownModal} from './hourtotals/drilldown-modal';
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        WidgetModule,
         UniTickerModule
     ],
     declarations: [

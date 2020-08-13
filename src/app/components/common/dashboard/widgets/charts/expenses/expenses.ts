@@ -1,8 +1,8 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {DashboardDataService} from '../../../dashboard-data.service';
-import {COLORS} from '../../../colors';
 import {Subscription, of, Observable} from 'rxjs';
-import {switchMap, take, catchError, map} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
+import {theme} from 'src/themes/theme';
 
 interface ExpenseItem {
     GroupName: string;
@@ -17,7 +17,7 @@ interface ExpenseItem {
 })
 export class ExpensesWidget {
     dataSubscription: Subscription;
-    colors = COLORS.pie_colors;
+    colors = theme.widgets.pie_colors;
 
     year = new Date().getFullYear();
     years = [this.year, this.year - 1, this.year - 2, this.year - 3];

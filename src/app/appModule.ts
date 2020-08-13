@@ -29,7 +29,6 @@ import {ReportsModule} from './components/reports/reportsModule';
 import {InitModule} from './components/init/init.module';
 import {CurrencyModule} from './components/currency/currencyModule';
 import {UniTickerModule} from './components/uniticker/uniTickerModule';
-import {WidgetModule} from './components/widgets/widgetModule';
 
 // TODO: REVISIT SERVICES (we probably dont need all to be singletons)
 import {AccountingServicesModule} from './services/accountingServicesModule';
@@ -91,7 +90,6 @@ moment.locale('nb');
         // COMMON MODULES
         LayoutModule.forRoot(),
         AppCommonModule,
-        WidgetModule,
         UniQueryModule,
         ReportsModule,
         InitModule,

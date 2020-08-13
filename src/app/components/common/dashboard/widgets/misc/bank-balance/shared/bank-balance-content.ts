@@ -5,9 +5,9 @@ import {map, switchMap, catchError} from 'rxjs/operators';
 
 import {BankAccountService, NumberFormat} from '@app/services/services';
 import {AuthService} from '@app/authService';
-import {COLORS} from '../../../../colors';
 
 import * as doughnutlabel from 'chartjs-plugin-doughnutlabel';
+import {theme} from 'src/themes/theme';
 
 interface AccountBalanceData {
     accountName: string;
@@ -23,7 +23,7 @@ interface AccountBalanceData {
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BankBalanceWidgetContent {
-    colors = COLORS.pie_colors;
+    colors = theme.widgets.pie_colors;
 
     accountBalanceItems: AccountBalanceData[];
     reconciliationCount: number;
@@ -140,7 +140,7 @@ export class BankBalanceWidgetContent {
             data: {
                 datasets: [{
                     data: this.accountBalanceItems.map(item => item.balanceAvailable),
-                    backgroundColor: COLORS.pie_colors,
+                    backgroundColor: this.colors,
                     label: '',
                     borderColor: '#fff',
                     hoverBorderColor: '#fff'

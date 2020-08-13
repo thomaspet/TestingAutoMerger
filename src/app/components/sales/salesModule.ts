@@ -49,7 +49,6 @@ import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings
 import {UniTofSelectModal} from './common/tofSelectModal';
 import {TofHelper} from './salesHelper/tofHelper';
 import {TradeItemTable} from './common/tradeItemTable';
-import {WidgetModule} from '../widgets/widgetModule';
 import {ProductGroups} from './productgroup/productgroups';
 import {GroupDetails} from './productgroup/groupDetails/groupDetails';
 import {ProductDetails} from './products/productDetails';
@@ -72,7 +71,6 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
         RouterModule.forChild(salesRoutes),
 
         UniFrameworkModule,
-        WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,
