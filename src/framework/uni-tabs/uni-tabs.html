@@ -12,7 +12,7 @@
             <i *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
-                [matTooltip]="tab.tooltip">
+                [matTooltip]="tab.tooltip | translate">
                 {{tab.tooltipIcon || 'info_outline'}}
             </i>
         </a>
@@ -32,7 +32,7 @@
             <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
             <i class="material-icons tab-tooltip"
                 *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
-                [matTooltip]="tab.tooltip">
+                [matTooltip]="tab.tooltip | translate">
                 info_outline
             </i>
         </a>
@@ -104,7 +104,7 @@
                         <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
                             *ngIf="tab.tooltip && tab[counterProperty]"
                             (click)="$event.stopPropagation()"
-                            matTooltip="{{tab.tooltip}}">
+                            matTooltip="{{tab.tooltip | translate}}">
                             info_outline
                         </i>
                     </section>
@@ -124,7 +124,7 @@
                         <i class="material-icons tab-tooltip" style="margin-left: 0.5rem"
                             *ngIf="tab.tooltip && tab[counterProperty]"
                             (click)="$event.stopPropagation()"
-                            matTooltip="{{tab.tooltip}}">
+                            matTooltip="{{tab.tooltip | translate}}">
                             info_outline
                         </i>
                     </section>

@@ -40,7 +40,7 @@
 
 <section class="content" id="reminder-list">
     <section *ngFor="let item of publicDueDates" class="reminder-item duedate-item">
-        <i class="material-icons">date_range</i>
+        <uni-icon icon="calendar"></uni-icon>
         <span class="description">{{item.AdditionalInfo}}</span>
         <span class="date pull-right" [ngClass]="item['_class']" [title]="item.Deadline | date: 'dd.MM.yyyy'">
             {{item['_daysLabel']}}

@@ -12,7 +12,7 @@
     />
 
     <button type="button" (click)="picker.open()" [disabled]="readonly" tabindex="-1">
-        <i class="material-icons">date_range</i>
+        <uni-icon icon="calendar"></uni-icon>
     </button>
 
     <mat-datepicker #picker (closed)="datepickerClosed()"></mat-datepicker>

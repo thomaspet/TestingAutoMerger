@@ -1,6 +1,8 @@
-import {Component, Input, ChangeDetectionStrategy, ElementRef, HostBinding} from '@angular/core';
+import {Component, Input, ChangeDetectionStrategy, ElementRef, HostBinding, NgModule} from '@angular/core';
 import {SHARED_ICONS} from './shared-icons';
 import {theme, THEMES} from 'src/themes/theme';
+import { LibraryImportsModule } from '@app/library-imports.module';
+import { DomSanitizer } from '@angular/platform-browser';
 
 @Component({
     selector: 'uni-icon',
@@ -8,7 +10,7 @@ import {theme, THEMES} from 'src/themes/theme';
     styleUrls: ['./uni-icon.sass'],
     template: `
         <i *ngIf="matIcon" [class]="matIconClass || 'material-icons'">{{matIcon}}</i>
-        <svg *ngIf="svg" [outerHTML]="svg | keepHtml"></svg>
+        <svg *ngIf="svg" [outerHTML]="svg"></svg>
     `
 })
 export class UniIcon {
@@ -18,19 +20,20 @@ export class UniIcon {
     @HostBinding('class.set-fill') setFill = theme.theme === THEMES.SR;
 
     theme = theme;
-    svg: string;
+    svg;
     matIcon: string;
+    svgMarkup;
     // setFill = theme.theme === THEMES.SR; // temp fix until we refactor SR svg icons to use "currentColor"
 
     // ElementRef is used by dropdown-menu to attach a click listener if this component is used as a trigger
-    constructor(public elementRef: ElementRef) {}
+    constructor(public elementRef: ElementRef, private sanitizer: DomSanitizer) {}
 
     ngOnChanges(changes) {
         if (changes['icon']) {
             const themeIcon = theme.icons && theme.icons[this.icon];
             if (themeIcon) {
                 if (themeIcon.includes('<svg')) {
-                    this.svg = themeIcon;
+                    this.svg = this.sanitizer.bypassSecurityTrustHtml(themeIcon);
                     this.matIcon = undefined;
                 } else {
                     this.svg = undefined;
@@ -46,3 +49,17 @@ export class UniIcon {
         }
     }
 }
+
+@NgModule({
+    imports: [
+        LibraryImportsModule
+    ],
+    declarations: [
+        UniIcon
+    ],
+    exports: [
+        UniIcon
+    ]
+})
+
+export class UniIconModule {}

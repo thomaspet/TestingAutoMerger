@@ -29,13 +29,15 @@ import {UniTableHeader} from './header/unitable-header';
 import {DateAdapter} from '@angular/material/core';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 import {UniDateAdapter} from '@app/date-adapter';
+import { UniIconModule } from '../icon/uni-icon';
 
 @NgModule({
     imports: [
         LibraryImportsModule,
         UniPipesModule,
         UniTranslatePipesModule,
-        InputDropdownModule
+        InputDropdownModule,
+        UniIconModule
     ],
     declarations: [
         UniTable,

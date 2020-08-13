@@ -22,6 +22,7 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 import {QuickFilters} from './filters/quick-filters/quick-filters';
 import {DatepickerModule} from '../datepicker/datepicker.module';
 import {TableLoadIndicator} from './table-load-indicator';
+import { UniIconModule } from '../icon/uni-icon';
 
 @NgModule({
     imports: [
@@ -33,6 +34,7 @@ import {TableLoadIndicator} from './table-load-indicator';
         UniTranslatePipesModule,
         DropdownMenuModule,
         InputDropdownModule,
+        UniIconModule,
         AgGridModule.withComponents([
             RowMenuRenderer,
             StatusCellRenderer,

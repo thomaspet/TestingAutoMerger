@@ -81,5 +81,6 @@ export const theme = {
         settings: 'settings',
         user: 'account_circle',
         help: 'help',
+        calendar: 'date_range'
     }
 };

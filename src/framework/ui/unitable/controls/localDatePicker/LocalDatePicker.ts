@@ -26,7 +26,7 @@ import {UniTableColumn} from '../../config/unitableColumn';
             />
 
             <button type="button" tabindex="-1" (click)="picker.open()">
-                <i class="material-icons">date_range</i>
+                <uni-icon icon="calendar"></uni-icon>
             </button>
 
             <mat-datepicker #picker (closed)="focus()"></mat-datepicker>

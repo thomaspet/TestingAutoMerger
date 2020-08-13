@@ -33,7 +33,7 @@
                     (keydown.enter)="fromDateInput.blur();fromDateInput.focus();"
                 />
                 <button (click)="fromDate.open()">
-                    <i class="material-icons">date_range</i>
+                    <uni-icon icon="calendar"></uni-icon>
                 </button>
                 <mat-datepicker #fromDate></mat-datepicker>
             </section>
@@ -48,7 +48,7 @@
                     (keydown.enter)="toDateInput.blur();toDateInput.focus();"
                 />
                 <button (click)="toDate.open()">
-                    <i class="material-icons">date_range</i>
+                    <uni-icon icon="calendar"></uni-icon>
                 </button>
                 <mat-datepicker #toDate></mat-datepicker>
             </section>

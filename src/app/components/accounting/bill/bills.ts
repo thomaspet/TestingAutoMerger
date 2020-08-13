@@ -786,6 +786,7 @@ export class BillsView implements OnInit {
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro'),
+            new UniTableColumn('InvoiceOriginType', 'Type').setTemplate(row => this.getOriginTypeText(row)),
             new UniTableColumn('PaymentID', 'KID/Melding')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('FreeTxt', 'Fritekst').setVisible(true),
@@ -1109,6 +1110,14 @@ export class BillsView implements OnInit {
                     statusCode: 0
                 }
             ];
+        }
+    }
+
+    private getOriginTypeText(row): string {
+        if (row.InvoiceOriginType > 1) {
+            return row.InvoiceOriginType === 2 ? 'Kvittering' : 'Tilbakebetaling';
+        } else {
+            return theme.theme === THEMES.UE ? 'Leverandørfaktura' : 'Regning';
         }
     }
 }

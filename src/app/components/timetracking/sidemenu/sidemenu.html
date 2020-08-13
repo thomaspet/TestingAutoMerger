@@ -1,6 +1,6 @@
 ﻿<section class="uni-container">
-    <section class="minimized-sidebar-icons" [hidden]="!minimized">
-        <i class="material-icons" (click)="toggleSidemenu()">date_range</i>
+    <section class="minimized-sidebar-icons" *ngIf="minimized">
+        <uni-icon icon="calendar" (click)="toggleSidemenu()"></uni-icon>
         <p class="sidemenu_minified_to_from" (click)="toggleSidemenu()">Kalender</p>
         <section *ngFor="let template of timeTrackingTemplates; let i = index;" (click)="onTemplateSelected(template)">
             <i class="material-icons">access_time</i>

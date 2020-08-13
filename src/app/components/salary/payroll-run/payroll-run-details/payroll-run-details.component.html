@@ -20,12 +20,12 @@
         <section class="payroll-info-and-links">
             <section class="payroll-info" *ngIf="payrollrun$ | async as payrollrun">
                 <span>
-                    <i class="material-icons">date_range</i>
+                    <uni-icon icon="calendar"></uni-icon>
                     Periode: <strong>{{payrollrun.FromDate | date: 'dd.MM.yyyy'}} - {{payrollrun.ToDate | date: 'dd.MM.yyyy'}}</strong>
                 </span>
 
                 <span>
-                    <i class="material-icons">date_range</i>
+                    <uni-icon icon="calendar"></uni-icon>
                     Utbetalingsdato: <strong>{{payrollrun.PayDate | date: 'dd.MM.yyyy'}}</strong>
                 </span>
 

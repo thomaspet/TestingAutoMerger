@@ -1,4 +1,4 @@
-<button #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Vis periodevelger"> {{ getPeriodeText() }} <i class="material-icons"> date_range </i> </button>
+<button class="selector-button" #menuTrigger="matMenuTrigger" [matMenuTriggerFor]="contextMenu" title="Vis periodevelger"> {{ getPeriodeText() }} <uni-icon icon="calendar"></uni-icon></button>
 <mat-menu #contextMenu="matMenu">
     <div class="date-selector-main-container" (click)="$event.stopPropagation();">
         <div style="display: flex; height: 36px;">

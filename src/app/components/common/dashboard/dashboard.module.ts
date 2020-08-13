@@ -15,7 +15,7 @@ import {LiquidityPaymentModal} from './widgets/charts/liquidity/payment-modal/li
     imports: [
         CommonModule,
         LibraryImportsModule,
-        UniFrameworkModule,
+        UniFrameworkModule
     ],
     declarations: [
         DashboardNew,

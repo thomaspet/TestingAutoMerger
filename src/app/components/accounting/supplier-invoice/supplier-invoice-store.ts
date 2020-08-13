@@ -65,7 +65,7 @@ export class SupplierInvoiceStore {
     vatTypes = [];
     currencyCodes = [];
     companySettings: CompanySettings;
-    currentMode: number;
+    currentMode: number = 0;
 
     constructor(
         private router: Router,
@@ -418,6 +418,7 @@ export class SupplierInvoiceStore {
         const total = this.journalEntryLines$.value.map(l => l.AmountCurrency).reduce((a, b) => a + b);
 
         invoice.TaxInclusiveAmountCurrency = total;
+        invoice.InvoiceOriginType = this.currentMode + 1;
 
         if (date) {
             invoice.InvoiceDate = new LocalDate(new Date(date));

@@ -39,7 +39,7 @@ import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
 import {MonthPicker} from './ui/month-picker/month-picker';
-import {UniIcon} from './ui/icon/uni-icon';
+import {UniIconModule} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
 import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
@@ -62,6 +62,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
+        UniIconModule
     ],
     declarations: [
         UniComponentLoader,
@@ -78,7 +79,6 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         UniInfo,
         UniShowReinvoiceStatus,
         UniTabs,
-        UniIcon,
         FeaturePermissionDirective,
         MonthPicker,
         AutoFocusDirective,
@@ -127,7 +127,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         UniShowReinvoiceStatus,
         UniComponentLoader,
         UniTabs,
-        UniIcon,
+        UniIconModule,
         FeaturePermissionDirective,
         AutoFocusDirective,
         UniFileUpload,

@@ -29,6 +29,7 @@ import {UniSelectModule} from '@uni-framework/ui/uni-select/select.module';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 import {UniDateAdapter} from '@app/date-adapter';
 import {DateAdapter} from '@angular/material/core';
+import { UniIconModule } from '../icon/uni-icon';
 
 @NgModule({
     imports: [
@@ -39,7 +40,8 @@ import {DateAdapter} from '@angular/material/core';
         UniSelectModule,
         InputDropdownModule,
         ClickOutsideModule,
-        UniTranslatePipesModule
+        UniTranslatePipesModule,
+        UniIconModule
     ],
     declarations: [
         UniForm,
