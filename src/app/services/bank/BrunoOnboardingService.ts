@@ -142,7 +142,7 @@ export class BrunoOnboardingService {
 
     public RequestBankintegrationChange(agreement: BankIntegrationAgreement) {
         return new Observable(observer => {
-            if (!agreement.HasOrderedIntegrationChange) {
+            if (!agreement['HasOrderedIntegrationChange']) {
                 this.bankService.setBankIntegrationChangeAgreement(true).subscribe(() => {
                     this.modalService.open(BrunoBankOnboardingModal, {
                         data: agreement
