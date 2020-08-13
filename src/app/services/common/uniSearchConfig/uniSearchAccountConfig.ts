@@ -32,9 +32,10 @@ export class UniSearchAccountConfig {
 
     public generateOnlyMainAccountsConfig(
         expands: string[] = <string[]>[],
-        createNewFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>,
+        placeholder: string = ''
     ): IUniSearchConfig {
-        return this.generateAccountsConfig(expands, createNewFn, false);
+        return this.generateAccountsConfig(expands, createNewFn, false, placeholder);
     }
 
     public generateAllAccountsConfig(
@@ -47,7 +48,8 @@ export class UniSearchAccountConfig {
     private generateAccountsConfig(
         expands: string[] = <string[]>[],
         createNewFn?: () => Observable<UniEntity>,
-        all: boolean = false
+        all: boolean = false,
+        placeholder: string = ''
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
             lookupFn: searchTerm => this
@@ -70,6 +72,7 @@ export class UniSearchAccountConfig {
                 item.AccountNumber,
                 item.AccountName
             ],
+            placeholder: placeholder,
             inputTemplateFn: item => `${item.AccountNumber} - ${item.AccountName}`,
             createNewFn: createNewFn,
             maxResultsLength: MAX_RESULTS

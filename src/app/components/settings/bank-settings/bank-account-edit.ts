@@ -16,7 +16,7 @@ import {theme, THEMES} from 'src/themes/theme';
 			[config]="{autofocus: true, showLabelAbove: true}"
 			[fields]="formFields$"
 			[model]="formModel$"
-			(changeEvent)="onFormChange($event)">
+            (changeEvent)="onFormChange($event)">
         </uni-form>
 
         <small style="color: red"> {{ errorMsg }} </small>
@@ -159,11 +159,6 @@ export class CompanyBankAccountEdit {
             account.BankAccountType = 'company';
         }
 
-        if (!account.AccountID) {
-            this.errorMsg = 'Du må koble bankkonto til en hovedbokskonto.';
-            return;
-        }
-
         this.setBusy.emit(true);
 
         const obs = account.ID
@@ -215,6 +210,7 @@ export class CompanyBankAccountEdit {
             const account = this.formModel$.getValue();
             account.Account = null;
             account.AccountID = null;
+            this.validMainAccount = true;
             this.formModel$.next(account);
 
         }
@@ -374,7 +370,8 @@ export class CompanyBankAccountEdit {
                 ReadOnly: this.bankAccount['_count'],
                 Label: 'Hovedbokskonto',
                 Options: {
-                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                    uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(
+                        null, null, 'Settes automatisk hvis tomt felt'),
                     valueProperty: 'ID'
                 }
             },
