@@ -30,11 +30,16 @@ export class Ext02BankBalanceWidget {
         } else {
             this.getOnboardingState();
         }
+
+        this.onboardingService.agreementStatusChanged.subscribe(() => {
+            this.getOnboardingState();
+        });
     }
 
     ngOnDestroy() {
         this.componentDestroyed$.next();
         this.componentDestroyed$.complete();
+        this.onboardingService.agreementStatusChanged.complete();
     }
 
     private getOnboardingState() {
@@ -62,7 +67,7 @@ export class Ext02BankBalanceWidget {
         } else if (this.onboardingState === 'pending') {
             this.onboardingService.restartOnboarding(this.agreement);
         } else if (this.onboardingState === 'connectAccounts') {
-            this.onboardingService.connectBankAccounts().subscribe(configSaved => {
+            this.onboardingService.connectBankAccounts().subscribe((configSaved) => {
                 if (configSaved) {
                     this.getOnboardingState();
                 }

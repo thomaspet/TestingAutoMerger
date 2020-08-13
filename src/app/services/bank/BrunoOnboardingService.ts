@@ -41,6 +41,8 @@ export class BrunoOnboardingService {
         ServiceProvider: BankAgreementServiceProvider.Bruno
     };
 
+    @Output() agreementStatusChanged = new EventEmitter();
+
     public isPendingAgreement(agreement?: BankIntegrationAgreement): boolean {
         return agreement?.StatusCode === 700001;
     }
@@ -115,11 +117,14 @@ export class BrunoOnboardingService {
         }).onClose;
     }
 
-    connectBankAccounts(): Observable<boolean> {
+    connectBankAccounts(isPopUp: boolean = false): Observable<boolean> {
         return this.bankAccountService.getBankServiceBankAccounts().pipe(
             switchMap(accounts => {
                 return this.modalService.open(ConfigBankAccountsModal, {
-                    data: accounts
+                    data: {
+                        accounts: accounts,
+                        isPopUp: isPopUp
+                    }
                 }).onClose.pipe(
                     map(configurationSaved => {
                         if (configurationSaved) {
@@ -133,6 +138,7 @@ export class BrunoOnboardingService {
                             });
                         }
 
+                        this.agreementStatusChanged.emit();
                         return !!configurationSaved;
                     })
                 );

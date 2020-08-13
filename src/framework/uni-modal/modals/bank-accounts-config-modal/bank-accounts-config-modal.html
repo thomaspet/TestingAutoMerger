@@ -60,6 +60,11 @@
                 </uni-select>
             </label>
         </section>
+
+        <section *ngIf="isPopUp">
+            <mat-checkbox (change)="onPopUpSelectionChange($event)">Ikke vis denne meldingen igjen (kan settes opp senere)</mat-checkbox>
+        </section>  
+
     </article>
 
     <footer>

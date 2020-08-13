@@ -8,6 +8,7 @@ import { CompanySettings, BankAccount } from '@app/unientities';
 import { ErrorService } from '@app/services/common/errorService';
 import { BankAccountService } from '@app/services/accounting/bankAccountService';
 import { NumberFormat } from '@app/services/common/numberFormatService';
+import { BrowserStorageService } from '@uni-framework/core/browserStorageService';
 
 @Component({
     selector: 'uni-brunoaccountsconfig-modal',
@@ -35,6 +36,8 @@ export class ConfigBankAccountsModal implements IUniModal {
     standardAccountAlreadyUsed: boolean;
     taxAccountAlreadyUsed: boolean;
 
+    isPopUp: boolean;
+    notShowPopUpAgain: boolean;
 
     constructor(
         private numberFormatter: NumberFormat,
@@ -42,6 +45,7 @@ export class ConfigBankAccountsModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private bankAccountService: BankAccountService,
+        private browserStorage: BrowserStorageService
     ) {}
 
     public ngOnInit() {
@@ -50,7 +54,8 @@ export class ConfigBankAccountsModal implements IUniModal {
             searchable: false,
         };
 
-        this.accounts = this.options.data;
+        this.accounts = this.options.data?.accounts;
+        this.isPopUp = this.options.data?.isPopUp;
         this.accountsReceivedCount = this.accounts.length;
         this.checkForExistingCompanyAccounts();
     }
@@ -141,6 +146,11 @@ export class ConfigBankAccountsModal implements IUniModal {
                 this.busy = false;
             }
         );
+    }
+
+    public onPopUpSelectionChange(notShowPopUpAgain) {
+        notShowPopUpAgain.checked ?
+        this.browserStorage.setItemOnCompany('notShowConnectAccoutsPopUpModal', true) : this.browserStorage.setItemOnCompany('notShowConnectAccoutsPopUpModal', false);
     }
 
     updateUnassignedAccounts() {

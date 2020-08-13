@@ -4,8 +4,8 @@ import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, StatisticsService, BrunoOnboardingService} from './services/services';
-import {ToastService} from '../framework/uniToast/toastService';
-import {UserDto} from '@app/unientities';
+import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
+import {UserDto, BankIntegrationAgreement} from '@app/unientities';
 import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -117,9 +117,19 @@ export class App {
                 }
 
 
-                if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
-                    this.showInitialBrunoLoginModal();
-                    browserStorage.setItemOnCompany('isNotInitialLogin', true);
+                if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest) {
+                    this.brunoOnboardingService.getAgreement().subscribe((agreement: BankIntegrationAgreement) => {
+
+                        if (!agreement && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
+                            this.showInitialBrunoLoginModal();
+                            browserStorage.setItemOnCompany('isNotInitialLogin', true);
+                        }
+
+                        if (this.brunoOnboardingService.hasNewAccountInfo(agreement) && !browserStorage.getItemFromCompany('notShowConnectAccoutsPopUpModal')) {
+                            this.brunoOnboardingService.connectBankAccounts(true).subscribe();
+                        }
+                    });
+
                 }
             }
         });
