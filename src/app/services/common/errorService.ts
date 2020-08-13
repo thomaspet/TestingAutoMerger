@@ -21,7 +21,7 @@ export class ErrorService {
         // Don't toast JS errors in production, just log them
         if (environment.useProdMode) {
             console.error(error);
-            this.logger.log(error);
+            this.logger.logError(error);
         } else {
             this.handle(error);
         }
@@ -44,7 +44,7 @@ export class ErrorService {
         }
 
         console.error(error);
-        this.logger.log(error);
+        this.logger.logError(error);
         this.addErrorToast(toastMsg || message);
     }
 

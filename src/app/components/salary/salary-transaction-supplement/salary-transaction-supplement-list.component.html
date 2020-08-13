@@ -1,0 +1,10 @@
+<uni-toolbar [config]="toolbarConfig"> </uni-toolbar>
+
+<article class="application">
+    <ag-grid-wrapper
+        class="borders"
+        [resource]="lookupFunction"
+        [config]="tableConfig$ | async"
+        (cellClick)="onCellClick($event)">
+    </ag-grid-wrapper>
+</article>

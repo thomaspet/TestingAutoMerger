@@ -3,7 +3,7 @@ import { IModalOptions, IUniModal, UniModalService } from '@uni-framework/uni-mo
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
-import { JobService, ErrorService, PayrollrunService } from '@app/services/services';
+import { JobService, ErrorService, SharedPayrollRunService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { ImportFileType, ImportOption, TemplateType } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
@@ -65,7 +65,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         private http: HttpClient,
         private jobService: JobService,
         private toastService: ToastService,
-        private payrollService: PayrollrunService,
+        private payrollService: SharedPayrollRunService,
         private errorService: ErrorService,
         private modalService: UniModalService
     ) { }
@@ -201,7 +201,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                     dataToImport = saftModel;
                 }
 
-                
+
                 this.loading$.next(true);
                 this.importFileToJobServer(this.options.data.jobName, dataToImport).subscribe(
                     () => {

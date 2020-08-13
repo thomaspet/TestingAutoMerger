@@ -6,7 +6,8 @@
             (valueChange)="onYearSelect($event)">
         </uni-select>
 
-        Viser perioder: <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker>
+        <span class="show-period">Viser perioder: </span>
+        <period-picker [periodFilter]="periodFilter2" (periodFilterChanged)="onPeriodFilter2Changed($event)"></period-picker> og <period-picker [periodFilter]="periodFilter1" (periodFilterChanged)="onPeriodFilter1Changed($event)"></period-picker>
         <button (click)="toggleFilter()" class="tertiary c2a">
             <i class="material-icons">filter_list</i>
              Filter

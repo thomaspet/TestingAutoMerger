@@ -274,9 +274,9 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     private calculateAgio(payment: InvoicePaymentData): InvoicePaymentData {
         const entityName = this.config.entityName;
-        if (entityName === 'CustomerInvoice' || (entityName === 'JournalEntryLine' && payment.Amount > 0)) {
+        if (entityName === 'CustomerInvoice' || this.config.isSupplierInvoice === 1) {
             this.calculateAgio4CustomerInvoice(payment);
-        } else if (entityName === 'SupplierInvoice' || (entityName === 'JournalEntryLine' && payment.Amount < 0)) {
+        } else if (entityName === 'SupplierInvoice' || this.config.isSupplierInvoice === -1) {
             this.calculateAgio4SupplierInvoice(payment);
         }
 
@@ -291,7 +291,7 @@ export class UniRegisterPaymentModal implements IUniModal {
 
         const agioSmallDeltaAmount = UniMath.round(this.calculateAgio4SmallDeltaPayment(payment), 2);
         payment.AgioAmount = UniMath.round(
-            (payment.Amount - payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
+            (payment.Amount + payment.BankChargeAmount - ledgerLineAmount + agioSmallDeltaAmount) * sign
         , 2);
 
         this.SetAgioAccount(payment, previousAgioAmount);
@@ -305,7 +305,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         ); // Calculated in the same exchange rate as the invoice
 
         model.AgioAmount = UniMath.round(
-            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1
+            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1 
         );
 
         this.SetAgioAccount(model, previousAgioAmount);

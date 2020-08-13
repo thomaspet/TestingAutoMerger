@@ -16,7 +16,6 @@ export class RegisterAssetAsLostModal {
     model = {
         Description: ''
     };
-
     mainForm = [
         {
             Section: 0,

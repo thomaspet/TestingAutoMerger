@@ -52,10 +52,13 @@ export class UniEmailInput extends BaseControl implements OnChanges {
             return;
         }
         if (this.control.valid) {
+            const value = this.control.value.trim();
             const previousValue = _.get(this.model, this.field.Property);
-            _.set(this.model, this.field.Property, this.control.value);
-            this.lastControlValue = this.control.value;
-            this.emitChange(previousValue, this.lastControlValue);
+            _.set(this.model, this.field.Property, value);
+            this.lastControlValue = value;
+            this.emitChange(previousValue, value);
+            this.control.setValue(value, {emitEvent: false});
         }
     }
+
 }

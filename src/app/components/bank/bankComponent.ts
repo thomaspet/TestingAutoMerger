@@ -1378,7 +1378,7 @@ export class BankComponent {
                 data: {JournalEntryID: item.JournalEntryID}
             }).onClose.subscribe(response => {
                 if (response && response.action === ConfirmActions.ACCEPT) {
-                    this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber, response.creditDate)
+                    this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber)
                         .subscribe(result => {
                             if (result?.ProgressUrl) {
                                 this.toastService.addToast(

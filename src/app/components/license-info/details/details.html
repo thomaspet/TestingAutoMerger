@@ -39,6 +39,16 @@
                 </a>
             </span>
         </section>
+
+        <section *ngIf="isAdmin" class="info-field two-factor">
+            <strong>To-faktor pålogging</strong>
+
+            
+            <mat-slide-toggle [(ngModel)]="twoFactorEnabled" (ngModelChange)="twoFactorEnabledChange()"
+                [labelPosition]="'before'">
+            </mat-slide-toggle>
+
+        </section>
     </section>
 
     <section class="info-card">

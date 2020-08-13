@@ -1,6 +1,5 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-modal';
-import { RegulativeService } from '@app/services/services';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
 export enum NewRegulativeActions {
     CANCEL,
     IMPORT,

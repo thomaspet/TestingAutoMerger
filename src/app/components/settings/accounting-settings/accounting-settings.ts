@@ -1,5 +1,6 @@
 import {Component, ViewChild} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
+import * as _ from 'lodash';
 import {
     CompanySettingsService,
     PeriodSeriesService,
@@ -18,6 +19,7 @@ import {CompanySettings, CurrencyCode} from '@app/unientities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FieldType} from '@uni-framework/ui/uniform/index';
+import {ChangeCompanySettingsPeriodSeriesModal} from '../companySettings/ChangeCompanyPeriodSeriesModal';
 import {
     UniModalService,
     ConfirmActions,
@@ -161,6 +163,25 @@ export class UniCompanyAccountingView {
         }, err => {
             this.errorService.handle(err);
         });
+    }
+
+    periodSeriesChange(changes) {
+        if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
+            this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
+                data: {
+                    PeriodSeriesAccountID: (changes['PeriodSeriesAccountID'] && changes['PeriodSeriesAccountID'].previousValue) || null,
+                    PeriodSeriesVatID: (changes['PeriodSeriesVatID'] && changes['PeriodSeriesVatID'].previousValue) || null
+                }
+            }).onClose.subscribe(
+                result => {
+                    const companySettings = this.companySettings$.getValue();
+                    companySettings.PeriodSeriesAccountID = result.PeriodSeriesAccountID;
+                    companySettings.PeriodSeriesVatID = result.PeriodSeriesVatID;
+                    this.companySettings$.next(_.cloneDeep(companySettings));
+                    this.router.navigateByUrl('/settings/company');
+                }, err => this.errorService.handle
+            );
+        }
     }
 
     reloadOnlyCompanySettings() {

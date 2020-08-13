@@ -1,15 +1,12 @@
 import {Injectable} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {SalaryBalanceTemplate, SalBalType, Employee, SalaryBalance, SalBalDrawType} from '../../../unientities';
 import {Observable, throwError, of} from 'rxjs';
-import {FieldType} from '@uni-framework/ui/uniform/index';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {SalaryTransactionService} from '@app/services/salary/salaryTransaction/salaryTransactionService';
-import {SalarybalanceService} from '../salarybalance/salarybalanceService';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import {switchMap, map, tap} from 'rxjs/operators';
+import { BizHttp, UniHttp } from '@uni-framework/core/http';
+import { SalaryBalanceTemplate, SalBalType, SalaryBalance, SalBalDrawType } from '@uni-entities';
 
 @Injectable()
 export class SalarybalanceTemplateService extends BizHttp<SalaryBalanceTemplate> {

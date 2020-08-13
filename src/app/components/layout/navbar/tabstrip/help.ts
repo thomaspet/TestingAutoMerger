@@ -1,6 +1,7 @@
 import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {environment} from 'src/environments/environment';
 import {BoostChat} from '@app/components/layout/boostChat/boostChat';
+import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -19,6 +20,10 @@ import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 
                 <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open" target="_blank" *ngIf="!isSrEnvironment">
                     Mine supportsaker
+                </a>
+
+                <a class="dropdown-menu-item" (click)="openGiveSupportAccessModal()">
+                    Gi lesetilgang
                 </a>
 
                 <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="!isSrEnvironment">
@@ -53,9 +58,15 @@ export class UniTabstripHelp {
         ? 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html'
         : 'https://help.unieconomy.no';
 
+    constructor(private modalService: UniModalService) { }
+
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {
             this.boost.openChatWithSupportCase();
         }
+    }
+
+    openGiveSupportAccessModal() {
+        this.modalService.open(GiveSupportAccessModal);
     }
 }

@@ -30,8 +30,12 @@
                 <section class="user-info">
                     <strong>{{user.DisplayName || user.Email}}</strong>
 
-                    <small *ngIf="user._isActive">
+                    <small *ngIf="user._isActive && !user._isSupport">
                         {{user._isAdmin ? 'Administrator' : 'Standard bruker'}}
+                    </small>
+
+                    <small *ngIf="user._isActive && user._isSupport">
+                        Support
                     </small>
 
                     <small *ngIf="!user._isActive && user._statusText">
@@ -50,6 +54,7 @@
         (activateUser)="activateUser()"
         (deactivateUser)="deactivateUser()"
         (resendInvite)="resendInvite($event)"
+        (cancelInvite)="cancelInvite($event)"
         (reloadUsers)="loadUsers(true)">
     </user-details>
 

@@ -103,7 +103,7 @@ export enum CollectorStatus {
 export class InvoiceDetails implements OnInit {
     @ViewChild(UniToolbar, { static: true }) toolbar: UniToolbar;
     @ViewChild(TofHead, { static: true }) tofHead: TofHead;
-    @ViewChild(TradeItemTable) tradeItemTable: TradeItemTable;
+    @ViewChild(TradeItemTable) private tradeItemTable: TradeItemTable;
 
     @Input() invoiceID: any;
 
@@ -112,7 +112,7 @@ export class InvoiceDetails implements OnInit {
     itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private askedAboutSettingDimensionsOnItems: boolean;
+    private askedAboutSettingDimensionsOnItems: boolean = false;
 
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private aprilaOption = {
@@ -645,21 +645,26 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
-            this.askedAboutSettingDimensionsOnItems = false;
-        }
-
         if (invoice['_updatedField']) {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
             this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
 
             const dimension = invoice['_updatedField'].split('.');
+
+            if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
+                this.askedAboutSettingDimensionsOnItems = false;
+            }
+
             const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
             if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.tradeItemTable.setDimensionOnTradeItems
+                    (dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.askedAboutSettingDimensionsOnItems = true;
             } else {
                 // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.tradeItemTable.setNonCustomDimsOnTradeItems
+                    (dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
+                this.askedAboutSettingDimensionsOnItems = true;
             }
             if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
@@ -669,7 +674,7 @@ export class InvoiceDetails implements OnInit {
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
         this.currentInvoiceDate = invoice.InvoiceDate;
-        invoice['_updatedField'] = null;
+        // invoice['_updatedField'] = null;
 
         if (
             customerChanged && this.currentCustomer &&
@@ -700,7 +705,12 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        this.invoice = {...invoice};
+        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('InvoiceDate')) {
+            // { ... invoice} will corrupt validation, so only do it for neccessary functions
+            this.invoice = { ...invoice };
+        } else {
+            this.invoice = invoice;
+        }
         this.updateSaveActions();
     }
 
@@ -1460,7 +1470,7 @@ export class InvoiceDetails implements OnInit {
         }
 
         this.saveActions.push({
-            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter' : 'Fakturer og send',
+            label: (this.invoice.InvoiceType === InvoiceTypes.CreditNote) ? 'Krediter og send' : 'Fakturer og send',
             action: done => {
                 if (this.aprilaOption.hasPermission) {
                     this.aprilaOption.autoSellInvoice = false;
@@ -1856,7 +1866,39 @@ export class InvoiceDetails implements OnInit {
                                         }).onClose.subscribe(() => onSendingComplete());
                                     }
                                 } else {
-                                    onSendingComplete();
+                                    if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
+                                        const currentPlan = this.distributionPlans
+                                            .find(plan => plan.ID === this.invoice.DistributionPlanID);
+
+                                        // Only show sending of invoice if plan has elementtypes
+                                        if (currentPlan && currentPlan.Elements && currentPlan.Elements.length) {
+                                            this.toastService.toast({
+                                                title: 'Kreditering vellykket. Kreditnota sendes med valgt utsendingplan.',
+                                                type: ToastType.good,
+                                                duration: 5
+                                            });
+                                        } else {
+                                            this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kreditnota.');
+                                        }
+
+                                        onSendingComplete();
+                                    } else {
+                                        if (this.invoice.DistributionPlanID) {
+                                            const p = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
+                                            if (p && (!p.Elements || !p.Elements.length)) {
+                                                this.toastService.addToast('Plan for utsendelse uten sendingsvalg', ToastType.info, 10,
+                                                    'Det er satt en utsendelsesplan som ikke har sendingsvalg. Dette forhindrer at '
+                                                    + 'kredittnota blir sendt. Fjern denne planen om du ønsker å sende ut kredittnota.');
+                                                onSendingComplete();
+                                                return;
+                                            }
+                                        }
+                                        this.modalService.open(SendInvoiceModal, {
+                                            data: this.invoice
+                                        }).onClose.subscribe(() => onSendingComplete());
+                                    }
                                 }
                             });
                         },
@@ -2176,15 +2218,21 @@ export class InvoiceDetails implements OnInit {
     }
 
     onTradeItemsChange(items) {
-        setTimeout(() => {
-            this.invoiceItems = items;
-            if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
-                this.isDirty = true;
-            }
+        if (items.length > 0) {
+            setTimeout(() => {
+                this.invoiceItems = items;
+                if (!this.isDirty && this.invoiceItems.some(item => item['_isDirty'])) {
+                    this.isDirty = true;
+                }
+                this.invoice.Items = this.invoiceItems;
+                this.invoice = cloneDeep(this.invoice);
+                this.recalcDebouncer.emit(this.invoiceItems);
+            });
+        } else {
             this.invoice.Items = this.invoiceItems;
             this.invoice = cloneDeep(this.invoice);
             this.recalcDebouncer.emit(this.invoiceItems);
-        });
+        }
     }
 
     sellInvoiceToAprila(done) {

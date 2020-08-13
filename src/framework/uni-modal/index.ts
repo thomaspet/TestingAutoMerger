@@ -40,6 +40,7 @@ import {MissingRolesModal} from './modals/missing-roles-modal/missing-roles-moda
 import {UniTermsModal} from './modals/terms-modal';
 import {UniPreviewModal} from './modals/previewModal';
 import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
+import {GiveSupportAccessModal} from './modals/give-support-access-modal/give-support-access-modal';
 
 export * from './modalService';
 export * from './interfaces';
@@ -83,6 +84,7 @@ export * from './modals/missing-roles-modal/missing-roles-modal';
 export * from './modals/terms-modal';
 export * from './modals/previewModal';
 export * from './modals/file-from-inbox-modal/file-from-inbox-modal';
+export * from './modals/give-support-access-modal/give-support-access-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -127,5 +129,6 @@ export const MODALS = [
     UniTermsModal,
     UniPreviewModal,
     FileFromInboxModal,
+    GiveSupportAccessModal,
 ];
 

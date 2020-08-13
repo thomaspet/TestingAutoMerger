@@ -4,7 +4,7 @@ import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/ind
 
 import { BehaviorSubject, timer as observableTimer } from 'rxjs';
 import { MatStepper } from '@angular/material/stepper';
-import { JobService, CompanySettingsService, AccountService } from '@app/services/services';
+import { JobService, CompanySettingsService, AccountService, ErrorService } from '@app/services/services';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { CompanySettings, Account } from '@uni-entities';
 import { UniModalService } from '@uni-framework/uni-modal';
@@ -55,7 +55,8 @@ export class SaftImportModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private accountService: AccountService,
         private modalService: UniModalService,
-        private authService: AuthService
+        private authService: AuthService,
+        private errorService: ErrorService
     ) {}
 
     public ngOnInit() {
@@ -164,6 +165,9 @@ export class SaftImportModal implements IUniModal {
         this.jobService.startJob(JOBNAME, undefined, details)
             .subscribe((jobID: number) => {
                 this.jobID = jobID;
+            },
+            (error) => {
+                this.errorService.handle(error);
             });
     }
 
@@ -244,6 +248,9 @@ export class SaftImportModal implements IUniModal {
                         this.goNext();
                     }
                 }
+            },
+            (error) => {
+                this.errorService.handle(error);
             });
     }
 }

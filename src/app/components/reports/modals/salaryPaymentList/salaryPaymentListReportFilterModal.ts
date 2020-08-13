@@ -1,6 +1,6 @@
 import {Component, OnInit, ViewChild, Type, Input} from '@angular/core';
 import {UniModal} from '@uni-framework/modals/modal';
-import {ReportDefinition, ReportDefinitionParameter, PayrollRun} from '@uni-entities';
+import {ReportDefinition, ReportDefinitionParameter, PayrollRun, PostingSummaryDraft} from '@uni-entities';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '@uni-framework/ui/uniform';
 import {Observable, BehaviorSubject} from 'rxjs';
@@ -8,7 +8,7 @@ import {
     ReportDefinitionParameterService,
     FinancialYearService,
     ErrorService,
-    PayrollrunService,
+    SharedPayrollRunService,
     SalaryBookingType
 } from '@app/services/services';
 import {tap, switchMap} from 'rxjs/operators';
@@ -28,6 +28,7 @@ interface ISalaryPaymentModel {
     selector: 'salary-payment-list-report-filter-modal-content',
     templateUrl: './salaryPaymentListReportFilterModal.html'
 })
+
 export class SalaryPaymentListReportFilterModalContent implements OnInit {
     @Input() public config: IModalConfig;
     public config$: BehaviorSubject<any> = new BehaviorSubject({});
@@ -35,7 +36,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
     public model$: BehaviorSubject<ISalaryPaymentModel> = new BehaviorSubject({ RunID: 0, BookingType: SalaryBookingType.Dimensions });
     public currentYear: number;
     constructor(
-        private payrollRunService: PayrollrunService,
+        private sharedPayrollRunService: SharedPayrollRunService,
         private financialYearService: FinancialYearService
     ) { }
 
@@ -43,7 +44,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
         this.config$.next(this.config);
         this.currentYear = this.financialYearService.getActiveYear();
 
-        this.payrollRunService
+        this.sharedPayrollRunService
             .getLatestSettledRun(this.currentYear)
             .pipe(
                 tap(payrollRun => {
@@ -52,15 +53,30 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
                 }),
                 switchMap(run => {
                     return run && run.ID
-                        ? this.payrollRunService.getPostingSummaryDraft(run.ID)
+                        ? this.sharedPayrollRunService.getPostingSummaryDraft(run.ID)
                         : Observable.of(null);
                 }),
             )
             .subscribe(draft => {
                 const model = this.model$.value;
-                model.BookingType = this.payrollRunService.getBookingTypeFromDraft(draft);
+                model.BookingType = this.getBookingTypeFromDraft(draft);
                 this.model$.next(model);
             });
+
+
+    }
+
+    private getBookingTypeFromDraft(draft: PostingSummaryDraft): SalaryBookingType {
+        if (!draft) {
+            return SalaryBookingType.Dimensions;
+        }
+        if (draft.draftBasic) {
+            return SalaryBookingType.NoDimensions;
+        }
+        if (draft.draftWithDimsOnBalance) {
+            return SalaryBookingType.DimensionsAndBalance;
+        }
+        return SalaryBookingType.Dimensions;
     }
 
     private getLayout(defaultRun: PayrollRun): UniFieldLayout[] {
@@ -70,7 +86,7 @@ export class SalaryPaymentListReportFilterModalContent implements OnInit {
             Property: 'RunID',
             Options: {
                 getDefaultData: () => Observable.of([defaultRun]),
-                search: (query) => this.payrollRunService.GetAll(
+                search: (query) => this.sharedPayrollRunService.GetAll(
                     `filter=year(PayDate) eq ${this.currentYear} `
                     + `and (startswith(ID, '${query}') or contains(Description, '${query}'))&top=50`
                 ),

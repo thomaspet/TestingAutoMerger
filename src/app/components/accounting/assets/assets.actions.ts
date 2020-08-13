@@ -180,7 +180,7 @@ export class AssetsActions {
             take(1),
             switchMap(_asset => {
                 asset = _asset;
-                if(asset.Dimensions) { // save dimensions from object, not from ID.
+                if (asset.Dimensions) { // save dimensions from object, not from ID.
                     asset.DimensionsID = undefined;
                 }
                 return this.startDepreciation(_asset);
@@ -279,6 +279,26 @@ export class AssetsActions {
                 };
             });
         }
+        if (changes['PurchaseDate']) {
+            if (changes['PurchaseDate'].currentValue < changes['PurchaseDate'].previousValue &&
+                currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
+                const asset = this.store.currentAsset;
+                if (asset.Lifetime) {
+                    const options: IModalOptions = {
+                        header: 'Oppdatere kjøpsdato',
+                        message: 'Vil du oppdatere gjenværende levetid ut fra kjøpsdato?',
+                        buttonLabels: { accept: 'Ja', cancel: 'Nei' }
+                    };
+                    this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((response) => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            this.updateLifetime(asset);
+                        }
+                    });
+                } else {
+                    this.updateLifetime(asset);
+                }
+            }
+        }
         if (changes['DepreciationStartDate'] || changes['Lifetime'] || changes['NetFinancialValue']) {
             this.assetsService.calculateMonthlyDepreciation(this.store.currentAsset).pipe(
                 map(amount => {
@@ -307,6 +327,22 @@ export class AssetsActions {
             }
         }
         return of(null);
+    }
+
+    updateLifetime(asset: Asset) {
+        this.assetsService.caluculateLifetime(asset).subscribe((lifetime) => {
+            if (lifetime) {
+                asset.Lifetime = lifetime;
+                this.assetsService.calculateMonthlyDepreciation(asset).pipe(
+                    map(amount => {
+                        const depreciationEndDate = this.calculateDepreciationEndDate(asset);
+                        return {...asset, _MonthlyDepreciationAmount: amount, _DepreciationEndDate: depreciationEndDate};
+                    })
+                ).subscribe(asset1 => {
+                    this.store.currentAsset = asset1;
+                });
+            }
+        });
     }
 
     linkFile(ID, fileID) {

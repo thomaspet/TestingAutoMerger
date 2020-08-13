@@ -3,34 +3,25 @@ import { HttpParams } from '@angular/common/http';
 import { UniTableColumnType, UniTableColumn, UniTableConfig } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
-import {
-    WageType, PayrollRun, SalaryTransaction, WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, Employment,
-} from '../../../unientities';
-import {
-    UniCacheService,
-    ErrorService,
-    WageTypeService,
-    AccountService,
-    SalaryTransactionService,
-    SalaryTransactionSuggestedValuesService,
-    PayrollrunService,
-    ProjectService,
-    DepartmentService,
-    PageStateService,
-    EmployeeService,
-    StatisticsService,
-    AccountMandatoryDimensionService
-} from '@app/services/services';
-import {UniSalaryTransactionModal} from './editSalaryTransactionModal';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniModalService, ConfirmActions, UniConfirmModalV2, IModalOptions } from '@uni-framework/uni-modal';
-import { SalaryTransViewService } from '../shared/services/salaryTransViewService';
 import { ICellClickEvent } from '@uni-framework/ui/ag-grid/interfaces';
 import { IUpdatedFileListEvent, ImageModal } from '@app/components/common/modals/ImageModal';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
+import { SalaryTransactionSuggestedValuesService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-suggested-values.service';
+import {
+    PayrollRun, WageType, SalaryTransaction, Employment, Dimensions, SalaryTransactionSupplement, WageTypeSupplement, LocalDate, Account
+} from '@uni-entities';
+import {
+    AccountService, UniCacheService, ErrorService, SalaryTransactionService, SharedPayrollRunService, ProjectService, DepartmentService,
+    WageTypeService, EmployeeService, PageStateService, StatisticsService, AccountMandatoryDimensionService
+} from '@app/services/services';
+import { SalaryTransactionViewService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-view.service';
+import { SalaryTransactionModalComponent } from '@app/components/salary/variable-payrolls/salary-transaction-modal.component';
+import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -67,10 +58,10 @@ export class VariablePayrollsComponent {
         private _accountService: AccountService,
         protected cacheService: UniCacheService,
         private errorService: ErrorService,
-        private salaryTransViewService: SalaryTransViewService,
+        private salaryTransViewService: SalaryTransactionViewService,
         private salaryTransService: SalaryTransactionService,
         private salaryTransSuggestedValues: SalaryTransactionSuggestedValuesService,
-        private payrollrunService: PayrollrunService,
+        private sharedPayrollRunService: SharedPayrollRunService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
         private wageTypeService: WageTypeService,
@@ -81,7 +72,8 @@ export class VariablePayrollsComponent {
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private payrollRunService: PayrollRunService
     ) {
         this.tabService.addTab({
             name: 'Variable lønnsposter',
@@ -91,7 +83,7 @@ export class VariablePayrollsComponent {
         });
 
         Observable.forkJoin(
-            this.payrollrunService.getAll('filter=StatusCode eq 0 or StatusCode eq null&orderby=ID desc'),
+            this.sharedPayrollRunService.getAll('filter=StatusCode eq 0 or StatusCode eq null&orderby=ID desc'),
             this.wageTypeService.GetAll('orderBy=WageTypeNumber', ['SupplementaryInformations'])
         ).subscribe(([payrollruns, wageTypes]) => {
             this.payrollruns = payrollruns;
@@ -134,7 +126,7 @@ export class VariablePayrollsComponent {
         .map(trans => this.salaryTransViewService.prepareTransForSave(trans))
         .filter(row => !row['_isEmpty']);
 
-        this.payrollrunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
+        this.payrollRunService.savePayrollRun(this.selectedPayrollrun).subscribe(payrollrun => {
             this.salaryTransService.invalidateCache();
 
             if (payrollrun.transactions) {
@@ -209,7 +201,7 @@ export class VariablePayrollsComponent {
     }
 
     public editSalaryTransaction(row: any) {
-        const config = new UniTableConfig('salary.salarytrans.list', true, false, 20)
+        const config = new UniTableConfig('salary.salarytrans.edit.list', true, false, 20)
         .setColumns(this.getColumns(false))
         .setAutoAddNewRow(false)
         .setContextMenu(this.getContextMenu())
@@ -226,8 +218,7 @@ export class VariablePayrollsComponent {
             },
             closeOnClickOutside: false
         };
-
-        this.modalService.open(UniSalaryTransactionModal, options).onClose.subscribe(result => {
+        this.modalService.open(SalaryTransactionModalComponent, options).onClose.subscribe(result => {
             if (result) {
                 this.table.refreshTableData();
                 this.toastService.addToast('Lagring vellykket', ToastType.good);
@@ -267,8 +258,8 @@ export class VariablePayrollsComponent {
             params = params.set('filter', filterString);
             params = params.set('select',
                 'ID as ID,Account as Account,Amount as Amount,Text as Text,IsRecurringPost,SalaryBalanceID,SystemType,'
-                + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,WageType.WageTypeNumber as WageTypeNumber,'
-                + 'WageType.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
+                + 'FromDate as FromDate,ToDate as ToDate,Sum as Sum,Rate as Rate,bs.Name as Name,Wagetype.WageTypeNumber as WageTypeNumber,'
+                + 'Wagetype.Base_Payment as BasePayment,Employment.JobName as Job,Employment.ID as JobID,VatType.Name as VatTypeName,'
                 + 'Employee.EmployeeNumber as EmployeeNumber,Project.ProjectNumber as ProjectNumber,Project.Name as ProjectName,'
                 + 'Department.DepartmentNumber as DepartmentNumber,Department.Name as DepartmentName,count(supplements.ID) as suppcount,'
                 + `FileEntityLink.EntityType`);
@@ -306,7 +297,7 @@ export class VariablePayrollsComponent {
     public getChangeCallback() {
         return (event) => {
             let row: SalaryTransaction = event.rowModel;
-            let obs: Observable<SalaryTransaction> = null;
+            let suggestions$: Observable<SalaryTransaction> = null;
 
             if (event.field === 'Employee') {
                 if (row['Employee']) {
@@ -326,7 +317,7 @@ export class VariablePayrollsComponent {
             }
 
             if (event.field === 'Amount' || event.field === 'Rate') {
-                this.calcItem(row);
+                this.salaryTransViewService.calculateTransaction(row);
             }
 
             if (event.field === 'VatType') {
@@ -336,7 +327,7 @@ export class VariablePayrollsComponent {
             if (event.field === '_Account') {
                 this.mapAccountToTrans(row);
                 this.mapVatToTrans(row);
-                obs = this.suggestVatType(row);
+                suggestions$ = this.suggestVatType(row);
             }
 
             if (event.field.startsWith('Dimensions')) {
@@ -360,20 +351,22 @@ export class VariablePayrollsComponent {
             }
 
             if ((event.field === 'Wagetype' || event.field === 'employment') || (event.field === 'Employee' && row.Wagetype)) {
-                obs = obs ? obs.switchMap(this.fillIn) : this.fillIn(row);
+                suggestions$ = suggestions$ ? suggestions$.switchMap(this.fillIn) : this.fillIn(row);
             }
 
             if (event.field === '_Account' || event.field === 'Wagetype') {
-                obs = obs ? obs.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
+                suggestions$ = suggestions$ ? suggestions$.switchMap(trans => this.suggestVatType(trans)) : this.suggestVatType(row);
             }
 
-            if (obs && !this.toggle) {
-                obs
-                    .take(1)
-                    .map(trans => this.calcItem(trans))
-                    .subscribe(trans => this.updateSalaryChanged(trans, !this.toggle));
+            if (suggestions$ && !this.toggle) {
+                suggestions$
+                    .pipe(
+                        take(1),
+                        map(salaryTransaction => this.salaryTransViewService.calculateTransaction(salaryTransaction))
+                    )
+                    .subscribe(salaryTrnsaction => this.updateSalaryChanged(salaryTrnsaction, !this.toggle));
             } else if (this.toggle) {
-                row = this.calcItem(row);
+                row = this.salaryTransViewService.calculateTransaction(row);
             } else {
                 this.updateSalaryChanged(row);
             }
@@ -565,7 +558,7 @@ export class VariablePayrollsComponent {
             });
 
         const payoutCol =
-        readOnly ? new UniTableColumn('WageType.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
+        readOnly ? new UniTableColumn('Wagetype.Base_Payment', 'Utbetales', UniTableColumnType.Number, false)
             .setTemplate(dataItem => dataItem && dataItem.BasePayment ? 'Ja' : 'Nei')
             .setWidth('5.3rem')
             .setAlias('BasePayment')
@@ -575,7 +568,7 @@ export class VariablePayrollsComponent {
         }).setWidth('5.3rem');
 
         const wageTypeCol = readOnly
-        ? new UniTableColumn('WageType.WageTypeNumber', 'Lønnsart', UniTableColumnType.Text).setAlias('WageTypeNumber')
+        ? new UniTableColumn('Wagetype.WageTypeNumber', 'Lønnsart', UniTableColumnType.Text).setAlias('WageTypeNumber')
         : new UniTableColumn('Wagetype', 'Lønnsart', UniTableColumnType.Lookup)
             .setDisplayField('WageTypeNumber')
             .setOptions({
@@ -670,7 +663,6 @@ export class VariablePayrollsComponent {
         }
         rowModel['WageTypeID'] = wagetype.ID;
         rowModel['WageTypeNumber'] = wagetype.WageTypeNumber;
-        rowModel['Text'] = wagetype.WageTypeName;
         rowModel['Account'] = wagetype.AccountNumber;
         rowModel['FromDate'] = this.selectedPayrollrun.FromDate;
         rowModel['ToDate'] = this.selectedPayrollrun.ToDate;
@@ -756,18 +748,6 @@ export class VariablePayrollsComponent {
             rowModel.VatType = null;
             rowModel.VatTypeID = null;
         }
-    }
-
-    private calcItem(rowModel: SalaryTransaction): SalaryTransaction {
-        let decimals = rowModel['Amount'] ? rowModel['Amount'].toString().split('.')[1] : null;
-        const amountPrecision = Math.pow(10, decimals ? decimals.length : 1);
-        decimals = rowModel['Rate'] ? rowModel['Rate'].toString().split('.')[1] : null;
-        const ratePrecision = Math.pow(10, decimals ? decimals.length : 1);
-        const sum =
-            (Math.round((amountPrecision * rowModel['Amount'])) * Math.round((ratePrecision * rowModel['Rate'])))
-            / (amountPrecision * ratePrecision);
-        rowModel['Sum'] = sum;
-        return rowModel;
     }
 
     private checkDates(rowModel) {

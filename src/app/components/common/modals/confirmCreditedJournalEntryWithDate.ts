@@ -56,8 +56,6 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal {
     public message: string;
     public relatedJournalEntriesMessage: string;
 
-    public creditingData$: BehaviorSubject<{creditDate: Date | string}> = new BehaviorSubject({creditDate: null});
-
     public showVatLockedDateInfo: boolean = false;
     public showAccountingLockedInfo: boolean = false;
     public disableCreditButton: boolean = false;
@@ -78,10 +76,6 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal {
         }
 
         this.findNonLockedDate();
-    }
-
-    ngOnDestroy() {
-        this.creditingData$.complete();
     }
 
     private findNonLockedDate() {
@@ -170,24 +164,15 @@ export class ConfirmCreditedJournalEntryWithDate implements IUniModal {
             }
 
             this.message = message;
-
-            const data = {
-                creditDate: null
-            };
-
             this.formReady = true;
-
-            this.creditingData$.next(data);
         });
     }
 
     public accept() {
-        const current = this.creditingData$.getValue();
-        return this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.ACCEPT});
+        return this.onClose.emit({action: ConfirmActions.ACCEPT});
     }
 
     public cancel() {
-        const current = this.creditingData$.getValue();
-        this.onClose.emit({creditDate: current.creditDate, action: ConfirmActions.CANCEL});
+        this.onClose.emit({action: ConfirmActions.CANCEL});
     }
 }

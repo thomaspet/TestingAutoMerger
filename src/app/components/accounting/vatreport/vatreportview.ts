@@ -1,16 +1,24 @@
-import {Component, OnInit, OnDestroy, ViewChild} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IUniSaveAction} from '../../../../framework/save/save';
 import {
-    CompanySettings, VatReport, VatReportSummary, ValidationLevel, StatusCodeVatReport, VatType, VatReportMessage,
-    VatReportSummaryPerPost, VatReportNotReportedJournalEntryData, AltinnSigning, StatusCodeAltinnSigning
+    AltinnSigning,
+    CompanySettings,
+    StatusCodeAltinnSigning,
+    StatusCodeVatReport,
+    ValidationLevel,
+    VatReport,
+    VatReportMessage,
+    VatReportNotReportedJournalEntryData,
+    VatReportSummary,
+    VatReportSummaryPerPost,
+    VatType
 } from '../../../unientities';
-import {Observable} from 'rxjs';
-import {Subscription} from 'rxjs';
+import {Observable, Subscription} from 'rxjs';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
-import {UniModalService, UniConfirmModalV2, ConfirmActions} from '../../../../framework/uni-modal';
+import {ConfirmActions, UniConfirmModalV2, UniModalService} from '../../../../framework/uni-modal';
 import {CreateCorrectedVatReportModal} from './modals/createCorrectedVatReport';
 import {HistoricVatReportModal} from './modals/historicVatReports';
 import {IContextMenuItem} from '../../../../framework/ui/unitable/index';
@@ -20,14 +28,15 @@ import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
 import {PeriodDateFormatPipe} from '@uni-framework/pipes/periodDateFormatPipe';
 import {
-    ErrorService,
-    VatReportService,
     AltinnAuthenticationService,
-    VatTypeService,
     CompanySettingsService,
-    StatisticsService
+    ErrorService,
+    StatisticsService,
+    VatReportService,
+    VatTypeService
 } from '../../../services/services';
 import {IUniTab} from '@uni-framework/uni-tabs';
+import {filter, switchMap, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'vat-report-view',
@@ -98,6 +107,11 @@ export class VatReportView implements OnInit, OnDestroy {
                 action: () => {
                     this.showList();
                 }
+            },
+            {
+                label: 'Slett termin',
+                action: () => this.UndoExecution(),
+                disabled: () => this.IsUndoActionDisabled()
             }
         ];
 
@@ -235,6 +249,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 .valueChanges
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.Comment !== change)
+                .filter(() => this.currentVatReport.ID > 0)
                 .map(change => this.currentVatReport.Comment = change)
                 .debounceTime(400)
                 .distinctUntilChanged()
@@ -251,6 +266,7 @@ export class VatReportView implements OnInit, OnDestroy {
                 .valueChanges
                 .filter(change => !!this.currentVatReport)
                 .filter(change => this.currentVatReport.InternalComment !== change)
+                .filter(() => this.currentVatReport.ID > 0)
                 .map(change => this.currentVatReport.InternalComment = change)
                 .debounceTime(400)
                 .distinctUntilChanged()
@@ -315,14 +331,6 @@ export class VatReportView implements OnInit, OnDestroy {
             action: (done) => this.approveManually(done),
             disabled: this.IsSendActionDisabled() && this.IsSignActionDisabled()
         });
-
-        this.actions.push({
-            label: 'Angre kjøring',
-            action: (done) => this.UndoExecution(done),
-            disabled: this.IsUndoActionDisabled()
-        });
-
-
     }
 
     private IsExecuteActionDisabled() {
@@ -425,7 +433,12 @@ export class VatReportView implements OnInit, OnDestroy {
         this.vatReportService.getVatReportMessages(vatReport.ID, vatReport.TerminPeriodID)
             .subscribe(
             data => {
-                this.reportMessages = data;
+                this.reportMessages = data.filter(message => {
+                    if (message.Message.includes('som i regnskapet er periodisert før denne momsterminen')) {
+                        return false;
+                    }
+                    return true;
+                });
                 const tab = this.tabs[0];
                 if (this.isControlledWithoutWarnings()) {
                     if (tab.tooltip) {
@@ -606,10 +619,12 @@ export class VatReportView implements OnInit, OnDestroy {
         let authData;
         this.modalService
             .open(AltinnAuthenticationModal)
-            .onClose
-            .filter(auth => !!auth)
-            .do(auth => authData = auth)
-            .switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            .onClose.pipe(
+                tap(auth => !auth ? done('Signering avbrutt') : ''), // if auth is false show done message and let filter stop propagation
+                filter(auth => !!auth),
+                tap(auth => authData = auth),
+                switchMap(() => this.vatReportService.getSigningText(this.currentVatReport.ID, authData))
+            )
             .subscribe(text => {
                 this.modalService.open(UniConfirmModalV2, {
                     header: 'Vennligst bekreft',
@@ -689,44 +704,42 @@ export class VatReportView implements OnInit, OnDestroy {
     }
 
 
-    public UndoExecution(done) {
+    public UndoExecution() {
        if (this.currentVatReport.StatusCode !== StatusCodeVatReport.Executed) {
             if (confirm(
                 'Mva-meldingen blir ikke slettet fra Altinn, dette vil kun være en sletting av alle MVA-meldinger som finnes i systemet på denne terminen. Korrigert melding MÅ sendes inn til Altinn når du er ferdig med korrigeringene.'
             )) {
-                this.UndoExecutionPeriod(done);
+                this.UndoExecutionPeriod();
             } else {
-                done('Angre kjøring avbrutt');
+                this.toastService.addToast('Angre kjøring avbrutt');
             }
         } else {
-            this.UndoExecutionReport(done);
+            this.UndoExecutionReport();
         }
     }
 
-    public UndoExecutionReport(done) {
+    public UndoExecutionReport() {
         this.vatReportService.undoReport(this.currentVatReport.ID)
         .subscribe(res => {
             this.spinner(this.vatReportService.getCurrentPeriod())
             .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
-            done();
         },
         err => {
             this.errorService.handle(err);
-            done('Det skjedde en feil, forsøk igjen senere');
+            this.toastService.addToast('Det skjedde en feil, forsøk igjen senere',  ToastType.bad, 5);
         }
         );
     }
 
-    public UndoExecutionPeriod(done) {
+    public UndoExecutionPeriod() {
         this.vatReportService.undoPeriod(this.currentVatReport.TerminPeriodID)
         .subscribe(res => {
             this.spinner(this.vatReportService.getCurrentPeriod())
             .subscribe(vatReport => this.setVatreport(vatReport), err => this.errorService.handle(err));
-            done();
         },
         err => {
             this.errorService.handle(err);
-            done('Det skjedde en feil, forsøk igjen senere');
+            this.toastService.addToast('Det skjedde en feil, forsøk igjen senere', ToastType.bad, 5);
         }
         );
     }
@@ -805,7 +818,6 @@ export class VatReportView implements OnInit, OnDestroy {
         // Only setup one subscription - this is done to avoid problems with multiple callbacks
         if (this.createCorrectedVatReportModal.changed.observers.length === 0) {
             this.createCorrectedVatReportModal.changed.subscribe((modalData: any) => {
-
                 // Load the newly created report
                 if (modalData.id > 0) {
                     this.vatReportService.Get(

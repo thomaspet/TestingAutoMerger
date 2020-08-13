@@ -8,6 +8,7 @@ import {
     ErrorService,
     UserService,
     UserRoleService,
+    ElsaContractService,
 } from '@app/services/services';
 
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -40,6 +41,7 @@ export class UserManagement {
         private uniHttp: UniHttp,
         private toastService: ToastService,
         private tabService: TabService,
+        private elsaContractService: ElsaContractService,
     ) {
         this.tabService.addTab({
             name: 'Brukere',
@@ -92,10 +94,11 @@ export class UserManagement {
 
         forkJoin(
             this.userService.GetAll(),
-            this.userRoleService.GetAll()
+            this.userRoleService.GetAll(),
+            this.elsaContractService.getSupportUsers()
         ).subscribe(
             res => {
-                this.users = this.setStatusMetadata(res[0], res[1]);
+                this.users = this.setStatusMetadata(res[0], res[1], res[2]);
                 this.filteredUsers = this.users;
 
                 const selectedIndex = this.selectedUser && this.users.findIndex(u => u.ID === this.selectedUser.ID);
@@ -109,7 +112,7 @@ export class UserManagement {
         );
     }
 
-    private setStatusMetadata(users: User[], userRoles: UserRole[]): User[] {
+    private setStatusMetadata(users: User[], userRoles: UserRole[], supportUsers: User[]): User[] {
         if (!users || !users.length) {
             return [];
         }
@@ -133,6 +136,7 @@ export class UserManagement {
                     });
 
                     user['_isAdmin'] = isAdmin;
+                    user['_isSupport'] = supportUsers.some(su => su.Email === user.Email);
                 break;
                 case 110002:
                     user['_statusText'] = 'Deaktivert';
@@ -179,22 +183,44 @@ export class UserManagement {
         );
     }
 
-    resendInvite(user: User) {
+    resendInvite(email: string) {
         this.uniHttp.asPOST()
             .usingBusinessDomain()
             .withEndPoint('user-verifications')
             .withBody({
-                Email: user.Email,
+                Email: email,
                 CompanyId: this.authService.activeCompany.ID,
             })
             .send()
             .subscribe(
                 () => this.toastService.addToast(
-                    'Invitasjon sent',
+                    'Invitasjon sendt',
                     ToastType.good,
                     ToastTime.short,
-                    `Sente en mail til ${user.Email} med en invitasjons link`
+                    `Sendte en mail med invitasjonslink til ${email}`
                 ),
+                err => this.errorService.handle(err),
+            );
+    }
+
+    cancelInvite(email: string) {
+        this.uniHttp.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications?action=cancel-invitation')
+            .withBody({
+                Email: email,
+                CompanyId: this.authService.activeCompany.ID,
+            })
+            .send()
+            .subscribe(
+                () => {
+                    this.toastService.addToast(
+                        'Invitasjon avbrutt',
+                        ToastType.good,
+                        ToastTime.short,
+                        `Invitasjonen til ${email} er kansellert`);
+                    this.loadUsers(true);
+                },
                 err => this.errorService.handle(err),
             );
     }

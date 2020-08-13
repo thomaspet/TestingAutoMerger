@@ -99,18 +99,18 @@ export class AssetDetailsToolbar {
             statustrack: this.createStatus(asset),
             navigation: {
                 add: {
-                    label: '+',
+                    label: '',
                     action: () => this.router.navigateByUrl('/accounting/assets/0/details')
                 }
             },
             contextmenu: [
                 {
-                    label: 'Register som solgt',
+                    label: 'Registrer som solgt',
                     disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsSoldModal(this.asset)
                 },
                 {
-                    label: 'Register som tapt',
+                    label: 'Registrer som tapt',
                     disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsLostModal(this.asset)
                 },

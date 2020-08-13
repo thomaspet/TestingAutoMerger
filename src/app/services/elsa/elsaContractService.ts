@@ -1,16 +1,17 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {ElsaCompanyLicense, ElsaContract, ElsaContractType, ElsaUserLicense} from '@app/models';
 import {environment} from 'src/environments/environment';
 import {HttpClient} from '@angular/common/http';
-import {map} from 'rxjs/operators';
+import {map, catchError} from 'rxjs/operators';
+import {User} from '@uni-entities';
 
 @Injectable()
 export class ElsaContractService {
     ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
-    constructor(private uniHttp: UniHttp, private http: HttpClient) {}
+    constructor(private uniHttp: UniHttp, private http: HttpClient) { }
 
     get(id: number, select?: string): Observable<ElsaContract> {
         const selectClause = select ? `$select=${select}&` : '';
@@ -83,6 +84,18 @@ export class ElsaContractService {
             .send();
     }
 
+    getSupportUsers(): Observable<User[]> {
+        return this.uniHttp
+            .asGET()
+            .usingEmptyDomain()
+            .withEndPoint('/api/elsa/support-users')
+            .send()
+            .pipe(
+                map(res => res.body),
+                catchError(() => of([]))
+            );
+    }
+
     getContractTypeText(contractType: number) {
         switch (contractType) {
             case ElsaContractType.Standard:
@@ -102,5 +115,9 @@ export class ElsaContractService {
             default:
                 return '';
         }
+    }
+
+    updateTwoFactorAuthentication(contractID: number, body): Observable<ElsaContract> {
+        return this.http.put(this.ELSA_SERVER_URL + `/api/contracts/${contractID}`, body).pipe(map(res => res[0]));
     }
 }

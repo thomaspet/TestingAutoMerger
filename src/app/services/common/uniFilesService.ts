@@ -37,9 +37,10 @@ export class UniFilesService {
         });
     }
 
-    getEhfData(storageReference: string) {
+    getEhfData(storageReference: string, includeEhfAttachment: boolean) {
         const url = `${this.uniFilesBaseUrl}/api/download?format=json`
             + `&id=${storageReference}`
+            + `&includeEhfAttachment=${includeEhfAttachment}`
             + `&key=${this.activeCompany.Key}`
             + `&token=${this.authService.jwt}`;
 

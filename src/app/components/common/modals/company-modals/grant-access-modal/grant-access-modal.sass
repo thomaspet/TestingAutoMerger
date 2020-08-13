@@ -1,14 +1,11 @@
 @import '~src/styles/unibase/colors/__colors.sass'
-\:host
-    margin: 0 auto !important
-    height: 90vh !important
 
-    .uni-modal
-        width: 60rem
-
-    h1
-        font: 400 18px var(--font-family)
-        margin-bottom: 2rem
+.uni-modal
+    width: 65rem
+    height: 80vh !important
+h1
+    font: 400 18px var(--font-family)
+    margin-bottom: 2rem
 
 .grant-access-review-section
     display: flex
@@ -32,10 +29,25 @@
     button.cancel
         margin-left: auto
 
-mat-checkbox
-    display: flex
-    margin: 0 .5rem 1.2rem 0
-    font-size: 15px
+.admin-checkbox
+    mat-checkbox
+        display: flex
+        max-width: fit-content
+        margin: 0 .5rem 1.2rem 0
+        font-size: 15px
+        uni-tooltip
+            margin-left: 0.5rem
 
-    uni-tooltip
-        margin-left: 0.5rem
+.receipt-header
+    .main-header
+        font-size: 20px
+        margin-bottom: 1rem
+    .message-text
+        font-size: 16px
+        margin-bottom: 1.5rem
+    
+.receipt-body
+    height: 78%
+    .scroll-container
+        height: 100%
+        overflow: auto

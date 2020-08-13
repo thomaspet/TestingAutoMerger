@@ -5,7 +5,7 @@ import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import { UniView } from '@uni-framework/core/uniView';
 import { SalaryBalance, SalBalType } from '@uni-entities';
 import { Router, ActivatedRoute } from '@angular/router';
-import { UniCacheService, SalaryBalanceLineService, SalarybalanceService, ErrorService } from '@app/services/services';
+import { UniCacheService, SalarybalanceService } from '@app/services/services';
 
 const SALARYBALANCES_KEY = 'salarybalances';
 const SAVE_TRIGGER_KEY = 'save';
@@ -25,9 +25,7 @@ export class SalaryBalanceComponent extends UniView implements OnInit {
         private router: Router,
         private route: ActivatedRoute,
         protected cacheService: UniCacheService,
-        private salaryBalanceLineService: SalaryBalanceLineService,
         private salaryBalanceService: SalarybalanceService,
-        private errorService: ErrorService,
         private modalService: UniModalService
     ) {
         super(router.url, cacheService);
@@ -69,7 +67,7 @@ export class SalaryBalanceComponent extends UniView implements OnInit {
         if (!salaryBal) {
             return;
         }
-        this.selectedSalaryBalance$.next(salaryBal);
+        this.selectedSalaryBalance$.next({...salaryBal});
     }
 
     private selectSalaryBalance(salaryBalances: SalaryBalance[]) {
@@ -81,6 +79,7 @@ export class SalaryBalanceComponent extends UniView implements OnInit {
 
     public onSalarybalanceChange(salarybalance: SalaryBalance) {
         salarybalance['_isDirty'] = true;
+        salarybalance[SELECTED_KEY] = true;
         let index = 0;
         if (this.salarybalances && this.salarybalances.length > 0) {
             index = this.salarybalances.findIndex((salbal) => {
