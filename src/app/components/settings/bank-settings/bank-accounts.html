@@ -1,7 +1,10 @@
 <section class="uni-card">
 	<section class="uni-card-header">
 		<h1> Bankkontoer </h1>
-		<button class="tertiary c2a pull-right" (click)="openBankAccountEditModal()"> Legg til ny bankkonto </button>
+		<section class="pull-right">
+			<button class="tertiary c2a" (click)="connectBankAndAccounting()"> {{!companySettings.HasAutobank ? "Bestill kobling mot bank" : "Endre kobling mot bank"}} </button>
+			<button class="tertiary c2a" (click)="openBankAccountEditModal()"> Legg til ny bankkonto </button>
+		</section>
 	</section>
 
 	<section style="padding: 1rem 2rem">
@@ -58,12 +61,6 @@
 			<span *ngIf="!bankAccount?.HasOutgoing"> Nei </span>
 			<i class="material-icons" *ngIf="bankAccount?.HasOutgoing"> check_circle_outline </i>
 		</section>
-
-		<footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
-            <!-- <button class="c2a secondary" *ngIf="bankAccount?._agreement" (click)="cancelAutobank()">Avbestill</button> -->
-			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChanges()">Gjør endringer</button>
-			<button class="c2a" *ngIf="!bankAccount?.IntegrationStatus" (click)="connectBankAndAccounting()"> Bestill bankintegrasjon </button>
-        </footer>
 
 	</section>
 </section>

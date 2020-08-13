@@ -43,7 +43,6 @@ export class BankAccountService extends BizHttp<BankAccount> {
         });
     }
 
-
     public getBankServiceBankAccounts() {
         return this.http
         .asGET()

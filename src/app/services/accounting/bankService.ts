@@ -101,6 +101,15 @@ export class BankService extends BizHttp<Bank> {
         .map(res => res.body);
     }
 
+    public setBankIntegrationChangeAgreement(hasPendingOrder: boolean) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint(`bank-agreements?action=order-bank-integration-change&hasPendingOrder=${hasPendingOrder}`)
+            .send()
+            .map(res => res.body);
+    }
+
     public updateAutobankAgreementStatus(id: any, password: string) {
         return this.http
             .asPUT()

@@ -1,5 +1,5 @@
 import {Component, SimpleChanges} from '@angular/core';
-import {CompanySettings, BankAccount, CompanySalary} from '@uni-entities';
+import {CompanySettings, BankAccount, CompanySalary, StatusCodeBankIntegrationAgreement, BankIntegrationAgreement} from '@uni-entities';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     CompanySettingsService,
@@ -8,7 +8,8 @@ import {
     ErrorService,
     PageStateService,
     StatisticsService,
-    BankService
+    BankService,
+    BrunoOnboardingService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -23,6 +24,7 @@ import { IUniTab } from '@uni-framework/uni-tabs';
 import { ActivatedRoute } from '@angular/router';
 import { FeaturePermissionDirective } from '@uni-framework/featurePermission.directive';
 import { FeaturePermissionService } from '@app/featurePermissionService';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 
 @Component({
     selector: 'bank-settings',
@@ -76,6 +78,8 @@ export class UniBankSettings {
         },
     ];
 
+    toolbarconfig: IToolbarConfig;
+
     constructor(
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private companySettingsService: CompanySettingsService,
@@ -88,7 +92,8 @@ export class UniBankSettings {
         private pageStateService: PageStateService,
         private statisticsService: StatisticsService,
         private bankService: BankService,
-        private featurePermissionService: FeaturePermissionService
+        private featurePermissionService: FeaturePermissionService,
+        private brunoOnboardingService: BrunoOnboardingService
     ) {}
 
     ngOnInit() {
@@ -137,6 +142,7 @@ export class UniBankSettings {
             this.hideXtraPaymentOrgXmlTagValue = !companySettings.UseXtraPaymentOrgXmlTag;
 
             this.createFormFields();
+            this.toolbarconfig = this.getToolbarConfig();
         });
     }
 
@@ -461,6 +467,47 @@ export class UniBankSettings {
                 }
             }
         ]);
+    }
+
+    public onOrderedIntegrationChange() {
+        this.toolbarconfig = this.getToolbarConfig();
+    }
+
+    private getToolbarConfig(): IToolbarConfig {
+        let config: IToolbarConfig;
+
+        config = {
+            title: 'SETTINGS.BANK',
+            saveactions: this.saveActions
+        };
+
+        this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
+            config.infoBannerConfig = !this.hasPendingOrder(agreement) ? null : {
+                message: this.brunoOnboardingService.isActiveAgreement(agreement) ?
+                    'Du endret kobling mellom regnskap og bank. Det jobbes med å sette det opp. Ble du avbrutt?' :
+                    'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
+                link: 'Start på nytt',
+                action: () => {
+                    this.brunoOnboardingService.isActiveAgreement(agreement) ?
+                        this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
+                            this.toolbarconfig = this.getToolbarConfig();
+                        }) :
+                        this.brunoOnboardingService.createAgreement().subscribe(() => {
+                            this.toolbarconfig = this.getToolbarConfig();
+                        });
+                }
+            };
+        });
+
+        return config;
+    }
+
+    private hasPendingOrder(agreement: BankIntegrationAgreement): boolean {
+        if (agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active) {
+            return agreement['HasOrderedIntegrationChange'];
+        } else {
+            return this.brunoOnboardingService.isPendingAgreement(agreement);
+        }
     }
 
     private getBankAccountOptions(storeResultInProperty: string, bankAccountType: string) {

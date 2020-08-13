@@ -5,7 +5,7 @@ import { UniModalService, IModalOptions, ConfirmActions } from '@uni-framework/u
 import { BankAccount, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
 import {CompanyBankAccountModal} from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
-import {BankAccountService} from '@app/services/services';
+import {BankAccountService, BrunoOnboardingService, BankService} from '@app/services/services';
 import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 
 
@@ -43,6 +43,8 @@ export class BankSettingsAccountlist {
 
     @Output()
     changeAccount = new EventEmitter();
+    @Output()
+    orderedIntegrationChange = new EventEmitter();
 
     uniTableConfig: UniTableConfig;
 
@@ -54,7 +56,9 @@ export class BankSettingsAccountlist {
         private modalService: UniModalService,
         private cdr: ChangeDetectorRef,
         private toast: ToastService,
-        private bankAccountService: BankAccountService
+        private bankAccountService: BankAccountService,
+        private brunoOnboardingService: BrunoOnboardingService,
+        private bankService: BankService
     ) { }
 
     ngOnChanges() {
@@ -80,7 +84,7 @@ export class BankSettingsAccountlist {
                         return value;
                     }).setWidth('5rem'),
                 new UniTableColumn('Account.AccountName', 'Hovedbokskonto', UniTableColumnType.Text)
-                    .setTemplate(row => row.Account.AccountNumber + ' - ' + row.Account.AccountName),
+                    .setTemplate(row => row.Account?.AccountNumber + ' - ' + row.Account?.AccountName),
                 new UniTableColumn('BankAccountType', 'Type', UniTableColumnType.Text)
                     .setTemplate( (row) => this.getAccountType(row))
                     .setAlignment('center')
@@ -93,10 +97,6 @@ export class BankSettingsAccountlist {
                     .setAlignment('center')
                     .setWidth('5rem')
                     .setTemplate( (row) => this.getIntegrationStatusText(row))
-                    .setLinkClick((row) => {
-                        this.activeIndex = 1;
-                        this.bankAccount = {...row};
-                    })
 
             ])
             .setContextMenu([
@@ -134,14 +134,14 @@ export class BankSettingsAccountlist {
 
     getIntegrationStatusText(row: BankAccount): string {
         if (!row['IntegrationStatus']) {
-            return 'Bestill';
+            return '';
         }
 
         if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Active) {
-            return 'Koblet sammen';
+            return '<i class="material-icons">check_circle_outline<i>';
         }
 
-        if (row['IntegrationStatus'] > StatusCodeBankIntegrationAgreement.Active) {
+        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Pending) {
             return 'Avventer';
         }
 
@@ -198,52 +198,15 @@ export class BankSettingsAccountlist {
         });
     }
 
-    makeChanges() {
-        const options: IModalOptions = {
-            header: 'Endre oppsett på kobling til bank',
-            message: 'Endringer i koblingen mot bank må gjøres i nettbanken. Vi sender deg videre til DNB bedrift hvor du kan gjøre de endringene du ønsker.',
-            footerCls: 'center',
-            buttonLabels: {
-                accept: 'Til nettbanken',
-                reject: 'Lukk'
-            },
-            buttonIcons: {
-                accept: 'launch'
-            },
-            icon: 'themes/ext02/ext02-success-accountconfig.svg'
-        };
-
-        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose.subscribe((response: ConfirmActions) => {
-            if (response === ConfirmActions.ACCEPT) {
-                window.open('https://www.dnb.no', '_blank');
-            }
-        });
-    }
-
     connectBankAndAccounting() {
-        const options: IModalOptions = {
-            header: 'Koble sammen regnskap og bankkonto',
-            message: 'Denne bestillingen må gjøres via nettbanken din i DNB Bedrift. Vi sender deg din TB-kode slik at du kommer rett inn i banken. Der må du velge hvilke konto di vil bestille kobling mot. <br/> <br/>'
-            + 'Før vi sender deg videre trenger vi å vite om du ønsker å sette opp KID-avtale og få innbetalingsdata rett inn i regnskapsløsning?',
-            footerCls: 'center',
-            buttonLabels: {
-                accept: 'Bestill',
-                reject: 'Lukk'
-            },
-            checkboxLabel: 'Ja, jeg ønsker innbetalingsavtale/KID',
-            buttonIcons: {
-                accept: 'launch'
-            },
-            icon: 'themes/ext02/ext02-success-accountconfig.svg',
-            closeOnClickOutside: false
-        };
-
-        this.bankAccount = null;
-
-        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose.subscribe((response: ConfirmActions) => {
-            if (response === ConfirmActions.ACCEPT) {
-                window.open('https://www.dnb.no', '_blank');
-            }
+        this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
+            agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active ?
+                this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
+                    this.orderedIntegrationChange.emit();
+                }) :
+                this.brunoOnboardingService.createAgreement().subscribe(() => {
+                    this.orderedIntegrationChange.emit();
+                });
         });
     }
 
