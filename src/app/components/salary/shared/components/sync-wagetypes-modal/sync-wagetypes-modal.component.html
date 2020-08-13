@@ -1,14 +1,12 @@
-<section role="dialog" class="uni-modal uni-redesign">
-    <header>
-        <h1>Synkroniser lønnsarter</h1>
-    </header>
+<section role="dialog" class="uni-modal">
+    <header>Synkroniser lønnsarter</header>
 
     <article>
         {{message$ | async}}
     </article>
 
     <footer>
-        <button class="good" (click)="sync()" [attr.aria-busy]="busy">Start</button>
-        <button class="bad" (click)="close(false)" [disabled]="busy">Lukk</button>
+        <button class="secondary" (click)="close(false)" [disabled]="busy">Lukk</button>
+        <button class="c2a" (click)="sync()" [attr.aria-busy]="busy">Start</button>
     </footer>
 </section>

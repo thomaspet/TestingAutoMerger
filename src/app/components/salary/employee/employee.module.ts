@@ -20,6 +20,7 @@ import { EmployeeLeaveService } from './shared/services/employee-leave.service';
 import { SalaryBalanceComponent } from './salary-balance/salary-balance.component';
 import { EmployeeGuard } from './employee.guard';
 import { EmployeeRoutingModule } from './employee-routing.module';
+import { NewEmployeeGuard } from './new-employee.guard';
 
 @NgModule({
     imports: [
@@ -48,6 +49,7 @@ import { EmployeeRoutingModule } from './employee-routing.module';
         EmployeeDetailsService,
         EmployeeLeaveService,
         EmployeeGuard,
+        NewEmployeeGuard,
     ]
   })
   export class EmployeeModule { }

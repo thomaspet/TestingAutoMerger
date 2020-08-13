@@ -4,7 +4,7 @@ import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, StatisticsService, BrunoOnboardingService} from './services/services';
-import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
+import {ToastService} from '../framework/uniToast/toastService';
 import {UserDto} from '@app/unientities';
 import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
@@ -26,7 +26,6 @@ import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 import {theme, THEMES} from 'src/themes/theme';
-import {Logger} from '@uni-framework/core/logger';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -56,7 +55,6 @@ export class App {
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
         private brunoOnboardingService: BrunoOnboardingService,
-        private logger: Logger // used for logging in Azure Application Insights
     ) {
         if (!this.titleService.getTitle()) {
             const title = theme.appName;
