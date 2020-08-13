@@ -289,28 +289,32 @@ export class UniReportParamsModal implements IUniModal, OnInit {
     }
 
     private generateFields(param: ExtendedReportDefinitionParameter): UniFieldLayout {
+        let field: UniFieldLayout;
+
         switch (param.Type ? param.Type.toLowerCase() : '') {
             case 'number':
-                return <UniFieldLayout>{
+                field = <UniFieldLayout> {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.NUMERIC,
                     Hidden: !param.Visible,
                     Options: undefined,
                 };
+            break;
             case 'boolean':
                 param.value = param.value === true || param.DefaultValue === 'true' || param.DefaultValue === '1';
-                return <UniFieldLayout>{
+                field = <UniFieldLayout> {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.CHECKBOX,
                     Hidden: !param.Visible,
                     Options: undefined,
                 };
+            break;
             case 'dropdown':
                 param.value = param.value || param.DefaultValue;
                 if (param.DefaultValueList.includes('/api/statistics')) {
-                    return <UniFieldLayout>{
+                    field = <UniFieldLayout> {
                         Property: param.Name,
                         Label: param.Label,
                         FieldType: FieldType.DROPDOWN,
@@ -326,7 +330,7 @@ export class UniReportParamsModal implements IUniModal, OnInit {
                 } else {
                     const source = JSON.parse(param.DefaultValueList);
                     param.value = param.value || (param.Name === 'OrderBy' ? source[0].Label : source[0].Value);
-                    return <UniFieldLayout>{
+                    field = <UniFieldLayout> {
                         Property: param.Name,
                         Label: param.Label,
                         FieldType: FieldType.DROPDOWN,
@@ -340,34 +344,56 @@ export class UniReportParamsModal implements IUniModal, OnInit {
                         },
                     };
                 }
+            break;
             case 'date':
                 param.value = param.value || param.DefaultValue || new LocalDate();
-                return <UniFieldLayout>{
+                field = <UniFieldLayout> {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.LOCAL_DATE_PICKER,
                     Hidden: !param.Visible,
                     Options: undefined,
                 };
+            break;
             case 'comment':
                 this.commentConfig = this.commentConfig || { filter: param.DefaultValueLookupType };
-                return <UniFieldLayout>{
+                field = <UniFieldLayout> {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.TEXTAREA,
                     Hidden: true,
                     Options: undefined,
                 };
+            break;
             default:
                 param.value = param.value ? param.value.toString() : undefined;
-                return <UniFieldLayout>{
+                field = <UniFieldLayout> {
                     Property: param.Name,
                     Label: param.Label,
                     FieldType: FieldType.TEXT,
                     Hidden: !param.Visible,
                     Options: undefined,
                 };
+            break;
         }
+
+        if (field) {
+            const isDimension = field.Property === 'frompro'
+                || field.Property === 'topro'
+                || field.Property === 'fromavd'
+                || field.Property === 'toavd';
+
+            if (isDimension) {
+                field.FeaturePermission = 'ui.dimensions';
+            }
+
+            if (field.Property === 'budget') {
+                field.FeaturePermission = 'ui.accounting.budget';
+            }
+        }
+
+        console.log(field);
+        return field;
     }
 
     private initForm() {

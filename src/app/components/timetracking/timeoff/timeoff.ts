@@ -13,7 +13,8 @@ import * as moment from 'moment';
 @Component({
     selector: 'uni-work-time-off',
     templateUrl: './timeoff.html',
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    styleUrls: ['timeoff.sass']
 })
 export class UniWorkTimeOff {
 

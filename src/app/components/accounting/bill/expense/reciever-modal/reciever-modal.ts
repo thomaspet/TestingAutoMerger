@@ -20,6 +20,7 @@ import {
 } from '@uni-framework/uni-modal';
 import {BehaviorSubject, Observable} from 'rxjs';
 import { Supplier, BankAccount } from '@uni-entities';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'reciever-modal',
@@ -33,6 +34,7 @@ export class RecieverModal implements IUniModal {
     types: any[] = [];
     busy: boolean = true;
     errorMsg: string = '';
+    infoText = this.getInfoText();
     dataLoaded: boolean = false;
     isDirty = false;
     isEdit: boolean = false;
@@ -88,6 +90,12 @@ export class RecieverModal implements IUniModal {
                 this.close();
             });
         }
+    }
+
+    getInfoText(): string {
+        return theme.theme === THEMES.SR
+        ? 'Du har ikke noe oppsett for mottaker i nummerserier. Hvis du trykker på "Opprett mottaker", vil systemet opprette en nummerserie i ledig serie, koble til konto "2910 - Gjeld til ansatte" og slå på PostPost på denne kontoen.'
+        : 'Det vil bli opprettet en egen regnskapskonto for Gjeld til ansatte (2910). Denne blir utlignet i det du registerer betalingen til den ansatte.';
     }
 
     close() {

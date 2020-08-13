@@ -10,6 +10,7 @@ export class UniFieldLayout extends FieldLayoutDto {
     public MaxLength: number;
     public UpdateOn: 'blur' | 'change';
     public isLast: boolean;
+    public FeaturePermission?: string;
 
     constructor() {
         super();

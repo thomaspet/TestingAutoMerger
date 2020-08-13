@@ -1,0 +1,59 @@
+<section class="header">
+    <h1>Fakturert siste 12 måneder</h1>
+</section>
+
+<section *ngIf="!loading" class="content flex-row">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som du har fakturert noe de siste 12 månedene.
+    </widget-empty-state>
+
+    <ng-container *ngIf="hasData">
+        <section class="chart-section">
+            <!-- Chart -->
+            <widget-chart class="chart" [chartConfig]="chartConfig"></widget-chart>
+
+            <!-- Legend -->
+            <section class="chart-legend horizontal">
+                <section class="chart-legend-item">
+                    <span class="indicator" [style.background]="colors[0]"></span>
+                    <span class="label">Betalt: {{(sumPaid | uninumberformat: 'money') || '0,00'}}</span>
+                </section>
+
+                <section class="chart-legend-item">
+                    <span class="indicator bordered" [style.background]="colors[1]"></span>
+                    <span class="label">Fakturert: {{(sumInvoiced | uninumberformat: 'money') || '0,00'}}</span>
+                </section>
+            </section>
+
+            <!-- Tooltip (visible on bar hover) -->
+            <section class="chart-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+                <section class="data-row">
+                    <span>Fakturert</span>
+                    <span>{{(tooltip.invoiced | uninumberformat:'money') || '0,00'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Innbetalt</span>
+                    <span>{{(tooltip.paid | uninumberformat:'money') || '0,00'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Utestående</span>
+                    <span>{{(tooltip.unpaid | uninumberformat:'money') || '0,00'}}</span>
+                </section>
+            </section>
+        </section>
+
+        <section class="overdue-section">
+            <section class="sum">{{(sumOverdue | uninumberformat: 'money') || '0,00'}}</section>
+
+            <section>
+                Restsum forfalte fakturaer
+            </section>
+
+            <button routerLink="/sales/invoices" [queryParams]="{filter: 'overdue_invoices'}" class="c2a">
+                Se forfalte fakturaer
+            </button>
+        </section>
+    </ng-container>
+</section>

@@ -13,18 +13,18 @@
         [data]="quote"
         [currencyCodes]="currencyCodes"
         [projects]="projects"
+        [departments]="departments"
         [distributionPlans]="distributionPlans"
         [reports]="reports"
         [sellers]="sellers"
         [contacts]="quote?.Customer?.Info?.Contacts"
         [dimensionTypes]="dimensionTypes"
         [currentUser]="currentUser"
-        (dataChange)="onQuoteChange($event)">
+        (dataChange)="onQuoteChange($event)"
+        (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
-    <section class="uni-container tradeitem-container">
-        <header>Varelinjer</header>
-
+    <section class="tradeitem-container">
         <uni-tradeitem-table
             *ngIf="quote"
             [readonly]="readonly"

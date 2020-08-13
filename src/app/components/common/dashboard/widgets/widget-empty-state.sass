@@ -1,0 +1,31 @@
+\:host
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-items: center
+    height: 100%
+    width: 100%
+    padding: 0 2rem 2rem
+
+    ::ng-deep
+        img
+            margin: 0 0 2rem
+            height: 170px
+            object-fit: contain
+
+        .description
+            display: flex
+            flex-direction: column
+            align-items: center
+
+            button
+                margin-top: 1rem
+                min-width: 12rem
+
+    &.horizontal::ng-deep
+        flex-direction: row
+        padding: 0 4rem 2rem
+        img
+            margin: 0 6rem 0 0
+        .description
+            display: block

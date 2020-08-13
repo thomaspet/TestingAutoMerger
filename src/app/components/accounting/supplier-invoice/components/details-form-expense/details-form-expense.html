@@ -1,0 +1,62 @@
+<section class="details-form uni-card">
+	<section class="uni-card-header borderless">
+		<h1>Betalingsinformasjon</h1>
+	</section>
+
+	<section class="uni-card-content" *ngIf="supplierInvoice && currentMode === 1">
+		<label class="uni-label label-above">
+			<span>Leverandør (Kjøpt hos)</span>
+			<autocomplete
+				[options]="autocompleteOptions"
+				[value]="supplierInvoice.Supplier"
+				(valueChange)="newSupplierSelected($event)">
+			</autocomplete>
+		</label>
+
+		<label class="uni-label">
+			<span>Betalt fra</span>
+			<select [ngModel]="selectedBankAccount" (ngModelChange)="onChange($event)">
+				<option *ngIf="busy">Henter bankkontoer...</option>
+				<option [ngValue]="acc" *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
+			</select>
+		</label>
+
+		<label class="uni-label" >
+			<span>Dato</span>
+			<section class="input-with-button">
+				<input #dateInput type="text" placeholder="I dag" [(ngModel)]="date" [matDatepicker]="picker" (keydown.enter)="dateInput.blur();dateInput.focus();">
+				<button (click)="picker.open()">
+					<i class="material-icons">date_range</i>
+				</button>
+				<mat-datepicker #picker></mat-datepicker>
+			</section>
+
+		</label>
+	</section>
+
+	<section class="uni-card-content" *ngIf="currentMode === 2">
+		<section class="reciever-container">
+			<label class="uni-label full-width">
+				<span>Mottaker</span>
+				<autocomplete [options]="accountOptions" [value]="supplierInvoice?.Supplier" (valueChange)="setAccount($event)"></autocomplete>
+			</label>
+			<i class="material-icons" title="Rediger valgt mottaker" *ngIf="supplierInvoice?.Supplier" (click)="editSelectedAccount(supplier)"> edit </i>
+		</section>
+		<label class="uni-label">
+			<span>Bankkonto</span>
+			<input readonly type="text" [ngModel]="supplierInvoice?.Supplier?.Info?.DefaultBankAccount.AccountNumber" >
+		</label>
+
+		<label class="uni-label" >
+			<span>Dato</span>
+			<section class="input-with-button">
+				<input #dateInput type="text" placeholder="I dag" [(ngModel)]="date" [matDatepicker]="picker" (keydown.enter)="dateInput.blur();dateInput.focus();">
+				<button (click)="picker.open()">
+					<i class="material-icons">date_range</i>
+				</button>
+				<mat-datepicker #picker></mat-datepicker>
+			</section>
+
+		</label>
+	</section>
+</section>

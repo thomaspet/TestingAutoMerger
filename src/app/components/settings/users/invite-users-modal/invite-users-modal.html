@@ -6,64 +6,15 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <input type="email" #emailInput
+        <input type="email"
             [formControl]="emailControl"
             [ngClass]="{'invalid': invalidInput}"
             (keydown.enter)="send()"
-            placeholder="Epost adresse"
+            placeholder="E-postadresse"
+            uniAutoFocus
         />
 
-        <mat-checkbox *ngIf="adminRole" [(ngModel)]="adminRole['_checked']" class="admin-checkbox">
-            Administrator
-        </mat-checkbox>
-
-        <small class="validation-error" *ngIf="invalidInput">Ugyldig e-post adresse</small>
-        <small class="validation-error" *ngIf="missingRoles">Brukeren må ha minimum en rolle aktivert</small>
-
-        <section id="product-wrapper">
-            <strong>Produkter og tilgangsnivå</strong>
-
-            <mat-accordion multi="true">
-                <mat-expansion-panel #panel
-                    *ngFor="let group of roleGroups; let idx = index"
-                    [hideToggle]="true">
-
-                    <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
-                        <mat-panel-title>
-
-                            <mat-checkbox
-                                [(ngModel)]="group.productPurchased"
-                                (change)="onProductPurchaseChange(group)"
-                                (click)="$event.stopPropagation()">
-                                {{group.label}}
-                            </mat-checkbox>
-
-                            <small class="active-role-count" *ngIf="group.productPurchased">
-                                ({{group._activeRoleCount}}
-                                {{group._activeRoleCount === 1 ? 'rolle' : 'roller'}}
-                                aktivert)
-                            </small>
-                        </mat-panel-title>
-
-                        <i class="material-icons panel-toggle">
-                            {{panel.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
-                        </i>
-                    </mat-expansion-panel-header>
-
-                    <section>
-                        <mat-selection-list>
-                            <mat-list-option *ngFor="let role of group.roles"
-                                [checkboxPosition]="'before'"
-                                [disabled]="group.product && !group.productPurchased"
-                                [selected]="role._checked"
-                                (click)="onRoleClick(group, role)">
-                                {{role.Name | translateRole}}
-                            </mat-list-option>
-                        </mat-selection-list>
-                    </section>
-                </mat-expansion-panel>
-            </mat-accordion>
-        </section>
+        <small class="validation-error" *ngIf="invalidInput">Ugyldig e-postadresse</small>
     </article>
 
     <footer>

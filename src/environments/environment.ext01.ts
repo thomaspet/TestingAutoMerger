@@ -1,7 +1,5 @@
 export const environment = {
     useProdMode: true,
-    isSrEnvironment: true,
-    appTitle: 'SR-Bank Regnskap',
 
     // Identity Server Settings
     authority: 'https://login.unieconomy.no',

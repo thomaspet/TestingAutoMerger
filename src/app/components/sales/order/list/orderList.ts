@@ -42,4 +42,8 @@ export class OrderList implements OnInit {
     public createOrder() {
         this.router.navigateByUrl('/sales/orders/0');
     }
+
+    public onRowSelected(row) {
+        this.router.navigateByUrl(`/sales/orders/${row.ID}`);
+    }
 }

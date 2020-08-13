@@ -26,15 +26,24 @@
             </section>
         </section>
 
-        <section class="attachments uni-container" style="position: relative;">
-            <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
-                <i class="material-icons">get_app</i>
-                Hent fra innboks
-            </span>
+        <section class="uni-container attachments">
+            <header class="attachments-header">
+                Dokumenter ({{ fileIds?.length }})
 
-            <span class="document-counter"> Dokumenter ({{ fileIds?.length }})</span>
+                <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                    <uni-icon [icon]="'download'"></uni-icon>
+                    Hent fra innboks
+                </span>
 
-            <uni-image
+                <label class="upload-input">
+                    <uni-icon [icon]="'upload'"></uni-icon>
+                    <span>Last opp</span>
+                    <input type="file" (change)="uniImage.onUploadInputChange($event)" />
+                </label>
+            </header>
+
+            <uni-image #uniImage
+                [hideUploadInput]="true"
                 [splitFileDialogAllowed]="true"
                 [rotateAllowed]="true"
                 [uploadWithoutEntity]="true"
@@ -43,7 +52,6 @@
                 (fileListReady)="onFileListReady($event)"
                 (useWord)="useWord($event)">
             </uni-image>
-
         </section>
     </section>
 </section>

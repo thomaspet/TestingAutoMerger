@@ -24,12 +24,11 @@ import {
     PurchaseTraveltextModal
 } from '@uni-framework/uni-modal';
 
-import {environment} from 'src/environments/environment';
-
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FormControl} from '@angular/forms';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-product-purchases',
@@ -40,7 +39,7 @@ export class ProductPurchases implements OnInit {
 
     busy: boolean;
     isAdmin: boolean;
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
     products: ElsaProduct[];
     purchases: ElsaPurchase[];
@@ -97,7 +96,7 @@ export class ProductPurchases implements OnInit {
 
     fetchPurchases() {
         forkJoin(
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID),
             this.elsaPurchaseService.getAll(),
             this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()

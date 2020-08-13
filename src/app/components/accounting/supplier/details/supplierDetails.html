@@ -1,5 +1,4 @@
 <uni-toolbar
-    *ngIf="!modalMode"
     [config]="toolbarconfig"
     [validationMessages]="supplierStatusValidation"
     [saveactions]="saveactions"
@@ -9,11 +8,11 @@
 </uni-toolbar>
 
 <section class="application" *ngIf='(supplier$|async)'>
-    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (tabClick)="addTab()"></uni-tabs>
+    <uni-tabs [tabs]="tabs" [(activeIndex)]="activeTabIndex" (tabClick)="onTabActivated($event)"></uni-tabs>
 
     <ng-template [ngIf]="activeTabIndex === 0">
         <uni-form
-            [config]="config$"
+            [config]="{autofocus: true, labelWidth: '15rem'}"
             [fields]="fields$"
             [model]="supplier$"
             (changeEvent)="supplierDetailsChange($event)">

@@ -3,17 +3,18 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, StatisticsService} from './services/services';
-import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
+import {ErrorService, StatisticsService, BrunoOnboardingService} from './services/services';
+import {ToastService} from '../framework/uniToast/toastService';
 import {UserDto} from '@app/unientities';
-import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {
     UniModalService,
     UserLicenseAgreementModal,
     LicenseAgreementModal,
-    MissingRolesModal
+    MissingRolesModal,
+    ConfigBankAccountsInfoModal, CompanyActionsModal
 } from '@uni-framework/uni-modal';
 
 // Do not change this import! Since we don't use rx operators correctly
@@ -24,8 +25,7 @@ import {LicenseManager} from 'ag-grid-enterprise';
 import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
-import { environment } from 'src/environments/environment';
-import { Logger } from '@uni-framework/core/logger';
+import {theme, THEMES} from 'src/themes/theme';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -38,8 +38,6 @@ export class App {
     private userlicenseModalOpen: boolean;
     private missingRolesModalOpen: boolean;
 
-    isSrEnvironment = environment.isSrEnvironment;
-    title = environment.appTitle;
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
@@ -56,10 +54,10 @@ export class App {
         private router: Router,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
-        private logger: Logger // used for logging in Azure Application Insights
+        private brunoOnboardingService: BrunoOnboardingService,
     ) {
         if (!this.titleService.getTitle()) {
-            const title = this.title;
+            const title = theme.appName;
             this.titleService.setTitle(title);
         }
 
@@ -82,16 +80,18 @@ export class App {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
                 this.toastService.clear();
+
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
                 if (authDetails.user.License.Company['StatusCode'] === 3) {
                     this.isPendingApproval = true;
                     return;
                 }
-                const shouldShowLicenseDialog = !this.isSrEnvironment
-                    && !this.hasAcceptedCustomerLicense(authDetails.user)
+
+                const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
+                    && theme.theme !== THEMES.SR
                     && contractType !== 'Demo'
-                    && !this.licenseAgreementModalOpen;
+                    && !this.hasAcceptedCustomerLicense(authDetails.user);
 
                 if (shouldShowLicenseDialog) {
                     this.licenseAgreementModalOpen = true;
@@ -112,8 +112,14 @@ export class App {
                     });
                 }
 
-                if (!this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
+                if (theme.theme !== THEMES.EXT02 && !this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
+                }
+
+
+                if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest && !browserStorage.getItemFromCompany('isNotInitialLogin')) {
+                    this.showInitialBrunoLoginModal();
+                    browserStorage.setItemOnCompany('isNotInitialLogin', true);
                 }
             }
         });
@@ -151,7 +157,7 @@ export class App {
     }
 
     goToExternalSignup() {
-        if (this.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
             this.statisticsService.GetAllUnwrapped(
                 'model=CompanySettings&select=OrganizationNumber as OrganizationNumber'
@@ -185,17 +191,44 @@ export class App {
                     .send()
                     .map(res => res.body)
                     .subscribe(
-                        () => this.toastService.addToast(
-                            'Suksess',
-                            ToastType.good,
-                            ToastTime.short,
-                            'Brukerlisens godtatt',
-                        ),
+                        () => {},
                         err => this.errorService.handle(err),
                     );
             } else {
                 this.authService.clearAuthAndGotoLogin();
             }
         });
+    }
+
+    private showInitialBrunoLoginModal() {
+        const options: IModalOptions = {
+            header: 'DNB regnskap er nå aktivert og klart for bruk',
+            message: '<b>Vil du koble DNB regnskap til nettbank bedrift? (anbefales)</b> <section>Du kan alltids sette det opp ved en senere anledning</section>',
+            footerCls: 'center',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei takk'
+            },
+            buttonIcons: {
+                accept: 'launch'
+            },
+            icon: 'themes/ext02/EXT02-companyInitDone-modal-icon.svg',
+            modalConfig: {
+                iconConfig: {
+                    size: 3
+                }
+            }
+        };
+
+        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose
+            .subscribe((action: ConfirmActions) => {
+                if (action === ConfirmActions.ACCEPT) {
+                    this.brunoOnboardingService.createAgreement().subscribe(() => {
+                        this.modalService.open(CompanyActionsModal);
+                    });
+                } else {
+                    this.modalService.open(CompanyActionsModal);
+                }
+            });
     }
 }

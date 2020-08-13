@@ -16,13 +16,12 @@ uni-toolbar
     flex-direction: row
     align-items: center
     background: var(--toolbar-background)
-    border-bottom: var(--toolbar-border)
+    border-bottom: 1px solid var(--core-border-color)
 
     &.static
         position: static
         margin-bottom: 2rem
 
-    color: var(--scale1)
     z-index: map-get($zindex, toolbar)
 
     .toolbar-title
@@ -123,7 +122,6 @@ uni-toolbar
                 font-size: 14px
 
             .subhead-label
-                color: var(--scale1)
                 font-size: inherit
 
             &.bad
@@ -142,7 +140,6 @@ uni-toolbar
 
 .toolbar-extras, .title-section
     small
-        color: var(--scale1)
         flex-basis: fit-content
         white-space: nowrap
 
@@ -162,12 +159,14 @@ uni-toolbar
     uni-context-menu .toggle-button,
     uni-comments .toggle-button
         background-color: #fff
-        border: var(--toolbar-button-border)
         margin-right: .5rem
+        font-weight: var(--button-secondary-font-weight)
         color: var(--color-c2a)
-        font-weight: 500
-        &:hover
-            border-color: var(--color-c2a)
+        border: none
+
+        box-shadow: var(--toolbar-button-border)
+        &:hover, &:focus
+            box-shadow: var(--toolbar-button-border-focus)
 
     .new-button i.material-icons
         font-size: 20px

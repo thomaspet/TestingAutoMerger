@@ -28,12 +28,12 @@ import { SalarySharedModule } from './shared/salary-shared.module';
         WageTypeModule,
         SalarySharedModule,
         RouterModule.forChild(salaryRoutes),
+
     ],
     declarations: [
         SalaryComponent,
     ],
     providers: [
-
     ]
 })
 export class SalaryModule {}

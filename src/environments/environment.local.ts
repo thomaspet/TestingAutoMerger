@@ -1,13 +1,11 @@
 export const environment = {
     useProdMode: false,
-    isSrEnvironment: false,
-    appTitle: 'Uni Economy',
 
     authority: 'https://dev-login.unieconomy.no',
     client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
     post_logout_redirect_uri: '/#/login',
-    BASE_URL_INIT: 'http://localhost:29077/',
-    BASE_URL: 'http://localhost:29077/',
+    BASE_URL_INIT: 'http://localhost:29077',
+    BASE_URL: 'http://localhost:29077',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
     BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://devapi-unijobserver.unieconomy.no/api/',

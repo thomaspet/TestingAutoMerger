@@ -98,7 +98,7 @@ export class UniFilesService {
         });
     }
 
-    public runOcr(id: string): Observable<any> {
+    runOcr(id: string): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + '/api/ocr/analyze?id=' + id, {
             observe: 'body',
             headers: {

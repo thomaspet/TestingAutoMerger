@@ -1,3 +1,5 @@
+import {THEMES} from 'src/themes/theme';
+
 export const CHARTS = [
     {
         id: 'topten_customers',
@@ -170,7 +172,6 @@ export const CHARTS = [
         width: 4,
         height: 3,
         widgetType: 'unpaidsr',
-        srOnly: true,
         config: {
             model: 'SupplierInvoice',
             function: 'unpaid',
@@ -183,7 +184,6 @@ export const CHARTS = [
         permissions: ['ui_accounting'],
         width: 8,
         height: 3,
-        srOnly: true,
         widgetType: 'overdue_invoices',
     },
     {
@@ -193,7 +193,6 @@ export const CHARTS = [
         width: 4,
         height: 3,
         widgetType: 'reminderList',
-        srOnly: true,
         config: {
 
         }
@@ -205,7 +204,6 @@ export const CHARTS = [
         width: 8,
         height: 3,
         widgetType: 'operatingprofit',
-        srOnly: true,
         config: {
             type: 'line',
             costMultiplier: -1
@@ -217,7 +215,6 @@ export const CHARTS = [
         width: 8,
         height: 3,
         widgetType: 'public_duedates',
-        srOnly: true,
         config: {}
     },
     {
@@ -226,17 +223,29 @@ export const CHARTS = [
         width: 5,
         height: 3,
         widgetType: 'liquidity',
-        srOnly: true,
+        onlyForTheme: THEMES.SR,
         config: {}
     },
     {
         id: 'bank_balance',
         description: 'Banksaldo',
         permissions: ['ui_bank'],
-        srOnly: true,
+        onlyForTheme: THEMES.SR,
         width: 4,
         height: 3,
         widgetType: 'bank_balance',
+        config: {
+
+        }
+    },
+    {
+        id: 'bank_balance_ext02',
+        description: 'Banksaldo',
+        permissions: ['ui_bank'],
+        onlyForTheme: THEMES.EXT02,
+        width: 4,
+        height: 3,
+        widgetType: 'bank_balance_ext02',
         config: {
 
         }

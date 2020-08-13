@@ -24,6 +24,7 @@ export interface ElsaCustomer {
     CompanyTypeID?: number;
     PersonalNumber?: string;
     IsBankCustomer: boolean;
+    SignUpReferrer: string;
 }
 
 export interface ElsaCompanyLicense {
@@ -58,17 +59,65 @@ export enum ElsaPurchaseStatus {
 export interface ElsaContract {
     ID: number;
     CustomerID: number;
-    ContractType: ElsaContractType;
+    Customer: ElsaCustomer;
+    ContractType: ContractType;
+    ContractTypes: ElsaContractType;
     StatusCode: number;
     StartDate: Date;
     EndDate?: Date;
     SettledUntil?: Date;
     Note?: any;
     Limit: number;
+    AgreementAcceptances: any[];
     TwoFactorEnabled?: boolean;
 }
 
-export enum ElsaContractType {
+export interface ElsaContractType {
+    ContractType: number;
+    IsActive: boolean;
+    IsDefault: boolean;
+    IsPublic: boolean;
+    Label: string;
+    MaxCompanies: number;
+    MaxUsers: number;
+    Name: string;
+    ProductContractTypes?: ElsaProductContractType[];
+    ContractTypeFeatures?: ElsaContractTypeFeature[];
+    BulletPoints?: { Text: string; }[];
+}
+
+export interface ElsaProductContractType {
+    ContractType: number;
+    ID: number;
+    IsDefaultProduct: boolean;
+    IsMandatoryProduct: boolean;
+    ProductID: 11;
+    Product?: ElsaProduct;
+}
+
+export interface ElsaContractTypeFeature {
+    FeatureID: number;
+    Feature: ElsaFeature;
+    ContractType: number;
+    ContractTypes: ElsaContractType;
+}
+
+export interface ElsaCategory {
+    ID: number;
+    Name: string;
+    Features?: ElsaFeature[];
+}
+
+export interface ElsaFeature {
+    ID: number;
+    Text: string;
+    CategoryID: number;
+    ContainsContractTypes: number[];
+    Tooltip?: string;
+    Checkmarks: boolean[];
+}
+
+export enum ContractType {
     Demo = 0,
     Internal = 1,
     Partner = 3,
@@ -77,6 +126,9 @@ export enum ElsaContractType {
     Standard = 10,
     Bureau = 11,
     NonProfit = 12,
+    Mini = 21,
+    Plus = 22,
+    Complete = 23,
 }
 
 export interface ElsaProduct {
@@ -111,6 +163,8 @@ export interface ElsaProduct {
     ProductTypeName: string;
     Tags: string[];
     SubProducts?: ElsaProduct[];
+    IsMandatoryProduct?: boolean;
+    IsDefaultProduct?: boolean;
 }
 
 export enum ElsaCompanyLicenseStatus {
@@ -132,7 +186,8 @@ export enum ElsaProductType {
     Bundle = 1,
     Integration = 2,
     Extension = 3,
-    BankProduct = 4
+    BankProduct = 4,
+    Package = 6
 }
 
 export enum ElsaUserLicenseType {

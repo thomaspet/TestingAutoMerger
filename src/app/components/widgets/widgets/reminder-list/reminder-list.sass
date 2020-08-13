@@ -1,74 +1,55 @@
-.add-task
-    color: #7A7A7A
-    text-decoration: none
-    font-size: 14px
-    i.material-icons
-        color: var(--link-color)
+\:host
+    &.ext02 strong
+        color: var(--widget-c2a)
 
 .reminder-list-widget
-    padding: 0 1rem 1rem 1rem !important
-    margin: 0
-    text-align: left
-    flex: 1
+    padding-top: .5rem
+    padding-bottom: .5rem
 
-    ul
-        height: 100%
-        position: relative
-        margin: 0
-        padding: 5px .25rem
-
-        &.empty-list
-            display: none
-
-        li
-            display: flex
-            align-items: center
-            height: 3.25rem
-            cursor: pointer
-            padding: 0 10px
-
-            font-size: 12px
-            font-family: var(--font-family)
-            color: var(--text-color)
-            white-space: nowrap
-            text-overflow: ellipsis
-            overflow: hidden
-            box-shadow: 0px 1px 2px 1px rgba(0,0,0, .12)
-            border-radius: var(--section-radius)
-
-            & + li
-                margin-top: 10px
-
-            i
-                vertical-align: middle
-                color: var(--widget-c2a)
-
-            div
-                flex: 1
-                display: flex
-                flex-direction: column
-                justify-content: center
-                margin: 0 .5rem 0 1rem
-                overflow: hidden
-                white-space: nowrap
-                text-overflow: ellipsis
-
-                span
-                    line-height: 18px
-                    &:first-of-type
-                        font-weight: bold
-                        font-size: 14px
-
-    .no-items-message
-        display: block
-        width: 100%
-        height: 100%
+    a.reminder-item
         display: flex
         align-items: center
-        justify-content: center
-        flex-direction: column
-        color: var(--color-good)
+        height: 4rem
+        padding: 0 1rem
 
+        border: 1px solid var(--border-color)
+        border-radius: var(--section-radius)
+        color: var(--text-color)
+        text-decoration: none
+        transition: background .15s ease-in
+
+        & + a.reminder-item
+            margin-top: .75rem
+
+        &:hover
+            background: var(--dropdown-select-background)
+
+        i
+            vertical-align: middle
+            color: var(--widget-c2a)
+            margin-right: 1rem
+
+        div
+            flex: 1
+            display: flex
+            flex-direction: column
+            justify-content: center
+            font-size: .9rem
+            line-height: 1.35rem
+            overflow: hidden
+            strong, span
+                white-space: nowrap
+                text-overflow: ellipsis
+                overflow: hidden
+
+    .no-items-message
+        display: flex
+        flex-direction: column
+        align-items: center
+        justify-content: center
+        width: 100%
+        height: 100%
         i
             font-size: 55px
             margin-bottom: 1.4rem
+            color: var(--color-good)

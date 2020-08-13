@@ -1,0 +1,30 @@
+<section role="dialog" class="uni-modal">
+    <article>
+        <img src="themes/ext02/ext02-success-accountconfig.svg" alt="Bestill bankintegrasjon illustrasjon">
+
+        <h1>Koble sammen regnskap og bank</h1>
+
+        <p>
+            Trykker du på «Bestill» sender vi deg til DNB nettbank bedrift for å fullføre bestillingen.
+            I bestillingsløpet velger du hvilke kontoer du ønsker å koble mot regnskapssystemet.
+        </p>
+
+        <p>
+            Før du sendes videre trenger vi å vite om du ønsker KID-avtale,
+            for å få innbetalingsdata rett inn i DNB Regnskap?
+        </p>
+
+        <mat-checkbox [(ngModel)]="orderKID">
+            Ja, jeg ønsker innbetalingsavtale/KID
+            (<a href="https://www.dnb.no/bedrift/priser/dnbregnskap.html" target="_blank">se priser<i class="material-icons">launch</i></a>)
+        </mat-checkbox>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit()">Lukk</button>
+
+        <button class="c2a" (click)="openExternalOnboarding()">
+            Bestill
+        </button>
+    </footer>
+</section>

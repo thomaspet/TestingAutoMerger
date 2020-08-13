@@ -5,9 +5,8 @@ import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {Router} from '@angular/router';
 import {Company} from '@uni-entities';
-import {environment} from 'src/environments/environment';
 import {Subscription} from 'rxjs';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-login',
@@ -16,14 +15,14 @@ import {theme} from 'src/themes/theme';
 })
 export class Login {
     @ViewChild(UniSelect) select: UniSelect;
-    @HostBinding('class.sr-login') srLogin = environment.isSrEnvironment;
+    @HostBinding('class.sr-login') srLogin = theme.theme === THEMES.SR;
 
     isAuthenticated: boolean;
     availableCompanies: any[];
 
     background = theme.init.login_background || theme.init.background;
     backgroundHeight = theme.init.login_background_height;
-    illustration = environment.isSrEnvironment ? undefined : theme.init.illustration;
+    illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',

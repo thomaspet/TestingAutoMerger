@@ -8,6 +8,8 @@ import { catchError } from 'rxjs/operators';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
+import {HttpClient} from '@angular/common/http';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'user-settings-modal',
@@ -27,7 +29,11 @@ export class UserSettingsModal implements IUniModal {
     countryCodes: Object;
     oldAuthNumber: string;
 
+    // Hide two factor for bruno until it works properly
+    showTwoFactorSettings = theme.theme !== THEMES.EXT02;
+
     constructor(
+        private http: HttpClient,
         private errorService: ErrorService,
         private userService: UserService,
         private toast: ToastService,
@@ -36,16 +42,16 @@ export class UserSettingsModal implements IUniModal {
 
     public ngOnInit() {
         this.busy = true;
-
-        const data = this.options.data || {};
-        this.user = data.user || {};
-        this.countryCodes = data.countryCodes || {};
-
+        this.user = this.options.data || {};
         this.epostButtonClicked = false;
 
         this.authService.loadCurrentSession().subscribe((session) => {
             this.busy = false;
-            const [authCode, authNumber] = session.user.AuthPhoneNumber.split('-');
+            let authPhoneCountryCode, authPhone;
+            if (session.user.AuthPhoneNumber) {
+                [authPhoneCountryCode, authPhone] = session.user.AuthPhoneNumber.split('-');
+            }
+
             this.oldAuthNumber = session.user.AuthPhoneNumber;
             this.userDetailsForm = new FormGroup({
                 DisplayName: new FormControl(this.user.DisplayName),
@@ -53,10 +59,15 @@ export class UserSettingsModal implements IUniModal {
                 Email: new FormControl(this.user.Email),
                 TwoFactorEnabled: new FormControl(session.user.TwoFactorEnabled),
                 CountryCode: new FormControl(['']),
-                AuthPhoneNumber: new FormControl(authNumber),
+                AuthPhoneNumber: new FormControl(authPhone),
             });
+
             const defaultCode = '47';
-            this.userDetailsForm.controls['CountryCode'].setValue(authCode || defaultCode, { onlySelf: true });
+            this.userDetailsForm.controls['CountryCode'].setValue(authPhoneCountryCode || defaultCode, { onlySelf: true });
+        });
+
+        this.http.get('/assets/countrycode.json').subscribe(countryCodes => {
+            this.countryCodes = countryCodes || [];
         });
     }
 
@@ -70,15 +81,19 @@ export class UserSettingsModal implements IUniModal {
             this.user.Email = model.Email;
             this.user.TwoFactorEnabled = model.TwoFactorEnabled;
             this.user.AuthPhoneNumber = this.user.TwoFactorEnabled ? `${model.CountryCode}-${model.AuthPhoneNumber}` : this.oldAuthNumber;
+
             saveRequests.push(this.userService.Put(this.user.ID, this.user));
-            saveRequests.push(this.userService.updateUserTwoFactorAuth(this.user.TwoFactorEnabled).pipe(
-                catchError((e) => {
-                    this.userDetailsForm.get('TwoFactorEnabled').setValue(!this.user.TwoFactorEnabled);
-                    this.user.TwoFactorEnabled = !this.user.TwoFactorEnabled;
-                    e.error = `To-faktor pålogging er påkrevd for minst en lisens/selskap du har tilgang til. Kan ikke slå av to-faktor pålogging.`;
-                    throw e;
-                }
-                )));
+
+            if (this.showTwoFactorSettings) {
+                saveRequests.push(this.userService.updateUserTwoFactorAuth(this.user.TwoFactorEnabled).pipe(
+                    catchError(e => {
+                        this.userDetailsForm.get('TwoFactorEnabled').setValue(!this.user.TwoFactorEnabled);
+                        this.user.TwoFactorEnabled = !this.user.TwoFactorEnabled;
+                        e.error = `To-faktor pålogging er påkrevd for minst en lisens/selskap du har tilgang til. Kan ikke slå av to-faktor pålogging.`;
+                        throw e;
+                    })
+                ));
+            }
         }
 
         this.busy = true;
@@ -96,9 +111,26 @@ export class UserSettingsModal implements IUniModal {
     }
 
     resetAutobankPassword() {
-        this.userService.changeAutobankPassword().subscribe(
-            () => this.toast.addToast('E-post er sendt', ToastType.good, ToastTime.short),
-            err => this.errorService.handle(err)
-        );
+        if (this.epostButtonClicked) {
+            this.toast.toast({
+                title: 'Epost sendt',
+                message: 'Vi har sendt deg mer informasjon om endring av autobank passord på epost, vennligst sjekk innboksen din.',
+                type: ToastType.info,
+                duration: 0
+            });
+        } else {
+            this.epostButtonClicked = true;
+            this.userService.changeAutobankPassword().subscribe(
+                () => {
+                    this.toast.toast({
+                        title: 'Epost sendt',
+                        message: 'Vi har sendt deg mer informasjon om endring av autobank passord på epost, vennligst sjekk innboksen din.',
+                        type: ToastType.info,
+                        duration: 0
+                    });
+                },
+                err => this.errorService.handle(err)
+            );
+        }
     }
 }

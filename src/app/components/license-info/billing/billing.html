@@ -38,10 +38,18 @@
             Eksporter
         </button>
 
-        <span class="sum pull-right">
-            <span class="label">Sum eks.mva. </span>
-            <span class="value">{{(billingData?.Total | uninumberformat:'money') || 0}} kr</span>
-        </span>
+        <section class="pull-right">
+            <span class="sum">
+                <span class="label">Sum eks.mva. </span>
+                <span class="value">{{(billingData?.Total | uninumberformat:'money') || 0}} kr</span>
+            </span>
+            <a *ngIf="billingData?.RelatedOrders.length > 0" 
+                (click)="openRelatedOrders()" 
+                style="display: block"
+            >
+                {{billingData?.RelatedOrders.length}} delavregninger
+            </a>
+        </section>
     </section>
 
     <license-info-list

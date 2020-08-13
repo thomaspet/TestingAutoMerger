@@ -1,0 +1,17 @@
+<section role="dialog" class="uni-modal">
+    <header>Registrere åpningsbalanse</header>
+    <article>
+        <h3>Vennligst fyll ut korrekt informasjon</h3>
+        <uni-form
+            [fields]="fields"
+            [config]="{autofocus: true, showLabelAbove: true}"
+            [model]="model"
+            (changeEvent)="onChangeEvent($event)"
+            (focusEvent)="onFocus($event)"
+        ></uni-form>
+    </article>
+    <footer>
+        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="complete()">Fullfør</button>
+    </footer>
+</section>

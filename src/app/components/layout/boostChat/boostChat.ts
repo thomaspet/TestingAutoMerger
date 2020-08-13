@@ -1,4 +1,5 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
+import { theme, THEMES } from 'src/themes/theme';
 
 type ExtendedWindow = typeof window & {
     boostChatPanel: any;
@@ -7,17 +8,23 @@ type ExtendedWindow = typeof window & {
 @Component({
     selector: 'boost-chat',
     template: `
-    <span *ngIf="chatPanelReady" (click)="openBoostAIChat()">
-        <img style="box-shadow: 0 0 16px 0 rgba(0, 0, 0, 0.2); border-radius: 50%" [src]="chatbotIcon">
-    </span>
+        <span *ngIf="iconUrl && (chatPanelReady || isExt02)"
+            (click)="openBoostAIChat()"
+            role="button"
+            aria-label="Chatbot">
+
+            <img [src]="iconUrl">
+        </span>
     `,
+    styleUrls: ['./boostChat.sass']
 })
 export class BoostChat {
-    private chatPanel: any = null;
-    public chatPanelReady = false;
-    private chatScriptUrl = 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js';
-    private chatApiUrl = 'https://435984srpoc.boost.ai/api';
-    chatbotIcon = 'assets/chatbot_icon.png';
+    private chatPanel = null;
+
+    chatPanelReady = false;
+    isExt02 = theme.theme === THEMES.EXT02;
+
+    iconUrl: string = theme.chatbotIcon;
 
     boostCode: string;
     conversationId: string;
@@ -28,53 +35,63 @@ export class BoostChat {
         if (sessionStorage.getItem('code') && sessionStorage.getItem('code').length > 40) {
             this.boostCode = decodeURIComponent(sessionStorage.getItem('code'));
         }
-        this.conversationId = sessionStorage.getItem('boostConversationId');
 
-        if (this.chatScriptUrl && this.chatApiUrl) {
-            const script = document.createElement('script');
-            script.type = 'application/javascript';
-            script.onload = this.loadSuccessCallback;
-            script.src = this.chatScriptUrl;
-            document.getElementsByTagName('head')[0].appendChild(script);
+        this.conversationId = sessionStorage.getItem('boostConversationId');
+        if (theme.theme === THEMES.SR) {
+            this.initExt01Chat();
         }
     }
 
-    loadSuccessCallback = () => {
-        this.chatPanelReady = true;
+    initExt01Chat() {
+        const script = document.createElement('script');
+        script.type = 'application/javascript';
+        script.src = 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js';
+        script.onload = () => {
+            this.chatPanelReady = true;
+            const chatPanelConfiguration = {
+                apiUrlBase: 'https://435984srpoc.boost.ai/api',
+                conversationId: this.conversationId,
+                pace: 'fast',
+                hyperlinksTargetBlank: true,
+            };
 
-        const chatPanelConfiguration = {
-            apiUrlBase: this.chatApiUrl,
-            conversationId: this.conversationId,
-            hyperlinksTargetBlank: true,
-            pace: 'fast',
-        };
+            this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);
 
-        this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);
+            this.chatPanel.addEventListener('conversationIdChanged', (event) => {
+                this.conversationId = event.detail.conversationId;
+                sessionStorage.setItem('boostConversationId', this.conversationId);
 
-        this.chatPanel.addEventListener('conversationIdChanged', (event) => {
-            this.conversationId = event.detail.conversationId;
-            sessionStorage.setItem('boostConversationId', this.conversationId);
+                if (this.boostCode) {
+                    setTimeout(() => {
+                        this.chatPanel.loginEvent({authContent: this.boostCode, authType: 'openid'});
+
+                        // boost code is only valid once, remove it after we've used it
+                        this.boostCode = '';
+                        sessionStorage.removeItem('code');
+                    }, 20);
+                }
+            });
 
             if (this.boostCode) {
-                setTimeout(() => {
-                    this.chatPanel.loginEvent({authContent: this.boostCode, authType: 'openid'});
-
-                    // boost code is only valid once, remove it after we've used it
-                    this.boostCode = '';
-                    sessionStorage.removeItem('code');
-                }, 20);
+                this.chatPanel.show();
             }
-        });
 
-        if (this.boostCode) {
-            this.chatPanel.show();
-        }
+            this.cdr.markForCheck();
+        };
 
-        this.cdr.markForCheck();
+        document.getElementsByTagName('head')[0].appendChild(script);
     }
 
     openBoostAIChat() {
-        this.chatPanel.show();
+        if (theme.theme === THEMES.SR) {
+            this.chatPanel.show();
+        } else if (theme.theme === THEMES.EXT02) {
+            window.open(
+                'https://web.chat.tech-03.net/index.html?seg=bm&routingtag=DNB_regnskap',
+                'Aino',
+                'menubar=0,scrollbars=1,height=650,width=400,left=0,top=8'
+            );
+        }
     }
 
     public openChatWithSupportCase() {

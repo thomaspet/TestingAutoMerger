@@ -120,6 +120,7 @@ export interface IUniTableColumn {
     sizeToFit?: boolean;
     placeholder?: string | ((row) => string);
     statusMap?: TableStatusMap;
+    featurePermission?: string;
 }
 
 export class UniTableColumn implements IUniTableColumn {
@@ -172,6 +173,7 @@ export class UniTableColumn implements IUniTableColumn {
     public placeholder: string | ((row) => string);
     public statusMap: TableStatusMap;
     public checkboxConfig: TableCheckboxConfig;
+    public featurePermission: string;
 
     public static fromObject(obj: IUniTableColumn) {
         const column = new UniTableColumn();
@@ -497,6 +499,11 @@ export class UniTableColumn implements IUniTableColumn {
 
     setCheckboxConfig(checkboxConfig: TableCheckboxConfig) {
         this.checkboxConfig = checkboxConfig;
+        return this;
+    }
+
+    setFeaturePermission(permission: string) {
+        this.featurePermission = permission;
         return this;
     }
 }

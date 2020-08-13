@@ -20,12 +20,12 @@
                 </section>
 
                 <uni-image *ngIf="selectedFile"
-                [singleImage]="true"
-                [readonly]="true"
-                [uploadWithoutEntity]="true"
-                [fileIDs]="[selectedFile.ID]"
-                (fileListReady)="onFileListReady($event)">
-            </uni-image>
+                    [singleImage]="true"
+                    [readonly]="true"
+                    [uploadWithoutEntity]="true"
+                    [fileIDs]="[selectedFile.ID]"
+                    (fileListReady)="onFileListReady($event)">
+                </uni-image>
             </section>
         </section>
     </article>

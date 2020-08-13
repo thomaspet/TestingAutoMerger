@@ -14,7 +14,7 @@
     <!-- Details tab -->
     <ng-template [ngIf]="activeTabIndex === 0">
         <uni-form
-            [config]="config$"
+            [config]="{autofocus: true}"
             [fields]="fields$"
             [model]="customer$"
             (changeEvent)="onChange($event)"
@@ -22,7 +22,7 @@
         </uni-form>
 
         <ng-template [ngIf]="(customer$ | async)?.ID">
-            <article class="collapsable" [ngClass]="{'-is-open': showSellerSection}">
+            <article *ifFeaturePermission="'ui.sellers'" class="collapsable" [ngClass]="{'-is-open': showSellerSection}">
                 <h4 (click)="showSellerSection = !showSellerSection">Selgere</h4>
                 <div class="collapsable-content">
                     <seller-links style="width: 100%;"
@@ -43,7 +43,7 @@
             </article>
         </ng-template>
 
-        <article class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
+        <article *ifFeaturePermission="'ui.debt-collection'" class="collapsable" [ngClass]="{'-is-open': showReminderSection}">
             <h4 (click)="showReminderSection = !showReminderSection">Purring</h4>
             <div class="collapsable-content">
                 <reminder-settings

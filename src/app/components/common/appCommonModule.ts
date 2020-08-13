@@ -13,6 +13,8 @@ import {UniToolbarSearch} from './toolbar/toolbarSearch';
 import {UniToolbarValidation} from './toolbar/toolbar-validation/toolbar-validation';
 import {ToolbarSharingStatus} from './toolbar/sharing-status/sharing-status';
 import {ToolbarCustomStatus} from './toolbar/custom-status/custom-status';
+import {ToolbarMonthSelector} from './toolbar/month-selector/month-selector';
+import {ToolbarInfoBanner} from './toolbar/Info-banner/info-banner';
 import {UniDimensionTOFView} from './dimensions/dimensionForm';
 import {UniQueryReadOnly} from './uniQuery/UniQueryReadOnly';
 import {UniSummary} from './summary/summary';
@@ -58,20 +60,28 @@ import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
-import { ImportCentralTemplateModal } from './modals/import-central-modal/import-central-template-modal';
-import { DisclaimerModal } from '../import-central/modals/disclaimer/disclaimer-modal';
-import { ImportTemplateModal } from '../import-central/modals/import-template/import-template-modal';
+import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
+import {DisclaimerModal} from '../import-central/modals/disclaimer/disclaimer-modal';
+import {ImportTemplateModal} from '../import-central/modals/import-template/import-template-modal';
 import {SelectDistributionPlanModal} from './modals/select-distribution-plan-modal/select-distribution-plan-modal';
-import { ImportVoucherModal } from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
-import { ImportOrderModal } from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
-import { EditSubEntityAgaZoneModal } from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
+import {ImportVoucherModal} from '../import-central/modals/custom-component-modals/imports/voucher/import-voucher-modal';
+import {ImportOrderModal} from '../import-central/modals/custom-component-modals/imports/order/import-order-modal';
+import {EditSubEntityAgaZoneModal} from './modals/editSubEntityAgaZoneModal/editSubEntityAgaZoneModal';
 import {LibraryImportsModule} from '@app/library-imports.module';
+import {ContractTypeCard} from './contract-type-card/contract-type-card';
+import {ContractActivationWizard} from './contract-activation-wizard/contract-activation-wizard';
+import {CompanyCreationWizard} from './company-creation-wizard/company-creation-wizard';
+import {ContractTypesComparison} from './contract-types-comparison/contract-types-comparison';
+
 import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
+import {StandardVacationPayModalComponent} from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
+import {DashboardModule} from './dashboard/dashboard.module';
 
 @NgModule({
     imports: [
         LibraryImportsModule,
         UniFrameworkModule,
+        DashboardModule
     ],
     declarations: [
         PredefinedDescriptionList,
@@ -87,6 +97,8 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         UniToolbarValidation,
         ToolbarSharingStatus,
         ToolbarCustomStatus,
+        ToolbarMonthSelector,
+        ToolbarInfoBanner,
         UniQueryReadOnly,
         UniSummary,
         ImageModal,
@@ -145,9 +157,16 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
-        RegisterAssetModal
+        ContractTypeCard,
+        ContractActivationWizard,
+        CompanyCreationWizard,
+        ContractTypesComparison,
+        RegisterAssetModal,
+        StandardVacationPayModalComponent,
     ],
     exports: [
+        DashboardModule,
+
         PredefinedDescriptionList,
         ConfirmCreditedJournalEntryWithDate,
         ContextMenu,
@@ -199,8 +218,13 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
         InvoiceHours,
         VacationPayModal,
         VacationPaySettingsModal,
+        ContractTypeCard,
+        ContractActivationWizard,
+        CompanyCreationWizard,
+        ContractTypesComparison,
 
-        RegisterAssetModal
+        RegisterAssetModal,
+        StandardVacationPayModalComponent,
     ]
 })
 export class AppCommonModule {}

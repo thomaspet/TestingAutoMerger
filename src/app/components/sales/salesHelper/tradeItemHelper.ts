@@ -475,24 +475,32 @@ export class TradeItemHelper  {
     public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
         const summaryLines: ISummaryLine[] = [];
 
-        if (sums.SumTotalExVat) {
+        // if (sums.SumTotalExVat) {
             summaryLines.push({
                 label: 'Nettosum',
-                value: this.numberFormat.asMoney(sums.SumTotalExVatCurrency || 0)
+                value: sums.SumTotalExVat ? this.numberFormat.asMoney(sums.SumTotalExVatCurrency || 0) : 0
             });
-        }
+        // }
 
+        let vatPercentText;
         if (sums.SumVatCurrency) {
             let vatPercents = items.map(item => {
                 return item.VatPercent ? item.VatPercent + '%' : '';
             });
 
             vatPercents = _.uniq(vatPercents.filter(vatPercent => !!vatPercent));
-            summaryLines.push({
-                label: `Mva (${vatPercents.join(', ')})`,
-                value: this.numberFormat.asMoney(sums.SumVatCurrency)
-            });
+            vatPercentText = `(${vatPercents.join(', ')})`;
+
+            // summaryLines.push({
+            //     label: `Mva (${vatPercents.join(', ')})`,
+            //     value: this.numberFormat.asMoney(sums.SumVatCurrency)
+            // });
         }
+
+        summaryLines.push({
+            label: 'Mva ' + (vatPercentText || ''),
+            value: sums.SumVatCurrency ? this.numberFormat.asMoney(sums.SumVatCurrency) : 0
+        });
 
         if (sums.DecimalRoundingCurrency &&
             ((this.round(sums.DecimalRoundingCurrency, 2) > 0.00) || (this.round(sums.DecimalRoundingCurrency, 2) < 0.00))) {
@@ -502,13 +510,13 @@ export class TradeItemHelper  {
             });
         }
 
-        if (sums.SumTotalIncVatCurrency) {
+        // if (sums.SumTotalIncVatCurrency) {
             summaryLines.push({
                 label: 'Totalsum',
-                value: this.numberFormat.asMoney(sums.SumTotalIncVatCurrency),
+                value: sums.SumTotalIncVatCurrency ? this.numberFormat.asMoney(sums.SumTotalIncVatCurrency) : 0,
                 isTotalSum: true
             });
-        }
+        // }
 
         return summaryLines;
     }

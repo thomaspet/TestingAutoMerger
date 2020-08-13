@@ -42,6 +42,7 @@ import {TofCustomerCard} from './common/customerCard';
 import {CustomerEditModal} from './common/customer-edit-modal/customer-edit-modal';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
+import {TofSellers} from './common/tof-sellers';
 import {TofReportModal} from './common/tof-report-modal/tof-report-modal';
 import {TofDistributionForm} from './common/tof-distribution-form';
 import {UniRecurringInvoiceSettingsView} from './common/recurringInvoiceSettings';
@@ -91,6 +92,7 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
         TofDetailsForm,
         TofDeliveryForm,
         TofDistributionForm,
+        TofSellers,
         TradeItemTable,
         TofReportModal,
         UniRecurringInvoiceSettingsView,

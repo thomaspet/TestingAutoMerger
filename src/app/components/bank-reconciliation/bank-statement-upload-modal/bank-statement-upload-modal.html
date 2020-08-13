@@ -30,10 +30,13 @@
                 </label>
 
                 <ul *ngIf="files?.length" class="selectable file-selection-list">
-                    <li *ngFor="let file of files"
+                    <li *ngFor="let file of files; let i = index;"
                         (click)="selectedFileID = file.ID"
                         [class.selected]="selectedFileID === file.ID">
-                        {{file.Name}}
+
+                        <span> {{file.Name}} </span>
+                        <i class="material-icons" (click)="removeFile(file.ID, i)"> delete_outline </i>
+
                     </li>
                 </ul>
             </section>

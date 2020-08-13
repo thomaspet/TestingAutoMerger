@@ -44,7 +44,7 @@
                 <tr *ngFor="let week of month.Weeks; let i=index" >
                     <td class="center">{{week.WeekNumber}}</td>
                     <td class="center">{{week.FirstDay | isotime:'DD.MM'}} - {{week?.Items[6]?.Date | isotime:'DD.MM'}}</td>
-                    <td (click)="onDayClick(item.Date)" class="timecell border hovereffect" [class.weekend]="item.IsWeekend"
+                    <td (click)="onDayClick(item.Date)" class="timecell border-left hovereffect" [class.weekend]="item.IsWeekend"
                         *ngFor="let item of week?.Items" [class.hasOvertime]="item.Overtime > 0" title="{{ item.Overtime > 0 ? 'Dato har overtid' : '' }}">
                         <div title="{{item?.Date|isotime:'D.MMMM'}}" [class.flexplus]="item.Flextime > 0" [class.flexminus]="item.Flextime < 0">
                             <span *ngIf="item.ValidTime && !item.ValidTimeOff" >{{item.ValidTime | hours}}</span>
@@ -52,7 +52,7 @@
                             <span *ngIf="item.SickTime" class="timesick" >S</span>
                         </div>
                     </td>
-                    <td class="s1 timecell border">
+                    <td class="s1 timecell border-left">
                         <div [class.flexplus]="week.Sums.Flextime > 0" [class.flexminus]="week.Sums.Flextime < 0" >
                             <span >{{week.Sums.ValidTime | hours}}</span>
                         </div>

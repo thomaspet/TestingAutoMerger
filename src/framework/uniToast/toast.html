@@ -1,4 +1,6 @@
-<i class="material-icons toast-type-icon">{{icon}}</i>
+<mat-spinner *ngIf="isLoadIndicator" [diameter]="26"></mat-spinner>
+
+<i *ngIf="!isLoadIndicator" class="material-icons-outlined toast-type-icon">{{icon}}</i>
 
 <section class="toast-body">
     <section class="header">

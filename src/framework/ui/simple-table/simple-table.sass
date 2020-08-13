@@ -1,0 +1,51 @@
+\:host
+    display: block
+    position: relative
+    overflow: auto
+
+    &.selectable table::ng-deep tbody tr:hover
+        cursor: pointer
+        background: var(--table-row-select-background)
+
+    table::ng-deep
+        position: relative
+        border-collapse: collapse
+        text-align: left
+        width: 100%
+
+        &.center
+            text-align: center
+        &.align-right
+            text-align: right
+
+        th, td
+            padding: 5px 1.25rem
+            height: 50px
+            &.align-right
+                text-align: right
+
+        thead tr
+            th
+                position: sticky
+                top: 0
+                background: var(--table-header-background)
+                color: var(--table-header-color)
+                font-weight: 500
+                &:first-of-type
+                    border-top-left-radius: var(--section-radius)
+                &:last-of-type
+                    border-top-right-radius: var(--section-radius)
+
+        tbody tr
+            background: var(--table-row-odd-background)
+
+            // --table-row-even being used on nth-of-type(odd) is not a mistake.
+            // It's done to keep ag and simple tables consistent, since Ag-grid
+            // for some reason has these two mixed up.
+            &:nth-of-type(odd)
+                background: var(--table-row-even-background)
+
+            & + tr
+                border-top: var(--row-border)
+
+

@@ -8,7 +8,7 @@
         [hidden]="!isInput(field?.FieldType)"
         [title]="field?.Label"
         [style.width]="labelWidth">
-        {{field?.Label | isRequired:field}}
+        {{field?.Label | isRequired:field | translate}}
 
         <uni-tooltip *ngIf="field?.Tooltip"
             [type]="field.Tooltip.Type"

@@ -5,5 +5,8 @@
 
 <uni-ticker-wrapper
     [tickerCode]="'supplier_list'"
-    [showFiltersAsNavbar]="true">
+    [showFiltersAsNavbar]="true"
+    [disableSubTickers]="true"
+    (rowSelected)="onRowSelected($event)"
+>
 </uni-ticker-wrapper>

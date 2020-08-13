@@ -3,10 +3,9 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
-import {environment} from 'src/environments/environment';
-import {InitService} from '@app/services/services';
-import {Subscription} from 'rxjs';
-import {theme} from 'src/themes/theme';
+import {ElsaContractService, ErrorService} from '@app/services/services';
+import {Subscription, forkJoin} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 export interface CompanyInfo {
     companySettings: CompanySettings;
@@ -32,44 +31,41 @@ interface RegistrationOption {
     styleUrls: ['./registerCompany.sass'],
 })
 export class RegisterCompany {
-    appName = environment.appTitle;
+    appName = theme.appName;
+
     tokenSubscription: Subscription;
+    routeSubscription: Subscription;
 
     selectedCompanyType: string;
-    isTest: boolean;
     busy: boolean;
     missingContract = false;
     contractID: number;
     contracts: Contract[];
 
     registrationOptions: RegistrationOption[];
-
-    isSrEnvironment = environment.isSrEnvironment;
     illustration = theme.init.illustration;
 
+    hasActiveContract: boolean;
+
     @HostBinding('style.background') background = theme.init.background || '#fff';
+    @HostBinding('class.ext02') usingExt02Theme = theme.theme === THEMES.EXT02;
 
     constructor(
-        private initService: InitService,
         private router: Router,
         private route: ActivatedRoute,
         private authService: AuthService,
+        private errorService: ErrorService,
+        private elsaContractService: ElsaContractService
     ) {
-        this.route.queryParamMap.subscribe(params => {
-            this.isTest = params.get('isTest') === 'true' || false;
-            this.selectedCompanyType = params.get('type') || undefined;
-        });
-
         this.tokenSubscription = this.authService.token$.subscribe(token => {
             if (token) {
-                this.initService.getContracts().subscribe(contracts => {
-                    if (contracts && contracts[0]) {
-                        this.contractID = contracts[0].ID;
-                        this.registrationOptions = environment.isSrEnvironment ? this.getSrOptions() : this.getUeOptions();
-                    } else {
-                        this.missingContract = true;
-                    }
-                });
+                this.init();
+
+                if (!this.routeSubscription) {
+                    this.routeSubscription = this.route.queryParamMap.subscribe(params => {
+                        this.selectedCompanyType = params.get('type') || undefined;
+                    });
+                }
             } else {
                 this.router.navigateByUrl('/init/login');
             }
@@ -77,13 +73,36 @@ export class RegisterCompany {
     }
 
     ngOnDestroy() {
-        if (this.tokenSubscription) {
-            this.tokenSubscription.unsubscribe();
-        }
+        this.tokenSubscription?.unsubscribe();
+        this.routeSubscription?.unsubscribe();
     }
 
-    navigate(url: string) {
-        this.router.navigateByUrl(url);
+    init() {
+        forkJoin(
+            this.elsaContractService.getAll(),
+            this.elsaContractService.getContractTypes(),
+        ).subscribe(([contracts, contractTypes]) => {
+            const contract = contracts && contracts[0];
+            if (contracts) {
+                this.contractID = contract.ID;
+
+                if (contract.Customer?.SignUpReferrer === 'CustomerProspect') {
+                    this.router.navigateByUrl('/init/register-company?type=company');
+                }
+
+                this.registrationOptions = theme.theme === THEMES.SR
+                    ? this.getSrOptions()
+                    : this.getUeOptions();
+
+                const demoContractType = (contractTypes || []).find(type => type.Name === 'Demo');
+
+                const isDemo = demoContractType && contract.ContractType === demoContractType.ContractType;
+                this.hasActiveContract = !isDemo && contract.AgreementAcceptances?.length > 0;
+            } else {
+                this.missingContract = true;
+            }
+
+        }, err => this.errorService.handle(err));
     }
 
     // tslint:disable
@@ -142,11 +161,11 @@ export class RegisterCompany {
                 }]
             },
             {
-                header: 'Registrer din egen bedrift',
+                header: 'Registrer din bedrift',
                 textSections: [
-                    'Registrer din egen bedrift her for å starte opp med Uni Economy i dag.',
-                    'Prøveperioden vil fremdeles være gratis, men du kan begynne å jobbe med reelle data umiddelbart.',
-                    'Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.',
+                    `Registrer din bedrift her for å starte opp med ${theme.appName} i dag.`,
+                    `Prøveperioden vil fremdeles være gratis, men du kan begynne å jobbe med reelle data umiddelbart.`,
+                    `Ønsker du å prøve systemet med fiktive data før du bestemmer deg velger du demoselskap.`,
                 ],
                 buttons: [{
                     label: 'Registrer din bedrift',

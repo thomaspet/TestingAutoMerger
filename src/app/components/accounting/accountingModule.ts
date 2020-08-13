@@ -74,6 +74,7 @@ import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
 import { UniDateAdapter } from '@app/date-adapter';
 import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
 import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
+import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module';
 
 @NgModule({
     imports: [
@@ -83,6 +84,7 @@ import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal'
         AppCommonModule,
         WidgetModule,
         UniTickerModule,
+        SupplierInvoiceModule,
         RouterModule.forChild(accountingRoutes)
     ],
     declarations: [

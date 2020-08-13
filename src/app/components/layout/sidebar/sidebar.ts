@@ -5,7 +5,7 @@ import {NavbarLinkService, SidebarState} from '../navbar/navbar-link-service';
 import {INavbarLinkSection} from '../navbar/navbar-links-common';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {cloneDeep} from 'lodash';
-import {environment} from 'src/environments/environment';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-sidebar',
@@ -13,12 +13,12 @@ import {environment} from 'src/environments/environment';
     styleUrls: ['./sidebar.sass']
 })
 export class UniSidebar {
-    isSrEnvironment = environment.isSrEnvironment;
-    public state: SidebarState;
-    public popover: boolean;
+    isUEEnvironment = theme.theme === THEMES.UE;
+    state: SidebarState;
+    popover: boolean;
 
-    public expandedSectionIndex: number = 0;
-    public navbarLinkSections: INavbarLinkSection[] = [];
+    expandedSectionIndex: number = 0;
+    navbarLinkSections: INavbarLinkSection[] = [];
 
     private scrollbar: PerfectScrollbar;
 

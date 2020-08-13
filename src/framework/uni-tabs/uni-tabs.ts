@@ -2,9 +2,11 @@ import {Component, Input, Output, EventEmitter, ElementRef, ViewChild, ChangeDet
 import {Router, ActivatedRoute} from '@angular/router';
 import {Subject, fromEvent} from 'rxjs';
 import {takeUntil, debounceTime} from 'rxjs/operators';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export interface IUniTab {
     name: string;
+    featurePermission?: string;
     path?: string;
     queryParams?: {[key: string]: any};
     disabled?: boolean;
@@ -15,6 +17,12 @@ export interface IUniTab {
     value?: any;
     count?: number;
     onClick?: () => void;
+
+    /**
+        Hides the tab without altering indexes,  so for example *ngIf="activeTabIndex === 4"
+        means tab 4 is active, regardless of if tab 1, 2 and 3 are visible or hidden to the user.
+    */
+    hidden?: boolean;
 }
 
 @Component({
@@ -43,7 +51,8 @@ export class UniTabs {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private cdr: ChangeDetectorRef
+        private cdr: ChangeDetectorRef,
+        private featurePermissionService: FeaturePermissionService
     ) {}
 
     ngOnChanges(changes) {
@@ -60,6 +69,11 @@ export class UniTabs {
             if (this.tabs.some(tab => !!tab.queryParams)) {
                 this.pathMatchExact = true;
             }
+
+            this.tabs.forEach(tab => {
+                tab['_hasFeaturePermission'] = !tab.featurePermission
+                    || this.featurePermissionService.canShowUiFeature(tab.featurePermission);
+            });
 
             setTimeout(() => {
                 this.checkOverflow();

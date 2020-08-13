@@ -2,7 +2,6 @@ import {NgModule} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
-import {HttpClientModule} from '@angular/common/http';
 
 import {ScrollingModule} from '@angular/cdk/scrolling';
 import {A11yModule} from '@angular/cdk/a11y';
@@ -32,7 +31,6 @@ const libs = [
     FormsModule,
     ReactiveFormsModule,
     RouterModule,
-    HttpClientModule,
 
     ScrollingModule,
     A11yModule,

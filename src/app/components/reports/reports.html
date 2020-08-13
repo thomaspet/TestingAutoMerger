@@ -9,18 +9,20 @@
     </uni-tabs>
 
     <section class="report-groups">
-        <section class="uni-container report-group" *ngFor="let group of mainGroups[activeTabIndex].groups">
-            <header>{{group.label}}</header>
+        <ng-container *ngFor="let group of mainGroups[activeTabIndex].groups">
+            <section class="uni-container report-group" *ifFeaturePermission="group.featurePermission">
+                <header>{{group.label}}</header>
 
-            <section *ngFor="let report of group.reports" (click)="showReport(report)" class="report">
-                <strong>
-                    {{report.Name}}
-                    <small *ngIf="report.IsQuery"> (uttrekk)</small>
-                </strong>
+                <section *ngFor="let report of group.reports" (click)="showReport(report)" class="report">
+                    <strong>
+                        {{report.Name}}
+                        <small *ngIf="report.IsQuery"> (uttrekk)</small>
+                    </strong>
 
-                <p>{{report.Description}}</p>
+                    <p>{{report.Description}}</p>
+                </section>
             </section>
-        </section>
+        </ng-container>
     </section>
 </section>
 

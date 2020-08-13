@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal">
+    <section role="dialog" class="uni-modal">
     <header>
         Produkttilganger
         <span *ngIf="singleProductMode && products"> - {{products[0]?.Label}}</span>
@@ -18,13 +18,13 @@
 
         <ng-container *ngIf="singleProductMode && purchasesMatrix">
             <input type="search" [formControl]="filterControl" placeholder="Filtrer" style="width: 17rem;">
-    
+
             <section class="check-all">
                 <mat-checkbox (click)="onCheckAllChange()">
                     <span style="font-size: 15px !important">Velg alle <strong *ngIf="purchasesMatrix?.length">({{purchasesMatrix?.length}})</strong></span>
                 </mat-checkbox>
             </section>
-    
+
             <mat-selection-list>
                 <mat-list-option *ngFor="let entry of purchasesMatrix"
                     [checkboxPosition]="'before'"
@@ -51,7 +51,7 @@
                     <td *ngFor="let purchase of entry.purchases">
                         <i class="material-icons"
                             [ngClass]="{'active': purchase['_active']}"
-                            (click)="purchase['_active'] = !purchase['_active']">
+                            (click)="togglePurchase(purchase)">
                             {{purchase['_active'] ? 'check_box' : 'check_box_outline_blank'}}
                         </i>
                     </td>

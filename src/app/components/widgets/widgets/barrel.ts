@@ -27,6 +27,7 @@ import {ReminderListWidget} from './reminder-list/reminder-list';
 import {PaymentWidget} from './payment/payment-chart';
 import {PublicDueDatesWidget} from './public-duedates-widget/public-duedates';
 import {BankBalanceWidget} from './bank-balance-widget';
+import {BankBalanceWidgetExt02} from './bank-balance-widget-ext02';
 import {LiquidityWidget} from './liquidity-widget/liquidity-widget';
 import { UniInfoTileWidget } from './infoTileWidget';
 import { EmployeeCounterWidget } from './employee-counter/employee-counter-widget';
@@ -60,6 +61,7 @@ export const UNI_WIDGETS = [
     PaymentWidget,
     PublicDueDatesWidget,
     BankBalanceWidget,
+    BankBalanceWidgetExt02,
     LiquidityWidget,
     UniInfoTileWidget,
     EmployeeCounterWidget,
@@ -93,6 +95,7 @@ export * from './reminder-list/reminder-list';
 export * from './payment/payment-chart';
 export * from './public-duedates-widget/public-duedates';
 export * from './bank-balance-widget';
+export * from './bank-balance-widget-ext02';
 export * from './liquidity-widget/liquidity-widget';
 export * from './infoTileWidget';
 export * from './employee-counter/employee-counter-widget';

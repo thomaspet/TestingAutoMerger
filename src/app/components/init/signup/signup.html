@@ -1,4 +1,4 @@
-<section class="background" [ngStyle]="{'background': background}"></section>
+<section class="background" [ngStyle]="{'background': background, 'height': backgroundHeight}"></section>
 
 <section class="content">
     <section class="illustration-wrapper">
@@ -13,105 +13,111 @@
         </small>
 
         <!-- STEP 1 -->
-        <section class="step1" *ngIf="!confirmationCode">
-            <section *ngIf="!step1Successful && !errorMessage && !isSrEnvironment" class="init-subtitle">
-                Registrer deg her og få tilgang til en 30 dagers prøveperiode av systemet.
-            </section>
+        <section class="signup-step" *ngIf="!confirmationCode">
+            <!-- <section *ngIf="!step1Successful && !errorMessage" class="init-subtitle">
+                Registrer deg her og få tilgang til en 30 dagers prøveperiode.
+            </section> -->
 
             <section class="init-subtitle" *ngIf="step1Successful">
-                En epost med mer informasjon er sendt til {{step1Form.controls['Email'].value}}.
+                En epost med mer informasjon er sendt til {{step1Form.controls['Email'].value}}
             </section>
 
-            <form #step1="ngForm" *ngIf="!step1Successful" [formGroup]="step1Form" (ngSubmit)="submitStep1Form()">
-                <label class="uni-label">
-                    <span>Ditt navn</span>
-                    <input type="text" placeholder="Ditt navn" formControlName="DisplayName" />
-                </label>
+            <ng-container *ngIf="!step1Successful">
+                <form [formGroup]="step1Form">
+                    <label class="uni-label">
+                        <span>Ditt navn</span>
+                        <input type="text" formControlName="DisplayName" />
+                    </label>
 
-                <label class="uni-label">
-                    <span>E-post</span>
-                    <input type="email" placeholder="E-post" formControlName="Email" />
-                </label>
+                    <label class="uni-label">
+                        <span>E-post</span>
+                        <input type="email" formControlName="Email" />
+                    </label>
 
-                <label class="uni-label">
-                    <span>Telefon</span>
-                    <input type="tel" placeholder="Telefonnummer" formControlName="PhoneNumber" />
-                </label>
+                    <label class="uni-label">
+                        <span>Telefon</span>
+                        <input type="tel" formControlName="PhoneNumber" />
+                    </label>
+                </form>
 
-                <uni-recaptcha (reCaptchaCode)="reCaptchaCode = $event"></uni-recaptcha>
+                <section class="agreement-text">
+                    {{agreeementText}}
+                </section>
 
-                <small class="privacy-info">
-                    Ved registrering godtar du lagring og bruk av dine data.
-                </small>
+                <section class="recaptcha-wrapper">
+                    <uni-recaptcha (reCaptchaCode)="recaptchaCode = $event"></uni-recaptcha>
+                </section>
 
                 <button
-                    type="submit"
-                    class="c2a init-submit-button"
+                    class="c2a"
+                    (click)="submitStep1Form()"
                     [attr.aria-busy]="busy"
-                    [disabled]="busy || !step1?.form?.valid || !reCaptchaCode">
+                    [disabled]="busy || !step1Form?.valid || !recaptchaCode">
                     Start registrering
                 </button>
-            </form>
+
+                <section class="login-link">
+                    Har du allerde en bruker?
+                    <a [routerLink]="['/init/login']">Logg inn</a>
+                </section>
+            </ng-container>
         </section>
 
         <!-- STEP 2  -->
-        <section class="step2" *ngIf="confirmationCode">
-            <!-- <small class="alert info center" *ngIf="!step2Successful && !errorMessage">
-                Selskapet ditt er klart for oppretting. Vennligst fyll ut ønsket brukernavn og passord for å komme i gang.
-            </small> -->
-
+        <section class="signup-step" *ngIf="confirmationCode">
             <section class="init-subtitle" *ngIf="!step2Successful && !errorMessage">
-                Vennligst fyll ut ønsket passord for denne brukeren.
+                Vennligst fyll ut ønsket passord for denne brukeren
             </section>
 
-            <section *ngIf="step2Successful && !errorMessage">
+            <ng-container *ngIf="step2Successful && !errorMessage">
                 <section class="init-subtitle">
-                    Brukerregistrering er nå fullført og du er snart i mål!
-                </section>
-
-                <p style="font-size: 15px">
+                    <!-- Brukerregistrering er nå fullført og du er snart i mål! -->
                     Prøveperioden på 30 dager er nå aktiv og alt er klart for
                     å registrere bedriften din i {{appName}}.
-                    Logg på med brukeren du nettopp har opprettet, så hjelper vi deg
+                </section>
+
+                <!-- <p style="font-size: 15px">
+                    Prøveperioden på 30 dager er nå aktiv og alt er klart for
+                    å registrere bedriften din.
+                    Logg inn med brukeren du nettopp har opprettet, så hjelper vi deg
                     videre derfra.
-                </p>
+                </p> -->
 
-                <button class="c2a" style="width: 100%; margin: 1rem 0" (click)="authService.authenticate()">
-                    Logg på
+                <button class="c2a" style="margin: 1rem auto" (click)="authService.authenticate()">
+                    Logg inn
                 </button>
-            </section>
+            </ng-container>
 
-            <form #step2="ngForm" *ngIf="!step2Successful && !invalidConfirmationCode && !userExists" [formGroup]="step2Form" (ngSubmit)="submitStep2Form()">
-                <label class="uni-label">
-                    <span>Skriv inn ønsket passord</span>
-                    <input type="password" formControlName="Password" autocomplete="new-password" />
-                </label>
+            <ng-container *ngIf="!step2Successful && !invalidConfirmationCode && !userExists">
+                <form #step2="ngForm" [formGroup]="step2Form">
+                    <label class="uni-label">
+                        <span>Skriv inn ønsket passord</span>
+                        <input type="password" formControlName="Password" autocomplete="new-password" />
+                    </label>
 
-                <label class="uni-label">
-                    <span>Bekreft passord</span>
-                    <input type="password" formControlName="ConfirmPassword" />
-                    <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
-                </label>
+                    <uni-password-guide *ngIf="step2Form?.controls"
+                        [passwordControl]="step2Form.controls.Password">
+                    </uni-password-guide>
 
-                <uni-password-guide *ngIf="step2Form?.controls"
-                    [passwordControl]="step2Form.controls.Password">
-                </uni-password-guide>
+                    <label class="uni-label">
+                        <span>Bekreft passord</span>
+                        <input type="password" formControlName="ConfirmPassword" (keydown.enter)="submitStep2Form()" />
+                        <small class="bad">{{step2Form?.get('ConfirmPassword').errors?.passwordMatchValidator}}</small>
+                    </label>
+                </form>
 
-                <button
-                    type="submit"
-                    class="c2a init-submit-button"
-                    [attr.aria-busy]="busy"
-                    [disabled]="busy || !step2.form.valid">
-                    Fullfør registrering
-                </button>
-            </form>
+                <section class="button-row">
+                    <button routerLink="/init/sign-up" class="secondary">Avbryt</button>
+                    <button
+                        (click)="submitStep2Form()"
+                        class="c2a"
+                        [attr.aria-busy]="busy"
+                        [disabled]="busy || !step2Form?.valid">
+                        Fullfør registrering
+                    </button>
+                </section>
+            </ng-container>
         </section>
-
-        <a class="init-link"
-            *ngIf="!step2Successful && !invalidConfirmationCode && !step1Successful"
-            [routerLink]="['/init/login']">
-            Tilbake til innlogging
-        </a>
 
         <a class="init-link" *ngIf="invalidConfirmationCode"
             [routerLink]="['/init/sign-up']"

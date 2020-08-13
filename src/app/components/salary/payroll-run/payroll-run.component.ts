@@ -24,8 +24,8 @@ export class PayrollRunListComponent implements OnInit {
     constructor(
         private router: Router,
         private tabService: TabService,
-        private sharedPayrollRunService: SharedPayrollRunService,
         private errorService: ErrorService,
+        private sharedPayrollRunService: SharedPayrollRunService,
         private payrollRunService: PayrollRunService,
     ) {}
 
@@ -44,15 +44,12 @@ export class PayrollRunListComponent implements OnInit {
         });
     }
 
-    newPayrollrun(done) {
-        this.router
-            .navigateByUrl('/salary/payrollrun/' + 0)
-            .then(succeeded => {
-                if (succeeded) {
-                    return;
-                }
+    public newPayrollrun(done) {
+        this.router.navigateByUrl('/salary/payrollrun/' + 0).then(succeeded => {
+            if (!succeeded) {
                 done('Avbrutt');
-            });
+            }
+        });
     }
 
     rowSelected(row) {

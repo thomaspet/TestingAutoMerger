@@ -9,14 +9,13 @@
     grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr))
     grid-gap: .75rem
     margin-bottom: 1rem
+    margin-top: 1rem
 
     .uni-container
         margin: 0
-        header
-            font-weight: 500
 
         &.journaling
-            margin-top: .75rem
+            margin-top: 1rem
             padding-bottom: 0
 
             footer
@@ -29,25 +28,34 @@
                 background: #fafafa
                 border-top: 1px solid var(--border-color)
 
-    .get-from-inbox
-        position: absolute
-        cursor: pointer
-        padding: 0
-        top: 1rem
-        left: 10rem
-        color: var(--text-color)
-        z-index: 99
-        i.material-icons
+
+.attachments
+    position: relative
+
+    .attachments-header
+        display: flex
+
+        span
+            font-weight: 400
+            color: var(--color-c2a)
+
+        uni-icon
             color: var(--color-c2a)
             vertical-align: middle
+            width: 16px
+            margin-right: 4px
+            margin-bottom: 3px
 
-    .document-counter
-        position: absolute
-        padding: 0
-        top: 1rem
-        right: 1rem
-        color: var(--text-color)
-        z-index: 99
+        .get-from-inbox
+            cursor: pointer
+            margin: 0 2rem 0 auto
+
+        .upload-input
+            margin-bottom: 0
+
+    uni-image::ng-deep
+        .image-section
+            border: none
 
 .done-redirect-modal
     width: 35vw

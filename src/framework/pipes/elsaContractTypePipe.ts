@@ -1,26 +1,32 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {ElsaContractType} from '@app/models';
+import {ContractType} from '@app/models';
 
 @Pipe({name: 'elsaContractType'})
 export class ElsaContractTypePipe implements PipeTransform {
-    transform(value: ElsaContractType): string {
+    transform(value: ContractType): string {
         switch (value) {
-            case ElsaContractType.Demo:
+            case ContractType.Demo:
                 return 'Demo';
-            case ElsaContractType.Internal:
+            case ContractType.Internal:
                 return 'Intern';
-            case ElsaContractType.Partner:
+            case ContractType.Partner:
                 return 'Partner';
-            case ElsaContractType.Pilot:
+            case ContractType.Pilot:
                 return 'Pilot';
-            case ElsaContractType.Training:
+            case ContractType.Training:
                 return 'Training';
-            case ElsaContractType.Standard:
+            case ContractType.Standard:
                 return 'Standard';
-            case ElsaContractType.Bureau:
+            case ContractType.Bureau:
                 return 'Byrå';
-            case ElsaContractType.NonProfit:
+            case ContractType.NonProfit:
                 return 'Non-profit';
+            case ContractType.Mini:
+                return 'Mini';
+            case ContractType.Plus:
+                return 'Pluss';
+            case ContractType.Complete:
+                return 'Komplett';
             default:
                 return '';
         }

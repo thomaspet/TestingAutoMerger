@@ -1,14 +1,15 @@
-<uni-toolbar *ngIf="!modalMode"
-             [config]="toolbarconfig"
-             [saveactions]="saveactions"
-             [tags]="categoryFilter"
-             [validationMessages]="toolbarStatusValidation"
-             [tagConfig]="tagConfig">
+<uni-toolbar
+    *ngIf="!modalMode"
+    [config]="toolbarconfig"
+    [saveactions]="saveactions"
+    [tags]="categoryFilter"
+    [validationMessages]="toolbarStatusValidation"
+    [tagConfig]="tagConfig">
 </uni-toolbar>
 
 <section *ngIf="(product$ | async)" class="product-details application">
     <uni-form
-        [config]="config$"
+        [config]="{autofocus: true}"
         [fields]="fields$"
         [model]="product$"
         (changeEvent)="change($event)">

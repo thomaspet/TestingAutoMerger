@@ -1,4 +1,4 @@
-<uni-mega-menu *ngIf="navbarService.megaMenuVisible$ | async"></uni-mega-menu>
+ <uni-mega-menu *ngIf="navbarService.megaMenuVisible$ | async"></uni-mega-menu>
 
 <section class="navbar">
     <section class="navbar-left">
@@ -17,13 +17,33 @@
 
         <uni-company-dropdown [lockYearSelector]="deativateFunctions"></uni-company-dropdown>
 
-        <section *ngIf="isTestCompany"
+        <section *ngIf="isTestCompany && isSrEnvironment"
             class="template-company-warning"
             matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
             Kun for testing
         </section>
 
-        <support-access-indicator></support-access-indicator>
+        <section class="bundle-test" style="margin-left: 1rem;">
+            <a #trigger style="font-weight: 500; font-size: 15px; text-decoration: none;">
+                Test produktpakke
+                <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
+            </a>
+            <dropdown-menu [trigger]="trigger" minWidth="8rem">
+                <ng-template>
+                    <section (click)="authService.mockSetProductBundle('Mini')" class="dropdown-menu-item">
+                        Mini
+                    </section>
+                    <section (click)="authService.mockSetProductBundle('Plus')" class="dropdown-menu-item">
+                        Pluss
+                    </section>
+                    <section (click)="authService.mockSetProductBundle('Complete')" class="dropdown-menu-item">
+                        Komplett
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+        </section>
+
+        <support-access-indicator style="margin-left: 0.75rem"></support-access-indicator>
     </section>
 
     <section class="navbar-right">
@@ -45,14 +65,16 @@
         <uni-icon
             *ngIf="hasActiveContract && !deativateFunctions"
             [icon]="'search'"
-            (click)="openSearch()">
+            (click)="openSearch()"
+            matTooltip="Søk etter funksjon/tjeneste">
         </uni-icon>
 
         <uni-icon
             *ngIf="hasActiveContract && !deativateFunctions"
             [icon]="'company'"
             role="link"
-            routerLink="bureau">
+            routerLink="bureau"
+            matTooltip="Mine selskaper">
         </uni-icon>
 
         <navbar-create-new *ngIf="hasActiveContract && !deativateFunctions"></navbar-create-new>
@@ -60,7 +82,7 @@
         <notifications *ngIf="!deativateFunctions" title=""></notifications>
 
         <section class="navbar-settings" *ngIf="hasActiveContract && (settingsLinks?.length || adminLinks?.length) && !deativateFunctions">
-            <uni-icon #settingsToggle [icon]="'settings'" title="Innstillinger"></uni-icon>
+            <uni-icon #settingsToggle [icon]="'settings'" title="Innstillinger" matTooltip="Innstillinger"></uni-icon>
 
             <dropdown-menu [trigger]="settingsToggle" minWidth="14rem">
                 <ng-template>

@@ -42,7 +42,7 @@ import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
     selector: 'uni-tradeitem-table',
     template: `
         <ag-grid-wrapper *ngIf="showTable && settings"
-            class="selection-disabled"
+            class="selection-disabled borders"
             [(resource)]="items"
             [config]="tableConfig"
             (rowChange)="onRowChange($event)"
@@ -250,7 +250,6 @@ export class TradeItemTable {
     }
 
     public setDefaultProjectAndRefreshItems(dims: any, updateTableData: boolean) {
-        this.updateDimensionsOnDefaultTradeItem();
         this.mapDimensionsToEntity(dims, this.defaultTradeItem);
         this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
@@ -260,18 +259,6 @@ export class TradeItemTable {
             }
             return item;
         });
-    }
-
-    public updateDimensionsOnDefaultTradeItem() {
-        const dimensions = this.defaultTradeItem.Dimensions;
-        if (dimensions.ProjectID > 0 && !dimensions.Project) {
-            dimensions.Project = this.projects.find(project => project.ID === dimensions.ProjectID);
-        }
-        if (dimensions.DepartmentID > 0 && !dimensions.Department) {
-            dimensions.Department = this.departments.find(dep => dep.ID === dimensions.DepartmentID);
-        }
-        this.defaultTradeItem.Dimensions = dimensions;
-
     }
 
     public mapDimensionsToEntity(dimensions: any, entity: any) {
@@ -685,37 +672,47 @@ export class TradeItemTable {
 
         const dimensionCols = [];
 
-        this.dimensionTypes.forEach((type, index) => {
-            if (type.Label === 'Avdeling' || type.Dimension < 4) {
-                return;
+        this.dimensionTypes.forEach(type => {
+            if (type.Dimension >= 4) {
+                const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
+                    .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
+                    .setEditable(type.IsActive)
+                    .setVisible(false)
+                    .setTemplate((rowModel) => {
+                        if (rowModel['_isEmpty']) {
+                            return '';
+                        }
+
+                        const dimensions = rowModel?.Dimensions;
+                        if (dimensions) {
+                            const dimID = dimensions['Dimension' + type.Dimension + 'ID'];
+                            const dimInfo = dimensions['Dimension' + type.Dimension];
+
+                            if (dimInfo && (dimInfo.Number || dimInfo.Name)) {
+                                return `${dimInfo.Number}: ${dimInfo.Name}`;
+                            } else if (dimID) {
+                                // On some companies the migration for dim10 in DimensionInfo
+                                // didnt run (?) so even if you've set the dimension we don't have any
+                                // info to show. Just show ID in that case..
+                                return dimID;
+                            }
+                        }
+
+                        return '';
+                    })
+                    .setOptions({
+                        searchPlaceholder: 'Velg avdeling',
+                        itemTemplate: (item) => item.Number + ': ' + item.Name,
+                        lookupFunction: (query) => {
+                            return this.customDimensionService.getCustomDimensionList(
+                                type.Dimension,
+                                `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                            ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                        }
+                    });
+
+                dimensionCols.push(dimCol);
             }
-            const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
-                .setVisible(false)
-                .setTemplate((rowModel) => {
-                    const dimension = !rowModel['_isEmpty'] && rowModel?.Dimensions && rowModel?.Dimensions['Dimension' + type.Dimension];
-                    if (dimension) {
-                        return dimension.Number + ': ' + dimension.Name;
-                    }
-
-                    return '';
-                })
-                .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
-                .setEditable(type.IsActive)
-                .setOptions({
-                    itemTemplate: (item) => {
-                        return (item.Number + ': ' + item.Name);
-                    },
-                    searchPlaceholder: 'Velg avdeling',
-                    lookupFunction: (query) => {
-
-                        return this.customDimensionService.getCustomDimensionList(
-                            type.Dimension,
-                            `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
-                        ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                    }
-                });
-
-            dimensionCols.push(dimCol);
         });
 
         const sumTotalExVatCol = new UniTableColumn('SumTotalExVatCurrency', 'Netto', UniTableColumnType.Money, false)

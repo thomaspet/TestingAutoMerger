@@ -27,7 +27,7 @@
     width: var(--sidebar-expanded-width)
     height: calc(100vh - #{var(--navbar-height)})
     background: var(--sidebar-background)
-    border-right: 1px solid var(--border-color)
+    border-right: 1px solid var(--core-border-color)
     transition: all .25s ease
 
     &.collapsed
@@ -63,7 +63,7 @@ ul.sidebar-menu
             white-space: nowrap
 
             &:hover
-                background-color: var(--sidebar-active-section-background)
+                background-color: var(--sidebar-active-section-header-background)
                 color: var(--sidebar-hover-color)
 
             .icon-container
@@ -83,7 +83,7 @@ ul.sidebar-menu
                 font-size: 15px
                 font-weight: 500
                 font-family: var(--font-family)
-                color: var(--sidebar-color)
+                color: var(--sidebar-header-color)
                 @media screen and (max-width: 1300px)
                     font-size: 14px
 
@@ -94,14 +94,6 @@ ul.sidebar-menu
 
             &:last-of-type
                 padding-bottom: 1rem
-
-            > span
-                padding-left: 2.2rem
-                text-transform: uppercase
-                font-size: 15px
-                font-weight: 600
-                color: $uni-color-toolbar
-
 
             ul.sidebar-sub-menu
                 padding: 0
@@ -128,10 +120,11 @@ ul.sidebar-menu
                             font-weight: 500
 
         &[aria-expanded]:not([aria-expanded=false])
+            background: var(--sidebar-active-section-background)
             .sidebar-section-header
-                background: var(--sidebar-active-section-background)
+                background: var(--sidebar-active-section-header-background)
                 color: var(--sidebar-hover-color)
-                border-right: 2px solid var(--sidebar-hover-color)
+                // border-right: 2px solid var(--sidebar-hover-color)
                 margin-bottom: 10px
 
                 span
@@ -151,7 +144,7 @@ ul.sidebar-menu
     display: flex
     align-items: center
     justify-content: center
-    border-top: 1px solid var(--border-color)
+    border-top: 1px solid var(--core-border-color)
     cursor: pointer
     font-size: 14px
     color: var(--sidebar-color)
@@ -159,7 +152,7 @@ ul.sidebar-menu
     white-space: nowrap
     overflow: hidden
     &:hover
-        background: var(--sidebar-active-section-background)
+        background: var(--sidebar-active-section-header-background)
         color: var(--sidebar-hover-color)
 
     i.material-icons

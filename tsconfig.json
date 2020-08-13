@@ -24,5 +24,8 @@
       "@uni-framework/*": ["src/framework/*"],
       "@uni-models/*": ["src/app/models/*"]
     }
-  }
+  },
+  "exclude": [
+    "dist",
+  ]
 }

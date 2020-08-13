@@ -406,7 +406,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send();
     }
 
-    private bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<JournalEntry[]> {
+    public bookJournalEntries(journalEntries: Array<JournalEntry>): Observable<JournalEntry[]> {
         return this.http
             .asPOST()
             .usingBusinessDomain()

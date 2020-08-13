@@ -6,6 +6,7 @@ import {ContractActivation} from './contract-activation';
 
 import {CanDeactivateGuard} from '@app/canDeactivateGuard';
 import {CompanyDetailsForm} from './company-details-form/company-details-form';
+import {AppCommonModule} from '../common/appCommonModule';
 
 const routes = [{
     path: '',
@@ -19,6 +20,7 @@ const routes = [{
         LibraryImportsModule,
         RouterModule.forChild(routes),
         UniFrameworkModule,
+        AppCommonModule,
     ],
     declarations: [ContractActivation, CompanyDetailsForm],
 })

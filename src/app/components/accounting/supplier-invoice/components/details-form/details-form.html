@@ -1,0 +1,38 @@
+<section class="details-form uni-card">
+	<section class="uni-card-header borderless">
+		<h1>Betalingsinformasjon</h1>
+	</section>
+
+	<section class="uni-card-content" *ngIf="supplierInvoice$ | async">
+		<label class="uni-label label-above">
+			<span>Leverandør</span>
+			<autocomplete
+				[options]="autocompleteOptions"
+				[readonly]="readonly"
+				[value]="(supplierInvoice$ | async).Supplier"
+				(valueChange)="newSupplierSelected($event)">
+			</autocomplete>
+		</label>
+
+		<uni-form
+			[config]="{showLabelAbove: true}"
+			[fields]="fields$"
+			[model]="supplierInvoice$"
+			(changeEvent)="onFormChange($event)">
+		</uni-form>
+
+		<button (click)="toggleAddOnFields()" class="more-fields-button">
+			<span>Flere felter</span>
+			<i class="material-icons" [class.flipped]="openExtraFields"> expand_more </i>
+		</button>
+
+		<uni-form
+			class="addOnFieldsForm"
+			[@slideInOut]="animationState"
+			[config]="{showLabelAbove: true}"
+			[fields]="addOnfields$"
+			[model]="supplierInvoice$"
+			(changeEvent)="onFormChange($event)">
+		</uni-form>
+	</section>
+</section>

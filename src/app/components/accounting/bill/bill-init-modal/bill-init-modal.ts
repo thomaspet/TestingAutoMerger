@@ -93,12 +93,13 @@ export class BillInitModal implements IUniModal {
     }
 
     private getTableConfig() {
-        return new UniTableConfig('accounting.file_from_inbox_table', false, true)
+        return new UniTableConfig('accounting.file_from_inbox_table', false, true, 10)
             .setAutofocus(true)
             .setSearchable(false)
-            .setPageSize(15)
             .setColumns([
-                new UniTableColumn('ID', 'Nr.').setWidth('3rem'),
+                new UniTableColumn('ID', 'Nr.')
+                    .setWidth('3rem')
+                    .setVisible(false),
                 new UniTableColumn('Name', 'Filnavn'),
                 new UniTableColumn('Description', 'Tekst'),
                 new UniTableColumn('Source', 'Kilde')

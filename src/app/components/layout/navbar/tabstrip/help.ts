@@ -1,33 +1,33 @@
 import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
-import {environment} from 'src/environments/environment';
 import {BoostChat} from '@app/components/layout/boostChat/boostChat';
+import {theme, THEMES} from 'src/themes/theme';
 import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'uni-tabstrip-help',
     template: `
-        <uni-icon #trigger [icon]="'help'"></uni-icon>
+        <uni-icon #trigger [icon]="'help'" matTooltip="Lisensinformasjon og support"></uni-icon>
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a class="dropdown-menu-item" href="{{helpdeskUrl}}" target="_blank">
-                    {{isSrEnvironment ? 'Hjelpeside' : 'Kundesenter'}}
+                <a *ngIf="helpdeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
+                    Hjelpeside
                 </a>
 
-                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="isUeEnvironment">
                     Opprett supportsak
                 </a>
 
-                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open" target="_blank" *ngIf="!isSrEnvironment">
+                <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/user/requests?status=open" target="_blank" *ngIf="isUeEnvironment">
                     Mine supportsaker
+                </a>
+
+                <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="isUeEnvironment">
+                    Teamviewer nedlasting
                 </a>
 
                 <a class="dropdown-menu-item" (click)="openGiveSupportAccessModal()">
                     Gi lesetilgang
-                </a>
-
-                <a class="dropdown-menu-item" href="ftp://ftp.unimicro.biz/teknisk/umtt.exe" target="_blank" *ngIf="!isSrEnvironment">
-                    Teamviewer nedlasting
                 </a>
 
                 <a class="dropdown-menu-item" routerLink="/about/versions">
@@ -43,7 +43,7 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
                 </a>
             </ng-template>
         </dropdown-menu>
-        <section *ngIf="isSrEnvironment" class="boost-icon">
+        <section *ngIf="showBoostChat" class="boost-icon">
             <boost-chat></boost-chat>
         </section>
     `,
@@ -53,12 +53,20 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
 export class UniTabstripHelp {
     @ViewChild(BoostChat) boost: BoostChat;
 
-    isSrEnvironment: boolean = environment.isSrEnvironment;
-    helpdeskUrl = environment.isSrEnvironment
-        ? 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html'
-        : 'https://help.unieconomy.no';
+    isUeEnvironment = theme.theme === THEMES.UE;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
-    constructor(private modalService: UniModalService) { }
+    showBoostChat = theme.theme === THEMES.SR || theme.theme === THEMES.EXT02;
+
+    helpdeskUrl;
+
+    constructor(private modalService: UniModalService) {
+        if (this.isUeEnvironment) {
+            this.helpdeskUrl = 'https://help.unieconomy.no';
+        } else if (this.isSrEnvironment) {
+            this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';
+        }
+    }
 
     openChatBotWithSupport() {
         if (this.boost.chatPanelReady) {

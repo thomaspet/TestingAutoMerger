@@ -13,6 +13,7 @@ export class ProductTypePipe implements PipeTransform {
             case ElsaProductType.Extension: type = 'Utvidelse'; break;
             case ElsaProductType.Bundle: type = 'Bundle'; break;
             case ElsaProductType.BankProduct: type = 'Bankprodukt'; break;
+            case ElsaProductType.Package: type = 'Pakke'; break;
         }
         return type;
     }

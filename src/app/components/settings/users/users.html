@@ -3,14 +3,14 @@
 <section class="users-container settings-view-container">
 
     <!-- List -->
-    <section class="user-list-container">
+    <section class="uni-card user-list-container">
         <section *ngIf="isAdmin" class="list-actions">
-            <button (click)="manageProductPurchases()">
-                <i class="material-icons">grid_on</i>
+            <button class="tertiary c2a" (click)="manageProductPurchases()">
+                <i class="material-icons" style="font-size: 20px;">grid_on</i>
                 Administrer produkttilganger
             </button>
-            <button (click)="openInviteUserModal()">
-                <i class="material-icons">person_add</i>
+            <button class="tertiary c2a" (click)="openInviteUserModal()">
+                <i class="material-icons" style="font-size: 21px;">person_add</i>
                 Inviter bruker
             </button>
         </section>
@@ -48,6 +48,7 @@
 
     <!-- Details -->
     <user-details
+        class="uni-card"
         [user]="selectedUser"
         [users]="users"
         [currentUserIsAdmin]="isAdmin"

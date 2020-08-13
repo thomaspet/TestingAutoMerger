@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
 import { FieldType, UniForm } from '@uni-framework/ui/uniform';
 declare const _;
@@ -15,21 +15,20 @@ declare const _;
 })
 
 
-export class UniDimensionTOFView implements OnInit {
+export class UniDimensionTOFView {
 
-    @Input() public dimensionTypes: any[] = [];
-    @Input() public entity: any;
-    @Input() public entityType: string;
-    @Input() public isModal: boolean = false;
-    @Output() public entityChange: EventEmitter<any> = new EventEmitter();
+    @Input() dimensionTypes: any[] = [];
+    @Input() entity: any;
+    @Input() entityType: string;
+    @Input() isModal: boolean = false;
+    @Output() entityChange = new EventEmitter();
+    @Output() dimensionChange = new EventEmitter();
 
     public dimfields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public model$: BehaviorSubject<any> = new BehaviorSubject({});
 
     constructor() {}
 
-    public ngOnInit() {
-    }
 
     public ngOnChanges(changes) {
         this.model$.next(this.entity);
@@ -42,9 +41,15 @@ export class UniDimensionTOFView implements OnInit {
             _.set(this.entity, key, changes[key].currentValue);
         });
 
-        this.entity['_updatedField'] = Object.keys(changes)[0];
-        this.entity['_updatedFields'] = Object.keys(changes);
         this.entityChange.emit(this.entity);
+
+        // Important that this happens after entityChange emit!
+        if (keys[0]) {
+            this.dimensionChange.emit({
+                field: keys[0],
+                value: changes[keys[0]]?.currentValue
+            });
+        }
     }
 
     private setUpDimensions() {

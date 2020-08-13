@@ -3,7 +3,7 @@ import {
     Input,
     SimpleChanges,
     ChangeDetectionStrategy,
-    ChangeDetectorRef, ViewChild
+    ChangeDetectorRef, ViewChild, Output, EventEmitter
 } from '@angular/core';
 import {
     Ticker,
@@ -24,7 +24,8 @@ export class UniTickerWrapper {
     @Input() public showFiltersAsNavbar: boolean = false;
     @Input() public actionOverrides: Array<ITickerActionOverride> = [];
     @Input() public columnOverrides: Array<ITickerColumnOverride> = [];
-
+    @Input() public disableSubTickers = false;
+    @Output() public rowSelected: EventEmitter<any> = new EventEmitter<any>();
     private tickers: Array<Ticker>;
     public selectedTicker: Ticker;
     @ViewChild(UniTickerContainer, { static: true }) public tickerContainer: UniTickerContainer;

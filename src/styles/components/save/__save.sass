@@ -14,16 +14,23 @@ uni-save
 
         .toolbar-save
             min-width: 8rem
+            &.has-toggle
+                border-top-right-radius: 0
+                border-bottom-right-radius: 0
 
         .good.toolbar-save-toggle
             min-width: unset
             border-top-left-radius: 0
             border-bottom-left-radius: 0
             padding: 0 8px
-            margin-left: -2px
-            border-left: 1px solid rgba(255, 255, 255, .75)
+            margin-left: 0
+            // border-left: 1px solid rgba(255, 255, 255, .75)
             i.material-icons
                 margin: 0
+
+            box-shadow: inset 1px 0 0 rgba(255, 255, 255, .75)
+        .toolbar-save:hover + .good.toolbar-save-toggle
+            box-shadow: none
 
 .uni-save-status
     position: fixed

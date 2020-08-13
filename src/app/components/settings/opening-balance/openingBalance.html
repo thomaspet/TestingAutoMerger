@@ -1,0 +1,61 @@
+<uni-toolbar
+    [config]="toolbarConfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application" *ngIf="draftlines; else emptyOpeningBalance">
+    <uni-form class="date-form"
+        [model]="dateModel"
+        [fields]="dateform"
+        [config]="{autofocus: true, showLabelAbove: true}"
+        (changeEvent)="onDateChange($event)"
+    >
+    </uni-form>
+    <ag-grid-wrapper class="borders"
+             [(resource)]="draftlines"
+             [config]="tableconfig"
+    ></ag-grid-wrapper>
+    <button type="button" class="secondary" (click)="edit(null)">Legg til konto</button>
+    <header class="file-upload-header">Stiftelsedokument</header>
+    <uni-file-upload
+        [entityType]="'JournalEntry'"
+        (onFileUploaded)="onFileUploaded($event)"
+        (onFileDetached)="onFileDetached($event)"
+    ></uni-file-upload>
+</section>
+<ng-template #emptyOpeningBalance>
+    <section class="application" [attr.aria-busy]="busy">
+        <section class="info-section" *ngIf="showInfoBox">
+            <i class="material-icons info">info</i>
+            <article class="info-text">
+                <p>
+                    Har du et nystiftet AS bruker du denne veiviseren for å registrere åpningsbalanse.
+                    Denne inneholder vanligvis bankinsskudd/tingsinnskudd, aksjekapital og avsetning for stiftelseskostnader.
+                </p>
+                <p>
+                    Har du et selskap som har vært i drift, skal du registrere inngående balanse
+                    <a href="/#/accounting/journalentry/manual">Registrere inngående balanse</a>
+                </p>
+            </article>
+            <i class="material-icons close" (click)="showInfoBox = false">close</i>
+        </section>
+        <section class="content">
+            <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g clip-path="url(#openingbalanceinbox)">
+                    <path d="M96.5229 67.1728L76.2833 48.9582H23.7167L3.47708 67.1728L0.689575 64.0769L22.1167 44.7915H77.8833L99.3104 64.0769L96.5229 67.1728Z" fill="currentColor"/>
+                    <path d="M93.75 99.9998H6.25C2.80312 99.9998 0 97.1967 0 93.7498V63.5415H33.3333V65.6248C33.3333 70.7946 37.5385 74.9998 42.7083 74.9998H57.2917C62.4615 74.9998 66.6667 70.7946 66.6667 65.6248V63.5415H100V93.7498C100 97.1967 97.1969 99.9998 93.75 99.9998ZM4.16667 67.7082V93.7498C4.16667 94.8988 5.10104 95.8332 6.25 95.8332H93.75C94.899 95.8332 95.8333 94.8988 95.8333 93.7498V67.7082H70.674C69.6687 74.1905 64.05 79.1665 57.2917 79.1665H42.7083C35.95 79.1665 30.3312 74.1905 29.326 67.7082H4.16667Z" fill="currentColor"/>
+                    <path d="M37.1743 28.0498L29.8826 16.5913L26.3672 18.8284L33.6589 30.2869L37.1743 28.0498Z" fill="currentColor"/>
+                    <path d="M74.675 18.825L71.1595 16.5884L63.8691 28.0469L67.3845 30.2835L74.675 18.825Z" fill="currentColor"/>
+                    <path d="M52.0833 14.5835H47.9166V28.1252H52.0833V14.5835Z" fill="currentColor"/>
+                </g>
+                <defs>
+                    <clipPath id="openingbalanceinbox">
+                        <rect width="100" height="100" fill="white"/>
+                    </clipPath>
+                </defs>
+            </svg>
+            <h1>Kom i gang med regnskapet ditt, og registrer åpningsbalansen nå</h1>
+            <button class="good" type="good" (click)="openOpeningBalanceModal()">Register åpningsbalanse</button>
+        </section>
+    </section>
+</ng-template>

@@ -8,6 +8,8 @@ import {MarketplaceIntegrations, FilterIntegrationsPipe} from './integrations/ma
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {MarketplaceModules} from '@app/components/marketplace/modules/marketplaceModules';
 import {ProductPurchases} from './product-purchases/productPurchases';
+import {AppCommonModule} from '../common/appCommonModule';
+import {ChangeContractTypeModal} from './modules/change-contract-type-modal/change-contract-type-modal';
 
 @NgModule({
     imports: [
@@ -15,6 +17,7 @@ import {ProductPurchases} from './product-purchases/productPurchases';
         UniFrameworkModule,
         RouterModule,
         LayoutModule,
+        AppCommonModule,
     ],
     declarations: [
         Marketplace,
@@ -23,6 +26,7 @@ import {ProductPurchases} from './product-purchases/productPurchases';
         SubscribeModal,
         FilterIntegrationsPipe,
         ProductPurchases,
+        ChangeContractTypeModal,
     ]
 })
 export class MarketplaceModule {}

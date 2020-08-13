@@ -1,4 +1,5 @@
 import {TypeOfIntegration} from '@uni-entities';
+import {THEMES} from 'src/themes/theme';
 
 export const COUNTERS = [
     {

@@ -2,9 +2,9 @@
     <section class="header">
         <span style="flex: 1;">{{ widget.description }}</span>
         <section class="filters" *ngIf="!missingData">
-            <button class="tertiary c2a" (click)="goToOverdueList()">
+            <a routerLink="/sales/invoices?filter=overdue_invoices">
                 Se alle forfalte fakturaer
-            </button>
+            </a>
         </section>
     </section>
 
@@ -17,15 +17,18 @@
             <div style="height: calc(100% - 8rem)">
                 <canvas style="max-height: 220px" #chartCanvas></canvas>
             </div>
-            <div class="legend-vertical-class">
-                <section class="legend-row"
-                    *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'overduelegend' + i }}"
-                    (click)="addhiddenClass('overduelegend' + i, i)">
 
-                    <span class="indicator cost" [ngStyle]="{ 'background-color': colors[i] }"></span>
-                    {{ legend }}
-                </section>
-            </div>
+            <section class="vertical-legend-center-helper">
+                <div class="legend-vertical-class">
+                    <section class="legend-row"
+                        *ngFor="let legend of chartLegends; let  i = index;" id="{{ 'overduelegend' + i }}"
+                        (click)="addhiddenClass('overduelegend' + i, i)">
+
+                        <span class="indicator cost" [ngStyle]="{ 'background-color': colors[i] }"></span>
+                        {{ legend }}
+                    </section>
+                </div>
+            </section>
         </section>
 
         <section class="table-section">

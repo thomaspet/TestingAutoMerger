@@ -17,13 +17,22 @@ textarea
     height: $input-height
     padding: 3px 10px
     background-color: #fff
-    border: 1px solid var(--border-color)
-    border-radius: var(--section-radius)
-    transition: box-shadow .3s ease
+    color: var(--input-color)
+    border-radius: var(--input-radius)
+    transition: box-shadow .1s ease
     overflow: hidden
     text-overflow: ellipsis
     box-sizing: border-box
     font-size: 15px
+    box-shadow: inset 0 0 0 var(--input-border-width) var(--input-border-color)
+    border: none
+
+    @if $hide-input-outline
+        outline: none
+
+    &:focus
+        box-shadow: inset 0 0 0 var(--input-border-width-focus) var(--input-border-color-focus)
+
     @media screen and (max-width: 1300px)
         font-size: 14px
 
@@ -39,13 +48,13 @@ textarea
         color: var(--scale1)
 
     &.success
-        border-color: var(--color-good)
+        box-shadow: inset 0 0 0 var(--input-border-width) var(--color-good)
 
     &.warning
-        border-color: var(--color-warn)
+        box-shadow: inset 0 0 0 var(--input-border-width) var(--color-warn)
 
     &.error, &.invalid, &.ng-touched.ng-invalid
-        border-color: var(--color-bad)
+        box-shadow: inset 0 0 0 var(--input-border-width) var(--color-bad)
 
 input[type=search]
     background-image: unicon-search($uni-color-scale8)
@@ -75,7 +84,7 @@ textarea
         width: 40px
         padding: 0
         background-color: unset
-        color: var(--text-color)
+        color: var(--input-icon-color)
         border: none
 
         &:focus

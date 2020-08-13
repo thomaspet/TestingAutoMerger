@@ -1,22 +1,22 @@
 <section role="dialog" class="uni-modal">
     <article>
         <i class="material-icons check">check_circle</i>
-        <h1>{{options.header}}</h1>
+        <h1>{{options.header || 'Velkommen til ' + appName}}</h1>
         <h2>Hva vil du gjøre nå?</h2>
 
         <ul>
+            <li (click)="navigate('/settings/opening-balance')" *ngIf="isBrunoEnvironment">
+                <i class="material-icons with-border">add</i>
+                <section class="link-info">
+                    <strong>Åpningsbalanse</strong>
+                    <span>Registrer åpningsbalanse</span>
+                </section>
+            </li>
             <li (click)="navigate('/bank/ticker?code=bank_list')" *ngIf="isSrEnvironment">
                 <i class="material-icons">account_balance</i>
                 <section class="link-info">
                     <strong>Koble sammen bank og regnskap</strong>
                     <span>Legg til standardkontoer i firmaoppsettet og aktiver autobank</span>
-                </section>
-            </li>
-            <li (click)="navigate('/settings/users')">
-                <i class="material-icons">supervised_user_circle</i>
-                <section class="link-info">
-                    <strong>Administrer brukere</strong>
-                    <span>Legg til og rediger brukere, roller og rettigheter</span>
                 </section>
             </li>
             <li (click)="navigate('/settings/company')">
@@ -37,6 +37,6 @@
     </article>
 
     <footer class="center">
-        <button class="c2a rounded" (click)="onClose.emit()">Lukk</button>
+        <button class="c2a rounded" (click)="onClose.emit()">Gå til startside</button>
     </footer>
 </section>

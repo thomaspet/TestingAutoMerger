@@ -4,6 +4,7 @@ import { PayrollRunListComponent } from './payroll-run.component';
 import { PayrollRunDetailsComponent } from './payroll-run-details/payroll-run-details.component';
 import { CanDeactivateGuard } from '@app/canDeactivateGuard';
 import { WagetypeSyncGuard } from '../wage-type/wage-type-sync.guard';
+import {NewPayrollRunGuard} from './new-payroll-run.guard';
 
 
 const routes: Routes = [
@@ -15,7 +16,7 @@ const routes: Routes = [
     path: ':id',
     component: PayrollRunDetailsComponent,
     canDeactivate: [CanDeactivateGuard],
-    canActivate: [WagetypeSyncGuard],
+    canActivate: [WagetypeSyncGuard, NewPayrollRunGuard],
 }
 ];
 

@@ -87,6 +87,8 @@ import { AprilaOfferModal } from '../modals/aprila-offer/aprila-offer-modal';
 import { AprilaCreditNoteModal } from '../modals/aprila-credit-note/aprila-credit-note-modal';
 import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-modal';
 import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
+import {FeaturePermissionService} from '@app/featurePermissionService';
+import {THEMES, theme} from 'src/themes/theme';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -112,7 +114,6 @@ export class InvoiceDetails implements OnInit {
     itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private askedAboutSettingDimensionsOnItems: boolean = false;
 
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private aprilaOption = {
@@ -244,7 +245,8 @@ export class InvoiceDetails implements OnInit {
         private modulusService: ModulusService,
         private accrualService: AccrualService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private elsaPurchaseService: ElsaPurchaseService
+        private elsaPurchaseService: ElsaPurchaseService,
+        private featurePermissionService: FeaturePermissionService,
     ) {
         // set default tab title, this is done to set the correct current module to make the breadcrumb correct
         this.tabService.addTab({
@@ -532,13 +534,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     private setUpDims(dims) {
-        this.dimensionTypes = [{
-            Label: 'Avdeling',
-            Dimension: 2,
-            IsActive: true,
-            Property: 'DefaultDimensions.DepartmentID',
-            Data: this.departments
-        }];
+        this.dimensionTypes = [];
 
         const queries = [];
 
@@ -554,8 +550,8 @@ export class InvoiceDetails implements OnInit {
         });
 
         Observable.forkJoin(queries).subscribe((res) => {
-            res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+            res.forEach((item, index) => {
+                this.dimensionTypes[index].Data = item;
             });
         });
     }
@@ -645,36 +641,9 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice['_updatedField']) {
-            this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, false);
-            this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
-
-            const dimension = invoice['_updatedField'].split('.');
-
-            if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('Dimension')) {
-                this.askedAboutSettingDimensionsOnItems = false;
-            }
-
-            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
-            if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems
-                    (dimKey, invoice[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
-                this.askedAboutSettingDimensionsOnItems = true;
-            } else {
-                // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems
-                    (dimension[1], invoice.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
-                this.askedAboutSettingDimensionsOnItems = true;
-            }
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
-                this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
-            }
-        }
-
         this.updateCurrency(invoice, shouldGetCurrencyRate);
 
         this.currentInvoiceDate = invoice.InvoiceDate;
-        // invoice['_updatedField'] = null;
 
         if (
             customerChanged && this.currentCustomer &&
@@ -705,13 +674,35 @@ export class InvoiceDetails implements OnInit {
             }
         }
 
-        if (invoice['_updatedFields'] && invoice['_updatedFields'].toString().includes('InvoiceDate')) {
-            // { ... invoice} will corrupt validation, so only do it for neccessary functions
-            this.invoice = { ...invoice };
-        } else {
-            this.invoice = invoice;
-        }
+
+        this.invoice = invoice;
         this.updateSaveActions();
+    }
+
+    onDimensionChange(event: {field: string, value: any}) {
+        if (event.field && event.value) {
+            const invoice = this.invoice;
+            this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
+
+            const fieldSplit = event.field.split('.');
+            const dimKey = parseInt(fieldSplit[1].replace(/\D/g, ''), 10);
+
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                // Custom dims
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, invoice[fieldSplit[0]][fieldSplit[1]]);
+            } else {
+                // Project, Department, Region and Reponsibility
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(fieldSplit[1], invoice.DefaultDimensions[fieldSplit[1]]);
+            }
+
+            if (
+                this.accountsWithMandatoryDimensionsIsUsed
+                && invoice.CustomerID
+                && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced
+            ) {
+                this.tofHead.getValidationMessage(invoice.CustomerID, null, invoice.DefaultDimensions);
+            }
+        }
     }
 
     onFreetextChange() {
@@ -1174,12 +1165,16 @@ export class InvoiceDetails implements OnInit {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this)
             },
-            contextmenu: [{
+            contextmenu: []
+        };
+
+        if (this.featurePermissionService.canShowUiFeature('ui.sales.invoice.accrual')) {
+            toolbarconfig.contextmenu.push({
                 label: 'Periodisering',
                 action: () => this.accrueInvoice(),
                 disabled: () => this.invoice.StatusCode >= StatusCodeCustomerInvoice.Invoiced
-            }],
-        };
+            });
+        }
 
         toolbarconfig.buttons = [{
             class: 'icon-button',
@@ -1196,10 +1191,12 @@ export class InvoiceDetails implements OnInit {
         }
 
         if (!this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft) {
-            toolbarconfig.buttons.push({
-                label: 'Lagre kladd',
-                action: () => this.save(true)
-            });
+            if (theme.theme !== THEMES.EXT02) {
+                toolbarconfig.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => this.save(true)
+                });
+            }
         }
 
         this.toolbarconfig = toolbarconfig;
@@ -1399,7 +1396,8 @@ export class InvoiceDetails implements OnInit {
             || (this.invoice.InvoiceNumber && this.invoice.InvoiceType === InvoiceTypes.CreditNote)) {
             this.saveActions.push({
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
-                main: this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced,
+                main: theme.theme !== THEMES.EXT02 ? this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced :
+                this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced && this.companySettings.HasAutobank,
                 action: (done) => {
                     if (this.invoice.DistributionPlanID) {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
@@ -1491,6 +1489,7 @@ export class InvoiceDetails implements OnInit {
 
             this.saveActions.push({
                 label: 'Send purring',
+                featurePermission: 'ui.debt-collection',
                 action: (done) => {
                     this.sendReminderAction(done);
                 },
@@ -1504,6 +1503,7 @@ export class InvoiceDetails implements OnInit {
 
         this.saveActions.push({
             label: this.invoice.DontSendReminders ? 'Opphev purrestopp' : 'Aktiver purrestopp',
+            featurePermission: 'ui.debt-collection',
             action: (done) => {
                 this.invoice.DontSendReminders = !this.invoice.DontSendReminders;
                 this.save().subscribe(

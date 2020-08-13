@@ -10,6 +10,7 @@ import {CustomerListModal} from './customer-list-modal';
 import {UniModalService, UniConfirmModalV2, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 declare const _; // lodash
 
@@ -69,33 +70,11 @@ export class UniDistributionSettings {
             keyValue: 'CustomerInvoiceDistributionPlanID',
             plans: []
         },
-        {
-            value: 'Models.Sales.CustomerOrder',
-            label: 'Ordre',
-            showPlansView: false,
-            defaultPlan: null,
-            keyValue: 'CustomerOrderDistributionPlanID',
-            plans: []
-        },
-        {
-            value: 'Models.Sales.CustomerQuote',
-            label: 'Tilbud',
-            showPlansView: false,
-            defaultPlan: null,
-            keyValue: 'CustomerQuoteDistributionPlanID',
-            plans: []
-        },
-        {
-            value: 'Models.Sales.CustomerInvoiceReminder',
-            label: 'Purring',
-            showPlansView: false,
-            defaultPlan: null,
-            keyValue: 'CustomerInvoiceReminderDistributionPlanID',
-            plans: []
-        }
+        // The rest are added in ngOnInit due to permission checks
     ];
 
     constructor(
+        private featurePermissionService: FeaturePermissionService,
         private distributionPlanService: DistributionPlanService,
         private companySettingsService: CompanySettingsService,
         private route: ActivatedRoute,
@@ -110,7 +89,41 @@ export class UniDistributionSettings {
             url: '/settings/distribution',
             moduleID: UniModules.SubSettings,
             active: true
-       });
+        });
+
+        if (this.featurePermissionService.canShowUiFeature('ui.sales.orders')) {
+            this.entityTypes.push({
+                value: 'Models.Sales.CustomerOrder',
+                label: 'Ordre',
+                showPlansView: false,
+                defaultPlan: null,
+                keyValue: 'CustomerOrderDistributionPlanID',
+                plans: []
+            });
+        }
+
+        if (this.featurePermissionService.canShowUiFeature('ui.sales.quotes')) {
+            this.entityTypes.push({
+                value: 'Models.Sales.CustomerQuote',
+                label: 'Tilbud',
+                showPlansView: false,
+                defaultPlan: null,
+                keyValue: 'CustomerQuoteDistributionPlanID',
+                plans: []
+            });
+        }
+
+        if (this.featurePermissionService.canShowUiFeature('ui.sales.reminders')) {
+            this.entityTypes.push({
+                value: 'Models.Sales.CustomerInvoiceReminder',
+                label: 'Purring',
+                showPlansView: false,
+                defaultPlan: null,
+                keyValue: 'CustomerInvoiceReminderDistributionPlanID',
+                plans: []
+            });
+        }
+
         this.route.queryParams.subscribe((params) => {
             this.getDistributionPlans();
         });

@@ -10,6 +10,8 @@ import {cloneDeep} from 'lodash';
 import {finalize, take} from 'rxjs/operators';
 import {ErrorService} from '@app/services/services';
 import {ToolbarSharingStatus} from './sharing-status/sharing-status';
+import { ToolbarInfoBanner } from './Info-banner/info-banner';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
 
@@ -18,6 +20,7 @@ export interface IToolbarSubhead {
     title: string;
     classname?: string;
     link?: string;
+    icon?: string;
     event?: () => void;
 }
 
@@ -69,6 +72,8 @@ export interface IToolbarConfig {
     numberSeriesTasks?: any;
     buttons?: ToolbarButton[];
     hideDisabledActions?: boolean;
+    period?: Date;
+    infoBannerConfig?: IInfoBannerConfig;
 }
 
 export interface ICommentsConfig {
@@ -91,6 +96,12 @@ export interface IContextMenuItem {
     label: string;
     action: (item?: any) => void | Observable<any>;
     disabled?: (item?: any) => boolean;
+}
+
+export interface IInfoBannerConfig {
+    message: string;
+    link: string;
+    action: () => void;
 }
 
 @Component({
@@ -122,7 +133,10 @@ export class UniToolbar {
     @Output() statusSelectEvent = new EventEmitter();
     @Output() selectValueChanged = new EventEmitter();
 
+    @Output() monthChange = new EventEmitter();
+
     searchVisible: boolean;
+    canShowChat = true;
 
     uniSelectConfig: ISelectConfig = {
         displayProperty: '_DisplayName',
@@ -130,7 +144,12 @@ export class UniToolbar {
         hideDeleteButton: true
     };
 
-    constructor(private errorService: ErrorService) {}
+    constructor(
+        private errorService: ErrorService,
+        private permissionService: FeaturePermissionService
+    ) {
+        this.canShowChat = this.permissionService.canShowUiFeature('ui.chat');
+    }
 
     ngOnChanges(changes) {
         if (changes['selectConfig']) {

@@ -7,6 +7,7 @@ import {UniToast} from './uniToast/toast';
 import {UniToastList} from './uniToast/toastList';
 import {StimulsoftReportWrapper} from './wrappers/reporting/reportWrapper';
 import {UniPipesModule} from './pipes/pipes.module';
+import {UniTranslatePipesModule} from './pipes/translate.module';
 import {UniComments} from './comments/comments';
 import {CommentService} from './comments/commentService';
 import {UniMultiLevelSelect} from './controls/multiLevelSelect';
@@ -23,6 +24,7 @@ import {UniHttp} from './core/http/http';
 import {UniComponentLoader} from './core/componentLoader';
 import {ComponentCreator} from './core/dynamic/UniComponentCreator';
 import {Logger} from './core/logger';
+import {FeaturePermissionDirective} from './featurePermission.directive';
 
 import {UniModalService, MODALS, UniShowReinvoiceStatus} from './uni-modal';
 
@@ -36,14 +38,19 @@ import {NgSelectModule} from '@ng-select/ng-select';
 import {AutocompleteModule} from './ui/autocomplete/autocomplete.module';
 import {UniTabs} from './uni-tabs/uni-tabs';
 import {DatepickerModule} from './ui/datepicker/datepicker.module';
+import {MonthPicker} from './ui/month-picker/month-picker';
 import {UniIcon} from './ui/icon/uni-icon';
 import {LibraryImportsModule} from '@app/library-imports.module';
+import {AutoFocusDirective} from './autofocus.directive';
+import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
+import {SimpleTable} from './ui/simple-table/simple-table';
 
 @NgModule({
     imports: [
         LibraryImportsModule,
         ClickOutsideModule,
         UniPipesModule,
+        UniTranslatePipesModule,
         UniSearchModule,
         UniTooltipModule,
         UniDateselectorpModule,
@@ -72,6 +79,11 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniShowReinvoiceStatus,
         UniTabs,
         UniIcon,
+        FeaturePermissionDirective,
+        MonthPicker,
+        AutoFocusDirective,
+        UniFileUpload,
+        SimpleTable,
         ...MODALS
     ],
     providers: [
@@ -86,6 +98,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         // Modules
         LibraryImportsModule,
         UniPipesModule,
+        UniTranslatePipesModule,
         UniSearchModule,
         UniFormModule,
         UniTableModule,
@@ -98,8 +111,8 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
+        MonthPicker,
 
-        // Components
         UniModal,
         UniSave,
         UniImage,
@@ -115,6 +128,10 @@ import {LibraryImportsModule} from '@app/library-imports.module';
         UniComponentLoader,
         UniTabs,
         UniIcon,
+        FeaturePermissionDirective,
+        AutoFocusDirective,
+        UniFileUpload,
+        SimpleTable,
     ]
 })
 export class UniFrameworkModule {}

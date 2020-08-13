@@ -15,10 +15,16 @@ export interface IModalOptions {
     checkboxLabel?: string;
     footerCls?: string;
     warning?: string;
+    icon?: string;
     list?: any[];
     listkey?: string;
     listMessage?: string;
     buttonLabels?: {
+        accept?: string;
+        reject?: string;
+        cancel?: string;
+    };
+    buttonIcons?: {
         accept?: string;
         reject?: string;
         cancel?: string;

@@ -4,7 +4,9 @@ import {UserDto} from '@app/unientities';
 import {AuthService} from '@app/authService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {UserSettingsModal} from './user-settings-modal';
-import { UserService } from '@app/services/services';
+import {ElsaContractService} from '@app/services/services';
+import {ElsaUserLicenseType} from '@app/models';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'navbar-user-dropdown',
@@ -15,32 +17,32 @@ export class NavbarUserDropdown {
     @ViewChild(MatMenuTrigger, { static: true }) trigger: MatMenuTrigger;
 
     user: UserDto;
-    licenseRole: string;
+    contractType = '';
+    userLicenseType = '';
+    isExt02 = theme.theme === THEMES.EXT02;
 
     constructor(
         private modalSerice: UniModalService,
         private authService: AuthService,
-        private userService: UserService
+        private elsaContractService: ElsaContractService,
     ) {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
                 const user = auth.user;
 
-                const licenseRoles: string[] = [];
                 if (user['License'] && user['License'].ContractType) {
                     if (user['License'].ContractType.TypeName) {
-                        licenseRoles.push(user['License'].ContractType.TypeName);
+                        this.elsaContractService.getContractTypesLabel(
+                            user['License'].ContractType.TypeName
+                        ).subscribe(label => this.contractType = label);
                     }
                 }
 
                 if (user['License'] && user['License'].UserType) {
-                    if (user['License'].UserType.TypeName) {
-                        licenseRoles.push(user['License'].UserType.TypeName);
-                    }
+                    this.userLicenseType = this.getUserLicenseTypeName(user['License'].UserType.TypeID);
                 }
 
                 this.user = user;
-                this.licenseRole = licenseRoles.join('/');
             }
         });
     }
@@ -50,11 +52,24 @@ export class NavbarUserDropdown {
     }
 
     public openUserSettingsModal() {
-        this.userService.getCountryCodes().subscribe(res => {
-            this.trigger.closeMenu();
-            this.modalSerice.open(UserSettingsModal, {
-                data: { user: this.user, countryCodes: res }
-            });
-        });
+        this.trigger.closeMenu();
+        this.modalSerice.open(UserSettingsModal, { data: this.user});
+    }
+
+    getUserLicenseTypeName(userLicenseType: number) {
+        switch (userLicenseType) {
+            case ElsaUserLicenseType.Standard:
+                return 'Standard';
+            case ElsaUserLicenseType.Accountant:
+                return 'Regnskapsfører';
+            case ElsaUserLicenseType.Revision:
+                return 'Revisor';
+            case ElsaUserLicenseType.Training:
+                return 'Skole/opplæring';
+            case ElsaUserLicenseType.Support:
+                return 'Support';
+            default:
+                return '';
+        }
     }
 }

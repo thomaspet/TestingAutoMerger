@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {ElsaUserLicense, ElsaUserLicenseType} from '@app/models';
 import {ErrorService, ElsaContractService} from '@app/services/services';
 import {LicenseInfo} from '../license-info';
+import {IContextMenuItem} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'license-user-list',
@@ -13,7 +14,27 @@ export class UserList {
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
     filterValue: string;
-    userType: number = -1;
+    selectedUserType = -1;
+    selectedUserTypeName = 'Alle';
+
+    userTypeDropdown: IContextMenuItem[] = [
+        {
+            label: 'Alle',
+            action: () => this.filterUsers(-1, 'Alle'),
+        },
+        {
+            label: 'Standard',
+            action: () => this.filterUsers(0, 'Standard'),
+        },
+        {
+            label: 'Regnskapsfører',
+            action: () => this.filterUsers(1, 'Regnskapsfører'),
+        },
+        {
+            label: 'Supportbruker',
+            action: () => this.filterUsers(10, 'Supportbruker'),
+        },
+    ];
 
     selectedUser: ElsaUserLicense;
     detailsVisible: boolean;
@@ -21,7 +42,7 @@ export class UserList {
     columns = [
         { header: 'Navn', field: 'UserName' },
         { header: 'Epost', field: 'Email' },
-        { header: 'Lisenstype', field: '_typeText', flex: '0 0 10rem' },
+        { header: 'Brukertype', field: '_typeText', flex: '0 0 10rem' },
         {
             header: 'Status',
             field: '_status',
@@ -68,9 +89,11 @@ export class UserList {
         );
     }
 
-    filterUsers() {
-        const filteredByType = this.userType >= 0
-            ? this.users.filter(u => u.UserLicenseType === +this.userType)
+    filterUsers(usertype: number, usertypeName: string) {
+        this.selectedUserTypeName = usertypeName;
+        this.selectedUserType = usertype;
+        const filteredByType = this.selectedUserType >= 0
+            ? this.users.filter(u => u.UserLicenseType === +this.selectedUserType)
             : this.users;
 
         if (this.filterValue) {

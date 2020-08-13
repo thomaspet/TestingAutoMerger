@@ -77,6 +77,7 @@ import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
 import {switchMap, tap, catchError, map} from 'rxjs/operators';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'order-details',
@@ -95,7 +96,6 @@ export class OrderDetails implements OnInit {
     private distributeEntityType: string = 'Models.Sales.CustomerOrder';
     private numberSeries: NumberSeries[];
     private projectID: number;
-    private askedAboutSettingDimensionsOnItems: boolean = false;
     newOrderItem: CustomerOrderItem;
     order: CustomerOrder;
     orderItems: CustomerOrderItem[];
@@ -285,7 +285,6 @@ export class OrderDetails implements OnInit {
                             : Observable.of([]),
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
-                        this.askedAboutSettingDimensionsOnItems = false;
                         if (order && order.Customer && order.Customer.Info) {
                             this.contacts = order.Customer.Info.Contacts;
                         } else {
@@ -366,7 +365,6 @@ export class OrderDetails implements OnInit {
                         this.reportDefinitionService.GetAll('filter=ReportType eq 2')
                     ).subscribe(
                         (res) => {
-                            this.askedAboutSettingDimensionsOnItems = false;
                             let order = <CustomerOrder>res[0];
                             this.currentUser = res[1];
                             order.OurReference = this.currentUser.DisplayName;
@@ -504,13 +502,7 @@ export class OrderDetails implements OnInit {
     }
 
     private setUpDims(dims) {
-        this.dimensionTypes = [{
-            Label: 'Avdeling',
-            Dimension: 2,
-            IsActive: true,
-            Property: 'DefaultDimensions.DepartmentID',
-            Data: this.departments
-        }];
+        this.dimensionTypes = [];
 
         const queries = [];
 
@@ -526,8 +518,8 @@ export class OrderDetails implements OnInit {
         });
 
         Observable.forkJoin(queries).subscribe((res) => {
-            res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+            res.forEach((item, index) => {
+                this.dimensionTypes[index].Data = item;
             });
         });
     }
@@ -595,33 +587,6 @@ export class OrderDetails implements OnInit {
             }
         }
 
-        if (order['_updatedField']) {
-            this.tradeItemTable.setDefaultProjectAndRefreshItems(order.DefaultDimensions, false);
-            this.newOrderItem = <any>this.tradeItemHelper.getDefaultTradeItemData(order);
-
-            const dimension = order['_updatedField'].split('.');
-
-            if (order['_updatedFields'] && order['_updatedFields'].toString().includes('Dimension')) {
-                this.askedAboutSettingDimensionsOnItems = false;
-            }
-
-
-            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
-            if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems
-                    (dimKey, order[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
-                this.askedAboutSettingDimensionsOnItems = true;
-            } else {
-                // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems
-                    (dimension[1], order.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
-                this.askedAboutSettingDimensionsOnItems = true;
-            }
-            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
-                this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
-            }
-        }
-
         this.updateCurrency(order, shouldGetCurrencyRate);
 
         if (
@@ -655,6 +620,28 @@ export class OrderDetails implements OnInit {
         this.order = order;
         this.currentOrderDate = order.OrderDate;
         this.updateSaveActions();
+    }
+
+    onDimensionChange(event: {field: string, value: any}) {
+        if (event.field && event.value) {
+            const order = this.order;
+            this.newOrderItem = this.tradeItemHelper.getDefaultTradeItemData(order);
+
+            const fieldSplit = event.field.split('.');
+
+            const dimKey = parseInt(fieldSplit[1].replace(/\D/g, ''), 10);
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                // Custom dimensions
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, order[fieldSplit[0]][fieldSplit[1]]);
+            } else {
+                // Project, Department, Region and Reponsibility
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(fieldSplit[1], order.DefaultDimensions[fieldSplit[1]]);
+            }
+
+            if (this.accountsWithMandatoryDimensionsIsUsed && order.CustomerID) {
+                this.tofHead.getValidationMessage(order.CustomerID, null, order.DefaultDimensions);
+            }
+        }
     }
 
     onFreetextChange() {
@@ -1096,14 +1083,18 @@ export class OrderDetails implements OnInit {
                 label: 'Ny ordre',
                 action: () => this.router.navigateByUrl('sales/orders/0')
             });
-        } else {
-            config.buttons.push({
-                label: 'Lagre kladd',
-                action: () => {
-                    this.order.StatusCode = StatusCode.Draft;
-                    return this.saveOrder();
-                }
-            });
+        }
+
+        if (!this.order.ID || this.order.StatusCode === StatusCodeCustomerOrder.Draft) {
+            if (theme.theme !== THEMES.EXT02) {
+                config.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => {
+                        this.order.StatusCode = StatusCode.Draft;
+                        return this.saveOrder();
+                    }
+                });
+            }
         }
 
         this.toolbarconfig = config;

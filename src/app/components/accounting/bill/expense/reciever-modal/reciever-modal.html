@@ -12,12 +12,10 @@
             [config]="config$"
             (changeEvent)="isDirty = true">
         </uni-form>
-        <section *ngIf="!types.length && dataLoaded" style="display: flex; padding: 1rem; align-items: center; border: 1px solid #CCC;">
-            <i class="material-icons" style="margin-right: 1rem; color: var(--toast-bad)">info</i>
-            <span style="font-size: 14px">
-                Du har ikke noe oppsett for mottaker i nummerserier. Hvis du trykker på "Opprett mottaker",
-                vil systemet opprette en nummerserie i ledig serie, koble til konto "2910 - Gjeld til ansatte" og
-                slå på PostPost på denne kontoen.
+        <section *ngIf="!types.length && dataLoaded" class="infotext-section">
+            <i class="material-icons">info</i>
+            <span>
+                {{ infoText }}
             </span>
         </section>
         <small class="bad">

@@ -16,6 +16,9 @@ import {CompanySettingsViewService} from './companySettings/services/companySett
 import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCompanyPeriodSeriesModal';
 import {UniCompanySettingsView} from './companySettings/company-settings';
 import {UniBankSettings} from './bank-settings/bank-settings';
+import {BankSettingsAccountlist} from './bank-settings/bank-accounts';
+import {CompanyBankAccountModal} from './bank-settings/company-bank-account-modal';
+import {CompanyBankAccountEdit} from './bank-settings/bank-account-edit';
 
 import {VatTypeSettingsList} from './accounting-settings/vattype-settings-list/vattype-settings-list';
 import {VatTypeSettingsDetails} from './accounting-settings/vattypedetails/vattype-settings-details';
@@ -55,7 +58,7 @@ import {UniReportSettingsView} from './report/report-setup';
 import {VatDeductionSettingsGroupSetupModal} from './accounting-settings/vat-deductions/vatDeductionGroupSetupModal';
 import {EiendelerSettings} from '@app/components/settings/accounting-settings/eiendeler-settings/eiendeler-settings';
 import {KIDSettings} from '../sales/kidSettings/kidSettings';
-
+import {OpeningBalanceGuard} from '@app/components/settings/opening-balance/openingBalanceGuard';
 
 @NgModule({
     imports: [
@@ -104,12 +107,16 @@ import {KIDSettings} from '../sales/kidSettings/kidSettings';
         VatTypeSettingsList,
         VatDeductionSettings,
         VatDeductionSettingsGroupSetupModal,
-        EiendelerSettings
+        EiendelerSettings,
+        BankSettingsAccountlist,
+        CompanyBankAccountModal,
+        CompanyBankAccountEdit
     ],
     providers: [
         SubEntitySettingsService,
         CompanySettingsViewService,
-        SettingsService
+        SettingsService,
+        OpeningBalanceGuard
     ],
     entryComponents: [
         VatDeductionSettingsGroupSetupModal

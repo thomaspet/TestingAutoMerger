@@ -1,0 +1,13 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [statustrack]="toolbarStatus"
+    [saveactions]="saveActions"
+    [commentsConfig]="commentsConfig"
+    [customStatus]="paymentStatusIndicator"
+></uni-toolbar>
+
+<section class="layout-grid">
+    <details-form></details-form>
+    <journal-lines [vatTypes]="store.vatTypes"></journal-lines>
+    <supplier-invoice-attachments [style.height]="attachmentSectionHeight"></supplier-invoice-attachments>
+</section>

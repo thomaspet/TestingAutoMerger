@@ -1,4 +1,4 @@
-<uni-icon [icon]="'user'" [matMenuTriggerFor]="userMenu"></uni-icon>
+<uni-icon [icon]="'user'" [matMenuTriggerFor]="userMenu" matTooltip="Min profil"></uni-icon>
 
 <mat-menu #userMenu="matMenu" yPosition="below" [overlapTrigger]="false">
     <ng-template matMenuContent>
@@ -8,11 +8,6 @@
             </section>
 
             <section class="info-section">
-                <section class="info-field">
-                    <span>Brukernavn:</span>
-                    <span>{{user?.UserName}}</span>
-                </section>
-
                 <section class="info-field" *ngIf="user?.PhoneNumber">
                     <span>Telefon:</span>
                     <span>{{user?.PhoneNumber}}</span>
@@ -27,7 +22,12 @@
             <section class="info-section">
                 <section class="info-field">
                     <span>Lisens:</span>
-                    <span>{{licenseRole}}</span>
+                    <span>{{contractType}}</span>
+                </section>
+
+                <section class="info-field" *ngIf="!isExt02">
+                    <span>Brukertype:</span>
+                    <span>{{userLicenseType}}</span>
                 </section>
             </section>
 

@@ -70,6 +70,7 @@ import {TradeItemHelper, ISummaryLine} from '../../salesHelper/tradeItemHelper';
 
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'quote-details',
@@ -101,7 +102,6 @@ export class QuoteDetails implements OnInit {
     currencyCodes: Array<CurrencyCode>;
     currencyExchangeRate: number;
     private currentCustomer: Customer;
-    private askedAboutSettingDimensionsOnItems: boolean;
 
     currentUser: User;
     projects: Project[];
@@ -510,24 +510,6 @@ export class QuoteDetails implements OnInit {
             this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, true);
         }
 
-        if (quote['_updatedFields'] && quote['_updatedFields'].toString().includes('Dimension')) {
-            this.askedAboutSettingDimensionsOnItems = false;
-        }
-
-        if (quote['_updatedField']) {
-            this.tradeItemTable.setDefaultProjectAndRefreshItems(quote.DefaultDimensions, false);
-            this.newQuoteItem = this.tradeItemHelper.getDefaultTradeItemData(quote);
-
-            const dimension = quote['_updatedField'].split('.');
-            const dimKey = parseInt(dimension[1].substr(dimension[1].length - 3, 1), 10);
-            if (!isNaN(dimKey) && dimKey >= 5) {
-                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[dimension[0]][dimension[1]], this.askedAboutSettingDimensionsOnItems);
-            } else {
-                // Project, Department, Region and Reponsibility hits here!
-                this.tradeItemTable.setNonCustomDimsOnTradeItems(dimension[1], quote.DefaultDimensions[dimension[1]], this.askedAboutSettingDimensionsOnItems);
-            }
-        }
-
         if (quote.QuoteDate && !quote.ValidUntilDate) {
             quote.ValidUntilDate = new LocalDate(moment(quote.QuoteDate).add(1, 'month').toDate());
         }
@@ -565,6 +547,24 @@ export class QuoteDetails implements OnInit {
         this.quote = quote;
         this.currentQuoteDate = quote.QuoteDate;
         this.updateSaveActions();
+    }
+
+    onDimensionChange(event: {field: string, value: any}) {
+        if (event.field && event.value) {
+            const quote = this.quote;
+            this.newQuoteItem = this.tradeItemHelper.getDefaultTradeItemData(quote);
+
+            const fieldSplit = event.field.split('.');
+            const dimKey = parseInt(fieldSplit[1].replace(/\D/g, ''), 10);
+
+            if (!isNaN(dimKey) && dimKey >= 5) {
+                // Custom dimensions
+                this.tradeItemTable.setDimensionOnTradeItems(dimKey, quote[fieldSplit[0]][fieldSplit[1]]);
+            } else {
+                // Project, Department, Region and Reponsibility
+                this.tradeItemTable.setNonCustomDimsOnTradeItems(fieldSplit[1], quote.DefaultDimensions[fieldSplit[1]]);
+            }
+        }
     }
 
     onFreetextChange() {
@@ -722,13 +722,7 @@ export class QuoteDetails implements OnInit {
     }
 
     private setUpDims(dims) {
-        this.dimensionTypes = [{
-            Label: 'Avdeling',
-            Dimension: 2,
-            IsActive: true,
-            Property: 'DefaultDimensions.DepartmentID',
-            Data: this.departments
-        }];
+        this.dimensionTypes = [];
 
         const queries = [];
 
@@ -744,8 +738,8 @@ export class QuoteDetails implements OnInit {
         });
 
         Observable.forkJoin(queries).subscribe((res) => {
-            res.forEach((list, index) => {
-                this.dimensionTypes[index + 1].Data = res[index];
+            res.forEach((item, index) => {
+                this.dimensionTypes[index].Data = item;
             });
         });
     }
@@ -1023,14 +1017,18 @@ export class QuoteDetails implements OnInit {
                 label: 'Nytt tilbud',
                 action: () => this.router.navigateByUrl('sales/quotes/0')
             });
-        } else {
-            config.buttons.push({
-                label: 'Lagre kladd',
-                action: () => {
-                    this.quote.StatusCode = StatusCode.Draft;
-                    return this.saveQuote();
-                }
-            });
+        }
+
+        if (!this.quote.ID || this.quote.StatusCode === StatusCodeCustomerQuote.Draft) {
+            if (theme.theme !== THEMES.EXT02) {
+                config.buttons.push({
+                    label: 'Lagre kladd',
+                    action: () => {
+                        this.quote.StatusCode = StatusCode.Draft;
+                        return this.saveQuote();
+                    }
+                });
+            }
         }
 
         this.toolbarconfig = config;

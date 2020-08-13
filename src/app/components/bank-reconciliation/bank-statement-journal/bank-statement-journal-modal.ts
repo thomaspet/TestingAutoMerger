@@ -14,6 +14,7 @@ import {UniModalService, FileFromInboxModal} from '@uni-framework/uni-modal';
 import {ImageModal} from '@app/components/common/modals/ImageModal';
 import {of, Observable} from 'rxjs';
 import {UnsavedAttachmentsModal} from './unsaved-journal-modal/unsaved-attachments-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -38,6 +39,12 @@ export class BankStatementJournalModal implements IUniModal {
     numberOfActiveRules: number;
     activeItem: DebitCreditEntry;
 
+    config = {
+        template: item => item.DisplayName,
+        searchable: false,
+        hideDeleteButton: true
+    };
+
     constructor(
         private modalService: UniModalService,
         private errorService: ErrorService,
@@ -61,7 +68,7 @@ export class BankStatementJournalModal implements IUniModal {
                     this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
                 });
 
-                this.session.ensureRowCount(5);
+                this.session.ensureRowCount(3);
                 this.resetTableLayout();
                 this.busy = false;
             },
@@ -74,6 +81,10 @@ export class BankStatementJournalModal implements IUniModal {
 
     public closeEditor() {
         return this.table.finishEdit();
+    }
+
+    seriesChange(numberSeries) {
+        this.session.series = numberSeries;
     }
 
     private loadRules() {
@@ -236,7 +247,7 @@ export class BankStatementJournalModal implements IUniModal {
                 lookupFunction: (searchValue) => {
                     return this.lookupAccountByQuery(searchValue);
                 },
-                showResultAsTable: environment.isSrEnvironment,
+                showResultAsTable: theme.theme === THEMES.SR,
                 resultTableConfig: {
                     fields: [
                         {

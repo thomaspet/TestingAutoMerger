@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Bank, BankRule} from '../../unientities';
+import {Bank, BankRule, BankAccount, BankIntegrationAgreement} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
@@ -8,6 +8,14 @@ import {StatisticsService} from '../common/statisticsService';
 
 @Injectable()
 export class BankService extends BizHttp<Bank> {
+
+    BANK_ACCOUNT_TYPES = [
+        { label: 'Drift', value: 'company', suggestion: 1920 },
+        { label: 'Skatt', value: 'tax', suggestion: 1950 },
+        { label: 'Lønn', value: 'salary', suggestion: null },
+        // { label: 'Kreditt', value: 'credit', suggestion: 1920 },
+        // { label: 'Utenlandsbetaling', value: 'foreign', suggestion: 1920 }
+    ];
 
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
@@ -84,6 +92,15 @@ export class BankService extends BizHttp<Bank> {
         .map(res => res.body);
     }
 
+    public getDirectBankAgreement(serviceProvider: number) {
+        return this.http
+        .asGET()
+        .usingBusinessDomain()
+        .withEndPoint(`bank-agreements?action=get-direct-bank-agreement&serviceprovider=${serviceProvider}`)
+        .send()
+        .map(res => res.body);
+    }
+
     public updateAutobankAgreementStatus(id: any, password: string) {
         return this.http
             .asPUT()
@@ -154,6 +171,28 @@ export class BankService extends BizHttp<Bank> {
         + `payment.StatusCode ne 44010 and payment.StatusCode ne 44012 and `
         + `payment.StatusCode ne 44014 and payment.StatusCode ne 44018`
         + `&join=Tracelink.DestinationInstanceID eq Payment.ID`);
+    }
+
+    // This might be temporary
+    mapBankIntegrationValues(bankAccount: BankAccount): BankAccount {
+
+        if (!bankAccount['IntegrationSettings']) {
+            return bankAccount;
+        } else {
+            const bit = (bankAccount['IntegrationSettings']).toString(2);
+
+            if (bit.substr(0, 1) > 0) {
+                bankAccount['HasIncoming'] = true;
+            }
+            if (bit.substr(1, 1) > 0) {
+                bankAccount['HasOutgoing'] = true;
+            }
+            if (bit.substr(2, 1) > 0) {
+                bankAccount['HasStatements'] = true;
+            }
+        }
+
+        return bankAccount;
     }
 
     public getAllRules() {
@@ -260,5 +299,12 @@ export class BankService extends BizHttp<Bank> {
             .withBody(payload)
             .send()
             .map(response => response.body);
+    }
+
+    deleteAgreement(agreement: BankIntegrationAgreement) {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements/' + agreement.ID)
+            .send();
     }
 }

@@ -34,11 +34,12 @@
             *ngIf="activeTab === 'details'"
             [entity]="data"
             (entityChange)="onDataChange($event)"
+            (dimensionChange)="dimensionChange.emit($event)"
             [entityType]="entityName"
             [readonly]="readonly"
             [currencyCodes]="currencyCodes"
             [projects]="projects"
-            [sellers]="sellers"
+            [departments]="departments"
             [contacts]="contacts"
             [companySettings]="companySettings">
         </tof-details-form>
@@ -64,11 +65,12 @@
         </section>
 
         <section class="tof-sellers" *ngIf="activeTab === 'sellers'">
-            <seller-links
+            <tof-sellers
                 [readonly]="isReadOnly()"
-                [(entity)]="data"
-                (entityChange)="onSellersChange($event)">
-            </seller-links>
+                [sellers]="sellers"
+                [(data)]="data"
+                (dataChange)="dataChange.emit(data)">
+            </tof-sellers>
         </section>
 
         <section class="tof-attachments" *ngIf="activeTab === 'attachments'">
@@ -100,6 +102,7 @@
         <uni-dimension-view
             *ngIf="activeTab === 'dimensions'"
             (entityChange)="onDataChange($event)"
+            (dimensionChange)="dimensionChange.emit($event)"
             [dimensionTypes]="dimensionTypes"
             [entity]="data"
             [entityType]="entityName">

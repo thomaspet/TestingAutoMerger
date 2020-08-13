@@ -1,26 +1,24 @@
-<section role="dialog" class="uni-modal large">
+<section role="dialog" class="uni-modal file-list-modal" [class.preview-mode]="selectedFile">
     <header> {{ 'ACCOUNTING.SUPPLIER_INVOICE.NEW' | translate }} </header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
-        <section class="inbox-container"*ngIf="!busy">
-            <section class="inbox" *ngIf="inboxFiles?.length">
-                <section class="header">Fra innboks</section>
-
-                <section class="file-list">
-                    <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
-                        Ingen dokumenter i innboks
-                    </section>
-
-                    <ag-grid-wrapper
-                        [resource]="inboxFiles"
-                        [config]="tableConfig"
-                        (rowSelectionChange)="preview($event)">
-                    </ag-grid-wrapper>
+        <section class="inbox-container" *ngIf="!busy">
+            <section class="inbox">
+                <section *ngIf="!inboxFiles?.length">
+                    Ingen dokumenter i innboks
                 </section>
+
+                <ag-grid-wrapper
+                    *ngIf="inboxFiles?.length"
+                    [resource]="inboxFiles"
+                    [config]="tableConfig"
+                    (rowSelectionChange)="preview($event)">
+                </ag-grid-wrapper>
             </section>
+
             <section class="image-preview">
                 <section *ngIf="loadingFiles" class="bill-preview-spinner">
                     <section class="spinner-container">
@@ -39,8 +37,8 @@
             </section>
         </section>
     </article>
-    <footer>
 
+    <footer>
         <label class="upload">
             <input type="file" (change)="uploadFile($event)" />
 
@@ -50,7 +48,7 @@
             </button>
         </label>
 
-        <button class="good" (click)="onClose.emit(selectedFile.ID)" [disabled]="loadingFiles">Velg</button>
-        <button class="secondary" (click)="onClose.emit()">Lukk</button>
+        <button class="secondary pull-right" (click)="onClose.emit()">Lukk</button>
+        <button class="c2a" [disabled]="!selectedFile" (click)="onClose.emit(selectedFile.ID)">Velg</button>
     </footer>
 </section>

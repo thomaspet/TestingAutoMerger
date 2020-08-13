@@ -1,0 +1,69 @@
+<section class="uni-card">
+	<section class="uni-card-header">
+		<h1> Bankkontoer </h1>
+		<button class="tertiary c2a pull-right" (click)="openBankAccountEditModal()"> Legg til ny bankkonto </button>
+	</section>
+
+	<section style="padding: 1rem 2rem">
+		<ag-grid-wrapper *ngIf="companySettings"
+			[(resource)]="companySettings.BankAccounts"
+			[config]="uniTableConfig"
+			(rowClick)="onRowClick($event)">
+		</ag-grid-wrapper>
+
+	</section>
+</section>
+
+<section class="side-menu-container container-for-spinner" [@inOutAnimation] *ngIf="bankAccount">
+	<section *ngIf="busy" class="modal-spinner" style="width: calc(100% - 3rem); margin-left: 1,5rem; height: 99%">
+		<mat-spinner class="c2a"></mat-spinner>
+	</section>
+
+	<header>
+		{{ bankAccount.Label || 'Rediger konto' }}
+		<button class="tertiary pull-right" (click)="bankAccount = null;">
+			<i class="material-icons header-close">close</i>
+		</button>
+	</header>
+
+	<uni-tabs
+        [tabs]="[{name: 'Kontodetaljer'}, {name: 'Kobling mot bank'}]"
+        [(activeIndex)]="activeIndex">
+	</uni-tabs>
+
+	<company-bankaccount-edit [hidden]="activeIndex !== 0" [(bankAccount)]="bankAccount" [companySettings]="companySettings" (setBusy)="setBusy($event)" (saved)="savedFromSidemenu($event)"> </company-bankaccount-edit>
+
+	<section [hidden]="activeIndex !== 1" class="integrations-container">
+		<header>
+			Bankintegrasjon
+			<span class="pull-right" [class.active]="bankAccount.IntegrationStatus === 700005">
+				{{ bankAccount.IntegrationStatus === 700005 ? 'Aktiv' : 'Ikke koblet til bank' }}
+			</span>
+		</header>
+
+		<section class="integrations" [class.active]="bankAccount?.HasStatements">
+			<span class="title"> Kontotransaksjoner/Bankavstemming </span>
+			<span *ngIf="!bankAccount?.HasStatements"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasStatements"> check_circle_outline </i>
+		</section>
+
+		<section class="integrations" [class.active]="bankAccount?.HasIncoming">
+			<span class="title"> Innbetaling/KID </span>
+			<span *ngIf="!bankAccount?.HasIncoming"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasIncoming"> check_circle_outline </i>
+		</section>
+
+		<section class="integrations" [class.active]="bankAccount?.HasOutgoing">
+			<span class="title"> Utbetaling </span>
+			<span *ngIf="!bankAccount?.HasOutgoing"> Nei </span>
+			<i class="material-icons" *ngIf="bankAccount?.HasOutgoing"> check_circle_outline </i>
+		</section>
+
+		<footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
+            <!-- <button class="c2a secondary" *ngIf="bankAccount?._agreement" (click)="cancelAutobank()">Avbestill</button> -->
+			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChanges()">Gjør endringer</button>
+			<button class="c2a" *ngIf="!bankAccount?.IntegrationStatus" (click)="connectBankAndAccounting()"> Bestill bankintegrasjon </button>
+        </footer>
+
+	</section>
+</section>

@@ -1,12 +1,12 @@
 <ng-container *ngIf="filteredItems && !busy">
-    <input type="search" [formControl]="filterControl" placeholder="Filtrer">
-    
+    <input type="search" [formControl]="filterControl" placeholder="Søk">
+
     <div class="check-all-container">
         <mat-checkbox class="check-all" (click)="onCheckAllChange()">
             Velg alle <strong *ngIf="filteredItems?.length">({{filteredItems?.length}})</strong>
         </mat-checkbox>
     </div>
-    
+
     <section class="uni-selection-list">
         <cdk-virtual-scroll-viewport itemSize="55" class="scrolling-viewport">
             <label *cdkVirtualFor="let item of filteredItems" class="selection-list-item">

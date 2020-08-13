@@ -6,7 +6,7 @@ ag-grid-wrapper
     &.contained
         background: #fff
         padding: 1rem 1rem 0
-        border: 1px solid var(--border-color)
+        border: var(--table-border)
         border-radius: 3px
 
     // .filters-and-buttons
@@ -43,34 +43,44 @@ ag-grid-wrapper
 
 // Borders
 ag-grid-wrapper
-    .ag-header
-        border-bottom: 1px solid var(--border-color)
-    .ag-row
-        border-bottom: 1px solid var(--border-color)
 
-    &.borders ag-grid-angular:not(.editable)
+    .ag-body-container.ag-layout-auto-height
+        min-height: 45px !important
+
+    .ag-header
+        border-bottom: var(--table-border)
+    .ag-row
+        border-bottom: var(--row-border)
+        padding: 0 10px
+
+    &.borders ag-grid-angular
         .ag-header
-            border: 1px solid var(--border-color)
-            border-top-left-radius: 3px
-            border-top-right-radius: 3px
+            border: var(--table-border)
+            // border-bottom: none
+            border-top-left-radius: var(--section-radius)
+            border-top-right-radius: var(--section-radius)
         .ag-body
             background: #fff
-            border: 1px solid var(--border-color)
+            border: var(--table-border)
             border-top: none
-            border-bottom-left-radius: 4px
-            border-bottom-right-radius: 4px
+            border-bottom-left-radius: var(--section-radius)
+            border-bottom-right-radius: var(--section-radius)
             overflow: hidden // to avoid rows clipping the border radius
 
     ag-grid-angular.editable
         .ag-header
-            border-top: 1px solid var(--border-color)
-        .ag-body-container .ag-cell,
-        .ag-header-container .ag-header-cell
-            border-left: 1px solid var(--border-color)
+            border-bottom: none
+        .ag-row
+            border-bottom: none
+            border-top: var(--table-border)
+
+        .ag-cell + .ag-cell,
+        .ag-header-cell + .ag-header-cell
+            border-left: var(--table-border)
+
         .ag-pinned-right-header,
         .ag-pinned-right-cols-container
-            border-left: 1px solid var(--border-color)
-            border-right: 1px solid var(--border-color)
+            border-left: var(--table-border)
 
 ag-grid-angular
     width: 100%
@@ -85,7 +95,7 @@ ag-grid-angular
 
     span.expand-collapse-groups
         cursor: pointer
-        color: #1565c0
+        color: var(--color-c2a)
         position: absolute
         top: .6rem
         right: 1rem
@@ -120,6 +130,11 @@ ag-grid-angular
     background: var(--table-header-background)
     color: var(--table-header-color)
     font-weight: 500
+
+    .leftmost-header-cell
+        // This needs to be the same as the padding returned by the cellStyle
+        // function in ag-grid-wrapper.ts!
+        padding-left: 16px
 
 .ag-row
     color: var(--text-color)
@@ -160,7 +175,7 @@ ag-grid-angular
         padding: 0
         cursor: pointer
         justify-content: center
-        color: var(--scale1)
+        color: var(--table-icon-color)
 
     &.row-drag-cell
         .ag-cell-wrapper
@@ -174,7 +189,7 @@ ag-grid-angular
                 font-family: 'Material Icons'
                 content: 'unfold_more'
                 font-size: 24px
-                color: var(--scale1)
+                color: var(--table-icon-color)
 
         .ag-cell-value
             display: none

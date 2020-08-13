@@ -825,28 +825,42 @@ export class AgGridWrapper {
         const colDefs = columns.map(col => {
             const alignmentClass = col.alignment && `align-${col.alignment}`;
 
-            let cellClass: any = (col.cls || '') + ` ${alignmentClass}`;
-            if (col.conditionalCls) {
-                cellClass = (params) => {
-                    let cls = col.conditionalCls(params);
-                    if (col.cls) {
-                        cls += ' ' + col.cls;
-                    }
-
-                    if (col.alignment) {
-                        cls += ` align-${col.alignment}`;
-                    }
-
-                    return cls;
-                };
-            }
-
             const agCol: ColDef = {
                 headerName: col.header,
                 suppressMenu: true,
                 hide: !col.visible,
-                headerClass: (col.headerCls || '') + ` ${alignmentClass}`,
-                cellClass: cellClass,
+                headerClass: (params) => {
+                    const cls = [col.headerCls || '', alignmentClass || ''];
+                    if (params.column.left === 0) {
+                        cls.push('leftmost-header-cell');
+                    }
+
+                    return cls.join(' ');
+                },
+                cellStyle: (params) => {
+                    if (params?.column?.left === 0) {
+                        // This needs to be the same as .leftmost-header-cell padding!
+                        return { paddingLeft: '16px' };
+                    }
+                    return null;
+                },
+                cellClass: (params) => {
+                    let classString = '';
+
+                    if (col.cls) {
+                        classString += ` ${col.cls}`;
+                    }
+
+                    if (col.conditionalCls) {
+                        classString += ` ${col.conditionalCls(params)}`;
+                    }
+
+                    if (alignmentClass) {
+                        classString += ` ${alignmentClass}`;
+                    }
+
+                    return classString;
+                },
                 headerTooltip: col.header,
                 rowGroup: col.rowGroup,
                 enableRowGroup: col.enableRowGroup,

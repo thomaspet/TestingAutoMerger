@@ -6,6 +6,7 @@ import {Employee} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, StatisticsService} from '../../../services/services';
 
+
 @Component({
     selector: 'employee-list',
     templateUrl: './employee-list.component.html'
@@ -26,7 +27,7 @@ export class EmployeeListComponent {
         private router: Router,
         private tabService: TabService,
         private statisticsService: StatisticsService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
     ) {
         this.tabService.addTab(
             {
@@ -92,8 +93,11 @@ export class EmployeeListComponent {
         this.router.navigate(['/salary/employees/', employee.ID]);
     }
 
-    public newEmployee() {
-        this.router.navigateByUrl('/salary/employees/' + 0);
+    public newEmployee(done) {
+        this.router.navigate(['salary', 'employees', 0, 'personal-details']).then((x: boolean) => {
+            if (!x) {
+                done('Avbrutt');
+            }
+        });
     }
-
 }

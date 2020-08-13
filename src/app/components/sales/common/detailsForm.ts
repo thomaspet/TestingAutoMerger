@@ -1,10 +1,11 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
-import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Seller} from '@uni-entities';
+import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Department} from '@uni-entities';
 import {EmailService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
-import {set} from 'lodash';
+import {set, cloneDeep} from 'lodash';
 import * as moment from 'moment';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'tof-details-form',
@@ -12,33 +13,34 @@ import * as moment from 'moment';
         <uni-form
             [fields]="fields$"
             [model]="entity$"
-            [config]="formConfig$"
+            [config]="{autofocus: false}"
             (changeEvent)="onFormChange($event)">
         </uni-form>
     `
 })
 export class TofDetailsForm {
-    @ViewChild(UniForm, { static: true }) form: UniForm;
+    @ViewChild(UniForm) form: UniForm;
 
     @Input() readonly: boolean;
     @Input() entityType: string;
     @Input() entity: any;
-    @Input() currencyCodes: Array<CurrencyCode>;
-    @Input() projects: Project;
-    @Input() sellers: Seller[];
+    @Input() currencyCodes: CurrencyCode[];
+    @Input() projects: Project[];
+    @Input() departments: Department[];
     @Input() contacts: Contact[];
     @Input() companySettings: CompanySettings;
 
-    @Output() entityChange: EventEmitter<any> = new EventEmitter();
+    @Output() entityChange = new EventEmitter();
+    @Output() dimensionChange = new EventEmitter();
 
-    entity$: BehaviorSubject<any> = new BehaviorSubject({});
-    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
-    fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
+    entity$ = new BehaviorSubject({});
+    formConfig$ = new BehaviorSubject({autofocus: false});
+    fields$ = new BehaviorSubject<Partial<UniFieldLayout>[]>([]);
 
     constructor(
+        private featurePermissionService: FeaturePermissionService,
         private emailService: EmailService
-    ) { }
-
+    ) {}
 
     ngOnInit() {
         this.entity$.next(this.entity);
@@ -47,35 +49,49 @@ export class TofDetailsForm {
 
     ngOnChanges(changes) {
         this.entity$.next(this.entity);
-        if ((this.projects && this.entityType) || ((changes['readonly'] || changes['entity']))) {
+        if ((this.projects && this.departments && this.entityType) || ((changes['readonly'] || changes['entity']))) {
             this.initFormFields();
         }
     }
 
+    ngOnDestroy() {
+        this.entity$.complete();
+        this.fields$.complete();
+    }
+
     onFormChange(changes: SimpleChanges) {
-        const keys = Object.keys(changes);
-        this.entity['_updatedFields'] = keys;
-        keys.forEach(key => {
-            if (key.includes('ProjectID')) {
-                this.entity['_updatedField'] = Object.keys(changes)[0];
-            }
+        const changedFields = Object.keys(changes);
+        const changedField = changedFields && changedFields[0];
+        changedFields.forEach(key => {
             set(this.entity, key, changes[key].currentValue);
         });
 
         if (changes['QuoteDate'] && changes['QuoteDate'].currentValue) {
             this.setDates(changes['QuoteDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         } else if (changes['OrderDate'] && changes['OrderDate'].currentValue) {
             this.setDates(changes['OrderDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         } else if (changes['InvoiceDate'] && changes['InvoiceDate'].currentValue) {
             this.setDates(changes['InvoiceDate'].currentValue);
+            this.entity = cloneDeep(this.entity);
         }
+
         this.entityChange.emit(this.entity);
+
+        // Important that this happens after the entityChange emit!
+        if (changedField.includes('ProjectID') || changedField.includes('DepartmentID')) {
+            this.dimensionChange.emit({
+                field: changedField,
+                value: changes[changedField]?.currentValue
+            });
+        }
     }
 
     private initFormFields() {
         if (this.currencyCodes && this.entity) {
-            const fields: UniFieldLayout[] = [
-                <any> {
+            const fields: Partial<UniFieldLayout>[] = [
+                {
                     // Legend: 'Detaljer',
                     FieldSet: 1,
                     FieldSetColumn: 1,
@@ -86,7 +102,7 @@ export class TofDetailsForm {
                     Section: 0,
                     ReadOnly: this.readonly,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -95,7 +111,7 @@ export class TofDetailsForm {
                     Label: 'Forfallsdato',
                     Section: 0,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -111,9 +127,9 @@ export class TofDetailsForm {
                     },
                     ReadOnly: this.readonly,
                 },
-                <any> {
+                {
                     FieldSet: 1,
-                    FieldSetColumn: 1,
+                    FieldSetColumn: this.featurePermissionService.canShowUiFeature('ui.dimensions') ? 1 : 2,
                     EntityType: this.entityType,
                     Property: 'OurReference',
                     FieldType: FieldType.TEXT,
@@ -121,7 +137,7 @@ export class TofDetailsForm {
                     Section: 0,
                     MaxLength: 255,
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 1,
                     EntityType: this.entityType,
@@ -131,7 +147,7 @@ export class TofDetailsForm {
                     Section: 0,
                     Hidden: true
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -146,7 +162,7 @@ export class TofDetailsForm {
                         displayProperty: 'Info.Name'
                     }
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
                     EntityType: this.entityType,
@@ -158,9 +174,10 @@ export class TofDetailsForm {
                         (value: string, fieldLayout: UniFieldLayout) => this.emailService.emailUniFormValidation(value, fieldLayout)
                     ]
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
+                    FeaturePermission: 'ui.dimensions',
                     EntityType: this.entityType,
                     Property: 'DefaultDimensions.ProjectID',
                     FieldType: FieldType.DROPDOWN,
@@ -174,20 +191,21 @@ export class TofDetailsForm {
                         addEmptyValue: true
                     },
                 },
-                <any> {
+                {
                     FieldSet: 1,
                     FieldSetColumn: 2,
+                    FeaturePermission: 'ui.dimensions',
                     EntityType: this.entityType,
-                    Property: 'DefaultSellerID',
+                    Property: 'DefaultDimensions.DepartmentID',
                     FieldType: FieldType.DROPDOWN,
-                    Label: 'Hovedselger',
+                    Label: 'Avdeling',
                     Section: 0,
                     Options: {
-                        source: this.sellers,
+                        source: this.departments,
                         valueProperty: 'ID',
                         displayProperty: 'Name',
                         debounceTime: 200,
-                        addEmptyValue: true,
+                        addEmptyValue: true
                     },
                 },
             ];
@@ -212,7 +230,7 @@ export class TofDetailsForm {
 
             if (this.entityType === 'RecurringInvoice') {
                 const avtalegiroFields = [
-                    <any> {
+                    {
                         FieldSet: 1,
                         FieldSetColumn: 1,
                         EntityType: this.entityType,
@@ -225,7 +243,7 @@ export class TofDetailsForm {
                             Text: 'Blir det sendt varsel på e-post om AvtaleGiro?'
                         }
                     },
-                    <any> {
+                    {
                         FieldSet: 1,
                         FieldSetColumn: 1,
                         EntityType: this.entityType,

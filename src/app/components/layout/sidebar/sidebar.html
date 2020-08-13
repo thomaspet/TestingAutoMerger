@@ -17,7 +17,7 @@
                         <uni-icon
                             [icon]="section.icon"
                             [matIconClass]="'material-icons-outlined'"
-                            [ngClass]="{'ue-icon': !isSrEnvironment}"
+                            [ngClass]="{'ue-icon': isUEEnvironment}"
                             (click)="navigateToSectionUrl(section, $event)"
                             [matTooltip]="section.name | translate"
                             [matTooltipDisabled]="popover || state === 'expanded'"
@@ -29,8 +29,6 @@
                 </section>
 
                 <section *ngFor="let group of section.linkGroups" class="sidebar-link-group">
-                    <!-- <span *ngIf="group.name">{{group.name}}</span> -->
-
                     <ul class="sidebar-sub-menu">
                         <li *ngFor="let link of group.links">
 

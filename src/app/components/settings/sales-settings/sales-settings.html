@@ -89,7 +89,7 @@
         </section>
 
         <!-- FACTORING  -->
-        <section class="row form-row last">
+        <section *ngIf="!isBrunoEnv" class="row form-row last">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> {{ 'SETTINGS.FACTORING' | translate }} </h1>

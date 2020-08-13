@@ -1,6 +1,5 @@
 import {Component, OnInit, Pipe, PipeTransform} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
-import {environment} from 'src/environments/environment';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
@@ -15,6 +14,7 @@ import {
 } from '@app/services/services';
 import {forkJoin} from 'rxjs';
 import {AuthService} from '@app/authService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Pipe({name: 'filterIntegrations'})
 export class FilterIntegrationsPipe implements PipeTransform {
@@ -35,7 +35,7 @@ export class FilterIntegrationsPipe implements PipeTransform {
     styleUrls: ['./marketplaceIntegrations.sass'],
 })
 export class MarketplaceIntegrations implements OnInit {
-    isSrEnvironment = environment.isSrEnvironment;
+    isUEEnvironment = theme.theme === THEMES.UE;
 
     activeIntegrations: ElsaProduct[];
     upcomingIntegrations: ElsaProduct[];
@@ -86,7 +86,7 @@ export class MarketplaceIntegrations implements OnInit {
             forkJoin(
                 this.userRoleService.hasAdminRole(this.authService.currentUser.ID),
                 this.elsaPurchaseService.getAll(),
-                this.elsaProductService.GetAll(filter),
+                this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID, filter),
                 this.companySettingsService.Get(1),
             ).subscribe(
                 res => {
@@ -112,7 +112,7 @@ export class MarketplaceIntegrations implements OnInit {
                 },
                 err => this.errorService.handle(err)
             );
-        })
+        });
     }
 
     openSubscribeModal(integrationItem: ElsaProduct) {

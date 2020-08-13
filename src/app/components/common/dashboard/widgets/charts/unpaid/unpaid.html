@@ -1,0 +1,64 @@
+<section class="header">
+    <h1>Kundefordringer</h1>
+    <mat-radio-group *ngIf="!loading && hasData"
+        class="horizontal pull-right"
+        [(ngModel)]="viewMode"
+        (ngModelChange)="onViewModeChange()">
+
+        <mat-radio-button value="overview">Oversikt</mat-radio-button>
+        <mat-radio-button value="invoices">Forfalte fakturaer</mat-radio-button>
+    </mat-radio-group>
+</section>
+
+<section *ngIf="!loading" class="content">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som du har noen kundefordringer.
+    </widget-empty-state>
+
+    <ng-container *ngIf="hasData">
+        <!-- Overview -->
+        <section *ngIf="viewMode === 'overview'" class="overview">
+            <widget-chart class="center" [chartConfig]="chartConfig"></widget-chart>
+
+            <section class="unpaid-legend">
+                <section class="legend-item"
+                    *ngFor="let item of overviewData; let idx = index"
+                    [ngStyle]="{
+                        'color': item.textColor,
+                        'background': item.backgroundColor
+                    }">
+                    <span class="value">{{item.value | uninumberformat: 'money'}}</span>
+                    <span>{{item.label}}</span>
+                </section>
+            </section>
+        </section>
+
+        <!-- Overdue invoices -->
+        <simple-table *ngIf="viewMode === 'invoices'" class="selectable">
+            <thead>
+                <tr>
+                    <th>Faktura</th>
+                    <th>Kunde</th>
+                    <th>Forfallsdato</th>
+                    <th class="align-right">Utestående</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr *ngFor="let invoice of invoices" (click)="onInvoiceClick(invoice)">
+                    <td>{{invoice.InvoiceNumber}}</td>
+                    <td>{{invoice.CustomerName}}</td>
+                    <td>{{invoice.PaymentDueDate | date: 'dd.MM.yyyy'}}</td>
+                    <td class="align-right">{{invoice.RestAmount | uninumberformat: 'money'}}</td>
+                </tr>
+            </tbody>
+        </simple-table>
+    </ng-container>
+</section>
+
+<section *ngIf="!loading && hasData" class="footer center">
+    <a routerLink="/sales/invoices" [queryParams]="{filter: 'overdue_invoices'}">
+        Se alle forfalte faktura
+        <i class="material-icons">chevron_right</i>
+    </a>
+</section>

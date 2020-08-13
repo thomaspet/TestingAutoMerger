@@ -6,12 +6,24 @@
     <section class="header">
         <h1>Brukere på lisensen</h1>
 
-        <select [(ngModel)]="userType" (change)="filterUsers()" class="pull-right">
-            <option [value]="-1">Alle</option>
-            <option [value]="0">Standard</option>
-            <option [value]="1">Regnskapsfører</option>
-            <option [value]="10">Supportbruker</option>
-        </select>
+        <section class="pull-right">
+            <button #trigger class="tertiary toggle-button">
+                {{selectedUserTypeName}}
+                <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
+            </button>
+            <dropdown-menu [trigger]="trigger">
+                <ng-template>
+                    <section 
+                        *ngFor="let item of userTypeDropdown" 
+                        class="dropdown-menu-item"
+                        (click)="item.action()"
+                        [attr.aria-selected]="selectedUserTypeName === item.label"
+                    >
+                        {{item.label}}
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+        </section>
 
         <input
             type="search"

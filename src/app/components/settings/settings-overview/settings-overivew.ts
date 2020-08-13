@@ -6,6 +6,7 @@ import {AuthService} from '@app/authService';
 import {UniTranslationService, PageStateService} from '@app/services/services';
 import {NavbarLinkService} from '../../layout/navbar/navbar-link-service';
 import { trigger, transition, style, animate, query, stagger } from '@angular/animations';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 
 const listAnimation = trigger('listAnimation', [
@@ -36,6 +37,7 @@ export class SettingsOverview {
 
     constructor(
         private authService: AuthService,
+        private featurePermissionService: FeaturePermissionService,
         private tabService: TabService,
         private navbarLinkService: NavbarLinkService,
         private pageStateService: PageStateService,

@@ -160,10 +160,11 @@ export class UserDetails {
 
     private loadData(): Subscription {
         this.busy = true;
+
         return forkJoin(
             this.roleService.GetAll(),
             this.userRoleService.getRolesByUserID(this.user.ID),
-            this.productService.GetAll(),
+            this.productService.getProductsOnContractType(),
             this.purchaseService.getAll(),
             this.elsaPurchaseService.getPurchaseByProductName('Autobank')
         ).subscribe(
@@ -201,7 +202,7 @@ export class UserDetails {
         }
 
         const filteredProducts = this.products.filter(product => {
-            return product.ProductType === ElsaProductType.Module && product.Name !== 'Complete';
+            return product.ProductType === ElsaProductType.Module || product.ProductType === ElsaProductType.Package;
         });
 
         // This can be removed when Complete is gone as a product in prod

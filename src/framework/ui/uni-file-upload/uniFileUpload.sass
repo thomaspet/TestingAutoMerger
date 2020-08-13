@@ -1,0 +1,86 @@
+\:host
+    display: block
+    color: var(--color-c2a)
+.file-upload
+    display: block
+    margin-top: .5rem
+    min-height: 120px
+    align-items: center
+    background-color: #fff
+    border: 1px dashed var(--color-c2a)
+    border-radius: 10px
+    transition: .25s ease-in-out
+    .material-icons
+        color: var(--color-c2a)
+    &:hover
+        cursor: pointer
+
+    .select-file
+        min-height: 120px
+        display: flex
+        flex-flow: column
+        justify-content: center
+        text-align: center
+        transition: 0.2s ease-in-out
+
+        i
+            font-size: 35px
+            color: var(--color-c2a)
+
+        span
+            margin-top: 5px
+
+            .browse-link
+                text-decoration: underline
+                color: blue
+
+        input[type="file"]
+            display: none
+
+    .upload-file
+        width: 100%
+        padding: 15px
+        cursor: context-menu
+        transition: 0.2s ease-in-out
+
+        .uploaded-txt
+            color: var(--color-c2a)
+            margin-bottom: 5px
+
+        .file-card
+            display: flex
+            justify-content: space-between
+            background-color: white
+            min-height: 55px
+            align-items: center
+            border-radius: 5px
+            box-shadow: 0 1px 5px 0px rgba(0, 0, 0, 0.14)
+            position: relative
+            margin: 1rem
+
+            i
+                color: var(--color-c2a)
+                &.file-icon
+                    left: 10px
+                    position: relative
+                    font-size: 32px
+                    margin: 0 1rem 0 0
+
+                &.cancel-icon
+                    font-size: 18px
+                    position: relative
+                    left: -10px
+                    top: 2px
+                    cursor: pointer
+                    transform: rotate(45deg)
+
+            .file-name
+                font-size: 13px
+                white-space: nowrap
+                max-width: 275px
+                text-overflow: ellipsis
+                display: inline-block
+                overflow: hidden
+
+            label
+                color: var(--color-c2a)

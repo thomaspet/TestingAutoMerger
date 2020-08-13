@@ -30,7 +30,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
 @Component({
     selector: 'uni-register-payment-modal',
     template: `
-        <section role="dialog" class="uni-modal">
+        <section role="dialog" class="uni-modal register-payment-modal">
             <header>{{options.header || 'Registrer betaling'}}</header>
             <article>
                 <uni-form
@@ -42,10 +42,12 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
                 <FONT color="#FF0000">
                     <DIV *ngFor="let message of mandatoryDimensionMessage">{{message}}</DIV>
                 </FONT>
+
+                <span class="pay-invoice-message" *ngIf="options?.message"> {{ options.message }} </span>
             </article>
-            <footer>
+            <footer class="center">
                 <button class="secondary" (click)="close(false)">Avbryt</button>
-                <button class="c2a" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)">Registrer betaling</button>
+                <button class="c2a" [disabled]="!!isRegisterButtonDisabled" (click)="close(true)"> {{ options?.buttonLabels?.accept || 'Registrer betaling' }} </button>
             </footer>
         </section>
     `

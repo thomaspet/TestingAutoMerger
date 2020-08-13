@@ -1,4 +1,5 @@
-<ag-grid-wrapper #table
+<ag-grid-wrapper
+    class="borders"
     [config]="sellerTableConfig"
     [(resource)]="sellerLinks"
     (rowChange)="onSellerChange($event)"

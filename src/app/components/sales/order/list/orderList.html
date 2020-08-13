@@ -7,6 +7,9 @@
     [tickerCode]="tickercode"
     [showFiltersAsNavbar]="true"
     [actionOverrides]="actionOverrides"
-    [columnOverrides]="columnOverrides">
+    [columnOverrides]="columnOverrides"
+    [disableSubTickers]="true"
+    (rowSelected)="onRowSelected($event)"
+>
 </uni-ticker-wrapper>
 

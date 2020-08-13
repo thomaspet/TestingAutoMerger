@@ -24,6 +24,7 @@ import {
 } from '../../../services/services';
 import {Account, NumberSeriesType} from '../../../unientities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 declare var _;
 const MAXNUMBER = 2147483647;
@@ -47,7 +48,7 @@ export class NumberSeries {
     private tasks: any[] = [];
 
     currentYear: number;
-    currentSerie: any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
+    currentSerie; // : any = this.numberSeriesService.series.find(x => x.ID === 'JournalEntry');
     infoMarkup = this.getInfoTextMarkup('JournalEntry');
 
     private asinvoicenumberserie: number = null;
@@ -80,12 +81,10 @@ export class NumberSeries {
     public saveactions: IUniSaveAction[] = [];
 
     constructor(
-        private settingService: SettingsService,
+        private featurePermissionService: FeaturePermissionService,
         private http: UniHttp,
         private tabService: TabService,
         private errorService: ErrorService,
-        private guidService: GuidService,
-        private statisticsService: StatisticsService,
         private financialYearService: FinancialYearService,
         private toastService: ToastService,
         private numberSeriesService: NumberSeriesService,
@@ -101,7 +100,19 @@ export class NumberSeries {
             active: true
        });
 
-        this.series = this.numberSeriesService.series;
+        this.series = [
+            {ID: 'JournalEntry', Name: 'Regnskap'},
+            {ID: 'Sale', Name: 'Salg'},
+            {ID: 'Accounts', Name: 'Kontoer'},
+        ];
+
+        // REVISIT: this doesn't seem like a good idea.. Make sure bruno _really_ want this.
+        if (this.featurePermissionService.canShowUiFeature('ui.numberseries-others')) {
+            this.series.push({ID: 'Others', Name: 'Andre serier'});
+        }
+
+        this.currentSerie = this.series[0];
+
         this.initTableConfigs();
         this.initAccountingTableConfig();
         this.updateSaveActions();

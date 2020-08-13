@@ -8,64 +8,6 @@
         padding-bottom: 0
         margin-bottom: 0
 
-    .reconciliation-toolbar
-        flex: 0 0 auto
-        display: flex
-        min-height: 3rem
-        margin-bottom: .5rem
-        flex-wrap: no-wrap
-        align-items: center
-
-        .left-side
-            display: flex
-            flex-wrap: wrap
-
-        select,.section-cont
-            border: 1px solid rgba(112, 112, 112, 0.33)
-            border-radius: 3px
-            color: #1D1F25
-            height: 2.5rem
-            font-size: 14px
-            width: 14rem
-            height: 34px
-            cursor: pointer
-            display: flex
-            align-items: center
-
-            span
-                overflow: hidden
-                white-space: nowrap
-                text-overflow: ellipsis
-                margin: 0 .5rem
-
-        .period-picker
-            display: inline-flex
-            align-items: center
-            month-picker
-                height: 34px
-                width: 14rem
-            button.icon-button
-                margin: 0 1px
-                height: 34px
-
-        .pull-right
-            margin-left: auto
-            flex: 0 0 auto
-            flex-wrap: nowrap
-            align-items: flex-start
-
-            button.good
-                min-width: 8rem
-
-            button i.material-icons
-                margin-bottom: 1px
-                margin-right: 4px
-            button.tight
-                margin-left: 0.2rem
-                margin-right: 0.2rem
-                padding-left: 0.4rem
-                padding-right: 0.4rem
-
 .select-wrapper
     display: flex
     .flex-sections-container
@@ -86,6 +28,7 @@
     overflow: auto
     display: flex
     border-radius: 3px
+    margin-top: 2rem
 
     .list-section
         flex: 1
@@ -97,9 +40,38 @@
 
             .overflow-ellipsis
                 margin-right: 1rem
+                cursor: pointer
+                display: flex
 
             span
-                font: 500 17px 'Roboto'
+                cursor: pointer
+
+            span.bank-name
+                font-weight: 500
+                margin: 0 .25rem
+
+            span.accounting-name
+                font-weight: 400
+                margin: 0 1.5rem 0 0
+
+                &:last-of-type
+                    margin: 0
+
+                &.selected-value
+                    font-weight: 500
+                    border-bottom: 2px solid var(--color-c2a)
+
+            span:last-of-type
+                flex: 1
+                display: flex
+                justify-content: flex-end
+
+                i
+                    font-size: 22px
+                    color: var(--color-warn)
+                    margin-right: .5rem
+                    cursor: help
+
             small
                 font: 400 15px 'Roboto'
                 margin-left: auto
@@ -115,9 +87,8 @@
 .center-section
     position: sticky
     top: 0
-    flex: 0 0 18rem
+    flex: 0 0 20rem
     margin: 0 2rem
-    position: relative
 
     .warning-label
         position: absolute
@@ -134,13 +105,24 @@
 .reconciliation-summary
     display: flex
     flex-direction: column
-    margin: 2.5rem 0 auto
+    margin: 0
     font-size: 14px
     border-radius: 3px
     min-height: 12rem
     background: #fff
-    border: 1px solid #cccccc
+    border: 2px solid var(--color-c2a)
     border-radius: 3px
+    padding-bottom: .5rem
+
+    header
+        font-size: 15px
+        font-weight: 500
+        margin: 0 1rem
+        border-bottom: 1px solid var(--color-c2a)
+        height: 3rem
+        display: flex
+        align-items: center
+        justify-content: center
 
     section.header
         padding: 10px 1.5rem
@@ -161,6 +143,15 @@
             margin-bottom: 0.5rem
             text-align: center
 
+            &.open-post
+                display: flex
+                justify-content: center
+                align-items: center
+                flex-direction: column
+
+                button
+                    margin-top: 1rem
+
         .reset-button
             i.material-icons
                 margin-bottom: 2px
@@ -172,6 +163,7 @@
             li
                 display: flex
                 justify-content: space-between
+                align-items: center
 
                 span:first-of-type
                     width: 7.5rem
@@ -180,8 +172,13 @@
                     margin-top: .5rem
                     padding-top: .5rem
                     border-top: 1px solid rgba(112, 112, 112, 0.2)
-                    .has-diff
-                        color: #EF8538
+
+                    span:last-of-type, i
+                        color: var(--color-c2a)
+
+                    &.has-diff
+                        span:last-of-type, i
+                            color: var(--color-warn)
 
     .footer
         display: flex
@@ -205,33 +202,12 @@
             margin-bottom: 2px
             margin-right: 2px
 
-.bullet
-    display: inline-flex
-    align-items: center
-    justify-content: center
-    margin: 0 auto
-    padding-left: 1px
-    color: #fff
-    background-color: orange
-    font-size: 13px
-    border-radius: 50%
-    height: 2rem
-    width: 2rem
-
 .book-button
-    margin: 1rem 2rem 1rem 2rem
-    display: flex
-    align-items: center
-    justify-content: center
-    border: 1px solid #ccc
-    border-radius: 3px
-
+    margin: .5rem 2rem 1rem
     i
-        font-size: 14px
-        margin-left: .5rem
+        font-size: 16px
+        margin-right: .5rem
 
-.good-bullet
-    background-color: green
 
 .nowrap
     white-space: nowrap
@@ -248,17 +224,17 @@
 .ontop
     z-index: 999
 
-.menu-list
+::ng-deep .dropdown-menu
     list-style: none
     margin: 0
 
-    li
-        height: 34px
-        padding: 0 1rem
+    span
+        padding: .75rem 1.5rem
         cursor: pointer
         display: flex
         align-items: center
         font-size: 15px
+
         &:hover
             background-color: var(--dropdown-select-background)
 

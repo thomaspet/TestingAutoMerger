@@ -18,6 +18,7 @@ interface IRoleGroup {
     product?: ElsaProduct;
     productPurchased?: boolean;
     purchase?: ElsaPurchase;
+    canToggleProduct?: boolean;
 }
 
 @Component({
@@ -53,7 +54,7 @@ export class UniRoleModal implements IUniModal {
 
         this.busy = true;
         forkJoin(
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractType(),
             this.elsaPurchaseService.getAll()
         ).pipe(
             finalize(() => this.busy = false)
@@ -155,7 +156,7 @@ export class UniRoleModal implements IUniModal {
             if (!this.userStatusInvited) {
                 if (group.purchase) {
                     // Remove purchase if all roles are removed, or the user toggled it off themselves
-                    if (!group.productPurchased || !hasActiveRole) {
+                    if (group.canToggleProduct && (!group.productPurchased || !hasActiveRole)) {
                         group.purchase.Deleted = true;
                         purchaseChanges.push(group.purchase);
                     }
@@ -229,10 +230,10 @@ export class UniRoleModal implements IUniModal {
     }
 
     private groupRolesByProducts(roles: Role[], products: ElsaProduct[]): IRoleGroup[] {
-        // Create groups based on products (of type Module)
+        // Create groups based on products
         const filteredProducts = (products || []).filter(product => {
             return product.ProductType === ElsaProductType.Module
-                && product.Name !== 'Complete';
+                || product.ProductType === ElsaProductType.Package;
         });
 
         const groups: IRoleGroup[] = filteredProducts.map(product => {
@@ -245,6 +246,7 @@ export class UniRoleModal implements IUniModal {
                 label: product.Label,
                 roles: [],
                 product: product,
+                canToggleProduct: product.ProductType !== ElsaProductType.Package,
                 // Purchases will be added to invited users once they finish the registration.
                 // Mark all products as purchased until that, so its possible to tweak roles.
                 productPurchased: !!purchase || this.userStatusInvited,
@@ -276,11 +278,8 @@ export class UniRoleModal implements IUniModal {
                 groupsThatShouldHaveRole.forEach(group => {
                     group.roles.push(role);
                 });
-            } else {
-                // Bank roles should not be available here. They're set automatically.
-                if (role.Name && !role.Name.includes('Bank')) {
-                    otherGroup.roles.push(role);
-                }
+            } else if (role.Name === 'Administrator') {
+                otherGroup.roles.push(role);
             }
         });
 

@@ -63,6 +63,7 @@ export class CustomerEditModal implements IUniModal {
         this.externalLookupOptions = {
             placeholder: 'Søk i 1880/Brønnøysundregistrene',
             autofocus: true,
+            clearInputOnSelect: true,
             lookup: (query, filterCheckboxValues) => {
                 return this.integrationServerCaller.businessRelationSearch(
                     query, 50, filterCheckboxValues[0], filterCheckboxValues[1]

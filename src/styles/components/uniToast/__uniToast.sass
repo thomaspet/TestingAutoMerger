@@ -34,8 +34,22 @@ uni-toast
     &.info
         background-color: var(--toast-info)
         color: var(--toast-info-text)
-        .header, i.toast-type-icon
-            color: var(--color-c2a-dark)
+
+    &.load
+        background-color: #fff
+        color: var(--text-color)
+
+        .toast-body
+            .header
+                font-size: 20px
+                color: var(--color-c2a-dark)
+            .message
+                margin-top: .75rem
+
+        mat-spinner
+            flex: 0 0 auto
+            margin-right: 1.25rem
+
 
     & + uni-toast
         margin-top: .5rem

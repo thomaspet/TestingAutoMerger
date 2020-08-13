@@ -1,14 +1,17 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { Router } from '@angular/router';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map, take } from 'rxjs/operators';
-import { environment } from 'src/environments/environment';
-import { Company, UserDto, ContractLicenseType } from './unientities';
-import { ReplaySubject } from 'rxjs';
+import {Injectable, EventEmitter} from '@angular/core';
+import {Router} from '@angular/router';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {map, take, tap} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {Company, UserDto, ContractLicenseType} from './unientities';
+import {ReplaySubject} from 'rxjs';
 import 'rxjs/add/operator/map';
-import { UserManager, WebStorageStateStore } from 'oidc-client';
+import {UserManager, WebStorageStateStore} from 'oidc-client';
+import {THEMES, theme} from 'src/themes/theme';
+
 import * as moment from 'moment';
+import {FeaturePermissionService} from './featurePermissionService';
 
 export interface IAuthDetails {
     activeCompany: Company;
@@ -30,7 +33,9 @@ const PUBLIC_ROOT_ROUTES = [
     'predefined-descriptions',
     'gdpr',
     'contract-activation',
-    'license-info'
+    'license-info',
+    'accounting', // Remove when ui-permission is in place
+    'dashboard-new'
 ];
 
 const PUBLIC_ROUTES = [];
@@ -39,15 +44,16 @@ const PUBLIC_ROUTES = [];
 export class AuthService {
     userManager: UserManager;
 
-    public companyChange: EventEmitter<Company> = new EventEmitter();
+    companyChange: EventEmitter<Company> = new EventEmitter();
 
-    public authentication$ = new ReplaySubject<IAuthDetails>(1);
-    public token$ = new ReplaySubject<string>(1);
+    authentication$ = new ReplaySubject<IAuthDetails>(1);
+    token$ = new ReplaySubject<string>(1);
 
-    public jwt: string;
-    public id_token: string;
-    public activeCompany: Company;
-    public currentUser: UserDto;
+    jwt: string;
+    id_token: string;
+    activeCompany: Company;
+    currentUser: UserDto;
+    contractID: number;
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
     private storage = {
@@ -70,7 +76,11 @@ export class AuthService {
         removeOnUser: key => localStorage.removeItem(key)
     };
 
-    constructor(private router: Router, private http: HttpClient) {
+    constructor(
+        private router: Router,
+        private http: HttpClient,
+        private featurePermissionService: FeaturePermissionService
+    ) {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.setLoadIndicatorVisibility(true);
@@ -168,6 +178,21 @@ export class AuthService {
         });
     }
 
+    // REMOVE ME WHEN BRUNO IS DONE TESTING
+    mockSetProductBundle(name) {
+        const currentUrl = this.router.url;
+        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
+            this.authentication$.take(1).subscribe(authDetails => {
+                this.featurePermissionService.setFeatureBlacklist(name);
+
+                // Trigger sidebar link filtering
+                this.authentication$.next(authDetails);
+
+                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
+            });
+        });
+    }
+
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         const spinner = document.getElementById('app-spinner');
         if (spinner) {
@@ -247,9 +272,8 @@ export class AuthService {
                     this.activeCompany = activeCompany;
                     this.companyChange.emit(activeCompany);
 
-                    this.loadCurrentSession().pipe(take(1)).subscribe(
+                    this.reloadCurrentSession().subscribe(
                         authDetails => {
-                            this.authentication$.next(authDetails);
                             const forcedRedirect = this.getForcedRedirect(
                                 authDetails
                             );
@@ -269,6 +293,13 @@ export class AuthService {
                     );
                 }
             });
+    }
+
+    reloadCurrentSession() {
+        return this.loadCurrentSession().pipe(
+            take(1),
+            tap(auth => this.authentication$.next(auth))
+        );
     }
 
     private getForcedRedirect(authDetails: IAuthDetails) {
@@ -319,13 +350,16 @@ export class AuthService {
             }
         }).pipe(map(user => {
             this.currentUser = user;
+            this.contractID = user?.License?.Company?.ContractID;
 
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
+            this.featurePermissionService.setFeatureBlacklist(contract.TypeName);
             const isDemo = contract.TypeName === 'Demo';
             let hasActiveContract = user && !this.isTrialExpired(contract);
 
+
             // In SR a demo with non-demo company requires contract activation immediately
-            if (environment.isSrEnvironment && isDemo && !this.activeCompany.IsTest) {
+            if (theme.theme === THEMES.SR && isDemo && !this.activeCompany.IsTest) {
                 hasActiveContract = false;
             }
 
@@ -444,6 +478,12 @@ export class AuthService {
         }
 
         const rootRoute = this.getRootRoute(url);
+        const permissionKey: string = this.getPermissionKey(url);
+
+        if (!this.featurePermissionService.canShowRoute(permissionKey)) {
+            return false;
+        }
+
         if (!rootRoute || PUBLIC_ROOT_ROUTES.some(route => route === rootRoute)) {
             return true;
         }
@@ -452,7 +492,6 @@ export class AuthService {
             return false;
         }
 
-        const permissionKey: string = this.getPermissionKey(url);
         return this.hasUIPermission(user, permissionKey);
     }
 

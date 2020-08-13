@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'new-outgoing-wizard-modal',
@@ -26,14 +27,14 @@ export class NewOutgoingWizardModal implements IUniModal {
             label: 'Kvittering',
             infoText: 'Kjøp som er betalt av selskapet',
             value: '2',
-            route: '/accounting/expense?mode=1&fileid='
+            route: theme.theme === THEMES.EXT02 ? '/accounting/supplier-invoice-expense?mode=1&fileid=' : '/accounting/expense?mode=1&fileid='
         },
         {
             selected: false,
             label: 'Tilbakebetaling',
             infoText: 'Kjøp hvor ansatt eller eksterne har lagt ut privat',
             value: '3',
-            route: '/accounting/expense?mode=2&fileid='
+            route: theme.theme === THEMES.EXT02 ? '/accounting/supplier-invoice-expense?mode=2&fileid=' : '/accounting/expense?mode=2&fileid='
         }
     ];
 

@@ -5,6 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
 import { map, switchMap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
 
 @Injectable()
 export class AccountService extends BizHttp<Account> {
@@ -15,6 +16,37 @@ export class AccountService extends BizHttp<Account> {
         this.relativeURL = Account.RelativeUrl;
         this.entityType = Account.EntityType;
         this.DefaultOrderBy = 'AccountNumber';
+    }
+
+    public searchPublicAccounts(searchValue) {
+        let filter = '';
+        if (searchValue === '') {
+            filter = `Visible eq 'true' and ( isnull(AccountID,0) eq 0 ) ` +
+                `or ( ( isnull(AccountID,0) eq 0 ) ` +
+                `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted} ) ` +
+                `or ( Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}) ))`;
+        } else {
+            filter = `( contains(keywords,'${searchValue}') ) or `;
+            if (isNaN(parseInt(searchValue, 10))) {
+                filter += `Visible eq 'true' and (contains(AccountName\,'${searchValue}') ` +
+                    `and isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0) ` +
+                    `or (contains(AccountName\,'${searchValue}') ` +
+                    `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
+                    `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                    `or (Account.AccountName eq '${searchValue}' ` +
+                    `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
+            } else {
+                filter += `Visible eq 'true' and ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') ` +
+                    `or contains(AccountName\,'${searchValue}')  ) ` +
+                    `and ( isnull(account.customerid,0) eq 0 and isnull(account.supplierid,0) eq 0 )) ` +
+                    `or ((startswith(AccountNumber\,'${parseInt(searchValue, 10)}') or contains(AccountName\,'${searchValue}') ) ` +
+                    `and ((Customer.Statuscode ne ${StatusCode.InActive} and Customer.Statuscode ne ${StatusCode.Deleted}) ` +
+                    `or (Supplier.Statuscode ne ${StatusCode.InActive} and Supplier.Statuscode ne ${StatusCode.Error} and Supplier.Statuscode ne ${StatusCode.Deleted}))) ` +
+                    `or (Account.AccountNumber eq '${parseInt(searchValue, 10)}' ` +
+                    `and (Customer.Statuscode ne ${StatusCode.Deleted} or Supplier.Statuscode ne ${StatusCode.Deleted}))`;
+            }
+        }
+        return this.searchAccounts(filter, searchValue !== '' ? 100 : 500);
     }
 
     public searchAccounts(filter: string, top: number = 500, orderby = 'AccountNumber') {

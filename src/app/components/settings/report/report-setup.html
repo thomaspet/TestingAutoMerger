@@ -34,7 +34,7 @@
     </section>
 </section>
 
-<section class="uni-card collapsable">
+<section *ifFeaturePermission="'ui.sales.orders'" class="uni-card collapsable">
     <section class="uni-card-header" [class.is-open]="isOpen[2]" (click)="isOpen[2] = !isOpen[2]">
         <h1> {{ 'NAVBAR.ORDER' | translate }} </h1>
         <button class="tertiary c2a pull-right">
@@ -59,7 +59,7 @@
     </section>
 </section>
 
-<section class="uni-card collapsable">
+<section *ifFeaturePermission="'ui.sales.quotes'" class="uni-card collapsable">
     <section class="uni-card-header" [class.is-open]="isOpen[3]" (click)="isOpen[3] = !isOpen[3]">
         <h1> {{ 'NAVBAR.QUOTE' | translate }} </h1>
         <button class="tertiary c2a pull-right">
@@ -84,7 +84,7 @@
     </section>
 </section>
 
-<section class="uni-card collapsable">
+<section *ifFeaturePermission="'ui.sales.reminders'" class="uni-card collapsable">
     <section class="uni-card-header" [class.is-open]="isOpen[4]" (click)="isOpen[4] = !isOpen[4]">
         <h1> {{ 'NAVBAR.REMINDER' | translate }} </h1>
         <button class="tertiary c2a pull-right">

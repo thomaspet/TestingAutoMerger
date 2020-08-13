@@ -1,0 +1,36 @@
+.main-container
+	display: flex
+
+	.invoice-section
+		margin-left: 1rem
+
+	.bank-section
+		margin-right: 1rem
+
+	.bank-section, .invoice-section
+		width: 50%
+		span
+			display: block
+
+			&.section-header-name
+				font-weight: 500
+				font-size: 18px
+				margin-left: 1rem
+
+			&.section-sub-header
+				font-weight: 500
+				font-size: 16px
+				margin: .5rem 0 0 1rem
+				text-overflow: ellipsis
+				overflow: hidden
+				white-space: nowrap
+
+	.item-box
+		padding: 2rem 1rem
+		margin-top: 1rem
+
+		&.bank
+			background-color: #EDF7F9
+
+		&.invoice
+			background-color: #F2F4EC

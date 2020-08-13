@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from '@uni-framework/ui/unitable/config/unitableColumn';
 import {UniTableConfig} from '@uni-framework/ui/unitable/config/unitableConfig';
 import {ISavedSearch, ITableFilter} from '../interfaces';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
-import * as _ from 'lodash';
+import {get, cloneDeep} from 'lodash';
 import * as moment from 'moment';
 
 interface SortModel { colId: string; sort: string; }
@@ -29,7 +30,7 @@ export class TableUtils {
     private savedSearchMap: SavedSearchMap = {};
     private sortMap: SortMap = {};
 
-    constructor() {
+    constructor(private featurePermissionService: FeaturePermissionService) {
         const getSavedSettings = (key: string) => {
             try {
                 return JSON.parse(localStorage.getItem(key)) || {};
@@ -47,8 +48,8 @@ export class TableUtils {
     // Local sorting functions
     dateComparator(rowNode1, rowNode2, column: UniTableColumn) {
         const field = column.alias || column.field;
-        const value1 = _.get(rowNode1.data, field, '');
-        const value2 = _.get(rowNode2.data, field, '');
+        const value1 = get(rowNode1.data, field, '');
+        const value2 = get(rowNode2.data, field, '');
 
         const unix1 = moment(value1).isValid() ? moment(value1).unix() : 0;
         const unix2 = moment(value2).isValid() ? moment(value2).unix() : 0;
@@ -58,8 +59,8 @@ export class TableUtils {
     numberComparator(rowNode1, rowNode2, column: UniTableColumn) {
         const mode = column.sortMode;
         const field = column.alias || column.field;
-        const value1 = _.get(rowNode1.data, field, 0);
-        const value2 = _.get(rowNode2.data, field, 0);
+        const value1 = get(rowNode1.data, field, 0);
+        const value2 = get(rowNode2.data, field, 0);
         if (mode === UniTableColumnSortMode.Absolute) {
             return Math.abs(value1) - Math.abs(value2);
         } else {
@@ -72,30 +73,30 @@ export class TableUtils {
     }
 
     public getTableColumns(tableConfig: UniTableConfig): UniTableColumn[] {
-        const configColumns = _.cloneDeep(tableConfig.columns);
-        const key = tableConfig.configStoreKey;
+        let columns = cloneDeep(tableConfig.columns);
 
-        const customColumnSetup = this.columnSetupMap[key];
-        if (!customColumnSetup || !customColumnSetup.length) {
-            return this.fixColumnWidths(configColumns);
+        const customColumnSetup = this.columnSetupMap[tableConfig.configStoreKey];
+        if (customColumnSetup && customColumnSetup.length) {
+            columns = columns.map(col => {
+                const savedColumn = customColumnSetup.find(customCol => customCol.field === col.field);
+                if (savedColumn) {
+                    return Object.assign({}, col, savedColumn);
+                } else {
+                    return col;
+                }
+            });
+
+            columns = columns.sort((col1, col2) => {
+                const col1Index = col1.index >= 0 ? col1.index : 99;
+                const col2Index = col2.index >= 0 ? col2.index : 99;
+                return col1Index - col2Index;
+            });
         }
 
-        const columns = configColumns.map(configColumn => {
-            const savedColumn = customColumnSetup.find(col => col.field === configColumn.field);
-            if (savedColumn) {
-                return Object.assign({}, configColumn, savedColumn);
-            } else {
-                return configColumn;
-            }
-        });
+        columns = this.fixColumnWidths(columns);
+        columns = columns.filter(col => this.featurePermissionService.canShowTableColumn(col));
 
-        const sorted = columns.sort((col1, col2) => {
-            const col1Index = col1.index >= 0 ? col1.index : 99;
-            const col2Index = col2.index >= 0 ? col2.index : 99;
-            return col1Index - col2Index;
-        });
-
-        return this.fixColumnWidths(_.cloneDeep(sorted));
+        return cloneDeep(columns);
     }
 
     private fixColumnWidths(columns: UniTableColumn[]): UniTableColumn[] {
@@ -192,7 +193,7 @@ export class TableUtils {
         if (column.template) {
             value = column.template(rowModel) || (rowModel._isSumRow ? 0 : '');
         } else {
-            value = _.get(rowModel, field) || (rowModel._isSumRow ? 0 : '');
+            value = get(rowModel, field) || (rowModel._isSumRow ? 0 : '');
         }
         switch (column.type) {
             case UniTableColumnType.DateTime:

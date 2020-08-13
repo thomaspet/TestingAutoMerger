@@ -1,6 +1,7 @@
 import {NgModule} from '@angular/core';
 import {LibraryImportsModule} from '@app/library-imports.module';
 import {UniPipesModule} from '../../pipes/pipes.module';
+import {UniTranslatePipesModule} from '../../pipes/translate.module';
 
 import {UniTable} from './unitable';
 import {UniTableUtils} from './unitableUtils';
@@ -33,6 +34,7 @@ import {UniDateAdapter} from '@app/date-adapter';
     imports: [
         LibraryImportsModule,
         UniPipesModule,
+        UniTranslatePipesModule,
         InputDropdownModule
     ],
     declarations: [

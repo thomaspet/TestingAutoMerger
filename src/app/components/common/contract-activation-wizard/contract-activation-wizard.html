@@ -1,0 +1,59 @@
+<section *ngIf="contractType && customer" class="uni-card shadow">
+    <section class="uni-card-content">
+        <h1>{{headerText}}</h1>
+
+        <form [formGroup]="customerDetailsForm">
+            <label class="uni-label">
+                <span>Navn</span>
+                <input uniAutoFocus type="text" formControlName="ContactPerson" />
+            </label>
+
+            <label class="uni-label">
+                <span>Epost</span>
+                <input type="text" formControlName="ContactEmail" />
+            </label>
+
+            <label class="uni-label">
+                <span>Telefon</span>
+                <input type="text" formControlName="ContactPhone" />
+            </label>
+
+            <label *ngIf="customerDetailsForm.controls['PersonalNumber']" class="uni-label">
+                <span>Personnummer</span>
+                <input type="text" formControlName="PersonalNumber">
+            </label>
+
+            <label *ngIf="customerDetailsForm.controls['BankUserID']" class="uni-label">
+                <!-- TODO: tooltip -->
+                <span>Bruker-identifikator i nettbank bedrift</span>
+                <input type="text" formControlName="BankUserID">
+            </label>
+
+            <mat-checkbox *ngIf="customerDetailsForm.controls['IsBankCustomer']" formControlName="IsBankCustomer">
+                <span class="checkbox-label">Jeg er allerede SR-Bank bedriftskunde</span>
+            </mat-checkbox>
+        </form>
+
+
+        <mat-checkbox [(ngModel)]="termsAgreed" [disabled]="activationInProgress">
+            <span class="checkbox-label">
+                Jeg har lest og godtar
+                <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">lisensavtalen</a>.
+            </span>
+        </mat-checkbox>
+    </section>
+
+    <section class="uni-card-footer">
+        <button class="secondary pull-left"
+            (click)="back.emit()">
+            Tilbake
+        </button>
+
+        <button class="c2a"
+            [disabled]="!termsAgreed"
+            [attr.aria-busy]="activationInProgress"
+            (click)="activateContract()">
+            {{submitButtonText}}
+        </button>
+    </section>
+</section>

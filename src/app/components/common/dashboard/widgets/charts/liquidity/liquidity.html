@@ -1,0 +1,73 @@
+<section class="header">
+    <h1>Likviditetsprognose</h1>
+
+    <mat-radio-group *ngIf="!loading && hasData" [(ngModel)]="viewMode" class="horizontal pull-right">
+        <mat-radio-button value="table">Tabell</mat-radio-button>
+        <mat-radio-button value="chart">Graf</mat-radio-button>
+    </mat-radio-group>
+</section>
+
+<section *ngIf="!loading" class="content">
+    <!-- <widget-empty-state *ngIf="!hasData">
+        TODO: EMPTY STATE MESSAGE
+    </widget-empty-state> -->
+
+    <ng-container *ngIf="hasData">
+        <section class="bank-balance-section">
+            {{bankBalanceText}} <strong *ngIf="bankBalance !== undefined">{{(bankBalance | uninumberformat: 'money') || '0,00'}}</strong>
+        </section>
+
+        <table *ngIf="viewMode === 'table'">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>I dag</th>
+                    <th>7 dager</th>
+                    <th>14 dager</th>
+                    <th>30 dager</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>Kunde</td>
+                    <td *ngFor="let item of periodData">{{item.Custumer | uninumberformat: 'money': 0 }}</td>
+                </tr>
+                <tr>
+                    <td>Leverandør</td>
+                    <td *ngFor="let item of periodData">{{item.Supplier | uninumberformat: 'money': 0 }}</td>
+                </tr>
+                <tr>
+                    <td>Mva</td>
+                    <td *ngFor="let item of periodData">{{item.VAT | uninumberformat: 'money': 0 }}</td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <a (click)="addCustomPayment()">
+                            Andre
+                            <i class="material-icons">add_circle_outline</i>
+                        </a>
+                    </td>
+                    <td *ngFor="let item of periodData">{{item.CustomPayments | uninumberformat: 'money': 0 }}</td>
+                </tr>
+
+                <tr class="sum-row">
+                    <td>Sum</td>
+                    <td *ngFor="let item of periodData">{{item.Sum | uninumberformat: 'money': 0 }}</td>
+                </tr>
+
+                <tr class="liquidity-row">
+                    <td>Likviditet</td>
+                    <td *ngFor="let item of periodData" [ngClass]="item.Liquidity > 0 ? 'good' : 'bad'">
+                        {{ (item.Liquidity | uninumberformat: 'money': 0) || 0 }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <widget-chart *ngIf="viewMode === 'chart'" [chartConfig]="chartConfig"></widget-chart>
+
+    </ng-container>
+</section>
+

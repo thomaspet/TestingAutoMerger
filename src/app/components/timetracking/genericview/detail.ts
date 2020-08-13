@@ -10,6 +10,7 @@ import {ErrorService} from '../../../services/services';
 import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 
 export interface IViewConfig {
     labels?: {
@@ -85,7 +86,7 @@ export class GenericDetailview implements OnInit, OnChanges {
     public current$: BehaviorSubject<any> = new BehaviorSubject(null);
     public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
     public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-    public toolbarConfig: any = { title: '' };
+    public toolbarConfig: IToolbarConfig = { title: '' };
 
     public actions: IUniSaveAction[] = [
         { label: labels.action_save, action: (done) => this.save(done), main: true, disabled: false },
@@ -119,6 +120,7 @@ export class GenericDetailview implements OnInit, OnChanges {
     private initToolbar(title: string, subTitle: string) {
         this.toolbarConfig = {
             title: title,
+            hideDisabledActions: true,
             subheads: [
                 {title: subTitle}
             ],
@@ -128,24 +130,12 @@ export class GenericDetailview implements OnInit, OnChanges {
                 add: () => {
                     this.onCreateNew();
                 }
-            },
-            contextmenu: [
-                { label: labels.action_delete,
-                    action: () => {
-                        this.onDelete();
-                    }
-                }
-            ]
+            }
         };
-
     }
 
     public onReady() {
         this.loadCurrent(this.ID);
-    }
-
-    public onDelete() {
-        this.delete();
     }
 
     public onShowList() {
@@ -290,6 +280,7 @@ export class GenericDetailview implements OnInit, OnChanges {
 
     private enableAction(actionID: IAction, enable = true) {
         this.actions[actionID].disabled = !enable;
+        this.actions = [...this.actions];
     }
 
     private updateTitle(fallbackTitle?: string) {

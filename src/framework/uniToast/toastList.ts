@@ -1,9 +1,16 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {ToastService} from './toastService';
+import {ToastService, ToastType, IToast} from './toastService';
 
 @Component({
     selector: 'uni-toast-list',
     template: `
+        <uni-toast *ngIf="toastService.spinnerToast$ | async as spinnerToast"
+            role="alert"
+            class="load"
+            [toast]="spinnerToast"
+            (dismiss)="toastDismissed(spinnerToast)">
+        </uni-toast>
+
         <uni-toast *ngFor="let toast of toastService.toasts$ | async"
             role="alert"
             [toast]="toast"
@@ -25,11 +32,15 @@ export class UniToastList {
         public cdr: ChangeDetectorRef
     ) {}
 
-    public toastDismissed(toast) {
+    public toastDismissed(toast: IToast) {
         toast.done = true;
 
         setTimeout(() => {
-            this.toastService.removeToast(toast.id);
+            if (toast.type === ToastType.load) {
+                this.toastService.hideLoadIndicator();
+            } else {
+                this.toastService.removeToast(toast.id);
+            }
         }, 300);
     }
 }

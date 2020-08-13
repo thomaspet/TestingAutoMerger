@@ -1,6 +1,7 @@
 import {Component, Output, EventEmitter} from '@angular/core';
 import {IUniModal, ConfirmActions} from '../interfaces';
 import {environment} from 'src/environments/environment';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'user-license-agreement-modal',
@@ -56,7 +57,7 @@ export class UserLicenseAgreementModal implements IUniModal {
     @Output() public onClose = new EventEmitter<ConfirmActions>();
 
     licenseAgreement: boolean = false;
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
 
     public confirm() {
         if (this.licenseAgreement) {

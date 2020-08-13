@@ -1,14 +1,25 @@
 import {Injectable} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
+import {HttpClient} from '@angular/common/http';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaProduct} from '@app/models';
+import {map, take} from 'rxjs/operators';
+import {environment} from 'src/environments/environment';
+import {AuthService} from '@app/authService';
+import {cloneDeep} from 'lodash';
 
 @Injectable()
 export class ElsaProductService {
-    private cache: {[endpoint: string]: Observable<HttpResponse<any>>} = {};
+    private cache: {[endpoint: string]: Observable<any>} = {};
+    ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
 
-    constructor(private uniHttp: UniHttp) {}
+    constructor(
+        private authService: AuthService,
+        private uniHttp: UniHttp,
+        private http: HttpClient
+    ) {
+        this.authService.authentication$.subscribe(() => this.cache = {});
+    }
 
     public invalidateCache() {
         this.cache = {};
@@ -22,13 +33,17 @@ export class ElsaProductService {
                 .usingElsaDomain()
                 .withEndPoint(endpoint)
                 .send()
+                .pipe(map(res => res.body))
                 .publishReplay(1)
                 .refCount();
 
             this.cache[endpoint] = request;
         }
 
-        return request.map(res => res.body);
+        return request.pipe(
+            take(1),
+            map(data => cloneDeep(data)) // avoid components mutating cache
+        );
     }
 
     public Get(id: number): Observable<ElsaProduct> {
@@ -46,8 +61,44 @@ export class ElsaProductService {
         });
     }
 
+    getProductsOnContractType() {
+        const typeID = this.uniHttp.authService.currentUser.License?.ContractType?.TypeID;
+        const url = '/api/contracttypes?$expand=productcontracttypes($expand=product)';
+
+        if (!this.cache[url]) {
+            this.cache[url] = this.uniHttp
+                .asGET()
+                .usingElsaDomain()
+                .withEndPoint(url)
+                .send()
+                .pipe(map(res => {
+                    const contractTypes = res && res.body;
+                    const contractType = (contractTypes || []).find(type => type.ContractType === typeID);
+                    if (contractType) {
+                        return (contractType.ProductContractTypes || []).map(x => x.Product);
+                    }
+
+                    return [];
+                }))
+                .publishReplay(1)
+                .refCount();
+        }
+
+        return this.cache[url].pipe(
+            take(1),
+            map(data => cloneDeep(data)) // avoid components mutating cache
+        );
+    }
+
+    // this does almost the same as the method above, and might replace it
+    getProductsOnContractTypes(id: number, filter?: string): Observable<ElsaProduct[]> {
+        const filterClause = filter ? `?$filter=${filter}` : '';
+        const endpoint = `/api/contracttypes/${id}/products` + filterClause;
+        return this.http.get<ElsaProduct[]>(this.ELSA_SERVER_URL + endpoint);
+    }
+
     public ProductTypeToPriceText(product: ElsaProduct): string {
-        const text = [''];
+        const text = [];
         if (product.IsPerUser) {
             text.push('per bruker');
         }
@@ -57,6 +108,6 @@ export class ElsaProductService {
         if (product.IsPerTransaction) {
             text.push('per transaksjon');
         }
-        return text.join(' / ');
+        return text.join(' ');
     }
 }

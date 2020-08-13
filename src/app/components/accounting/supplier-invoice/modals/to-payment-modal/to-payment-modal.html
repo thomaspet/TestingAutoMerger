@@ -1,0 +1,34 @@
+<section role="dialog" class="uni-modal" style="width: 38rem;">
+    <header> Hvordan ønsker du å betale denne regningen? </header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="to-payment-modal-conatiner">
+
+            <section class="data-summary-container" *ngIf="current">
+                <span> {{ current.Supplier.Info.Name }}: {{ current.BankAccount.AccountNumber | uniaccountnumber }} </span>
+                <span> Netto: {{ total.net | uninumberformat: 'money' }} + MVA: {{ total.vat | uninumberformat: 'money' }} = <strong>Totalt: kr. {{ total.sum | uninumberformat: 'money' }}</strong> </span>
+                <span> <strong>Forfallsdato:</strong> {{ current.PaymentDueDate | date: 'dd.MM.yyyy' }} </span>
+            </section>
+
+            <section class="outgoing-item-container" *ngFor="let item of VALUE_ITEMS" [ngClass]="{ 'checked': item.selected, 'disabled': item.disabled || !!errorMessage }" (click)="valueItemSelected(item)" title="{{ item.disabled ? 'Du må ha aktiv autobankavtale for å sende betaling rett til bank' : '' }}">
+                <i class="material-icons"> {{ item.selected ? 'radio_button_checked' : 'radio_button_unchecked' }} </i>
+                <section class="outgoing-text-container">
+                    <span class="value-header"> {{ item.label }} </span>
+                    <span> {{ item.infoText }} </span>
+                </section>
+            </section>
+        </section>
+        <small *ngIf="errorMessage" class="payment-error">
+            {{ errorMessage }}
+        </small>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="close()">Lukk</button>
+        <button class="c2a" (click)="send()" [disabled]="errorMessage"> {{ onlyToPayment ? 'Betal' : 'Betal og bokfør' }} </button>
+    </footer>
+</section>

@@ -14,6 +14,7 @@
         [data]="invoice"
         [currencyCodes]="currencyCodes"
         [projects]="projects"
+        [departments]="departments"
         [sellers]="sellers"
         [contacts]="invoice?.Customer?.Info?.Contacts || []"
         [companySettings]="companySettings"
@@ -23,12 +24,11 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         [canSendEHF]="canSendEHF"
-        (dataChange)="onInvoiceChange($event)">
+        (dataChange)="onInvoiceChange($event)"
+        (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
 
-    <section class="uni-container tradeitem-container">
-        <header>Varelinjer</header>
-
+    <section class="tradeitem-container">
         <uni-tradeitem-table
             *ngIf="invoice"
             [configStoreKey]="'sales.invoice.tradeitemTable'"
@@ -37,7 +37,7 @@
             [departments]="departments"
             [vatTypes]="vatTypes"
             [vatDate]="invoice.InvoiceDate"
-            [items]="invoiceItems"
+            [(items)]="invoiceItems"
             [dimensionTypes]="dimensionTypes"
             [currencyCodeID]="currencyCodeID"
             [currencyExchangeRate]="currencyExchangeRate"

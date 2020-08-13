@@ -12,6 +12,7 @@ import {forkJoin} from 'rxjs';
 import {IModalOptions, IUniModal} from '../../interfaces';
 import {environment} from 'src/environments/environment';
 import {ElsaProduct, ElsaPurchase} from '@app/models';
+import {theme, THEMES} from 'src/themes/theme';
 
 interface TravelTextInitModel {
     OrgNumber: string;
@@ -51,9 +52,9 @@ export class PurchaseTraveltextModal implements IUniModal {
     model: TravelTextInitModel = <TravelTextInitModel>{};
     invalidInputErrorMsg: string;
 
-    isSrEnvironment = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
+    productName = this.isSrEnvironment ? 'SR-Bank Reise' : 'TravelText';
     product: ElsaProduct;
-    productName = environment.isSrEnvironment ? 'SR-Bank Reise' : 'TravelText';
     isBought: boolean;
 
     step = 1;

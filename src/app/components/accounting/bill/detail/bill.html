@@ -30,7 +30,7 @@
 
             <uni-form
                 *ngIf="detailsTabIndex === 0"
-                [config]="formConfig$"
+                [config]="{}"
                 [fields]="fields$"
                 [model]="current"
                 (readyEvent)="onFormReady()"
@@ -108,14 +108,24 @@
                 </section>
             </section>
         </section>
-        <header>Dokument ({{files?.length || 0}})</header>
 
-        <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
-            <i class="material-icons">get_app</i>
-            Hent fra innboks
-        </span>
+        <header>
+            Dokument ({{files?.length || 0}})
 
-        <uni-image
+            <span class="get-from-inbox" (click)="openAddFileModal()" role="button">
+                <uni-icon [icon]="'download'"></uni-icon>
+                Hent fra innboks
+            </span>
+
+            <label class="upload-input">
+                <uni-icon [icon]="'upload'"></uni-icon>
+                <span>Last opp</span>
+                <input type="file" (change)="uniImage.onUploadInputChange($event)" />
+            </label>
+        </header>
+
+        <uni-image #uniImage
+            [hideUploadInput]="true"
             [singleImage]="false"
             [uploadWithoutEntity]="!(current | async)?.ID"
             [fileIDs]="(current | async)?.ID ? [] : startUpFileID"

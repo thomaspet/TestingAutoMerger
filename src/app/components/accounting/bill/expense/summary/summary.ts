@@ -13,12 +13,14 @@ export class ExpenseSummaryModal implements IUniModal {
 
     session: BankJournalSession;
     withPayment: boolean;
+    shouldPay: boolean;
     vatSummary: { sum: number, details: Array<{ vatPercent: number, sum: number }> };
     accList: Array<{ name: string, sum: number }>;
 
     ngOnInit() {
         this.session = this.options.data.session;
         this.withPayment = this.options.data.withPayment;
+        this.shouldPay = this.options.data.shouldPay;
         this.vatSummary = this.session.getVatSummary();
         this.accList = this.session.items.map( x => ({ name: x.Debet.superLabel, sum: x.Amount }) );
     }

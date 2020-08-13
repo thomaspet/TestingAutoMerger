@@ -1,8 +1,26 @@
+$theme-has-good-btn: true
+$btn-inversed-hover-state: false
+$secondary-btn-grey-border: true
+$hide-input-outline: false
+
 body
     --font-family: 'Roboto', sans-serif, arial
     --body-background: #f5f6f8
+    --core-border-color: #D2DAE2
     --border-color: #D2DAE2
+    --section-radius: 3px
+    --logo-width: 9rem
 
+    --color-c2a: #0070E0
+    --color-c2a-dark: #123F9A
+    --color-good: #01A901
+    --color-bad: #D63731
+    --color-bad-light: #F8598B
+    --color-warn: #FF9E2C
+    --color-warn-light: #fbbe11
+
+
+    // Text
     --link-color: #2699fb
     --text-color: #2B2B2B
     --scale1: #808080
@@ -10,8 +28,8 @@ body
     --scale3: #e3e3e3
     --scale4: #F5F6F8
 
-    --logo-width: 9rem
 
+    // Navbar
     --navbar-height: 82px
     --navbar-background: #123F9A
     --navbar-icon-color: #fff
@@ -21,37 +39,61 @@ body
     --company-dropdown-color: #fff
 
     --tabstrip-background: #fff
-    --tabstrip-color: #2b2b2b
+    --tabstrip-header-color: #2b2b2b
+    --tabstrip-header-weight: 400
     --tabstrip-link-color: #808080
     --tabstrip-active-link-color: #0070E0
 
-    --tab-color: #2B2B2B
-    --active-tab-color: #0070E0
 
+    // Sidebar
     --sidebar-background: #fff
     --sidebar-color: #2B2B2B
+    --sidebar-header-color: var(--sidebar-color)
     --sidebar-icon-color: #0070E0
     --sidebar-hover-color: #0070E0
-    --sidebar-active-section-background: #E8F1F9
+    --sidebar-active-section-background: #fff
+    --sidebar-active-section-header-background: #E8F1F9
 
+
+    // Toolbar
     --toolbar-background: #fff
-    --toolbar-border: 1px solid var(--border-color)
     --toolbar-header-color: var(--text-color)
-    --toolbar-icon-color: #0F519C
+    --toolbar-breadcrumb-color: var(--scale1)
+    --toolbar-button-border: inset 0 0 0 1px var(--border-color)
+    --toolbar-button-border-focus: inset 0 0 0 1px var(--color-c2a)
 
-    --toolbar-button-border: 1px solid var(--border-color)
-    --toolbar-button-color: #0F519C
 
+    // Tabs
+    --tab-color: #2B2B2B
+    --active-tab-color: #0070E0
+    --scoped-tab-background: #f9f9f9
+
+
+    // Inputs
+    --input-border-width: 1px
+    --input-border-width-focus: 1px
+    --input-border-color: var(--border-color)
+    --input-border-color-focus: var(--border-color)
+    --input-icon-color: var(--text-color)
+    --input-color: var(--text-color)
+    --input-radius: 3px
+
+    --checkbox-size: 18px
+    --checkbox-checked-color: #fff
+    --checkbox-checked-background: #0070E0
+    --checkbox-checked-border: 1px solid #0070E0
+
+
+    // Buttons
     --button-radius: 3px
-    --section-radius: 3px
+    --button-font-size: 15px
 
-    --color-c2a: #0070E0
-    --color-c2a-dark: #123F9A
-    --color-good: #01A901
-    --color-bad: #D63731
-    --color-bad-light: #F8598B
-    --color-warn: #FF9E2C
-    --color-warn-light: #fbbe11
+    --button-primary-font-weight: 400
+    --button-secondary-font-weight: 500
+    --button-tertiary-font-weight: 500
+
+    --secondary-btn-border-width: 2px
+    --secondary-btn-focus-border-width: 2px
 
     --button-c2a: #0070E0
     --button-c2a-hover: #1565C0
@@ -65,25 +107,28 @@ body
     --button-warn: #FF9E2C
     --button-warn-hover: #ffa733
 
+
+    // Dropdown menus
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
     --dropdown-select-background: #DAEEFF
     --dropdown-select-color: #0070E0
 
-    --checkbox-size: 18px
-    --checkbox-checked-color: #fff
-    --checkbox-checked-background: #0070E0
-    --checkbox-checked-border: 1px solid #0070E0
 
+    // Tables
     --table-header-background: #fff
     --table-header-color: #2B2B2B
     --table-row-even-background: #fafafa
     --table-row-odd-background: #fff
     --table-row-select-background: #DAEEFF
+    --table-icon-color: var(--scale1)
+    --table-border: 1px solid var(--border-color)
+    --row-border: 1px solid var(--border-color)
 
     --alt-table-header-background: var(--scale4)
     --alt-table-header-color: var(--text-color)
     --alt-table-header-border: none
     --alt-table-body-border: 1px solid var(--border-color)
+
 
     // Alerts
     --alert-border: none
@@ -108,7 +153,9 @@ body
     --alert-bad-icon-color: var(--text-color)
     --alert-bad-link-color: var(--text-color)
 
+    --vacation-days-of: #D2F0E9
 
+    // Toasts
     --toast-info: #DAEEFF
     --toast-info-text: var(--text-color)
 
@@ -121,8 +168,26 @@ body
     --toast-bad: #D63731
     --toast-bad-text: #fff
 
+
+    // Cards
+    --card-header-height: 2.5rem
+    --card-header-border: none
+    --card-header-color: unset
+    --card-header-font-size: 16px
+    --card-header-weight: 400
+    --card-footer-background: #DAEEFF
+
+    --init-header: var(--color-c2a-dark)
+    --init-subtitle: var(--color-c2a-dark)
+    --init-label: var(--text-color)
+    --init-text: var(--text-color)
+
+    --contract-type-card-header: var(--color-c2a-dark)
+    --contract-type-card-text: var(--text-color)
+
     --widget-header-size: 16px
     --widget-header-color: #2b2b2b
     --widget-c2a: #0070E0
 
     --chat-header-background: #0070E0
+    --panel-header-background: rgb(240, 240, 240)

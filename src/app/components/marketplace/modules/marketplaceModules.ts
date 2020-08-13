@@ -5,7 +5,7 @@ import {Observable, forkJoin} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {AuthService} from '@app/authService';
-import {ElsaProduct, ElsaProductType} from '@app/models';
+import {ElsaProduct, ElsaProductType, ElsaContractType} from '@app/models';
 import {
     ElsaProductService,
     ElsaPurchaseService,
@@ -14,6 +14,7 @@ import {
     EHFService,
     PaymentBatchService,
     UserRoleService,
+    ElsaContractService,
 } from '@app/services/services';
 import {
     UniModalService,
@@ -28,12 +29,11 @@ import {
     ConfirmActions
 } from '@uni-framework/uni-modal';
 
-import {environment} from 'src/environments/environment';
-
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
-import {IUniTab} from '@uni-framework/uni-tabs';
-import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
+// import {IUniTab} from '@uni-framework/uni-tabs';
+import {theme, THEMES} from 'src/themes/theme';
+import {ChangeContractTypeModal} from './change-contract-type-modal/change-contract-type-modal';
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -43,13 +43,17 @@ import {ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toast
 export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
-    filteredExtensions: ElsaProduct[];
-    tabs: IUniTab[];
-    isSrEnvironment = environment.isSrEnvironment;
+    // filteredExtensions: ElsaProduct[];
+    // tabs: IUniTab[];
 
     private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
     private autobankAgreements: any[];
+
+    contractTypes: ElsaContractType[];
+    currentContractType: number;
+
+    priceListLink: string;
 
     constructor(
         tabService: TabService,
@@ -64,14 +68,40 @@ export class MarketplaceModules implements AfterViewInit {
         private modalService: UniModalService,
         private ehfService: EHFService,
         private paymentBatchService: PaymentBatchService,
-        private toastService: ToastService
+        private elsaContractService: ElsaContractService,
     ) {
         tabService.addTab({
             name: 'Markedsplass', url: '/marketplace/modules', moduleID: UniModules.Marketplace, active: true
         });
+
+        if (theme.theme === THEMES.UE) {
+            this.priceListLink = 'https://www.unimicro.no/vaare-losninger/uni-economy/priser';
+        } else if (theme.theme === THEMES.SR) {
+            this.priceListLink = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html';
+        }
     }
 
     ngAfterViewInit() {
+        forkJoin(
+            this.elsaContractService.getCustomContractTypes(),
+            this.elsaContractService.getValidContractTypeUpgrades(),
+        ).subscribe(([contractTypes, validUpgrades]) => {
+            this.currentContractType = this.authService.currentUser.License?.ContractType?.TypeID;
+
+            this.contractTypes = contractTypes?.map(contractType => {
+                contractType['_isActive'] = contractType.ContractType === this.currentContractType;
+
+                contractType['_isValidUpgrade'] = !contractType['_isActive']
+                    && validUpgrades?.some(typeID => typeID === contractType.ContractType);
+
+                return contractType;
+            });
+
+            this.loadData();
+        });
+    }
+
+    private loadData() {
         const userID = this.authService.currentUser.ID;
 
         forkJoin(
@@ -79,12 +109,13 @@ export class MarketplaceModules implements AfterViewInit {
             this.paymentBatchService.checkAutoBankAgreement()
                 .catch(() => Observable.of([])), // fail silently
 
-            this.elsaProductService.GetAll(),
+            this.elsaProductService.getProductsOnContractTypes(this.currentContractType, `producttype ne 'Package'`),
             this.elsaPurchaseService.getAll(),
             this.userRoleService.hasAdminRole(userID),
         ).subscribe(
-            res => {
-                this.companySettings = res[0];
+            ([companySettings, autobankAgreeements, products, purchases, canPurchaseProducts]) => {
+                this.companySettings = companySettings;
+
                 if (!this.companySettings.OrganizationNumber) {
                     this.modalService.confirm({
                         header: 'Kan ikke kjøpe produkter',
@@ -99,23 +130,25 @@ export class MarketplaceModules implements AfterViewInit {
                         }
                     });
                 }
-                this.autobankAgreements = res[1] || [];
-                const products = res[2] || [];
-                this.modules = products.filter(p => p.ProductType === ElsaProductType.Module);
+
+                this.autobankAgreements = autobankAgreeements || [];
+
+                this.modules = (products || []).filter(p => p.ProductType === ElsaProductType.Module && !p.IsMandatoryProduct);
+
                 this.extensions = products
-                    .filter(p => p.ProductType === ElsaProductType.Extension)
+                    .filter(p => p.ProductType === ElsaProductType.Extension && !p.IsMandatoryProduct)
                     .map(extension => {
                         this.setActivationFunction(extension);
                         return extension;
                     });
 
-                this.setPurchaseInfo(res[3]);
-                this.canPurchaseProducts = res[4];
+                this.setPurchaseInfo(purchases);
+                this.canPurchaseProducts = canPurchaseProducts;
 
-                const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
-                tabs.unshift({ name: 'Alle', value: null });
-                this.tabs = tabs;
-                this.onTabChange(this.tabs[0]);
+                // const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
+                // tabs.unshift({ name: 'Alle', value: null });
+                // this.tabs = tabs;
+                // this.onTabChange(this.tabs[0]);
 
                 // Check queryParams if we should open a specific product dialog immediately
                 this.route.queryParamMap.subscribe(paramMap => {
@@ -133,6 +166,10 @@ export class MarketplaceModules implements AfterViewInit {
             },
             err => this.errorService.handle(err)
         );
+    }
+
+    changeContractType(contractType: ElsaContractType) {
+        this.modalService.open(ChangeContractTypeModal, { data: contractType });
     }
 
     setPurchaseInfo(purchases: ElsaPurchase[]) {
@@ -186,15 +223,15 @@ export class MarketplaceModules implements AfterViewInit {
         });
     }
 
-    onTabChange(tab: IUniTab) {
-        if (tab.value) {
-            this.filteredExtensions = this.extensions.filter(extension => {
-                return extension.ParentProducts.some(pName => pName === tab.value);
-            });
-        } else {
-            this.filteredExtensions = this.extensions;
-        }
-    }
+    // onTabChange(tab: IUniTab) {
+    //     if (tab.value) {
+    //         this.filteredExtensions = this.extensions.filter(extension => {
+    //             return extension.ParentProducts.some(pName => pName === tab.value);
+    //         });
+    //     } else {
+    //         this.filteredExtensions = this.extensions;
+    //     }
+    // }
 
     priceText(module: ElsaProduct): string {
         return this.elsaProductService.ProductTypeToPriceText(module);
@@ -238,14 +275,6 @@ export class MarketplaceModules implements AfterViewInit {
             );
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
-        }
-    }
-
-    openLinkInNewTab() {
-        if (this.isSrEnvironment) {
-            window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
-        } else {
-            window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');
         }
     }
 }

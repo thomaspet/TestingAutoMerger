@@ -21,40 +21,34 @@
                 <input disabled formControlName="Email" type="email">
             </label>
 
-            <label class="uni-label label-left">
+            <label class="uni-label label-left password-links">
                 <span>Passord</span>
-                <a [attr.href]="changePasswordUrl">Endre passord</a>
+                <section>
+                    <a [attr.href]="changePasswordUrl">Endre passord</a>
+                    <a (click)="resetAutobankPassword()">Endre autobank passord</a>
+                </section>
             </label>
 
-            <label class="uni-label label-left">
-                <span>To-faktor pålogging</span>
-                <mat-slide-toggle
-                    formControlName="TwoFactorEnabled"
-                    [labelPosition]="'before'">
-                </mat-slide-toggle>
-            </label>
-            <label *ngIf="userDetailsForm.value.TwoFactorEnabled" class="uni-label label-left auth-number">
-                <span>To-faktor telefon</span>
-                <select formControlName="CountryCode">
-                    <option *ngFor="let countryCode of countryCodes; let i = index" 
-                    [ngValue]="countryCode.dialCode">
-                        {{ countryCode.name }} (+{{countryCode.dialCode}})
-                    </option>
-                </select>
-                <input formControlName="AuthPhoneNumber" type="number" required>
-            </label>
-            <label
-                *ngIf="user?.BankIntegrationUserName"
-                class="uni-label label-left"
-            >
-                <span>Endre autobankpassord</span>
-                <button
-                    [disabled]="epostButtonClicked"
-                    (click)="resetAutobankPassword(); epostButtonClicked=true;"
-                >
-                    Send E-post
-                </button>
-            </label>
+            <ng-container *ngIf="showTwoFactorSettings">
+                <label class="uni-label label-left">
+                    <span>To-faktor pålogging</span>
+                    <mat-slide-toggle
+                        formControlName="TwoFactorEnabled"
+                        [labelPosition]="'before'">
+                    </mat-slide-toggle>
+                </label>
+
+                <label *ngIf="userDetailsForm.value.TwoFactorEnabled" class="uni-label label-left auth-number">
+                    <span>To-faktor telefon</span>
+                    <select formControlName="CountryCode">
+                        <option *ngFor="let countryCode of countryCodes; let i = index"
+                        [ngValue]="countryCode.dialCode">
+                            {{ countryCode.name }} (+{{countryCode.dialCode}})
+                        </option>
+                    </select>
+                    <input formControlName="AuthPhoneNumber" type="number" required>
+                </label>
+            </ng-container>
         </form>
     </article>
 

@@ -74,7 +74,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'business_center',
         title: 'Produkt',
-        importText: 'Importer produkter',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Product
       },
@@ -86,7 +86,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'group',
         title: 'Kunde',
-        importText: 'Importer kunder',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Customer
       },
@@ -98,7 +98,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'contacts',
         title: 'Leverandør',
-        importText: 'Importer leverandører',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Supplier
       },
@@ -110,7 +110,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'receipt',
         title: 'Kontoplan',
-        importText: 'Importer kontoplan',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.MainLedger
       },
@@ -122,7 +122,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'payment',
         title: 'Variable lønnsposter',
-        importText: 'Importer lønnsposter',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Payroll
       },
@@ -134,19 +134,19 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'insert_drive_file',
         title: 'SAF-T',
-        importText: 'Importer SAF-T',
+        importText: 'Importer',
         downloadText: 'Eksport SAF-T',
         type: TemplateType.Saft
       },
       {
         uiPermission: {
-          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess, 
+          hasComponentAccess: this.uiPermission.voucher.hasComponentAccess,
           hasImportAccess: true,
           hasTemplateAccess: this.uiPermission.voucher.hasTemplateAccess
         },
         iconName: 'card_giftcard',
         title: 'Bilag',
-        importText: 'Importer bilag',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Voucher
       },
@@ -158,7 +158,7 @@ export class ImportCentralPage implements OnInit {
         },
         iconName: 'shopping_cart',
         title: 'Ordre',
-        importText: 'Importer ordre',
+        importText: 'Importer',
         downloadText: 'Last ned mal',
         type: TemplateType.Order
       }

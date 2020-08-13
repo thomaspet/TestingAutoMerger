@@ -1,12 +1,50 @@
-uni-recaptcha
-    display: block
-    margin: 1.5rem 0 1rem
-
-.privacy-info
-    display: block
-    margin-bottom: .5rem
-    text-align: center
-
+\:host
+    &.ext02-signup
+        padding-top: 0
+        .authentication-component
+            width: 40rem
 
 .authentication-component
     margin-bottom: auto
+
+.signup-step
+    display: flex
+    flex-direction: column
+
+    button
+        margin: 1.5rem auto 1rem
+        width: 14rem
+
+    .button-row
+        display: flex
+        justify-content: center
+        margin: 1.5rem 0
+        button
+            width: unset
+            min-width: 8rem
+            margin: 0 .5rem
+
+    .agreement-text
+        display: flex
+        font-size: 14px
+
+.login-link
+    display: flex
+    justify-content: center
+    font-size: 14px
+    a
+        margin-left: .25rem
+
+.recaptcha-wrapper
+    opacity: 1
+    max-height: 150px
+    overflow: hidden
+    transition: all .25s ease-in
+
+    &.invisible
+        max-height: 0px
+        opacity: 0
+
+    uni-recaptcha
+        display: block
+        margin: 2rem 0 1rem

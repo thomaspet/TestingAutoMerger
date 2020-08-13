@@ -1,0 +1,53 @@
+<section class="header">
+    <h1>Driftsresultat</h1>
+
+    <button #toggle class="secondary pull-right">
+        {{ year }}
+        <i class="material-icons">expand_more</i>
+    </button>
+    <dropdown-menu [trigger]="toggle">
+        <ng-template>
+            <section class="dropdown-menu-item center"
+                *ngFor="let year of years"
+                (click)="onYearSelected(year)">
+                {{ year }}
+            </section>
+        </ng-template>
+    </dropdown-menu>
+</section>
+
+<section *ngIf="!loading" class="content">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som du har noen inntekter eller utgifter i {{year}}.
+    </widget-empty-state>
+
+    <ng-container *ngIf="hasData">
+        <widget-chart [chartConfig]="chartConfig"></widget-chart>
+
+        <section class="chart-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+            <section class="data-row">
+                <span>Inntekter</span>
+                <span>{{tooltip.income | uninumberformat:'money'}}</span>
+            </section>
+
+            <section class="data-row">
+                <span>Kostnader</span>
+                <span>{{tooltip.cost | uninumberformat:'money'}}</span>
+            </section>
+
+            <section class="data-row">
+                <span>Resultat</span>
+                <span>{{tooltip.result | uninumberformat:'money'}}</span>
+            </section>
+        </section>
+
+        <section class="chart-legend">
+            <section *ngFor="let item of legend" class="chart-legend-item">
+                <span class="indicator" [style.background]="item.color"></span>
+                <span class="label">{{item.label}}</span>
+                <span class="value">{{item.value}}</span>
+            </section>
+        </section>
+    </ng-container>
+
+</section>

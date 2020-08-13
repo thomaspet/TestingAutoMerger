@@ -1,0 +1,115 @@
+label
+    font-weight: 400
+
+.input-grid
+    display: grid
+    grid-template-columns: 1fr 1fr 1fr 1fr
+    grid-column-gap: 2rem
+    grid-row-gap: .5rem
+    // padding: 0 .5rem
+
+    &.expense-lines
+        display: block
+
+    &.smaller
+        width: calc(50% - 1rem)
+        grid-template-columns: 1fr 1fr
+
+    @media (max-width: 1400px)
+        grid-template-columns: 1fr 1fr
+
+
+.line-header
+    display: flex
+    align-items: center
+    justify-content: space-between
+    font-size: 18px
+    color: var(--color-c2a-dark)
+    padding: .5rem 0 .5rem 1rem
+    margin: .5rem 0 1rem
+    border-radius: var(--section-radius)
+
+    // TODO: replace with color var
+    background: #f4fbf9
+
+.sum-bottom-container
+    padding: 0 2rem
+    display: flex
+    align-items: center
+    height: 4rem
+    background-color: var(--sidebar-active-section-background)
+    border-bottom-left-radius: var(--section-radius)
+    border-bottom-right-radius: var(--section-radius)
+    margin: 0 1px 1px
+    color: var(--color-c2a)
+
+    .total-label
+        font-weight: 500
+        font-size: 18px
+        flex: 1
+
+    .diff-number
+        margin-right: 1rem
+        color: var(--color-bad)
+
+    .total-sum-number
+        margin-left: .5rem
+        font-weight: 500
+
+.booked-journals-list
+    padding: 0 2rem
+
+    .booked-info-span
+        display: flex
+        align-items: center
+        justify-content: center
+        color: var(--color-c2a)
+        background-color: var(--sidebar-active-section-background)
+        width: fit-content
+        padding: .5rem 1rem
+        border-radius: 2rem
+
+        i
+            margin-right: .5rem
+
+    ul
+        list-style: none
+        margin-bottom: 2rem
+
+        li
+            display: flex
+            align-items: center
+            height: 60px
+            border-bottom: 1px solid #cccccc
+
+            &.header
+                background-color: var(--dropdown-select-background)
+                font-weight: bold
+                border-bottom: none
+
+            &:last-of-type
+                border-bottom: none
+
+            span
+                padding-right: 1rem
+                text-overflow: ellipsis
+                overflow: hidden
+                white-space: nowrap
+
+            span.acc
+                padding-left: 2rem
+                width: 24rem
+
+            span.desc
+                flex: 1
+
+            span.sum
+                text-align: center
+                margin-right: 2rem
+                width: 10rem
+
+            span.vat
+                width: 10rem
+                padding-right: 2rem
+
+

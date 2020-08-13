@@ -108,5 +108,9 @@ export class SupplierList {
                     isExternal: true
                 }
             });
-    };
+    }
+
+    public onRowSelected(row) {
+        this.router.navigateByUrl(`/accounting/suppliers/${row.ID}`);
+    }
 }

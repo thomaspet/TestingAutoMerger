@@ -1,0 +1,39 @@
+<section role="dialog" class="uni-modal uni-redesign" style="width: 46rem;">
+	<header> {{ mode === 1 ? 'Bokfør innbetaling av salgsfaktura' : 'Bokfør betaling av regning' }} </header>
+	<article>
+
+		<section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+		<section class="main-container">
+
+			<section class="bank-section">
+				<span class="section-header-name"> Bank </span>
+				<span class="section-sub-header"> {{ mode === 1 ? 'Registrert innbetaling: ' : 'Registrert betaling: ' }} </span>
+
+				<section class="item-box bank" *ngFor="let item of bankItems">
+					<span> <strong>Betalingsdato: </strong> {{ item._pdate }} </span>
+					<span> <strong>Sum: </strong> {{ item.Amount | uninumberformat: 'money' }} </span>
+				</section>
+			</section>
+
+			<section class="invoice-section">
+				<span class="section-header-name"> {{ mode === 1 ? 'Salgsfaktura' : 'Regning' }} </span>
+				<span class="section-sub-header"> {{ mode === 1 ? 'Kunde: ' : 'Leverandør: ' }} {{ subaccount }} </span>
+
+				<section class="item-box invoice" *ngFor="let item of invoiceItems">
+					<span> <strong>Dato: </strong> {{ item._date }} </span>
+					<span> <strong>Sum: </strong> {{ item.Amount | uninumberformat: 'money' }} </span>
+				</section>
+			</section>
+
+		</section>
+	</article>
+
+	<footer>
+		<button class="c2a secondary pull-left" (click)="close(finished)">Lukk</button>
+		<button class="c2a secondary" (click)="journal(false)" [disabled]="started" *ngIf="!finished">Bokfør</button>
+		<button class="good" (click)="journal(true)" [disabled]="started" *ngIf="!finished">Bokfør og avstem</button>
+	</footer>
+</section>

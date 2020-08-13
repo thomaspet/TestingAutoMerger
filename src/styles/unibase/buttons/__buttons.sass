@@ -4,28 +4,40 @@
     to
         transform: rotate(360deg)
 
-@mixin main-btn($type)
-    color: #fff
-    background-color: var(--button-#{$type})
+@mixin primary-btn($type)
     border: none
-    &:hover, &:focus, &:active, &.test
+    color: var(--button-#{$type}-text-color, #fff)
+    background-color: var(--button-#{$type})
+    font-weight: var(--button-primary-font-weight)
+
+    &:focus, &:active
         background-color: var(--button-#{$type}-hover)
-        box-shadow: 0 2px 4px 0 rgba(0,0,0,0.2)
+        color: var(--button-#{$type}-text-color, #fff)
+
+    &:hover
+        color: if($btn-inversed-hover-state, var(--button-#{$type}-hover), #fff)
+        background-color: if($btn-inversed-hover-state, #fff, var(--button-#{$type}-hover))
+        box-shadow: inset 0 0 0 2px var(--button-#{$type}-hover)
     &:before
         border-color: #fff
 
 @mixin secondary-btn-color($type)
     color: var(--button-#{$type})
+
+    $border-color: if($secondary-btn-grey-border, #ccc, var(--button-#{$type}-hover))
+    box-shadow: inset 0 0 0 var(--secondary-btn-border-width) $border-color
+
     &:hover, &:focus, &:active
         color: var(--button-#{$type}-hover)
-        border-color: var(--button-#{$type}-hover) // $color
+        box-shadow: inset 0 0 0 var(--secondary-btn-focus-border-width) var(--button-#{$type}-hover)
+
     &:before
         border-color: var(--button-#{$type}) !important
 
 button, a.button
     position: relative
     height: 2.5rem
-    font-size: 15px
+    font-size: var(--button-font-size)
     font-weight: 400
 
     box-sizing: border-box
@@ -62,12 +74,18 @@ button, a.button
         outline: none
 
     &.icon-button
+        display: inline-flex
+        align-items: center
+        justify-content: center
         background-color: unset
         padding: 0
         border: none
         width: 2.5rem
         i
             margin-bottom: 0
+
+        &.rounded
+            border-radius: 50%
 
     i
         vertical-align: middle
@@ -86,35 +104,32 @@ button, a.button
     // Main buttons
     &:not(.secondary):not(.tertiary)
         &.c2a
-            @include main-btn(c2a)
-
+            @include primary-btn(c2a)
         &.good
-            @include main-btn(good)
-
+            @include primary-btn(if($theme-has-good-btn, good, c2a))
         &.bad
-            @include main-btn(bad)
+            @include primary-btn(bad)
 
         &.warning, &.warn
-            @include main-btn(warn)
+            @include primary-btn(warn)
 
     // Secondary
     &.secondary
         background-color: #fff
-        border: 2px solid #ccc
-        font-weight: 500
+        font-weight: var(--button-secondary-font-weight)
+        border: none
         @include secondary-btn-color(c2a)
         &.good
-            @include secondary-btn-color(good)
+            @include secondary-btn-color(if($theme-has-good-btn, good, c2a))
         &.bad
             @include secondary-btn-color(bad)
-
 
     // Tertiary
     &.tertiary
         background-color: unset
         padding-left: 0
         border: none
-        font-weight: 500
+        font-weight: var(--button-tertiary-font-weight)
 
         &.c2a
             color: var(--button-c2a)

@@ -12,6 +12,7 @@ import {SelectReportsModal} from './widgets/report-list/select-reports-modal';
 import {ReportsModule} from '../reports/reportsModule';
 import {PublicDuedatesModal} from './widgets/public-duedates-widget/public-duedate-modal';
 import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-modal';
+import {BankBalanceChart} from './widgets/bank-balance/bank-balance-chart';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import {CustomPaymentModal} from './widgets/liquidity-widget/custom-payment-moda
         SelectReportsModal,
         PublicDuedatesModal,
         CustomPaymentModal,
+        BankBalanceChart,
         ...UNI_WIDGETS
     ],
     providers: [

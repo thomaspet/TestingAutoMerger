@@ -22,7 +22,7 @@ interface ITabContextMenuData {
     selector: 'uni-tabstrip',
     template: `
         <span class="tabstrip-description" *ngIf="tabs?.length">
-            Nylig brukt:
+            Nylig besøkt:
         </span>
 
         <section *ngIf="collapseTabs && tabs?.length" class="tab-dropdown">

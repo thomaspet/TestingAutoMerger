@@ -1,12 +1,11 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, HostBinding} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
-import {environment} from 'src/environments/environment';
 import {UniRecaptcha} from './recaptcha';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-signup',
@@ -15,12 +14,14 @@ import {theme} from 'src/themes/theme';
 })
 export class Signup {
     @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
-    appName = environment.appTitle;
-    isSrEnvironment = environment.isSrEnvironment;
+
+    @HostBinding('class.ext02-signup') isExt02Env = theme.theme === THEMES.EXT02;
+
     confirmationCode: string;
     busy: boolean;
 
-    headerText = environment.isSrEnvironment ? 'Registrer bruker' : 'Prøv gratis i 30 dager';
+    headerText = 'Prøv gratis i 30 dager';
+    appName = theme.appName;
 
     errorMessage: string;
 
@@ -31,10 +32,17 @@ export class Signup {
     step2Successful: boolean;
     invalidConfirmationCode: boolean;
     userExists: boolean;
-    reCaptchaCode;
 
     background = theme.init.background;
+    backgroundHeight = theme.init.signup_background_height;
     illustration = theme.init.illustration;
+
+    agreeementText = theme.theme === THEMES.EXT02
+        ? 'Ved å trykke på «start registrering» nedenfor får du en gratis, begrenset lisens til å teste funksjonalitet i DNB Regnskap i 30 dager. DNB vil behandle opplysninger om deg som du har oppgitt for å levere testtilgangen, for markedsføringsformål til din bedrift og for sikkerhetsformål.'
+        : 'Jeg godtar lagring og bruk av mine data';
+
+
+    recaptchaCode: string;
 
     constructor(
         public authService: AuthService,
@@ -79,7 +87,7 @@ export class Signup {
         this.errorMessage = '';
 
         const body = this.step1Form.value;
-        body.RecaptchaResponse = this.reCaptchaCode;
+        body.RecaptchaResponse = this.recaptchaCode;
 
         this.http.asPOST()
             .usingInitDomain()
@@ -96,7 +104,6 @@ export class Signup {
                     this.step1Form.enable();
                     this.busy = false;
                     this.step1Successful = false;
-                    this.reCaptchaCode = undefined;
                     if (this.recaptcha) {
                         this.recaptcha.reset();
                     }
@@ -110,6 +117,10 @@ export class Signup {
     }
 
     public submitStep2Form() {
+        if (this.busy) {
+            return;
+        }
+
         if (!this.step2Form.valid) {
             this.errorMessage = 'Skjemaet er ikke gyldig. Vennligst påse at alle felter er fylt ut i henhold til kravene.';
 

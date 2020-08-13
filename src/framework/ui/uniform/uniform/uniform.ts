@@ -11,6 +11,7 @@ import 'rxjs/add/observable/fromEvent';
 import 'rxjs/add/observable/merge';
 import {KeyCodes} from '../../../../app/services/common/keyCodes';
 import * as _ from 'lodash';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'uni-form',
@@ -56,8 +57,10 @@ export class UniForm implements OnChanges, OnInit {
 
     constructor(
         public elementRef: ElementRef,
-        public changeDetector: ChangeDetectorRef) {
-    }
+        public changeDetector: ChangeDetectorRef,
+        private featurePermissionService: FeaturePermissionService,
+    ) {}
+
     public ngOnChanges() {
         if (this.config && !this.config.subscribe) {
             this._config = this.config;
@@ -69,7 +72,7 @@ export class UniForm implements OnChanges, OnInit {
             this.changesLayout(this.layout);
         }
         if (this.fields && !this.fields.subscribe) {
-            this.changesFields(this.fields);
+            this.changesFields(<any> this.fields);
         }
     }
     public ngOnInit() {
@@ -109,7 +112,7 @@ export class UniForm implements OnChanges, OnInit {
         }
         if (this.fields) {
             if (!this.fields.subscribe) {
-                this.changesFields(this.fields);
+                this.changesFields(<any> this.fields);
                 this.changeDetector.markForCheck();
             } else {
                 this.fields.subscribe(fields => {
@@ -120,17 +123,75 @@ export class UniForm implements OnChanges, OnInit {
         }
     }
 
-    public changesFields(fields) {
+    public changesFields(fields: UniFieldLayout[]) {
+        const sectionMap = {};
+        fields.forEach(field => {
+            const sectionIndex = field.Section || 0;
+            if (!sectionMap[sectionIndex]) {
+                sectionMap[sectionIndex] = [];
+            }
+
+            sectionMap[sectionIndex].push(field);
+        });
+
+        const sections = Object.keys(sectionMap)
+            .sort((a, b) => parseInt(a, 10) - parseInt(b, 10))
+            .map(key => sectionMap[key]);
+
+        const filteredFields = [];
+
+        sections.forEach(section => {
+            // const fieldWithSectionHeader = section.find(field => field.Sectionheader);
+
+            const fieldsWithoutFieldset = [];
+            let fieldSets = [];
+
+            section.forEach(field => {
+                // Add section header to all fields in case the filtering later
+                // removed the field containing the section header.
+                // field.Sectionheader = fieldWithSectionHeader?.Sectionheader;
+
+                if (field.FieldSet) {
+                    if (!fieldSets[field.FieldSet]) {
+                        fieldSets[field.FieldSet] = [];
+                    }
+
+                    fieldSets[field.FieldSet].push(field);
+                } else {
+                    fieldsWithoutFieldset.push(field);
+                }
+            });
+
+            filteredFields.push(...fieldsWithoutFieldset.filter(field => this.featurePermissionService.canShowFormField(field)));
+
+            fieldSets = fieldSets.map(fieldSet => {
+                const fieldWithLegend = fieldSet.find(f => f.Legend);
+                fieldSet.forEach(field => field.Legend = fieldWithLegend?.Legend);
+                return fieldSet.filter(field => this.featurePermissionService.canShowFormField(field));
+            });
+
+            // Remove empty fieldsets, update fieldset indexes, and finally
+            // push the fields back into a one dimensional field array.
+            fieldSets.filter(fieldSet => fieldSet.length > 0);
+            fieldSets.forEach((fieldset, index) => {
+                fieldset.forEach(field => {
+                    field.FieldSet = index;
+                    filteredFields.push(field);
+                });
+            });
+        });
+
         if (!this._layout) {
             this._layout = new UniComponentLayout();
-            this._layout.Fields = _.cloneDeep(fields);
+            this._layout.Fields = _.cloneDeep(filteredFields);
             this.lastLayout = this._layout;
         } else {
-            _.forEach(fields, (item, index) => {
+            filteredFields.forEach((item, index) => {
                 if (!_.isEqual(item, this.lastLayout.Fields[index])) {
                     this._layout.Fields[index] = _.cloneDeep(item);
                 }
             });
+
             this.lastLayout = _.cloneDeep(this._layout);
         }
     }

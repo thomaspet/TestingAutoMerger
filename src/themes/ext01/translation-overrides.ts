@@ -25,12 +25,18 @@ export const TRANSLATION_OVERRIDES = {
         }
     },
 
+    SETTINGS: {
+        'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra SR-Bank Regnskap',
+        'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra SR-Bank Regnskap" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
+    },
+
     TIMETRACKING: {
         'PERSON_NEW': 'Ny timebruker'
     },
 
     ACCOUNTING: {
         SUPPLIER_INVOICE: {
+            'REFUND_INFO': 'Tilbakebetalingen vil bli registrert som betalt i SR-Bank Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
             'NEW': 'Ny regning',
             'SINGLE': 'Regning',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Regningen mangler enten fakturabeløp eller leverandør med orgnr.',

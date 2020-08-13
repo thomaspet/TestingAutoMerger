@@ -7,8 +7,12 @@
             Bokføre utlegg betalt med {{session.payment?.PaidWith?.superLabel}}
         </section>
 
-        <section class="title" *ngIf="session.payment.Mode == 2 && withPayment">
+        <section class="title" *ngIf="session.payment.Mode == 2 && withPayment && !shouldPay">
             Bokføre utlegg og lage utbetaling til {{session.payment?.PaymentTo?.AccountName}}
+        </section>
+
+        <section class="title" *ngIf="session.payment.Mode == 2 && withPayment && shouldPay">
+            Bokføre utlegg og register betaling til {{session.payment?.PaymentTo?.AccountName}}
         </section>
 
         <section class="title" *ngIf="session.payment.Mode == 2 && !withPayment">
@@ -46,10 +50,17 @@
             </tr>
         </table>
 
-        <label class="uni-label">
+        <label class="uni-label padding-top-bottom">
             <span>Bilagstekst</span>
             <input type="text" [(ngModel)]="session.payment.Description" >
         </label>
+
+        <!--  HERE -->
+        <section *ngIf="session.payment.Mode == 2 && withPayment && shouldPay" class="refund-info-section">
+            <span>
+                {{ 'ACCOUNTING.SUPPLIER_INVOICE.REFUND_INFO' | translate }}
+            </span>
+        </section>
 
     </article>
 

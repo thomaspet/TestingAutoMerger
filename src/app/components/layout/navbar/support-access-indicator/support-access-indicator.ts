@@ -17,7 +17,7 @@ import {trigger, style, transition, animate, state, group} from '@angular/animat
                 style({height: '*', opacity: 1}),
                 group([
                     animate(100, style({height: 0})),
-                    animate('100ms ease-in-out', style({'opacity': '0'}))
+                    animate('70ms ease-in-out', style({'opacity': '0'}))
                 ])
 
             ]),
@@ -25,7 +25,7 @@ import {trigger, style, transition, animate, state, group} from '@angular/animat
                 style({height: '0', opacity: 0}),
                 group([
                     animate(100, style({height: '*'})),
-                    animate('100ms ease-in-out', style({'opacity': '1'}))
+                    animate('200ms ease-in-out', style({'opacity': '1'}))
                 ])
 
             ])
@@ -35,8 +35,7 @@ import {trigger, style, transition, animate, state, group} from '@angular/animat
 })
 export class SupportAccessIndicator {
     supportUsers: User[] = [];
-    showDialog = false;
-    showBanner = false;
+    showDialog = true;
 
     isAdmin = false;
 
@@ -51,10 +50,6 @@ export class SupportAccessIndicator {
     ) {}
 
     ngOnInit() {
-        if (!sessionStorage.getItem('hideSupportUserBanner')) {
-            this.showBanner = true;
-        }
-
         this.userRoleService.hasAdminRole(this.authService.currentUser.ID).subscribe(isAdmin => {
             this.isAdmin = isAdmin;
             this.checkForSupportUsers();
@@ -82,11 +77,6 @@ export class SupportAccessIndicator {
             this.supportUsers = users;
             this.cdr.markForCheck();
         });
-    }
-
-    closeBanner() {
-        sessionStorage.setItem('hideSupportUserBanner', 'true');
-        this.showBanner = false;
     }
 
     showMore() {

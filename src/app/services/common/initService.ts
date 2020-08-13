@@ -1,7 +1,8 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '@uni-framework/core/http';
 import {map, catchError, tap} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {of, Observable} from 'rxjs';
+import {ElsaContract} from '@app/models';
 
 @Injectable()
 export class InitService {
@@ -9,7 +10,7 @@ export class InitService {
 
     constructor(private uniHttp: UniHttp) {}
 
-    getContracts() {
+    getContracts(): Observable<ElsaContract[]> {
         return this.uniHttp
             .asGET()
             .usingInitDomain()

@@ -67,7 +67,7 @@ export class ProductPurchasesModal implements IUniModal {
             this.singleProductMode = true;
             productRequest = Observable.of([data.product]);
         } else {
-            productRequest = this.productService.GetAll();
+            productRequest = this.productService.getProductsOnContractType();
         }
 
         forkJoin(
@@ -81,9 +81,10 @@ export class ProductPurchasesModal implements IUniModal {
                 this.users = res[0].filter(user => user.Email && user.StatusCode !== 110000);
                 this.purchases = res[1];
                 this.products = (res[2] || []).filter(product => {
-                    return product.ProductType === ElsaProductType.Module
-                        && product.IsPerUser
-                        && product.Name !== 'Complete';
+                    return product.IsPerUser && (
+                        product.ProductType === ElsaProductType.Module
+                        || product.ProductType === ElsaProductType.Package
+                    );
                 });
                 this.userRoles = res[3];
                 this.roles = res[4];
@@ -217,11 +218,21 @@ export class ProductPurchasesModal implements IUniModal {
                     purchase['_active'] = false;
                 }
 
+                if (product.ProductType === ElsaProductType.Package) {
+                    purchase['_readonly'] = true;
+                }
+
                 return purchase;
             });
 
             return entry;
         });
+    }
+
+    togglePurchase(purchase) {
+        if (!purchase['_readonly']) {
+            purchase['_active'] = !purchase['_active'];
+        }
     }
 
     onCheckAllChange() {

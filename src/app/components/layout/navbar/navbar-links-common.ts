@@ -18,6 +18,7 @@ export interface INavbarLink {
     keyWords?: string[];
     subSettings?: INavbarLink[];
     showSubSettings?: boolean;
+    featurePermission?: string;
 }
 
 export interface INavbarLinkSection {
@@ -58,9 +59,9 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                         subSettings: [
                             {name: 'Salgsfaktura', activeInSidebar: false, url: '/settings/sales?index=0', keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Fakturaprint', 'EHF', 'Øredifferanse', 'Factoring', 'Inkluder PDF']},
                             {name: 'NAVBAR.TERMS', activeInSidebar: false, url: '/settings/sales?index=1', keyWords: ['Leveringsbetingelser', 'Leveringsdager', 'Betalingsbetingelser', 'Kredittdager']},
-                            {name: 'SETTINGS.KID_SETTINGS', activeInSidebar: false, url: '/settings/sales?index=2', keyWords: ['KID oppsett']},
+                            {name: 'SETTINGS.KID_SETTINGS', featurePermission: 'ui.kid-settings', activeInSidebar: false, url: '/settings/sales?index=2', keyWords: ['KID oppsett']},
                             {name: 'SETTINGS.FORM_SETTINGS', activeInSidebar: false, url: '/settings/sales?index=3', keyWords: ['Logo', 'Rapport', 'Språk', 'Faste tekster', 'Blankett', 'Vis KID i fakturablankett']},
-                            {name: 'SETTINGS.COLLECTOR', activeInSidebar: false, url: '/settings/sales?index=4', keyWords: ['Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'Purreregler']}
+                            {name: 'SETTINGS.COLLECTOR', featurePermission: 'ui.debt-collection', activeInSidebar: false, url: '/settings/sales?index=4', keyWords: ['Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'Purreregler']}
                         ],
                         keyWords: ['Salgskonto', 'Desimaler', 'Avrunding', 'Periodisering', 'GLN', 'Kredittdager', 'Øredifferanse', 'Potensiell kunde', 'Leveringsbetingelser', 'Inkluder PDF', 'Leveringsdager', 'Betalingsbetingelser', 'Vis KID i fakturablankett', 'Factoring', 'Logo', 'Factoring', 'Purreregler', 'Rapporter', 'Språk', 'Faste tekster', 'Fakturaprint', 'EHF', 'Purring', 'Inkasso', 'Inkassovarsel', 'Purregebyr', 'Blankett', 'KID oppsett']
                     },
@@ -72,14 +73,18 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                         subSettings: [
                             {name: 'Regnskapsinnstillinger', activeInSidebar: false, url: '/settings/accounting?index=0', keyWords: ['Kundereskontro', 'Leverandørreskontro', 'EHF', 'OCR', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'Valutatap']},
                             {name: 'Mvakoder', activeInSidebar: false, url: '/settings/accounting?index=1', keyWords: ['Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']},
-                            {name: 'Forholdsmessig MVA / fradrag', activeInSidebar: false, url: '/settings/accounting?index=2', keyWords: ['Fradragsprosent']},
-                            {name: 'Eiendeler', activeInSidebar: false, url: '/settings/accounting?index=3', keyWords: ['Eiendel', 'Eiendeler', 'Avskrivning']},
+                            {name: 'Forholdsmessig MVA / fradrag', featurePermission: 'ui.accounting.vat-deduction-settings', activeInSidebar: false, url: '/settings/accounting?index=2', keyWords: ['Fradragsprosent']},
+                            {name: 'Eiendeler', featurePermission: 'ui.accounting.assets', activeInSidebar: false, url: '/settings/accounting?index=3', keyWords: ['Eiendel', 'Eiendeler', 'Avskrivning']},
                         ],
                         keyWords: ['Kundereskontro', 'Leverandørreskontro', 'Kontoer', 'Perioder', 'Mva-pliktig', 'Låst til', 'Skjema', 'Valutagevinst', 'EHF', 'OCR', 'Valutatap', 'Fradragsprosent', 'Omvendt avgiftsplikt', 'Direktepostering MVA', 'Sperret', 'Fradragsberettiget', 'Mvakode', 'Mva-kode', 'Momssats']
                     },
                     {
                         name: 'NAVBAR.BANK', activeInSidebar: false, url: '/settings/bank',
-                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']
+                        subSettings: [
+                            {name: 'Bankkontoer', activeInSidebar: false, url: '/settings/bank?index=0', keyWords: ['Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']},
+                            {name: 'Bankinnstilliger', activeInSidebar: false, url: '/settings/bank?index=1', keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID']},
+                        ],
+                        keyWords: ['Bank', 'Autobank', 'Innbetaling', 'Bankgebyr', 'Differansebeløp', 'Remitteringskonto', 'Mellomkonto', 'EndToEndID', 'Driftskonto', 'Skattetrekkskonto', 'Lønnskonto', 'Kobling mot bank']
                     },
                     {
                         name: 'NAVBAR.SALARY', activeInSidebar: false, url: '/settings/aga-and-subentities',
@@ -99,9 +104,8 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
             {
                 name: 'Verktøy',
                 links: [
-                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution'},
+                    {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution', featurePermission: 'ui.distribution'},
                     {name: 'Jobber', url: '/admin/jobs', moduleID: UniModules.Jobs, activeInSidebar: false, keyWords: ['Export', 'SAF-T', 'SAFT']},
-                    {name: 'Importsentral', url: '/admin/import-central', activeInSidebar: false},
                     {name: 'NAVBAR.IMPORT_CENTRAL', activeInSidebar: true, url: '/import'},
                     {
                         name: 'Flyt', url: '/admin/flow', moduleID: UniModules.Flow, activeInSidebar: false,

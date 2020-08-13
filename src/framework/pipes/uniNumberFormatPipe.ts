@@ -25,7 +25,7 @@ export class UniNumberFormatPipe implements PipeTransform {
 
     public transform(value: number, format: string, numberOfDecimals: number): string {
         try {
-            if (!value) {
+            if (!value && value !== 0) {
                 return '';
             }
 

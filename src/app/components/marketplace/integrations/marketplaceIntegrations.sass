@@ -8,15 +8,19 @@ $integration-item-spacing: 2rem
     color: $dark-text-color
     display: flex
     flex-flow: row wrap
-    margin-top: -1.5rem
     margin-bottom: -1rem
 
 .header
-    background-color: white
-    width: 100%
-    padding-left: 2rem
+    display: flex
+    align-items: center
+    height: 5.5rem
+    padding: 0 2rem 0 1.5rem
+    background: #fff
+    border-bottom: 1px solid var(--core-border-color)
+
     h1
         font-weight: 500
+        font-size: 24px
 
 h3
     width: 100%
@@ -127,7 +131,7 @@ h3
                     margin: auto 0 auto auto
                     font: 500 14px var(--font-family)
                     text-decoration: none
-                    color: $primary-button-color
+                    color: var(--color-c2a)
                     &:hover
                         text-decoration: underline
 

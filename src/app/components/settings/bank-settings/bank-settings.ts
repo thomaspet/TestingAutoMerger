@@ -1,17 +1,28 @@
 import {Component, SimpleChanges} from '@angular/core';
 import {CompanySettings, BankAccount, CompanySalary} from '@uni-entities';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
-import {CompanySettingsService, AccountService, CompanySalaryService, ErrorService} from '@app/services/services';
+import {
+    CompanySettingsService,
+    AccountService,
+    CompanySalaryService,
+    ErrorService,
+    PageStateService,
+    StatisticsService,
+    BankService
+} from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
-import {environment} from 'src/environments/environment';
-import {BehaviorSubject} from 'rxjs';
+import {THEMES, theme} from 'src/themes/theme';
+import {Observable, BehaviorSubject} from 'rxjs';
 import {
     UniBankAccountModal,
     UniModalService,
     ConfirmActions
 } from '@uni-framework/uni-modal';
-import { Observable } from 'rxjs';
+import { IUniTab } from '@uni-framework/uni-tabs';
+import { ActivatedRoute } from '@angular/router';
+import { FeaturePermissionDirective } from '@uni-framework/featurePermission.directive';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'bank-settings',
@@ -20,7 +31,9 @@ import { Observable } from 'rxjs';
 
 export class UniBankSettings {
 
-    isSrEnvironment: boolean = environment.isSrEnvironment;
+    isSrEnvironment = theme.theme === THEMES.SR;
+    isExt02Environment = theme.theme === THEMES.EXT02;
+    showRemAccounts: boolean = true;
     dataLoaded: boolean = false;
     hideBankValues: boolean = false;
     hideXtraPaymentOrgXmlTagValue: boolean = false;
@@ -44,8 +57,16 @@ export class UniBankSettings {
 
     companySalary$ = new BehaviorSubject<CompanySalary>(null);
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    companySettings: CompanySettings;
 
-    bankAccounts: any[] = [];
+    activeIndex: number = 0;
+    tabs: IUniTab[] = [
+        {name: 'Bankkontoer'},
+        {name: 'Bankinnstillinger'}
+
+    ];
+    bankAccountQuery = 'model=BankAccount&filter=CompanySettingsID eq 1&join=BankAccount.ID eq Payment.FromBankAccountID&select=ID as ID,count(Payment.ID) as count';
+
     saveActions: any[] = [
         {
             label: 'Lagre innstillinger',
@@ -62,17 +83,24 @@ export class UniBankSettings {
         private modalService: UniModalService,
         private accountService: AccountService,
         private errorService: ErrorService,
-        private tabService: TabService
+        private tabService: TabService,
+        private route: ActivatedRoute,
+        private pageStateService: PageStateService,
+        private statisticsService: StatisticsService,
+        private bankService: BankService,
+        private featurePermissionService: FeaturePermissionService
     ) {}
 
     ngOnInit() {
-        this.loadAccountsDataAndInit();
-        this.tabService.addTab({
-            name: 'Innstillinger - Bank',
-            url: 'settings/bank',
-            moduleID: UniModules.SubSettings,
-            active: true
-       });
+        this.showRemAccounts = !(this.isExt02Environment) || this.featurePermissionService.canShowUiFeature('ui.accountsettings.interrimaccounts');
+        this.route.queryParams.subscribe(params => {
+            const index = +params['index'];
+            if (!isNaN(index) && index >= 0 && index < this.tabs.length) {
+                this.activeIndex = index;
+            }
+            this.loadAccountsDataAndInit();
+            this.updateTabAndUrl();
+        });
     }
 
     ngOnDestroy() {
@@ -89,16 +117,37 @@ export class UniBankSettings {
         Observable.forkJoin(
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
-        ).subscribe(([companySettings, companySalary]) => {
+            this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
+        ).subscribe(([companySettings, companySalary, accountCounts]) => {
+
+            companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account));
+
+            // This should always be ordered the same way..
+            accountCounts.forEach((account, index) => {
+                const bankAccount = companySettings.BankAccounts.find(a => a.ID === account.ID);
+                if (bankAccount) {
+                    bankAccount['_count'] = account.count;
+                }
+            });
+
+            this.companySettings = companySettings;
             this.companySettings$.next(companySettings);
             this.companySalary$.next(companySalary);
             this.hideBankValues = !companySettings.UsePaymentBankValues;
             this.hideXtraPaymentOrgXmlTagValue = !companySettings.UseXtraPaymentOrgXmlTag;
 
-            this.bankAccounts = [].concat(companySettings.BankAccounts);
-
             this.createFormFields();
         });
+    }
+
+    updateTabAndUrl() {
+        this.pageStateService.setPageState('index', this.activeIndex + '');
+        this.tabService.addTab({
+            name: 'Innstillinger - Bank',
+            url: this.pageStateService.getUrl(),
+            moduleID: UniModules.SubSettings,
+            active: true
+       });
     }
 
     setAsDirty() {
@@ -147,7 +196,7 @@ export class UniBankSettings {
             if (companySettings.TaxBankAccount) {
                 if (!companySettings.TaxBankAccount.ID) {
                     companySettings.TaxBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.TaxBankAccount.BankAccountType = 'bankaccount';
+                    companySettings.TaxBankAccount.BankAccountType = 'tax';
                 }
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.TaxBankAccount);
             }
@@ -155,10 +204,24 @@ export class UniBankSettings {
             if (companySettings.SalaryBankAccount) {
                 if (!companySettings.SalaryBankAccount.ID) {
                     companySettings.SalaryBankAccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    companySettings.SalaryBankAccount.BankAccountType = 'salarybank';
+                    companySettings.SalaryBankAccount.BankAccountType = 'salary';
                 }
+
                 companySettings.BankAccounts = companySettings.BankAccounts.filter(x => x !== companySettings.SalaryBankAccount);
             }
+
+            if (companySettings.SalaryBankAccountID) {
+                companySettings.SalaryBankAccount = null;
+            }
+
+            if (companySettings.TaxBankAccountID) {
+                companySettings.TaxBankAccount = null;
+            }
+
+            if (companySettings.CompanyBankAccountID) {
+                companySettings.CompanyBankAccount = null;
+            }
+
 
             if (companySettings.BankChargeAccountID) {
                 companySettings.BankChargeAccount = null;
@@ -347,7 +410,7 @@ export class UniBankSettings {
                 EntityType: 'CompanySettings',
                 Property: 'IgnorePaymentsWithoutEndToEndID',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Bokfør kun utbetalinger fra UE'
+                Label: 'SETTINGS.BOOK_FROM_SYSTEM'
             }
         ]);
 

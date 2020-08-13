@@ -1,14 +1,16 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from '@angular/core';
 import {Router} from '@angular/router';
 import {IUniWidget} from '../../uniWidget';
 import {AuthService} from '@app/authService';
-import {ApprovalService} from '@app/services/services';
+import {ApprovalService, TaskService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../../widgetDataService';
 import {NewTaskModal} from '../../../common/modals/new-task-modal/new-task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {ApprovalStatus } from '@uni-entities';
+import {ApprovalStatus, Task } from '@uni-entities';
 import {Observable} from 'rxjs';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-reminder-list',
@@ -16,40 +18,40 @@ import {Observable} from 'rxjs';
         <section class="widget-wrapper">
             <section class="header">
                 <span style="flex: 1"> {{ widget.description }} </span>
-
-                <a class="add-task" (click)="newTask()">
-                    <i class="material-icons">add</i>
-                    Ny oppgave
-                </a>
+                <a (click)="newTask()">Ny oppgave</a>
             </section>
 
             <div class="content reminder-list-widget">
-                <ul id="reminder-list" [ngClass]="!items.length && dataLoaded ? 'empty-list' : ''">
-                    <li *ngFor="let item of items" (click)="goToTaskView(item)" title="Gå til liste">
-                        <i class="material-icons-outlined"> {{ item._icon }} </i>
-                        <div>
-                            <span>{{ item._label }} </span>
-                            <span> {{ item._typeText }}  </span>
-                        </div>
-                    </li>
-                </ul>
-                <span class="no-items-message">
-                    <i class="material-icons"> mood </i>
-                    Huskelisten er tom, godt jobbet
+                <span *ngIf="dataLoaded && !items?.length" class="no-items-message">
+                    <i class="material-icons">mood</i>
+                    Huskelisten er tom, godt jobbet!
                 </span>
+
+                <ng-container *ngIf="dataLoaded && items?.length">
+                    <a *ngFor="let item of items; let i = index;" class="reminder-item" (click)="goToItemLink(item)">
+                        <i class="material-icons-outlined">{{ item._icon }}</i>
+                        <div>
+                            <strong>{{ item._label }}</strong>
+                            <span>{{ item._typeText }}</span>
+                        </div>
+                        <i class="material-icons-outlined" *ngIf="item._isTaks" (click)="completeTask(item, i, $event)" title="Sett oppgave som fullført">archive</i>
+                    </a>
+                </ng-container>
             </div>
         </section>
     `,
     styleUrls: ['./reminder-list.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class ReminderListWidget {
+    @HostBinding('class.ext02') isExt02Env = theme.theme === THEMES.EXT02;
+
     widget: IUniWidget;
     items: Array<any> = [];
     scrollbar: PerfectScrollbar;
     dataLoaded: boolean = false;
     approvals: any[] = [];
+    busy = false;
 
     constructor(
         private authService: AuthService,
@@ -57,7 +59,9 @@ export class ReminderListWidget {
         private cdr: ChangeDetectorRef,
         private widgetDataService: WidgetDataService,
         private modalService: UniModalService,
-        private approvalService: ApprovalService
+        private approvalService: ApprovalService,
+        private taskService: TaskService,
+        private toast: ToastService
     ) {}
 
     public ngAfterViewInit() {
@@ -85,6 +89,7 @@ export class ReminderListWidget {
                 item._label = item.Title;
                 item._typeText = item.Name ? this.getTranslatedTypeText(item.Name) : 'Huskelapp';
                 item._url = item.Name ? this.getEntityURL(item) : '/assignments/tasks';
+                item._isTaks = true;
                 return item;
             });
 
@@ -97,17 +102,17 @@ export class ReminderListWidget {
                 .map(item => {
                     item._icon = this.getIcon(item.Name);
                     item._label = item.Name === 'ToBePayed'
-                        ? `Regninger til betaling (${item.Counter})`
-                        : `Faktura klar for purring (${item.Counter})`;
+                        ? `${item.Counter} regninger til betaling`
+                        : `${item.Counter} faktura klar for purring`;
                     item._typeText = this.getTranslatedTypeText(item.Name);
-                    item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=ToPayment' : '/sales/reminders/ready';
+                    item._url = item.Name === 'ToBePayed' ? '/accounting/bills?filter=issenttopayment' : '/sales/reminders/ready';
                     return item;
                 });
 
             if (inbox && inbox.length) {
                 kpi.unshift({
                     _icon: 'mail_outline',
-                    _label: `Elementer i innboksen (${inbox.length})`,
+                    _label: `${inbox.length} elementer i innboksen`,
                     _typeText: 'Innboks',
                     _url : '/accounting/inbox'
                 });
@@ -143,7 +148,7 @@ export class ReminderListWidget {
             }
 
             if (this.widget && this.items && this.items.length) {
-                this.scrollbar = new PerfectScrollbar('#reminder-list', {wheelPropagation: true});
+                this.scrollbar = new PerfectScrollbar('.reminder-list-widget', {wheelPropagation: true});
             }
 
             this.dataLoaded = true;
@@ -160,6 +165,28 @@ export class ReminderListWidget {
         }
     }
 
+    completeTask(task: Task, index: number, event) {
+        event.stopPropagation();
+
+        if (this.busy) {
+            return;
+        }
+
+        this.busy = true;
+        this.taskService.PostAction(task.ID, 'complete').subscribe(res => {
+            this.items.splice(index, 1);
+            this.toast.addToast('Oppgave satt som fullført.', ToastType.good, 8, `Oppgave "${task.Title}" ferdistilt.`);
+            this.busy = false;
+            this.cdr.markForCheck();
+        }, err => {
+            this.busy = false;
+        });
+    }
+
+    goToItemLink(item) {
+        this.router.navigateByUrl(item._url);
+    }
+
     newTask() {
         this.modalService.open(NewTaskModal).onClose.subscribe((taskWasAdded: boolean) => {
             if (taskWasAdded) {
@@ -172,10 +199,6 @@ export class ReminderListWidget {
         return '/api/statistics?model=Task&select=ID as ID,Title as Title,ModelID as ModelID,Model.Name as Name,EntityID as EntityID,' +
         `StatusCode as StatusCode,Type as Type,UserID as UserID&filter=UserID eq ${this.authService.currentUser.ID} and ` +
         `StatusCode ne 50030 and Type ne 1&top=50&expand=model&orderby=ID desc`;
-    }
-
-    goToTaskView(item: any) {
-        this.router.navigateByUrl(item._url);
     }
 
     getIcon(value: string) {

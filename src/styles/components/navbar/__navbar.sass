@@ -71,35 +71,37 @@ uni-navbar
             margin: 0 0 0 1rem
 
     .template-company-warning
-        font: 500 14px var(--font-family)
-        text-shadow: 0 0 2px #777
-        background: #F5A623
-        color: #fff
-        padding: 6px 15px
-        border-radius: 2px
+        font: 400 14px var(--font-family)
+        background: var(--alert-warn)
+        color: var(--alert-warn-text-color)
+        padding: 8px 14px
+        border-radius: var(--section-radius)
         cursor: default
         user-select: none
 
     .demo-company-notifier
-        font: 500 13px var(--font-family)
-        text-shadow: 0 0 2px #777
-        padding: 6px 12px
-        border-radius: 2px
+        font: 400 14px var(--font-family)
+        padding: 8px 14px
+        border-radius: var(--section-radius)
         cursor: pointer
         user-select: none
-        background: #01A901
-        color: #fff
+        background: var(--alert-warn)
+        color: var(--alert-warn-text-color)
         margin-right: .5rem
 
-        &.expired
-            background: #F5A623
-
         a
-            color: #fff
-            text-shadow: none
+            color: var(--alert-warn-link-color)
             text-decoration: underline
             margin-left: 8px
             font-weight: 500
+
+        &.expired
+            font-weight: 500
+            background: var(--alert-bad)
+            color: var(--alert-bad-text-color)
+            a
+                color: var(--alert-bad-link-color)
+
 
 
     i.material-icons, uni-icon

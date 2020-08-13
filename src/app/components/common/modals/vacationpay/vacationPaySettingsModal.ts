@@ -39,6 +39,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
     public vacationRates: CompanyVacationRate[] = [];
     private changedVacationRates: CompanyVacationRate[] = [];
     public infoText: string;
+    public hideCompanySalaryModel;
 
     public dueToHolidayChanged: boolean = false;
     public modalReturn: IVacationPaySettingsReturn = { dueToHolidayChanged: false, needVacationPayRefresh: false };
@@ -61,6 +62,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         this.busy = true;
         this.activeYear = this.financialYearService.getActiveYear();
         this.options.cancelValue = this.modalReturn;
+        this.hideCompanySalaryModel = !this.options?.data;
 
             Observable.forkJoin(
                 this._companysalaryService.getCompanySalary(),

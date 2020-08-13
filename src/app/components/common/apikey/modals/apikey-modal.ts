@@ -2,9 +2,9 @@ import {Component, EventEmitter, SimpleChanges} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal';
 import {ApiKey, FieldType, LocalDate, TypeOfIntegration} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
-import {environment} from 'src/environments/environment';
 import {switchMap} from 'rxjs/operators';
 import {ApiKeyService, ErrorService} from '@app/services/services';
+import {THEMES, theme} from 'src/themes/theme';
 
 enum ExternalType {
     none = 0,
@@ -85,7 +85,7 @@ export class ApikeyLineModal implements IUniModal {
     private getFormFields() {
         // These options should probably be somewhere on the API
         const externalSystemOptions = [{ ID: ExternalType.none, Name: '' }];
-        if (environment.isSrEnvironment) {
+        if (theme.theme === THEMES.SR) {
             externalSystemOptions.push({ ID: ExternalType.SRReise, Name: 'SR-Reise' });
         } else {
             externalSystemOptions.push(...[

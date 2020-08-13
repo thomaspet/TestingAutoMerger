@@ -53,6 +53,7 @@ import * as _ from 'lodash';
 
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -115,6 +116,7 @@ export class UniTicker {
     public lastFilterParams = null;
 
     constructor(
+        private permissionService: FeaturePermissionService,
         private router: Router,
         private statisticsService: StatisticsService,
         private toastService: ToastService,
@@ -972,6 +974,10 @@ export class UniTicker {
                 col.sumFunction = column.SumFunction;
                 col.enableRowGroup = this.groupingIsOn;
 
+                if (column.FeaturePermission) {
+                    col.featurePermission = column.FeaturePermission;
+                }
+
                 if (column.Resizeable === false) {
                     col.resizeable = false;
                 }
@@ -1103,6 +1109,13 @@ export class UniTicker {
                         case 'DatePassed':
                             col.setConditionalCls(row => {
                                 return moment(row[column.Alias || column.Field]).isBefore(moment())
+                                    ? 'date-bad'
+                                    : 'date-good';
+                            });
+                            break;
+                        case 'DueDate':
+                            col.setConditionalCls(row => {
+                                return moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}))
                                     ? 'date-bad'
                                     : 'date-good';
                             });
@@ -1281,7 +1294,9 @@ export class UniTicker {
 
         const contextMenuItems: IContextMenuItem[] = [];
         if (this.ticker.Actions) {
-            this.ticker.Actions.forEach(action => {
+            this.ticker.Actions.filter(action => {
+                return !action.FeaturePermission || this.permissionService.canShowUiFeature(action.FeaturePermission)
+            }).forEach(action => {
                 if (action.DisplayInContextMenu) {
                     if (action.Type === 'transition' && !action.Options.Transition) {
                         throw Error(

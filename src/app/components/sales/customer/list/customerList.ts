@@ -190,5 +190,9 @@ export class CustomerList implements OnInit {
                     isExternal: true
                 }
             });
-    };
+    }
+
+    public onRowSelected(row) {
+        this.router.navigateByUrl(`/sales/customer/${row.ID}`);
+    }
 }

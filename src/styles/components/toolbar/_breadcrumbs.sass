@@ -1,5 +1,4 @@
-.breadcrumbs,
-uni-breadcrumbs
+.breadcrumbs
     margin: 0
     padding: 0
     list-style: none
@@ -7,21 +6,15 @@ uni-breadcrumbs
     li
         display: inline-block
 
-        &:before
-            display: none
-            content: ''
-
-        &:not(:last-child):after
-            content: '\203A'
-            display: inline-block
-            font-size: 19px
-            padding: 0 .3rem
-            color: var(--scale1)
+        i.material-icons
+            color: var(--toolbar-breadcrumb-color)
+            font-size: 15px
+            margin-bottom: 1px
 
         a
             text-transform: uppercase
             text-decoration: none
-            color: var(--scale1)
+            color: var(--toolbar-breadcrumb-color)
             font-size: 12px
 
         a:hover
