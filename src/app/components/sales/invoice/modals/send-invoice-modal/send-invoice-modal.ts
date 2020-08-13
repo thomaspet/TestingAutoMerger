@@ -16,7 +16,8 @@ import {
     CustomerInvoiceService,
     StatisticsService,
     DistributionPlanService,
-    EmailService
+    EmailService,
+    ElsaPurchaseService
 } from '@app/services/services';
 import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
 import * as moment from 'moment';
@@ -60,7 +61,8 @@ export class SendInvoiceModal implements IUniModal {
         private companySettingsService: CompanySettingsService,
         private invoiceService: CustomerInvoiceService,
         private ehfService: EHFService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private elsaPurchaseService: ElsaPurchaseService,
     ) {}
 
     public ngOnInit() {
@@ -118,12 +120,14 @@ export class SendInvoiceModal implements IUniModal {
         forkJoin(
             this.statisticsService.GetAllUnwrapped(previousSharingsQuery),
             this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing']),
+            this.elsaPurchaseService.getPurchaseByProductName('EHF_OUT'),
         ).subscribe(
             res => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
+                const hasPurchasedEhfOut = !!res[2];
 
-                this.canSendEHF(this.companySettings).subscribe(canSendEHF => {
+                this.canSendEHF(this.companySettings, hasPurchasedEhfOut).subscribe(canSendEHF => {
                     if (canSendEHF) {
                         this.sendingOptions.push({
                             label: 'Send EHF',
@@ -186,12 +190,12 @@ export class SendInvoiceModal implements IUniModal {
         }
     }
 
-    private canSendEHF(settings: CompanySettings) {
+    private canSendEHF(settings: CompanySettings, hasPurchasedEhfOut: boolean) {
         const ehfActive = this.ehfService.isEHFActivated(settings);
         const peppoladdress = this.invoice.Customer.PeppolAddress
-            || '9908:' + this.invoice.Customer.OrgNumber;
+            || '0192:' + this.invoice.Customer.OrgNumber;
 
-        if (ehfActive && peppoladdress) {
+        if ((ehfActive || hasPurchasedEhfOut) && peppoladdress) {
             const params = `peppoladdress=${peppoladdress}&entitytype=CustomerInvoice`;
             return this.ehfService.GetAction(null, 'is-ehf-receiver', params).pipe(
                 catchError(() => observableOf(false)),
