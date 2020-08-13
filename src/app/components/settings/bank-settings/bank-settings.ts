@@ -488,13 +488,15 @@ export class UniBankSettings {
                     'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt?',
                 link: 'Start på nytt',
                 action: () => {
-                    this.brunoOnboardingService.isActiveAgreement(agreement) ?
+                    if (this.brunoOnboardingService.isActiveAgreement(agreement)) {
                         this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
                             this.toolbarconfig = this.getToolbarConfig();
-                        }) :
+                        });
+                    } else {
                         this.brunoOnboardingService.createAgreement().subscribe(() => {
                             this.toolbarconfig = this.getToolbarConfig();
                         });
+                    }
                 }
             };
         });
@@ -504,7 +506,7 @@ export class UniBankSettings {
 
     private hasPendingOrder(agreement: BankIntegrationAgreement): boolean {
         if (agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active) {
-            return agreement['HasOrderedIntegrationChange'];
+            return agreement.HasOrderedIntegrationChange;
         } else {
             return this.brunoOnboardingService.isPendingAgreement(agreement);
         }

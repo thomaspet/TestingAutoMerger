@@ -200,13 +200,15 @@ export class BankSettingsAccountlist {
 
     connectBankAndAccounting() {
         this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
-            agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active ?
+            if (agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active) {
                 this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
                     this.orderedIntegrationChange.emit();
-                }) :
+                });
+            } else {
                 this.brunoOnboardingService.createAgreement().subscribe(() => {
                     this.orderedIntegrationChange.emit();
                 });
+            }
         });
     }
 

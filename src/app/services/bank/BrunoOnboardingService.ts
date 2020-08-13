@@ -157,12 +157,12 @@ export class BrunoOnboardingService {
                             // the dialog without going to the external onboarding step.
                             this.bankService.setBankIntegrationChangeAgreement(false).subscribe(
                                 () => {
-                                    observer.next(null);
+                                    observer.next();
                                     observer.complete();
                                 },
                                 err => {
                                     console.error(err);
-                                    observer.next(null);
+                                    observer.next();
                                     observer.complete();
                                 }
                             );
@@ -175,6 +175,9 @@ export class BrunoOnboardingService {
                 }).onClose.subscribe((externalOnboardingOpened) => {
                     if (externalOnboardingOpened) {
                         observer.next(agreement);
+                        observer.complete();
+                    } else {
+                        observer.next();
                         observer.complete();
                     }
                 });
