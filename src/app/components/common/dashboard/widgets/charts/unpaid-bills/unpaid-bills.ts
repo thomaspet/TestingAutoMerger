@@ -4,9 +4,9 @@ import {catchError, map} from 'rxjs/operators';
 
 import {DashboardDataService} from '../../../dashboard-data.service';
 import {NumberFormat} from '@app/services/services';
-import {COLORS} from '../../../colors';
 
 import * as moment from 'moment';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'unpaid-bills',
@@ -26,7 +26,7 @@ export class UnpaidBillsWidget {
 
     sumUnpaid: number;
     unpaidData = [];
-    colors = [COLORS.primary, COLORS.bad];
+    colors = [theme.widgets.primary, theme.widgets.bad];
 
 
     constructor(

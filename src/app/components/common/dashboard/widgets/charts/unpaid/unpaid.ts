@@ -4,11 +4,11 @@ import {of, Subscription} from 'rxjs';
 import {map, catchError} from 'rxjs/operators';
 
 import {NumberFormat} from '@app/services/services';
-import {COLORS} from '../../../colors';
 import {DashboardDataService} from '../../../dashboard-data.service';
 import {CustomerInvoice} from '@uni-entities';
 
 import * as moment from 'moment';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'unpaid',
@@ -66,30 +66,30 @@ export class UnpaidWidget {
                     {
                         label: 'Over 60 dager',
                         value: res.overSixtyDays || 0,
-                        color: COLORS.bad,
-                        backgroundColor: COLORS.bad_soft,
-                        textColor: COLORS.bad_text,
+                        color: theme.widgets.bad,
+                        backgroundColor: theme.widgets.bad_soft,
+                        textColor: theme.widgets.bad_text,
                     },
                     {
                         label: '31-60 dager',
                         value: res.sixtyDays || 0,
-                        color: COLORS.warn,
-                        backgroundColor: COLORS.warn_soft,
-                        textColor: COLORS.warn_text,
+                        color: theme.widgets.warn,
+                        backgroundColor: theme.widgets.warn_soft,
+                        textColor: theme.widgets.warn_text,
                     },
                     {
                         label: '1-30 dager',
                         value: res.thirtyDays || 0,
-                        color: COLORS.primary,
-                        backgroundColor: COLORS.primary_soft,
-                        textColor: COLORS.primary_text,
+                        color: theme.widgets.primary,
+                        backgroundColor: theme.widgets.primary_soft,
+                        textColor: theme.widgets.primary_text,
                     },
                     {
                         label: 'Ikke forfalt',
                         value: res.notOverdue || 0,
-                        color: COLORS.secondary,
-                        backgroundColor: COLORS.secondary_soft,
-                        textColor: COLORS.secondary_text,
+                        color: theme.widgets.secondary,
+                        backgroundColor: theme.widgets.secondary_soft,
+                        textColor: theme.widgets.secondary_text,
                     },
                 ];
 

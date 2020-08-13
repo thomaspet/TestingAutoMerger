@@ -5,9 +5,8 @@ import {catchError} from 'rxjs/operators';
 import {LiquidityTableDTO, DetailsDTO} from '@uni-entities';
 import {DashboardDataService} from '../../../dashboard-data.service';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {CustomPaymentModal} from '@app/components/widgets/widgets/liquidity-widget/custom-payment-modal';
-import {COLORS} from '../../../colors';
 import {LiquidityPaymentModal} from './payment-modal/liquidity-payment-modal';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'liquidity-widget',
@@ -93,8 +92,8 @@ export class LiquidityWidget {
                 datasets: [{
                     label: 'Resultat',
                     data: this.periodData.map(item => item.Liquidity || 0),
-                    backgroundColor: COLORS.primary,
-                    borderColor: COLORS.primary,
+                    backgroundColor: theme.widgets.primary,
+                    borderColor: theme.widgets.primary,
                     borderWidth: 4,
                     fill: false,
                     options: {

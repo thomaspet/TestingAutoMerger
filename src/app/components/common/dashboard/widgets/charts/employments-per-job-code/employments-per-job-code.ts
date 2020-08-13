@@ -1,8 +1,8 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {DashboardDataService} from '../../../dashboard-data.service';
-import {COLORS} from '../../../colors';
 import {catchError} from 'rxjs/operators';
 import {of} from 'rxjs';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'employments-per-job-code',
@@ -57,7 +57,7 @@ export class EmploymentsPerJobCodeWidget {
                 labels: data.map(item => item.JobName),
                 datasets: [{
                     data: data.map(item => item.Count),
-                    backgroundColor: COLORS.pie_colors,
+                    backgroundColor: theme.widgets.pie_colors,
                     borderColor: '#fff',
                     hoverBorderColor: '#fff'
                 }]

@@ -6,7 +6,6 @@ import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
 import {UniTickerModule} from '../uniticker/uniTickerModule';
-import {WidgetModule} from '../widgets/widgetModule';
 
 import {BankComponent} from './bankComponent';
 import {UniBank} from './bank';
@@ -34,7 +33,6 @@ import {
         LayoutModule,
         AppCommonModule,
         UniTickerModule,
-        WidgetModule,
         BankReconciliationModule
     ],
     declarations: [

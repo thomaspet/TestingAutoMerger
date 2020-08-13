@@ -3,7 +3,6 @@ import { SalaryBalanceListComponent } from './components/salary-balance-list/sal
 import { LibraryImportsModule } from '@app/library-imports.module';
 import { UniTickerModule } from '@app/components/uniticker/uniTickerModule';
 import { UniFrameworkModule } from '@uni-framework/frameworkModule';
-import { WidgetModule } from '@app/components/widgets/widgetModule';
 import { LayoutModule } from '@angular/cdk/layout';
 import { AppCommonModule } from '@app/components/common/appCommonModule';
 import { ReportsModule } from '@app/components/reports/reportsModule';
@@ -32,7 +31,6 @@ import { PayrollRunService } from './services/payroll-run/payroll-run.service';
         LibraryImportsModule,
         UniTickerModule,
         UniFrameworkModule,
-        WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,
@@ -54,7 +52,6 @@ import { PayrollRunService } from './services/payroll-run/payroll-run.service';
         LibraryImportsModule,
         UniTickerModule,
         UniFrameworkModule,
-        WidgetModule,
         LayoutModule,
         AppCommonModule,
         ReportsModule,

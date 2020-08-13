@@ -1,8 +1,7 @@
 import {TRANSLATION_OVERRIDES} from './ue/translation-overrides';
-import {DASHBOARD_CONFIG, ACCOUNTING_DASHBOARD_CONFIG, BANK_DASHBOARD_CONFIG, SALARY_DASHBOARD_CONFIG} from './ue/dashboard-config';
+import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
 
 import {THEMES} from './themes-enum';
-import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
 export * from './themes-enum';
 
 export const theme = {
@@ -14,14 +13,6 @@ export const theme = {
     chatbotIcon: undefined,
 
     dashboardConfigs: DASHBOARD_CONFIGS,
-
-    // TODO: remove these when new dashboard is implemented everywhere
-    dashboardConfig: DASHBOARD_CONFIG,
-    accountingDashboardConfig: ACCOUNTING_DASHBOARD_CONFIG,
-    bankDashboardConfig: BANK_DASHBOARD_CONFIG,
-    salaryDashboardConfig: SALARY_DASHBOARD_CONFIG,
-    //
-
     featureBlacklists: undefined,
 
     init: {
@@ -35,17 +26,38 @@ export const theme = {
     widgets: {
         empty_state_illustration: 'themes/empty_state.svg',
 
-        pie_colors: ['#132F9A', '#0070E0', '#2699FB', '#7FC6E8', '#F8598B', '#FF9E2C', '#FBBE11', '#01A901', '#DAF0CD'],
-        due_date_colors: ['#01A901', '#DAF0CD', '#FBBE11', '#FF9E2C', '#D63731'],
-        bar_chart_colors: ['#0070E0', '#E3E3E3'],
-        result_bar_colors: ['#01A901', '#0070E0', 'rgba(89, 104, 121, .75)'],
-        kpi: {
-            good: '#01A901',
-            bad: '#D63731',
-            warn: '#FF9E2C',
-            c2a: '#0070E0',
-            background: '#F4F4F4'
-        }
+        primary: '#0070E0',
+        primary_soft: '#DAEEFF',
+        primary_text: '#2B2B2B',
+
+        secondary: '#01A901',
+        secondary_soft: '#DAF0CD',
+        secondary_text: '#2B2B2B',
+
+        warn: '#FF9E2C',
+        warn_soft: '#FFEBD5',
+        warn_text: '#2B2B2B',
+
+        bad: '#D63731',
+        bad_soft: '#FDD5D2',
+        bad_text: '#2B2B2B',
+
+        bar_negative: '#FEEBC1',
+        bar_foreground: '#F2F2F5',
+
+        pie_colors: ['#132F9A', '#0070E0', '#2699FB', '#7FC6E8', '#F8598B']
+
+        // pie_colors: ['#132F9A', '#0070E0', '#2699FB', '#7FC6E8', '#F8598B', '#FF9E2C', '#FBBE11', '#01A901', '#DAF0CD'],
+        // due_date_colors: ['#01A901', '#DAF0CD', '#FBBE11', '#FF9E2C', '#D63731'],
+        // bar_chart_colors: ['#0070E0', '#E3E3E3'],
+        // result_bar_colors: ['#01A901', '#0070E0', 'rgba(89, 104, 121, .75)'],
+        // kpi: {
+        //     good: '#01A901',
+        //     bad: '#D63731',
+        //     warn: '#FF9E2C',
+        //     c2a: '#0070E0',
+        //     background: '#F4F4F4'
+        // }
     },
 
     // tslint:disable

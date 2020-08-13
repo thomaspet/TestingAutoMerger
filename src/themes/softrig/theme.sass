@@ -35,9 +35,12 @@ body
 
     --sidebar-background: #fff
     --sidebar-color: #000
+    --sidebar-header-color: var(--sidebar-color)
     --sidebar-icon-color: #00c8eb
     --sidebar-hover-color: #00c8eb
-    --sidebar-active-section-background: rgba(0, 200, 235, 0.2)
+    --sidebar-active-section-background: #fff
+    --sidebar-active-section-header-color: #000
+    --sidebar-active-section-header-background: rgba(0, 200, 235, 0.2)
 
     --toolbar-background: #fff
     --toolbar-border: 1px solid #E9EFF4
@@ -147,20 +150,6 @@ button
         font-weight: 600
     ul
         font-weight: 500
-
-.sidebar-menu
-    > li
-        &[aria-expanded]:not([aria-expanded=false])
-            .sidebar-section-header
-                span
-                    color: #000 !important
-        .sidebar-sub-menu
-            font-family: 'Roboto' !important
-            a
-                color:#4B4B4B !important
-        .sidebar-section-header
-            span
-                font-family: 'Montserrat', sans-serif !important
 
 h1, h2, h3, h4, h5
     font-family: 'Montserrat', sans-serif !important

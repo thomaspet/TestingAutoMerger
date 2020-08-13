@@ -6,7 +6,6 @@ import {DateAdapter} from '@angular/material/core';
 import {LayoutModule} from '../layout/layoutModule';
 import {UniFrameworkModule} from '../../../framework/frameworkModule';
 import {AppCommonModule} from '../common/appCommonModule';
-import {WidgetModule} from '../widgets/widgetModule';
 
 import {accountingRoutes} from './accountingRoutes';
 
@@ -82,7 +81,6 @@ import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module'
         UniFrameworkModule,
         LayoutModule,
         AppCommonModule,
-        WidgetModule,
         UniTickerModule,
         SupplierInvoiceModule,
         RouterModule.forChild(accountingRoutes)

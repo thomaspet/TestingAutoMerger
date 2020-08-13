@@ -1,9 +1,9 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
-import {COLORS} from '../../../colors';
 import {of, Subscription, forkJoin} from 'rxjs';
-import {delay, catchError, map} from 'rxjs/operators';
+import {catchError, map} from 'rxjs/operators';
 import * as moment from 'moment';
 import {DashboardDataService} from '../../../dashboard-data.service';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'invoiced',
@@ -14,7 +14,7 @@ import {DashboardDataService} from '../../../dashboard-data.service';
 export class InvoicedWidget {
     dataSubscription: Subscription;
     chartConfig;
-    colors = [COLORS.primary, COLORS.bar_foreground];
+    colors = [theme.widgets.primary, theme.widgets.bar_foreground];
 
     loading = true;
     hasData = false;
