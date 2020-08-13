@@ -58,6 +58,7 @@ import {
     ConfirmActions,
     UniConfirmModalV2,
     IModalOptions,
+    TofEmailModal,
 } from '@uni-framework/uni-modal';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
@@ -1428,15 +1429,16 @@ export class InvoiceDetails implements OnInit {
             const entityLabel = this.invoice.InvoiceType === InvoiceTypes.Invoice ? 'Faktura' : 'Kreditnota';
 
             this.saveActions.push({
-                label: 'Skriv ut / send på epost',
+                label: 'Skriv ut',
                 action: (done) => {
                     this.modalService.open(TofReportModal, {
-                        header: 'Skriv ut / send på epost',
+                        header: 'Forhåndsvisning',
                         data: {
                             entityLabel: entityLabel,
                             entityType: 'CustomerInvoice',
                             entity: this.invoice,
                             reportType: ReportTypeEnum.INVOICE,
+                            skipConfigurationGoStraightToAction: 'print'
                         }
                     }).onClose.subscribe(selectedAction => {
                         if (selectedAction) {
@@ -1461,6 +1463,35 @@ export class InvoiceDetails implements OnInit {
                                 );
                             }
                         }
+
+                        done();
+                    });
+                }
+            });
+
+            this.saveActions.push({
+                label: 'Send på epost',
+                action: (done) => {
+                    this.modalService.open(TofEmailModal, {
+                        data: {
+                            entity: this.invoice,
+                            entityType: 'CustomerInvoice',
+                            reportType: ReportTypeEnum.INVOICE
+                        }
+                    }).onClose.subscribe(emailSent => {
+                        if (emailSent) {
+                            this.customerInvoiceService.setPrintStatus(this.invoice.ID, '100').subscribe(
+                                () => {
+                                    setTimeout(() => {
+                                        if (this.toolbar) {
+                                            this.toolbar.refreshSharingStatuses();
+                                        }
+                                    }, 500);
+                                },
+                                err => console.error(err)
+                            );
+                        }
+
                         done();
                     });
                 }
@@ -2009,13 +2040,15 @@ export class InvoiceDetails implements OnInit {
     private preview() {
         const openPreview = (invoice) => {
             return this.modalService.open(TofReportModal, {
+                header: 'Forhåndsvisning',
                 data: {
                     entityLabel: 'Faktura',
                     entityType: 'CustomerInvoice',
                     entity: invoice,
                     reportType: ReportTypeEnum.INVOICE,
                     hideEmailButton: true,
-                    hidePrintButton: true
+                    hidePrintButton: true,
+                    skipConfigurationGoStraightToAction: 'preview'
                 }
             }).onClose;
         };

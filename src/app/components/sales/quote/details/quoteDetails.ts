@@ -48,6 +48,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
+    TofEmailModal,
 } from '@uni-framework/uni-modal';
 import {IUniSaveAction} from '@uni-framework/save/save';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
@@ -1037,13 +1038,15 @@ export class QuoteDetails implements OnInit {
     private preview() {
         const openPreview = (quote) => {
             return this.modalService.open(TofReportModal, {
+                header: 'Forhåndsvisning',
                 data: {
                     entityLabel: 'Tilbud',
                     entityType: 'CustomerQuote',
                     entity: quote,
                     reportType: ReportTypeEnum.QUOTE,
                     hideEmailButton: true,
-                    hidePrintButton: true
+                    hidePrintButton: true,
+                    skipConfigurationGoStraightToAction: 'preview'
                 }
             }).onClose;
         };
@@ -1081,34 +1084,6 @@ export class QuoteDetails implements OnInit {
         }
 
         this.updateToolbar();
-    }
-
-    private printOrEmail() {
-        return this.modalService.open(TofReportModal, {
-            data: {
-                entityLabel: 'Tilbud',
-                entityType: 'CustomerQuote',
-                entity: this.quote,
-                reportType: ReportTypeEnum.QUOTE
-            }
-        }).onClose.pipe(tap(selectedAction => {
-            let printStatus;
-            if (selectedAction === 'print') {
-                printStatus = '200';
-            } else if (selectedAction === 'email') {
-                printStatus = '100';
-            }
-
-            if (printStatus) {
-                this.customerQuoteService.setPrintStatus(this.quote.ID, printStatus).subscribe(
-                    () => {
-                        this.quote.PrintStatus = +printStatus;
-                        this.updateToolbar();
-                    },
-                    err => console.error(err)
-                );
-            }
-        }));
     }
 
     private updateSaveActions() {
@@ -1158,8 +1133,44 @@ export class QuoteDetails implements OnInit {
             });
 
             this.saveActions.push({
-                label: 'Skriv ut / send e-post',
-                action: (done) => this.printOrEmail().subscribe(() => done()),
+                label: 'Skriv ut',
+                action: (done) => {
+                    this.modalService.open(TofReportModal, {
+                        header: 'Forhåndsvisning',
+                        data: {
+                            entityLabel: 'Quote',
+                            entityType: 'CustomerQuote',
+                            entity: this.quote,
+                            reportType: ReportTypeEnum.QUOTE,
+                            skipConfigurationGoStraightToAction: 'print'
+                        }
+                    }).onClose.subscribe(() => done());
+                }
+            });
+
+            this.saveActions.push({
+                label: 'Send på epost',
+                action: (done) => {
+                    this.modalService.open(TofEmailModal, {
+                        data: {
+                            entity: this.quote,
+                            entityType: 'CustomerQuote',
+                            reportType: ReportTypeEnum.QUOTE
+                        }
+                    }).onClose.subscribe(emailSent => {
+                        if (emailSent) {
+                            this.customerQuoteService.setPrintStatus(this.quote.ID, '100').subscribe(
+                                () => {
+                                    this.quote.PrintStatus = 100;
+                                    this.updateToolbar();
+                                },
+                                err => console.error(err)
+                            );
+                        }
+
+                        done();
+                    });
+                }
             });
 
             this.saveActions.push({

@@ -9,6 +9,7 @@ import {
     ReportDefinitionParameterService,
     CompanySettingsService,
 } from '@app/services/services';
+import {theme, THEMES} from 'src/themes/theme';
 
 class CustomReportParameter extends ReportParameter {
     Name: string;
@@ -41,6 +42,10 @@ export class TofReportModal implements IUniModal {
     entity: any;
     reportType: number;
 
+    // Temp fix for skipping report selection on bruno.
+    // Should rewrite the entire report flow at some point
+    skipConfigurationGoStraightToAction: string;
+
     constructor(
         private reportTypeService: ReportTypeService,
         private errorService: ErrorService,
@@ -56,6 +61,8 @@ export class TofReportModal implements IUniModal {
         this.entityTypeShort = this.entityType.replace('Customer', '');
         this.entity = modalData.entity;
         this.reportType = modalData.reportType;
+
+        this.skipConfigurationGoStraightToAction = modalData.skipConfigurationGoStraightToAction;
 
         const isdraft: boolean =
             this.entity.StatusCode == StatusCodeCustomerInvoice.Draft ||
@@ -149,7 +156,17 @@ export class TofReportModal implements IUniModal {
                 });
 
                 this.selectedReport.parameters.concat(this.defaultParameters);
-                this.busy = false;
+
+                if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
+                    if (this.skipConfigurationGoStraightToAction === 'preview') {
+                        this.preview();
+                        this.onClose.emit();
+                    } else {
+                        this.print();
+                    }
+                } else {
+                    this.busy = false;
+                }
             },
             err => {
                 this.errorService.handle(err);

@@ -7,6 +7,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
+    TofEmailModal,
 } from '@uni-framework/uni-modal';
 import {
     CompanySettings,
@@ -1103,13 +1104,15 @@ export class OrderDetails implements OnInit {
     private preview() {
         const openPreview = (order) => {
             return this.modalService.open(TofReportModal, {
+                header: 'Forhåndsvisning',
                 data: {
                     entityLabel: 'Ordre',
                     entityType: 'CustomerOrder',
                     entity: order,
                     reportType: ReportTypeEnum.ORDER,
                     hideEmailButton: true,
-                    hidePrintButton: true
+                    hidePrintButton: true,
+                    skipConfigurationGoStraightToAction: 'preview'
                 }
             }).onClose;
         };
@@ -1125,34 +1128,6 @@ export class OrderDetails implements OnInit {
         } else {
             return openPreview(this.order);
         }
-    }
-
-    private printOrEmail() {
-        return this.modalService.open(TofReportModal, {
-            data: {
-                entityLabel: 'Ordre',
-                entityType: 'CustomerOrder',
-                entity: this.order,
-                reportType: ReportTypeEnum.ORDER
-            }
-        }).onClose.map(selectedAction => {
-            let printStatus;
-            if (selectedAction === 'print') {
-                printStatus = '200';
-            } else if (selectedAction === 'email') {
-                printStatus = '100';
-            }
-
-            if (printStatus) {
-                this.customerOrderService.setPrintStatus(this.order.ID, printStatus).subscribe(
-                    () => {
-                        this.order.PrintStatus = +printStatus;
-                        this.updateToolbar();
-                    },
-                    err => console.error(err)
-                );
-            }
-        });
     }
 
     private updateSaveActions() {
@@ -1220,8 +1195,44 @@ export class OrderDetails implements OnInit {
             }
 
             this.saveActions.push({
-                label: 'Skriv ut / send e-post',
-                action: (done) => this.printOrEmail().subscribe(() => done()),
+                label: 'Skriv ut',
+                action: (done) => {
+                    this.modalService.open(TofReportModal, {
+                        header: 'Forhåndsvisning',
+                        data: {
+                            entityLabel: 'Ordre',
+                            entityType: 'CustomerOrder',
+                            entity: this.order,
+                            reportType: ReportTypeEnum.ORDER,
+                            skipConfigurationGoStraightToAction: 'print'
+                        }
+                    }).onClose.subscribe(() => done());
+                }
+            });
+
+            this.saveActions.push({
+                label: 'Send på epost',
+                action: (done) => {
+                    this.modalService.open(TofEmailModal, {
+                        data: {
+                            entity: this.order,
+                            entityType: 'CustomerOrder',
+                            reportType: ReportTypeEnum.ORDER
+                        }
+                    }).onClose.subscribe(emailSent => {
+                        if (emailSent) {
+                            this.customerOrderService.setPrintStatus(this.order.ID, '100').subscribe(
+                                () => {
+                                    this.order.PrintStatus = 100;
+                                    this.updateToolbar();
+                                },
+                                err => console.error(err)
+                            );
+                        }
+
+                        done();
+                    });
+                }
             });
         }
 

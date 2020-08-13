@@ -210,7 +210,8 @@ export class SendInvoiceModal implements IUniModal {
                 entityType: 'CustomerInvoice',
                 entity: this.invoice,
                 reportType: ReportTypeEnum.INVOICE,
-                hideEmailButton: true
+                hideEmailButton: true,
+                skipConfigurationGoStraightToAction: 'print'
             }
         }).onClose.subscribe(selectedAction => {
             if (selectedAction === 'print') {

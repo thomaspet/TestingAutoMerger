@@ -37,7 +37,7 @@ export class EmailService extends BizHttp<Email> {
         } else {
             this.emailtoast = this.toastService.addToast(
                 'Sender e-post til ' + sendemail.EmailAddress,
-                ToastType.warn, 0,
+                ToastType.info, 0,
                 sendemail.Subject
             );
 

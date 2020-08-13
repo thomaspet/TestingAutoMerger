@@ -14,6 +14,7 @@ import {ErrorService} from '@app/services/common/errorService';
 import {ReportTypeService} from '@app/services/reports/reportTypeService';
 import {ReportDefinitionParameterService} from '@app/services/reports/reportDefinitionParameterService';
 import {EmailService} from '@app/services/common/emailService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'tof-email-modal',
@@ -188,7 +189,7 @@ export class TofEmailModal {
     }
 
     private getFormFields(): UniFieldLayout[] {
-        return [
+        let fields = [
             {
                 Property: 'model.EmailAddress',
                 FieldType: FieldType.EMAIL,
@@ -235,6 +236,14 @@ export class TofEmailModal {
                 Label: 'Kopi til meg'
             }
         ];
+
+        // Temp fix to hide report selector in bruno.
+        // Will rewrite report flow at some point, and this wont be necessary..
+        if (theme.theme === THEMES.EXT02) {
+            fields = fields.filter(f => f.Property !== 'reportID');
+        }
+
+        return fields;
     }
 
 }
