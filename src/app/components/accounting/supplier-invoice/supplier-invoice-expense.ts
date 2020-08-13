@@ -66,7 +66,7 @@ export class SupplierInvoiceExpense {
                 }];
             } else {
                 this.saveActions = [{
-                    label: 'Bokfør og lag utbetaling',
+                    label: 'Bokfør og betal',
                     action: (done) => {
                         this.saveJournalAndPay(done, false);
                     }
