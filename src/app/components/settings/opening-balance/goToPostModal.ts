@@ -1,9 +1,6 @@
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {Component, EventEmitter, Input, Output} from '@angular/core';
-import {FieldType} from '@uni-framework/ui/uniform';
-import {Account} from '@uni-entities';
 import {OpeningBalanceService} from '@app/components/settings/opening-balance/openingBalanceService';
-import {Router} from '@angular/router';
 
 @Component({
     selector: 'go-to-post-modal',
@@ -27,7 +24,7 @@ export class GoToPostModal implements IUniModal {
     @Output() onClose: EventEmitter<any> = new EventEmitter();
     financialYear: number;
     postNumber = 0;
-    constructor(private openingBalanceService: OpeningBalanceService, private router: Router) {
+    constructor(private openingBalanceService: OpeningBalanceService) {
         this.financialYear = this.openingBalanceService.getActiveFinancialYear().Year;
     }
 
@@ -40,8 +37,9 @@ export class GoToPostModal implements IUniModal {
     navigateToPost($event) {
         $event.preventDefault();
         $event.stopPropagation();
-
-        this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${this.postNumber}&AccountYear=${this.financialYear}`);
-        this.onClose.emit();
+        this.onClose.emit({
+            postNumber: this.postNumber,
+            financialYear: this.financialYear
+        });
     }
 }
