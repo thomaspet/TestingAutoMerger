@@ -4,7 +4,9 @@
     <article>
 
         <i class="material-icons">done_all</i>
-        <span>Utlegg bokført som <a (click)="close(url)"> bilagsnr. {{ this.journalEntryNumber }} </a>
+        <span>Utlegg bokført som <a (click)="close(url)"> bilagsnr. {{ journalEntryNumber }} </a>
+            {{ withPayment ? ', og er sendt til betalingslisten.' : '' }} </span> <br/>
+        <span *ngIf="paymentUrl">Betalingen er bokført som <a (click)="close(paymentUrl)"> bilagsnr. {{ paymentJournalEntry }} </a>
             {{ withPayment ? ', og er sendt til betalingslisten.' : '' }} </span> <br/>
         <section [innerHtml]="msg"></section>
     </article>

@@ -576,6 +576,7 @@ export class SupplierInvoiceStore {
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {
         const jnr = (response && response.length > 0) ? response[0].JournalEntryNumber : undefined;
+        const paymentJournalEntry = response?.length > 1 ? response[1].JournalEntryNumber : undefined;
 
         this.modalService.open(DoneRedirectModal, {
             closeOnClickOutside: false,
@@ -585,6 +586,7 @@ export class SupplierInvoiceStore {
                 number: jnr.split('-')[0],
                 year: jnr.split('-')[1],
                 journalEntryNumber: jnr,
+                paymentJournalEntry: paymentJournalEntry,
                 withPayment: withPayment
             }
         }).onClose.subscribe((url: string) => {
@@ -613,7 +615,8 @@ export class SupplierInvoiceStore {
         return this.journalAndPaymentHelper.cleanJournal(invoice.ID).pipe(switchMap(i => {
             return this.supplierInvoiceService.payinvoice(invoice.ID, paymentData);
         })).pipe(switchMap(() => {
-            return this.statisticsService.GetAllUnwrapped(`model=JournalEntry&filter=ID eq ${invoice.JournalEntryID}&select=JournalEntryNumber as JournalEntryNumber`);
+            const query = `model=JournalEntry&select=JournalEntryNumber as JournalEntryNumber&filter=SupplierInvoice.ID eq ${invoice.ID} or Payment.SupplierInvoiceID eq ${invoice.ID}&join=JournalEntry.ID eq SupplierInvoice.JournalEntryID and JournalEntry.ID eq Payment.JournalEntryID`
+            return this.statisticsService.GetAllUnwrapped(query);
         }));
     }
 
