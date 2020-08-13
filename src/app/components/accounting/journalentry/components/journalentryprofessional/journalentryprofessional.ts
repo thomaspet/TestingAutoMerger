@@ -2065,6 +2065,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 AgioAmount: 0
             };
 
+
             const title = `Bilagsnr: ${postPostJournalEntryLine.JournalEntryNumber}, `
                 + `${postPostJournalEntryLine.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
             const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2074,9 +2075,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     entityName: JournalEntryLine.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
                     currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
-                    isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost
+                    isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost,
+                    isSupplierInvoice: sign
                 }
             });
+            
             paymentModal.onClose.subscribe((paymentData) => {
                 if (!paymentData) {
                     resolve(journalEntryRow);
@@ -2272,7 +2275,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         oppositeRow.Dimensions = journalEntryData.Dimensions;
         oppositeRow.Description = journalEntryData.Description;
 
-        oppositeRow.Amount = invoicePaymentData.Amount - bankChargesAmount;
+        oppositeRow.Amount = invoicePaymentData.Amount + bankChargesAmount;
         oppositeRow.AmountCurrency = invoicePaymentData.AmountCurrency;
         oppositeRow.NetAmount = oppositeRow.Amount;
         oppositeRow.NetAmountCurrency = oppositeRow.AmountCurrency;
@@ -2508,7 +2511,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 this.onModalChanged(item, res.model);
-            } else if (res && res.action === 'deleted') {
+            } else if (res && res.action === 'remove') {
                 this.onModalDeleted(item);
             }
         });
@@ -2992,14 +2995,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     }
 
-    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number, creditDate?: LocalDate) {
+    public creditAndPostCorrectedJournalEntryData(completeCallback, journalEntryID?: number) {
         const tableData = this.table.getTableData();
 
         tableData.forEach(data => {
             data.NumberSeriesID = this.selectedNumberSeries ? this.selectedNumberSeries.ID : null;
         });
 
-        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID, creditDate)
+        this.journalEntryService.creditAndPostCorrectedJournalEntryData(tableData, journalEntryID)
             .subscribe(data => {
                 this.toastService.addToast(
                     'Lagring var vellykket.',

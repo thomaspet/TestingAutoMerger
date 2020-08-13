@@ -4,12 +4,14 @@ import {User} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
+import { environment } from 'src/environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable()
 export class UserService extends BizHttp<User> {
     private userObservable: Observable<User>;
-
-    constructor(http: UniHttp) {
+    ELSA_SERVER_URL = environment.ELSA_SERVER_URL;
+    constructor(http: UniHttp, private commonHttp: HttpClient) {
         super(http);
         this.relativeURL = User.RelativeUrl;
         this.entityType = User.EntityType;
@@ -94,5 +96,10 @@ export class UserService extends BizHttp<User> {
         }
         const query = `filter=GlobalIdentity eq '` + GUIDs.join(`' OR ID eq '`) + `'`;
         return this.GetAll(query);
+    }
+
+    updateUserTwoFactorAuth(TwoFactorEnabled: boolean): Observable<any> {
+        return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/Users/enable-two-factor`, null,
+        { params: { enable: TwoFactorEnabled ? 'true' : 'false' } });
     }
 }

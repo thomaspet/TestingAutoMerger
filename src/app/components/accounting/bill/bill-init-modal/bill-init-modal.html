@@ -5,32 +5,40 @@
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
         </section>
-        <section class="inbox-container"*ngIf="!busy">
-            <section class="inbox" *ngIf="inboxFiles?.length">
-                <section class="header">Fra innboks</section>
+        <section class="inbox-container" *ngIf="!busy">
+            <section class="inbox">
+                <section *ngIf="!inboxFiles?.length">
+                    Ingen dokumenter i innboks
+                </section>
 
-                <section class="file-list">
-                    <section class="no-inbox-items" *ngIf="!inboxFiles?.length">
-                        Ingen dokumenter i innboks
-                    </section>
-                    <section class="list-item"
-                        *ngFor="let file of inboxFiles"
-                        (click)="selectedFile = file;preview(file);">
-                        <span>{{file.Name}}</span>
-                        <span class="date">{{file.CreatedAt | date: 'dd.MM.yyyy'}}</span>
+                <ag-grid-wrapper
+                    *ngIf="inboxFiles?.length"
+                    [resource]="inboxFiles"
+                    [config]="tableConfig"
+                    (rowSelectionChange)="preview($event)">
+                </ag-grid-wrapper>
+            </section>
+
+            <section class="image-preview">
+                <section *ngIf="loadingFiles" class="bill-preview-spinner">
+                    <section class="spinner-container">
+                        <mat-spinner [diameter]="40" class="c2a" ></mat-spinner>
+                        <section class="spinner-text">Laster dokument</section>
                     </section>
                 </section>
-            </section>
-            <section class="image-preview" *ngIf="selectedFile">
-                <uni-image
+
+                <uni-image *ngIf="selectedFile"
                    [singleImage]="true"
                    [readonly]="true"
                    [uploadWithoutEntity]="true"
-                   [fileIDs]="[selectedFile.ID]">
+                   [fileIDs]="[selectedFile.ID]"
+                   (fileListReady)="onFileListReady($event)">
                 </uni-image>
             </section>
         </section>
+    </article>
 
+    <footer>
         <label class="upload">
             <input type="file" (change)="uploadFile($event)" />
 
@@ -39,10 +47,8 @@
                 Last opp dokument
             </button>
         </label>
-    </article>
 
-    <footer class="center">
-        <button class="good" [disabled]="!selectedFile" (click)="onClose.emit(selectedFile.ID)">Velg</button>
-        <button class="secondary" (click)="onClose.emit()">Lukk</button>
+        <button class="secondary pull-right" (click)="onClose.emit()">Lukk</button>
+        <button class="c2a" [disabled]="!selectedFile" (click)="onClose.emit(selectedFile.ID)">Velg</button>
     </footer>
 </section>

@@ -22,6 +22,7 @@ import { SalarybalanceTemplateService } from '@app/services/salary/salarybalance
 import { EmploymentService } from '../employee/employmentService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { map } from 'rxjs/operators';
+import { RequestMethod } from '@uni-framework/core/http';
 
 interface IFieldFunc {
     prop: string;
@@ -65,6 +66,10 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         super(http);
         this.relativeURL = SalaryBalance.RelativeUrl;
         this.entityType = SalaryBalance.EntityType;
+    }
+
+    public fill(salaryBalance: SalaryBalance) {
+        return super.ActionWithBody(null, salaryBalance, 'fill', RequestMethod.Post);
     }
 
     private getName(salarybalance: SalaryBalance): string {

@@ -1248,7 +1248,6 @@ export class JournalEntryManual implements OnChanges, OnInit {
                             data: modalParams
                         }).onClose.subscribe(response => {
                             if (response && response.action === ConfirmActions.ACCEPT) {
-                                const creditDate = response.creditDate;
 
                                 this.journalEntryProfessional.creditAndPostCorrectedJournalEntryData((result: string) => {
                                     completeCallback(result);
@@ -1257,7 +1256,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                                         this.onDataChanged([]);
                                         this.clear();
                                     }
-                                }, this.journalEntryID, creditDate);
+                                }, this.journalEntryID);
 
                                 this.onShowImageForJournalEntry(null);
                             } else {

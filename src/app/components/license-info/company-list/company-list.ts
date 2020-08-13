@@ -4,7 +4,7 @@ import * as moment from 'moment';
 
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
-import {ElsaContractService, SubEntityService, CompanySettingsService} from '@app/services/services';
+import {ElsaContractService, SubEntityService, CompanySettingsService, ErrorService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
 import {UniModalService, WizardSettingsModal} from '@uni-framework/uni-modal';
@@ -14,6 +14,8 @@ import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 import {LicenseInfo} from '../license-info';
 import { Company, CompanySettings, SubEntity } from '@uni-entities';
 import { switchMap, tap, filter } from 'rxjs/operators';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'license-info-company-list',
@@ -42,7 +44,7 @@ export class CompanyList {
         {
             header: 'Organisasjonsnummer',
             field: '_orgNumberText'
-        },
+        }
     ];
     contextMenu = [
         {
@@ -56,6 +58,12 @@ export class CompanyList {
             action: (company: ElsaCompanyLicense) => {
                 this.grantSelfAccess(company);
             },
+        },
+        {
+            label: 'To-faktor',
+            action: (company: ElsaCompanyLicense) => {
+                this.twoFactorEnabledChange(company);
+            },
         }
     ];
 
@@ -67,6 +75,8 @@ export class CompanyList {
         private licenseInfo: LicenseInfo,
         private subEntityService: SubEntityService,
         private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private errorService: ErrorService,
     ) {
         try {
             this.currentContractID = this.authService.currentUser.License.Company.ContractID;
@@ -104,7 +114,6 @@ export class CompanyList {
                             license['_ueCompany'] = ueCompanies.find(c => c.Key.toLowerCase() === license.CompanyKey.toLowerCase());
                             return license;
                         });
-
                     this.filteredCompanies = this.companies;
                     this.companyLimitReached =
                         res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
@@ -185,6 +194,59 @@ export class CompanyList {
         }).onClose.subscribe(companyRevived => {
             if (companyRevived) {
                 this.loadData();
+            }
+        });
+    }
+
+    twoFactorEnabledChange(company: ElsaCompanyLicense) {
+        let header, message;
+        if (!company.TwoFactorEnabled) {
+            header = `Slå på to-faktor pålogging for ${company.CompanyName}`;
+            message = `Ved å slå på to-faktor pålogging for selskapet,
+                slår du på to-faktor påloggin for alle brukere med tilgang til selskapet,
+                og brukerene vil da ikke ha mulighet til å velge dette bort.
+                Ønsker du å slå på to-faktor pålogging? <br><br>`;
+        } else {
+            header = `Slå av to-faktor pålogging for ${company.CompanyName}`;
+            message = `Ved å slå av to-faktor pålogging for selskapet,
+                så lar du det være opp til brukerene om de ønsker to-faktor pålogging eller ikke.
+                Brukere som har to-faktor pålogging, men ønsker å slå det av for seg må gjøre dette selv.
+                Ønsker du å slå av to-faktor pålogging? <br><br>`;
+        }
+
+        const onOffLabel = !company.TwoFactorEnabled ? 'på' : 'av';
+
+        this.modalService.confirm({
+            header: header,
+            message: message,
+            closeOnClickOutside: true,
+            closeOnEscape: true,
+            footerCls: 'center',
+            buttonLabels: {
+                accept: `Slå ${onOffLabel} to-faktor pålogging`,
+                reject: 'Avbryt'
+            }
+        }).onClose.subscribe(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                this.companyService.updateTwoFactorAuthentication(
+                    company.ID, { TwoFactorEnabled: !company.TwoFactorEnabled })
+                    .subscribe(
+                    () => {
+                        this.toastService.addToast(
+                            'To-faktor',
+                            ToastType.good,
+                            ToastTime.short,
+                            `To-faktor pålogging er slått ${onOffLabel} for ${company.CompanyName}`
+                        );
+                        this.companies.forEach(comp => {
+                            if (company.ID === comp.ID) {
+                                comp.TwoFactorEnabled = !company.TwoFactorEnabled;
+                            }
+                        });
+                    }, err => {
+                        this.errorService.handle('Kan ikke slå av to-faktor pålogging for selskapet, da dette er påkrevd av lisensen.');
+                    }
+                );
             }
         });
     }

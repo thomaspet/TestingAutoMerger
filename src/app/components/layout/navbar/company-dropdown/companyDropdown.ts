@@ -141,7 +141,7 @@ export class UniCompanyDropdown {
                 'Ugyldig år valgt',
                 ToastType.bad,
                 ToastTime.medium,
-                'Kan ikke velge et nytt regnskapsår som er mer enn 2 år frem i tid, eller 5 år tilbake i tid'
+                'Kan ikke velge et nytt regnskapsår som er mer enn 2 år frem i tid, eller 10 år tilbake i tid'
             );
             return;
         }

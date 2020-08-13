@@ -11,8 +11,7 @@ export class SelectProductsComponent {
     @Input() selectedProductsNames: string[] = [];
     @Output() selectedProductsNamesChange = new EventEmitter<string[]>();
 
-    onSelectionChange(product: ElsaProduct) {
-        product['_selected'] = !product['_selected'];
+    onSelectionChange() {
         const selectedProductsNames = this.products
             .filter(p => p['_selected'])
             .map(p => p.Name);

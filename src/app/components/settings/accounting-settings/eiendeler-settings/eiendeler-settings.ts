@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output, SimpleChanges} from '@angular/co
 import {FieldType} from '@uni-framework/ui/uniform';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {AssetsService} from '@app/services/common/assetsService';
+import {CompanyAccountingSettingsService, UniSearchProductConfig} from '@app/services/services';
 
 @Component({
     selector: 'eiendeler-settings',
@@ -27,7 +28,7 @@ export class EiendelerSettings {
             FieldSet: 0,
             FieldSetColumn: 1,
             Property: 'AssetSaleProfitVatAccountID',
-            Label: 'Salgskonto eiendeler, ved vinst, mvapliktig',
+            Label: 'Salgskonto eiendeler, ved gevinst, mvapliktig',
             FieldType: FieldType.UNI_SEARCH,
             Options: {
                 uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
@@ -39,7 +40,7 @@ export class EiendelerSettings {
             FieldSet: 0,
             FieldSetColumn: 1,
             Property: 'AssetSaleProfitNoVatAccountID',
-            Label: 'Salgskonto eiendeler, ved vinst, mvafritt',
+            Label: 'Salgskonto eiendeler, ved gevinst, mvafritt',
             FieldType: FieldType.UNI_SEARCH,
             Options: {
                 uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
@@ -63,7 +64,7 @@ export class EiendelerSettings {
             FieldSet: 0,
             FieldSetColumn: 1,
             Property: 'AssetSaleProfitBalancingAccountID',
-            Label: 'Motkonto balanseverdi solgte eiendeler, vinst',
+            Label: 'Motkonto balanseverdi solgte eiendeler, gevinst',
             FieldType: FieldType.UNI_SEARCH,
             Options: {
                 uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
@@ -93,10 +94,7 @@ export class EiendelerSettings {
                 uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                 valueProperty: 'ID'
             }
-        }
-    ];
-
-    productField = [
+        },
         {
             Section: 0,
             FieldSet: 0,
@@ -105,14 +103,31 @@ export class EiendelerSettings {
             Label: 'Produkt',
             FieldType: FieldType.UNI_SEARCH,
             Options: {
-                uniSearchConfig: this.uniSearchAccountConfig.generateProductsConfig(),
+                uniSearchConfig: this.uniSearchProductConfig.generateProductsConfig(),
+                valueProperty: 'ID'
+            }
+        },
+        {
+            Section: 0,
+            FieldSet: 0,
+            FieldSetColumn: 1,
+            Property: 'AssetWriteoffAccountID',
+            Label: 'Konto for nedskrivning',
+            FieldType: FieldType.UNI_SEARCH,
+            Options: {
+                uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                 valueProperty: 'ID'
             }
         },
     ];
 
-    constructor(private uniSearchAccountConfig: UniSearchAccountConfig, private assetsService: AssetsService) {
+    constructor(
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private uniSearchProductConfig: UniSearchProductConfig,
+        private assetsService: AssetsService,
+        private companyAccountingSettingsService: CompanyAccountingSettingsService) {
     }
+
     ngOnInit() {
         this.assetsService.getUseAsset().subscribe(useAsset => {
             this.showAssetsModal = {
@@ -131,7 +146,11 @@ export class EiendelerSettings {
 
     private saveShowAssetsModal(value: boolean) {
         this.assetsService.setUseAsset(value).subscribe(x => {
-            // do nothing
+            if (value === true) {
+                this.companyAccountingSettingsService.Get(1).subscribe((result) => {
+                    this.accountingCompanySettings = result;
+                });
+            }
         });
     }
 }

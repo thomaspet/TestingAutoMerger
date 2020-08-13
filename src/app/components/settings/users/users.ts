@@ -196,22 +196,44 @@ export class UserManagement {
         );
     }
 
-    resendInvite(user: User) {
+    resendInvite(email: string) {
         this.uniHttp.asPOST()
             .usingBusinessDomain()
             .withEndPoint('user-verifications')
             .withBody({
-                Email: user.Email,
+                Email: email,
                 CompanyId: this.authService.activeCompany.ID,
             })
             .send()
             .subscribe(
                 () => this.toastService.addToast(
-                    'Invitasjon sent',
+                    'Invitasjon sendt',
                     ToastType.good,
                     ToastTime.short,
-                    `Sente en mail til ${user.Email} med en invitasjons link`
+                    `Sendte en mail med invitasjonslink til ${email}`
                 ),
+                err => this.errorService.handle(err),
+            );
+    }
+
+    cancelInvite(email: string) {
+        this.uniHttp.asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('user-verifications?action=cancel-invitation')
+            .withBody({
+                Email: email,
+                CompanyId: this.authService.activeCompany.ID,
+            })
+            .send()
+            .subscribe(
+                () => {
+                    this.toastService.addToast(
+                        'Invitasjon avbrutt',
+                        ToastType.good,
+                        ToastTime.short,
+                        `Invitasjonen til ${email} er kansellert`);
+                    this.loadUsers(true);
+                },
                 err => this.errorService.handle(err),
             );
     }

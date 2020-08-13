@@ -348,12 +348,12 @@ export class BankComponent {
 
                             if (this.hasAccessToAutobank) {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
-                                    this.agreements = agreements;
+                                    this.agreements = agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
+                                    this.initiateBank();
                                 });
                             } else {
                                 this.initiateBank();
                             }
-                            this.initiateBank();
                         }, err => {
                             this.toastService.addToast('Klarte ikke hente autobankavtaler', ToastType.bad);
                             this.router.navigateByUrl('/');
@@ -1338,19 +1338,39 @@ export class BankComponent {
                     this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
                         if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {
                             if (isManualPayment) {
-                                this.paymentBatchService.generatePaymentFile(batchJobResponse.Result.ID).subscribe((startFileJob: any) => {
-                                    if (startFileJob && startFileJob.Value && startFileJob.Value.ProgressUrl) {
-                                        this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(fileJobResponse => {
-                                            if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
-                                                && fileJobResponse.Result.ID > 0) {
-                                                return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
-                                            } else {
-                                                this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
-                                                    fileJobResponse.Result);
-                                            }
-                                        });
+                                this.paymentBatchService.generatePaymentFile(batchJobResponse.Result.ID).subscribe(
+                                    (startFileJob: any) => {
+                                        if (startFileJob && startFileJob.Value && startFileJob.Value.ProgressUrl) {
+                                            this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(
+                                                fileJobResponse => {
+                                                    if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
+                                                        && fileJobResponse.Result.ID > 0) {
+                                                        return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
+                                                    } else {
+                                                        this.toastService.toast({
+                                                            title: 'Generering av betalingsfil feilet',
+                                                            type: ToastType.bad,
+                                                            duration: 0,
+                                                            message: fileJobResponse.Result
+                                                        });
+
+                                                        doneHandler('');
+                                                    }
+                                                },
+                                                err => {
+                                                    this.errorService.handle(err);
+                                                    doneHandler('');
+                                                }
+                                            );
+                                        } else {
+                                            doneHandler('');
+                                        }
+                                    },
+                                    err => {
+                                        this.errorService.handle(err);
+                                        doneHandler('');
                                     }
-                                });
+                                );
                             } else {
                                 const body = {
                                     Code: null,
@@ -1366,31 +1386,47 @@ export class BankComponent {
                                 });
                             }
                         } else {
-                            this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
-                                batchJobResponse.Result);
-                                doneHandler('');
+                            this.toastService.toast({
+                                title: 'Generering av betalingsbunt feilet',
+                                type: ToastType.bad,
+                                duration: 0,
+                                message: batchJobResponse.Result
+                            });
+                            doneHandler('');
                         }
+                    }, err => {
+                        this.errorService.handle(err);
+                        doneHandler('');
                     });
                 } else {
                     // runs as non hangfire job
                     if (isManualPayment) {
-                        this.paymentBatchService.generatePaymentFile(result.ID)
-                            .subscribe((fileResult: any) => {
+                        this.paymentBatchService.generatePaymentFile(result.ID).subscribe(
+                            (fileResult: any) => {
                                 if (fileResult && fileResult.Value && fileResult.Value.ProgressUrl) {
                                     this.paymentBatchService.waitUntilJobCompleted(fileResult.Value.ID).subscribe(fileJobResponse => {
                                         if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
                                             && fileJobResponse.Result.ID > 0) {
                                             return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
                                         } else {
-                                            this.toastService.addToast('Generering av betalingsfil feilet', ToastType.bad, 0,
-                                                fileJobResponse.Result);
-                                                doneHandler('');
+                                            this.toastService.toast({
+                                                title: 'Generering av betalingsfil feilet',
+                                                type: ToastType.bad,
+                                                duration: 0,
+                                                message: fileJobResponse.Result
+                                            });
+                                            doneHandler('');
                                         }
                                     });
                                 } else {
                                     return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
                                 }
-                            });
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                doneHandler('');
+                            }
+                        );
                     } else {
                         const body = {
                             Code: null,
@@ -1407,8 +1443,8 @@ export class BankComponent {
                     }
                 }
             }, err => {
-                doneHandler('');
                 this.errorService.handle(err);
+                doneHandler('');
             });
         } else {
             this.modalService.open(UniSendPaymentModal, {
@@ -1465,10 +1501,23 @@ export class BankComponent {
                 data: { JournalEntryID: item.JournalEntryID }
             }).onClose.subscribe(response => {
                 if (response && response.action === ConfirmActions.ACCEPT) {
-                    this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber, response.creditDate)
-                        .subscribe(() => {
-                            this.toastService.addToast('Kreditering utført', ToastType.good, ToastTime.short);
-                            this.tickerContainer.getFilterCounts();
+                    this.journalEntryService.creditJournalEntry(item.JournalEntryJournalEntryNumber)
+                        .subscribe(result => {
+                            if (result?.ProgressUrl) {
+                                this.toastService.addToast(
+                                    'Kreditering startet', ToastType.good, ToastTime.long,
+                                    'Det opprettes en jobb for krediteringen av bilaget. ' +
+                                    'Avhengig av antall linjer kan dette ta litt tid. Vennligst vent.'
+                                );
+
+                                this.journalEntryService.waitUntilJobCompleted(result.ID).subscribe(() => {
+                                    this.displayCreditJournalEntryDoneToast();
+                                },
+                                err => this.errorService.handle(err)
+                                );
+                            } else {
+                                this.displayCreditJournalEntryDoneToast();
+                            }
                             res();
                         }, err => {
                             this.errorService.handle(err);
@@ -1479,6 +1528,16 @@ export class BankComponent {
                 }
             });
         });
+    }
+
+    private displayCreditJournalEntryDoneToast() {
+        this.toastService.addToast(
+            'Kreditering utført',
+            ToastType.good,
+            ToastTime.short
+            );
+
+        this.tickerContainer.getFilterCounts();
     }
 
     private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {

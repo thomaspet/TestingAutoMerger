@@ -236,16 +236,15 @@
                 "Width": "14rem"
             },
             {
-                "Header": "Ansatt",
+                "Header": "Ansattnummer",
                 "Field": "Employee.EmployeeNumber",
                 "Type": "link",
                 "ExternalModel": "Employee",
-                "LinkNavigationProperty": "Employee.ID",
-                "Width": "7rem",
-                "SubFields": [{
-                    "Field": "Employee.BusinessRelationInfo.Name",
-                    "Type": "link"
-                }]
+                "LinkNavigationProperty": "Employee.ID"
+            },
+            {
+                "Header": "Ansattnavn",
+                "Field": "Employee.BusinessRelationInfo.Name"
             },
             {
                 "Header": "Stillingsprosent",
@@ -280,14 +279,14 @@
             },
             {
                 "Header": "Arbeidsforhold",
-                "Field": "TypeOfEmployment",
-                "FilterSelectConfigKey": "TypeOfEmployment"
+                "Field": "casewhen(TypeOfEmployment eq 1,'Ordinært arbeidsforhold',casewhen(TypeOfEmployment eq 2,'Maritimt arbeidsforhold',casewhen(TypeOfEmployment eq 3,'Frilanser, oppdragstager, honorar',casewhen(TypeOfEmployment eq 4,'Pensjon og annet uten ansettelse','Ikke valgt'))))",
+                "Alias": "TypeOfEmployment"
             },
             {
                 "Header": "Avlønningstype",
-                "Field": "RemunerationType",
-                "DefaultHidden": true,
-                "FilterSelectConfigKey": "RemunerationType"
+                "Field": "casewhen(RemunerationType eq 1,'Fast lønnet',casewhen(RemunerationType eq 2,'Timelønnet',casewhen(RemunerationType eq 3,'Provisjonslønnet',casewhen(RemunerationType eq 4,'Honorar',casewhen(RemunerationType eq 5,'Akkord','Ikke valgt')))))",
+                "Alias": "RemunerationType",
+                "DefaultHidden": true
             },
             {
                 "Header": "Arbeidstid",

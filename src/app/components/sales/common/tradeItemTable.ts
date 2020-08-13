@@ -1,16 +1,16 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {Observable, of as observableOf} from 'rxjs';
-import {catchError, map} from 'rxjs/operators';
-import {TradeItemHelper} from '../salesHelper/tradeItemHelper';
-import {UniProductDetailsModal} from '../products/productDetailsModal';
-import {UniModalService, ConfirmActions} from '../../../../framework/uni-modal';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Observable, of as observableOf } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { TradeItemHelper } from '../salesHelper/tradeItemHelper';
+import { UniProductDetailsModal } from '../products/productDetailsModal';
+import { UniModalService, ConfirmActions } from '../../../../framework/uni-modal';
 import {
     UniTableColumn,
     UniTableColumnType,
     UniTableConfig,
     IRowChangeEvent
 } from '@uni-framework/ui/unitable/index';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     VatType,
     CompanySettings,
@@ -35,8 +35,8 @@ import {
     NumberFormat
 } from '../../../services/services';
 import * as moment from 'moment';
-import {cloneDeep, get} from 'lodash';
-import {ToastType, ToastService} from '@uni-framework/uniToast/toastService';
+import { cloneDeep, get } from 'lodash';
+import { ToastType, ToastService } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'uni-tradeitem-table',
@@ -106,7 +106,7 @@ export class TradeItemTable {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private toastService: ToastService,
         private numberFormatter: NumberFormat
-    ) {}
+    ) { }
 
     public ngOnInit() {
         this.companySettingsService.Get(1).subscribe(settings => {
@@ -282,8 +282,8 @@ export class TradeItemTable {
             if (item.Dimensions
                 && item.Dimensions[entity]
                 && item.Dimensions[entity] !== id) {
-                    shouldAskBeforeChange = true;
-                }
+                shouldAskBeforeChange = true;
+            }
         });
 
         const defaultDim = entity === 'ProjectID'
@@ -342,8 +342,8 @@ export class TradeItemTable {
             if (item.Dimensions
                 && item.Dimensions['Dimension' + dimension + 'ID']
                 && item.Dimensions['Dimension' + dimension + 'ID'] !== dimensionID) {
-                    shouldAskBeforeChange = true;
-                }
+                shouldAskBeforeChange = true;
+            }
         });
         if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
             this.modalService.confirm({
@@ -538,7 +538,7 @@ export class TradeItemTable {
             .setOptions({
                 itemTemplate: rowModel => rowModel.label,
                 resource: this.priceFactor
-           });
+            });
 
         const accountCol = new UniTableColumn('Account', 'Konto', UniTableColumnType.Lookup)
             .setWidth('15%')
@@ -572,7 +572,7 @@ export class TradeItemTable {
 
                     return filtered;
                 },
-                groupConfig:  {
+                groupConfig: {
                     groupKey: 'VatCodeGroupingValue',
                     visibleValueKey: 'Visible',
                     groups: [
@@ -606,7 +606,7 @@ export class TradeItemTable {
 
                     if (typeof query === 'string' && query !== '') {
                         if (query.indexOf(',') !== -1 || query.indexOf('.') !== -1) {
-                            const querySplit = query.split(/[,.]/) ;
+                            const querySplit = query.split(/[,.]/);
                             filter = `filter=startswith(Number,'${querySplit[0]}') and `
                                 + `(contains(Name,'${querySplit[1]}') or `
                                 + `contains(ID,'${querySplit[1]}'))&groupby=ProjectID`;
@@ -619,15 +619,12 @@ export class TradeItemTable {
             });
 
         const discountPercentCol = new UniTableColumn('DiscountPercent', 'Rabatt %', UniTableColumnType.Percent)
-            .setMaxWidth(100)
-            .setTemplate(row => {
-                return row.DiscountPercent > 0 ? this.tradeItemHelper.round(row.DiscountPercent, 2).toString() : null;
-            });
+            .setMaxWidth(100);
 
         const discountCol = new UniTableColumn('DiscountCurrency', 'Rabatt', UniTableColumnType.Money, false)
             .setVisible(false);
 
-            const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
+        const projectCol = new UniTableColumn('Dimensions.Project', 'Prosjekt', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Project) {
@@ -650,7 +647,7 @@ export class TradeItemTable {
                 }
             });
 
-            const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
+        const departmentCol = new UniTableColumn('Dimensions.Department', 'Avdeling', UniTableColumnType.Lookup)
             .setVisible(false)
             .setTemplate((rowModel) => {
                 if (!rowModel['_isEmpty'] && rowModel.Dimensions && rowModel.Dimensions.Department) {
@@ -675,47 +672,47 @@ export class TradeItemTable {
 
         const dimensionCols = [];
 
-        this.dimensionTypes.forEach((type, index) => {
-            if (type.Label === 'Avdeling' || type.Dimension < 4) {
-                return;
+        this.dimensionTypes.forEach(type => {
+            if (type.Dimension >= 4) {
+                const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
+                    .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
+                    .setEditable(type.IsActive)
+                    .setVisible(false)
+                    .setTemplate((rowModel) => {
+                        if (rowModel['_isEmpty']) {
+                            return '';
+                        }
+
+                        const dimensions = rowModel?.Dimensions;
+                        if (dimensions) {
+                            const dimID = dimensions['Dimension' + type.Dimension + 'ID'];
+                            const dimInfo = dimensions['Dimension' + type.Dimension];
+
+                            if (dimInfo && (dimInfo.Number || dimInfo.Name)) {
+                                return `${dimInfo.Number}: ${dimInfo.Name}`;
+                            } else if (dimID) {
+                                // On some companies the migration for dim10 in DimensionInfo
+                                // didnt run (?) so even if you've set the dimension we don't have any
+                                // info to show. Just show ID in that case..
+                                return dimID;
+                            }
+                        }
+
+                        return '';
+                    })
+                    .setOptions({
+                        searchPlaceholder: 'Velg avdeling',
+                        itemTemplate: (item) => item.Number + ': ' + item.Name,
+                        lookupFunction: (query) => {
+                            return this.customDimensionService.getCustomDimensionList(
+                                type.Dimension,
+                                `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
+                            ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                        }
+                    });
+
+                dimensionCols.push(dimCol);
             }
-            const dimCol = new UniTableColumn('Dimensions.Dimension' + type.Dimension, type.Label, UniTableColumnType.Lookup)
-            .setVisible(false)
-            .setTemplate((rowModel) => {
-                const dimensions = rowModel?.Dimensions;
-                if (dimensions) {
-                    const dimID = dimensions['Dimension' + type.Dimension + 'ID'];
-                    const dimInfo = dimensions['Dimension' + type.Dimension];
-
-                    if (dimInfo && (dimInfo.Number || dimInfo.Name)) {
-                        return `${dimInfo.Number}: ${dimInfo.Name}`;
-                    } else if (dimID) {
-                        // On some companies the migration for dim10 in DimensionInfo
-                        // didnt run (?) so even if you've set the dimension we don't have any
-                        // info to show. Just show ID in that case..
-                        return dimID;
-                    }
-                }
-
-                return '';
-            })
-            .setDisplayField('Dimensions.Dimension' + type.Dimension + '.Name')
-            .setEditable(type.IsActive)
-            .setOptions({
-                itemTemplate: (item) => {
-                    return (item.Number + ': ' + item.Name);
-                },
-                searchPlaceholder: 'Velg avdeling',
-                lookupFunction: (query) => {
-
-                    return this.customDimensionService.getCustomDimensionList(
-                        type.Dimension,
-                        `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
-                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-                }
-            });
-
-            dimensionCols.push(dimCol);
         });
 
         const sumTotalExVatCol = new UniTableColumn('SumTotalExVatCurrency', 'Netto', UniTableColumnType.Money, false)
@@ -777,8 +774,8 @@ export class TradeItemTable {
                     const project = this.projects.find(p => p.ID === projectId);
 
                     if (project) {
-                      updatedRow.Dimensions.Project = project;
-                      updatedRow.Dimensions.ProjectID = project.ID;
+                        updatedRow.Dimensions.Project = project;
+                        updatedRow.Dimensions.ProjectID = project.ID;
                     }
                 }
 
@@ -813,51 +810,51 @@ export class TradeItemTable {
 
     private createMandatoryDimensionsCol(): UniTableColumn {
         return new UniTableColumn('MandatoryDimensions', 'Påkrevde dimensjoner', UniTableColumnType.Text, false)
-        .setVisible(false)
-        .setWidth(40, false)
-        .setTemplate(() => '')
-        .setTooltipResolver((row: any) => {
-            if (row.ProductID && row.AccountID) {
-                let hasRequiredDims, hasWarnDims;
-                let text = 'Påkrevde dimensjoner registrert ok';
+            .setVisible(false)
+            .setWidth(40, false)
+            .setTemplate(() => '')
+            .setTooltipResolver((row: any) => {
+                if (row.ProductID && row.AccountID) {
+                    let hasRequiredDims, hasWarnDims;
+                    let text = 'Påkrevde dimensjoner registrert ok';
 
-                let itemReport = this.getItemWithReport(row);
-                if (!itemReport && row.ID === 0) {
-                    itemReport = this.itemsWithReport.find(x => x.itemID === row.ID);
-                }
-
-                if (itemReport && itemReport.report) {
-                    const rep = itemReport.report;
-
-                    if ((!rep.RequiredDimensions || Object.keys(rep.RequiredDimensions).length === 0)
-                        && (!rep.WarningDimensions || Object.keys(rep.WarningDimensions).length === 0)) {
-                        return;
+                    let itemReport = this.getItemWithReport(row);
+                    if (!itemReport && row.ID === 0) {
+                        itemReport = this.itemsWithReport.find(x => x.itemID === row.ID);
                     }
 
-                    const reqDims = rep.MissingRequiredDimensions || [];
-                    const warnDims = rep.MissingWarningDimensions || [];
+                    if (itemReport && itemReport.report) {
+                        const rep = itemReport.report;
 
-                    if (reqDims.length) {
-                        hasRequiredDims = true;
-                        text = rep.MissingRequiredDimensionsMessage;
-                    }
-
-                    if (warnDims.length) {
-                        hasWarnDims = true;
-                        if (hasRequiredDims) {
-                            text += '\n' + rep.MissingOnlyWarningsDimensionsMessage;
-                        } else {
-                            text = rep.MissingOnlyWarningsDimensionsMessage;
+                        if ((!rep.RequiredDimensions || Object.keys(rep.RequiredDimensions).length === 0)
+                            && (!rep.WarningDimensions || Object.keys(rep.WarningDimensions).length === 0)) {
+                            return;
                         }
+
+                        const reqDims = rep.MissingRequiredDimensions || [];
+                        const warnDims = rep.MissingWarningDimensions || [];
+
+                        if (reqDims.length) {
+                            hasRequiredDims = true;
+                            text = rep.MissingRequiredDimensionsMessage;
+                        }
+
+                        if (warnDims.length) {
+                            hasWarnDims = true;
+                            if (hasRequiredDims) {
+                                text += '\n' + rep.MissingOnlyWarningsDimensionsMessage;
+                            } else {
+                                text = rep.MissingOnlyWarningsDimensionsMessage;
+                            }
+                        }
+                        const type = hasRequiredDims ? 'bad' : hasWarnDims ? 'warn' : 'good';
+                        return {
+                            type: type,
+                            text: text
+                        };
                     }
-                    const type = hasRequiredDims ? 'bad' : hasWarnDims ? 'warn' : 'good';
-                    return {
-                        type: type,
-                        text: text
-                    };
                 }
-            }
-        });
+            });
     }
 
     public onRowChange(event: IRowChangeEvent) {
@@ -901,8 +898,8 @@ export class TradeItemTable {
 
     private getItemWithReport(item: any) {
         return item.ID !== 0
-        ? this.itemsWithReport.find(x => x.itemID === item.ID)
-        : this.itemsWithReport.find(x => x.createguid === item._createguid);
+            ? this.itemsWithReport.find(x => x.itemID === item.ID)
+            : this.itemsWithReport.find(x => x.createguid === item._createguid);
     }
 
     private updateItemMandatoryDimensions(item: any) {
@@ -919,10 +916,10 @@ export class TradeItemTable {
             }
             this.items = cloneDeep(this.items); // trigger change detection
         },
-        err => {
-            this.errorService.handle(err);
-            this.items = cloneDeep(this.items);
-        });
+            err => {
+                this.errorService.handle(err);
+                this.items = cloneDeep(this.items);
+            });
     }
 
     public getMandatoryDimensionsReports() {
@@ -959,7 +956,7 @@ export class TradeItemTable {
                         if (report) {
                             if (report.MissingRequiredDimensionsMessage !== '') {
                                 if (!msg.includes(report.MissingRequiredDimensionsMessage)) {
-                                    msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                                    msg += '! ' + report.MissingRequiredDimensionsMessage + '<br/>';
                                 }
                             }
                             if (report.MissingOnlyWarningsDimensionsMessage) {
@@ -1002,7 +999,7 @@ export class TradeItemTable {
 
             if (searchValue.indexOf(':') > 0) {
                 const accountNumberPart = searchValue.split(':')[0].trim();
-                const accountNamePart =  searchValue.split(':')[1].trim();
+                const accountNamePart = searchValue.split(':')[1].trim();
                 copyPasteFilter = ` or (AccountNumber eq '${accountNumberPart}' `
                     + `and AccountName eq '${accountNamePart}')`;
             }

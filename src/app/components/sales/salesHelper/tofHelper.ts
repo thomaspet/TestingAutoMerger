@@ -69,8 +69,8 @@ export class TofHelper {
                 );
             }
 
-            // Only change currencycode when new customer is selected
-            if (isNew) {
+            // Only change currencycode when new customer is selected and it has a CurrencyCodeID
+            if (isNew && customer.CurrencyCodeID > 0) {
                 entity.CurrencyCodeID = customer.CurrencyCodeID;
             }
 

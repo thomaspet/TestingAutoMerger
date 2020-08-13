@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp, RequestMethod, UniHttp} from '@uni-framework/core/http';
 import {forkJoin, Observable, of, Subject, throwError} from 'rxjs';
 import {catchError, map, switchMap, take, tap} from 'rxjs/operators';
-import {Asset, AssetStatusCode, LocalDate, SupplierInvoice} from '@uni-entities';
+import {Asset, AssetStatusCode, LocalDate, StatusCode, SupplierInvoice} from '@uni-entities';
 import {StatisticsService} from '@app/services/common/statisticsService';
 import {HttpParams} from '@angular/common/http';
 import {ErrorService} from '@app/services/common/errorService';
@@ -11,6 +11,7 @@ import {RegisterAssetModal} from '@app/components/common/modals/register-asset-m
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces.ts';
 import {UniModalService} from '@uni-framework/uni-modal/modalService.ts';
 import {Router} from '@angular/router';
+import {FileService} from '@app/services/common/fileService';
 
 @Injectable()
 export class AssetsService extends BizHttp<Asset>{
@@ -24,6 +25,7 @@ export class AssetsService extends BizHttp<Asset>{
         private toast: ToastService,
         private router: Router,
         private modalService: UniModalService,
+        private fileService: FileService
     ) {
         super(http);
     }
@@ -174,6 +176,18 @@ export class AssetsService extends BizHttp<Asset>{
             .pipe(catchError(() => of(0)));
     }
 
+    caluculateLifetime(asset: Asset) {
+        if (
+            !asset?.AssetGroupCode
+            || !asset?.PurchaseDate
+            || !asset?.DepreciationStartDate
+        ) {
+            return of(null);
+        }
+        return this.ActionWithBody(null, asset, 'calculate-lifetime', RequestMethod.Put)
+            .pipe(catchError(() => of(0)));
+    }
+
     saveAsset(asset: Asset) {
         let source;
         if (asset.ID > 0) {
@@ -188,14 +202,14 @@ export class AssetsService extends BizHttp<Asset>{
                     return source;
                 } else {
                     this.toast.addToast('Balansekonto har ikke nok penger', ToastType.bad, 5);
-                    asset.ID = 0;
                     return of(asset);
                 }
             }),
             switchMap((_asset: Asset) => {
                 const calls = [];
-                if (asset.ID === 0 && _asset.ID !== 0 && asset['_files']?.length) {
+                if (!asset.ID && _asset.ID !== 0 && asset['_files']?.length) {
                     asset['_files'].forEach(file => calls.push(this.linkFile(_asset.ID, file.ID)));
+                    _asset = Object.assign({}, asset, _asset);
                     if (calls.length) {
                         return forkJoin(calls).pipe(
                             catchError((err) => of(_asset)),
@@ -204,6 +218,39 @@ export class AssetsService extends BizHttp<Asset>{
                         );
                     }
                     return of(_asset);
+                }
+                return of(_asset);
+            }),
+            switchMap( _asset => {
+                if (!_asset['_files']?.length) {
+                    return of(_asset);
+                }
+                const calls = [];
+                _asset['_files'].forEach(file => calls.push(this.fileService.getStatistics(
+                    'model=filetag&select=id,tagname as tagname&top=1&orderby=ID asc&filter=deleted eq 0 and fileid eq ' + file.ID
+                ).pipe(switchMap(tags => {
+                    let tagname;
+                    if (tags.Data.length) {
+                        tagname = tags.Data[0].tagname;
+                    }
+                    if (tagname) {
+                        return this.fileService.tag(file.ID, tagname, StatusCode.Completed).pipe(
+                            switchMap(() => of(_asset)),
+                            catchError(err => {
+                                this.errorService.handle(err);
+                                return of(_asset);
+                            })
+                        );
+                    } else {
+                        return of(_asset);
+                    }
+                }))));
+                if (calls.length) {
+                    return forkJoin(calls).pipe(
+                        catchError((err) => of(_asset)),
+                        take(1),
+                        switchMap(() => of(_asset))
+                    );
                 }
                 return of(_asset);
             })
@@ -243,7 +290,7 @@ export class AssetsService extends BizHttp<Asset>{
         if (asset?.BalanceAccountID && asset?.NetFinancialValue) {
             return this.GetAction(null, 'is-balance-ok', `accountID=${asset?.BalanceAccountID}&amount=${asset?.NetFinancialValue}`);
         }
-        return of(false);
+        return of(true);
     }
     openRegisterModal(supplierInvoice: SupplierInvoice) {
         this.getUseAsset().subscribe(useAsset => {

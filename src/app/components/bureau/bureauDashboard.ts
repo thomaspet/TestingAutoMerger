@@ -418,16 +418,11 @@ export class BureauDashboard {
     }
 
     public createCustomer(company: KpiCompany) {
-        this.modalService
-            .open(SubCompanyModal, {
-                    data: company
-                })
-                .onClose
-                .subscribe(response => {
-                    if (response) {
-                        this.loadSubCompanies(true);
-                    }
-                });
+        this.modalService.open(SubCompanyModal, {data: company}).onClose.subscribe(response => {
+            if (response) {
+                this.loadSubCompanies(true);
+            }
+        });
     }
 
     public editClientNumber(company) {

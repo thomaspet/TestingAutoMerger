@@ -16,6 +16,7 @@ import * as lodash from 'lodash';
 import * as moment from 'moment';
 import {SupplierInvoiceService} from '@app/services/accounting/supplierInvoiceService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
+import { isNullOrUndefined } from 'util';
 
 @Injectable()
 export class AssetsActions {
@@ -78,8 +79,12 @@ export class AssetsActions {
     createAsset(supplierInvoiceID: number) {
         return this.assetsService.createAsset(supplierInvoiceID).pipe(
             take(1),
-            tap((asset) => this.store.currentAsset = asset),
-            switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID,['JournalEntry', 'JournalEntry.DraftLines'])),
+            tap((asset) => {
+                asset._createguid = this.assetsService.getNewGuid();
+                asset.ID = undefined; // we don't want to show a value on Nr. form field
+                this.store.currentAsset = asset;
+            }),
+            switchMap((asset) => this.supplierInvoiceService.Get(supplierInvoiceID, ['JournalEntry', 'JournalEntry.DraftLines'])),
             map((supplierInvoice: SupplierInvoice) => {
                 const currentAsset = this.store.currentAsset;
                 currentAsset.Name = supplierInvoice.JournalEntry.DraftLines[0].Description;
@@ -151,8 +156,8 @@ export class AssetsActions {
                     ' automatisk nå. Fremtidige avskrivninger blir så gjennomført fortløpende.',
                 buttonLabels: {
                     accept: asset.AutoDepreciation ? 'Ok' : 'Start med avskrivninger nå',
-                    reject: 'Nei',
-                    cancel: 'Avbryt'
+                    reject: asset.AutoDepreciation ? null : 'Nei',
+                    cancel: asset.AutoDepreciation ? null : 'Avbryt'
                 }
             };
             source = this.modalService.confirm(modalOptions).onClose;
@@ -175,6 +180,9 @@ export class AssetsActions {
             take(1),
             switchMap(_asset => {
                 asset = _asset;
+                if (asset.Dimensions) { // save dimensions from object, not from ID.
+                    asset.DimensionsID = undefined;
+                }
                 return this.startDepreciation(_asset);
             }),
             switchMap(result => {
@@ -182,14 +190,6 @@ export class AssetsActions {
                     asset.AutoDepreciation = true;
                 } else if (result === ConfirmActions.REJECT) {
                     asset.AutoDepreciation = false;
-                }
-                if (result !== ConfirmActions.CANCEL) {
-                    const assetsDoNotShowModalIDs: number[] = this.browserStorageService
-                        .getItemFromCompany('assetsDoNotShowModalIDs') || [];
-                    if (!assetsDoNotShowModalIDs.includes(asset.ID)) {
-                        assetsDoNotShowModalIDs.push(asset.ID);
-                    }
-                    this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);
                 }
                 return this.assetsService.saveAsset(asset).pipe(
                     catchError(err => throwError(err)),
@@ -200,6 +200,16 @@ export class AssetsActions {
                         _asset['_DepreciationStartYear'] = this.calculateDepreciationStartYear(_asset);
                         _asset['_DepreciationEndDate'] = this.calculateDepreciationEndDate(_asset);
                         return {..._asset};
+                    }),
+                    tap(_asset => {
+                        if (result !== ConfirmActions.CANCEL) {
+                            const assetsDoNotShowModalIDs: number[] = this.browserStorageService
+                                .getItemFromCompany('assetsDoNotShowModalIDs') || [];
+                            if (_asset.ID && !assetsDoNotShowModalIDs.includes(_asset.ID)) {
+                                assetsDoNotShowModalIDs.push(_asset.ID);
+                            }
+                            this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);
+                        }
                     }),
                     tap(_asset => this.markAssetAsClean()),
                     tap(_asset => this.store.currentAsset = _asset)
@@ -269,6 +279,26 @@ export class AssetsActions {
                 };
             });
         }
+        if (changes['PurchaseDate']) {
+            if (changes['PurchaseDate'].currentValue < changes['PurchaseDate'].previousValue &&
+                currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
+                const asset = this.store.currentAsset;
+                if (asset.Lifetime) {
+                    const options: IModalOptions = {
+                        header: 'Oppdatere kjøpsdato',
+                        message: 'Vil du oppdatere gjenværende levetid ut fra kjøpsdato?',
+                        buttonLabels: { accept: 'Ja', cancel: 'Nei' }
+                    };
+                    this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((response) => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            this.updateLifetime(asset);
+                        }
+                    });
+                } else {
+                    this.updateLifetime(asset);
+                }
+            }
+        }
         if (changes['DepreciationStartDate'] || changes['Lifetime'] || changes['NetFinancialValue']) {
             this.assetsService.calculateMonthlyDepreciation(this.store.currentAsset).pipe(
                 map(amount => {
@@ -280,7 +310,39 @@ export class AssetsActions {
                 this.store.currentAsset = asset;
             });
         }
+        if (changes['ScrapValue']) {
+            const asset = this.store.currentAsset;
+            this.assetsService.calculateMonthlyDepreciation(asset).subscribe(amount => {
+                asset['_MonthlyDepreciationAmount'] = amount;
+                this.store.currentAsset = {...asset};
+                this.addTaxDepreciationRateFromGroupCode(asset)
+                    .subscribe(newAsset => this.store.currentAsset = newAsset);
+            });
+        }
+        if (changes['PurchaseAmount']) {
+            if (isNullOrUndefined(currentAsset.NetFinancialValue)) {
+                const asset = this.store.currentAsset;
+                asset.NetFinancialValue = currentAsset.PurchaseAmount;
+                this.store.currentAsset = {...asset};
+            }
+        }
         return of(null);
+    }
+
+    updateLifetime(asset: Asset) {
+        this.assetsService.caluculateLifetime(asset).subscribe((lifetime) => {
+            if (lifetime) {
+                asset.Lifetime = lifetime;
+                this.assetsService.calculateMonthlyDepreciation(asset).pipe(
+                    map(amount => {
+                        const depreciationEndDate = this.calculateDepreciationEndDate(asset);
+                        return {...asset, _MonthlyDepreciationAmount: amount, _DepreciationEndDate: depreciationEndDate};
+                    })
+                ).subscribe(asset1 => {
+                    this.store.currentAsset = asset1;
+                });
+            }
+        });
     }
 
     linkFile(ID, fileID) {
@@ -288,41 +350,59 @@ export class AssetsActions {
     }
 
     openRegisterAsSoldModal(asset?: Asset) {
-        return this.modalService.open(RegisterAssetAsSoldModal, {
-            data: {
-                AssetID: asset.ID,
-                SoldDate: new LocalDate(new Date()),
-                NetFinancialValue: asset.NetFinancialValue,
-                SoldAmount: asset.NetFinancialValue,
-                TaxPercent: null,
-                CustomerID: null
-            }
-        }).onClose.pipe(tap(x => console.log(x)));
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterAssetAsSoldModal, {
+                    data: {
+                        AssetID: _asset.ID,
+                        SoldDate: new LocalDate(new Date()),
+                        NetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                        SoldAmount: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                        TaxPercent: null,
+                        CustomerID: null
+                    }
+                }).onClose;
+            }),
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openRegisterDepreciationModal(asset?: Asset) {
-        return this.modalService.open(RegisterDepreciationModal, {
-            data: {
-                AssetID: asset.ID,
-                NetFinancialValue: asset.NetFinancialValue,
-                ScrapValue: asset.ScrapValue,
-                NewNetFinancialValue: asset.NetFinancialValue - asset.ScrapValue,
-                Description: '',
-            }
-        }).onClose.pipe(tap(x => console.log(x)));
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterDepreciationModal, {
+                    data: {
+                        AssetID: _asset.ID,
+                        CurrentNetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                        DepreciationValue: 0,
+                        NewNetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                        Description: '',
+                    }
+                }).onClose;
+            }),
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openDeleteModal(asset?: Asset) {
         return this.modalService.open(DeleteAssetModal, {
             data: { assetID: asset.ID }
-        }).onClose.pipe(tap(x => console.log(x)));
+        }).onClose.pipe(tap(x => ''));
     }
     openRegisterAsLostModal(asset?: Asset) {
-        return this.modalService.open(RegisterAssetAsLostModal, {
-            data: {
-                AssetID: asset.ID,
-                DepreciationDate: new LocalDate(new Date()),
-                NetFinancialValue: asset.NetFinancialValue,
-            }
-        }).onClose.pipe(tap(x => console.log(x)));
+        return this.getAsset(asset.ID).pipe(
+            switchMap(_asset => {
+                return this.modalService.open(RegisterAssetAsLostModal, {
+                    data: {
+                        AssetID: asset.ID,
+                        DepreciationDate: new LocalDate(new Date()),
+                        NetFinancialValue: _asset.CurrentNetFinancialValue || _asset.NetFinancialValue,
+                    }
+                }).onClose;
+            }),
+            switchMap(() => this.getAsset(asset.ID)),
+            tap((_asset) => this.store.currentAsset = _asset)
+        );
     }
     openAskForSaveAssetModal() {
         const modalOptions = {
@@ -406,10 +486,10 @@ export class AssetsActions {
 
     private calculateDepreciationStartYear(asset: Asset) {
         if (asset.AssetGroupCode === 'X') {
-            return 0;
+            return null;
         }
         if (!asset.PurchaseDate) {
-            return 0;
+            return null;
         }
         const date = moment(asset.PurchaseDate, 'YYYY-MM-DD');
         return date.year();

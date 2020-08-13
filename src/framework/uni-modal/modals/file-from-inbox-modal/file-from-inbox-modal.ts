@@ -6,6 +6,7 @@ import { File } from '@uni-entities';
 import { UP_ARROW, DOWN_ARROW, ENTER } from '@angular/cdk/keycodes';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn } from '@uni-framework/ui/unitable/config/unitableColumn';
+import { FileExtended } from '@uni-framework/uniImage/uniImage';
 
 @Component({
     selector: 'file-from-inbox-modal',
@@ -21,6 +22,8 @@ export class FileFromInboxModal implements IUniModal {
     tableConfig: UniTableConfig;
     files: File[];
     selectedFile: File;
+
+    busy: boolean;
 
     constructor(
         private supplierInvoiceService: SupplierInvoiceService,
@@ -38,7 +41,16 @@ export class FileFromInboxModal implements IUniModal {
     }
 
     onFileSelected(file: File) {
-        this.selectedFile = file;
+        if (this.selectedFile !== file) {
+            this.busy = true;
+            this.selectedFile = file;
+        }
+    }
+
+    onFileListReady(files: FileExtended[]) {
+        if (files) {
+            this.busy = false;
+        }
     }
 
     @HostListener('window:keydown', ['$event'])

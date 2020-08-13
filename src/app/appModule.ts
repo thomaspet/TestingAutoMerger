@@ -56,6 +56,7 @@ import {UniDateAdapter} from './date-adapter';
 
 import localeNb from '@angular/common/locales/nb';
 import {HeaderInterceptor} from './header-interceptor';
+import { Logger } from '@uni-framework/core/logger';
 registerLocaleData(localeNb);
 
 // Set moment locale
@@ -110,6 +111,7 @@ moment.locale('nb');
         AuthService,
         FeaturePermissionService,
         AuthGuard,
+        Logger,
         CompanyKeyRouteGuard,
         RoutePermissionGuard,
         CanDeactivateGuard,

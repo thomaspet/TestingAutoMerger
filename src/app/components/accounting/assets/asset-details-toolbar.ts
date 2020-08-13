@@ -95,23 +95,33 @@ export class AssetDetailsToolbar {
     }
     private setToolbarConfig(asset: Asset) {
         this.toolbarconfig = {
-            title: asset?.Name || 'New Eiendel',
+            title: asset?.Name || 'Ny Eiendel',
             statustrack: this.createStatus(asset),
+            navigation: {
+                add: {
+                    label: '',
+                    action: () => this.router.navigateByUrl('/accounting/assets/0/details')
+                }
+            },
             contextmenu: [
                 {
-                    label: 'Register som solgt',
+                    label: 'Registrer som solgt',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsSoldModal(this.asset)
                 },
                 {
-                    label: 'Register som tapt',
+                    label: 'Registrer som tapt',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterAsLostModal(this.asset)
                 },
                 {
                     label: 'Nedskriv eiendel',
+                    disabled: () => !asset?.ID || (asset?.ID > 0 && asset?.StatusCode !== AssetStatusCode.Active),
                     action: () => this.assetsActions.openRegisterDepreciationModal(this.asset)
                 },
                 {
                     label: 'Slett eiendel',
+                    disabled: () => !asset?.ID,
                     action: () => this.assetsActions.openDeleteModal(this.asset)
                 },
             ]
@@ -123,9 +133,9 @@ export class AssetDetailsToolbar {
             label: 'Lagre',
             action: (done) => this.assetsActions.save().subscribe(asset => {
                 if (asset.ID === 0) {
-                    done('Asset ikke lagret');
+                    done('Eiendel ikke lagret');
                 } else {
-                    done('Asset Lagret');
+                    done('Eiendel lagret');
                 }
                 this.assetsStore.assetIsDirty = false;
                 this.assetsStore.currentAsset = asset;
@@ -140,8 +150,11 @@ export class AssetDetailsToolbar {
     }
 
     private addTab(asset: Asset) {
-        const title = asset?.Name ? `Eiendeler ${asset?.ID}` : 'New eiendel';
+        let title = asset?.Name ? `Eiendeler ${asset?.ID}` : 'Ny eiendel';
         const id = asset?.ID ? asset.ID : 0;
+        if (id === 0) {
+            title = 'Ny eiendel';
+        }
         this.tabService.addTab({
             name: `${title}`, url: `/accounting/assets/${id}`,
             moduleID: UniModules.Accountsettings, active: true

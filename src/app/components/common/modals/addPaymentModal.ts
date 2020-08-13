@@ -44,7 +44,7 @@ import { PaymentCodeService } from '@app/services/accounting/paymentCodeService'
                 </uni-form>
             </article>
 
-            <footer>
+            <footer class="center">
                 <button (click)="close('cancel')" class="secondary">
                     Avbryt
                 </button>
@@ -395,10 +395,14 @@ export class AddPaymentModal implements IUniModal {
             {
                 EntityType: 'Payment',
                 Property: 'AmountCurrency',
-                FieldType: FieldType.TEXT,
+                FieldType: FieldType.NUMERIC,
                 Label: 'Beløp',
                 FieldSet: 0,
-                Section: 0
+                Section: 0,
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                },
             },
             {
                 EntityType: 'Payment',

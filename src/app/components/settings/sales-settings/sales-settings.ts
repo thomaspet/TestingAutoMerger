@@ -60,6 +60,7 @@ export class UniSalesSettingsView {
     ehfInvoiceField$ = new BehaviorSubject<UniFieldLayout[]>([]);
 
     expands = [
+        'APOutgoing',
         'FactoringEmail',
         'DefaultSalesAccount',
         'CustomerInvoiceReminderSettings',

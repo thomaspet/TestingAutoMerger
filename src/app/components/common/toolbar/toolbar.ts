@@ -179,19 +179,23 @@ export class UniToolbar {
     }
 
     customButtonClick(button: ToolbarButton) {
-        if (!button['_busy']) {
-            const result = button.action();
-            if (result && result.subscribe) {
-                button['_busy'] = true;
-                result.pipe(
-                    take(1),
-                    finalize(() => button['_busy'] = false)
-                ).subscribe(
-                    () => {},
-                    err => this.errorService.handle(err)
-                );
+        // Use setTimeout to allow any change event from a previously focused input to be handled first.
+        // (in case the button is used for saving something)
+        setTimeout(() => {
+            if (!button['_busy']) {
+                const result = button.action();
+                if (result && result.subscribe) {
+                    button['_busy'] = true;
+                    result.pipe(
+                        take(1),
+                        finalize(() => button['_busy'] = false)
+                    ).subscribe(
+                        () => {},
+                        err => this.errorService.handle(err)
+                    );
+                }
             }
-        }
+        });
     }
 
     public navigate(type: string, arg: any) {

@@ -1,0 +1,56 @@
+@import '../../../../../styles/unibase/colors/__colors'
+.emp-header
+    display: grid
+    grid-template-columns: 1fr 3fr 3fr 1fr
+    grid-row-columns: 1fr 1fr
+    grid-column-gap: .5rem
+    margin: 0 0 1rem 0
+    padding: 0
+    align-items: center
+
+    .emp-sort
+        grid-column: 1 / span 2
+        grid-row: 1
+
+    .tertiary
+        grid-column: 3 /span 2
+        grid-row: 1
+
+    .emp-search
+        margin: 0
+        grid-column: 1 / span 3
+        grid-row: 2
+        min-width: auto
+        width: 100%
+    .info
+        grid-column: 4
+        grid-row: 2
+        color: var(--color-c2a)
+
+.emp-list
+    height: calc(100vh - 28rem)
+    li
+        height: 44px
+        display: flex
+        flex-direction: column
+        border-bottom: 1px solid var(--border-color)
+        padding: .5rem 1rem
+        cursor: pointer
+        align-items: center
+        font-size: 14px
+
+        i
+            font-size: 1.2rem
+            color: var(--color-bad)
+
+        &:hover
+            background-color: var(--dropdown-select-background)
+
+        &.selected
+            background-color: var(--dropdown-select-background)
+
+        span
+            flex: 1
+            overflow: hidden
+            white-space: nowrap
+            text-overflow: ellipsis

@@ -185,4 +185,8 @@ export class ElsaContractService {
                 return '';
         }
     }
+
+    updateTwoFactorAuthentication(contractID: number, body): Observable<ElsaContract> {
+        return this.http.put(this.ELSA_SERVER_URL + `/api/contracts/${contractID}`, body).pipe(map(res => res[0]));
+    }
 }

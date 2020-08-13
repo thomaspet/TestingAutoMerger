@@ -24,7 +24,7 @@ export class NavbarUserDropdown {
     constructor(
         private modalSerice: UniModalService,
         private authService: AuthService,
-        private elsaContractService: ElsaContractService
+        private elsaContractService: ElsaContractService,
     ) {
         this.authService.authentication$.subscribe(auth => {
             if (auth && auth.user) {
@@ -53,9 +53,7 @@ export class NavbarUserDropdown {
 
     public openUserSettingsModal() {
         this.trigger.closeMenu();
-        this.modalSerice.open(UserSettingsModal, {
-            data: this.user
-        });
+        this.modalSerice.open(UserSettingsModal, { data: this.user});
     }
 
     getUserLicenseTypeName(userLicenseType: number) {

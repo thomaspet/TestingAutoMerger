@@ -46,7 +46,17 @@ export class StatusTrack {
         if (this.config && this.config.length) {
             this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Active);
             if (!this.activeStatus) {
-                this.activeStatus = this.config.find(status => status.state === STATUSTRACK_STATES.Obsolete);
+                this.activeStatus = this.config.find(status => (
+                    status.state === STATUSTRACK_STATES.Obsolete
+                    || status.state === STATUSTRACK_STATES.Lost
+                    || status.state === STATUSTRACK_STATES.Sold
+                    || status.state === STATUSTRACK_STATES.DepreciationFailed
+                    || status.state === STATUSTRACK_STATES.Depreciated
+                ));
+            }
+        } else {
+            if ((this.config  && this.config.length === 0) || !this.config) {
+                this.activeStatus = null;
             }
         }
     }

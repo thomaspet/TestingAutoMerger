@@ -1,12 +1,14 @@
-import {Component} from '@angular/core';
-import {ErrorService, ElsaCustomersService, ElsaContractService} from '@app/services/services';
-import {AuthService} from '@app/authService';
-import {UniModalService} from '@uni-framework/uni-modal';
-import {AddAdminModal} from '../add-admin-modal/add-admin-modal';
-import {ElsaCompanyLicense} from '@app/models';
-import {cloneDeep} from 'lodash';
-import {environment} from 'src/environments/environment';
-import {LicenseInfo} from '../license-info';
+import { Component } from '@angular/core';
+import { ErrorService, ElsaCustomersService, ElsaContractService } from '@app/services/services';
+import { AuthService } from '@app/authService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { AddAdminModal } from '../add-admin-modal/add-admin-modal';
+import { ElsaCompanyLicense } from '@app/models';
+import { cloneDeep } from 'lodash';
+import { environment } from 'src/environments/environment';
+import { LicenseInfo } from '../license-info';
+import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'license-details',
@@ -23,14 +25,15 @@ export class LicenseDetails {
     isAdmin: boolean;
 
     columns = [
-        {header: 'Navn', field: 'User.Name'},
-        {header: 'Epost', field: 'User.Email'},
-        {header: 'Telefon', field: 'User.Phone'},
+        { header: 'Navn', field: 'User.Name' },
+        { header: 'Epost', field: 'User.Email' },
+        { header: 'Telefon', field: 'User.Phone' },
     ];
 
     mainCompany: ElsaCompanyLicense;
     mainCompanyKey: string;
     mainCompanyEditMode: boolean;
+    twoFactorEnabled: boolean;
     companyLicenses: ElsaCompanyLicense[];
     contextMenu;
 
@@ -41,10 +44,18 @@ export class LicenseDetails {
         private elsaContractService: ElsaContractService,
         private errorService: ErrorService,
         private licenseInfo: LicenseInfo,
+        private toastService: ToastService,
     ) {
         this.licenseInfo.selectedContractID$.subscribe(id => {
             this.contractID = id;
             this.loadData();
+            this.loadTwoFactorData();
+        });
+    }
+
+    loadTwoFactorData() {
+        this.elsaContractService.get(this.contractID).subscribe(res => {
+            this.twoFactorEnabled = res.TwoFactorEnabled;
         });
     }
 
@@ -133,5 +144,58 @@ export class LicenseDetails {
         } else {
             this.filteredManagers = this.customer.Managers || [];
         }
+    }
+
+    twoFactorEnabledChange() {
+        let header, message;
+        if (this.twoFactorEnabled) {
+            header = `Slå på to-faktor pålogging for ${this.customer?.Name}`;
+            message = `Ved å slå på to-faktor pålogging for lisensen,
+            slår du på to-faktor pålogging for alle selskaper og alle brukere på lisensen.
+            Ønsker du å slå på to-faktor pålogging? <br><br>`;
+        } else {
+            header = `Slå av to-faktor pålogging for ${this.customer?.Name}`;
+            message = `Ved å slå av to-faktor pålogging for lisensen,
+            slår du det også av for alle selskaper på denne lisensen.
+            En kan slå det på for hvert enkelt selskap om en ønsker det.
+            Brukere som ikke ønsker to-faktor pålogging mer må slå det av selv.
+            Ønsker du å slå av to-faktor pålogging for lisensen? <br><br>`;
+        }
+
+        const onOffLabel = this.twoFactorEnabled ? 'på' : 'av';
+
+        this.modalService.confirm({
+            header: header,
+            message: message,
+            closeOnClickOutside: true,
+            closeOnEscape: true,
+            footerCls: 'center',
+            buttonLabels: {
+                accept: `Slå ${onOffLabel} to-faktor pålogging`,
+                reject: 'Avbryt'
+            }
+        }).onClose.subscribe(res => {
+            if (res === ConfirmActions.ACCEPT) {
+                this.elsaContractService.updateTwoFactorAuthentication(
+                    this.contractID, { TwoFactorEnabled: this.twoFactorEnabled }
+                ).subscribe(
+                    () => {
+                        this.toastService.addToast(
+                            'To-faktor',
+                            ToastType.good,
+                            ToastTime.short,
+                            `To-faktor pålogging er slått ${onOffLabel} for ${this.customer?.Name}`
+                        );
+                    }, err => {
+                        this.errorService.handle(err);
+                        // Reset toggle button value
+                        this.twoFactorEnabled = !this.twoFactorEnabled;
+                    }
+                );
+            } else {
+                // Reset toggle button value
+                this.twoFactorEnabled = !this.twoFactorEnabled;
+            }
+        });
     }
 }

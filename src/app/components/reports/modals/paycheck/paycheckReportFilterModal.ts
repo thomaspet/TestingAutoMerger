@@ -1,17 +1,15 @@
 import {Component, OnInit, ViewChild, Type, Input, OnDestroy} from '@angular/core';
 import {UniModal} from '../../../../../framework/modals/modal';
 import {ReportDefinition, ReportDefinitionParameter, PayrollRun, Employee} from '../../../../unientities';
-import {
-    ReportDefinitionParameterService,
-    FinancialYearService,
-    ErrorService,
-    PayrollrunService,
-    EmployeeService
-} from '../../../../services/services';
+
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
+import {
+    ReportDefinitionParameterService, FinancialYearService, ErrorService, SharedPayrollRunService, EmployeeService
+} from '@app/services/services';
+
 
 interface IModalConfig  {
     report: any;
@@ -47,7 +45,7 @@ export class PaycheckReportFilterModalContent implements OnInit, OnDestroy {
     public params$: BehaviorSubject<IHash> = new BehaviorSubject<IHash>([]);
 
     constructor(
-        private payrollRunService: PayrollrunService,
+        private payrollRunService: SharedPayrollRunService,
         private financialYearService: FinancialYearService,
         private employeeService: EmployeeService,
         private errorService: ErrorService) { }

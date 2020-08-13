@@ -318,7 +318,8 @@ export class Expense implements OnInit {
         file = file || (this.files && this.files[0]);
 
         return new Promise( (resolve, reject) => {
-            if (!file) { resolve(false); return; }
+            if (!file || !file.StorageReference) { resolve(false); return; }
+
             this.toast.addToast('OCR-scann startet', ToastType.good, 5);
             this.uniFilesService.runOcr(file.StorageReference).subscribe(
                 (result: IOcrServiceResult) => {

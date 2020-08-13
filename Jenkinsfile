@@ -113,6 +113,10 @@ pipeline {
                 sourceFiles: OUT_FILE
                 ), 
                 sshTransfer(
+                execCommand: """sudo find /var/www/html -mtime +30 -type f -delete""", 
+                execTimeout: 120000, 
+                ),
+                sshTransfer(
                 execCommand: """sudo unzip -o ~/${OUT_FILE} -d /var/www/html/""", 
                 execTimeout: 120000, 
                 ),

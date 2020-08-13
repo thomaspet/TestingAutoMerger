@@ -43,11 +43,11 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
     lastStep = STEPS.selectProducts;
     companyLimitReached: boolean;
 
-    customers: ElsaCustomer[];
     templateCompanies: Company[];
     products: ElsaProduct[];
     roles: Role[] = [];
 
+    currentContractID: number;
     selectedContract: ElsaContract;
     selectedTemplateCompany: Company;
     selectedProductsNames: string[] = [];
@@ -71,35 +71,23 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
 
     ngOnInit() {
         this.busy = true;
-        forkJoin(
-            this.elsaCustomerService.getAll('Contracts'),
-            this.companyService.GetAll()
-        ).subscribe(
+        const modalData = this.options && this.options.data || {};
+        if (modalData.contractID) {
+            this.currentContractID = modalData.contractID;
+        }
+        this.companyService.GetAll().subscribe(
             res => {
-                this.customers = res[0] || [];
-
-                const modalData = this.options && this.options.data || {};
-                if (modalData.contractID) {
-                    this.customers.forEach(customer => {
-                        const contract = customer.Contracts.find(c => c.ID === modalData.contractID);
-                        if (contract) {
-                            this.selectedContract = contract;
-                            this.onContractSelected(contract);
-                        }
-                    });
-                }
-
-                this.templateCompanies = (res[1] || []).filter(c => c.IsTemplate);
+                this.templateCompanies = res.filter(c => c.IsTemplate);
                 this.busy = false;
             },
             err => {
                 this.errorService.handle(err);
-                this.customers = [];
                 this.templateCompanies = [];
                 this.busy = false;
             }
         );
 
+        this.elsaProductService.invalidateCache();
         this.elsaProductService.GetAll().subscribe(
             res => this.products = (res || []).filter(p => p.ProductType === ElsaProductType.Module),
             err => this.errorService.handle(err)
@@ -121,8 +109,13 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
     onCompanyInfoChange() {
         const hasTemplateCompanies = this.templateCompanies && this.templateCompanies.length;
         const creatingTemplate = this.companyInfo && this.companyInfo.isTemplate;
+        this.selectedTemplateCompany = undefined;
         this.lastStep = hasTemplateCompanies && !creatingTemplate
             ? STEPS.selectTemplate : STEPS.selectProducts;
+    }
+
+    onTemplateSelected(template) {
+        this.selectedTemplateCompany = template;
     }
 
     createCompany() {

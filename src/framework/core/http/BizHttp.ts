@@ -122,7 +122,7 @@ export class BizHttp<T> {
             .asGET()
             .withEndPoint(jobID.toString())
             .send()
-            .repeatWhen(c => c.debounceTime(1000))
+            .repeatWhen(c => c.debounceTime(5000))
             .skipWhile(status => status.body.Completed !== true)
             .take(1)
             .map(response => response.body);

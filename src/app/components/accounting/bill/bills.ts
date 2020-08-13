@@ -25,7 +25,7 @@ import {
     ReInvoicingService,
     BrowserStorageService
 } from '../../../services/services';
-import {UniImage} from '../../../../framework/uniImage/uniImage';
+import {UniImage, FileExtended} from '../../../../framework/uniImage/uniImage';
 import * as moment from 'moment';
 import {FieldType} from '../../../../framework/ui/uniform/field-type.enum';
 import {Observable, BehaviorSubject, Subject, of as observableOf} from 'rxjs';
@@ -57,10 +57,12 @@ interface ISearchParams {
 
 @Component({
     selector: 'uni-bills',
-    templateUrl: './bills.html'
+    templateUrl: './bills.html',
 })
 export class BillsView implements OnInit {
     @ViewChild(UniImage) public uniImage: UniImage;
+
+    public busy: boolean = false;
 
     public loading$: Subject<boolean> = new Subject();
 
@@ -142,6 +144,12 @@ export class BillsView implements OnInit {
         });
     }
 
+    onFileListReady(files: FileExtended[]) {
+        if (files) {
+            this.busy = false;
+        }
+    }
+
     public ngOnInit() {
         // Remove inbox from filters if SR-environment
         if (theme.theme === THEMES.SR) {
@@ -166,6 +174,7 @@ export class BillsView implements OnInit {
     }
 
     public onRowClick(item) {
+        this.busy = true;
         if (item) {
             if (this.currentFilter.name === 'Inbox') {
                 this.previewVisible = true;

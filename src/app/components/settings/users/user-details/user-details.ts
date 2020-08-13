@@ -43,7 +43,8 @@ export class UserDetails {
     @Output() activateUser: EventEmitter<any> = new EventEmitter();
     @Output() deactivateUser: EventEmitter<any> = new EventEmitter();
     @Output() reloadUsers: EventEmitter<any> = new EventEmitter();
-    @Output() resendInvite: EventEmitter<User> = new EventEmitter<User>();
+    @Output() resendInvite: EventEmitter<string> = new EventEmitter<string>();
+    @Output() cancelInvite: EventEmitter<string> = new EventEmitter<string>();
 
     busy: boolean;
     scrollbar: PerfectScrollbar;
@@ -108,10 +109,16 @@ export class UserDetails {
 
         // Invited user
         if (this.user.StatusCode === UserStatus.Invited) {
-            actions.push({
-                label: 'Send ny invitasjon',
-                action: () => this.resendInvite.emit(this.user),
-            });
+            actions.push(
+                {
+                    label: 'Send ny invitasjon',
+                    action: () => this.resendInvite.emit(this.user.Email),
+                },
+                {
+                    label: 'Avbryt invitasjon',
+                    action: () => this.cancelInvite.emit(this.user.Email),
+                },
+            );
         }
 
         // Deactivated user

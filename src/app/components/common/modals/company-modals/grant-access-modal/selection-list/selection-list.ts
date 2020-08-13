@@ -4,6 +4,7 @@ import {
     Output,
     EventEmitter,
     ChangeDetectionStrategy,
+    ChangeDetectorRef,
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 
@@ -17,6 +18,7 @@ export class GrantAccessSelectionList {
     @Input() labelProperty: string;
     @Input() secondLabelProperty?: string;
     @Input() items: any[];
+    @Input() busy: boolean;
     @Output() itemsChange: EventEmitter<any[]> = new EventEmitter();
 
     checkAll: boolean;
@@ -24,15 +26,19 @@ export class GrantAccessSelectionList {
     filterControl: FormControl = new FormControl('');
     filteredItems: any[];
 
-    constructor() {
+    constructor(private cdr: ChangeDetectorRef) {
         this.filterControl.valueChanges
-            .debounceTime(200)
+            .debounceTime(100)
             .distinctUntilChanged()
-            .subscribe(value => this.filterItems(value));
+            .subscribe(value => {
+                this.filterItems(value);
+                this.cdr.markForCheck();
+            });
     }
 
     ngOnChanges() {
         this.filteredItems = this.items;
+        this.cdr.markForCheck();
     }
 
     onCheckAllChange() {
@@ -42,12 +48,11 @@ export class GrantAccessSelectionList {
     }
 
     onItemSelectionChange(item) {
-        item['_selected'] = !item['_selected'];
-
         this.checkAll = !!item['_selected']
             ? this.items.every(i => !!i['_selected'])
             : false;
 
+        this.cdr.markForCheck();
         this.itemsChange.emit(this.items);
     }
 
