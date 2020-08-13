@@ -25,10 +25,14 @@ export class OpeningBalanceComponent {
             label: `Lagre og Bokfør`,
             action: (done) => this.saveAndPost().pipe(
                 switchMap((posts => this.modalService.open(GoToPostModal,{data: {postNumber: posts[0].JournalEntryNumber}}).onClose)),
-            ).subscribe(() => {
+            ).subscribe((result: any) => {
                 done('Lagret og bokført');
                 this.disableSaveButton();
-                this.router.navigateByUrl('/');
+                if (!result) {
+                    this.router.navigateByUrl('/');
+                } else {
+                    this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${result.postNumber}&AccountYear=${result.financialYear}`);
+                }
             }, err => this.errorHandler.handleError(err)),
             main: true,
             disabled: true

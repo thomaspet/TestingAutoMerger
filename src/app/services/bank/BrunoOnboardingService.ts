@@ -10,7 +10,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
 import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { map, catchError, switchMap } from 'rxjs/operators';
-import {BrunoBankOnboardingModal} from '@uni-framework/uni-modal/modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
+import { BrunoBankOnboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
 
 @Injectable()
 export class BrunoOnboardingService {
@@ -140,4 +140,45 @@ export class BrunoOnboardingService {
         );
     }
 
+    public RequestBankintegrationChange(agreement: BankIntegrationAgreement) {
+        return new Observable(observer => {
+            if (!agreement.HasOrderedIntegrationChange) {
+                this.bankService.setBankIntegrationChangeAgreement(true).subscribe(() => {
+                    this.modalService.open(BrunoBankOnboardingModal, {
+                        data: agreement
+                    }).onClose.subscribe((externalOnboardingOpened) => {
+                        if (externalOnboardingOpened) {
+                            this.authService.reloadCurrentSession().subscribe(() => {
+                                observer.next(agreement);
+                                observer.complete();
+                            });
+                        } else {
+                            // Reset the newly changed agreement if the user just closed
+                            // the dialog without going to the external onboarding step.
+                            this.bankService.setBankIntegrationChangeAgreement(false).subscribe(
+                                () => {
+                                    observer.next(null);
+                                    observer.complete();
+                                },
+                                err => {
+                                    console.error(err);
+                                    observer.next(null);
+                                    observer.complete();
+                                }
+                            );
+                        }
+                    });
+                });
+            } else {
+                this.modalService.open(BrunoBankOnboardingModal, {
+                    data: agreement
+                }).onClose.subscribe((externalOnboardingOpened) => {
+                    if (externalOnboardingOpened) {
+                        observer.next(agreement);
+                        observer.complete();
+                    }
+                });
+            }
+        });
+    }
 }

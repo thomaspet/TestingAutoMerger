@@ -1,4 +1,4 @@
-<uni-toolbar [config]="{ title: 'SETTINGS.BANK' }" [saveactions]="saveActions"></uni-toolbar>
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 
 <section class="container-fluid uni-grid-container">
 
@@ -9,7 +9,11 @@
     </uni-tabs>
 
     <ng-container *ngIf="activeIndex === 0 && companySettings">
-        <bank-setttings-accountlist *ngIf="isExt02Environment" [(companySettings)]="companySettings" (changeAccount)="setAsDirty()"> </bank-setttings-accountlist>
+        <bank-setttings-accountlist *ngIf="isExt02Environment" 
+        [(companySettings)]="companySettings"
+        (changeAccount)="setAsDirty()"
+        (orderedIntegrationChange)="onOrderedIntegrationChange()"> 
+        </bank-setttings-accountlist>
 
         <!-- BANKKONTOER -->
         <section class="row form-row last" *ngIf="!isExt02Environment">
