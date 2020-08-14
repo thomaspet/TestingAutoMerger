@@ -4,18 +4,17 @@ import {ReportTypeEnum} from '@app/models/reportTypeEnum';
 import {CompanySettings} from '@uni-entities';
 import { Observable, BehaviorSubject } from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-report-settings',
     templateUrl: './report-setup.html',
     styleUrls: ['./report-setup.sass']
 })
-
 export class UniReportSettingsView {
+    @Input() companySettings$ = new BehaviorSubject<CompanySettings>(null);
 
-    @Input()
-    companySettings$ = new BehaviorSubject<CompanySettings>(null);
-
+    isBrunoEnv = theme.theme === THEMES.EXT02;
     isDirty: boolean;
 
     quoteFormList: any[];

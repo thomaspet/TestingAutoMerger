@@ -18,7 +18,7 @@
     </section>
 
     <section class="uni-card-content" *ngIf="template?.CustomerInvoice && isOpen[1]">
-        <label class="uni-label">
+        <label *ngIf="!isBrunoEnv" class="uni-label">
             <span>Standard blankett</span>
             <uni-select
                 [config]="formComfig"
@@ -43,7 +43,7 @@
     </section>
 
     <section class="uni-card-content" *ngIf="template?.CustomerOrder && isOpen[2]">
-        <label class="uni-label">
+        <label *ngIf="!isBrunoEnv" class="uni-label">
             <span>Standard blankett</span>
             <uni-select
                 [config]="formComfig"
@@ -68,7 +68,7 @@
     </section>
 
     <section class="uni-card-content" *ngIf="template?.CustomerQuote && isOpen[3]">
-        <label class="uni-label">
+        <label *ngIf="!isBrunoEnv" class="uni-label">
             <span>Standard blankett</span>
             <uni-select
                 [config]="formComfig"
@@ -84,7 +84,7 @@
     </section>
 </section>
 
-<section *ifFeaturePermission="'ui.sales.reminders'" class="uni-card collapsable">
+<section *ngIf="!isBrunoEnv" class="uni-card collapsable">
     <section class="uni-card-header" [class.is-open]="isOpen[4]" (click)="isOpen[4] = !isOpen[4]">
         <h1> {{ 'NAVBAR.REMINDER' | translate }} </h1>
         <button class="tertiary c2a pull-right">
