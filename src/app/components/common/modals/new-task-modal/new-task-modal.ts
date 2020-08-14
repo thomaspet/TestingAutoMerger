@@ -4,6 +4,8 @@ import {Task, User, TaskStatus} from '@uni-entities';
 import {UserService, ErrorService, TaskService} from '@app/services/services';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Observable} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'new-task-modal',
@@ -18,6 +20,7 @@ export class NewTaskModal implements IUniModal {
     newTask: Task = new Task();
     currentUser: User;
     users: User[] = [];
+    hideAssign: boolean = theme.theme === THEMES.EXT02 && !this.featurePermissionService.canShowRoute('ui_assignments');
     userSelectConfig: any = {
         displayProperty: 'DisplayName',
         searchable: true,
@@ -28,7 +31,8 @@ export class NewTaskModal implements IUniModal {
         private userService: UserService,
         private taskService: TaskService,
         private errorService: ErrorService,
-        private toast: ToastService
+        private toast: ToastService,
+        private featurePermissionService: FeaturePermissionService
     ) { }
 
     ngOnInit() {

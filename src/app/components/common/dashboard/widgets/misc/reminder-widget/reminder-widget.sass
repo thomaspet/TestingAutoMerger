@@ -19,10 +19,18 @@
     & + .reminder-item
         border-top: 1px solid var(--border-color)
 
-    i, uni-icon
+    i,uni-icon
         flex: 0 0 auto
         margin-right: 1rem
         color: var(--color-c2a)
+
+    &.task-span-title
+        span
+            flex: 1
+
+        .finish-icon
+            &:hover
+                color: var(--button-c2a-hover)
 
     &.duedate-item
         padding: .75rem .5rem

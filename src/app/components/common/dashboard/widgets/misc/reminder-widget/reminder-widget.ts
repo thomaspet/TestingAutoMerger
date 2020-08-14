@@ -5,12 +5,14 @@ import {DashboardDataService} from '../../../dashboard-data.service';
 
 import PerfectScrollbar from 'perfect-scrollbar';
 import * as moment from 'moment';
-import {ApprovalService} from '@app/services/services';
+import {ApprovalService, TaskService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {ApprovalStatus, Task, Approval, FinancialDeadline} from '@uni-entities';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {NewTaskModal} from '@app/components/common/modals/new-task-modal/new-task-modal';
+import { Router } from '@angular/router';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'reminder-widget',
@@ -47,7 +49,10 @@ export class ReminderWidget {
         private authService: AuthService,
         private dataService: DashboardDataService,
         private approvalService: ApprovalService,
-        private cdr: ChangeDetectorRef
+        private taskService: TaskService,
+        private toast: ToastService,
+        private cdr: ChangeDetectorRef,
+        private router: Router
     ) {}
 
     ngAfterViewInit() {
@@ -211,6 +216,25 @@ export class ReminderWidget {
                 return of([]);
             })
         );
+    }
+
+    onTaskClicked() {
+        this.router.navigateByUrl('/assignments/tasks');
+    }
+
+    quickApproveTask(task: Task, event, index) {
+        event.stopPropagation();
+        task['_completed'] = true;
+
+        this.taskService.PostAction(task.ID, 'complete').subscribe(res => {
+            this.toast.addToast('Oppgave satt som fullført.', ToastType.good, 8, `Oppgave "${task.Title}" ferdigstilt og markert som fullført.`);
+            setTimeout(() => {
+                this.tasks.splice(index, 1);
+                this.cdr.markForCheck();
+            }, 1500);
+        }, err => {
+            this.toast.addToast('Noe gikk galt', ToastType.good, 8, `Kunne ikke markere oppgave som fullført. Prøv igjen senere`);
+        });
     }
 
     createTask() {

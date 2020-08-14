@@ -29,7 +29,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
     routes: [
         'ui_overview',
         'ui_uniqueries',
-        'ui_assignments',
+        'ui_assignments_*',
         'ui_sharings',
         'ui_admin_flow',
         'ui_admin_jobs',

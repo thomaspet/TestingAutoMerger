@@ -6,7 +6,7 @@
             <input #textInput type="text"[(ngModel)]="newTask.Title" placeholder="Oppgavetekst" (keydown.enter)="save()">
         </label>
 
-        <label>
+        <label *ngIf="!hideAssign">
             <span>Tildel til</span>
             <uni-select class="drop-up"
                 [config]="userSelectConfig"
