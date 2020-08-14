@@ -37,7 +37,7 @@
 
         <section class="details-top-section">
             <strong> Innkommende balanse:  </strong>
-            <span style="flex: 1;" [ngClass]="incommingBalance >= 0 ? 'good' : 'bad'"> {{ (incommingBalance | uninumberformat: 'money') || '0,00' }}  </span>
+            <span style="flex: 1;" [ngClass]="incommingBalance >= 0 ? 'good' : 'bad'"> {{ incommingBalance | uninumberformat: 'money' }}  </span>
             <a href="/#/bank/reconciliationmatch?accountid={{currentAccount.AccountID}}" *ngIf="currentAccount.count"> Avstem {{ currentAccount.count }} ventende poster </a>
             <button class="c2a" (click)="openReport()"> <i class="material-icons">cloud_download</i> Eksporter rapport </button>
         </section>
@@ -59,9 +59,9 @@
                     <tr *ngFor="let month of reportData; let i = index;">
                         <td> {{ month.Period }} </td>
                         <td> {{ month.NumberOfUnReconciled }} </td>
-                        <td [ngClass]="month.TotalUnreconciled >= 0 ? 'good' : 'bad'"> {{ (month.TotalUnreconciled | uninumberformat: 'money') || '0,00' }}</td>
+                        <td [ngClass]="month.TotalUnreconciled >= 0 ? 'good' : 'bad'"> {{ month.TotalUnreconciled | uninumberformat: 'money' }}</td>
                         <td> {{ month.NumberOfItems }} </td>
-                        <td [ngClass]="month.TotalAmount >= 0 ? 'good' : 'bad'"> {{ (month.TotalAmount | uninumberformat: 'money') || '0,00' }} </td>
+                        <td [ngClass]="month.TotalAmount >= 0 ? 'good' : 'bad'"> {{ month.TotalAmount | uninumberformat: 'money' }} </td>
                     </tr>
                 </tbody>
             </table>

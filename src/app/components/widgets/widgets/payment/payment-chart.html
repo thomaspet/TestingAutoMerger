@@ -32,7 +32,7 @@
                 <span>{{tooltip.label}}</span>
                 <section class="data-row">
                     <span>Totalt innbetalt: </span>
-                    <span>{{( tooltip.incomming | uninumberformat:'money') || '0,00' }}</span>
+                    <span>{{ tooltip.incomming | uninumberformat:'money' }}</span>
                 </section>
 
                 <section class="data-row">
@@ -42,7 +42,7 @@
 
                 <section class="data-row">
                     <span>Totalt utbetalt</span>
-                    <span>{{( tooltip.outgoing | uninumberformat:'money') || '0,00' }}</span>
+                    <span>{{ tooltip.outgoing | uninumberformat:'money' }}</span>
                 </section>
 
                 <section class="data-row">

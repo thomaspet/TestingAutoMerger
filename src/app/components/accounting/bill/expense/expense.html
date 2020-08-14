@@ -21,7 +21,7 @@
                 <expense-entries [session]="session"></expense-entries>
                 <footer>
                     <span>Totalsum</span>
-                    <span>{{(session.balance | uninumberformat: 'money') || '0,00'}}</span>
+                    <span>{{session.balance | uninumberformat: 'money'}}</span>
                 </footer>
             </section>
         </section>

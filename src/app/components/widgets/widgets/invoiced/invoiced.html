@@ -32,17 +32,17 @@
                 <span>{{tooltip.label}}</span>
                 <section class="data-row">
                     <span>Fakturert</span>
-                    <span>{{(tooltip.invoiced | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.invoiced | uninumberformat:'money'}}</span>
                 </section>
 
                 <section class="data-row">
                     <span>Innbetalt</span>
-                    <span>{{(tooltip.paid | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.paid | uninumberformat:'money'}}</span>
                 </section>
 
                 <section class="data-row">
                     <span>Utestående</span>
-                    <span>{{(tooltip.unpaid | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.unpaid | uninumberformat:'money'}}</span>
                 </section>
             </section>
             <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>

@@ -27,48 +27,48 @@
                 <tbody>
                     <tr>
                         <td> Kunde </td>
-                        <td> {{ data[0].Custumer | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[1].Custumer | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[2].Custumer | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[3].Custumer | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[0].Custumer | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[1].Custumer | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[2].Custumer | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[3].Custumer | uninumberformat: 'rounded' }} </td>
                     </tr>
                     <tr>
                         <td> Leverandør </td>
-                        <td> {{ data[0].Supplier | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[1].Supplier | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[2].Supplier | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[3].Supplier | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[0].Supplier | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[1].Supplier | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[2].Supplier | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[3].Supplier | uninumberformat: 'rounded' }} </td>
                     </tr>
                     <tr>
                         <td> Mva </td>
-                        <td> {{ data[0].VAT | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[1].VAT | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[2].VAT | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[3].VAT | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[0].VAT | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[1].VAT | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[2].VAT | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[3].VAT | uninumberformat: 'rounded' }} </td>
                     </tr>
 
                     <tr>
                         <td> <span (click)="addCustomerPayment(false)" class="other-link"> Andre </span> <i class="material-icons new-custom-payment" (click)="addCustomerPayment()" title="Legg til ny betaling i prognosen"> add_circle_outline </i> </td>
-                        <td> {{ data[0].CustomPayments | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[1].CustomPayments | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[2].CustomPayments | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[3].CustomPayments | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[0].CustomPayments | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[1].CustomPayments | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[2].CustomPayments | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[3].CustomPayments | uninumberformat: 'rounded' }} </td>
                     </tr>
 
                     <tr class="sum-row">
                         <td> Sum </td>
-                        <td> {{ data[0].Sum | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[1].Sum | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[2].Sum | uninumberformat: 'money': 0 }} </td>
-                        <td> {{ data[3].Sum | uninumberformat: 'money': 0 }} </td>
+                        <td> {{ data[0].Sum | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[1].Sum | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[2].Sum | uninumberformat: 'rounded' }} </td>
+                        <td> {{ data[3].Sum | uninumberformat: 'rounded' }} </td>
                     </tr>
 
                     <tr class="liquidity-row">
                         <td> Likviditet </td>
-                        <td [ngClass]="data[0].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[0].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
-                        <td [ngClass]="data[1].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[1].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
-                        <td [ngClass]="data[2].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[2].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
-                        <td [ngClass]="data[3].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[3].Liquidity | uninumberformat: 'money': 0) || 0 }} </td>
+                        <td [ngClass]="data[0].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[0].Liquidity | uninumberformat: 'rounded') || 0 }} </td>
+                        <td [ngClass]="data[1].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[1].Liquidity | uninumberformat: 'rounded') || 0 }} </td>
+                        <td [ngClass]="data[2].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[2].Liquidity | uninumberformat: 'rounded') || 0 }} </td>
+                        <td [ngClass]="data[3].Liquidity > 0 ? 'good' : 'bad'"> {{ (data[3].Liquidity | uninumberformat: 'rounded') || 0 }} </td>
                     </tr>
 
                 </tbody>

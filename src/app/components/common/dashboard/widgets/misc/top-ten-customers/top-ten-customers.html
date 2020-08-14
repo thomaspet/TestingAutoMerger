@@ -1,0 +1,43 @@
+<section class="header">
+    <h1>10 største kunder</h1>
+
+    <button #toggle class="secondary pull-right">
+        {{year}}
+        <i class="material-icons">expand_more</i>
+    </button>
+    <dropdown-menu [trigger]="toggle">
+        <ng-template>
+            <section class="dropdown-menu-item center"
+                *ngFor="let year of years"
+                (click)="onYearSelected(year)">
+                {{year}}
+            </section>
+        </ng-template>
+    </dropdown-menu>
+</section>
+
+<section class="content">
+    <widget-empty-state *ngIf="!loading && !data?.length">
+        Det ser ikke ut som du har noen aktive kunder.
+    </widget-empty-state>
+
+    <simple-table *ngIf="!loading && data?.length" class="selectable">
+        <thead>
+            <tr>
+                <th>Kunde</th>
+                <th class="align-right">Fakturert {{year}}</th>
+                <th class="align-right">Fakturert {{year - 1}}</th>
+                <th class="align-right">Utestående</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let item of data" (click)="goToCustomer(item)">
+                <td>{{item.CustomerNumber}} - {{item.Name}}</td>
+                <td class="align-right">{{item.SumThisYear | uninumberformat: 'money'}}</td>
+                <td class="align-right">{{item.SumLastYear | uninumberformat: 'money'}}</td>
+                <td class="align-right">{{item.SumUnpaid | uninumberformat: 'money'}}</td>
+            </tr>
+        </tbody>
+    </simple-table>
+</section>

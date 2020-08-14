@@ -26,7 +26,7 @@ export class NumberFormat {
     }
 
 
-    public asMoney(value: number, options?: INumberOptions): string {
+    public asMoney(value: number, options?: INumberOptions, showNullAsZero = false): string {
         options = options || {};
         options = {
             thousandSeparator: typeof options.thousandSeparator === 'string' ? options.thousandSeparator : THINSPACE,
@@ -34,7 +34,7 @@ export class NumberFormat {
             decimalLength: options.decimalLength === undefined ? 2 : options.decimalLength
         };
 
-        return this.formatter(value, options);
+        return this.formatter(value, options, showNullAsZero);
     }
 
     public asOrgNo(value: number) {
@@ -58,12 +58,12 @@ export class NumberFormat {
         }
     }
 
-    private formatter(value: number, options: INumberOptions) {
-        if (!value && value !== 0) {
+    private formatter(value: number, options: INumberOptions, showNullAsZero = false) {
+        if (!value && value !== 0 && !showNullAsZero) {
             return '';
         }
 
-        let stringValue = value.toString().replace(',', '.');
+        let stringValue = (value || 0).toString().replace(',', '.');
         stringValue = parseFloat(stringValue).toFixed(options.decimalLength);
 
         let [integer, decimal] = stringValue.split('.');

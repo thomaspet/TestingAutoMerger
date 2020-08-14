@@ -23,6 +23,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'INVOICED',
             'UNPAID',
+            'TOP_TEN_CUSTOMERS',
         ]
     },
     accounting: {

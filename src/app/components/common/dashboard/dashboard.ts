@@ -1,4 +1,4 @@
-import {Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild, ElementRef, Input} from '@angular/core';
+import {Component, ChangeDetectorRef, ChangeDetectionStrategy, Input} from '@angular/core';
 import * as Muuri from 'muuri';
 import {WidgetDefinition} from './models';
 import {WIDGET_DEFINITIONS} from './widgets';
@@ -8,13 +8,14 @@ import './rounded-bar-chart';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {WidgetSelectorDialog} from './widget-selector-dialog/widget-selector-dialog';
 import {DashboardDataService} from './dashboard-data.service';
-import {Subscription, interval} from 'rxjs';
+import {Subscription} from 'rxjs';
 import {UserDto} from '@uni-entities';
 import {AuthService} from '@app/authService';
 import {cloneDeep} from 'lodash';
 
 export interface DashboardConfig {
     storageKey: string;
+    header: string;
     layout: string[] | ((user?: UserDto) => string[]);
 }
 

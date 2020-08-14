@@ -11,7 +11,7 @@
         <span>{{selectedItems?.length || 0}} av {{totalRowCount || 0}}</span>
 
         <strong>Totalsum:</strong>
-        <span>{{(selectedItemSum | uninumberformat: 'money') || '0,00'}}</span>
+        <span>{{selectedItemSum | uninumberformat: 'money'}}</span>
     </section>
 
     <section class="table-container">

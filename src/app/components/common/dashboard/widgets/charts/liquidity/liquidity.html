@@ -14,7 +14,7 @@
 
     <ng-container *ngIf="hasData">
         <section class="bank-balance-section">
-            {{bankBalanceText}} <strong *ngIf="bankBalance !== undefined">{{(bankBalance | uninumberformat: 'money') || '0,00'}}</strong>
+            {{bankBalanceText}} <strong *ngIf="bankBalance !== undefined">{{bankBalance | uninumberformat: 'money'}}</strong>
         </section>
 
         <table *ngIf="viewMode === 'table'">

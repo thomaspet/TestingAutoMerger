@@ -16,12 +16,12 @@
             <section class="chart-legend horizontal">
                 <section class="chart-legend-item">
                     <span class="indicator" [style.background]="colors[0]"></span>
-                    <span class="label">Betalt: {{(sumPaid | uninumberformat: 'money') || '0,00'}}</span>
+                    <span class="label">Betalt: {{sumPaid | uninumberformat: 'money'}}</span>
                 </section>
 
                 <section class="chart-legend-item">
                     <span class="indicator bordered" [style.background]="colors[1]"></span>
-                    <span class="label">Fakturert: {{(sumInvoiced | uninumberformat: 'money') || '0,00'}}</span>
+                    <span class="label">Fakturert: {{sumInvoiced | uninumberformat: 'money'}}</span>
                 </section>
             </section>
 
@@ -29,23 +29,23 @@
             <section class="chart-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
                 <section class="data-row">
                     <span>Fakturert</span>
-                    <span>{{(tooltip.invoiced | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.invoiced | uninumberformat:'money'}}</span>
                 </section>
 
                 <section class="data-row">
                     <span>Innbetalt</span>
-                    <span>{{(tooltip.paid | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.paid | uninumberformat:'money'}}</span>
                 </section>
 
                 <section class="data-row">
                     <span>Utestående</span>
-                    <span>{{(tooltip.unpaid | uninumberformat:'money') || '0,00'}}</span>
+                    <span>{{tooltip.unpaid | uninumberformat:'money'}}</span>
                 </section>
             </section>
         </section>
 
         <section class="overdue-section">
-            <section class="sum">{{(sumOverdue | uninumberformat: 'money') || '0,00'}}</section>
+            <section class="sum">{{sumOverdue | uninumberformat: 'money'}}</section>
 
             <section>
                 Restsum forfalte fakturaer

@@ -1,20 +1,40 @@
+import {UserDto} from '@uni-entities';
+
 export const DASHBOARD_CONFIGS = {
     main: {
         header: 'Hjem',
         storageKey: 'main_dashboard',
-        layout: [
-            'BANK_BALANCE',
-            'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
+        layout: (user: UserDto) => {
+            const contractType = user?.License?.ContractType?.TypeName?.toLowerCase();
 
-            'INVOICED',
-            'UNPAID_BILLS',
+            if (contractType === 'mini') {
+                return [
+                    'BANK_BALANCE',
+                    'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
 
-            'OPERATING_PROFITS',
-            'BRUNO_ACCOUNTING_SERVICES',
+                    'INVOICED',
+                    'UNPAID_BILLS',
 
-            'LIQUIDITY',
-            'UNPAID',
-        ]
+                    'OPERATING_PROFITS',
+                    'BRUNO_ACCOUNTING_SERVICES',
+                ];
+            } else {
+                return [
+                    'BANK_BALANCE',
+                    'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
+
+                    'INVOICED',
+                    'UNPAID_BILLS',
+
+                    'OPERATING_PROFITS',
+                    'BRUNO_ACCOUNTING_SERVICES',
+
+                    'LIQUIDITY',
+                    'UNPAID',
+                    'TOP_TEN_CUSTOMERS',
+                ];
+            }
+        }
     },
     sales: {
         header: 'Salg',
@@ -22,6 +42,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'INVOICED',
             'UNPAID',
+            'TOP_TEN_CUSTOMERS',
         ]
     },
     accounting: {

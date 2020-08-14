@@ -23,18 +23,14 @@ export class UniNumberFormatPipe implements PipeTransform {
         });
     }
 
-    public transform(value: number, format: string, numberOfDecimals: number): string {
+    public transform(value: number, format: string, showNullAsZero = true): string {
         try {
-            if (!value && value !== 0) {
+            if (!value && value !== 0 && !showNullAsZero) {
                 return '';
             }
 
             let numberFormatOptions;
-            if (numberOfDecimals >= 0) {
-                numberFormatOptions = {
-                    decimalLength: numberOfDecimals
-                };
-            } else if (this.settings) {
+            if (this.settings) {
                 numberFormatOptions = {
                     decimalLength: this.settings.ShowNumberOfDecimals
                 };
@@ -49,7 +45,7 @@ export class UniNumberFormatPipe implements PipeTransform {
                     };
                     return this.numberFormat.asPercentage(value, numberFormatOptions);
                 case 'money':
-                    return this.numberFormat.asMoney(value, numberFormatOptions);
+                    return this.numberFormat.asMoney(value, numberFormatOptions, showNullAsZero);
                 case 'orgno':
                     return this.numberFormat.asOrgNo(value);
                 case 'bankacct':

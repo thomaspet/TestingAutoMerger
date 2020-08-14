@@ -12,7 +12,7 @@
 
 <section *ngIf="!loading && hasData" class="footer border-top">
     <section class="footer-sum-item">
-        <span class="value">{{(notOverdue | uninumberformat: 'money') || '0,00'}}</span>
+        <span class="value">{{notOverdue | uninumberformat: 'money'}}</span>
         <span class="label">
             <span class="indicator" [style.background]="colors[0]"></span>
             Ikke forfalt
@@ -20,7 +20,7 @@
     </section>
 
     <section class="footer-sum-item">
-        <span class="value">{{(overdue | uninumberformat: 'money') || '0,00'}}</span>
+        <span class="value">{{overdue | uninumberformat: 'money'}}</span>
         <span class="label">
             <span class="indicator" [style.background]="colors[1]"></span>
             Forfalt

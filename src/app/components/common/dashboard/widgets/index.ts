@@ -13,6 +13,7 @@ import {THEMES, theme} from 'src/themes/theme';
 import {LiquidityWidget} from './charts/liquidity/liquidity';
 import {EmployeesWidget} from './misc/employees/employees-widget';
 import {EmploymentsPerJobCodeWidget} from './charts/employments-per-job-code/employments-per-job-code';
+import {TopTenCustomersWidget} from './misc/top-ten-customers/top-ten-customers';
 
 export * from './widget';
 
@@ -32,6 +33,7 @@ export const WIDGET_COMPONENTS = [
     LiquidityWidget,
     EmployeesWidget,
     EmploymentsPerJobCodeWidget,
+    TopTenCustomersWidget
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -161,6 +163,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.SALARY,
         component: EmploymentsPerJobCodeWidget,
         routePermissions: ['ui_salary'],
+    },
+    {
+        name: 'TOP_TEN_CUSTOMERS',
+        label: 'Topp 10 kunder',
+        size: 'large',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.SALES,
+        component: TopTenCustomersWidget,
+        routePermissions: ['ui_sales_invoices']
     }
 ];
 
