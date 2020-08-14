@@ -2,7 +2,7 @@
     <header>Delavregninger</header>
 
     <div class="list-container" *ngFor="let order of relatedOrders">
-        <div class="period-header">{{order['_period']}}</div>        
+        <div class="period-header" [innerHTML]="order['_period']"></div>        
 
         <simple-table>
             <thead>
