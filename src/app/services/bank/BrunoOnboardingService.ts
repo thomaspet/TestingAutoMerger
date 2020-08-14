@@ -155,7 +155,7 @@ export class BrunoOnboardingService {
                     }).onClose.subscribe((externalOnboardingOpened) => {
                         if (externalOnboardingOpened) {
                             this.authService.reloadCurrentSession().subscribe(() => {
-                                observer.next(agreement);
+                                observer.next(true);
                                 observer.complete();
                             });
                         } else {

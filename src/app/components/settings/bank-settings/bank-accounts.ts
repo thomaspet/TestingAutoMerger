@@ -44,7 +44,7 @@ export class BankSettingsAccountlist {
     @Output()
     changeAccount = new EventEmitter();
     @Output()
-    orderedIntegrationChange = new EventEmitter();
+    orderedIntegration = new EventEmitter();
 
     uniTableConfig: UniTableConfig;
 
@@ -201,12 +201,16 @@ export class BankSettingsAccountlist {
     connectBankAndAccounting() {
         this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
             if (agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active) {
-                this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
-                    this.orderedIntegrationChange.emit();
+                this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe((orderedChange) => {
+                    if (orderedChange) {
+                        this.orderedIntegration.emit();
+                    }
                 });
             } else {
-                this.brunoOnboardingService.createAgreement().subscribe(() => {
-                    this.orderedIntegrationChange.emit();
+                this.brunoOnboardingService.createAgreement().subscribe((createdgreement) => {
+                    if (createdgreement) {
+                        this.orderedIntegration.emit();
+                    }
                 });
             }
         });
