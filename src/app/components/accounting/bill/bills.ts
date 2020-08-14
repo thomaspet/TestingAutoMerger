@@ -779,8 +779,9 @@ export class BillsView implements OnInit {
 
     private createTableConfig(filter: IFilter): UniTableConfig {
         const cols = [
-            new UniTableColumn('InvoiceNumber', 'Fakturanr.'),
-            new UniTableColumn('SupplierSupplierNumber', 'Lev.nr.').setVisible(false).setWidth('5rem'),
+            new UniTableColumn('InvoiceNumber', 'Fakturanr.')
+                .setVisible(theme.theme !== THEMES.EXT02),
+            new UniTableColumn('SupplierSupplierNumber', 'Leverandørnr.').setVisible(false).setWidth('5rem'),
             new UniTableColumn('InfoName', 'Leverandør', UniTableColumnType.Text)
                 .setFilterOperator('startswith')
                 .setWidth('15rem'),
@@ -793,17 +794,14 @@ export class BillsView implements OnInit {
                     return (paid || moment(item.PaymentDueDate).isBefore(moment()))
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
-            new UniTableColumn('BankAccountAccountNumber', 'Bankgiro'),
-            new UniTableColumn('InvoiceOriginType', 'Type').setTemplate(row => this.getOriginTypeText(row)).setFilterSelectConfig(
-                {
-                    options: this.originTypes,
-                    displayField: 'name',
-                    valueField: 'value'
-                }
-            ),
+            new UniTableColumn('BankAccountAccountNumber', 'Bankgiro')
+                .setWidth('10rem', true, false),
+
             new UniTableColumn('PaymentID', 'KID/Melding')
+                .setVisible(theme.theme !== THEMES.EXT02)
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
-            new UniTableColumn('FreeTxt', 'Fritekst').setVisible(true),
+            new UniTableColumn('FreeTxt', 'Fritekst')
+                .setVisible(theme.theme !== THEMES.EXT02),
             new UniTableColumn('JournalEntryJournalEntryNumber', 'Bilagsnr.')
                 .setVisible(!!filter.showJournalID)
                 .setFilterOperator('startswith')
@@ -827,29 +825,34 @@ export class BillsView implements OnInit {
                         ? 'supplier-invoice-table-plus'
                         : 'supplier-invoice-table-minus'
                 ),
-            new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(true),
+            new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(theme.theme !== THEMES.EXT02),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
             new UniTableColumn('DepartmentName', 'Avdelingsnavn').setVisible(false),
             new UniTableColumn('DepartmentDepartmentNumber', 'Avd.nr.').setVisible(false),
-            new UniTableColumn('PaymentStatus', 'Betalingsstatus', UniTableColumnType.Number)
-                .setTemplate((invoice) => {
-                    return this.supplierInvoiceService.getPaymentStatusText(invoice.PaymentStatus);
-                })
+            new UniTableColumn('PaymentStatus', 'Betalingsstatus')
+                .setWidth('10rem', true, false)
+                .setTemplate(row => this.supplierInvoiceService.getPaymentStatusText(row.PaymentStatus))
                 .setFilterSelectConfig({
                     options: this.supplierInvoiceService.paymentStatusCodes,
                     displayField: 'Text',
                     valueField: 'Code'
                 }),
-            new UniTableColumn('StatusCode', 'Status', UniTableColumnType.Number)
-                .setAlignment('center')
-                .setTemplate((dataItem) => {
-                    return this.supplierInvoiceService.getStatusText(dataItem.StatusCode);
-                })
+            new UniTableColumn('StatusCode', 'Status')
+                .setWidth('10rem', true, false)
+                .setTemplate(row => this.supplierInvoiceService.getStatusText(row.StatusCode))
                 .setFilterSelectConfig({
                     options: this.supplierInvoiceService.statusTypes,
                     displayField: 'Text',
                     valueField: 'Code'
+                }),
+            new UniTableColumn('InvoiceOriginType', 'Type')
+                .setWidth('10rem', true, false)
+                .setTemplate(row => this.getOriginTypeText(row))
+                .setFilterSelectConfig({
+                    options: this.originTypes,
+                    displayField: 'name',
+                    valueField: 'value'
                 }),
             new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
             new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)
