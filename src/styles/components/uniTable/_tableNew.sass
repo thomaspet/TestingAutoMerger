@@ -253,10 +253,12 @@ ag-grid-angular
 // Row styling
 .ag-row
     cursor: pointer
+    // The odd/even variables are reversed because ag-grid counts
+    // the header as part of the odd/even index check.
     &.ag-row-even
-        background: var(--table-row-even-background, #fff)
-    &.ag-row-odd
         background: var(--table-row-odd-background, #fff)
+    &.ag-row-odd
+        background: var(--table-row-even-background, #fff)
     &.ag-row-hover
         background: var(--table-row-select-background)
 

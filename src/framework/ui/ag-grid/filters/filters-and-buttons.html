@@ -1,10 +1,13 @@
 <section class="wrapper">
     <section class="freetext-and-advanced-filters">
-        <input #searchInput [formControl]="searchControl" type="text" placeholder="Søk">
+        <section class="input-with-button">
+            <input #searchInput [formControl]="searchControl" type="text" placeholder="Søk">
 
-        <button class="icon-button" (click)="showAdvancedFilters()">
-            <i class="material-icons">filter_list</i>
-        </button>
+            <button class="icon-button" (click)="showAdvancedFilters()">
+                <i class="material-icons">filter_list</i>
+            </button>
+        </section>
+
 
         <ng-container *ngIf="savedSearches?.length">
             <button #toggle class="saved-searches-toggle secondary">

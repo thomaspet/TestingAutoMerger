@@ -20,27 +20,12 @@
                 </select>
 
                 <!-- If date filter -->
-                <section *ngIf="filter.isDate; else nonDateFilter" class="input-with-button">
-                    <input class="filter-value-input"
-                        [(ngModel)]="filter.value"
-                        type="text"
-                        [matDatepicker]="picker"
-                        #dateInput
-                        (keydown.enter)="dateInput.blur();dateInput.focus();"
-                    >
-
-                    <button (click)="picker.open()">
-                        <uni-icon icon="calendar"></uni-icon>
-                    </button>
-
-                    <mat-datepicker #picker></mat-datepicker>
-                </section>
+                <uni-datepicker *ngIf="filter.isDate; else nonDateFilter" [(value)]="filter.value"></uni-datepicker>
 
                 <!-- If not date filter -->
                 <ng-template #nonDateFilter>
                     <input *ngIf="!filter.selectConfig?.options"
                         type="text"
-                        class="filter-value-input"
                         [(ngModel)]="filter.value"
                     />
 

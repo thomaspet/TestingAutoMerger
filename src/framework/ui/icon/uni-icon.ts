@@ -2,7 +2,7 @@ import {Component, Input, ChangeDetectionStrategy, ElementRef, HostBinding, NgMo
 import {SHARED_ICONS} from './shared-icons';
 import {theme, THEMES} from 'src/themes/theme';
 import { LibraryImportsModule } from '@app/library-imports.module';
-import { DomSanitizer } from '@angular/platform-browser';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 
 @Component({
     selector: 'uni-icon',
@@ -17,13 +17,22 @@ export class UniIcon {
     @Input() icon: string;
     @Input() matIconClass: string;
 
+    // Ideally this would be one input named size, but since the icons sets used
+    // in the whitelabel versions have different viewboxes that doesn't work very well.
+    // This isn't a perfect solution either, and at some point we're probably going to want
+    // to refactor all icons to use the same viewbox.
+    @Input() svgSize: number;
+    @Input() matIconSize: number;
+
+    // Temp fix until we refactor SR svg icons to use "currentColor"
     @HostBinding('class.set-fill') setFill = theme.theme === THEMES.SR;
+
+    @HostBinding('style') sizeStyling: SafeStyle;
 
     theme = theme;
     svg;
     matIcon: string;
     svgMarkup;
-    // setFill = theme.theme === THEMES.SR; // temp fix until we refactor SR svg icons to use "currentColor"
 
     // ElementRef is used by dropdown-menu to attach a click listener if this component is used as a trigger
     constructor(public elementRef: ElementRef, private sanitizer: DomSanitizer) {}
@@ -46,6 +55,17 @@ export class UniIcon {
                 this.svg = undefined;
                 this.matIcon = this.icon;
             }
+        }
+
+        let styles;
+        if (this.svgSize && this.svg) {
+            styles = `width: ${this.svgSize}px; height: ${this.svgSize}px`;
+        } else if (this.matIconSize && this.matIcon) {
+            styles = `font-size: ${this.matIconSize}`;
+        }
+
+        if (styles) {
+            this.sizeStyling = this.sanitizer.bypassSecurityTrustStyle(styles);
         }
     }
 }

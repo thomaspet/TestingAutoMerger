@@ -16,14 +16,10 @@
     cursor: pointer
     outline: none
 
-    &:hover, &:focus
-        background: var(--dropdown-select-background)
-        color: var(--dropdown-select-color)
-
     & + .reminder-item
         border-top: 1px solid var(--border-color)
 
-    i,uni-icon
+    i, uni-icon
         flex: 0 0 auto
         margin-right: 1rem
         color: var(--color-c2a)
@@ -31,8 +27,7 @@
     &.duedate-item
         padding: .75rem .5rem
         cursor: auto
-
-        i
+        uni-icon
             margin: 2px 1rem auto 0
 
         .description
@@ -57,3 +52,8 @@
             &.bad
                 background: var(--alert-bad)
                 color: var(--alert-bad-text-color)
+
+a.reminder-item
+    &:hover, &:focus
+        background: var(--dropdown-select-background)
+        color: var(--dropdown-select-color)

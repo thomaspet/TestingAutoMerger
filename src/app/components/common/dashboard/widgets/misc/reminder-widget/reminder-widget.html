@@ -2,45 +2,11 @@
     <h1>Huskeliste</h1>
 
     <a class="pull-right" (click)="createTask()" tabindex="0">Opprett huskelapp</a>
-
-    <!-- <button #toggle class="tertiary c2a pull-right">
-        <i class="material-icons">filter_list</i>
-        Alle
-    </button>
-
-    <dropdown-menu [trigger]="toggle" [closeOnClick]="false" minWidth="10rem">
-        <ng-template>
-            <section *ngIf="options?.showPublicDueDates" class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.publicDueDates">
-                    Offentlige frister
-                </mat-checkbox>
-            </section>
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.tasks">Huskelapper</mat-checkbox>
-            </section>
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Godkjenninger</mat-checkbox>
-            </section>
-
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Innboks</mat-checkbox>
-            </section>
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Betalinger uten match</mat-checkbox>
-            </section>
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Betalingsliste</mat-checkbox>
-            </section>
-            <section class="dropdown-menu-item">
-                <mat-checkbox [(ngModel)]="visibilitySettings.approvals">Purreliste</mat-checkbox>
-            </section>
-        </ng-template>
-    </dropdown-menu> -->
 </section>
 
 <section class="content" id="reminder-list">
     <section *ngFor="let item of publicDueDates" class="reminder-item duedate-item">
-        <uni-icon icon="calendar"></uni-icon>
+        <uni-icon icon="calendar" svgSize="22"></uni-icon>
         <span class="description">{{item.AdditionalInfo}}</span>
         <span class="date pull-right" [ngClass]="item['_class']" [title]="item.Deadline | date: 'dd.MM.yyyy'">
             {{item['_daysLabel']}}

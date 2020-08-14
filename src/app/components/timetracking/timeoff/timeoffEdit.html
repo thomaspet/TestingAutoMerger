@@ -2,24 +2,16 @@
 
     <div style="display: flex">
         <label> Dato </label>
-        <input [(ngModel)]="currentDay.dateText" type="text" [readonly]="true">
-        <small (click)="showEndDate = !showEndDate">Flere dager fri på rad? Klikk her for å legge til sluttdato</small>
+        <input [value]="currentDay.dateText" type="text" [readonly]="true" style="width: 12.75rem">
+
+        <button (click)="showEndDate = !showEndDate" class="tertiary c2a" style="margin-left: 1rem">
+            Flere fridager på rad? Klikk her for å legge til sluttdato
+        </button>
     </div>
 
     <div style="display: flex" *ngIf="showEndDate">
         <label> Sluttdato </label>
-        <input
-            [(ngModel)]="timeOff.ToDate"
-            type="text"
-            [matDatepicker]="picker"
-            #dateInput
-            (keydown.enter)="dateInput.blur();dateInput.focus();">
-
-        <button class="icon-button calendar-toggle" (click)="picker.open()">
-            <uni-icon icon="calendar"></uni-icon>
-        </button>
-
-        <mat-datepicker #picker></mat-datepicker>
+        <uni-datepicker [(value)]="timeOff.ToDate"></uni-datepicker>
     </div>
 
     <div style="display: flex">

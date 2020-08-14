@@ -5,6 +5,7 @@
         [readonly]="readonly"
         [matDatepicker]="picker"
         [(ngModel)]="model"
+        [required]="false"
         (keydown.space)="$event.preventDefault();picker.open()"
         (keydown.enter)="input.blur();input.focus()"
         (keydown.esc)="picker.close()"

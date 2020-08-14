@@ -74,23 +74,29 @@ textarea
 .input-with-button
     display: inline-flex
     height: $input-height
+
     input
         height: 100%
         width: 100%
-        padding-right: 40px
+        padding-right: 41px
     button
-        margin: 0 0 0 -40px
+        display: inline-flex
+        align-items: center
+        justify-content: center
+        margin: 0 0 0 -41px
         height: 100%
         width: 40px
         padding: 0
         background-color: unset
         color: var(--input-icon-color)
         border: none
+        border-radius: 50%
 
         &:focus
             color: #8c96a9
 
-        i.material-icons
-            vertical-align: middle
+        i.material-icons, uni-icon
             font-size: 22px
+            width: 22px
+            height: 22px
             color: unset

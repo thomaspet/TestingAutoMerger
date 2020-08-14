@@ -15,15 +15,22 @@
         input
             height: 2.5rem
             width: 15rem
-            border-top-right-radius: 0
-            border-bottom-right-radius: 0
 
         .icon-button
-            background: #fff
-            border: 1px solid var(--border-color)
-            border-left: none
-            border-top-left-radius: 0
-            border-bottom-left-radius: 0
+            border: none
+            border-left: var(--input-border-width) solid var(--input-border-color)
+            border-radius: 0
+            margin-top: 1px
+            margin-bottom: 1px
+            height: calc(100% - 2px)
+
+            border-top-right-radius: var(--input-radius)
+            border-bottom-right-radius: var(--input-radius)
+
+            &:focus, &:hover
+                background: #f5f5f5
+                color: var(--color-c2a)
+
 
         button.saved-searches-toggle
             border-color: var(--border-color)
