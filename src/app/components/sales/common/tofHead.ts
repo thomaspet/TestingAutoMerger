@@ -45,6 +45,7 @@ export class TofHead implements OnChanges {
 
     @Output() dataChange = new EventEmitter();
     @Output() dimensionChange = new EventEmitter();
+    @Output() errorEvent = new EventEmitter();
 
     tabs: IUniTab[];
     activeTab = 'details';

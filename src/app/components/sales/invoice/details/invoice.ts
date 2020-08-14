@@ -115,7 +115,7 @@ export class InvoiceDetails implements OnInit {
     itemsSummaryData: TradeHeaderCalculationSummary;
     private numberSeries: NumberSeries[];
     private projectID: number;
-
+    isFormValid = true;
     recalcDebouncer: EventEmitter<any> = new EventEmitter();
     private aprilaOption = {
         hasPermission: false,
@@ -470,6 +470,11 @@ export class InvoiceDetails implements OnInit {
                 }, err => this.errorService.handle(err));
             }
         }, err => this.errorService.handle(err));
+    }
+
+    onErrorEvent(error) {
+        this.isFormValid = error.isFormValid;
+        this.updateSaveActions();
     }
 
     private getInvoice(ID: number): Observable<CustomerInvoice> {
@@ -1368,6 +1373,7 @@ export class InvoiceDetails implements OnInit {
             if (this.isDirty && id) {
                 this.saveActions.push({
                     label: 'Lagre endringer',
+                    disabled: !this.isFormValid,
                     action: (done) => {
                         this.save().subscribe(
                             () => done('Lagring fullført'),
@@ -1386,7 +1392,7 @@ export class InvoiceDetails implements OnInit {
             this.saveActions.push({
                 label: 'Krediter faktura',
                 action: (done) => this.creditInvoice(done),
-                disabled: !status || status === StatusCodeCustomerInvoice.Draft,
+                disabled: (!status || status === StatusCodeCustomerInvoice.Draft) || !this.isFormValid,
                 main: status === StatusCodeCustomerInvoice.Paid && !this.isDirty
             });
         }
@@ -1399,6 +1405,7 @@ export class InvoiceDetails implements OnInit {
                 label: this.invoice.InvoiceType === InvoiceTypes.CreditNote ? 'Send kreditnota' : 'Send faktura',
                 main: theme.theme !== THEMES.EXT02 ? this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced :
                 this.invoice.StatusCode === StatusCodeCustomerInvoice.Invoiced && this.companySettings.HasAutobank,
+                disabled: !this.isFormValid,
                 action: (done) => {
                     if (this.invoice.DistributionPlanID) {
                         const currentPlan = this.distributionPlans.find(plan => plan.ID === this.invoice.DistributionPlanID);
@@ -1430,6 +1437,7 @@ export class InvoiceDetails implements OnInit {
 
             this.saveActions.push({
                 label: 'Skriv ut',
+                disabled: !this.isFormValid,
                 action: (done) => {
                     this.modalService.open(TofReportModal, {
                         header: 'Forhåndsvisning',
@@ -1506,7 +1514,7 @@ export class InvoiceDetails implements OnInit {
                 }
                 return this.transition(done);
             },
-            disabled: id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer,
+            disabled: (id > 0 && !transitions['invoice'] && !transitions['credit'] || !this.currentCustomer) || !this.isFormValid,
             main: !id || (transitions && (transitions['invoice'] || transitions['credit'])),
         });
 
@@ -1514,7 +1522,7 @@ export class InvoiceDetails implements OnInit {
             this.saveActions.push({
                 label: 'Registrer betaling',
                 action: (done) => this.payInvoice(done),
-                disabled: !transitions || !transitions['pay'],
+                disabled: (!transitions || !transitions['pay']) || !this.isFormValid,
                 main: id > 0 && transitions['pay'] && !this.isDirty
             });
 
@@ -1524,11 +1532,11 @@ export class InvoiceDetails implements OnInit {
                 action: (done) => {
                     this.sendReminderAction(done);
                 },
-                disabled: !this.invoice.InvoiceNumber || (
+                disabled: (!this.invoice.InvoiceNumber || (
                     this.invoice.DontSendReminders
                     || this.invoice.StatusCode === StatusCode.Completed
-                    || this.invoice.StatusCode === 42004
-                )
+                    || this.invoice.StatusCode === 42004)
+                ) || !this.isFormValid
             });
         }
 
@@ -1545,7 +1553,7 @@ export class InvoiceDetails implements OnInit {
                     }
                 );
             },
-            disabled: !this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
+            disabled: (!this.invoice.ID || this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid) || !this.isFormValid
         });
 
         this.saveActions.push({
@@ -1557,7 +1565,7 @@ export class InvoiceDetails implements OnInit {
                     done(error);
                 });
             },
-            disabled: false,
+            disabled: !this.isFormValid,
         });
 
         this.saveActions.push({

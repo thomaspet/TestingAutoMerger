@@ -24,6 +24,7 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         [canSendEHF]="canSendEHF"
+        (errorEvent)="onErrorEvent($event)"
         (dataChange)="onInvoiceChange($event)"
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>

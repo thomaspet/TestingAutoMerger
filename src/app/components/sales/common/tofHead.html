@@ -35,6 +35,7 @@
             [entity]="data"
             (entityChange)="onDataChange($event)"
             (dimensionChange)="dimensionChange.emit($event)"
+            (errorEvent)="errorEvent.emit($event)"
             [entityType]="entityName"
             [readonly]="readonly"
             [currencyCodes]="currencyCodes"

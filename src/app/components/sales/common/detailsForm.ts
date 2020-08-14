@@ -14,7 +14,9 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
             [fields]="fields$"
             [model]="entity$"
             [config]="{autofocus: false}"
-            (changeEvent)="onFormChange($event)">
+            (changeEvent)="onFormChange($event)"
+            (errorEvent)="errorEvent.emit($event)"
+        >
         </uni-form>
     `
 })
@@ -32,6 +34,7 @@ export class TofDetailsForm {
 
     @Output() entityChange = new EventEmitter();
     @Output() dimensionChange = new EventEmitter();
+    @Output() errorEvent = new EventEmitter();
 
     entity$ = new BehaviorSubject({});
     formConfig$ = new BehaviorSubject({autofocus: false});
