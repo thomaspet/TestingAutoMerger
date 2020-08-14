@@ -73,6 +73,7 @@ import { combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
 import {SelectDistributionPlanModal} from '@app/components/common/modals/select-distribution-plan-modal/select-distribution-plan-modal';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -284,6 +285,7 @@ export class CustomerDetails implements OnInit {
         private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private companySettingsService: CompanySettingsService,
         private translationService: UniTranslationService,
+        private permissionService: FeaturePermissionService,
     ) {}
 
     public ngOnInit() {
@@ -681,7 +683,7 @@ export class CustomerDetails implements OnInit {
                 res => {
                     const subheads = [];
 
-                    if (res[0]) {
+                    if (res[0] && this.permissionService.canShowUiFeature('ui.sales.orders')) {
                         subheads.push({
                             label: 'Ordre',
                             title: this.numberFormat.asMoney(res[0].SumOpenOrdersExVat)
