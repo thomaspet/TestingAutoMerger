@@ -188,16 +188,27 @@ export class BankService extends BizHttp<Bank> {
         if (!bankAccount['IntegrationSettings']) {
             return bankAccount;
         } else {
-            const bit = (+bankAccount['IntegrationSettings']).toString(2);
+            let bit = (+bankAccount['IntegrationSettings']).toString(2);
+
+            switch (bit.length) {
+                case 1: {
+                    bit = '00' + bit;
+                    break;
+                }
+                case 2: {
+                    bit = '0' + bit;
+                    break;
+                }
+            }
 
             if (+bit.substr(0, 1) > 0) {
-                bankAccount['HasIncoming'] = true;
+                bankAccount['HasStatements'] = true;
             }
             if (+bit.substr(1, 1) > 0) {
                 bankAccount['HasOutgoing'] = true;
             }
             if (+bit.substr(2, 1) > 0) {
-                bankAccount['HasStatements'] = true;
+                bankAccount['HasIncoming'] = true;
             }
         }
 

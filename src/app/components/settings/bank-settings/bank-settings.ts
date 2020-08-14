@@ -489,12 +489,16 @@ export class UniBankSettings {
                 link: 'Start på nytt',
                 action: () => {
                     if (this.brunoOnboardingService.isActiveAgreement(agreement)) {
-                        this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe(() => {
-                            this.toolbarconfig = this.getToolbarConfig();
+                        this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe((orderedIntegration) => {
+                            if (orderedIntegration) {
+                                this.toolbarconfig = this.getToolbarConfig();
+                            }
                         });
                     } else {
-                        this.brunoOnboardingService.createAgreement().subscribe(() => {
-                            this.toolbarconfig = this.getToolbarConfig();
+                        this.brunoOnboardingService.createAgreement().subscribe((createdAgreement) => {
+                            if (createdAgreement) {
+                                this.toolbarconfig = this.getToolbarConfig();
+                            }
                         });
                     }
                 }
