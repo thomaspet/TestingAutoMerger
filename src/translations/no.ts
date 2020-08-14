@@ -92,6 +92,10 @@ export const NO = {
         }
     },
 
+    BANK: {
+        'NEEDS_ACTION_TOOLTIP': 'Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i Uni Economy. Vi har derfor ikke funnet en sammenfallende post i vårt system, og disse må behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere «Bokfør kun betalinger fra UE i Autobank-innstillingene. Da vil disse ikke bli bokført heretter.'
+    },
+
     SALARY: {
         PAYROLL: {
             'NEW': 'Ny lønnsavregning',
