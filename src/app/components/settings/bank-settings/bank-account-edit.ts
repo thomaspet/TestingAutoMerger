@@ -95,11 +95,19 @@ export class CompanyBankAccountEdit {
                 value.Account = account;
                 value.AccountID = account.ID;
 
-                this.formModel$.next(value);
-                this.getBankAccountsConnectedToAccount(value.AccountID);
-            } else {
-                this.setBusy.emit(false);
+                const connectedBankAccounts = [];
+                this.bankAccountService.getConnectedBankAccounts(account.ID, 0).subscribe(res => {
+                    res.forEach(ba => {
+                        connectedBankAccounts.push(ba.AccountNumber);
+                    });
+
+                    if (connectedBankAccounts.length === 0) {
+                        this.formModel$.next(value);
+                        this.getBankAccountsConnectedToAccount(value.AccountID);
+                    }
+                });
             }
+            this.setBusy.emit(false);
         }, err => this.setBusy.emit(false));
     }
 
