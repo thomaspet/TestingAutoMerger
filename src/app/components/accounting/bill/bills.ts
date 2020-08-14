@@ -9,7 +9,9 @@ import {
     SupplierInvoice,
     StatusCodeSupplierInvoice,
     ApprovalStatus,
-    StatusCodeReInvoice, StatusCode
+    StatusCodeReInvoice,
+    StatusCode,
+    SupplierInvoiceOriginType
 } from '../../../unientities';
 import {BillAssignmentModal} from './assignment-modal/assignment-modal';
 import {UniModalService, UniConfirmModalV2, ConfirmActions, UniReinvoiceModal} from '../../../../framework/uni-modal';
@@ -81,6 +83,12 @@ export class BillsView implements OnInit {
     public previewVisible: boolean;
     private inboxTagNames = ['IncomingMail', 'IncomingEHF', 'IncomingTravel', 'IncomingExpense', 'Upload'];
     private inboxTagNamesFilter = '(' + this.inboxTagNames.map(tag => 'tagname eq \'' + tag + '\'').join(' or ') + ')';
+
+    originTypes = [
+        { name: 'Regning',          value: SupplierInvoiceOriginType.SupplierInvoice },
+        { name: 'Kvittering',       value: SupplierInvoiceOriginType.Receipt },
+        { name: 'Tilbakebetaling',  value: SupplierInvoiceOriginType.Refund }
+    ];
 
     public searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
     public assigneeFilterField: any = {
@@ -786,7 +794,13 @@ export class BillsView implements OnInit {
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro'),
-            new UniTableColumn('InvoiceOriginType', 'Type').setTemplate(row => this.getOriginTypeText(row)),
+            new UniTableColumn('InvoiceOriginType', 'Type').setTemplate(row => this.getOriginTypeText(row)).setFilterSelectConfig(
+                {
+                    options: this.originTypes,
+                    displayField: 'name',
+                    valueField: 'value'
+                }
+            ),
             new UniTableColumn('PaymentID', 'KID/Melding')
                 .setTemplate((item) => item.PaymentInformation || item.PaymentID),
             new UniTableColumn('FreeTxt', 'Fritekst').setVisible(true),
