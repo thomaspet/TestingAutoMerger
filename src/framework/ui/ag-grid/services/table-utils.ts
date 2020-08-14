@@ -6,6 +6,7 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
 
 import {get, cloneDeep} from 'lodash';
 import * as moment from 'moment';
+import {theme} from 'src/themes/theme';
 
 interface SortModel { colId: string; sort: string; }
 
@@ -75,6 +76,24 @@ export class TableUtils {
     public getTableColumns(tableConfig: UniTableConfig): UniTableColumn[] {
         let columns = cloneDeep(tableConfig.columns);
 
+        // Apply theme specific overrides
+        const columnOverrides = theme.tableColumnOverrides && theme.tableColumnOverrides[tableConfig.configStoreKey];
+        columnOverrides?.forEach(override => {
+            const colIndex = columns.findIndex(col => col.field === override.field);
+            if (colIndex >= 0) {
+                if (typeof override.visible === 'boolean') {
+                    columns[colIndex].visible = override.visible;
+                }
+
+                if (override.index >= 0) {
+                    const column = columns.splice(colIndex, 1)[0];
+                    const toIndex = Math.min(columns.length, override.index);
+                    columns.splice(toIndex, 0, column);
+                }
+            }
+        });
+
+        // Apply user preferences
         const customColumnSetup = this.columnSetupMap[tableConfig.configStoreKey];
         if (customColumnSetup && customColumnSetup.length) {
             columns = columns.map(col => {

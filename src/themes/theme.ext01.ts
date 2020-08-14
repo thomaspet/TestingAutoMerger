@@ -13,6 +13,7 @@ export const theme = {
     chatbotIcon: 'themes/ext01/chatbot-icon.png',
 
     dashboardConfigs: DASHBOARD_CONFIGS,
+    tableColumnOverrides: undefined,
     featureBlacklists: undefined,
 
     init: {

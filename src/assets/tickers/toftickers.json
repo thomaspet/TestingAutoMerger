@@ -64,7 +64,8 @@
         },
         {
             "Header": "Vår referanse",
-            "Field": "OurReference"
+            "Field": "OurReference",
+            "DefaultHidden": true
         },
         {
             "Header": "Deres referanse",

@@ -4,6 +4,8 @@ import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
 import {THEMES} from './themes-enum';
 export * from './themes-enum';
 
+// TODO: create interface and type all theme consts
+
 export const theme = {
     theme: THEMES.UE,
     appName: 'Uni Economy',
@@ -13,6 +15,7 @@ export const theme = {
     chatbotIcon: undefined,
 
     dashboardConfigs: DASHBOARD_CONFIGS,
+    tableColumnOverrides: undefined,
     featureBlacklists: undefined,
 
     init: {

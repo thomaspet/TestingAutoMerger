@@ -3,6 +3,7 @@ import {DASHBOARD_CONFIGS} from './ext02/dashboard-configs';
 import {PLUS_PACKAGE_BLACKLIST, MINI_PACKAGE_BLACKLIST} from './ext02/feature-blacklists';
 
 import {THEMES} from './themes-enum';
+import {TABLE_COLUMN_OVERRIDES} from './ext02/table-column-overrides';
 export * from './themes-enum';
 
 export const theme = {
@@ -14,12 +15,13 @@ export const theme = {
     chatbotIcon: 'themes/ext02/chatbot-icon.svg',
 
     dashboardConfigs: DASHBOARD_CONFIGS,
-
+    tableColumnOverrides: TABLE_COLUMN_OVERRIDES,
     featureBlacklists: {
         Mini: MINI_PACKAGE_BLACKLIST,
         Plus: PLUS_PACKAGE_BLACKLIST,
         Complete: undefined
     },
+
 
     init: {
         illustration: undefined, // 'themes/ue/init_bg.svg',

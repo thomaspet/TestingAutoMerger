@@ -43,43 +43,9 @@
                 "IsBankRuleField": true
             },
             {
-                "Header": "Innbetalings Dato",
-                "Field": "PaymentDate",
-                "FilterOperator": "eq",
-                "Type" :"localdate"
-            },
-            {
                 "Header": "KID",
                 "Field": "PaymentID",
                 "FilterOperator": "contains",
-                "IsBankRuleField": true
-            },
-            {
-                "Header": "InnbetalingsID",
-                "Field": "InPaymentID",
-                "FilterOperator": "contains",
-                "IsBankRuleField": true,
-                "DefaultHidden": true
-            },
-            {
-                "Header": "Innbetaling",
-                "Field": "IsCustomerPayment",
-                "FilterOperator": "contains",
-                "DefaultHidden": false
-            },
-            {
-                "Header": "Valutabeløp",
-                "Field": "AmountCurrency",
-                "FilterOperator": "contains",
-                "SumColumn": true,
-                "DefaultHidden": true,
-                "IsBankRuleField": true
-            },
-            {
-                "Header": "Valuta",
-                "Field": "CurrencyCode.Code",
-                "Type": "text",
-                "DefaultHidden": true,
                 "IsBankRuleField": true
             },
             {
@@ -90,9 +56,44 @@
                 "IsBankRuleField": true
             },
             {
+                "Header": "Innbetaling",
+                "Field": "IsCustomerPayment",
+                "FilterOperator": "contains",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "InnbetalingsID",
+                "Field": "InPaymentID",
+                "FilterOperator": "contains",
+                "IsBankRuleField": true,
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Innbetalingsdato",
+                "Field": "PaymentDate",
+                "FilterOperator": "eq",
+                "Type" :"localdate"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text",
+                "DefaultHidden": true,
+                "IsBankRuleField": true
+            },
+            {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "FilterOperator": "contains",
+                "SumColumn": true,
+                "DefaultHidden": true,
+                "IsBankRuleField": true
+            },
+            {
                 "Header": "Status",
                 "Field": "StatusCode",
-                "FilterOperator": "contains"
+                "FilterOperator": "contains",
+                "Alignment": "left"
             },
             {
                 "Header": "Bilagnr.",
@@ -383,10 +384,12 @@
         "Expand": "BusinessRelation,ToBankAccount,FromBankAccount,PaymentCode,CurrencyCode",
         "Columns": [
             {
-                "Header": "Status",
-                "Field": "StatusCode",
+                "Header": "Bilagsnr.",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "ExternalModel": "JournalEntry",
                 "FilterOperator": "contains",
-                "DefaultHiddenOnGivenFilters": ["not_payed", "payment_list", "payed_and_journaled"]
+                "LinkNavigationProperty": "JournalEntryID",
+                "Type": "link"
             },
             {
                 "Header": "Betales til",
@@ -420,36 +423,6 @@
                 "DisplayField": "PaymentID"
             },
             {
-                "Header": "Betalingsinformasjon",
-                "Field": "Description",
-                "FilterOperator": "contains",
-                "Alias": "Description",
-                "DisplayField": "Description",
-                "DefaultHidden": true
-            },
-            {
-                "Header": "Kode",
-                "Field": "PaymentCode.Code",
-                "DefaultHidden": true,
-                "SelectRequired": true
-            },
-            {
-                "Header": "Type",
-                "Field": "PaymentCode.Name",
-                "DefaultHidden": false
-            },
-            {
-                "Header": "Valutabeløp",
-                "Field": "AmountCurrency",
-                "FilterOperator": "contains",
-                "SumColumn": true
-            },
-            {
-                "Header": "Valuta",
-                "Field": "CurrencyCode.Code",
-                "Type": "text"
-            },
-            {
                 "Header": "Beløp",
                 "Field": "Amount",
                 "FilterOperator": "contains",
@@ -459,12 +432,50 @@
                 "MarkedRowsSumCol": true
             },
             {
+                "Header": "Betalingsinformasjon",
+                "Field": "Description",
+                "FilterOperator": "contains",
+                "Alias": "Description",
+                "DisplayField": "Description",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Type",
+                "Field": "PaymentCode.Name",
+                "DefaultHidden": false
+            },
+            {
+                "Header": "Kode",
+                "Field": "PaymentCode.Code",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "Type": "text",
+                "Width": "5rem"
+            },
+            {
+                "Header": "Valutabeløp",
+                "Field": "AmountCurrency",
+                "FilterOperator": "contains",
+                "SumColumn": true
+            },
+            {
                 "Header": "Betalingsdato",
                 "Field": "PaymentDate",
                 "Type": "date",
                 "FilterOperator": "contains",
                 "Alias": "PaymentDate",
                 "DisplayField": "PaymentDate"
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode",
+                "FilterOperator": "contains",
+                "Alignment": "left",
+                "DefaultHiddenOnGivenFilters": ["not_payed", "payment_list", "payed_and_journaled"]
             },
             {
                 "Header": "Betalingsbunt",
@@ -478,14 +489,7 @@
                 "FilterOperator": "contains",
                 "ShowOnlyOnThisFilter": 3
             },
-            {
-                "Header": "Bilagnr.",
-                "Field": "JournalEntry.JournalEntryNumber",
-                "ExternalModel": "JournalEntry",
-                "FilterOperator": "contains",
-                "LinkNavigationProperty": "JournalEntryID",
-                "Type": "link"
-            },
+
             {
                 "Header": "Ekstern konto til",
                 "Field": "ExternalBankAccountNumber",
