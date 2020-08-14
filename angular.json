@@ -38,10 +38,6 @@
               {
                 "input": "src/assets/ehf-viewer.css",
                 "bundleName": "ehf-viewer"
-              },
-              {
-                "input": "src/assets/uni-spinner.css",
-                "bundleName": "uni-spinner"
               }
             ],
             "stylePreprocessorOptions": {
@@ -801,6 +797,10 @@
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/spinner.css",
+                  "with": "src/themes/ext02/spinner.css"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -843,6 +843,10 @@
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/spinner.css",
+                  "with": "src/themes/ext02/spinner.css"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -881,6 +885,10 @@
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/spinner.css",
+                  "with": "src/themes/ext02/spinner.css"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -923,6 +931,10 @@
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/spinner.css",
+                  "with": "src/themes/ext02/spinner.css"
                 }
               ],
               "stylePreprocessorOptions": {
@@ -965,6 +977,10 @@
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
                   "with": "src/app/components/layout/navbar/navbar-links.ext02.ts"
+                },
+                {
+                  "replace": "src/themes/spinner.css",
+                  "with": "src/themes/ext02/spinner.css"
                 }
               ],
               "stylePreprocessorOptions": {
