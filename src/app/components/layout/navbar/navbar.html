@@ -18,12 +18,12 @@
         <uni-company-dropdown [lockYearSelector]="deativateFunctions"></uni-company-dropdown>
 
         <section *ngIf="isTestCompany && isSrEnvironment"
-            class="template-company-warning"
+            class="navbar-alert"
             matTooltip="Dette er et demoselskap. Ved aktivering av kontrakt må nytt selskap opprettes, og alle data på dette selskapet vil bli slettet">
             Kun for testing
         </section>
 
-        <section class="bundle-test" style="margin-left: 1rem;">
+        <section *ngIf="isBrunoEnvironment" class="bundle-test" style="margin-left: 1rem;">
             <a #trigger style="font-weight: 500; font-size: 15px; text-decoration: none;">
                 Test produktpakke
                 <i style="margin-bottom: 2px; margin-left: -2px;" class="material-icons">expand_more</i>
@@ -43,21 +43,21 @@
             </dropdown-menu>
         </section>
 
-        <support-access-indicator style="margin-left: 0.75rem"></support-access-indicator>
+        <support-access-indicator></support-access-indicator>
     </section>
 
     <section class="navbar-right">
-        <section *ngIf="hasActiveContract && isDemo && !demoExpired" class="demo-company-notifier" routerLink="/contract-activation">
+        <section *ngIf="hasActiveContract && isDemo && !demoExpired" class="navbar-alert" routerLink="/contract-activation">
             {{demoText}}
             <a>{{isSrEnvironment ? 'Bestill Bank+Regnskap' : 'Aktiver nå'}}</a>
         </section>
 
-        <section *ngIf="isDemo && demoExpired" class="demo-company-notifier expired">
+        <section *ngIf="isDemo && demoExpired" class="navbar-alert bad">
             Prøveperiode utløpt
         </section>
 
         <section *ngIf="isTemplateCompany"
-            class="template-company-warning"
+            class="navbar-alert"
             matTooltip="Denne klienten er merket som mal. Det vil si at man ved oppretting av nye klienter kan kopiere data og innstillinger fra den. Man bør derfor kun registrere data som skal kopieres til nye klienter.">
             MALKLIENT
         </section>

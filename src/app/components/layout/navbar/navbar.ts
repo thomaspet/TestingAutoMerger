@@ -25,6 +25,7 @@ export class UniNavbar {
     sidebarState: string;
 
     isSrEnvironment = theme.theme === THEMES.SR;
+    isBrunoEnvironment = theme.theme === THEMES.EXT02;
 
     user: User;
     licenseRole: string;
