@@ -3,7 +3,7 @@
     [tabs]="filters"
     [labelProperty]="'Name'"
     [counterProperty]="'CurrentCount'"
-    [activeIndex]="selectedFilterIndex"
+    [(activeIndex)]="selectedFilterIndex"
     (activeIndexChange)="onFilterSelected($event)">
 </uni-tabs>
 
