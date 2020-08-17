@@ -54,6 +54,7 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {theme} from 'src/themes/theme';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -897,6 +898,12 @@ export class UniTicker {
         for (let i = 0; i < this.ticker.Columns.length; i++) {
             const column = this.ticker.Columns[i];
 
+            const whitelabelOverrides = theme.tableColumnOverrides && theme.tableColumnOverrides[configStoreKey];
+            const columnOverride = whitelabelOverrides?.find(override => override.field === column.SelectableFieldName);
+            if (columnOverride && typeof columnOverride.visible === 'boolean') {
+                column.DefaultHidden = !columnOverride.visible;
+            }
+
             // If field/column is hidden in the table, don't expand it
             const tableColumn = customColumnSetup.find(customField => {
                 return customField.field === column.SelectableFieldName;
@@ -1384,7 +1391,7 @@ export class UniTicker {
     }
 
     private shouldAddColumnToQuery(column: TickerColumn, userColumnSetup: UniTableColumn): boolean {
-        if (column.SelectRequired || column.Field === 'ID' || column.Field === 'StatusCode') {
+        if (column.SelectRequired || column.Field === 'ID' || column.Field === 'StatusCode' || column.Type === 'link') {
             return true;
         }
 
