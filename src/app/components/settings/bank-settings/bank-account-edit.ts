@@ -91,9 +91,6 @@ export class CompanyBankAccountEdit {
             if (accounts && accounts.length) {
                 this.validMainAccount = true;
                 const account = accounts[0];
-                const value = this.formModel$.getValue();
-                value.Account = account;
-                value.AccountID = account.ID;
 
                 const connectedBankAccounts = [];
                 this.bankAccountService.getConnectedBankAccounts(account.ID, 0).subscribe(res => {
@@ -102,6 +99,9 @@ export class CompanyBankAccountEdit {
                     });
 
                     if (connectedBankAccounts.length === 0) {
+                        const value = this.formModel$.getValue();
+                        value.Account = account;
+                        value.AccountID = account.ID;
                         this.formModel$.next(value);
                         this.getBankAccountsConnectedToAccount(value.AccountID);
                     }
