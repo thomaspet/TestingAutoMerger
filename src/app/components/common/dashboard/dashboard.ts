@@ -173,10 +173,10 @@ export class DashboardNew {
 
     removeWidget(index: number) {
         const item = this.gridInstance.getItems(index);
-        this.gridInstance.remove(item, { removeElements: true });
 
         this.currentLayout.splice(index, 1);
-        this.widgetDefinitions = this.getWidgetDefinitions(this.currentLayout);
+        this.widgetDefinitions.splice(index, 1);
+        this.gridInstance.remove(item, { removeElements: true });
         this.cdr.markForCheck();
     }
 
