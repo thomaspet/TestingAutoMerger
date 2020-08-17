@@ -8,8 +8,8 @@ import { catchError } from 'rxjs/operators';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
-import {HttpClient} from '@angular/common/http';
-import {theme, THEMES} from 'src/themes/theme';
+import { HttpClient } from '@angular/common/http';
+import { theme, THEMES } from 'src/themes/theme';
 
 @Component({
     selector: 'user-settings-modal',
@@ -75,7 +75,10 @@ export class UserSettingsModal implements IUniModal {
         const saveRequests = [];
         if (this.userDetailsForm.dirty) {
             const model = this.userDetailsForm.value;
-            if (this.user.TwoFactorEnabled && !model.AuthPhoneNumber) { return; }
+            if (model.TwoFactorEnabled && !model.AuthPhoneNumber) {
+                this.userDetailsForm.controls['AuthPhoneNumber'].markAsTouched();
+                return;
+            }
             this.user.DisplayName = model.DisplayName;
             this.user.PhoneNumber = model.PhoneNumber;
             this.user.Email = model.Email;
