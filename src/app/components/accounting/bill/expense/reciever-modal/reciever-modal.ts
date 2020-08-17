@@ -34,14 +34,13 @@ export class RecieverModal implements IUniModal {
     types: any[] = [];
     busy: boolean = true;
     errorMsg: string = '';
-    infoText = this.getInfoText();
+    missingNumberseriesInfoText = this.getMissingNumberseriesInfoText();
     dataLoaded: boolean = false;
     isDirty = false;
     isEdit: boolean = false;
 
     supplier$ = new BehaviorSubject<Supplier>(null);
     fields$ = new BehaviorSubject([]);
-    config$ = new BehaviorSubject({});
 
     constructor(
         private statisticsService: StatisticsService,
@@ -50,9 +49,9 @@ export class RecieverModal implements IUniModal {
         private supplierService: SupplierService,
         private numberSeriesTypeService: NumberSeriesTypeService,
         private accountService: AccountService
-    ) { }
+    ) {}
 
-    public ngOnInit() {
+    ngOnInit() {
         // If edit
         if (this.options && this.options.data && this.options.data.SupplierID) {
             this.isEdit = true;
@@ -92,7 +91,12 @@ export class RecieverModal implements IUniModal {
         }
     }
 
-    getInfoText(): string {
+    ngOnDestroy() {
+        this.fields$.complete();
+        this.supplier$.complete();
+    }
+
+    getMissingNumberseriesInfoText(): string {
         return theme.theme === THEMES.SR
         ? 'Du har ikke noe oppsett for mottaker i nummerserier. Hvis du trykker på "Opprett mottaker", vil systemet opprette en nummerserie i ledig serie, koble til konto "2910 - Gjeld til ansatte" og slå på PostPost på denne kontoen.'
         : 'Det vil bli opprettet en egen regnskapskonto for Gjeld til ansatte (2910). Denne blir utlignet i det du registerer betalingen til den ansatte.';

@@ -147,13 +147,6 @@
                 th + th, td + td
                     padding-left: 1rem
 
-        .item-edit-icon
-            margin-left: auto
-            visibility: hidden
-            &:hover
-                color: var(--color-c2a)
-                cursor: pointer
-
         .footer
             flex: 0 0 auto
             padding: .75rem 1rem
@@ -171,6 +164,13 @@
                     border-radius: 50%
                     margin-right: 5px
                     font-size: 20px
+
+    .item-edit-icon
+        margin-left: auto !important
+        visibility: hidden
+        cursor: pointer
+        &:hover
+            color: var(--color-c2a)
 
 .settings-dropdown-container
     display: flex

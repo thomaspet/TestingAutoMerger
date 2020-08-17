@@ -34,12 +34,9 @@ export class DetailsFormExpense {
         displayFunction: item => item?.Info?.Name ? `${item.SupplierNumber} - ${item.Info.Name}` : `${item.AccountNumber} - ${item.AccountName}`,
         openSearchOnClick: true,
         createLabel: 'Opprett ny mottaker',
-        createHandler: () => {
-            return this.modalService.open(RecieverModal, { closeOnClickOutside: false }).onClose;
-        },
+        createHandler: () => this.modalService.open(RecieverModal).onClose,
         editHandler: (item) => {
             return this.modalService.open(RecieverModal, {
-                closeOnClickOutside: false,
                 header: 'Rediger mottaker',
                 data: item
             }).onClose;

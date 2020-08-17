@@ -40,8 +40,13 @@
 				<span>Mottaker</span>
 				<autocomplete [options]="accountOptions" [value]="supplierInvoice?.Supplier" (valueChange)="setAccount($event)"></autocomplete>
 			</label>
-			<i class="material-icons" title="Rediger valgt mottaker" *ngIf="supplierInvoice?.Supplier" (click)="editSelectedAccount(supplier)"> edit </i>
+			<button class="icon-button" aria-label="Rediger valgt mottaker" tabindex="-1"
+				*ngIf="supplierInvoice?.Supplier"
+				(click)="editSelectedAccount(supplier)">
+				<i class="material-icons">edit</i>
+			</button>
 		</section>
+
 		<label class="uni-label">
 			<span>Bankkonto</span>
 			<input readonly type="text" [ngModel]="supplierInvoice?.Supplier?.Info?.DefaultBankAccount.AccountNumber" >

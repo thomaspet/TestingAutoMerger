@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal new-reciever-modal" style="width: 35vw">
+<section role="dialog" class="uni-modal" style="width: 42rem">
     <header>{{ options?.header || 'Opprett ny mottaker'}}</header>
 
     <article>
@@ -7,20 +7,21 @@
         </section>
 
         <uni-form
+            [config]="{showLabelAbove: true, autoFocus: true}"
             [model]="supplier$"
             [fields]="fields$"
-            [config]="config$"
             (changeEvent)="isDirty = true">
         </uni-form>
-        <section *ngIf="!types.length && dataLoaded" class="infotext-section">
+
+        <section *ngIf="!types.length && dataLoaded" class="alert warn">
             <i class="material-icons">info</i>
-            <span>
-                {{ infoText }}
-            </span>
+            <span>{{missingNumberseriesInfoText}}</span>
         </section>
-        <small class="bad">
-            {{ errorMsg }}
-        </small>
+
+        <section *ngIf="errorMsg?.length" class="alert bad">
+            <i class="material-icons">error</i>
+            <span>{{errorMsg}}</span>
+        </section>
     </article>
 
     <footer>

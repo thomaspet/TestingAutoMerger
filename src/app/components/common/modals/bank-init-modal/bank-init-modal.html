@@ -54,7 +54,7 @@
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
-                [config]="{autofocus: true}"
+                [config]="{showLabelAbove: true, autoFocus: true}"
                 (changeEvent)="isDirty = true">
             </uni-form>
         </article>
@@ -65,7 +65,7 @@
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
-                [config]="{autofocus: true}"
+                [config]="{showLabelAbove: true, autoFocus: true}"
                 (changeEvent)="isDirty = true">
             </uni-form>
         </article>
@@ -76,7 +76,7 @@
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
-                [config]="{autofocus: true}"
+                [config]="{showLabelAbove: true, autoFocus: true}"
                 (changeEvent)="isDirty = true">
             </uni-form>
         </article>
@@ -125,7 +125,8 @@
 
             <button *ngIf="steps === 4" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
 
-            <button *ngIf="steps < 4" class="c2a" (click)="next()" [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid"> Neste </button>
+            <!-- [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid" -->
+            <button *ngIf="steps < 4" class="c2a" (click)="next()"> Neste </button>
 
             <button class="c2a" *ngIf="this.steps === 5" (click)="close()"> Ferdig </button>
         </footer>

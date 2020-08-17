@@ -89,56 +89,42 @@ import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/model
                     <p> Ny autobankavtale for klienten du står på: <br/><strong>{{ companySettings?.CompanyName }}</strong> </p>
                 </article>
 
-                <article *ngIf="steps === 2" class="uni-autobank-agreement-modal-body checkbox_step" id="step2">
+                <article *ngIf="steps === 2" class="uni-autobank-agreement-modal-body" id="step2">
                     <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf#zoom=100" type="application/pdf">
                         <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
                     </object>
                     <br>
-                    <label class="checkbox-label" for="agreementCheckbox">
-                        <input type="checkbox" [(ngModel)]="haveReadAgreement" id="agreementCheckbox"/>
+
+                    <mat-checkbox [(ngModel)]="haveReadAgreement">
                         Godta vilkår og avtaler
-                    </label>
+                    </mat-checkbox>
                 </article>
 
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <uni-form
                         style="font-size: .9rem; width: 80%"
-                        [config]="formConfig$"
+                        [config]="{showLabelAbove: true, autoFocus: true}"
                         [fields]="formFields$"
                         [model]="formModel$"
                         (changeEvent)="onFormChange($event)">
                     </uni-form>
-                    <span style="font-weight: 400; margin: 1rem 0 1rem .5rem;">
-                        <span style="color: #9198aa;">Marker for å ta med i avtale:</span>
-                        <div class="payments-checkboxes">
-                            <div>
-                                <i class="material-icons" (click)="agreementDetails.IsInbound = !agreementDetails.IsInbound">
-                                    {{ agreementDetails.IsInbound ? 'check_box' : 'check_box_outline_blank' }}
-                                </i>
-                                <span>Innbetalinger</span>
-                            </div>
-                            <div>
-                                <i class="material-icons" (click)="agreementDetails.IsOutgoing = !agreementDetails.IsOutgoing">
-                                    {{ agreementDetails.IsOutgoing ? 'check_box' : 'check_box_outline_blank' }}
-                                </i>
-                                <span>Utbetalinger</span>
-                            </div>
-                            <div>
-                                <i class="material-icons" (click)="agreementDetails.IsBankBalance = !agreementDetails.IsBankBalance">
-                                    {{ agreementDetails.IsBankBalance ? 'check_box' : 'check_box_outline_blank' }}
-                                </i>
-                                <span style="display: flex; align-items: center;">
-                                    Banksaldo + avstemming
-                                    <i class="material-icons"
-                                        matTooltip="{{ infoTextForBalance }}"
-                                        style="margin-left: 1rem; font-size: 20px; color: #8c93a7">
-                                        info
-                                    </i>
-                                </span>
-                            </div>
-                        </div>
-                    </span>
+
+                    <label class="uni-label agreement-checkboxes">
+                        <span>Marker for å ta med i avtale</span>
+                        <mat-checkbox [(ngModel)]="agreementDetails.IsInbound">
+                            Innbetalinger
+                        </mat-checkbox>
+
+                        <mat-checkbox [(ngModel)]="agreementDetails.IsOutgoing">
+                            Utbetalinger
+                        </mat-checkbox>
+
+                        <mat-checkbox [(ngModel)]="agreementDetails.IsBankBalance">
+                            Banksaldo + avstemming
+                            <i class="material-icons" [matTooltip]="infoTextForBalance">info</i>
+                        </mat-checkbox>
+                    </label>
                 </article>
 
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && !hasAgreements" id="step4"
@@ -220,10 +206,10 @@ import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/model
                 <footer>
                     <span *ngIf="errorText"> {{ errorText }}</span>
                     <div>
-                        <button *ngIf="steps > 0 && steps !== 5" (click)="move(-1)" class="bank-agreement-button back-button">
+                        <button *ngIf="steps > 0 && steps !== 5" (click)="move(-1)" class="secondary">
                             Tilbake
                         </button>
-                        <button (click)="move(1)" class="bank-agreement-button forward-button" [disabled]="buttonLock">
+                        <button (click)="move(1)" class="c2a" [disabled]="buttonLock">
                             {{ steps === 4 ? 'Opprett avtale' : steps === 5 || noAccounts ? 'Lukk' : 'Fortsett' }}
                         </button>
                     </div>
@@ -242,7 +228,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private accounts: any[] = [];
-    private agreements: any[] = [];
+    agreements: any[] = [];
 
     usedBanks: string[] = [];
     buttonLock: boolean = false;
@@ -280,7 +266,6 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         ServiceProvider: BankAgreementServiceProvider.ZData
     };
 
-    formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: false});
     formModel$: BehaviorSubject<AutoBankAgreementDetails> = new BehaviorSubject(null);
     formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     haveReadAgreement = false;
@@ -341,6 +326,11 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.formModel$.next(this.agreementDetails);
             this.formFields$.next(this.getFormFields());
         });
+    }
+
+    ngOnDestroy() {
+        this.formFields$.complete();
+        this.formModel$.complete();
     }
 
     private getFormFields(): UniFieldLayout[] {
