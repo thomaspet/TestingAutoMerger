@@ -596,7 +596,7 @@ export class SupplierInvoiceStore {
         });
     }
 
-    registerExpensePayment(): Observable<any> {
+    registerExpensePayment(accountID): Observable<any> {
         const invoice = this.invoice$.getValue();
 
         const paymentData = <InvoicePaymentData> {
@@ -607,10 +607,11 @@ export class SupplierInvoiceStore {
             CurrencyExchangeRate: 0,
             PaymentDate: invoice.InvoiceDate,
             AgioAccountID: 0,
-            BankChargeAccountID: 0,
+            BankChargeAccountID: accountID,
             AgioAmount: 0,
             PaymentID: null,
-            DimensionsID: invoice.DefaultDimensionsID
+            DimensionsID: invoice.DefaultDimensionsID,
+            FromBankAccountID: accountID
         };
 
         return this.journalAndPaymentHelper.cleanJournal(invoice.ID).pipe(switchMap(i => {

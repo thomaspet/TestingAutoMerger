@@ -103,7 +103,7 @@ export class SupplierInvoiceExpense {
         this.store.saveChanges().subscribe(i => {
             this.store.invoice$.next(i);
             if (isAlreadyPaid) {
-                this.store.registerExpensePayment().subscribe((data) => {
+                this.store.registerExpensePayment(this.detailsForm.selectedBankAccount.ID).subscribe((data) => {
                     this.store.showSavedJournalToast(data);
                     done();
                 });

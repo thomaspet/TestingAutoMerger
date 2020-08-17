@@ -24,6 +24,7 @@ export class DetailsFormExpense {
     selectedBankAccount;
     autocompleteOptions: any;
     date: Date = new Date();
+    supplier;
     supplierExpands: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'Dimensions.Info'];
     elementRef: any;
     cachedQuery = {};
@@ -113,12 +114,16 @@ export class DetailsFormExpense {
     }
 
     setAccount(supplier) {
+        this.supplier = supplier;
         this.newSupplierSelected({ID: supplier.SupplierID});
+    }
+
+    onChange(account) {
+        this.selectedBankAccount = account;
     }
 
     editSelectedAccount(item) {
         this.modalService.open(RecieverModal, {
-            closeOnClickOutside: false,
             header: 'Rediger mottaker',
             data: item
         }).onClose.subscribe((reciever: any) => {
