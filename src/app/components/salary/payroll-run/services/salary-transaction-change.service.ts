@@ -81,8 +81,8 @@ export class SalaryTransactionChangeService {
     }
 
     public checkDates(rowModel) {
-        const fromDate: LocalDate = new LocalDate(rowModel['FromDate'].toString());
-        const toDate: LocalDate = new LocalDate(rowModel['ToDate'].toString());
+        const fromDate: LocalDate = new LocalDate(rowModel['FromDate']?.toString());
+        const toDate: LocalDate = new LocalDate(rowModel['ToDate']?.toString());
         if (toDate < fromDate) {
             rowModel['ToDate'] = fromDate.toString();
         }
