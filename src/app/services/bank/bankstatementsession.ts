@@ -336,11 +336,6 @@ export class BankStatementSession {
             x.items.forEach(item => {
                 item.Closed = true;
                 item.StageGroupKey = null;
-                if (item.IsBankEntry) {
-                    this.bankBalance -= item.Amount;
-                } else {
-                    this.journalEntryBalance -= item.Amount;
-                }
             });
         });
 
