@@ -20,7 +20,7 @@ export class NewTaskModal implements IUniModal {
     newTask: Task = new Task();
     currentUser: User;
     users: User[] = [];
-    hideAssign: boolean = theme.theme === THEMES.EXT02 && !this.featurePermissionService.canShowRoute('ui_assignments');
+    hideAssign: boolean = theme.theme === THEMES.EXT02 && !this.featurePermissionService.canShowUiFeature('ui.assignment-list');
     userSelectConfig: any = {
         displayProperty: 'DisplayName',
         searchable: true,

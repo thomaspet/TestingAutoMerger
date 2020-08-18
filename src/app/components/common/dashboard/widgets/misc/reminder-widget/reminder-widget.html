@@ -13,10 +13,10 @@
         </span>
     </section>
 
-    <a *ngFor="let task of tasks" class="reminder-item unstyled-link task-span-title" (click)="onTaskClicked()">
+    <a *ngFor="let task of tasks; let i = index;" class="reminder-item unstyled-link task-span-title" (click)="onTaskClicked()">
         <i class="material-icons-outlined">note</i>
         <span>{{task.Title}}</span>
-        <i class="material-icons-outlined finish-icon" title="Marker oppgave som fullført" *ngIf="!task._completed" (click)="quickApproveTask(task, $event)">brightness_1</i>
+        <i class="material-icons-outlined finish-icon" title="Marker oppgave som fullført" *ngIf="!task._completed" (click)="quickApproveTask(task, $event, i)">brightness_1</i>
         <i class="material-icons-outlined" title="Oppgave fullført" *ngIf="task._completed">check_circle_outline</i>
     </a>
 
