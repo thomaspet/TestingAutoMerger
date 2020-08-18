@@ -71,8 +71,7 @@ export class BatchInvoiceModal implements IUniModal {
 
             this.formFields = this.getFormFields(sellers || [], data.entityType);
 
-            this.canDistribute = settings.AutoDistributeInvoice
-                && !!settings.Distributions && !!settings.Distributions.CustomerInvoiceDistributionPlanID;
+            this.canDistribute = !!settings.Distributions && !!settings.Distributions.CustomerInvoiceDistributionPlanID;
 
             this.busy = false;
         });
