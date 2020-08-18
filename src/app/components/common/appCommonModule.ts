@@ -56,7 +56,7 @@ import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-r
 import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 
-import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
+import {TaskModal} from '../common/modals/task-modal/task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
 import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
@@ -148,7 +148,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
-        NewTaskModal,
+        TaskModal,
         UniNewCompanyModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
@@ -193,7 +193,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         ReminderSettings,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
-        NewTaskModal,
+        TaskModal,
 
         ContactDetails,
         Contacts,

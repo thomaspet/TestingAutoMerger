@@ -35,6 +35,10 @@
         border-color: var(--button-#{$type}) !important
 
 button, a.button
+    display: inline-flex
+    align-items: center
+    justify-content: center
+
     position: relative
     height: 2.5rem
     font-size: var(--button-font-size)
@@ -74,22 +78,22 @@ button, a.button
         outline: none
 
     &.icon-button
-        display: inline-flex
-        align-items: center
-        justify-content: center
         background-color: unset
         padding: 0
         border: none
         width: 2.5rem
-        i
-            margin-bottom: 0
+        i, uni-icon
+            margin: 0
 
         &.rounded
             border-radius: 50%
 
-    i
-        vertical-align: middle
-        margin-bottom: 2px
+    i, uni-icon
+        margin-bottom: 1px
+        &.pad-left
+            margin-left: 4px
+        &.pad-right
+            margin-right: 4px
 
     & + button
         margin-left: 1rem

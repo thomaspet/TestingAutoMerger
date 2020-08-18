@@ -10,7 +10,7 @@ import {AuthService} from '@app/authService';
 import {ApprovalStatus, Task, Approval, FinancialDeadline} from '@uni-entities';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {NewTaskModal} from '@app/components/common/modals/new-task-modal/new-task-modal';
+import {TaskModal} from '@app/components/common/modals/task-modal/task-modal';
 import { Router } from '@angular/router';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
@@ -218,8 +218,15 @@ export class ReminderWidget {
         );
     }
 
-    onTaskClicked() {
-        this.router.navigateByUrl('/assignments/tasks');
+    createOrEditTask(task?: Task) {
+        this.modalService.open(TaskModal, { data: task }).onClose.subscribe(changes => {
+            if (changes) {
+                this.getTasks(true).subscribe(tasks => {
+                    this.tasks = tasks;
+                    this.cdr.markForCheck();
+                });
+            }
+        });
     }
 
     quickApproveTask(task: Task, event, index) {
@@ -234,17 +241,6 @@ export class ReminderWidget {
             }, 1500);
         }, err => {
             this.toast.addToast('Noe gikk galt', ToastType.good, 8, `Kunne ikke markere oppgave som fullført. Prøv igjen senere`);
-        });
-    }
-
-    createTask() {
-        this.modalService.open(NewTaskModal).onClose.subscribe(taskAdded => {
-            if (taskAdded) {
-                this.getTasks(true).subscribe(tasks => {
-                    this.tasks = tasks;
-                    this.cdr.markForCheck();
-                });
-            }
         });
     }
 }

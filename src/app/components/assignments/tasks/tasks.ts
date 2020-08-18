@@ -2,7 +2,7 @@ import {Component, ElementRef, ViewChild} from '@angular/core';
 import {ActivatedRoute} from '@angular/router';
 import {Observable} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {NewTaskModal} from '../../common/modals/new-task-modal/new-task-modal';
+import {TaskModal} from '../../common/modals/task-modal/task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {Task, TaskType, TaskStatus, User} from '../../../unientities';
 import {TaskService, UserService, ErrorService} from '../../../services/services';
@@ -151,7 +151,7 @@ export class UniTasks {
     }
 
     public addTask() {
-        this.modalService.open(NewTaskModal).onClose.subscribe((taskAdded: boolean) => {
+        this.modalService.open(TaskModal).onClose.subscribe((taskAdded: boolean) => {
             if (taskAdded) {
                 this.loadTasks();
             }
