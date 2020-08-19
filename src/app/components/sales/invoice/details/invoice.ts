@@ -90,6 +90,7 @@ import { SendInvoiceModal } from '../modals/send-invoice-modal/send-invoice-moda
 import { TofReportModal } from '../../common/tof-report-modal/tof-report-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {THEMES, theme} from 'src/themes/theme';
+import { ToolbarSharingStatus } from '@app/components/common/toolbar/sharing-status/sharing-status';
 
 export enum CollectorStatus {
     Reminded = 42501,
@@ -1419,7 +1420,11 @@ export class InvoiceDetails implements OnInit {
                     }
                     this.modalService.open(SendInvoiceModal, {
                         data: this.invoice
-                    }).onClose.subscribe(() => {
+                    }).onClose.subscribe((emailSentTo) => {
+                        if (emailSentTo) {
+                            this.invoice.EmailAddress = emailSentTo;
+                            this.refreshInvoice(this.invoice);
+                        }
                         setTimeout(() => {
                             if (this.toolbar) {
                                 this.toolbar.refreshSharingStatuses();
@@ -1486,8 +1491,8 @@ export class InvoiceDetails implements OnInit {
                             entityType: 'CustomerInvoice',
                             reportType: ReportTypeEnum.INVOICE
                         }
-                    }).onClose.subscribe(emailSent => {
-                        if (emailSent) {
+                    }).onClose.subscribe(emailSentTo => {
+                        if (emailSentTo) {
                             this.customerInvoiceService.setPrintStatus(this.invoice.ID, '100').subscribe(
                                 () => {
                                     setTimeout(() => {
@@ -1498,6 +1503,9 @@ export class InvoiceDetails implements OnInit {
                                 },
                                 err => console.error(err)
                             );
+
+                            this.invoice.EmailAddress = emailSentTo;
+                            this.refreshInvoice(this.invoice);
                         }
 
                         done();
@@ -1858,7 +1866,7 @@ export class InvoiceDetails implements OnInit {
                                     }
                                 }
 
-                                const onSendingComplete = () => {
+                                const onSendingComplete = (emailSentTo = null) => {
                                     setTimeout(() => {
                                         if (this.toolbar) {
                                             this.toolbar.refreshSharingStatuses();
@@ -1866,7 +1874,11 @@ export class InvoiceDetails implements OnInit {
                                     }, 500);
 
                                     if (!wasDraft) {
+                                        if (emailSentTo) { this.customerInvoiceService.invalidateCache(); }
                                         this.router.navigateByUrl('/sales/invoices/' + updatedInvoice.ID);
+                                    } else if (emailSentTo) {
+                                        this.invoice.EmailAddress = emailSentTo;
+                                        this.refreshInvoice(this.invoice);
                                     }
                                 };
 
@@ -1902,7 +1914,9 @@ export class InvoiceDetails implements OnInit {
                                         }
                                         this.modalService.open(SendInvoiceModal, {
                                             data: this.invoice
-                                        }).onClose.subscribe(() => onSendingComplete());
+                                        }).onClose.subscribe((emailSentTo) => {
+                                            onSendingComplete(emailSentTo);
+                                        });
                                     }
                                 } else {
                                     if (invoice.DistributionPlanID && this.companySettings.AutoDistributeInvoice) {
@@ -1936,7 +1950,9 @@ export class InvoiceDetails implements OnInit {
                                         }
                                         this.modalService.open(SendInvoiceModal, {
                                             data: this.invoice
-                                        }).onClose.subscribe(() => onSendingComplete());
+                                        }).onClose.subscribe((emailSentTo) => {
+                                            onSendingComplete(emailSentTo);
+                                        });
                                     }
                                 }
                             });

@@ -1219,8 +1219,8 @@ export class OrderDetails implements OnInit {
                             entityType: 'CustomerOrder',
                             reportType: ReportTypeEnum.ORDER
                         }
-                    }).onClose.subscribe(emailSent => {
-                        if (emailSent) {
+                    }).onClose.subscribe(emailSentTo => {
+                        if (emailSentTo) {
                             this.customerOrderService.setPrintStatus(this.order.ID, '100').subscribe(
                                 () => {
                                     this.order.PrintStatus = 100;
@@ -1228,6 +1228,9 @@ export class OrderDetails implements OnInit {
                                 },
                                 err => console.error(err)
                             );
+
+                            this.order.EmailAddress = emailSentTo;
+                            this.refreshOrder(this.order);
                         }
 
                         done();

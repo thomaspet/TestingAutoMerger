@@ -232,9 +232,9 @@ export class SendInvoiceModal implements IUniModal {
                 entityType: 'CustomerInvoice',
                 reportType: ReportTypeEnum.INVOICE
             }
-        }).onClose.subscribe(emailSent => {
-            if (emailSent) {
-                this.onClose.emit('email');
+        }).onClose.subscribe(emailSentTo => {
+            if (emailSentTo) {
+                this.onClose.emit(emailSentTo);
             }
         });
     }
