@@ -160,10 +160,9 @@ export class TofEmailModal {
             `Models.Sales.${formModel.model.EntityType}`,
             formModel.reportID,
             formModel.model,
-            [parameter]
+            [parameter],
+            () => this.onClose.emit(email)
         );
-
-        this.onClose.emit(true);
     }
 
     onFormChange(changes) {

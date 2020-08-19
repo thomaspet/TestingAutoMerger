@@ -61,6 +61,9 @@ export class EmailService extends BizHttp<Email> {
                         type: ToastType.good,
                         duration: ToastTime.medium
                     });
+                    if (doneHandler) {
+                        doneHandler('Sendt');
+                    }
                 },
                 (err) => this.errorService.handle(err)
             );
