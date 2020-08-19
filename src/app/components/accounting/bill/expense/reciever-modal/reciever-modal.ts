@@ -321,6 +321,7 @@ export class RecieverModal implements IUniModal {
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
                 ReadOnly: !this.types.length || this.isEdit,
+                Hidden: this.types.length <= 1,
                 Options: {
                     source: this.types,
                     valueProperty: 'ID',
