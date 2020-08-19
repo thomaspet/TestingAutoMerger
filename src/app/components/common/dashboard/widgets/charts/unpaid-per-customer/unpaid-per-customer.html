@@ -1,0 +1,12 @@
+<section class="header">
+    <h1>Utestående per kunde</h1>
+</section>
+
+<section class="content">
+    <widget-empty-state *ngIf="!loading && !data?.length">
+        Det ser ikke ut som du har noe utestående.
+    </widget-empty-state>
+
+    <widget-chart *ngIf="!loading && data?.length" [chartConfig]="chartConfig"></widget-chart>
+</section>
+

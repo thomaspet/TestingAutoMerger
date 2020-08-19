@@ -1,0 +1,12 @@
+<section class="header">
+    <h1>Balansefordeling</h1>
+</section>
+
+<section class="content">
+    <widget-empty-state *ngIf="!loading && !data?.length">
+        Mangler data.
+    </widget-empty-state>
+
+    <widget-chart *ngIf="!loading && data?.length" [chartConfig]="chartConfig"></widget-chart>
+</section>
+
