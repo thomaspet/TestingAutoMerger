@@ -103,7 +103,7 @@ export class AccountMandatoryDimensionService extends BizHttp<AccountMandatoryDi
         const debitMandatoryDimensions = this.mandatoryDimensionsCache.filter(md => md.AccountID === account.ID);
         const debitWarningDimensions = debitMandatoryDimensions.filter(md => {
             const isWarning = md.MandatoryType === 2;
-            const hasValue = !!(row?.Dimensions[this.getDimensionName(md.DimensionNo)];
+            const hasValue = !!row?.Dimensions[this.getDimensionName(md.DimensionNo)];
             return isWarning && !hasValue;
         });
         const debitRequiredDimensions = debitMandatoryDimensions.filter(md => {
