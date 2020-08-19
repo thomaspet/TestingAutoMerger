@@ -55,7 +55,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.timetracking',
 
         'ui.accounting.assets',
-        'ui.assignment-list',
+        'ui.task.assign-to-user',
 
         'ui.sales.customer.tof_report_setup',
         'ui.sales.customer.avtalegiro',

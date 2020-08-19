@@ -1,6 +1,6 @@
 import {Component, Input, OnChanges, ViewChild, OnInit, OnDestroy} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
-import {Observable, Subject, forkJoin, of} from 'rxjs';
+import {Observable, Subject, forkJoin, of, BehaviorSubject} from 'rxjs';
 import {
     UniTableColumnType,
     UniTableColumn,
@@ -10,14 +10,14 @@ import {
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {
     WageType, PayrollRun, SalaryTransaction, Project, Department,
-    WageTypeSupplement, SalaryTransactionSupplement, Account, Dimensions, LocalDate, StdSystemType
+    Account, Dimensions, StdSystemType
 } from '@uni-entities';
 import {
     AccountService, UniCacheService,
     ErrorService, WageTypeService, SalaryTransactionService, IEmployee
 } from '@app/services/services';
 
-import {tap, takeUntil, map, switchMap, takeWhile} from 'rxjs/operators';
+import {tap, takeUntil, map, switchMap, takeWhile, take} from 'rxjs/operators';
 import { UniView } from '@uni-framework/core/uniView';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { SalaryTransactionViewService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-view.service';
@@ -300,6 +300,7 @@ export class SalaryTransactionListComponent extends UniView implements OnChanges
                 () => this.payrollRun && !!this.payrollRun.StatusCode);
 
         const editable = this.payrollRun ? this.payrollRun.StatusCode < 1 : true;
+        const mutex$ = new BehaviorSubject(false);
         this.salarytransEmployeeTableConfig = new UniTableConfig('salary.salarytrans.list', editable)
             .setContextMenu([{
                 label: 'Tilleggsopplysninger', action: (row) => {
@@ -333,8 +334,12 @@ export class SalaryTransactionListComponent extends UniView implements OnChanges
             .setColumnMenuVisible(true)
             .setDeleteButton(false)
             .setPageable(false)
-            .setChangeCallback((event) => of([this.handleChange(event.rowModel, event.field)])
+            .setChangeCallback((event) => mutex$
                 .pipe(
+                    take(1),
+                    takeWhile(mutex => !mutex),
+                    tap(() => mutex$.next(true)),
+                    switchMap(() => of([this.handleChange(event.rowModel, event.field)])),
                     switchMap(rows => ['Wagetype', 'employment'].some(f => f === event.field)
                         ? this.fillInAll(rows)
                         : of(rows)
@@ -348,6 +353,7 @@ export class SalaryTransactionListComponent extends UniView implements OnChanges
                         this.updateTransStateBasedOnChanges(salaryTransactions, true);
                         return salaryTransactions[0];
                     }),
+                    tap(() => mutex$.next(false))
                 )
             )
             .setIsRowReadOnly(

@@ -1,7 +1,7 @@
 <section class="header">
     <h1>Huskeliste</h1>
 
-    <a class="pull-right" (click)="createTask()" tabindex="0">Opprett huskelapp</a>
+    <a class="pull-right" (click)="createOrEditTask()" tabindex="0">Opprett huskelapp</a>
 </section>
 
 <section class="content" id="reminder-list">
@@ -13,11 +13,11 @@
         </span>
     </section>
 
-    <a *ngFor="let task of tasks; let i = index;" class="reminder-item unstyled-link task-span-title" (click)="onTaskClicked()">
+    <a *ngFor="let task of tasks; let i = index;" class="reminder-item unstyled-link task-span-title" (click)="createOrEditTask(task)">
         <i class="material-icons-outlined">note</i>
         <span>{{task.Title}}</span>
-        <i class="material-icons-outlined finish-icon" title="Marker oppgave som fullført" *ngIf="!task._completed" (click)="quickApproveTask(task, $event, i)">brightness_1</i>
-        <i class="material-icons-outlined" title="Oppgave fullført" *ngIf="task._completed">check_circle_outline</i>
+        <!-- <i class="material-icons-outlined finish-icon" title="Marker oppgave som fullført" *ngIf="!task._completed" (click)="quickApproveTask(task, $event, i)">brightness_1</i>
+        <i class="material-icons-outlined" title="Oppgave fullført" *ngIf="task._completed">check_circle_outline</i> -->
     </a>
 
     <!-- Invoice approvals -->
@@ -58,7 +58,3 @@
         </span>
     </a>
 </section>
-
-<!-- <section class="footer center">
-    <a (click)="createTask()">Opprett huskelapp</a>
-</section> -->

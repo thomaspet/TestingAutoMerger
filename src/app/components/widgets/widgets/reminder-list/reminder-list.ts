@@ -5,7 +5,7 @@ import {AuthService} from '@app/authService';
 import {ApprovalService, TaskService} from '@app/services/services';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {WidgetDataService} from '../../widgetDataService';
-import {NewTaskModal} from '../../../common/modals/new-task-modal/new-task-modal';
+import {TaskModal} from '../../../common/modals/task-modal/task-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {ApprovalStatus, Task } from '@uni-entities';
 import {Observable} from 'rxjs';
@@ -188,7 +188,7 @@ export class ReminderListWidget {
     }
 
     newTask() {
-        this.modalService.open(NewTaskModal).onClose.subscribe((taskWasAdded: boolean) => {
+        this.modalService.open(TaskModal).onClose.subscribe((taskWasAdded: boolean) => {
             if (taskWasAdded) {
                 this.getDataAndLoadList();
             }
