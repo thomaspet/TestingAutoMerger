@@ -14,6 +14,8 @@ import {LiquidityWidget} from './charts/liquidity/liquidity';
 import {EmployeesWidget} from './misc/employees/employees-widget';
 import {EmploymentsPerJobCodeWidget} from './charts/employments-per-job-code/employments-per-job-code';
 import {TopTenCustomersWidget} from './misc/top-ten-customers/top-ten-customers';
+import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-customer';
+import {BalanceWidget} from './charts/balance-widget/balance-widget';
 
 export * from './widget';
 
@@ -33,7 +35,9 @@ export const WIDGET_COMPONENTS = [
     LiquidityWidget,
     EmployeesWidget,
     EmploymentsPerJobCodeWidget,
-    TopTenCustomersWidget
+    TopTenCustomersWidget,
+    UnpaidPerCustomer,
+    BalanceWidget,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -172,6 +176,24 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.SALES,
         component: TopTenCustomersWidget,
         routePermissions: ['ui_sales_invoices']
+    },
+    {
+        name: 'UNPAID_PER_CUSTOMER',
+        label: 'Utestående per  kunde',
+        size: 'small',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.SALES,
+        component: UnpaidPerCustomer,
+        routePermissions: ['ui_sales_invoices']
+    },
+    {
+        name: 'BALANCE',
+        label: 'Balansefordeling',
+        size: 'small',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.ACCOUNTING,
+        component: BalanceWidget,
+        routePermissions: ['ui_accounting']
     }
 ];
 

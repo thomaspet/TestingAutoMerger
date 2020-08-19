@@ -84,10 +84,6 @@ export class ExpensesWidget {
                 legend: {
                     position: 'right',
                     align: 'center',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 15
-                    }
                 },
                 elements: {
                     arc: {borderWidth: 2}
