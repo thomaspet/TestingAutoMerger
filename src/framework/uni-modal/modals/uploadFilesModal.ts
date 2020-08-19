@@ -7,6 +7,7 @@ import {AuthService} from '../../../app/authService';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {environment} from 'src/environments/environment';
 import {Observable, Subject} from 'rxjs';
+import { theme, THEMES } from 'src/themes/theme';
 
 export enum EntityForFileUpload {
     BANK = 1,
@@ -222,7 +223,8 @@ export class UniFileUploadModal implements IUniModal {
         if (this.files.filter(f =>
             f.ContentType !== 'bank/OCR' &&
             f.ContentType !== 'bank/camt054' &&
-            f.ContentType !== 'bank/PAIN002').length) {
+            f.ContentType !== 'bank/PAIN002').length &&
+            theme.theme !== THEMES.EXT02) {
 
                 this.hasErrors = true;
                 this.message += 'Noen filer har feil filtype og vil ikke bli lastet opp. Aksepterte filtyper er OCR, Camt054, og Pain002';
