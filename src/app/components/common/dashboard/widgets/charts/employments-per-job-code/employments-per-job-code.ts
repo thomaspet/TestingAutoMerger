@@ -68,14 +68,6 @@ export class EmploymentsPerJobCodeWidget {
                 animation: {
                     animateScale: true
                 },
-                legend: {
-                    position: 'right',
-                    align: 'center',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 15
-                    }
-                },
                 elements: {
                     arc: {borderWidth: 2}
                 }

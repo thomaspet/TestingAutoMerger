@@ -36,7 +36,6 @@ export class UnpaidPerCustomer {
                         rest -= (customer.RestAmount || 0);
                     });
 
-
                     if (rest > 0) {
                         data.push({
                             Name: 'Resterende',
@@ -44,8 +43,10 @@ export class UnpaidPerCustomer {
                         });
                     }
 
-                    this.data = data;
-                    this.chartConfig = this.getChartConfig();
+                    if (data.some(item => !!item.RestAmount)) {
+                        this.data = data;
+                        this.chartConfig = this.getChartConfig();
+                    }
                 }
 
                 this.loading = false;
@@ -97,10 +98,6 @@ export class UnpaidPerCustomer {
                 maintainAspectRatio: false,
                 animation: {
                     animateScale: true
-                },
-                legend: {
-                    position: 'right',
-                    align: 'center',
                 },
                 elements: {
                     arc: {borderWidth: 2}

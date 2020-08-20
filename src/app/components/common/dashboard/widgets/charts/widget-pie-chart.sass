@@ -1,0 +1,35 @@
+\:host
+    display: flex
+    overflow: hidden
+    width: 100%
+
+.canvas-wrapper
+    flex: 1
+    position: relative
+    min-width: 10rem
+    max-width: 15rem
+
+.pie-chart-legend
+    flex: 0 0 12rem
+    margin: auto 0 auto 2rem
+    overflow: hidden
+
+    .legend-item
+        display: flex
+        align-items: center
+        margin-bottom: 1px
+        cursor: pointer
+
+        .legend-dot
+            flex: 0 0 auto
+            width: 11px
+            height: 11px
+            margin-right: 8px
+            border-radius: 50%
+
+        .legend-label
+            white-space: nowrap
+            text-overflow: ellipsis
+            overflow: hidden
+            &.item-hidden
+                text-decoration: line-through

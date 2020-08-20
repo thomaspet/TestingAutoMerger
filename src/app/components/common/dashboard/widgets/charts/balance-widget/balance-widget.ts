@@ -68,13 +68,6 @@ export class BalanceWidget {
                 animation: {
                     animateScale: true
                 },
-                legend: {
-                    position: 'right',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 15
-                    }
-                },
                 elements: {
                     arc: { borderWidth: 2 }
                 },

@@ -53,7 +53,7 @@ export const theme = {
         bar_negative: '#FEEBC1',
         bar_foreground: '#F2F2F5',
 
-        pie_colors: ['#14555A', '#008484', '#A5E1D2', '#FDBB31', '#DC2A2A']
+        pie_colors: ['#14555A', '#008484', '#A5E1D2', '#FDBB31', '#DC2A2A', '#B3B3B3']
 
         // pie_colors: ['#007272', '#DAF0CD', '#FBBE11', '#7FC6E8', '#F8598B', '#FF9E2C', '#FBBE11', '#01A901', '#DAF0CD'],
         // due_date_colors: ['#007272', '#DAF0CD', '#FBBE11', '#FF9E2C', '#D63731'],

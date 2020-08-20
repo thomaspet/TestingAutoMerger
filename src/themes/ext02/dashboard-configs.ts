@@ -41,6 +41,8 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'sales_dashboard',
         layout: [
             'INVOICED',
+            'UNPAID_PER_CUSTOMER',
+
             'UNPAID',
             'TOP_TEN_CUSTOMERS',
         ]

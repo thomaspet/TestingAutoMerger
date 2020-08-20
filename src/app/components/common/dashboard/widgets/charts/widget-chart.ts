@@ -1,10 +1,10 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ElementRef, Input} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ViewChild, ElementRef, Input} from '@angular/core';
 
 import * as Chart from 'chart.js';
 
 @Component({
     selector: 'widget-chart',
-    template: '<canvas #canvas></canvas>',
+    template: `<canvas #canvas></canvas>`,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WidgetChart {

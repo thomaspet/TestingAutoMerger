@@ -6,6 +6,7 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {DashboardNew} from './dashboard';
 import {Widget, WIDGET_COMPONENTS} from './widgets';
 import {WidgetChart} from './widgets/charts/widget-chart';
+import {WidgetPieChart} from './widgets/charts/widget-pie-chart';
 import {WidgetSelectorDialog} from './widget-selector-dialog/widget-selector-dialog';
 import {DashboardDataService} from './dashboard-data.service';
 import {WidgetEmptyState} from './widgets/widget-empty-state';
@@ -20,6 +21,7 @@ import {LiquidityPaymentModal} from './widgets/charts/liquidity/payment-modal/li
     declarations: [
         DashboardNew,
         WidgetChart,
+        WidgetPieChart,
         Widget,
         WidgetSelectorDialog,
         WidgetEmptyState,

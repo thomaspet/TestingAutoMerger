@@ -81,10 +81,6 @@ export class ExpensesWidget {
                 animation: {
                     animateScale: true
                 },
-                legend: {
-                    position: 'right',
-                    align: 'center',
-                },
                 elements: {
                     arc: {borderWidth: 2}
                 }
