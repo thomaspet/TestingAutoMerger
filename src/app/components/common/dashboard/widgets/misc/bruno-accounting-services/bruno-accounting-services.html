@@ -1,24 +1,28 @@
-<section class="header">
-    <h1>Bestille regnskapstjenester</h1>
-</section>
-
-<section class="content">
-    <section class="image-wrapper">
-        <img src="/themes/ext02/illustration-saving.svg" alt="">
+<ng-container *ngIf="showUpgradeSalesPitch">
+    <section class="header">
+        <h1>Bruker du lang tid på bankavstemming?</h1>
     </section>
 
-    <p>Få gratis hjelp av regnskapsfører?</p>
+    <section class="content">
+        <section class="image-wrapper">
+            <img src="/themes/ext02/illustration-saving.svg" alt="">
+        </section>
 
-    <section *ngIf="hasMiniPackage" class="alert warn">
-        <i class="material-icons-outlined">info</i>
+        <p>Oppgrader til pluss for å få tilgang til automatisk bankavstemming</p>
+        <button class="c2a" routerLink="/marketplace/modules">Oppgrader</button>
+    </section>
+</ng-container>
 
-        <span>
-            Du har nå minipakken. For å få tilgang til hjelp må du
-            <a routerLink="/marketplace/modules">oppgradere til Pluss eller Komplett</a>
-        </span>
+<ng-container *ngIf="!showUpgradeSalesPitch">
+    <section class="header">
+        <h1>Trenger du hjelp fra regnskapsfører?</h1>
     </section>
 
-    <button *ngIf="!hasMiniPackage" (click)="orderAccountingHelp()" class="c2a">
-        Bestill
-    </button>
-</section>
+    <section class="content">
+        <section class="image-wrapper">
+            <img src="/themes/ext02/illustration-saving.svg" alt="">
+        </section>
+
+        <button class="c2a">Start chat med regnskapsfører</button>
+    </section>
+</ng-container>

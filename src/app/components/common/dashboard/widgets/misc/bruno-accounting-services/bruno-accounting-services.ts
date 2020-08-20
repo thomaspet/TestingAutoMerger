@@ -8,12 +8,12 @@ import {AuthService} from '@app/authService';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BrunoAccountingServicesWidget {
-    hasMiniPackage: boolean;
+    showUpgradeSalesPitch: boolean;
 
     constructor(authService: AuthService) {
         const user = authService.currentUser;
         const contractType = user.License?.ContractType?.TypeName;
-        this.hasMiniPackage = contractType?.toLowerCase() === 'mini';
+        this.showUpgradeSalesPitch = contractType?.toLowerCase() === 'mini';
     }
 
     orderAccountingHelp() {

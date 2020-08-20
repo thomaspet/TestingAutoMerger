@@ -27,7 +27,9 @@ export const DASHBOARD_CONFIGS = {
                     'UNPAID_BILLS',
 
                     'OPERATING_PROFITS',
-                    'BRUNO_ACCOUNTING_SERVICES',
+
+                    // Removed until we have a link for "chat med regnskapsfører"
+                    // 'BRUNO_ACCOUNTING_SERVICES',
 
                     'LIQUIDITY',
                     'UNPAID',
