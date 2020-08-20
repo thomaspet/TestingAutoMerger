@@ -5,6 +5,9 @@ export const TRANSLATION_OVERRIDES = {
         'RecurringInvoice': 'Gjentakende faktura',
     },
     SALES: {
+        INVOICE: {
+            'PAYMENT_INFO_TEXT': 'Betalingen fra kunde vil bli registrert i DNB Regnskap. Husk at betalingen fra kunde må ha kommet inn i banken før du registrerer betalingen i DNB Regnskap.'
+        },
         RECURRING_INVOICE: {
             'RECURRING_INVOICE_NEW': 'Ny gjentakende faktura',
             'RECURRING_INVOICE_NUMBER': 'Gjentakende fakturanr. {nr}',
