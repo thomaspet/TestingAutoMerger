@@ -43,7 +43,7 @@
     </article>
 
     <footer>
-        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
-        <button class="c2a" (click)="runSelectedOption()">Send</button>
+        <button class="secondary" [disabled]="busy" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" [disabled]="busy" (click)="runSelectedOption()">Send</button>
     </footer>
 </section>

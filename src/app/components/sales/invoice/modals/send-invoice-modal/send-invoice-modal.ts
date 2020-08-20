@@ -148,6 +148,7 @@ export class SendInvoiceModal implements IUniModal {
 
     runSelectedOption() {
         if (this.selectedOption) {
+            this.busy = true;
             this.selectedOption.action();
         }
     }
@@ -222,6 +223,7 @@ export class SendInvoiceModal implements IUniModal {
                 this.invoiceService.setPrintStatus(this.invoice.ID, '200').subscribe();
                 this.onClose.emit();
             }
+            this.busy = false;
         });
     }
 
@@ -236,6 +238,7 @@ export class SendInvoiceModal implements IUniModal {
             if (emailSentTo) {
                 this.onClose.emit(emailSentTo);
             }
+            this.busy = false;
         });
     }
 
