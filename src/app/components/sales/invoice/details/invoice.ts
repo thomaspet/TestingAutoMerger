@@ -2191,6 +2191,7 @@ export class InvoiceDetails implements OnInit {
         const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
             header: title,
             data: invoicePaymentData,
+            message: 'SALES.INVOICE.PAYMENT_INFO_TEXT',
             modalConfig: {
                 entityName: 'CustomerInvoice',
                 customerID: this.currentCustomer.ID,

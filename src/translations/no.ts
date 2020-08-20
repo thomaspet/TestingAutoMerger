@@ -32,6 +32,7 @@ export const NO = {
             'INVOICE_DATE': 'Fakturadato',
             'CREDIT_DAYS': 'Kredittdager',
             'INVOICE_REF': 'Fakturaref.',
+            'PAYMENT_INFO_TEXT': 'Betalingen fra kunde vil bli registrert i Uni Economy. Husk at betalingen fra kunde må ha kommet inn i banken før du registrerer betalingen i Uni Economy.'
         },
         RECURRING_INVOICE: {
             'RECURRING_INVOICE_NEW': 'Ny repeterende faktura',

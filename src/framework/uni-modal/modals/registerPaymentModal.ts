@@ -43,7 +43,7 @@ import { UniModalService } from '@uni-framework/uni-modal/modalService';
                     <DIV *ngFor="let message of mandatoryDimensionMessage">{{message}}</DIV>
                 </FONT>
 
-                <span class="pay-invoice-message" *ngIf="options?.message"> {{ options.message }} </span>
+                <span class="pay-invoice-message" *ngIf="options?.message"> {{ options.message | translate }} </span>
             </article>
             <footer class="center">
                 <button class="secondary" (click)="close(false)">Avbryt</button>
@@ -307,7 +307,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         ); // Calculated in the same exchange rate as the invoice
 
         model.AgioAmount = UniMath.round(
-            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1 
+            (-model.Amount + model.BankChargeAmount + ledgerLineAmount) * -1
         );
 
         this.SetAgioAccount(model, previousAgioAmount);
