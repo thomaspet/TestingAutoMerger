@@ -5,6 +5,9 @@
             Siden du er logget inn på et demoselskap vil alle eposter
             bli sendt til deg istedenfor til mottakeradresse.
         </small>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
 
         <uni-form
             [config]="formConfig$"
@@ -19,7 +22,7 @@
             Ugyldig e-post
         </span>
 
-        <button class="secondary" (click)="onClose.emit()">Avbryt</button>
-        <button class="c2a" (click)="sendEmail()">Send</button>
+        <button class="secondary" [disabled]="busy" (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" [disabled]="busy" (click)="sendEmail()">Send</button>
     </footer>
 </section>
