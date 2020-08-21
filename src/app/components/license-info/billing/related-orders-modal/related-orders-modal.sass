@@ -6,11 +6,18 @@
     .list-container
         display: flex
         flex-direction: column
+        padding: 0 2.5rem
+        
+        .row-divider
+            background: #fff !important
+            td
+                border-top: var(--table-border)
+                height: 25px
         .period-header
             font-size: 18px
             font-weight: 500
-            padding-left: 2.5rem
             margin: 1rem 0
         .period-total
-            margin: 0.5rem 1.5rem 0 0
-            font-weight: 500
+            background: var(--table-header-background) !important
+            color: var(--table-header-color) !important
+            font-weight: 500 !important
