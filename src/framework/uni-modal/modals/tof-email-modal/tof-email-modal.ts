@@ -141,6 +141,7 @@ export class TofEmailModal {
     }
 
     sendEmail() {
+        this.busy = true;
         const paramValue = this.parameterName === 'Id'
             ? this.entity[this.parameterName.toUpperCase()]
             : this.entity[this.parameterName];
@@ -153,6 +154,7 @@ export class TofEmailModal {
 
         if (!isValidEmail) {
             this.invalidEmail = true;
+            this.busy = false;
             return;
         }
 
@@ -161,7 +163,10 @@ export class TofEmailModal {
             formModel.reportID,
             formModel.model,
             [parameter],
-            () => this.onClose.emit(email)
+            () => {
+                this.onClose.emit(email);
+                this.busy = false;
+            }
         );
     }
 
