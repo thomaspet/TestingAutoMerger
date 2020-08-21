@@ -1,10 +1,11 @@
 import {Component, Input, Output, EventEmitter, Pipe, PipeTransform, ViewChild, ChangeDetectionStrategy} from '@angular/core';
 import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {NumberFormat} from '@app/services/services';
-
-import PerfectScrollbar from 'perfect-scrollbar';
 import {get} from 'lodash';
 import {DatePipe} from '@angular/common';
+import {BillingData} from '../billing/billing';
+import {RelatedOrdersModal} from '../billing/related-orders-modal/related-orders-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 
 export interface ListViewColumn {
     header: string;
@@ -53,11 +54,13 @@ export class ListView {
     @Input() rows: any[];
     @Input() columns: ListViewColumn[];
     @Input() contextMenu: {label: string; action: (row) => void; hidden?: (row) => boolean}[];
+    @Input() billingData?: BillingData;
 
     @Output() rowClick = new EventEmitter();
 
-    scrollbar: PerfectScrollbar;
     sortedData: any[];
+
+    constructor (private modalService: UniModalService) {}
 
     ngOnChanges() {
         if (this.rows && this.orderBy) {
@@ -69,24 +72,6 @@ export class ListView {
                     return 1;
                 }
             });
-
-            setTimeout(() => {
-                if (this.scrollbar) {
-                    this.scrollbar.update();
-                }
-            });
-        }
-    }
-
-    ngAfterViewInit() {
-        this.scrollbar = new PerfectScrollbar(this.listBody.elementRef.nativeElement, {
-            suppressScrollX: true
-        });
-    }
-
-    ngOnDestroy() {
-        if (this.scrollbar) {
-            this.scrollbar.destroy();
         }
     }
 
@@ -110,5 +95,9 @@ export class ListView {
         }
 
         return classList.join(' ');
+    }
+
+    openRelatedOrders(order: BillingData) {
+        this.modalService.open(RelatedOrdersModal, {data: order});
     }
 }

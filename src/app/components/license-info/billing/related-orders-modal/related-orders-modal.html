@@ -1,35 +1,40 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Delavregninger</header>
+    <header>Delavregning</header>
 
-    <div class="list-container" *ngFor="let order of relatedOrders">
-        <div class="period-header" [innerHTML]="order['_period']"></div>        
-
+    <div class="list-container">
+        <div class="period-header" [innerHTML]="relatedOrder['_period']"></div>        
+    
         <simple-table>
             <thead>
                 <tr>
                     <th>Varenr</th>
                     <th>Varenavn</th>
-                    <th>Antall</th>
+                    <th class="align-right">Antall</th>
                     <th>Enhet</th>
-                    <th>Pris</th>
-                    <th>Rabatt</th>
-                    <th>Sum</th>
+                    <th class="align-right">Pris</th>
+                    <th class="align-right">Rabatt</th>
+                    <th class="align-right">Sum eks. mva.</th>
                 </tr>
             </thead>
-
+    
             <tbody>
-                <tr *ngFor="let item of order.Items">
+                <tr *ngFor="let item of relatedOrder.Items" class="body-row">
                     <td>{{item.ProductID}}</td>
                     <td>{{item.ProductName}}</td>
-                    <td>{{item.Amount}}</td>
+                    <td class="align-right">{{item.Amount}}</td>
                     <td>{{item.Unit}}</td>
-                    <td>{{item.Price | unicurrency}}</td>
-                    <td>{{item.DiscountPrc > 0 ? item.DiscountPrc + '%' : ''}}</td>
-                    <td>{{item.Sum | unicurrency}}</td>
+                    <td class="align-right">{{item.Price | unicurrency}}</td>
+                    <td class="align-right">{{item.DiscountPrc > 0 ? item.DiscountPrc + '%' : ''}}</td>
+                    <td class="align-right">{{item.Sum | unicurrency}}</td>
+                </tr>
+                <tr class="row-divider">
+                    <td colspan="7"></td>
+                </tr>
+                <tr class="period-total">
+                    <td colspan="6">Sum for perioden</td>
+                    <td colspan="1" class="align-right">{{relatedOrder.Total | unicurrency}}</td>
                 </tr>
             </tbody>
         </simple-table>
-
-        <div class="period-total pull-right">Totalsum: {{order.Total | unicurrency}}</div>
     </div>
 </section>

@@ -7,6 +7,7 @@ import * as moment from 'moment';
 import {LicenseInfo} from '../license-info';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {RelatedOrdersModal} from './related-orders-modal/related-orders-modal';
+import {ElsaContractTypePipe} from '@uni-framework/pipes/elsaContractTypePipe';
 
 export interface BillingDataItem {
     ProductID: number;
@@ -57,7 +58,7 @@ export class Billing {
         {header: 'Enhet', field: 'Unit', flex: '0 0 6rem'},
         {header: 'Pris', field: 'Price', numberFormat: 'money'},
         {header: 'Rabatt', field: 'DiscountPrc', numberFormat: 'percent', flex: '0 0 5rem'},
-        {header: 'Sum', field: 'Sum', numberFormat: 'money'},
+        {header: 'Sum eks. mva.', field: 'Sum', numberFormat: 'money'},
     ];
 
     constructor(
@@ -65,6 +66,7 @@ export class Billing {
         private contractService: ElsaContractService,
         private licenseInfo: LicenseInfo,
         private modalService: UniModalService,
+        private elsaContractTypePipe: ElsaContractTypePipe,
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -92,6 +94,9 @@ export class Billing {
                 res => {
                     this.hasPermission = true;
                     this.billingData = res.body;
+                    if (this.billingData?.RelatedOrders?.length > 0) {
+                        this.billingData.RelatedOrders.forEach(order => order['_period'] = this.setHeaderText(order));
+                    }
                 },
                 err => {
                     console.error(err);
@@ -105,6 +110,13 @@ export class Billing {
     onRowClick(row) {
         this.selectedRow = row;
         this.detailsVisible = true;
+    }
+
+    setHeaderText(order: BillingData): string {
+        // returns ex: 'Delavregning 1-16. juli 2020  --  Lisens: Pluss'
+        const period = 'Delavregning ' + moment(order.FromDate).format('D') + '-' + moment(order.ToDate).format('LL');
+        const contracttype = 'Lisens: ' + this.elsaContractTypePipe.transform(order.ContractType);
+        return period + '&nbsp;&nbsp; &mdash; &nbsp;&nbsp;' + contracttype;
     }
 
     openRelatedOrders() {

@@ -43,12 +43,7 @@ export class UserList {
         { header: 'Navn', field: 'UserName' },
         { header: 'Epost', field: 'Email' },
         { header: 'Brukertype', field: '_typeText', flex: '0 0 10rem' },
-        {
-            header: 'Status',
-            field: '_status',
-            flex: '0 0 7rem',
-            statusIndicator: row => row.StatusCode === 11 ? 'bad' : 'good'
-        },
+        { header: 'Status', field: '_status', flex: '0 0 7rem' },
     ];
 
     constructor(

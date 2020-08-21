@@ -34,21 +34,11 @@
             </option>
         </select>
 
-        <button class="tertiary c2a" (click)="export()">
-            Eksporter
-        </button>
-
         <section class="pull-right">
-            <span class="sum">
-                <span class="label">Sum eks.mva. </span>
-                <span class="value">{{(billingData?.Total | uninumberformat:'money') || 0}} kr</span>
-            </span>
-            <a *ngIf="billingData?.RelatedOrders?.length > 0" 
-                (click)="openRelatedOrders()" 
-                style="display: block"
-            >
-                {{billingData?.RelatedOrders?.length}} delavregninger
-            </a>
+            <button class="tertiary c2a" (click)="export()">
+                <!-- <i class="material-icons">save_alt</i> -->
+                Eksporter
+            </button>
         </section>
     </section>
 
@@ -57,6 +47,7 @@
         class="selection-list"
         [columns]="columns"
         [rows]="billingData?.Items"
+        [billingData]="billingData"
         (rowClick)="onRowClick($event)">
     </license-info-list>
 
