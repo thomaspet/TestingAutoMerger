@@ -492,7 +492,8 @@ export class BankComponent {
                 });
             }
 
-            if (this.isAutobankAdmin && this.agreements?.length) {
+            // Bruno only has one agreement, and user should not be able to view/alter
+            if (this.isAutobankAdmin && this.agreements?.length && theme.theme !== THEMES.EXT02) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
