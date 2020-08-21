@@ -80,7 +80,7 @@ export class UserList {
 
                 this.filteredUsers = this.users;
             },
-            err => this.errorService.handle(err)
+            err => console.error(err)
         );
     }
 
