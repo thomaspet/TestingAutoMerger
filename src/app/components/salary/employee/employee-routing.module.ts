@@ -13,6 +13,7 @@ import { CanDeactivateGuard } from '@app/canDeactivateGuard';
 import { EmployeeGuard } from './employee.guard';
 import { NgModule } from '@angular/core';
 import {NewEmployeeGuard} from './new-employee.guard';
+import { FirstEmployeeGuard } from './first-employee.guard';
 
 const routes: Routes = [
     {
@@ -62,7 +63,7 @@ const routes: Routes = [
             }
         ],
         canDeactivate: [CanDeactivateGuard],
-        canActivate: [EmployeeGuard, NewEmployeeGuard]
+        canActivate: [EmployeeGuard, NewEmployeeGuard, FirstEmployeeGuard]
     }
   ];
 

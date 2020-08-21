@@ -168,9 +168,6 @@ export class EmployeeService extends BizHttp<Employee> {
     }
 
     public canAccesssEmployee(id: number): Observable<boolean> {
-        if (!id) {
-            return Observable.of(true);
-        }
         return Observable
             .forkJoin(this.companySettingsService.getCompanySettings(), this.subEntityService.GetAll(''))
             .map((result: [CompanySettings, SubEntity[]]) => {
