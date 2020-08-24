@@ -109,7 +109,7 @@ export class ToolbarSharingStatus {
             case SharingType.Export:
                 return 'Eksportert';
             case SharingType.InvoicePrint:
-                return 'Fakturaprint';
+                return 'Fakturaprint (fra Nets)';
             case SharingType.Efaktura:
                 return 'Sending via eFaktura';
             case SharingType.Avtalegiro:

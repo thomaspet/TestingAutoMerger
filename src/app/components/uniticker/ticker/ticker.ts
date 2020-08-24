@@ -62,7 +62,7 @@ export const SharingTypeText = [
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
     {ID: SharingType.Print, Title: 'Utskrift'},
-    {ID: SharingType.InvoicePrint, Title: 'Fakturaprint'},
+    {ID: SharingType.InvoicePrint, Title: 'Fakturaprint (fra Nets)'},
     {ID: SharingType.Factoring, Title: 'Factoring'},
     {ID: SharingType.Efaktura, Title: 'Efaktura'},
     {ID: SharingType.Avtalegiro, Title: 'Avtalegiro'}

@@ -1042,7 +1042,7 @@ export class UniTickerService {
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
-                    {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint'},
+                    {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint (fra Nets)'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
                     {ID: SharingType.Efaktura,      Name: 'Efaktura'},
                     {ID: SharingType.Avtalegiro,    Name: 'Avtalegiro'}
