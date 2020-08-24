@@ -83,7 +83,7 @@ export class RegisterCompany {
             this.elsaContractService.getContractTypes(),
         ).subscribe(([contracts, contractTypes]) => {
             const contract = contracts && contracts[0];
-            if (contracts) {
+            if (contract) {
                 this.contractID = contract.ID;
 
                 if (contract.Customer?.SignUpReferrer === 'CustomerProspect') {
