@@ -35,7 +35,7 @@ export class UnpaidBillsWidget {
         private numberFormatter: NumberFormat,
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.dataSubscription = this.loadData().subscribe(res => {
             this.overdue = res?.overdue || 0;
             this.notOverdue = res?.notOverdue || 0;
@@ -48,16 +48,6 @@ export class UnpaidBillsWidget {
             this.loading = false;
             this.cdr.markForCheck();
         });
-
-        // setTimeout(() => {
-        //     this.unpaidData = [31000.23, 2345];
-        //     this.sumUnpaid = this.unpaidData.reduce((sum, item) => {
-        //         return sum += (item || 0);
-        //     }), 0;
-
-        //     this.chartConfig = this.getChartConfig();
-        //     this.cdr.markForCheck();
-        // });
     }
 
     ngOnDestroy() {
@@ -66,18 +56,6 @@ export class UnpaidBillsWidget {
 
     private loadData(): Observable<{overdue: number, notOverdue: number}> {
         const today = moment().format('YYYYMMDD');
-        // RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101
-
-        // sum(casewhen(PaymentDueDate ge '${today}',RestAmount,0) ) as notOverdue
-        // sum(casewhen(PaymentDueDate lt '${today}',RestAmount,0) ) as overdue
-
-        // const select = [
-        //     `sum(casewhen(PaymentDueDate ge '${today}',RestAmount,0) ) as notOverdue`,
-        //     `sum(casewhen(PaymentDueDate lt '${today}',RestAmount,0) ) as overdue`,
-        // ].join(',')
-
-        // const select = `sum(casewhen(PaymentDueDate ge '${today}',RestAmount,0) ) as notOverdue,sum(casewhen(PaymentDueDate lt '${today}',RestAmount,0) ) as overdue`
-
         const endpoint = `/api/statistics?model=SupplierInvoice&wrap=false`
             + `&filter=RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101`
             + `&select=sum(casewhen(PaymentDueDate ge '${today}',RestAmount,0) ) as notOverdue,sum(casewhen(PaymentDueDate lt '${today}',RestAmount,0) ) as overdue`

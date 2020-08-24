@@ -552,8 +552,6 @@ export class TableDataService {
         }
 
         if (this.quickFilters?.length) {
-            console.log(this.quickFilters);
-
             const filters: ITableFilter[] = [];
             const qfStrings = [];
 

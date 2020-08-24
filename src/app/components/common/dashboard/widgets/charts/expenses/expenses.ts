@@ -34,7 +34,7 @@ export class ExpensesWidget {
         private dashboardDataService: DashboardDataService
     ) { }
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.initChart();
     }
 

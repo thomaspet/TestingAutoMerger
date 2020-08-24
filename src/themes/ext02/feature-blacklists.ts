@@ -30,7 +30,6 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui_overview',
         'ui_uniqueries',
         'ui_assignments_*',
-        'ui_sharings',
         'ui_admin_flow',
         'ui_admin_jobs',
         'ui_settings_teams',

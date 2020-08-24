@@ -8,8 +8,8 @@ export * from './themes-enum';
 
 export const theme = {
     theme: THEMES.EXT02,
-    appName: 'Bruno',
-    appProvider: 'Bruno',
+    appName: 'DNB Regnskap',
+    appProvider: 'DNB',
 
     translationOverrides: TRANSLATION_OVERRIDES,
     chatbotIcon: 'themes/ext02/chatbot-icon.svg',
@@ -24,7 +24,7 @@ export const theme = {
 
 
     init: {
-        illustration: undefined, // 'themes/ue/init_bg.svg',
+        illustration: undefined,
         background: '#FBF6EC',
         login_background: undefined,
         login_background_height: '100%',

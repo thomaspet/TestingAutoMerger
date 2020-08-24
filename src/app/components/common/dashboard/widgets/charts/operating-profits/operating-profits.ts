@@ -1,8 +1,8 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {Subscription, of} from 'rxjs';
-import {StatisticsService} from '@app/services/services';
 import {catchError} from 'rxjs/operators';
 import {theme} from 'src/themes/theme';
+import {DashboardDataService} from '../../../dashboard-data.service';
 
 @Component({
     selector: 'operating-profits',
@@ -19,7 +19,7 @@ export class OperatingProfitsWidget {
     hasData = false;
 
     data: {PeriodNo: number; Sum: number; Income: number; Cost: number}[];
-    legend: {label: string; value: string; color: string}[];
+    legend: {label: string; value: number; color: string}[];
 
     dataSubscription: Subscription;
     chartConfig;
@@ -27,10 +27,10 @@ export class OperatingProfitsWidget {
 
     constructor(
         private cdr: ChangeDetectorRef,
-        private statisticsService: StatisticsService
+        private dataService: DashboardDataService
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.initChart();
     }
 
@@ -39,6 +39,7 @@ export class OperatingProfitsWidget {
     }
 
     initChart() {
+        this.dataSubscription?.unsubscribe();
         this.dataSubscription = this.loadData().subscribe(data => {
             this.hasData = data?.length && data.some(item => item.Sum || item.Income || item.Cost);
 
@@ -55,15 +56,22 @@ export class OperatingProfitsWidget {
     }
 
     private loadData() {
-        return this.statisticsService.GetAllUnwrapped(
-            'model=JournalEntryLine&select=Period.No,multiply(-1,sum(amount)) as Sum,' +
-            'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3\,amount\,0))) as Income,' +
-            'multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber ge 4\,amount\,0))) as Cost' +
-            `&filter=TopLevelAccountGroup.GroupNumber ge 3 and TopLevelAccountGroup.GroupNumber lt 8 ` +
-            `and Period.No ge 1 and Period.No le 12 and ` +
-            `Period.AccountYear eq ${this.year}&orderby=Period.No&Range=PeriodNo` +
-            '&expand=Period,Account.TopLevelAccountGroup'
-        ).pipe(
+        const selects = [
+            `Period.No`,
+            `multiply(-1,sum(amount)) as Sum`,
+            `multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber eq 3,amount,0))) as Income`,
+            `multiply(-1,sum(casewhen(toplevelaccountgroup.GroupNumber ge 4,amount,0))) as Cost`,
+        ];
+
+        const filter = `TopLevelAccountGroup.GroupNumber ge 3 and TopLevelAccountGroup.GroupNumber lt 8 and Period.No ge 1 and Period.No le 12 and Period.AccountYear eq ${this.year}`;
+
+        const endpoint = `/api/statistics?model=JournalEntryLine`
+            + `&select=${selects.join(',')}`
+            + `&filter=${filter}`
+            + `&expand=Period,Account.TopLevelAccountGroup`
+            + `&Range=PeriodNo&orderby=Period.No&wrap=false`;
+
+        return this.dataService.get(endpoint).pipe(
             catchError(err => {
                 console.error(err);
                 return of([]);
@@ -83,9 +91,9 @@ export class OperatingProfitsWidget {
         costSum = costSum * -1;
 
         this.legend = [
-            {label: 'Inntekter', value: this.mockNumberFormatter(incomeSum), color: this.colors[0]},
-            {label: 'Kostnader', value: this.mockNumberFormatter(costSum), color: this.colors[1]},
-            {label: 'Resultat', value: this.mockNumberFormatter(resultSum), color: this.colors[2]},
+            {label: 'Inntekter', value: incomeSum, color: this.colors[0]},
+            {label: 'Kostnader', value: costSum, color: this.colors[1]},
+            {label: 'Resultat', value: resultSum, color: this.colors[2]},
         ];
     }
 
@@ -207,20 +215,5 @@ export class OperatingProfitsWidget {
     onYearSelected(year) {
         this.year = year;
         this.initChart();
-    }
-
-    mockNumberFormatter(value) {
-        if (!value && value !== 0) {
-            return '';
-        }
-
-        let stringValue = value.toString().replace(',', '.');
-        stringValue = parseFloat(stringValue).toFixed(2);
-
-        let [integer, decimal] = stringValue.split('.');
-        integer = integer.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-
-        stringValue = decimal ? (integer + ',' + decimal) : integer;
-        return stringValue;
     }
 }

@@ -38,7 +38,7 @@ export class UnpaidWidget {
         private dataService: DashboardDataService,
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.initOverview();
     }
 
@@ -59,7 +59,7 @@ export class UnpaidWidget {
     private initOverview() {
         this.dataSubscription?.unsubscribe();
         this.dataSubscription = this.getOverviewData().subscribe(res => {
-            this.hasData = res && (res.notOverdue || res.thirtyDays || res.sixtyDays || res.overSixtyDays);
+            this.hasData = res && !!(res.notOverdue || res.thirtyDays || res.sixtyDays || res.overSixtyDays);
 
             if (this.hasData) {
                 this.overviewData = [

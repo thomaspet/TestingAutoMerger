@@ -39,7 +39,7 @@ export class BankBalanceWidgetContent {
         private numberFormatter: NumberFormat
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         forkJoin(
             this.getAccountBalance(),
             this.getReconciliationCount()

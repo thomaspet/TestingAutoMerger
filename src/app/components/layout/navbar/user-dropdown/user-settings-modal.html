@@ -25,7 +25,9 @@
                 <span>Passord</span>
                 <section>
                     <a [attr.href]="changePasswordUrl">Endre passord</a>
-                    <a (click)="resetAutobankPassword()">Endre autobank passord</a>
+                    <a *ngIf="showResetAutobankPassword" (click)="resetAutobankPassword()">
+                        Endre autobank passord
+                    </a>
                 </section>
             </label>
 

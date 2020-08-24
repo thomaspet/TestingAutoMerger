@@ -41,11 +41,11 @@
             </section>
         </section>
 
-        <section class="chart-legend">
+        <section class="chart-legend ">
             <section *ngFor="let item of legend" class="chart-legend-item">
                 <span class="indicator" [style.background]="item.color"></span>
                 <span class="label">{{item.label}}</span>
-                <span class="value">{{item.value}}</span>
+                <span class="value">{{item.value | uninumberformat:'money'}}</span>
             </section>
         </section>
     </ng-container>
