@@ -69,11 +69,12 @@ import * as _ from 'lodash';
 import { KidModalComponent } from '@app/components/sales/customer/kid-modal/kid-modal.component';
 import { ReportTypeEnum } from '@uni-models/reportTypeEnum';
 import { ReportTypeService } from '@app/services/reports/reportTypeService';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
 import {SelectDistributionPlanModal} from '@app/components/common/modals/select-distribution-plan-modal/select-distribution-plan-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {CustomerEditModal} from '../../common/customer-edit-modal/customer-edit-modal';
+import {Location} from '@angular/common';
+import {cloneDeep} from 'lodash';
 
 const isNumber = (value) => _.reduce(value, (res, letter) => {
     if (res === false) {
@@ -115,7 +116,10 @@ export class CustomerDetails implements OnInit {
     private customDimensions: any[] = [];
 
     public showReportWithID: number;
-    public commentsConfig: ICommentsConfig;
+    public commentsConfig: ICommentsConfig = {
+        entityType: 'Customer',
+        entityID: this.customerID
+    };
     public selectConfig: any;
     private sellers: Seller[];
     private distributionPlans: any[] = [];
@@ -165,7 +169,7 @@ export class CustomerDetails implements OnInit {
         navigation: {
             prev: this.previousCustomer.bind(this),
             next: this.nextCustomer.bind(this),
-            add: this.addCustomer.bind(this)
+            add: this.newCustomer.bind(this)
         },
         contextmenu: [
             {
@@ -226,18 +230,6 @@ export class CustomerDetails implements OnInit {
         'Companies',
     ];
 
-    private newEntityExpandOptions: string[] = [
-        'Info',
-        'Info.Phones',
-        'Info.Addresses',
-        'Info.Emails',
-        'Info.Contacts',
-        'Dimensions',
-        'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-        'Sellers',
-        'Distributions'
-    ];
-
     private formIsInitialized: boolean = false;
 
     public saveactions: IUniSaveAction[];
@@ -254,6 +246,7 @@ export class CustomerDetails implements OnInit {
     ];
 
     constructor(
+        private location: Location,
         private uniQueryDefinitionService: UniQueryDefinitionService,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
@@ -292,68 +285,69 @@ export class CustomerDetails implements OnInit {
         this.modulusService.orgNrValidationUniForm(null, null, false);
 
         this.setupSaveActions();
-        combineLatest(this.route.params, this.route.queryParams)
-            .pipe(map(results => ({params: results[0], query: results[1]})))
-            .subscribe(results => {
-                this.isDirty = false;
-                this.customerID = +results.params['id'];
-                const index = +results.query['tabIndex']  || 0;
 
-                this.tabs = [
-                    {name: 'Detaljer'},
-                    {name: 'Utsendelse', featurePermission: 'ui.distribution'},
-                    {name: 'Åpne poster'},
-                    {name: 'Produkter solgt'},
-                    {name: 'Dokumenter', featurePermission: 'ui.sales.customer.documents'},
-                    {name: 'Selskap', featurePermission: 'ui.sales.customer.sub_company'},
-                ];
+        this.route.paramMap.subscribe(params => {
+            this.isDirty = false;
+            this.customerID = +params.get('id');
 
-                this.commentsConfig = {
-                    entityType: 'Customer',
-                    entityID: this.customerID
-                };
+            this.tabs = [
+                {name: 'Detaljer'},
+                {name: 'Utsendelse', featurePermission: 'ui.distribution'},
+                {name: 'Åpne poster'},
+                {name: 'Produkter solgt'},
+                {name: 'Dokumenter', featurePermission: 'ui.sales.customer.documents'},
+                {name: 'Selskap', featurePermission: 'ui.sales.customer.sub_company'},
+            ];
 
-                this.selectConfig = this.numberSeriesService.getSelectConfig(
-                    this.customerID, this.numberSeries, 'Customer number series'
-                );
-                this.setup();
+            this.selectConfig = this.numberSeriesService.getSelectConfig(
+                this.customerID, this.numberSeries, 'Customer number series'
+            );
+            this.setup();
 
-                if (!!this.customerID) {
-                    // Add check to see if user has access to the TOF-modules before adding the tabs
-                    this.navbarLinkService.linkSections$.subscribe(linkSections => {
-                        const mySections = linkSections.filter(sec => sec.name === 'NAVBAR.SALES');
-                        if (mySections.length) {
-                            this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
-                                links => {
-                                    this.reportLinks = links;
-                                    const addLinks = [];
-                                    links.forEach((link) => {
-                                        mySections[0].linkGroups.forEach((group) => {
-                                            group.links.forEach( (li) => {
-                                                if (this.translationService.translate(li.name) === link.name) {
-                                                    addLinks.push(link);
-                                                }
-                                            });
+
+            const updateTabIndex = () => {
+                const queryParams = this.route.snapshot.queryParamMap;
+                const tabIndex = +queryParams.get('tabIndex') || 0;
+                this.activeTabIndex = tabIndex < this.tabs.length ? tabIndex : 0;
+            };
+
+            if (!!this.customerID) {
+                // Add check to see if user has access to the TOF-modules before adding the tabs
+                this.navbarLinkService.linkSections$.subscribe(linkSections => {
+                    const mySections = linkSections.filter(sec => sec.name === 'NAVBAR.SALES');
+                    if (mySections.length) {
+                        this.uniQueryDefinitionService.getReferenceByModuleId(UniModules.Customers).subscribe(
+                            links => {
+                                this.reportLinks = links;
+                                const addLinks = [];
+                                links.forEach((link) => {
+                                    mySections[0].linkGroups.forEach((group) => {
+                                        group.links.forEach( (li) => {
+                                            if (this.translationService.translate(li.name) === link.name) {
+                                                addLinks.push(link);
+                                            }
                                         });
                                     });
+                                });
 
-                                    if (this.tabs.length === 6) {
-                                        this.tabs = this.tabs.concat([], ...addLinks);
-                                    }
-                                    this.activeTabIndex = index < this.tabs.length ? index : 0;
-                                },
-                                err => {
-                                    this.errorService.handle(err);
-                                    this.activeTabIndex = index < this.tabs.length ? index : 0;
+                                if (this.tabs.length === 6) {
+                                    this.tabs = this.tabs.concat([], ...addLinks);
                                 }
-                            );
-                        } else {
-                            this.activeTabIndex = index < this.tabs.length ? index : 0;
-                        }
-                    });
-                } else {
-                    this.activeTabIndex = index < this.tabs.length ? index : 0;
-                }
+
+                                updateTabIndex();
+                            },
+                            err => {
+                                this.errorService.handle(err);
+                                updateTabIndex();
+                            }
+                        );
+                    } else {
+                        updateTabIndex();
+                    }
+                });
+            } else {
+                updateTabIndex();
+            }
         });
     }
 
@@ -451,14 +445,10 @@ export class CustomerDetails implements OnInit {
         }
     }
 
-    public addCustomer() {
+    public newCustomer() {
         this.formIsInitialized = false;
         this.activeTabIndex = 0;
-        if (this.customerID) {
-            this.router.navigateByUrl('/sales/customer/0');
-        } else {
-            this.setup();
-        }
+        this.router.navigateByUrl('/sales/customer/0');
     }
 
     private deleteCustomer(id: number) {
@@ -480,7 +470,7 @@ export class CustomerDetails implements OnInit {
             } else {
                 if (confirm('Vil du slette denne kunden?')) {
                     this.customerService.deleteCustomer(id).subscribe(response => {
-                        this.router.navigateByUrl('/sales/customer/');
+                        this.router.navigateByUrl('/sales/customer');
                     }, err => this.errorService.handle(err));
                 }
             }
@@ -562,14 +552,24 @@ export class CustomerDetails implements OnInit {
     }
 
     public setup() {
+        if (!this.customerID) {
+            this.modalService.open(CustomerEditModal).onClose.subscribe(customer => {
+                if (customer) {
+                    this.router.navigateByUrl('/sales/customer/' + customer.ID, {
+                        replaceUrl: true
+                    });
+                } else {
+                    this.location.back();
+                }
+            });
+
+            return;
+        }
+
         this.showReportWithID = null;
         if (!this.formIsInitialized) {
-            const customerGetRequest = this.customerID > 0
-                ? this.customerService.Get(this.customerID, this.expandOptions)
-                : this.customerService.GetNewEntity(this.newEntityExpandOptions);
-
             Observable.forkJoin(
-                customerGetRequest,
+                this.customerService.Get(this.customerID, this.expandOptions),
                 this.departmentService.GetAll(null),
                 this.projectService.GetAll(null),
                 this.currencyCodeService.GetAll(null),
@@ -585,7 +585,7 @@ export class CustomerDetails implements OnInit {
                 this.customDimensionService.getMetadata(),
                 this.companySettingsService.Get(1, ['Distributions'])
             ).subscribe(response => {
-                const customer: Customer = response[0];
+                const customer: Customer = cloneDeep(response[0]);
                 this.departments = response[1];
                 this.projects = response[2];
                 this.currencyCodes = response[3];
@@ -629,29 +629,28 @@ export class CustomerDetails implements OnInit {
                 this.formIsInitialized = true;
             }, err => this.errorService.handle(err));
         } else {
-            const query = this.customerID > 0
-                ? this.customerService.Get(this.customerID, this.expandOptions)
-                : this.customerService.GetNewEntity(this.newEntityExpandOptions);
+            this.customerService.Get(this.customerID, this.expandOptions).subscribe(
+                response => {
+                    const customer = response;
+                    this.setMainContact(customer);
 
-            query.subscribe(response => {
-                const customer = response;
-                this.setMainContact(customer);
+                    if (customer.CustomerInvoiceReminderSettings === null) {
+                        customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
+                        customer.CustomerInvoiceReminderSettings['_createguid'] =
+                            this.customerInvoiceReminderSettingsService.getNewGuid();
+                    }
 
-                if (customer.CustomerInvoiceReminderSettings === null) {
-                    customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
-                    customer.CustomerInvoiceReminderSettings['_createguid'] =
-                        this.customerInvoiceReminderSettingsService.getNewGuid();
-                }
-
-                this.customer$.next(customer);
-                if (this.customerID > 0) {
-                    this.getDataAndUpdateToolbarSubheads();
-                }
-                this.mapDistibutionPlans();
-                this.setTabTitle();
-                this.showHideNameProperties();
-                this.setCustomerStatusOnToolbar();
-            }, err => this.errorService.handle(err));
+                    this.customer$.next(customer);
+                    if (this.customerID > 0) {
+                        this.getDataAndUpdateToolbarSubheads();
+                    }
+                    this.mapDistibutionPlans();
+                    this.setTabTitle();
+                    this.showHideNameProperties();
+                    this.setCustomerStatusOnToolbar();
+                },
+                err => this.errorService.handle(err)
+            );
         }
     }
 

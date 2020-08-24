@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, Output, EventEmitter, OnInit, SimpleChanges} from '@angular/core';
+import {Component, ViewChild, Output, EventEmitter, OnInit, SimpleChanges} from '@angular/core';
 import {Router, ActivatedRoute} from '@angular/router';
 import {Observable, BehaviorSubject, forkJoin} from 'rxjs';
 import {FieldType} from '../../../../../framework/ui/uniform/index';
@@ -50,8 +50,9 @@ import {
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@uni-framework/uni-tabs';
-import { combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {SupplierEditModal} from '../../bill/edit-supplier-modal/edit-supplier-modal';
+import {Location} from '@angular/common';
+import {cloneDeep} from 'lodash';
 
 @Component({
     selector: 'supplier-details',
@@ -121,7 +122,7 @@ export class SupplierDetails implements OnInit {
         navigation: {
             prev: this.previousSupplier.bind(this),
             next: this.nextSupplier.bind(this),
-            add: this.addSupplier.bind(this)
+            add: this.newSupplier.bind(this)
         },
         contextmenu: [
             {
@@ -153,6 +154,7 @@ export class SupplierDetails implements OnInit {
     ];
 
     constructor(
+        private location: Location,
         private departmentService: DepartmentService,
         private projectService: ProjectService,
         private supplierService: SupplierService,
@@ -347,7 +349,7 @@ export class SupplierDetails implements OnInit {
             );
     }
 
-    public addSupplier() {
+    public newSupplier() {
         this.router.navigateByUrl('/accounting/suppliers/0');
     }
 
@@ -463,6 +465,20 @@ export class SupplierDetails implements OnInit {
     private setup() {
         this.showReportWithID = null;
 
+        if (!this.supplierID) {
+            this.modalService.open(SupplierEditModal).onClose.subscribe(supplier => {
+                if (supplier) {
+                    this.router.navigateByUrl('/accounting/suppliers/' + supplier.ID, {
+                        replaceUrl: true
+                    });
+                } else {
+                    this.location.back();
+                }
+            });
+
+            return;
+        }
+
         const supplierRequest = this.supplierID > 0
             ? this.supplierService.Get(this.supplierID, this.expandOptions)
             : this.supplierService.GetNewEntity(['Info']);
@@ -480,7 +496,7 @@ export class SupplierDetails implements OnInit {
                     ['NumberSeriesType']
                 )
             ).subscribe(response => {
-                const supplier: Supplier = response[0];
+                const supplier: Supplier = cloneDeep(response[0]);
                 this.updateToolbarContextMenuLabel(supplier.StatusCode);
 
                 this.dropdownData = [response[1], response[2]];
