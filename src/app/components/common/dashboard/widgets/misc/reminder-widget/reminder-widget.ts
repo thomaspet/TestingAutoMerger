@@ -1,5 +1,5 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
-import {of, Observable, forkJoin} from 'rxjs';
+import {of, Observable, forkJoin, Subscription} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {DashboardDataService} from '../../../dashboard-data.service';
 
@@ -22,6 +22,7 @@ import * as moment from 'moment';
 export class ReminderWidget {
     options: { showPublicDueDates: boolean };
 
+    dataSubscription: Subscription;
     scrollbar: PerfectScrollbar;
 
     tasks: Task[] = [];
@@ -51,6 +52,7 @@ export class ReminderWidget {
 
     ngOnDestroy() {
         this.scrollbar?.destroy();
+        this.dataSubscription?.unsubscribe();
     }
 
     private loadData() {
@@ -64,7 +66,7 @@ export class ReminderWidget {
             requests.push(this.getPublicDueDates());
         }
 
-        forkJoin(requests).subscribe(
+        this.dataSubscription = forkJoin(requests).subscribe(
             ([approvals, tasks, counters, publiceDuedates]) => {
                 this.invoiceApprovals = approvals.invoices;
                 this.timesheetApprovals = approvals.timesheets;

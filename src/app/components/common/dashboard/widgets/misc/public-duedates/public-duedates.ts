@@ -1,6 +1,6 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {catchError, map} from 'rxjs/operators';
-import {of} from 'rxjs';
+import {of, Subscription} from 'rxjs';
 import {DashboardDataService} from '../../../dashboard-data.service';
 import {FinancialDeadline} from '@uni-entities';
 
@@ -14,6 +14,7 @@ import * as moment from 'moment';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PublicDueDatesWidget {
+    dataSubscription: Subscription;
     scrollbar: PerfectScrollbar;
     dueDates: FinancialDeadline[];
 
@@ -27,6 +28,7 @@ export class PublicDueDatesWidget {
 
     ngOnInit() {
         this.loadPublicDueDates();
+        this.dataSubscription?.unsubscribe();
     }
 
     ngOnDestroy() {
@@ -39,7 +41,9 @@ export class PublicDueDatesWidget {
     }
 
     private loadPublicDueDates() {
-        return this.dataService.get(`/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=${this.numberOfDays}`).pipe(
+        this.dataSubscription = this.dataService.get(
+            `/api/biz/deadlines?action=number-of-days-filtered&nrOfDays=${this.numberOfDays}`
+        ).pipe(
             catchError(err => {
                 console.error(err);
                 return of([]);
