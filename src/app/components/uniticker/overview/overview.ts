@@ -126,10 +126,12 @@ export class UniTickerOverview {
 
     public navigateToTicker(ticker: Ticker) {
         this.navigatingToTicker = true;
+
         setTimeout(() => { // give some time to component to restart and restart also ag-grid-wrapper filters
             this.router.navigate(['/overview'], {
                 queryParams: { code: ticker.Code },
-                skipLocationChange: false
+                skipLocationChange: false,
+                replaceUrl: !this.selectedTicker
             });
             this.navigatingToTicker = false;
         }, 100);
