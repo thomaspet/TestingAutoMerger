@@ -3,9 +3,9 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, StatisticsService} from './services/services';
+import {ErrorService, StatisticsService, ElsaCustomersService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
-import {UserDto} from '@app/unientities';
+import {UserDto, LicenseEntityStatus} from '@app/unientities';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {NavbarLinkService} from './components/layout/navbar/navbar-link-service';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
@@ -42,6 +42,7 @@ export class App {
     isAuthenticated: boolean;
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
+    isBankCustomer: boolean;
 
     constructor(
         private titleService: Title,
@@ -55,6 +56,7 @@ export class App {
         private router: Router,
         private statisticsService: StatisticsService,
         public chatBoxService: ChatBoxService,
+        private elsaCustomerService: ElsaCustomersService,
     ) {
         if (!this.titleService.getTitle()) {
             const title = this.title;
@@ -82,7 +84,11 @@ export class App {
                 this.toastService.clear();
                 const contractType = authDetails.user.License.ContractType.TypeName;
 
-                if (authDetails.user.License.Company['StatusCode'] === 3) {
+                if (this.isSrEnvironment && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
+                    this.elsaCustomerService.get(authDetails.user.License.Company.ContractID)
+                    .subscribe(customer => {
+                        this.isBankCustomer = customer.IsBankCustomer;
+                    }, err => console.error(err));
                     this.isPendingApproval = true;
                     return;
                 }
