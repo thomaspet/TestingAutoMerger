@@ -25,7 +25,9 @@ export class UniNavbar {
     sidebarState: string;
 
     isSrEnvironment = theme.theme === THEMES.SR;
-    isBrunoEnvironment = theme.theme === THEMES.EXT02;
+
+    // TODO: remove completely when bruno is done testing packages
+    showPackageSelector = theme.theme === THEMES.EXT02 && !window.location.href.includes('dnbregnskap.dnb.no');
 
     user: User;
     licenseRole: string;
