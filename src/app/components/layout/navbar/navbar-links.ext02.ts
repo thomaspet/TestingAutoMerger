@@ -525,7 +525,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'NAVBAR.DISTRIBUTION_LIST',
                         url: '/sharings',
                         moduleID: UniModules.Sharings,
-                        activeInSidebar: true,
+                        activeInSidebar: false,
                     },
                     {
                         name: 'NAVBAR.REPORTS',
