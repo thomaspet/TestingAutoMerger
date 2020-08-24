@@ -46,7 +46,7 @@ export const theme = {
         bad_text: '#2B2B2B',
 
         bar_negative: '#FEEBC1',
-        bar_foreground: '#F2F2F5',
+        bar_foreground: '#E3E3E3',
 
         pie_colors: ['#132F9A', '#0070E0', '#2699FB', '#7FC6E8', '#F8598B']
 

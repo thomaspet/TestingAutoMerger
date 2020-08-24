@@ -1,5 +1,5 @@
 <section class="uni-modal">
-    <header> {{ options.header }}</header>
+    <header>{{isNewSupplier ? 'Rediger leverandør' : 'Ny leverandør'}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">

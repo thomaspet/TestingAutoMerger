@@ -147,9 +147,7 @@ export class TofCustomerCard {
                 { header: 'Orgnummer', field: 'OrgNumber' },
             ],
             createLabel: 'Opprett ny kunde',
-            createHandler: (value) => {
-                return this.modalService.open(CustomerEditModal, { listkey: !!value.trim() ? value : '' }).onClose;
-            }
+            createHandler: () => this.modalService.open(CustomerEditModal).onClose
         };
     }
 

@@ -57,6 +57,7 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'bank_dashboard',
         layout: [
             'BANK_BALANCE',
+            'PAYMENTS',
         ]
     }
 };

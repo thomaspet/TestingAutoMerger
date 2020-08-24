@@ -19,6 +19,7 @@ export class SupplierEditModal implements IUniModal {
 
     busy: boolean;
     value: string = '';
+    isNewSupplier: boolean;
 
     supplier$ = new BehaviorSubject<Supplier>(null);
     fields$ = new BehaviorSubject([]);
@@ -37,6 +38,7 @@ export class SupplierEditModal implements IUniModal {
 
     ngOnInit() {
         const supplier = this.options.data;
+        this.isNewSupplier = !!supplier;
         if (supplier) {
             this.supplier$.next(supplier);
             this.config$.next({autofocus: true});

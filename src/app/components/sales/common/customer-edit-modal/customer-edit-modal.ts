@@ -1,10 +1,11 @@
-import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
+import {Component, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions, UniModalService, UniEmailModal, UniPhoneModal, UniAddressModal} from '@uni-framework/uni-modal';
-import {Customer, FieldType, Address, BusinessRelation, Phone, Email} from '@uni-entities';
+import {Customer, FieldType, Address, BusinessRelation, Phone, Email, StatusCode} from '@uni-entities';
 import {CustomerService, ErrorService, AddressService, IntegrationServerCaller} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
-import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
+import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {UniForm} from '@uni-framework/ui/uniform';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     templateUrl: './customer-edit-modal.html',
@@ -12,15 +13,14 @@ import {UniForm} from '@uni-framework/ui/uniform';
 })
 export class CustomerEditModal implements IUniModal {
     @ViewChild(UniForm, { static: true }) form: UniForm;
-    @ViewChild(Autocomplete) autocomplete: Autocomplete;
 
-    @Input() options: IModalOptions = {};
-    @Output() onClose = new EventEmitter();
+    options: IModalOptions = {};
+    onClose = new EventEmitter();
 
     busy: boolean;
 
     isNewCustomer: boolean;
-    value: string = '';
+    showSaveAsLead: boolean;
 
     customer$ = new BehaviorSubject<Customer>(null);
     fields$ = new BehaviorSubject([]);
@@ -34,7 +34,8 @@ export class CustomerEditModal implements IUniModal {
         private errorService: ErrorService,
         private customerService: CustomerService,
         private addressService: AddressService,
-        private integrationServerCaller: IntegrationServerCaller
+        private integrationServerCaller: IntegrationServerCaller,
+        private permissionService: FeaturePermissionService,
     ) {}
 
     ngOnInit() {
@@ -44,8 +45,7 @@ export class CustomerEditModal implements IUniModal {
             this.customer$.next(customer);
             this.config$.next({autofocus: true});
         } else {
-            this.value = this.options.listkey;
-            this.initNewCustomer(this.options.listkey);
+            this.initNewCustomer();
         }
 
         this.fields$.next(this.getFormFields());
@@ -57,7 +57,8 @@ export class CustomerEditModal implements IUniModal {
         this.config$.complete();
     }
 
-    initNewCustomer(searchValue?: string) {
+    initNewCustomer() {
+        this.showSaveAsLead = this.permissionService.canShowUiFeature('ui.sales.customer.lead');
         this.busy = true;
 
         this.externalLookupOptions = {
@@ -92,7 +93,6 @@ export class CustomerEditModal implements IUniModal {
             ['Info.Phones', 'Info.Addresses', 'Info.Emails']
         ).subscribe(
             res =>  {
-                res.Info.Name = searchValue || '';
                 this.customer$.next(res);
                 this.busy = false;
             },
@@ -156,7 +156,7 @@ export class CustomerEditModal implements IUniModal {
         });
     }
 
-    save() {
+    save(saveAsLead = false) {
         if (!this.isDirty) {
             this.onClose.emit();
         }
@@ -175,7 +175,12 @@ export class CustomerEditModal implements IUniModal {
             return email.ID || email._createguid !== customer.Info.DefaultEmail._createguid;
         });
 
+        if (saveAsLead) {
+            customer.StatusCode = StatusCode.Pending;
+        }
+
         this.busy = true;
+
         const saveRequest = !!customer.ID
             ? this.customerService.Put(customer.ID, customer)
             : this.customerService.Post(customer);

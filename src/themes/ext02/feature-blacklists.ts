@@ -65,6 +65,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.invoice-list.my_invoices',
 
         'ui.sales.products.product_categories',
+        'ui.sales.products.cost-price',
 
         'ui.sales.quotes',
         'ui.sales.orders',

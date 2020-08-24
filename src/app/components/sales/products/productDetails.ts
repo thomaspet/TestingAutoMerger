@@ -682,6 +682,7 @@ export class ProductDetails {
                     Property: 'CostPrice',
                     FieldType: FieldType.NUMERIC,
                     Label: 'Innkjøpspris (uten moms)',
+                    FeaturePermission: 'ui.sales.products.cost-price',
                     Options: {
                         format: 'money',
                         decimalSeparator: ','

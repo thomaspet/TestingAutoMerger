@@ -16,6 +16,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
+import {CustomerEditModal} from '../../common/customer-edit-modal/customer-edit-modal';
 
 @Component({
     selector: 'customer-list',
@@ -83,7 +84,15 @@ export class CustomerList implements OnInit {
     public tickercode: string = 'customer_list';
     public toolbarActions = [{
         label: 'Ny kunde',
-        action: this.createCustomer.bind(this),
+        action: (done) => {
+            this.modalService.open(CustomerEditModal).onClose.subscribe(customer => {
+                if (customer) {
+                    this.router.navigateByUrl('/sales/customer/' + customer.ID);
+                }
+            });
+
+            done();
+        },
         main: true,
         disabled: false
     }];
@@ -136,10 +145,6 @@ export class CustomerList implements OnInit {
             this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
         });
 
-    }
-
-    public createCustomer() {
-        this.router.navigateByUrl('/sales/customer/0');
     }
 
     public newTOFWithCustomer(parentModel, entity: string) {

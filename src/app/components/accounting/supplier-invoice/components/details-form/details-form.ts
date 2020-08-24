@@ -107,7 +107,7 @@ export class DetailsForm {
             ],
             createLabel: 'Opprett ny leverandør',
             createHandler: (value) => {
-                return this.modalService.open(SupplierEditModal, {header: 'Ny leverandør', listkey: !!value.trim() ? value : '' }).onClose;
+                return this.modalService.open(SupplierEditModal, {listkey: !!value.trim() ? value : '' }).onClose;
             }
         };
 
