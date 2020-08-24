@@ -18,7 +18,7 @@ export class BankBalanceWidget {
         private authService: AuthService,
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         if (this.authService.activeCompany.IsTest) {
             this.onboardingState = 'complete';
             this.cdr.markForCheck();

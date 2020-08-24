@@ -2,59 +2,55 @@
     display: inline-flex
     align-items: center
 
-.timeentry-widget-calendar
-    width: 100%
-    // max-width: 25rem
-    // margin: 0 auto
+
+table
+    border-collapse: collapse
     font-size: 15px
+    width: 100%
+    height: 100%
 
-    .calendar-dates
-        display: grid
-        grid-template-columns: repeat(8, 35px)
-        grid-gap: 1rem
-        justify-content: center // space-around
+    th, td
+        text-align: center
 
+    th
+        height: 40px
+        font-weight: 500
 
-        .calendar-header-cell
-            font-weight: 500
-            text-align: center
+    .week-number
+        background: #f9f9f9
 
-        .calendar-cell
-            display: inline-flex
+    .day
+        span
+            display: flex
             justify-content: center
             align-items: center
-            height: 35px
+            height: 100%
+            border-radius: 50%
+            cursor: pointer
+            height: 30px
+            width: 30px
+            margin: auto
+            font-size: 14px
 
-            &.day
-                border-radius: 50%
-                cursor: pointer
+            &.today
+                font-weight: 500
+                background: var(--color-c2a)
+                color: #fff
 
-                &.today
-                    font-weight: 500
-                    background: var(--color-c2a)
-                    color: #fff
+            &.different-month
+                color: #8c97ab
+                background: none !important
 
-                &.different-month
-                    color: #8c97ab
+            &:hover
+                background: var(--dropdown-select-background)
+                color: var(--dropdown-select-color)
 
-                &:hover
-                    background: var(--dropdown-select-background)
-                    color: var(--dropdown-select-color)
-
-                &.good
-                    background: var(--alert-good)
-                &.bad
-                    background: var(--alert-bad)
-                &.warn
-                    background: var(--alert-warn)
-
-                // &.good span
-                //     border-bottom: 2px solid var(--color-good)
-                // &.bad span
-                //     border-bottom: 2px solid var(--color-bad)
-                // &.warn span
-                //     border-bottom: 2px solid var(--color-warn)
-
+            &.good
+                background: var(--alert-good)
+            &.bad
+                background: var(--alert-bad)
+            &.warn
+                background: var(--alert-warn)
 
 widget-empty-state
     text-align: center

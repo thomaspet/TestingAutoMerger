@@ -25,7 +25,7 @@ export class PublicDueDatesWidget {
         private dataService: DashboardDataService,
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.loadPublicDueDates();
     }
 

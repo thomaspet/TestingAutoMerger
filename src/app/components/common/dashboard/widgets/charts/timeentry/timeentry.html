@@ -20,24 +20,25 @@
         </button>
     </widget-empty-state>
 
-    <section *ngIf="!missingWorker && calendar" class="timeentry-widget-calendar">
-        <section class="calendar-dates">
-            <!-- Header -->
-            <section class="calendar-header-cell">Uke</section>
-            <section *ngFor="let day of dayLabels" class="calendar-header-cell">{{day}}</section>
+    <table *ngIf="!missingWorker && calendar">
+        <thead>
+            <tr>
+                <th class="week-number">
+                    <span>Uke</span>
+                </th>
+                <th *ngFor="let day of dayLabels">{{day}}</th>
+            </tr>
+        </thead>
 
-            <!-- Body -->
-            <ng-container *ngFor="let week of calendar; let idx = index">
-                <section class="calendar-cell week-number">
-                    {{week[0]?.weekNumber}}
-                </section>
-
-                <section *ngFor="let day of week" (click)="openTimeEntryDialog(day)" class="calendar-cell day" [ngClass]="day.classList">
-                    <span>{{day.date | date: 'd'}}</span>
-                    <!-- <span *ngIf="day.flexClass" [ngClass]="day.flexClass" class="flex-indicator"></span> -->
-                </section>
-            </ng-container>
-        </section>
-    </section>
-
+        <tbody>
+            <tr *ngFor="let week of calendar; let idx = index">
+                <td class="week-number">{{week[0]?.weekNumber}}</td>
+                <td *ngFor="let day of week" (click)="openTimeEntryDialog(day)" class="day">
+                    <span [ngClass]="day.classList">
+                        {{day.date | date: 'd'}}
+                    </span>
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </section>
