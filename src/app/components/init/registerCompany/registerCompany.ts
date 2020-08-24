@@ -127,7 +127,7 @@ export class RegisterCompany {
                 header: 'Prøv gratis demo i 30 dager',
                 textSections: [
                     'Med demo har du mulighet til å bli kjent med systemet før du bestemmer deg. Her kan du teste funksjoner uten at fakturaer faktisk blir sendt og lønn blir utbetalt.',
-                    'Du kan prøve demo med fiktive data, eller demo hvor du bruker data fra din egen bedrift'
+                    // 'Du kan prøve demo med fiktive data, eller demo hvor du bruker data fra din egen bedrift'
                 ],
                 buttons: [
                     {
@@ -135,11 +135,15 @@ export class RegisterCompany {
                         class: 'secondary',
                         action: () => this.router.navigateByUrl('/init/register-company?type=demo')
                     },
-                    {
-                        label: 'Start demo med din bedrift',
-                        class: 'c2a',
-                        action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
-                    }
+
+                    // Demo with real company option disabled due to backend bug
+                    // https://unimicro.atlassian.net/browse/SMS-308
+
+                    // {
+                    //     label: 'Start demo med din bedrift',
+                    //     class: 'c2a',
+                    //     action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
+                    // }
                 ]
             },
 
