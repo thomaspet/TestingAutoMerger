@@ -50,6 +50,7 @@ export class Billing {
     selectedRow: BillingDataItem;
     detailsVisible: boolean;
     hasPermission: boolean;
+    totalSumWithPeriods: number;
 
     columns: ListViewColumn[] = [
         {header: 'Varenr', field: 'ProductID'},
@@ -95,7 +96,12 @@ export class Billing {
                     this.hasPermission = true;
                     this.billingData = res.body;
                     if (this.billingData?.RelatedOrders?.length > 0) {
-                        this.billingData.RelatedOrders.forEach(order => order['_period'] = this.setHeaderText(order));
+                        this.totalSumWithPeriods = 0;
+                        this.billingData.RelatedOrders.forEach(order => {
+                            order['_period'] = this.setHeaderText(order);
+                            this.totalSumWithPeriods += order.Total;
+                        });
+                        this.billingData.Total += this.totalSumWithPeriods;
                     }
                 },
                 err => {
