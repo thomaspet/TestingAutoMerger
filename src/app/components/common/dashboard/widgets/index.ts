@@ -16,6 +16,7 @@ import {EmploymentsPerJobCodeWidget} from './charts/employments-per-job-code/emp
 import {TopTenCustomersWidget} from './misc/top-ten-customers/top-ten-customers';
 import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-customer';
 import {BalanceWidget} from './charts/balance-widget/balance-widget';
+import {PaymentsWidget} from './charts/payments-widget/payments-widget';
 
 export * from './widget';
 
@@ -38,6 +39,7 @@ export const WIDGET_COMPONENTS = [
     TopTenCustomersWidget,
     UnpaidPerCustomer,
     BalanceWidget,
+    PaymentsWidget,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -194,6 +196,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.ACCOUNTING,
         component: BalanceWidget,
         routePermissions: ['ui_accounting']
-    }
+    },
+    {
+        name: 'PAYMENTS',
+        label: 'Inn- og utbetalinger',
+        size: 'large',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.BANK,
+        component: PaymentsWidget,
+        routePermissions: ['ui_bank_payments']
+    },
 ];
 
