@@ -79,7 +79,7 @@
                         <button
                             class="c2a subscribe-button"
                             (click)="manageUserPurchases(module)">
-                            {{module['_isBought'] ? 'Velg brukere' : 'Abonner'}}
+                            {{module['_isBought'] ? 'Rediger brukere' : 'Aktiver'}}
                         </button>
                     </section>
 
@@ -116,7 +116,7 @@
                         class="c2a subscribe-button"
                         *ngIf="!extension['_isBought']"
                         (click)="purchaseExtension(extension)">
-                        Kjøp
+                        Aktiver
                     </button>
 
                     <!-- Activate -->
