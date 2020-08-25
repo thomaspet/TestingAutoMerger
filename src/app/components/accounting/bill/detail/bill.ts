@@ -743,10 +743,10 @@ export class BillView implements OnInit, AfterViewInit {
                                             this.companySettings.UseOcrInterpretation = false;
 
                                             const modal = this.modalService.open(UniConfirmModalV2, {
-                                                header: 'OCR tolkning er ikke aktivert',
-                                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning)'
+                                                header: 'Fakturatolkning er ikke aktivert',
+                                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
                                                 + ' 10 ganger gratis. For å bruke tjenesten'
-                                                + ' videre må du aktivere OCR tolkning under firmainnstillinger i menyen.',
+                                                + ' videre må du aktivere Fakturatolk under firmainnstillinger i menyen.',
                                                 buttonLabels: {
                                                     accept: 'Ok',
                                                     cancel: 'Avbryt'
@@ -761,8 +761,8 @@ export class BillView implements OnInit, AfterViewInit {
             } else if (force) {
                 // user has deactivated license/agreement for ocr
                 const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'OCR tolkning er deaktivert',
-                    message: 'Vennligst aktiver OCR tolkning under firmainnstillinger i menyen for å benytte OCR tolkning av fakturaer',
+                    header: 'Fakturatolkning er deaktivert',
+                    message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
                     buttonLabels: {
                         accept: 'Ok',
                         cancel: 'Avbryt'
@@ -1051,7 +1051,7 @@ export class BillView implements OnInit, AfterViewInit {
     }
 
     private runOcr(file: any) {
-        this.userMsg('Kjører OCR-tolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
+        this.userMsg('Kjører fakturatolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
         this.uniFilesService.runOcr(file.StorageReference)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);

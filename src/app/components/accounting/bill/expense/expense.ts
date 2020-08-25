@@ -299,9 +299,9 @@ export class Expense implements OnInit {
                             this.companySettings.UseOcrInterpretation = false;
 
                             this.modalService.open(UniConfirmModalV2, {
-                                header: 'OCR tolkning er ikke aktivert',
-                                message: 'Du har prøvd vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning) 10 ganger gratis.'
-                                + 'For å bruke tjenesten videre må du aktivere OCR tolkning under Innstillinger - Firmaoppsett.',
+                                header: 'Fakturatolkning er ikke aktivert',
+                                message: 'Du har prøvd vår tjeneste for å tolke fakturaer maskinelt 10 ganger gratis.'
+                                + 'For å bruke tjenesten videre må du aktivere Fakturatolk under Innstillinger - Firmaoppsett.',
                                 buttonLabels: {
                                     accept: 'Ok',
                                     cancel: 'Avbryt'
@@ -320,7 +320,7 @@ export class Expense implements OnInit {
         return new Promise( (resolve, reject) => {
             if (!file || !file.StorageReference) { resolve(false); return; }
 
-            this.toast.addToast('OCR-scann startet', ToastType.good, 5);
+            this.toast.addToast('Fakturatolkning startet', ToastType.good, 5);
             this.uniFilesService.runOcr(file.StorageReference).subscribe(
                 (result: IOcrServiceResult) => {
                     const formattedResult = new OcrValuables(result);
@@ -335,10 +335,10 @@ export class Expense implements OnInit {
                     }
                     this.toast.clear();
                     if (formattedResult.Orgno) {
-                        this.toast.addToast('OCR-resultater lagt til, kjører smart bokføring', ToastType.good, 5);
+                        this.toast.addToast('Resultater av fakturatolking er lagt til, kjører smart bokføring', ToastType.good, 5);
                         this.runSmartBooking(formattedResult.Orgno);
                     } else {
-                        this.toast.addToast('OCR-resultater lagt til. Fant ingen orgnr, så kan ikke kjøre smart bokføring',
+                        this.toast.addToast('Resultater av fakturatolking er lagt til. Fant ingen orgnr, så kan ikke kjøre smart bokføring',
                         ToastType.good, 5);
                     }
                     this.uniImage.setOcrValues([
