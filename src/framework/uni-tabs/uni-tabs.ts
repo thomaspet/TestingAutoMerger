@@ -3,6 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Subject, fromEvent} from 'rxjs';
 import {takeUntil, debounceTime} from 'rxjs/operators';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import { theme } from 'src/themes/theme';
 
 export interface IUniTab {
     name: string;
@@ -14,6 +15,7 @@ export interface IUniTab {
     tooltipIcon?: string;
     tooltipClass?: string;
     hideTooltipWithoutCount?: boolean;
+    themeOnlyTooltip?: string;
     value?: any;
     count?: number;
     onClick?: () => void;
@@ -47,6 +49,8 @@ export class UniTabs {
     onDestroy$ = new Subject();
     overflowIndex: number;
     pathMatchExact: boolean;
+
+    currentTheme = theme.theme;
 
     constructor(
         private router: Router,

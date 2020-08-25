@@ -9,7 +9,9 @@
 
             <span>{{tab[labelProperty] | translate}}</span>
             <strong *ngIf="tab[counterProperty] !== undefined">{{tab[counterProperty]}}</strong>
-            <i *ngIf="tab.tooltip && (!tab.hideTooltipWithoutCount || tab[counterProperty])"
+            <i *ngIf="tab.tooltip &&
+                    (!tab.hideTooltipWithoutCount || tab[counterProperty]) &&
+                    (tab?.themeOnlyTooltip ? tab.themeOnlyTooltip === currentTheme : true )"
                 class="material-icons tab-tooltip"
                 [ngClass]="tab.tooltipClass"
                 [matTooltip]="tab.tooltip | translate">

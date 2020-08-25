@@ -3,6 +3,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {Payment} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
+import { THEMES, theme } from 'src/themes/theme';
 
 @Injectable()
 export class PaymentService extends BizHttp<Payment> {
@@ -33,14 +34,14 @@ export class PaymentService extends BizHttp<Payment> {
             case 44001:
                 return 'Opprettet';
             case 44002:
-                return 'Overført bank';
+                return theme.theme === THEMES.EXT02 ? 'mottat av bank' : 'Overført bank';
             case 44003:
             case 44012:
                 return 'Feilet';
             case 44004:
                 return 'Fullført';
             case 44005:
-                return 'Fil overført - avventer bankstatus';
+                return theme.theme === THEMES.EXT02 ? 'sendes til bank' : 'Fil overført - avventer bankstatus';
             case 44006:
                 return 'Betalt';
             case 44007:
