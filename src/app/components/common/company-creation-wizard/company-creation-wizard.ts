@@ -213,7 +213,10 @@ export class CompanyCreationWizard {
         this.busyCreatingCompany = true;
         this.companyCreationFailed = false;
 
-        this.getCompanyTemplate().subscribe(template => {
+        const includeVat = this.step2Form.value?.TemplateIncludeVat;
+        const includeSalary = this.step2Form.value?.TemplateIncludeSalary;
+
+        this.initService.getCompanyTemplate(this.isEnk, includeVat, includeSalary).subscribe(template => {
             const companySettings = companyDetails;
             if (step2FormDetails.AccountNumber) {
                 companySettings.CompanyBankAccount = {
@@ -258,50 +261,6 @@ export class CompanyCreationWizard {
                 }
             },
             () => setTimeout(() => this.checkCompanyCreationStatus(companyName), 3000)
-        );
-    }
-
-
-    private getCompanyTemplate() {
-        return this.initService.getTemplates().pipe(
-            map(templates => {
-                return (templates || []).find(template => {
-                    if (template.IsTest) {
-                        return false;
-                    }
-
-                    const name = template.Name || '';
-                    const includeVat = this.step2Form.value?.TemplateIncludeVat;
-                    const includeSalary = this.step2Form.value?.TemplateIncludeSalary;
-
-                    if (this.isEnk && name.includes('MAL AS')) {
-                        return false;
-                    }
-
-                    if (!this.isEnk && name.includes('MAL ENK')) {
-                        return false;
-                    }
-
-                    if (includeVat && name.includes('uten mva')) {
-                        return false;
-                    }
-
-                    if (!includeVat && name.includes('med mva')) {
-                        return false;
-                    }
-
-                    if (includeSalary && name.includes('uten lønn')) {
-                        return false;
-                    }
-
-                    if (!includeSalary && name.includes('med lønn')) {
-                        return false;
-                    }
-
-                    return true;
-                });
-            }),
-            catchError(() => of(null))
         );
     }
 }

@@ -1,6 +1,0 @@
-<section class="uni-selection-list">
-    <label *ngFor="let product of products" class="selection-list-item">
-        <mat-checkbox [(ngModel)]="product['_selected']" (ngModelChange)="onSelectionChange()"></mat-checkbox>
-        {{product.Label}}
-    </label>
-</section>

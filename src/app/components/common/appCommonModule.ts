@@ -59,7 +59,6 @@ import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 import {TaskModal} from '../common/modals/task-modal/task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
-import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
 import {DisclaimerModal} from '../import-central/modals/disclaimer/disclaimer-modal';
 import {ImportTemplateModal} from '../import-central/modals/import-template/import-template-modal';
@@ -149,10 +148,8 @@ import {DashboardModule} from './dashboard/dashboard.module';
         InvoiceHours,
 
         TaskModal,
-        UniNewCompanyModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
-        ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
