@@ -236,10 +236,10 @@ export class SupplierInvoiceStore {
                             this.companySettings.UseOcrInterpretation = false;
 
                             this.modalService.open(UniConfirmModalV2, {
-                                header: 'OCR tolkning er ikke aktivert',
-                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt (OCR tolkning)'
+                                header: 'Fakturatolkning er ikke aktivert',
+                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
                                 + ' 10 ganger gratis. For å bruke tjenesten'
-                                + ' videre må du aktivere OCR tolkning under regnskapsinnstillinger.',
+                                + ' videre må du aktivere Fakturatolk under regnskapsinnstillinger.',
                                 buttonLabels: {
                                     accept: 'OK',
                                 }
@@ -249,8 +249,8 @@ export class SupplierInvoiceStore {
                 });
             } else if (force) {
                 this.modalService.open(UniConfirmModalV2, {
-                    header: 'OCR tolkning er deaktivert',
-                    message: 'Vennligst aktiver OCR tolkning under regnskapsinnstillinger for å benytte OCR tolkning av fakturaer',
+                    header: 'Fakturatolkning er deaktivert',
+                    message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolking av fakturaer',
                     buttonLabels: {
                         accept: 'OK'
                     }

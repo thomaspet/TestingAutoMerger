@@ -70,7 +70,7 @@ export class UniCompanyAccountingView {
 
     eInvoiceItems: any[] = [
         { name: 'EHF mottak', isActivated: false, value: 1 },
-        { name: 'OCR-tolkning', isActivated: false, value: 2 }
+        { name: 'Fakturatolkning', isActivated: false, value: 2 }
     ];
 
     companySettings$ = new BehaviorSubject<CompanySettings>(null);

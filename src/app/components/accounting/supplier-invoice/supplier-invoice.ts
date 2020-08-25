@@ -257,7 +257,7 @@ export class SupplierInvoiceView {
         if (!invoice.StatusCode || invoice?.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.toolbarconfig.contextmenu = [
                 {
-                    label: 'Kjør OCR-tolk',
+                    label: 'Kjør fakturatolkning',
                     action: () => { this.store.runOcr(true); }
                 },
                 {
