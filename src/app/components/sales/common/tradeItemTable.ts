@@ -727,10 +727,12 @@ export class TradeItemTable {
 
 
         const dekningsGradCol = new UniTableColumn('_dekningsGrad', 'Dekningsgrad', UniTableColumnType.Percent, false)
+            .setFeaturePermission('ui.sales.contribution-margin')
             .setMaxWidth(140)
             .setVisible(false);
 
         const costPriceCol = new UniTableColumn('CostPrice', 'Innpris', UniTableColumnType.Money)
+            .setFeaturePermission('ui.sales.products.costprice')
             .setMaxWidth(140)
             .setVisible(false)
             .setTemplate(row => row.CostPrice || row.Product && row.Product.CostPrice);
