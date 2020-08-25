@@ -21,23 +21,29 @@ export class MakeAmeldingPaymentModalComponent implements OnInit, IUniModal {
         payAga: true,
         payTaxDraw: true,
         payFinancialTax: true,
+        payGarnishment: false,
         payDate: new Date(),
         correctPennyDiff: true
     };
 
     showFinanceTax: boolean;
+    showGarnishment: boolean;
     totalFtrekkFeedbackStr: string;
     totalAGAFeedbackStr: string;
     totalFinancialFeedbackStr: string;
+    totalGarnishmentFeedbackStr: string;
     period: number;
 
     ngOnInit(): void {
         this.period = this.options.data.period;
         this.showFinanceTax = this.options.data.showFinanceTax;
+        this.showGarnishment = this.options.data.showGarnishment;
         this.totalFtrekkFeedbackStr = this.options.data.totalFtrekkFeedbackStr;
         this.totalAGAFeedbackStr = this.options.data.totalAGAFeedbackStr;
         this.totalFinancialFeedbackStr = this.options.data.totalFinancialFeedbackStr;
+        this.totalGarnishmentFeedbackStr = this.options.data.totalGarnishmentFeedbackStr;
         this.dto.payFinancialTax = this.showFinanceTax;
+        this.dto.payGarnishment = this.showGarnishment;
         this.dto.payDate = new Date(this.options.data.payDate);
     }
 

@@ -393,7 +393,9 @@ export class WageTypeDetailsComponent extends UniView {
                 case 'forskuddstrekk':
                     incometypeChild = tp.forskuddstrekk;
                     break;
-
+                case 'utleggstrekk':
+                    incometypeChild = tp.utleggstrekk;
+                    break;
                 default:
                     break;
             }

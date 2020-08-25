@@ -1726,6 +1726,7 @@ export class TaxAndAgaSums extends UniEntity {
     public UpdatedAt: Date;
     public WithholdingTax: number;
     public FinancialTax: number;
+    public GarnishmentTax: number;
     public CreatedAt: Date;
     public ID: number;
     public StatusCode: number;
@@ -8621,6 +8622,7 @@ export class code extends UniEntity {
     public naeringsinntekt: Naeringsinntekt;
     public fradrag: Fradrag;
     public forskuddstrekk: Forskuddstrekk;
+    public utleggstrekk: Utleggstrekk;
 }
 
 
@@ -8647,6 +8649,10 @@ export class Fradrag extends UniEntity {
 
 
 export class Forskuddstrekk extends UniEntity {
+}
+
+
+export class Utleggstrekk extends UniEntity {
 }
 
 

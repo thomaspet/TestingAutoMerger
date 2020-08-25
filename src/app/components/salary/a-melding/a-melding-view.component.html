@@ -28,18 +28,21 @@
                     <th>Sum forskuddstrekk</th>
                     <th>Sum arbeidsgiveravgift</th>
                     <th *ngIf="showFinanceTax">Sum finansskatt</th>
+                    <th *ngIf="showGarnishment">Sum utleggstrekk</th>
                 </tr>
                 <tr>
                     <th class="datacolumn">Fra lønnsystem</th>
                     <td class="currency">{{totalFtrekkSystemStr}}</td>
                     <td class="currency">{{totalAGASystemStr}}</td>
                     <td *ngIf="showFinanceTax" class="currency">{{totalFinancialSystemStr}}</td>
+                    <td *ngIf="showGarnishment" class="currency">{{totalGarnishmentSystemStr}}</td>
                 </tr>
                 <tr>
                     <th class="datacolumn">Fra tilbakemelding</th>
                     <td class="currency">{{totalFtrekkFeedbackStr}}</td>
                     <td class="currency">{{totalAGAFeedBackStr}}</td>
                     <td *ngIf="showFinanceTax" class="currency">{{totalFinancialFeedbackStr}}</td>
+                    <td *ngIf="showGarnishment" class="currency">{{totalGarnishmentFeedbackStr}}</td>
                 </tr>
             </table>
         </article>
@@ -97,7 +100,8 @@
                 [currentAMelding]="currentAMelding"
                 [systemData]="currentSumsInPeriod"
                 [aMeldingerInPeriod]="aMeldingerInPeriod"
-                [companySalary]="companySalary">
+                [companySalary]="companySalary"
+                [showGarnishment]="showGarnishment">
             </amelding-periodsummary-view>
         </section>
     </section>
