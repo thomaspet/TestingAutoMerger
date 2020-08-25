@@ -1,8 +1,11 @@
 import {Component} from '@angular/core';
 import {ElsaUserLicense, ElsaUserLicenseType} from '@app/models';
-import {ErrorService, ElsaContractService} from '@app/services/services';
+import {ElsaContractService} from '@app/services/services';
 import {LicenseInfo} from '../license-info';
 import {IContextMenuItem} from '@uni-framework/ui/unitable';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {DeactivateUserModal} from './deactivate-user-modal/deactivate-user-modal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'license-user-list',
@@ -46,10 +49,20 @@ export class UserList {
         { header: 'Status', field: '_status', flex: '0 0 7rem' },
     ];
 
+    contextMenu = [
+        {
+            label: 'Deaktiver bruker fra alle selskaper',
+            action: (user: ElsaUserLicense) => {
+                this.deactivateUserModal(user);
+            }
+        },
+    ];
+
     constructor(
         private elsaContractService: ElsaContractService,
-        private errorService: ErrorService,
         private licenseInfo: LicenseInfo,
+        private modalService: UniModalService,
+        private toastService: ToastService,
     ) {
         this.licenseInfo.selectedContractID$.subscribe(id => {
             this.contractID = id;
@@ -105,5 +118,18 @@ export class UserList {
     onUserSelected(user) {
         this.selectedUser = user;
         this.detailsVisible = true;
+    }
+
+    deactivateUserModal(user: ElsaUserLicense) {
+        this.modalService.open(DeactivateUserModal, {
+            data: {
+                contractID: this.contractID,
+                userLicense: user
+            }
+        }).onClose.subscribe(userDeactivated => {
+            if (userDeactivated) {
+                this.toastService.addToast('Jobb startet', ToastType.good, 5, 'Brukeren blir deaktivert på alle selskaper, dette kan ta litt tid.');
+            }
+        });
     }
 }

@@ -3,7 +3,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, of} from 'rxjs';
 import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory} from '@app/models';
 import {environment} from 'src/environments/environment';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
 import {theme, THEMES} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
@@ -106,6 +106,12 @@ export class ElsaContractService {
             .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=true`)
             .send()
             .map(res => res.body);
+    }
+
+    deactivateUserLicenseOnContract(contractID: number, userIdentity: string) {
+        // specify json content type, otherwise the put thinks it's text/plain
+        const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
+        return this.http.put(`/api/elsa/contracts/${contractID}/deactivate-user`, `\"${userIdentity}\"`, {headers: headers});
     }
 
     getUserLicenses(contractID: number): Observable<ElsaUserLicense[]> {

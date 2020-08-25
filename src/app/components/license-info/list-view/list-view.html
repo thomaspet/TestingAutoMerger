@@ -20,7 +20,7 @@
             >
                 {{row | cellValue: column}}
             </td>
-            <td class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu">
+            <td class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
                 <i class="material-icons">more_horiz</i>
                 <mat-menu #menu="matMenu" xPosition="before">
                     <div *ngFor="let item of contextMenu">

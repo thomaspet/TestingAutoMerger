@@ -1,0 +1,31 @@
+<section role="dialog" class="uni-modal uni-redesign" (clickOutside)="onClose.emit(false)">
+	<header>Deaktiver brukeren {{ user?.UserName || user?.Email }}</header>
+
+	<article style="align-self: center">
+		<section *ngIf="busy" class="modal-spinner">
+			<mat-spinner class="c2a"></mat-spinner>
+		</section>
+		
+		<div>
+			<p>Er du sikker på at du vil deaktivere <b>{{ user?.UserName || user?.Email }}</b> fra alle selskaper på denne lisensen?</p>
+			<p>Vennligst bekreft ved å skrive inn følgende tall: <b>{{ validatorNumber }}</b></p>
+		</div>
+
+		<!-- TODO: change input field when the redesign is implemented -->
+		<input 
+			type="number"
+			placeholder="{{ validatorNumber }}"
+			[(ngModel)]="validatorInput"
+			required/>
+	</article>
+	<footer class="center">
+		<button 
+		class="bad" 
+		(click)="deactivateUser()"
+		[disabled]="busy || validatorInput !== validatorNumber"
+		>
+		Deaktiver
+		</button>
+		<button (click)="onClose.emit(false)">Avbryt</button>
+	</footer>
+</section>

@@ -1,4 +1,4 @@
-<section class="list-container" (click)="$event.stopPropagation()">
+<section class="list-container" (clickOutside)="close.emit()">
     <section class="header">{{user?.UserName}}</section>
 
     <license-info-list
