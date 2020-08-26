@@ -162,12 +162,13 @@ export class TofEmailModal {
             `Models.Sales.${formModel.model.EntityType}`,
             formModel.reportID,
             formModel.model,
-            [parameter],
-            () => {
-                this.onClose.emit(email);
-                this.busy = false;
-            }
-        );
+            [parameter]
+        ).then(() => {
+            this.onClose.emit(email);
+            this.busy = false;
+        }).catch(() => {
+            this.busy = false;
+        });
     }
 
     onFormChange(changes) {

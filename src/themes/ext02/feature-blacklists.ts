@@ -13,6 +13,8 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
         'ui.sales.customer.delivery-terms',
+        'ui.sales.products.costprice',
+        'ui.sales.contribution-margin',
 
         'ui.accounting.supplier.cost_allocation',
         'ui.accounting.supplier.ehf_setup',
@@ -65,7 +67,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.invoice-list.my_invoices',
 
         'ui.sales.products.product_categories',
-        'ui.sales.products.cost-price',
 
         'ui.sales.quotes',
         'ui.sales.orders',

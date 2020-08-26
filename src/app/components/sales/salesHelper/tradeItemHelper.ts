@@ -9,6 +9,7 @@ import {
     StatusCodeCustomerOrderItem
 } from '../../../unientities';
 import * as _ from 'lodash';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export interface ISummaryLine {
     label: string;
@@ -21,7 +22,8 @@ export class TradeItemHelper  {
     constructor(
         private guidService: GuidService,
         private numberFormat: NumberFormat,
-        private customDimensionService: CustomDimensionService
+        private customDimensionService: CustomDimensionService,
+        private permissionService: FeaturePermissionService,
     ) {}
 
     public prepareItemsForSave(items) {
@@ -569,7 +571,9 @@ export class TradeItemHelper  {
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
 
-            sum.DekningsGrad = ((sum.SumTotalExVat - totalCostPrice) * 100) / sum.SumTotalExVat;
+            if (this.permissionService.canShowUiFeature('ui.sales.contribution-margin')) {
+                sum.DekningsGrad = ((sum.SumTotalExVat - totalCostPrice) * 100) / sum.SumTotalExVat;
+            }
         }
 
         return sum;
