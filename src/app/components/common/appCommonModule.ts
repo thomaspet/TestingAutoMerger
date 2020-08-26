@@ -30,6 +30,7 @@ import {ReminderRules} from './reminder/settings/reminderRules';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
+import {RegisterCustomerClaimPaymentModal} from './modals/RegisterCustomerClaimPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
@@ -105,6 +106,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        RegisterCustomerClaimPaymentModal,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
@@ -183,6 +185,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        RegisterCustomerClaimPaymentModal,
         UniDimensionTOFView,
         ModelTreeView,
         ModelTreeRelationNode,

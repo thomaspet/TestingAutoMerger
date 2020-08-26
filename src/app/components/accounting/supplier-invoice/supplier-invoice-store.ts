@@ -556,7 +556,7 @@ export class SupplierInvoiceStore {
 
         const options = {
             data: {
-                current: this.invoice$.value,
+                supplierInvoice: this.invoice$.value,
                 onlyToPayment: isOnlyPayment
             }
         };
@@ -625,7 +625,7 @@ export class SupplierInvoiceStore {
     sendExpenseToPayment(): Observable<any> {
         return this.modalService.open(ToPaymentModal, {
             data: {
-                current: this.invoice$.value,
+                supplierInvoice: this.invoice$.value,
                 onlyToPayment: false
             }
         }).onClose.pipe(switchMap((response: ActionOnReload) => {
