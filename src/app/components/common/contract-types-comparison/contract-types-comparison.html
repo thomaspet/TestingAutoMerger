@@ -1,5 +1,5 @@
-<section class="toggle-list">
-    <a (click)="expanded = !expanded; fetchData()">
+<section *ngIf="categories?.length" class="toggle-list">
+    <a (click)="expanded = !expanded">
         Sammenlign funksjoner
         <i class="material-icons" [class.expanded]="expanded && categories.length">expand_more</i>
     </a>

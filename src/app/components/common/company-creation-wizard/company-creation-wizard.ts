@@ -89,7 +89,10 @@ export class CompanyCreationWizard {
 
             this.createDemoCompany = this.isTest;
             this.includeContractActivation = !this.isTest;
-            this.currentStep = this.isTest ? 1 : 0;
+            if (!this.currentStep  && this.isTest) {
+                this.currentStep = 1;
+            }
+
             this.setHeaderText();
         });
 
@@ -100,7 +103,10 @@ export class CompanyCreationWizard {
             ([contracts, contractTypes]) => {
                 this.contract = contracts && contracts[0];
                 this.contractTypes = contractTypes || [];
-            }, err => console.error(err));
+                this.currentStep = this.contractTypes.length && !this.createDemoCompany ? 0 : 1;
+            },
+            err => console.error(err)
+        );
     }
 
     ngOnDestroy() {

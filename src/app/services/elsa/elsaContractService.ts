@@ -49,15 +49,11 @@ export class ElsaContractService {
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint('/api/contracttypes?$expand=bulletpoints,productcontracttypes($expand=product)')
+            .withEndPoint(`/api/contracttypes?$expand=bulletpoints,productcontracttypes($expand=product;$filter=product/producttype eq 'Package')`)
             .send()
-            .map(res => {
-                return (res.body || []).filter(contractType => {
-                    return contractType.IsActive
-                        && contractType.IsPublic
-                        && contractType.ContractType > 20;
-                });
-            });
+            .pipe(
+                map(res => (res.body || []).filter(type => type.ContractType > 0 && type.IsActive && type.IsPublic))
+            );
     }
 
     getContractTypesLabel(contracttype: string): Observable<string> {
