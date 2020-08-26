@@ -386,7 +386,10 @@ export class ReminderSending implements OnInit {
                 ];
 
                 this.emailService.sendEmailWithReportAttachment(
-                    'Models.Sales.CustomerInvoiceReminder', this.reportId, email, parameters, doneHandler);
+                    'Models.Sales.CustomerInvoiceReminder', this.reportId, email, parameters
+                )
+                .then(msg => { if (doneHandler) doneHandler(msg); })
+                .catch(msg => { if (doneHandler) doneHandler(msg); });
             });
         });
     }

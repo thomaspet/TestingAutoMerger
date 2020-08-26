@@ -23,51 +23,52 @@ export class EmailService extends BizHttp<Email> {
         this.DefaultOrderBy = null;
     }
 
-    public sendEmailWithReportAttachment(fullEntityType: string, reportID: number, sendemail: SendEmail, parameters = null, doneHandler: (msg: string) => void = null) {
-        if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
-            this.toastService.addToast(
-                'Sending feilet',
-                ToastType.bad, 3,
-                'Sending av e-post feilet grunnet manglende e-postadresse'
-            );
+    public sendEmailWithReportAttachment(fullEntityType: string, reportID: number, sendemail: SendEmail, parameters = null): Promise<string> {
+        return new Promise((resolve, reject) => {
+            if (!sendemail.EmailAddress || sendemail.EmailAddress.indexOf('@') <= 0) {
+                this.toastService.addToast(
+                    'Sending feilet',
+                    ToastType.bad, 3,
+                    'Sending av e-post feilet grunnet manglende e-postadresse'
+                );
 
-            if (doneHandler) {
-                doneHandler('Sending feilet');
-            }
-        } else {
-            this.emailtoast = this.toastService.addToast(
-                'Sender e-post til ' + sendemail.EmailAddress,
-                ToastType.info, 0,
-                sendemail.Subject
-            );
+                reject('Sending feilet');
+            } else {
+                this.emailtoast = this.toastService.addToast(
+                    'Sender e-post til ' + sendemail.EmailAddress,
+                    ToastType.info, 0,
+                    sendemail.Subject
+                );
 
-            const email = {
-                ToAddresses: [sendemail.EmailAddress],
-                CopyAddress: sendemail.SendCopy ? sendemail.CopyAddress : '',
-                Subject: sendemail.Subject,
-                Message: sendemail.Message,
-                ReportID: reportID,
-                EntityType: sendemail.EntityType,
-                EntityID: sendemail.EntityID,
-                Format: sendemail.Format,
-                Parameters: parameters
-            };
+                const email = {
+                    ToAddresses: [sendemail.EmailAddress],
+                    CopyAddress: sendemail.SendCopy ? sendemail.CopyAddress : '',
+                    Subject: sendemail.Subject,
+                    Message: sendemail.Message,
+                    ReportID: reportID,
+                    EntityType: sendemail.EntityType,
+                    EntityID: sendemail.EntityID,
+                    Format: sendemail.Format,
+                    Parameters: parameters
+                };
 
-            this.distributeWithTypeAndBody(sendemail.EntityID, fullEntityType, 'Email', email).subscribe(
-                () => {
-                    this.toastService.removeToast(this.emailtoast);
-                    this.toastService.toast({
-                        title: 'E-post lagt i kø for utsendelse',
-                        type: ToastType.good,
-                        duration: ToastTime.medium
-                    });
-                    if (doneHandler) {
-                        doneHandler('Sendt');
+                this.distributeWithTypeAndBody(sendemail.EntityID, fullEntityType, 'Email', email).subscribe(
+                    () => {
+                        this.toastService.removeToast(this.emailtoast);
+                        this.toastService.toast({
+                            title: 'E-post lagt i kø for utsendelse',
+                            type: ToastType.good,
+                            duration: ToastTime.medium
+                        });
+                        resolve('Sendt');
+                    },
+                    (err) => {
+                        this.errorService.handle(err);
+                        reject('Sending feilet');
                     }
-                },
-                (err) => this.errorService.handle(err)
-            );
-        }
+                );
+            }
+        });
     }
 
     private distributeWithTypeAndBody(id, type, disttype, body) {
