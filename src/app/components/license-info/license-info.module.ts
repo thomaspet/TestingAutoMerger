@@ -20,7 +20,8 @@ import {AddAdminModal} from './add-admin-modal/add-admin-modal';
 import {DeletedCompaniesModal} from './company-list/deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './company-list/delete-company-modal/delete-company-modal';
 import {AppCommonModule} from '../common/appCommonModule';
-import {RelatedOrdersModal} from './billing/related-orders-modal/related-orders-modal';
+import {BillingHistory} from './billing-history/billing-history';
+import {SettlementsModal} from './settlements-modal/settlements-modal';
 
 @NgModule({
     imports: [
@@ -38,6 +39,7 @@ import {RelatedOrdersModal} from './billing/related-orders-modal/related-orders-
                 { path: 'companies', component: CompanyList },
                 { path: 'users', component: UserList },
                 { path: 'billing', component: Billing },
+                { path: 'history', component: BillingHistory },
             ]
         }]),
     ],
@@ -56,7 +58,8 @@ import {RelatedOrdersModal} from './billing/related-orders-modal/related-orders-
         AddAdminModal,
         DeletedCompaniesModal,
         DeleteCompanyModal,
-        RelatedOrdersModal,
+        BillingHistory,
+        SettlementsModal,
     ]
 })
 export class LicenseInfoModule {}

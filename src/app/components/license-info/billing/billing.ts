@@ -1,39 +1,11 @@
 import {Component} from '@angular/core';
-import {UniHttp} from '@uni-framework/core/http/http';
 import {ListViewColumn} from '../list-view/list-view';
 import {ElsaContractService} from '@app/services/services';
 import {saveAs} from 'file-saver';
 import * as moment from 'moment';
 import {LicenseInfo} from '../license-info';
-import {UniModalService} from '@uni-framework/uni-modal';
-import {RelatedOrdersModal} from './related-orders-modal/related-orders-modal';
 import {ElsaContractTypePipe} from '@uni-framework/pipes/elsaContractTypePipe';
-
-export interface BillingDataItem {
-    ProductID: number;
-    ProductName: string;
-    Days: number;
-    Amount: number;
-    Unit: string;
-    Price: number;
-    DiscountPrc: number;
-    Sum: number;
-    Details: {Name: string; Counter: number, Tags?: string[]}[];
-}
-
-export interface BillingData {
-    CustomerName: string;
-    CustomerID: number;
-    ContractID: number;
-    ContractType: number;
-    FromDate: string;
-    ToDate: string;
-    Total: number;
-    TotalDiscount: number;
-    OrderDays: number;
-    Items: BillingDataItem[];
-    RelatedOrders: BillingData[];
-}
+import {BillingData, BillingDataItem} from '@app/models/elsa-models';
 
 @Component({
     selector: 'license-billing',
@@ -63,10 +35,8 @@ export class Billing {
     ];
 
     constructor(
-        private http: UniHttp,
         private contractService: ElsaContractService,
         private licenseInfo: LicenseInfo,
-        private modalService: UniModalService,
         private elsaContractTypePipe: ElsaContractTypePipe,
     ) {
         const currentYear = new Date().getFullYear();
@@ -82,35 +52,30 @@ export class Billing {
     }
 
     loadInvoice() {
-        const endpoint = `/api/billing/contract/${this.contractID}`
-            + `?year=${this.periodFilter.year}`
-            + `&month=${+this.periodFilter.month + 1}`
-            + `&tags=true`;
-
-        this.http.asGET()
-            .usingElsaDomain()
-            .withEndPoint(endpoint)
-            .send()
-            .subscribe(
-                res => {
-                    this.hasPermission = true;
-                    this.billingData = res.body;
-                    if (this.billingData?.RelatedOrders?.length > 0) {
-                        this.totalSumWithPeriods = 0;
-                        this.billingData.RelatedOrders.forEach(order => {
-                            order['_period'] = this.setHeaderText(order);
-                            this.totalSumWithPeriods += order.Total;
-                        });
-                        this.billingData.Total += this.totalSumWithPeriods;
-                    }
-                },
-                err => {
-                    console.error(err);
-                    if (err.status === 403) {
-                        this.hasPermission = false;
-                    }
+        this.contractService.getBillingEstimate(
+            this.contractID,
+            this.periodFilter.year,
+            +this.periodFilter.month + 1
+        ).subscribe(
+            res => {
+                this.hasPermission = true;
+                this.billingData = res;
+                if (this.billingData?.RelatedOrders?.length > 0) {
+                    this.totalSumWithPeriods = 0;
+                    this.billingData.RelatedOrders.forEach(order => {
+                        order['_period'] = this.setHeaderText(order);
+                        this.totalSumWithPeriods += order.Total;
+                    });
+                    this.billingData.Total += this.totalSumWithPeriods;
                 }
-            );
+            },
+            err => {
+                console.error(err);
+                if (err.status === 403) {
+                    this.hasPermission = false;
+                }
+            }
+        );
     }
 
     onRowClick(row) {
@@ -123,10 +88,6 @@ export class Billing {
         const period = 'Delavregning ' + moment(order.FromDate).format('D') + '-' + moment(order.ToDate).format('LL');
         const contracttype = 'Lisens: ' + this.elsaContractTypePipe.transform(order.ContractType);
         return period + '&nbsp;&nbsp; &mdash; &nbsp;&nbsp;' + contracttype;
-    }
-
-    openRelatedOrders() {
-        this.modalService.open(RelatedOrdersModal, {data:  this.billingData.RelatedOrders});
     }
 
     export() {

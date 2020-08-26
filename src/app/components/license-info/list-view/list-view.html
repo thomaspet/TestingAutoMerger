@@ -37,7 +37,7 @@
 
     <tbody class="related-orders" *ngIf="billingData">
         <tr *ngFor="let order of billingData.RelatedOrders">
-            <td class="clickable" [attr.colSpan]="columns.length - 1" [innerHTML]="order['_period']" (click)="openRelatedOrders(order)"></td>
+            <td class="clickable" [attr.colSpan]="columns.length - 1" [innerHTML]="order['_period']" (click)="openSettlements(order)"></td>
             <td class="clickable align-right" colspan="1">{{order.Total | unicurrency}}</td>
         </tr>
     </tbody>

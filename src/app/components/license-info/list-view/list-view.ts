@@ -3,9 +3,9 @@ import {CdkVirtualScrollViewport} from '@angular/cdk/scrolling';
 import {NumberFormat} from '@app/services/services';
 import {get} from 'lodash';
 import {DatePipe} from '@angular/common';
-import {BillingData} from '../billing/billing';
-import {RelatedOrdersModal} from '../billing/related-orders-modal/related-orders-modal';
 import {UniModalService} from '@uni-framework/uni-modal';
+import {BillingData} from '@app/models/elsa-models';
+import {SettlementsModal} from '../settlements-modal/settlements-modal';
 
 export interface ListViewColumn {
     header: string;
@@ -97,7 +97,12 @@ export class ListView {
         return classList.join(' ');
     }
 
-    openRelatedOrders(order: BillingData) {
-        this.modalService.open(RelatedOrdersModal, {data: order});
+    openSettlements(order: BillingData) {
+        this.modalService.open(SettlementsModal, {
+            data: {
+                settlement: order,
+                header: 'Delavregning'
+            }
+        });
     }
 }

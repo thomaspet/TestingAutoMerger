@@ -1,0 +1,45 @@
+<!-- Check specifically for false so the message doesn't show while loading -->
+<section class="missing-permissions" *ngIf="hasPermission === false">
+    Det er kun lisensadministratorer som har tilgang til å se fakturahistorikk på en lisens.
+</section>
+
+<section *ngIf="hasPermission && !billingHistory">
+    Fant ingen fakturahistorikk på denne lisensen.
+</section>
+
+<section class="list-container" *ngIf="hasPermission && billingHistory">
+    <section class="header">
+        <h1>Fakturahistorikk</h1>
+
+        <section class="pull-right">
+            <input
+                type="search"
+                placeholder="Søk"
+                [(ngModel)]="searchStr"
+                (ngModelChange)="filterHistory()"
+            />
+        </section>
+    </section>
+
+    <simple-table>
+        <thead>
+            <tr>
+                <th>Periode</th>
+                <th>Plan</th>
+                <th>Ordre</th>
+                <th class="align-right">Sum eks. mva.</th>
+                <!-- <th class="align-right"></th> -->
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let history of filteredHistory" class="body-row">
+                <td>{{history['_period']}}</td>
+                <td>{{history['_plan']}}</td>
+                <td><a (click)="openSettlements(history)">{{history['_order']}}</a></td>
+                <td class="align-right">{{history.Total | unicurrency}}</td>
+                <!-- <td class="align-right"><a>Last ned</a></td> -->
+            </tr>
+        </tbody>
+    </simple-table>
+</section>
