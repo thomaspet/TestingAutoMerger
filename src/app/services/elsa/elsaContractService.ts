@@ -26,11 +26,12 @@ export class ElsaContractService {
             .pipe(map(res => res[0]));
     }
 
-    getAll(): Observable<ElsaContract[]> {
+    getAll(ignoreLicenseAdmin = false): Observable<ElsaContract[]> {
+        const ignore = ignoreLicenseAdmin ? 'ignoreLicenseAdmin=true&' : '';
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint('/api/contracts?$expand=AgreementAcceptances,Customer')
+            .withEndPoint('/api/contracts?' + ignore + '$expand=AgreementAcceptances,Customer')
             .send()
             .map(req => req.body);
     }
