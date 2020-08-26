@@ -79,7 +79,7 @@ export class RegisterCompany {
 
     init() {
         forkJoin(
-            this.elsaContractService.getAll(),
+            this.elsaContractService.getAll(true),
             this.elsaContractService.getContractTypes(),
         ).subscribe(([contracts, contractTypes]) => {
             const contract = contracts && contracts[0];
