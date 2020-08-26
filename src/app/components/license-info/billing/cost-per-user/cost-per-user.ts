@@ -1,7 +1,7 @@
 import {Component, Input} from '@angular/core';
-import {BillingData} from '../billing';
 import {ListViewColumn} from '../../list-view/list-view';
 import * as moment from 'moment';
+import {BillingData} from '@app/models/elsa-models';
 
 @Component({
     selector: 'cost-per-user',

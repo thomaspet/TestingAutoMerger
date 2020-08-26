@@ -1,6 +1,6 @@
 import {Component, Input} from '@angular/core';
-import {BillingData} from '../billing';
 import {ListViewColumn} from '../../list-view/list-view';
+import {BillingData} from '@app/models/elsa-models';
 
 @Component({
     selector: 'transactions-per-company',

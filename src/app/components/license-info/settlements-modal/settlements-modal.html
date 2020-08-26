@@ -1,8 +1,8 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Delavregning</header>
+    <header>{{headerText}}</header>
 
     <div class="list-container">
-        <div class="period-header" [innerHTML]="relatedOrder['_period']"></div>        
+        <div class="period-header" [innerHTML]="settlement['_periodText']"></div>
     
         <simple-table>
             <thead>
@@ -18,7 +18,7 @@
             </thead>
     
             <tbody>
-                <tr *ngFor="let item of relatedOrder.Items" class="body-row">
+                <tr *ngFor="let item of settlement.Items" class="body-row">
                     <td>{{item.ProductID}}</td>
                     <td>{{item.ProductName}}</td>
                     <td class="align-right">{{item.Amount}}</td>
@@ -32,7 +32,7 @@
                 </tr>
                 <tr class="period-total">
                     <td colspan="6">Sum for perioden</td>
-                    <td colspan="1" class="align-right">{{relatedOrder.Total | unicurrency}}</td>
+                    <td colspan="1" class="align-right">{{settlement.Total | unicurrency}}</td>
                 </tr>
             </tbody>
         </simple-table>

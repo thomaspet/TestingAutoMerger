@@ -215,3 +215,28 @@ export enum ElsaCustomerAccessRole {
     Owner = 2
 }
 
+export interface BillingDataItem {
+    ProductID: number;
+    ProductName: string;
+    Days: number;
+    Amount: number;
+    Unit: string;
+    Price: number;
+    DiscountPrc: number;
+    Sum: number;
+    Details: {Name: string; Counter: number, Tags?: string[]}[];
+}
+
+export interface BillingData {
+    CustomerName: string;
+    CustomerID: number;
+    ContractID: number;
+    ContractType: number;
+    FromDate: string;
+    ToDate: string;
+    Total: number;
+    TotalDiscount: number;
+    OrderDays: number;
+    Items: BillingDataItem[];
+    RelatedOrders: BillingData[];
+}
