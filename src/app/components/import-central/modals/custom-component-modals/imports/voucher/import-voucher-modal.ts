@@ -176,7 +176,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
         this.uploadFileToFileServer(file).subscribe(
             res => {
                 const company = this.authService.activeCompany;
-                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res._publictoken}`;
+                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res.PublicToken}`;
                 this.loading$.next(false);
                 const importModel = {
                     CompanyKey: company.Key,
