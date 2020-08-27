@@ -88,6 +88,7 @@ export class SupplierInvoiceView {
         this.resizeObserver.disconnect();
         this.onDestroy$.next();
         this.onDestroy$.complete();
+        this.store.selectedFile = null;
     }
 
     private syncFormAndAttachmentsHeight() {

@@ -23,6 +23,7 @@ import {AppCommonModule} from '../common/appCommonModule';
 import {DeactivateUserModal} from './user-list/deactivate-user-modal/deactivate-user-modal';
 import {BillingHistory} from './billing-history/billing-history';
 import {SettlementsModal} from './settlements-modal/settlements-modal';
+import {NewCompanyModal} from './new-company-modal/new-company-modal';
 
 @NgModule({
     imports: [
@@ -57,6 +58,7 @@ import {SettlementsModal} from './settlements-modal/settlements-modal';
         CellValuePipe,
         ListView,
         AddAdminModal,
+        NewCompanyModal,
         DeletedCompaniesModal,
         DeleteCompanyModal,
         DeactivateUserModal,

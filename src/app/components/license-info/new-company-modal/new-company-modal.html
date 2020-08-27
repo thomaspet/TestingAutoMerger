@@ -1,0 +1,103 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        <mat-spinner *ngIf="busyCreatingCompany" class="c2a" [diameter]="24"></mat-spinner>
+        {{busyCreatingCompany ? 'Oppretter selskap' : 'Nytt selskap'}}
+    </header>
+
+    <article *ngIf="busyCreatingCompany">
+        Vi setter nå opp selskapet med innstillinger og data du trenger for å komme i gang.
+        Denne prosessen kan ta litt tid.
+        <br><br>
+
+        Dersom du lar denne dialogen stå åpen vil du bli logget på selskapet automatisk når det er tilgjengelig.
+    </article>
+
+    <article *ngIf="!busyCreatingCompany">
+
+        <section *ngIf="companyCreationFailed" class="alert bad">
+            Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
+        </section>
+
+        <ng-container *ngIf="currentStep === 1">
+            <autocomplete
+                [options]="autocompleteOptions"
+                (valueChange)="onBrRegCompanySelected($event)">
+            </autocomplete>
+
+            <form [formGroup]="step1Form">
+                <label #companyNameInput class="uni-label">
+                    <span>Firmanavn</span>
+                    <input type="text" formControlName="CompanyName">
+                </label>
+
+                <label class="uni-label">
+                    <span>Organisasjonsnummer</span>
+                    <input type="text" formControlName="OrganizationNumber">
+                </label>
+
+                <label class="uni-label">
+                    <span>Adresse</span>
+                    <input type="text" formControlName="Address">
+                </label>
+
+                <section class="input-row">
+                    <label class="uni-label">
+                        <span>Postnummer</span>
+                        <input type="text" formControlName="PostalCode">
+                    </label>
+
+                    <label class="uni-label">
+                        <span>Poststed</span>
+                        <input type="text" formControlName="City">
+                    </label>
+                </section>
+            </form>
+        </ng-container>
+
+        <form *ngIf="currentStep === 2" [formGroup]="step2Form">
+            <label class="uni-label">
+                <span>Driftskonto</span>
+                <input uniAutoFocus type="text" formControlName="AccountNumber">
+
+                <section *ngIf="isExt02Env" class="alert good bruno-account-alert">
+                    <i class="material-icons">info_outline</i>
+                    <span>Kontoen må være en DNB konto</span>
+                </section>
+            </label>
+
+            <label class="uni-label">
+                <span>Skal selskapet betale moms?</span>
+                <mat-radio-group class="horizontal" formControlName="TemplateIncludeVat">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+            </label>
+
+            <label class="uni-label">
+                <span>Skal selskapet ha ansatte?</span>
+                <mat-radio-group class="horizontal" formControlName="TemplateIncludeSalary">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+            </label>
+        </form>
+    </article>
+
+    <footer *ngIf="!busyCreatingCompany">
+        <button class="secondary pull-left" (click)="onClose.emit()">
+            Avbryt
+        </button>
+
+        <button class="secondary" (click)="currentStep = 1" [disabled]="currentStep !== 2">
+            Tilbake
+        </button>
+
+        <button *ngIf="currentStep === 1" (click)="onStep1Submit()" class="c2a">
+            Neste
+        </button>
+
+        <button *ngIf="currentStep === 2" (click)="onStep2Submit()" class="c2a">
+            Opprett selskap
+        </button>
+    </footer>
+</section>

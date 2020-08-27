@@ -44,11 +44,7 @@ export class ContractTypesComparison {
         private changeDetectorRef: ChangeDetectorRef
     ) {}
 
-    fetchData() {
-        //  only fetch once
-        if (this.categories.length > 0) {
-            return;
-        }
+    ngOnInit() {
         forkJoin([
             this.elsaContractService.getCustomContractTypes(),
             this.elsaContractService.getContractTypesCategories(),
