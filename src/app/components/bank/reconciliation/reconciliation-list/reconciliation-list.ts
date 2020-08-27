@@ -69,8 +69,8 @@ export class UniBankReconciliationList {
         this.pageStateService.setPageState('tabIndex', this.activeIndex.toString());
     }
 
-    goToSettings() {
-        this.router.navigateByUrl('/settings/company');
+    goToBankSettings() {
+        this.router.navigateByUrl('/settings/bank');
     }
 
     onActionClick(action: any, account: any) {
