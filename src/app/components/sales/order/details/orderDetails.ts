@@ -7,7 +7,7 @@ import {
     ConfirmActions,
     IModalOptions,
     UniConfirmModalV2,
-    TofEmailModal,
+    TofEmailModal, IUniModal,
 } from '@uni-framework/uni-modal';
 import {
     CompanySettings,
@@ -77,7 +77,7 @@ import {AuthService} from '@app/authService';
 import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {TofReportModal} from '../../common/tof-report-modal/tof-report-modal';
-import {switchMap, tap, catchError, map} from 'rxjs/operators';
+import {switchMap, tap, catchError, map, filter} from 'rxjs/operators';
 import {THEMES, theme} from 'src/themes/theme';
 
 @Component({
@@ -1122,7 +1122,9 @@ export class OrderDetails implements OnInit {
                 this.order.StatusCode = StatusCode.Draft;
             }
 
-            return this.saveOrder().pipe(
+            return this.modalService.openUnsavedChangesModal().onClose.pipe(
+                filter(action => action === ConfirmActions.ACCEPT),
+                switchMap(x => this.saveOrder()),
                 switchMap(order => openPreview(order))
             );
         } else {
@@ -1197,29 +1199,49 @@ export class OrderDetails implements OnInit {
             this.saveActions.push({
                 label: 'Skriv ut',
                 action: (done) => {
-                    this.modalService.open(TofReportModal, {
-                        header: 'Forhåndsvisning',
-                        data: {
-                            entityLabel: 'Ordre',
-                            entityType: 'CustomerOrder',
-                            entity: this.order,
-                            reportType: ReportTypeEnum.ORDER,
-                            skipConfigurationGoStraightToAction: 'print'
-                        }
-                    }).onClose.subscribe(() => done());
+                    let source = of(null);
+                    if (this.isDirty) {
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.saveOrder(false)),
+                            switchMap( order => {
+                                return this.modalService.open(TofReportModal, {
+                                    header: 'Forhåndsvisning',
+                                    data: {
+                                        entityLabel: 'Ordre',
+                                        entityType: 'CustomerOrder',
+                                        entity: this.order,
+                                        reportType: ReportTypeEnum.ORDER,
+                                        skipConfigurationGoStraightToAction: 'print'
+                                    }
+                                }).onClose;
+                            })
+                        );
+                    }
+                    source.subscribe(() => done(), () => done(), () => done());
                 }
             });
 
             this.saveActions.push({
                 label: 'Send på epost',
                 action: (done) => {
-                    this.modalService.open(TofEmailModal, {
-                        data: {
-                            entity: this.order,
-                            entityType: 'CustomerOrder',
-                            reportType: ReportTypeEnum.ORDER
-                        }
-                    }).onClose.subscribe(emailSentTo => {
+                    let source = of(null);
+                    if (this.isDirty) {
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.saveOrder(false)),
+                            switchMap(order => {
+                                return this.modalService.open(TofEmailModal, {
+                                    data: {
+                                        entity: this.order,
+                                        entityType: 'CustomerOrder',
+                                        reportType: ReportTypeEnum.ORDER
+                                    }
+                                }).onClose;
+                            })
+                        );
+                    }
+                    source.subscribe(emailSentTo => {
                         if (emailSentTo) {
                             this.customerOrderService.setPrintStatus(this.order.ID, '100').subscribe(
                                 () => {
@@ -1229,12 +1251,12 @@ export class OrderDetails implements OnInit {
                                 err => console.error(err)
                             );
 
-                            this.order.EmailAddress = emailSentTo;
+                            this.order.EmailAddress = <string>emailSentTo;
                             this.refreshOrder(this.order);
                         }
 
                         done();
-                    });
+                    }, () => done(), () => done());
                 }
             });
         }
