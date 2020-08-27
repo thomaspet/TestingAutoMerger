@@ -17,6 +17,7 @@ import {TopTenCustomersWidget} from './misc/top-ten-customers/top-ten-customers'
 import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-customer';
 import {BalanceWidget} from './charts/balance-widget/balance-widget';
 import {PaymentsWidget} from './charts/payments-widget/payments-widget';
+import {TravelsWidget} from './misc/travels-widget/travels-widget';
 
 export * from './widget';
 
@@ -40,6 +41,7 @@ export const WIDGET_COMPONENTS = [
     UnpaidPerCustomer,
     BalanceWidget,
     PaymentsWidget,
+    TravelsWidget,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -206,5 +208,14 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         component: PaymentsWidget,
         routePermissions: ['ui_bank_payments']
     },
+    {
+        name: 'TRAVELS',
+        label: 'Reiseregninger',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.SALARY,
+        component: TravelsWidget,
+        routePermissions: ['ui_salary_travels']
+    }
 ];
 

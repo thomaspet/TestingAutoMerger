@@ -89,8 +89,6 @@ export class WidgetPieChart {
                 position: 'nearest',
                 custom: tooltip => {
                     if (tooltip.dataPoints && tooltip.dataPoints.length) {
-                        console.log(tooltip);
-
                         const labels = this.chartConfig.data.labels;
                         const data = this.chartConfig.data.datasets[0].data;
                         const index = tooltip.dataPoints[0].index;

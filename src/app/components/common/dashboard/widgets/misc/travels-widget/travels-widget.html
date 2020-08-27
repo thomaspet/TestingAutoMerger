@@ -1,0 +1,25 @@
+<section class="header">
+    <h1>Reiseregninger</h1>
+    <button class="tertiary c2a pull-right" (click)="importTravels()" [attr.aria-busy]="importBusy">
+        <i class="material-icons pad-right">sync</i>
+        Importer
+    </button>
+</section>
+
+<section class="content">
+
+    <widget-empty-state *ngIf="!loading && !travels?.length">
+        Ingen ubehandlede reiseregninger
+    </widget-empty-state>
+
+    <section *ngIf="!loading && travels?.length" id="travel-list">
+        <a *ngFor="let travel of travels" routerLink="/salary/travels" class="travel-item unstyled-link">
+            <section class="travel-info">
+                <span>{{travel.Description}}</span>
+                <span class="name">{{travel.Name}}</span>
+            </section>
+
+            <section class="type">{{travel._costTypeText}}</section>
+        </a>
+    </section>
+</section>
