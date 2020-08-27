@@ -127,30 +127,31 @@ export class BankReconciliation {
 
     initData() {
         this.session.clear();
-        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0').subscribe(
-            accounts => {
-                this.bankAccounts = accounts || [];
-                if (this.bankAccounts.length) {
+        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0 and Account.Locked eq false')
+            .subscribe(
+                accounts => {
+                    this.bankAccounts = accounts || [];
+                    if (this.bankAccounts.length) {
 
-                    this.selectedBankAccount = this.bankAccounts[0];
+                        this.selectedBankAccount = this.bankAccounts[0];
 
-                    // Set current account from routeparam ? (?accountd=123)
-                    const state = this.pageStateService.getPageState();
-                    if (state.accountid) {
-                        const acc = this.bankAccounts.find( x => x.AccountID === parseInt(state.accountid, 10));
-                        if (acc) {
-                            this.selectedBankAccount = acc;
+                        // Set current account from routeparam ? (?accountd=123)
+                        const state = this.pageStateService.getPageState();
+                        if (state.accountid) {
+                            const acc = this.bankAccounts.find(x => x.AccountID === parseInt(state.accountid, 10));
+                            if (acc) {
+                                this.selectedBankAccount = acc;
+                            }
                         }
-                    }
 
-                    this.onAccountChange();
+                        this.onAccountChange();
+                    }
+                },
+                err => {
+                    console.error(err);
+                    this.bankAccounts = [];
                 }
-            },
-            err => {
-                console.error(err);
-                this.bankAccounts = [];
-            }
-        );
+            );
     }
 
     openJournalModal(all: boolean = false) {
