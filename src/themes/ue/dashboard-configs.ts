@@ -43,6 +43,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'EMPLOYEES',
             'EMPLOYMENTS_PER_JOBCODE',
+            'TRAVELS',
         ]
     },
     timetracking: {

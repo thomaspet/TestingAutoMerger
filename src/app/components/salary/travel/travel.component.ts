@@ -11,6 +11,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
 import {IContextMenuItem} from '@uni-framework/ui/unitable';
 import { DimensionsColumnsService } from '@app/components/salary/travel/shared/service/dimensionsColumns/dimensions-columns.service';
+import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 const DIRTY = '_isDirty';
 const SELECTED_KEY = '_rowSelected';
 
@@ -43,6 +44,15 @@ export class TravelComponent implements OnInit {
     private fetchingFiles$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     private travelFiles$: BehaviorSubject<ITravelFile[]> = new BehaviorSubject([]);
     public runID: number;
+
+    toolbarConfig: IToolbarConfig = {
+        title: 'Import av reiser/utlegg',
+        buttons: [{
+            label: 'Importer',
+            icon: 'sync',
+            action: () => this.travelService.ttImport()
+        }]
+    };
 
     constructor(
         private tabService: TabService,
