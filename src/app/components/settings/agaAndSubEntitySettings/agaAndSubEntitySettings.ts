@@ -46,7 +46,8 @@ declare var _;
 
 @Component({
     selector: 'aga-and-subentities-settings',
-    templateUrl: './agaAndSubEntitySettings.html'
+    templateUrl: './agaAndSubEntitySettings.html',
+    styleUrls: ['./agaAndSubEntitySettings.sass']
 })
 
 export class AgaAndSubEntitySettings implements OnInit {
@@ -599,8 +600,9 @@ export class AgaAndSubEntitySettings implements OnInit {
                 Options: {
                     source: this.vacationpayLineService.WageDeductionDueToHolidayArray,
                     displayProperty: 'name',
-                    valueProperty: 'id'
-                }
+                    valueProperty: 'id',
+                },
+                Classes: 'label-header'
             },
             <UniFieldLayout> {
                 Label: 'Ignorer grunnbeløp',
