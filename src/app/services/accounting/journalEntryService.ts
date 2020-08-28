@@ -1856,7 +1856,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // find the correct vatpercentage based on the either vatdate, financialdate or current date,
         // in that order. VatPercent may change between years, so this needs to be checked each time,
         // because changing dates, account, or vattypes may change what vatpercent to use
-        const vatDate =
+        
+        const cs: CompanySettings = this.companySettingsService.getCompanySettings();
+        
+        
+        const vatDate = cs.UseFinancialDateToCalculateVatPercent === true ? 
+                moment(journalEntryData.FinancialDate) :
             journalEntryData.VatDate ?
                 moment(journalEntryData.VatDate) :
                 journalEntryData.FinancialDate ?
