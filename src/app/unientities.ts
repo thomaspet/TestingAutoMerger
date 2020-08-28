@@ -3762,7 +3762,8 @@ export class Notification extends UniEntity {
 export class CompanySettings extends UniEntity {
     public static RelativeUrl = 'companysettings';
     public static EntityType = 'CompanySettings';
-
+    
+    public UseFinancialDateToCalculateVatPercent: boolean;
     public ShowKIDOnCustomerInvoice: boolean;
     public UseXtraPaymentOrgXmlTag: boolean;
     public CustomerInvoiceReminderSettingsID: number;
