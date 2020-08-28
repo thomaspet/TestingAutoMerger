@@ -542,13 +542,16 @@ export class AMeldingViewComponent implements OnInit {
         if (!!this.currentAMelding && this.currentAMelding.ID === 0) {
             return;
         }
-        this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
+        this._ameldingService
+            .getAmeldingSumUp(this.currentAMelding.ID)
             .subscribe((response) => {
+                this.validationErrorMessage = this.validateAMelding(response);
+                this.updateSaveActions();
                 this.currentSumUp = response;
                 if (this.currentSumUp.status === 3) {
                     this.currentSumUp._sumupStatusText = this.currentAMelding.altinnStatus; //  getAmeldingStatus();
                 }
-                this.showGarnishment = false;                
+                this.showGarnishment = false;
                 if (this.currentSumUp.totals?.sumUtleggstrekk) {
                     this.showGarnishment = true;
                     this.totalGarnishmentSystemStr =
@@ -752,8 +755,8 @@ export class AMeldingViewComponent implements OnInit {
         this.actions.push({
             label: 'Send inn',
             action: (done) => this.sendAmelding(done),
-            disabled: this.currentAMelding ? (this.currentAMelding.status >= 1 ? true : false) : true,
-            main: this.currentAMelding !== undefined && this.submittedDate === ''
+            disabled: this.currentAMelding && !this.validationErrorMessage ? (this.currentAMelding.status >= 1 ? true : false) : true,
+            main: this.currentAMelding !== undefined && this.submittedDate === '' && !this.validationErrorMessage
         });
 
         this.actions.push({
@@ -890,13 +893,6 @@ export class AMeldingViewComponent implements OnInit {
     }
 
     private sendAmelding(done) {
-        const [isValid, message] = this.validateAMelding(this.currentSumUp);
-        if (!isValid) {
-            this.validationErrorMessage = message;
-            done('Innsending avbrutt');
-            return;
-        }
-
         this._ameldingService.sendAMelding(this.currentAMelding.ID).subscribe((response: AmeldingData) => {
             if (response) {
                 this.refresh(response);
@@ -912,21 +908,25 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
 
-    private validateAMelding(ameldingSumUp: AmeldingSumUp): [boolean, string] {
+    private validateAMelding(ameldingSumUp: AmeldingSumUp): string {
+        if (!ameldingSumUp) {
+            return;
+        }
         let errorMessages: string = '';
-        let isValid: boolean = true;
-        let employmentIDs: string = '';
+        const employmentIDs: string[] = [];
 
-        if ((ameldingSumUp.period > 9 && ameldingSumUp.year > 2019) && (ameldingSumUp.entities?.length > 0)) {
+        if (
+            ((ameldingSumUp.period > 9 && ameldingSumUp.year > 2019) || ameldingSumUp.year > 2020)
+            && (ameldingSumUp.entities?.length > 0)
+        ) {
             ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
                 if (ameldingEntity.orgNumber === ameldingSumUp.LegalEntityNo) {
-                    isValid = false;
                     ameldingEntity.employees.forEach((employee) => {
                         employee.arbeidsforhold.forEach(employeement => {
-                            employmentIDs += employeement.arbeidsforholdId + ', ';
+                            employmentIDs.push(employeement.arbeidsforholdId);
                         });
                     });
-                    errorMessages = 'Arbeidsforhold ' + employmentIDs
+                    errorMessages = `Arbeidsforhold ${employmentIDs.join(',')} `
                         + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
                         + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '
                         + 'virksomhet før du sender a-melding for oktober';
@@ -934,7 +934,7 @@ export class AMeldingViewComponent implements OnInit {
             });
         }
 
-        return [isValid, errorMessages];
+        return errorMessages;
     }
 
     private openAmeldingTypeModal(done) {
