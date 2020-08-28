@@ -5,8 +5,27 @@ import {theme} from 'src/themes/theme';
 
 @Injectable()
 export class FeaturePermissionService {
+    packageName: string;
+
     viewFeatureBlacklist: string[];
     routePermissionBlacklist: string[];
+
+    activatePackage(contractTypeName: string) {
+        this.packageName = contractTypeName;
+        if (contractTypeName === 'Demo' && localStorage.getItem('DEMO_PACKAGE')) {
+            this.packageName = localStorage.getItem('DEMO_PACKAGE');
+        }
+
+        this.setFeatureBlacklist(this.packageName);
+    }
+
+    demoTestPackage(packageName: string) {
+        if (packageName) {
+            this.packageName = packageName;
+            localStorage.setItem('DEMO_PACKAGE', this.packageName);
+            this.setFeatureBlacklist(this.packageName);
+        }
+    }
 
     setFeatureBlacklist(contractTypeName: string) {
         const blacklists = theme.featureBlacklists;

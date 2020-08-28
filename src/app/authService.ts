@@ -178,21 +178,6 @@ export class AuthService {
         });
     }
 
-    // REMOVE ME WHEN BRUNO IS DONE TESTING
-    mockSetProductBundle(name) {
-        const currentUrl = this.router.url;
-        this.router.navigateByUrl('/reload', { skipLocationChange: true }).then(() => {
-            this.authentication$.take(1).subscribe(authDetails => {
-                this.featurePermissionService.setFeatureBlacklist(name);
-
-                // Trigger sidebar link filtering
-                this.authentication$.next(authDetails);
-
-                this.router.navigateByUrl(currentUrl, { skipLocationChange: true });
-            });
-        });
-    }
-
     setLoadIndicatorVisibility(visible: boolean, isLogout = false) {
         const spinner = document.getElementById('app-spinner');
         if (spinner) {
@@ -353,7 +338,8 @@ export class AuthService {
             this.contractID = user?.License?.Company?.ContractID;
 
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
-            this.featurePermissionService.setFeatureBlacklist(contract.TypeName);
+            this.featurePermissionService.activatePackage(contract.TypeName);
+
             const isDemo = contract.TypeName === 'Demo';
             let hasActiveContract = user && !this.isTrialExpired(contract);
 
