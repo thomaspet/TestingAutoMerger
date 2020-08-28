@@ -26,8 +26,7 @@ export class UniNavbar {
 
     isSrEnvironment = theme.theme === THEMES.SR;
 
-    // TODO: remove completely when bruno is done testing packages
-    showPackageSelector = theme.theme === THEMES.EXT02 && !window.location.href.includes('dnbregnskap.dnb.no');
+    showDemoPackageSelector: boolean;
 
     user: User;
     licenseRole: string;
@@ -61,6 +60,8 @@ export class UniNavbar {
                 this.isTemplateCompany = auth.activeCompany.IsTemplate;
                 this.isTestCompany = auth.activeCompany.IsTest;
                 this.isDemo = auth.isDemo;
+
+                this.showDemoPackageSelector = auth.isDemo && theme.theme === THEMES.EXT02;
 
                 if (auth.isDemo) {
                     const contract = (auth.user.License && auth.user.License.ContractType) || <ContractLicenseType> {};
