@@ -1858,8 +1858,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // because changing dates, account, or vattypes may change what vatpercent to use
         
         const cs: CompanySettings = this.companySettingsService.getCompanySettings();
-        
-        
+
         const vatDate = cs.UseFinancialDateToCalculateVatPercent === true ? 
                 moment(journalEntryData.FinancialDate) :
             journalEntryData.VatDate ?

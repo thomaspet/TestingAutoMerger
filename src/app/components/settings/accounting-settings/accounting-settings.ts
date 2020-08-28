@@ -425,6 +425,12 @@ export class UniCompanyAccountingView {
                         FieldType: FieldType.LOCAL_DATE_PICKER,
                         Label: 'MVA låst til',
                     },
+                    {
+                        EntityType: 'CompanySettings',
+                        Property: 'UseFinancialDateToCalculateVatPercent',
+                        FieldType: FieldType.CHECKBOX,
+                        Label: 'Beregn MVA sats basert på regnskapsdato.'
+                    }
                 ];
                 break;
             case 2:
