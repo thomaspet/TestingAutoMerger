@@ -1,6 +1,6 @@
 import {Injectable, SimpleChanges} from '@angular/core';
 import {AssetsStore} from '@app/components/accounting/assets/assets.store';
-import {catchError, filter, map, switchMap, take, tap} from 'rxjs/operators';
+import {catchError, filter, map, mergeMap, switchMap, take, tap} from 'rxjs/operators';
 import {AssetsService} from '@app/services/common/assetsService';
 import {ActivatedRoute, Router} from '@angular/router';
 import {forkJoin, of, throwError} from 'rxjs';
@@ -17,6 +17,7 @@ import * as moment from 'moment';
 import {SupplierInvoiceService} from '@app/services/accounting/supplierInvoiceService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import { isNullOrUndefined } from 'util';
+import {ManualDepreciationModal} from '@app/components/accounting/assets/manual-depreciation-modal/manual-depreciation-modal';
 
 @Injectable()
 export class AssetsActions {
@@ -346,6 +347,13 @@ export class AssetsActions {
             }),
             switchMap(() => this.getAsset(asset.ID)),
             tap((_asset) => this.store.currentAsset = _asset)
+        );
+    }
+    performDepreciations() {
+        return this.modalService.open(ManualDepreciationModal, {}).onClose.pipe(
+            mergeMap(date => date === null ? of([]) : this.assetsService
+                .PutAction(null, 'depreciate-month&date=' + date)
+            )
         );
     }
     openDeleteModal(asset?: Asset) {

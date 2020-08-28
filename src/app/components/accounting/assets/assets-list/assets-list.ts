@@ -9,6 +9,7 @@ import {AssetsStore, IAssetState} from '@app/components/accounting/assets/assets
 import {Asset, AssetStatusCode} from '@uni-entities';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {UniTableConfig} from '@uni-framework/ui/unitable';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 
 @Component({
@@ -27,7 +28,8 @@ export class AssetsListComponent {
         private store: AssetsStore,
         private assetsActions: AssetsActions,
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private toast: ToastService
     ) {
         // if something changes into state we refresh the lookup function
         this.store.state$.pipe(takeUntil(this.onDestroy$)).subscribe(state => {
@@ -53,6 +55,16 @@ export class AssetsListComponent {
             'accounting.assets.list', false, true, 15
         ).setContextMenu([
             {
+                label: 'Utfør avskrivninger',
+                action: () => this.assetsActions.performDepreciations()
+                    .subscribe((res) => {
+                        if (res?.length > 0) {
+                            this.toast.addToast('Error', ToastType.bad, ToastTime.medium, JSON.stringify(res));
+                        }
+                        this.table.refreshTableData();
+                    })
+            },
+            {
                 label: 'Registrer som solgt',
                 disabled: (item) => item.StatusCode !== AssetStatusCode.Active,
                 action: (rowModel) => this.assetsActions.openRegisterAsSoldModal(rowModel)
@@ -75,7 +87,7 @@ export class AssetsListComponent {
                 disabled: (item) => false,
                 action: (rowModel) => this.assetsActions.openDeleteModal(rowModel)
                                                         .subscribe(() => this.table.refreshTableData())
-            }
+            },
         ])
         .setSortable(true)
         .setVirtualScroll(true)
