@@ -153,10 +153,11 @@
     <ng-container *ngIf="activeIndex === 3">
         <!-- Feriepenger -->
 
-        <section class="row form-row last">
+        <section class="row form-row">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1>Feriepenger</h1>
+                    <h3>{{ 'SETTINGS.VACATION_PAY_INFOHEADER' | translate }}</h3>
                     <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT1' | translate }} </p>
                     <p> {{ 'SETTINGS.VACATION_PAY_INFOTEXT2' | translate }} </p>
                 </section>
@@ -164,9 +165,6 @@
 
             <section class="col-md-8">
                 <section class="uni-card">
-                    <!-- <section class="uni-card-header">
-                        <h1>Feriepenger</h1>
-                    </section> -->
                     <section class="uni-card-content">
                         <uni-form
                             [config]="{showLabelAbove: true, autoFocus: true}"
@@ -174,18 +172,29 @@
                             [model]="companySalary$"
                             (changeEvent)="companySalaryChange()">
                         </uni-form>
-                        <p style="padding: 0 0.5rem 10px;">
-                            Systemet benytter {{ stdCompVacRate?.Rate }}% som feriepengesats og {{ stdCompVacRate?.Rate60 }}% som tilleggssats for arbeidstakere over 60 år.
-                            <a (click)="openVacationSettingsModal(false)">Endre feriepengesats</a>
-                        </p>
+                        <section class="standard-vacation-pay-rate">
+                            <section class="label-header">
+                                <h3>Standard feriepengesats</h3>
+                            </section>
+                            <p>
+                                Systemet vil benytte {{ stdCompVacRate?.Rate }}% som standard feriepengesats og {{ stdCompVacRate?.Rate60 }}% som tilleggssats for arbeidstakere over 60 år.
+                                <a (click)="openVacationSettingsModal(false)">Endre</a>
+                            </p>
+                        </section>
                     </section>
                 </section>
+            </section>
+        </section>
+        <section class="row form-row last">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1>Feriepengegrunnlag</h1>
+                    <p> {{ 'SETTINGS.VACATION_PAY_BASE_INFOTEXT' | translate }} </p>
+                </section>
+            </section>
 
+            <section class="col-md-8">
                 <section class="uni-card">
-                    <section class="uni-card-header">
-                        <h1>Feriepengegrunnlag</h1>
-                    </section>
-
                     <section class="uni-card-content">
                         <div class="box-with-button">
                             <span> Registrer feriepengegrunnlag </span>

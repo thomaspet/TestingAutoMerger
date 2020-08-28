@@ -192,8 +192,10 @@ export const NO = {
         'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks. Ved endring av e-postaddresse, lagre ny e-post med "Endre e-postaddresse"-knappen.',
         'SALARY_BOOKING_ACCOUNTS_INFOTEXT': 'Administrer systemkonti for postering av arbeidsgiveravgift og interimskonto for utbetaling av lønn. Aktiver automatisk postering av skattetrekk for å bokføre trekk til skattetrekkskonto når lønnskjøring bokføres. Huk av for «Utleggstrekk skatt til skattetrekkskonto» for å styre samlet beløp for utleggstrekk på skatt på lønnskjøringer mot skattetrekkskonto i remitteringsfil.',
         'SALARY_OTHER_INFOTEXT': 'Legg opp intervall for lønnskjøringer på selskapet. Dette angir standard datointervall ved opprettelse av lønnskjøringer. Dersom du aktiverer OTP-eksport må du også fylle ut feltet «Timer per årsverk», som er antall timer som tilsvarer et fullt årsverk i selskapet.',
-        'VACATION_PAY_INFOTEXT1': 'Oppsett for feriepengesats for ordinære lønnstakere, tilleggssats og startår, samt trekksats for fastlønn i feriepengemåned. Systemet bruker 10,2% som standard feriepengesats.',
-        'VACATION_PAY_INFOTEXT2': 'Dersom noe av feriepengegrunnlaget er kjørt i annet system for inneværende år eller fjoråret kan feriepengegrunnlag registreres her.',
+        'VACATION_PAY_INFOHEADER': 'Trekk i fastlønn feriemåned:',
+        'VACATION_PAY_INFOTEXT1': 'Brukes for fast ansatte med månedslønn og som ikke skal få utbetalt vanlig lønn når det utbetales feriepenger',
+        'VACATION_PAY_INFOTEXT2': '-4/26 er det mest vanlige å bruke og er for de som har 5 uker ferie og bruker normen med 6 arbeidsdager i uken. (Etter ferieloven har én uke 6 virkedager (inkl.lørdager))',
+        'VACATION_PAY_BASE_INFOTEXT':'Feriepengegrunnlag Har du ansatte som allerede har opptjent seg feriepengegrunnlag registrerer du det her.',
         'FACTORING_INFOTEXT': 'Oppsett av factoring mot selskap',
         'CORPORATE_TAX_INFOTEXT': 'Kryss av og fyll inn hvis det skal beregnes og betales finansskatt av lønn.',
         'FEE_INFOTEXT': 'Skatte- og avgiftsregler er en gruppe skatteregler for spesielle organisasjoner.  Aktiveres en skatteregel vil den bli tilgjengelig for dette selskapet som valg under a-meldingsinformasjon på lønnsarten. Et selskap kan aktivere flere regler, men en lønnsart kan bare kobles mot en skatte- og avgiftsregel.'
