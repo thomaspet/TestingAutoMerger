@@ -138,6 +138,9 @@ export class UniFindEmployeeModalComponent implements IUniModal {
     }
 
     public employeeSelected(emp) {
+        if (!emp) {
+            return;
+        }
         if (this.employees.findIndex(e => e.ID === emp.ID) !== -1) {
             this.errorMsg = 'Denne ansatte er allerede lagt til denne lønnsavregningen.';
             return;

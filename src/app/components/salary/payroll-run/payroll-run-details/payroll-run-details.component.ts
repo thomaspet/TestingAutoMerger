@@ -415,6 +415,9 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
     }
 
     private onEmpChange(emp: Employee) {
+        if (!emp) {
+            return;
+        }
         super.getStateSubject(SALARY_TRANS_KEY)
             .pipe(
                 takeUntil(this.destroy$),
@@ -688,7 +691,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         .pipe(
             takeUntil(this.destroy$),
             take(1),
-            switchMap(emp => this.getSalaryTransactionsObservable(emp && emp.ID))
+            switchMap(emp => this.getSalaryTransactionsObservable(emp?.ID))
         );
     }
 

@@ -148,7 +148,7 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
-                        filter((emp: IEmployee) => emp.ID !== (this.selectedEmp && this.selectedEmp.ID)),
+                        filter((emp: IEmployee) => emp?.ID !== (this.selectedEmp && this.selectedEmp.ID)),
                         switchMap(emp => {
                             return this.getStateSubject(EMPLOYMENTS_KEY)
                                 .pipe(
@@ -279,6 +279,7 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
                 this.busy = false;
                 this.employees = [];
                 this.filteredEmployees = [];
+                super.updateState(SELECTED_EMP_KEY, {}, false);
                 return;
             }
             this.getEmploymentsForEmps(res).subscribe();
@@ -298,7 +299,6 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
 
             let index = this.filteredEmployees.findIndex(emp => emp.ID === this.employeeIDFromParams);
             index = index > -1 ? index : 0;
-
             const initial = this.filteredEmployees.length ? this.filteredEmployees[index] : this.employees[index];
             super.updateState(SELECTED_EMP_KEY, initial, false);
             this.addTab();
