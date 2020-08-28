@@ -17,6 +17,7 @@ export const theme = {
     dashboardConfigs: DASHBOARD_CONFIGS,
     tableColumnOverrides: TABLE_COLUMN_OVERRIDES,
     featureBlacklists: {
+        Demo: MINI_PACKAGE_BLACKLIST,
         Mini: MINI_PACKAGE_BLACKLIST,
         Plus: PLUS_PACKAGE_BLACKLIST,
         Complete: undefined

@@ -34,7 +34,7 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
-    'accounting', // Remove when ui-permission is in place
+    // 'accounting', // Remove when ui-permission is in place
     'dashboard-new'
 ];
 
