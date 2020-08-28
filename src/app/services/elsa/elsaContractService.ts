@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, of} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory} from '@app/models';
+import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory, BillingData} from '@app/models';
 import {environment} from 'src/environments/environment';
-import {HttpClient} from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
 import {theme, THEMES} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
@@ -26,11 +26,12 @@ export class ElsaContractService {
             .pipe(map(res => res[0]));
     }
 
-    getAll(): Observable<ElsaContract[]> {
+    getAll(ignoreLicenseAdmin = false): Observable<ElsaContract[]> {
+        const ignore = ignoreLicenseAdmin ? 'ignoreLicenseAdmin=true&' : '';
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint('/api/contracts?$expand=AgreementAcceptances,Customer')
+            .withEndPoint('/api/contracts?' + ignore + '$expand=AgreementAcceptances,Customer')
             .send()
             .map(req => req.body);
     }
@@ -48,15 +49,11 @@ export class ElsaContractService {
         return this.uniHttp
             .asGET()
             .usingElsaDomain()
-            .withEndPoint('/api/contracttypes?$expand=bulletpoints,productcontracttypes($expand=product)')
+            .withEndPoint(`/api/contracttypes?$expand=bulletpoints,productcontracttypes($expand=product;$filter=product/producttype eq 'Package')`)
             .send()
-            .map(res => {
-                return (res.body || []).filter(contractType => {
-                    return contractType.IsActive
-                        && contractType.IsPublic
-                        && contractType.ContractType > 20;
-                });
-            });
+            .pipe(
+                map(res => (res.body || []).filter(type => type.ContractType > 0 && type.IsActive && type.IsPublic))
+            );
     }
 
     getContractTypesLabel(contracttype: string): Observable<string> {
@@ -106,6 +103,12 @@ export class ElsaContractService {
             .withEndPoint(`/api/elsa/contracts/${contractID}/companylicenses?isDeleted=true`)
             .send()
             .map(res => res.body);
+    }
+
+    deactivateUserLicenseOnContract(contractID: number, userIdentity: string) {
+        // specify json content type, otherwise the put thinks it's text/plain
+        const headers = new HttpHeaders({'Content-Type': 'application/json; charset=utf-8'});
+        return this.http.put(`/api/elsa/contracts/${contractID}/deactivate-user`, `\"${userIdentity}\"`, {headers: headers});
     }
 
     getUserLicenses(contractID: number): Observable<ElsaUserLicense[]> {
@@ -188,5 +191,18 @@ export class ElsaContractService {
 
     updateTwoFactorAuthentication(contractID: number, body): Observable<ElsaContract> {
         return this.http.put(this.ELSA_SERVER_URL + `/api/contracts/${contractID}`, body).pipe(map(res => res[0]));
+    }
+
+    getBillingEstimate(contractID: number, year: number, month: number): Observable<BillingData> {
+        const endpoint = `/api/billing/contract/${contractID}`
+            + `?year=${year}`
+            + `&month=${month}`
+            + `&tags=true`;
+        return this.http.get<BillingData>(this.ELSA_SERVER_URL + endpoint);
+    }
+
+
+    getBillingHistory(contractID: number): Observable<BillingData[]> {
+        return this.http.get<BillingData[]>(this.ELSA_SERVER_URL + `/api/billing/contract/${contractID}/history/data`);
     }
 }

@@ -2,11 +2,23 @@
 .content
     display: flex
     flex-direction: row
-    align-items: center
 
-    .widget-chart
+    widget-chart
+        padding: 1rem 0
         width: calc(100% - 17rem)
     .chart-legend
+        margin: auto 0
         padding-left: 2rem
         width: 17rem
 
+    @media (max-width: 880px)
+        flex-direction: column
+        widget-chart
+            height: calc(100% - 5rem)
+            width: 100%
+        .chart-legend
+            flex-direction: row
+            width: 0
+            .chart-legend-item + .chart-legend-item
+                margin-top: 0
+                margin-left: 1rem

@@ -1037,12 +1037,6 @@ export class BillsView implements OnInit {
                     statusCode: StatusCodeSupplierInvoice.Journaled
                 },
                 {
-                    label: 'Betalingsliste',
-                    name: 'issenttopayment',
-                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
-                    passiveCounter: true
-                },
-                {
                     label: 'Betalt',
                     name: 'paid',
                     filter: 'PaymentStatus eq 30112 and StatusCode ne ' + StatusCode.Completed,

@@ -1,13 +1,13 @@
-import {Component, OnInit, Output} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
-import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
-import {Observable, of} from 'rxjs';
-import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity} from '@uni-entities';
-import {IContextMenuItem} from '@uni-framework/ui/unitable/index';
-import {IUniSaveAction} from '@uni-framework/save/save';
-import {IToolbarConfig, IToolbarSearchConfig} from '../../common/toolbar/toolbar';
-import {IStatus, STATUSTRACK_STATES} from '../../common/toolbar/statustrack';
+import { Component, OnInit, Output } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
+import { Observable, of } from 'rxjs';
+import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
+import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity } from '@uni-entities';
+import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
+import { IUniSaveAction } from '@uni-framework/save/save';
+import { IToolbarConfig, IToolbarSearchConfig } from '../../common/toolbar/toolbar';
+import { IStatus, STATUSTRACK_STATES } from '../../common/toolbar/statustrack';
 import {
     CompanySalaryService,
     ErrorService,
@@ -18,18 +18,18 @@ import {
     ReportDefinitionService,
     AltinnAuthenticationService
 } from '@app/services/services';
-import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
-import {AMeldingTypePickerModalComponent, IAmeldingTypeEvent} from './modals/a-melding-type-picker-modal.component';
-import {AltinnAuthenticationModal} from '../../common/modals/AltinnAuthenticationModal';
+import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
+import { AMeldingTypePickerModalComponent, IAmeldingTypeEvent } from './modals/a-melding-type-picker-modal.component';
+import { AltinnAuthenticationModal } from '../../common/modals/AltinnAuthenticationModal';
 import * as moment from 'moment';
-import {AltinnAuthenticationData} from '@app/models/AltinnAuthenticationData';
-import {IUniTab} from '@uni-framework/uni-tabs';
-import {PeriodAdminModalComponent} from './modals/period-admin-modal/period-admin-modal.component';
+import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
+import { IUniTab } from '@uni-framework/uni-tabs';
+import { PeriodAdminModalComponent } from './modals/period-admin-modal/period-admin-modal.component';
 import {
     StatusAMeldingModalComponent
 } from '@app/components/salary/a-melding/modals/status-a-melding-modal/status-a-melding-modal.component';
-import {MakeAmeldingPaymentModalComponent} from '@app/components/salary/a-melding/modals/make-a-melding-payment-modal/make-a-melding-payment-modal.component';
-import {RequestMethod} from '@uni-framework/core/http';
+import { MakeAmeldingPaymentModalComponent } from '@app/components/salary/a-melding/modals/make-a-melding-payment-modal/make-a-melding-payment-modal.component';
+import { RequestMethod } from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
 import { tap, filter, switchMap } from 'rxjs/operators';
 import { ITaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
@@ -64,6 +64,10 @@ export class AMeldingViewComponent implements OnInit {
     public totalFtrekkFeedbackStr: string;
     public totalFtrekkSystem: number = 0;
     public totalFtrekkSystemStr: string;
+    public totalGarnishmentFeedback: number = 0;
+    public totalGarnishmentFeedbackStr: string;
+    public totalGarnishmentSystem: number = 0;
+    public totalGarnishmentSystemStr: string;
     public totalFinancialSystem: number = 0;
     public totalFinancialSystemStr: string;
     public totalFinancialFeedback: number = 0;
@@ -71,7 +75,7 @@ export class AMeldingViewComponent implements OnInit {
 
 
     public legalEntityNo: string;
-    private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
+    private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
     public toolbarConfig: IToolbarConfig;
     public toolbarSearchConfig: IToolbarSearchConfig;
     public periodStatus: string;
@@ -80,13 +84,14 @@ export class AMeldingViewComponent implements OnInit {
     private activeYear: number;
     private companySalary: CompanySalary;
     public showFinanceTax: boolean;
+    public showGarnishment: boolean = false;
     public triggerForOpenBeforeMakePaymentModalResolver = null;
     public activeTabIndex: number = 0;
     public tabs: IUniTab[] = [
-        {name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary')},
-        {name: 'Arbeidsgiveravgift', tooltip: this._ameldingService.getHelptext('aga')},
-        {name: 'Tilbakemelding', tooltip: this._ameldingService.getHelptext('receipt')},
-        {name: 'Periodeoppsummering', tooltip: this._ameldingService.getHelptext('period')}
+        { name: 'Oppsummering', tooltip: this._ameldingService.getHelptext('summary') },
+        { name: 'Arbeidsgiveravgift', tooltip: this._ameldingService.getHelptext('aga') },
+        { name: 'Tilbakemelding', tooltip: this._ameldingService.getHelptext('receipt') },
+        { name: 'Periodeoppsummering', tooltip: this._ameldingService.getHelptext('period') }
     ];
 
     public contextMenuItems: IContextMenuItem[] = [
@@ -123,15 +128,15 @@ export class AMeldingViewComponent implements OnInit {
             action: () => this.openAdminModal()
         },
         {
-             label: 'Betal f.trekk og aga',
-             action: () => this.openMakePaymentModal(),
-             disabled: () => {
-                 return !this.periodStatus
-                     || this.periodStatus.toLowerCase().includes('må hentes')
-                     || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
-                     || this.periodStatus.toLowerCase().includes('øyeblikkelig')
-                     || this.periodStatus.toLowerCase().includes('avvist');
-             }
+            label: 'Betal f.trekk og aga',
+            action: () => this.openMakePaymentModal(),
+            disabled: () => {
+                return !this.periodStatus
+                    || this.periodStatus.toLowerCase().includes('må hentes')
+                    || this.periodStatus.toLowerCase().includes('ingen a-meldinger i perioden')
+                    || this.periodStatus.toLowerCase().includes('øyeblikkelig')
+                    || this.periodStatus.toLowerCase().includes('avvist');
+            }
         }
     ];
 
@@ -207,7 +212,7 @@ export class AMeldingViewComponent implements OnInit {
                 this.modalService.open(UniPreviewModal, {
                     data: report
                 });
-        });
+            });
     }
 
     private openReconciliation() {
@@ -221,13 +226,13 @@ export class AMeldingViewComponent implements OnInit {
         // Dont get periode if periode is set as queryparams
         if (!this.currentPeriod) {
             this.payrollRunService.getLatestSettledPeriod(1, this.activeYear)
-            .subscribe(period => {
-                this.currentPeriod = period;
-                this.currentMonth = moment.months()[this.currentPeriod - 1];
-                this.getSumsInPeriod();
-                this.getAMeldingForPeriod();
-                this.updateToolbar();
-            }, err => this.errorService.handle(err));
+                .subscribe(period => {
+                    this.currentPeriod = period;
+                    this.currentMonth = moment.months()[this.currentPeriod - 1];
+                    this.getSumsInPeriod();
+                    this.getAMeldingForPeriod();
+                    this.updateToolbar();
+                }, err => this.errorService.handle(err));
         } else {
             this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.getSumsInPeriod();
@@ -291,7 +296,7 @@ export class AMeldingViewComponent implements OnInit {
                 const e = document.createEvent('MouseEvents');
                 e.initMouseEvent(
                     'click', true, false, document.defaultView,
-                    0, 0, 0, 0, 0, false, false, false, false, 0 , null
+                    0, 0, 0, 0, 0, false, false, false, false, 0, null
                 );
 
                 a.dispatchEvent(e);
@@ -314,33 +319,33 @@ export class AMeldingViewComponent implements OnInit {
                     const e = document.createEvent('MouseEvents');
                     e.initMouseEvent(
                         'click', true, false, document.defaultView,
-                        0, 0, 0, 0, 0, false, false, false, false, 0 , null
+                        0, 0, 0, 0, 0, false, false, false, false, 0, null
                     );
 
                     a.dispatchEvent(e);
                     a.remove();
                 },
-                err => this.errorService.handle(err));
+                    err => this.errorService.handle(err));
         }
     }
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
         this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeYear)
-        .subscribe(response => {
-            this.saveStatus.completeCount++;
-            this.updateAMeldingerInPeriod(response);
-            this.refresh(response);
-            this.checkForSaveDone(event.done);
-            this._toastService.addToast('A-melding generert', ToastType.good, 4);
-        },
-        (err) => {
-            this.errorService.handle(err);
-            this.saveStatus.completeCount++;
-            this.saveStatus.hasErrors = true;
-            this.checkForSaveDone(event.done);
-            this._toastService.addToast('Generering av A-melding feilet', ToastType.warn, 6);
-        });
+            .subscribe(response => {
+                this.saveStatus.completeCount++;
+                this.updateAMeldingerInPeriod(response);
+                this.refresh(response);
+                this.checkForSaveDone(event.done);
+                this._toastService.addToast('A-melding generert', ToastType.good, 4);
+            },
+                (err) => {
+                    this.errorService.handle(err);
+                    this.saveStatus.completeCount++;
+                    this.saveStatus.hasErrors = true;
+                    this.checkForSaveDone(event.done);
+                    this._toastService.addToast('Generering av A-melding feilet', ToastType.warn, 6);
+                });
     }
 
     public getAmldWithFeedback(amldID: number, validate: boolean = false) {
@@ -375,15 +380,17 @@ export class AMeldingViewComponent implements OnInit {
 
     private getSumsInPeriod() {
         this._salarySumsService
-        .getSumsFromPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
+            .getSumsFromPeriod(this.currentPeriod, this.currentPeriod, this.activeYear)
             .subscribe((currentSumsInPeriod) => {
                 this.currentSumsInPeriod = currentSumsInPeriod;
                 this.totalAGAFeedback = 0;
                 this.totalFtrekkFeedback = 0;
+                this.totalGarnishmentFeedback = 0;
                 this.totalFinancialFeedback = 0;
-                this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
-                this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
-                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
+                this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, { decimalLength: 0 });
+                this.totalGarnishmentFeedbackStr = this.numberformat.asMoney(this.totalGarnishmentFeedback, { decimalLength: 0 });
+                this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, { decimalLength: 0 });
+                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, { decimalLength: 0 });
                 if (!!this.currentAMelding) {
                     if (this.currentAMelding.hasOwnProperty('feedBack')) {
                         if (this.currentAMelding.feedBack !== null) {
@@ -394,10 +401,10 @@ export class AMeldingViewComponent implements OnInit {
                                     const period = parseInt(pr.split('-').pop(), 10);
                                     if ((period === this.currentAMelding.period)
                                         && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
-                                            if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
-                                                const periode = mottak.mottattPeriode;
-                                                this.getTotalAGAAndFtrekk(periode);
-                                            }
+                                        if (mottak && mottak.hasOwnProperty('mottattPeriode')) {
+                                            const periode = mottak.mottattPeriode;
+                                            this.getTotalAGAAndFtrekk(periode);
+                                        }
                                     }
                                 });
                             } else {
@@ -406,10 +413,10 @@ export class AMeldingViewComponent implements OnInit {
                                     const period = parseInt(pr.split('-').pop(), 10);
                                     if ((period === this.currentAMelding.period)
                                         && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
-                                            if (alleMottak && alleMottak.hasOwnProperty('mottattPeriode')) {
-                                                const periode = alleMottak.mottattPeriode;
-                                                this.getTotalAGAAndFtrekk(periode);
-                                            }
+                                        if (alleMottak && alleMottak.hasOwnProperty('mottattPeriode')) {
+                                            const periode = alleMottak.mottattPeriode;
+                                            this.getTotalAGAAndFtrekk(periode);
+                                        }
                                     }
                                 }
                             }
@@ -419,15 +426,16 @@ export class AMeldingViewComponent implements OnInit {
 
                 this.totalAGASystem = 0;
                 this.totalFtrekkSystem = 0;
+                this.totalGarnishmentSystem = 0;
                 this.totalFinancialSystem = 0;
 
                 this.totalFtrekkSystem = currentSumsInPeriod.WithholdingTax;
                 this.totalFinancialSystem = currentSumsInPeriod.FinancialTax;
                 this.totalAGASystem = this._salarySumsService.getAgaSum(currentSumsInPeriod.Aga);
 
-                this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, {decimalLength: 0});
-                this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, {decimalLength: 0});
-                this.totalFinancialSystemStr = this.numberformat.asMoney(this.totalFinancialSystem, {decimalLength: 0});
+                this.totalAGASystemStr = this.numberformat.asMoney(this.totalAGASystem, { decimalLength: 0 });
+                this.totalFtrekkSystemStr = this.numberformat.asMoney(this.totalFtrekkSystem, { decimalLength: 0 });
+                this.totalFinancialSystemStr = this.numberformat.asMoney(this.totalFinancialSystem, { decimalLength: 0 });
             }, err => this.errorService.handle(err));
     }
 
@@ -483,8 +491,8 @@ export class AMeldingViewComponent implements OnInit {
                                 ? STATUSTRACK_STATES.Active
                                 : STATUSTRACK_STATES.Obsolete,
                             timestamp: amelding.UpdatedAt
-                                ? new Date(<any> amelding.UpdatedAt)
-                                : new Date(<any> amelding.CreatedAt),
+                                ? new Date(<any>amelding.UpdatedAt)
+                                : new Date(<any>amelding.CreatedAt),
                             data: amelding,
                             selectable: true
                         });
@@ -535,24 +543,34 @@ export class AMeldingViewComponent implements OnInit {
             return;
         }
         this._ameldingService.getAmeldingSumUp(this.currentAMelding.ID)
-        .subscribe((response) => {
-            this.currentSumUp = response;
-            if (this.currentSumUp.status === 3) {
-                this.currentSumUp._sumupStatusText = this.currentAMelding.altinnStatus; //  getAmeldingStatus();
-            }
-            this.legalEntityNo = response.LegalEntityNo;
-        }, err => this.errorService.handle(err));
+            .subscribe((response) => {
+                this.currentSumUp = response;
+                if (this.currentSumUp.status === 3) {
+                    this.currentSumUp._sumupStatusText = this.currentAMelding.altinnStatus; //  getAmeldingStatus();
+                }
+                this.showGarnishment = false;                
+                if (this.currentSumUp.totals?.sumUtleggstrekk) {
+                    this.showGarnishment = true;
+                    this.totalGarnishmentSystemStr =
+                        this.numberformat.asMoney(this.currentSumUp.totals.sumUtleggstrekk, { decimalLength: 0 });
+                }
+                this.legalEntityNo = response.LegalEntityNo;
+            }, err => this.errorService.handle(err));
     }
 
     private getTotalAGAAndFtrekk(mottattPeriode) {
         if (mottattPeriode && mottattPeriode.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
             this.totalAGAFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
-            this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, {decimalLength: 0});
+            this.totalAGAFeedBackStr = this.numberformat.asMoney(this.totalAGAFeedback, { decimalLength: 0 });
             this.totalFtrekkFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
-            this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, {decimalLength: 0});
+            this.totalFtrekkFeedbackStr = this.numberformat.asMoney(this.totalFtrekkFeedback, { decimalLength: 0 });
             if (mottattPeriode.mottattAvgiftOgTrekkTotalt.hasOwnProperty('sumFinansskattLoenn')) {
                 this.totalFinancialFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn;
-                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, {decimalLength: 0});
+                this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, { decimalLength: 0 });
+            }
+            if (mottattPeriode.mottattAvgiftOgTrekkTotalt.hasOwnProperty('sumUtleggstrekk')) {
+                this.totalGarnishmentFeedback = mottattPeriode.mottattAvgiftOgTrekkTotalt.sumUtleggstrekk;
+                this.totalGarnishmentFeedbackStr = this.numberformat.asMoney(this.totalGarnishmentFeedback, { decimalLength: 0 });
             }
         }
     }
@@ -590,21 +608,21 @@ export class AMeldingViewComponent implements OnInit {
 
         this.spinner(this._ameldingService
             .getAMeldingForPeriod(this.currentPeriod, this.activeYear))
-                .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
-                .finally(() => {
-                    if (this.aMeldingerInPeriod.length > 0) {
-                        const current = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1];
-                        this.getAmldWithFeedback(current.ID, current.status  > 1 ? false : true);
-                    } else {
-                        this.initialized = true;
-                        this.updateToolbar();
-                        this.updateSaveActions();
-                        this.getSumsInPeriod();
-                        this.periodStatus = 'Ingen a-meldinger i perioden';
-                    }
-                })
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe();
+            .do(ameldinger => this.aMeldingerInPeriod = ameldinger.sort((a, b) => a.ID - b.ID))
+            .finally(() => {
+                if (this.aMeldingerInPeriod.length > 0) {
+                    const current = this.aMeldingerInPeriod[this.aMeldingerInPeriod.length - 1];
+                    this.getAmldWithFeedback(current.ID, current.status > 1 ? false : true);
+                } else {
+                    this.initialized = true;
+                    this.updateToolbar();
+                    this.updateSaveActions();
+                    this.getSumsInPeriod();
+                    this.periodStatus = 'Ingen a-meldinger i perioden';
+                }
+            })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            .subscribe();
     }
 
     private setStatusForPeriod() {
@@ -644,7 +662,7 @@ export class AMeldingViewComponent implements OnInit {
                         this.triggerForOpenBeforeMakePaymentModalResolver();
                     }
                 });
-                return;
+            return;
         }
         // 3. if none with status 'sent' OR altinnstatus 'mottatt' then find the last one with status
         for (let i = this.aMeldingerInPeriod.length - 1; i >= 0; i--) {
@@ -796,13 +814,13 @@ export class AMeldingViewComponent implements OnInit {
     private openMakePaymentModal() {
         const getSafePayDate = (currentAMelding) => {
             return (
-                    currentAMelding
-                    && currentAMelding.feedBack
-                    && currentAMelding.feedBack.melding
-                    && currentAMelding.feedBack.melding.Mottak
-                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
-                )
+                currentAMelding
+                && currentAMelding.feedBack
+                && currentAMelding.feedBack.melding
+                && currentAMelding.feedBack.melding.Mottak
+                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
+                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
+            )
                 ||
                 (
                     currentAMelding
@@ -813,7 +831,7 @@ export class AMeldingViewComponent implements OnInit {
                     && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
                     && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
                     && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                            .innbetalingsinformasjon.forfallsdato
+                        .innbetalingsinformasjon.forfallsdato
                 )
                 ||
                 null
@@ -825,13 +843,27 @@ export class AMeldingViewComponent implements OnInit {
                 totalFtrekkFeedbackStr: this.totalFtrekkFeedbackStr,
                 totalAGAFeedbackStr: this.totalAGAFeedBackStr,
                 totalFinancialFeedbackStr: this.totalFinancialFeedbackStr,
+                totalGarnishmentFeedbackStr: this.totalGarnishmentFeedbackStr,
                 showFinanceTax: this.showFinanceTax,
+                showGarnishment: this.showGarnishment,
                 payDate: getSafePayDate(this.currentAMelding)
             }
-        }).onClose.subscribe(dto => {
-            this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
-                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
-            }, (error) => this.errorService.handle(error));
+        }).onClose.subscribe((dto: any) => {
+            if (dto) {
+                this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
+                    let toastText = '';
+                    if (dto.payAga || dto.payTaxDraw) {
+                        toastText = `Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. `;
+                    }
+                    if (dto.payFinancialTax) {
+                        toastText += `Finansskatt er lagt til betalingsliste. `;
+                    }
+                    if (dto.payGarnishment) {
+                        toastText += `Utleggstrekk er lagt til betalingsliste. `;
+                    }
+                    this._toastService.addToast(toastText + `Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
+                }, (error) => this.errorService.handle(error));
+            }
         });
     }
 
@@ -895,9 +927,9 @@ export class AMeldingViewComponent implements OnInit {
                         });
                     });
                     errorMessages = 'Arbeidsforhold ' + employmentIDs
-                    + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
-                    + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '
-                    + 'virksomhet før du sender a-melding for oktober';
+                        + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
+                        + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '
+                        + 'virksomhet før du sender a-melding for oktober';
                 }
             });
         }
@@ -955,6 +987,8 @@ export class AMeldingViewComponent implements OnInit {
         this.currentSumsInPeriod = undefined;
         this.currentSumUp = undefined;
         this.validationErrorMessage = null;
+        this.totalGarnishmentSystem = 0;
+        this.totalGarnishmentSystemStr = this.numberformat.asMoney(this.totalGarnishmentSystem, { decimalLength: 0 });
     }
 
     private spinner<T>(source: Observable<T>): Observable<T> {

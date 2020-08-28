@@ -8,6 +8,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
+import {SupplierEditModal} from '../../bill/edit-supplier-modal/edit-supplier-modal';
 
 @Component({
     selector: 'supplier-list',
@@ -18,7 +19,14 @@ export class SupplierList {
 
     public toolbarActions = [{
         label: 'Ny leverandør',
-        action: this.newSupplier.bind(this),
+        action: (done) => {
+            done();
+            this.modalService.open(SupplierEditModal).onClose.subscribe(supplier => {
+                if (supplier) {
+                    this.router.navigateByUrl('/accounting/suppliers/' + supplier.ID);
+                }
+            });
+        },
         main: true,
         disabled: false
     }];
@@ -27,11 +35,12 @@ export class SupplierList {
 
     constructor(
         private tabService: TabService,
-         private router: Router,
-         private modalService: UniModalService,
-         private userService: UserService,
-         private importCentralService: ImportCentralService,
-         private errorService: ErrorService) {
+        private router: Router,
+        private modalService: UniModalService,
+        private userService: UserService,
+        private importCentralService: ImportCentralService,
+        private errorService: ErrorService
+    ) {
         this.tabService.addTab({
             name: 'Leverandører',
             url: '/accounting/suppliers',
@@ -63,10 +72,6 @@ export class SupplierList {
             this.errorService.handle('En feil oppstod, vennligst prøv igjen senere');
         });
 
-    }
-
-    private newSupplier() {
-        this.router.navigateByUrl('/accounting/suppliers/' + 0);
     }
 
     public openImportModal(done = () => { }) {

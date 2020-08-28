@@ -382,7 +382,7 @@ export class BankComponent {
             // Agreement has new account info
             } else if (this.brunoOnboardingService.hasNewAccountInfo(agreement)) {
                 this.toolbarconfig.infoBannerConfig = {
-                    message: 'Vi har mottatt ny kontoinformasjon fra banken. Hjelp oss å knytte riktige kontoer til DNB Regnskap.',
+                    message: `Vi har mottatt ny kontoinformasjon fra banken. Hjelp oss å knytte riktige kontoer til ${theme.appName}.`,
                     link: 'Sett opp kontoer her',
                     action: () => {
                         this.brunoOnboardingService.connectBankAccounts().subscribe(configurationSaved => {
@@ -492,7 +492,8 @@ export class BankComponent {
                 });
             }
 
-            if (this.isAutobankAdmin && this.agreements?.length) {
+            // Bruno only has one agreement, and user should not be able to view/alter
+            if (this.isAutobankAdmin && this.agreements?.length && theme.theme !== THEMES.EXT02) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),

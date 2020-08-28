@@ -117,7 +117,7 @@ export class ImportCentralTemplateModal implements IUniModal {
             // NOTE: comment when testing and hardcode the file in backend.
             this.uploadFile(this.file).subscribe((res) => {
                 const company = this.authService.activeCompany;
-                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res._publictoken}`;
+                const fileURL = `${this.baseUrl}/api/externalfile/${company.Key}/${res.StorageReference}/${res.PublicToken}`;
 
                 this.importModel = {
                     CompanyKey: company.Key,

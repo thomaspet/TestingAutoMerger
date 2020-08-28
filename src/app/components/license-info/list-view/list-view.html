@@ -1,34 +1,51 @@
-<section class="list-row header-row">
-    <span class="cell" *ngFor="let column of columns"
-        [ngClass]="{'align-right': !!column.numberFormat}"
-        [ngStyle]="{'flex': column.flex || 1}">
-        {{column.header}}
-    </span>
+<simple-table>
+    <thead>
+        <tr>
+            <th *ngFor="let column of columns"
+                [ngClass]="{'align-right': !!column.numberFormat}"
+                [ngStyle]="{'flex': column.flex || 1}"
+            >
+                {{column.header}}
+            </th>
+            <th class="context-menu" *ngIf="contextMenu?.length" style="cursor: default"></th>
+        </tr>
+    </thead>
 
-    <span class="context-menu" *ngIf="contextMenu?.length"></span>
-</section>
+    <tbody>
+        <tr *ngFor="let row of rows" (click)="rowClick.emit(row)" class="body-row">
+            <td *ngFor="let column of columns"
+                (click)="onColumnClick(column, row)"
+                [ngClass]="getClass(column, row)"
+                [ngStyle]="{'flex': column.flex || 1}"
+            >
+                {{row | cellValue: column}}
+            </td>
+            <td class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu" (click)="$event.stopPropagation()">
+                <i class="material-icons">more_horiz</i>
+                <mat-menu #menu="matMenu" xPosition="before">
+                    <div *ngFor="let item of contextMenu">
+                        <button mat-menu-item
+                            *ngIf="!item.hidden || !item.hidden(row)"
+                            (click)="item.action(row)">
+                            {{item.label}}
+                        </button>
+                    </div>
+                </mat-menu>
+            </td>
+        </tr>
+    </tbody>
 
-<cdk-virtual-scroll-viewport itemSize="50" class="list-body" #listBody>
-    <section class="list-row" *cdkVirtualFor="let row of rows; templateCacheSize: 100" (click)="rowClick.emit(row)">
-        <span class="cell" *ngFor="let column of columns"
-            (click)="onColumnClick(column, row)"
-            [ngClass]="getClass(column, row)"
-            [ngStyle]="{'flex': column.flex || 1}">
+    <tbody class="related-orders" *ngIf="billingData">
+        <tr *ngFor="let order of billingData.RelatedOrders">
+            <td class="clickable" [attr.colSpan]="columns.length - 1" [innerHTML]="order['_period']" (click)="openSettlements(order)"></td>
+            <td class="clickable align-right" colspan="1">{{order.Total | unicurrency}}</td>
+        </tr>
+    </tbody>
 
-            {{row | cellValue: column}}
-        </span>
-
-        <span class="context-menu" *ngIf="contextMenu?.length" [matMenuTriggerFor]="menu">
-            <i class="material-icons">more_horiz</i>
-            <mat-menu #menu="matMenu" xPosition="before">
-                <div *ngFor="let item of contextMenu">
-                    <button mat-menu-item
-                        *ngIf="!item.hidden || !item.hidden(row)"
-                        (click)="item.action(row)">
-                        {{item.label}}
-                    </button>
-                </div>
-            </mat-menu>
-        </span>
-    </section>
-</cdk-virtual-scroll-viewport>
+    <tfoot *ngIf="billingData">
+        <tr>
+            <td [attr.colSpan]="columns.length - 1">Sum for perioden</td>
+            <td class="align-right" colspan="1">{{billingData.Total | unicurrency}}</td>
+        </tr>
+    </tfoot>
+</simple-table>

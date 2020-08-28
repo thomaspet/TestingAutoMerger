@@ -9,7 +9,6 @@
         <section *ngIf="externalLookupOptions" class="external-search">
             <autocomplete
                 [options]="externalLookupOptions"
-                [value]="value"
                 (valueChange)="onExternalSearchSelected($event)">
             </autocomplete>
         </section>
@@ -25,6 +24,10 @@
     <footer>
         <button (click)="onClose.emit()" class="secondary">
             Avbryt
+        </button>
+
+        <button *ngIf="showSaveAsLead" (click)="save(true)" class="secondary pull-right">
+            Lagre som potensiell kunde
         </button>
 
         <button (click)="save()" class="c2a" (keydown.tab)="$event.preventDefault()">

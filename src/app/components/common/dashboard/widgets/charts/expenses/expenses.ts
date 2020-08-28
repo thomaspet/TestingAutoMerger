@@ -34,7 +34,7 @@ export class ExpensesWidget {
         private dashboardDataService: DashboardDataService
     ) { }
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.initChart();
     }
 
@@ -80,14 +80,6 @@ export class ExpensesWidget {
                 maintainAspectRatio: false,
                 animation: {
                     animateScale: true
-                },
-                legend: {
-                    position: 'right',
-                    align: 'center',
-                    labels: {
-                        usePointStyle: true,
-                        padding: 15
-                    }
                 },
                 elements: {
                     arc: {borderWidth: 2}

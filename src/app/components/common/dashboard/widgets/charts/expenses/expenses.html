@@ -21,7 +21,7 @@
         Det ser ikke ut som du har noen kostnader i {{year}}.
     </widget-empty-state>
 
-    <widget-chart *ngIf="hasData" class="center" [chartConfig]="chartConfig"></widget-chart>
+    <widget-pie-chart *ngIf="hasData" [chartConfig]="chartConfig"></widget-pie-chart>
 </section>
 
 <section *ngIf="!loading && hasData" class="footer center border-top">

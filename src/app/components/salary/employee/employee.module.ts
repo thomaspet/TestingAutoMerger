@@ -21,6 +21,7 @@ import { SalaryBalanceComponent } from './salary-balance/salary-balance.componen
 import { EmployeeGuard } from './employee.guard';
 import { EmployeeRoutingModule } from './employee-routing.module';
 import { NewEmployeeGuard } from './new-employee.guard';
+import { FirstEmployeeGuard } from './first-employee.guard';
 
 @NgModule({
     imports: [
@@ -50,6 +51,7 @@ import { NewEmployeeGuard } from './new-employee.guard';
         EmployeeLeaveService,
         EmployeeGuard,
         NewEmployeeGuard,
+        FirstEmployeeGuard,
     ]
   })
   export class EmployeeModule { }

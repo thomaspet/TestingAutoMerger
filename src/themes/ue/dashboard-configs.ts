@@ -22,6 +22,7 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'sales_dashboard',
         layout: [
             'INVOICED',
+            'UNPAID_PER_CUSTOMER',
             'UNPAID',
             'TOP_TEN_CUSTOMERS',
         ]
@@ -33,6 +34,7 @@ export const DASHBOARD_CONFIGS = {
             'OPERATING_PROFITS',
             'UNPAID_BILLS',
             'EXPENSES',
+            'BALANCE',
         ]
     },
     salary: {
@@ -41,6 +43,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'EMPLOYEES',
             'EMPLOYMENTS_PER_JOBCODE',
+            'TRAVELS',
         ]
     },
     timetracking: {
@@ -55,6 +58,7 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'bank_dashboard',
         layout: [
             'BANK_BALANCE',
+            'PAYMENTS',
         ]
     }
 };

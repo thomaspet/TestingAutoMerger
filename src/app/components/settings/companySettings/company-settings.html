@@ -63,16 +63,12 @@
         <section class="col-md-8">
             <section class="uni-card">
                 <section class="uni-card-content">
-                    <label class="uni-label label-above" style="padding: 0 .5rem">
-                        <span>Logo</span>
-
-                        <uni-image
-                            [entity]="'companysettings'"
-                            [entityID]="1"
-                            [singleImage]="true"
-                            (fileListReady)="logoFileChanged($event)"
-                        ></uni-image>
-                    </label>
+                    <uni-image
+                        [entity]="'companysettings'"
+                        [entityID]="1"
+                        [singleImage]="true"
+                        (fileListReady)="logoFileChanged($event)">
+                    </uni-image>
                 </section>
             </section>
         </section>

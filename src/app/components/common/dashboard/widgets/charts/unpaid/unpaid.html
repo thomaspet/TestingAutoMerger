@@ -18,7 +18,7 @@
     <ng-container *ngIf="hasData">
         <!-- Overview -->
         <section *ngIf="viewMode === 'overview'" class="overview">
-            <widget-chart class="center" [chartConfig]="chartConfig"></widget-chart>
+            <widget-chart [chartConfig]="chartConfig"></widget-chart>
 
             <section class="unpaid-legend">
                 <section class="legend-item"

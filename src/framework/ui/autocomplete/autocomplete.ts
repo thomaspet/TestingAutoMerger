@@ -262,7 +262,10 @@ export class Autocomplete {
                 }
             break;
             case KeyCodes.ESCAPE:
-                this.close();
+                if (this.isExpanded$.value) {
+                    event.stopPropagation();
+                    this.close();
+                }
             break;
             case KeyCodes.SPACE:
                 if (!this.searchControl.value) {

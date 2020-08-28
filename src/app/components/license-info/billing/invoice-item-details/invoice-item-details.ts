@@ -1,6 +1,6 @@
 import {Component, Input, HostListener, Output, EventEmitter} from '@angular/core';
-import {BillingDataItem} from '../billing';
 import {ListViewColumn} from '../../list-view/list-view';
+import {BillingDataItem} from '@app/models/elsa-models';
 
 @Component({
     selector: 'invoice-item-details',

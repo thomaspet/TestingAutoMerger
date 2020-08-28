@@ -27,7 +27,9 @@ export const DASHBOARD_CONFIGS = {
                     'UNPAID_BILLS',
 
                     'OPERATING_PROFITS',
-                    'BRUNO_ACCOUNTING_SERVICES',
+
+                    // Removed until we have a link for "chat med regnskapsfører"
+                    // 'BRUNO_ACCOUNTING_SERVICES',
 
                     'LIQUIDITY',
                     'UNPAID',
@@ -41,6 +43,8 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'sales_dashboard',
         layout: [
             'INVOICED',
+            'UNPAID_PER_CUSTOMER',
+
             'UNPAID',
             'TOP_TEN_CUSTOMERS',
         ]
@@ -75,6 +79,7 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'bank_dashboard',
         layout: [
             'BANK_BALANCE',
+            'PAYMENTS',
         ]
     }
 };

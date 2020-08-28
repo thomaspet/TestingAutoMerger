@@ -83,7 +83,7 @@ export class UniIntegrationCounterWidget {
         }
         switch (apiKey.IntegrationType) {
             case TypeOfIntegration.TravelAndExpenses:
-                return this.travelService.ttImport(apiKey);
+                return this.travelService.ttImport();
             default:
                 return Observable.of(null);
         }

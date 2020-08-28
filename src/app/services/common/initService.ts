@@ -45,6 +45,47 @@ export class InitService {
         }
     }
 
+    getCompanyTemplate(isEnk: boolean, includeVat: boolean, includeSalary: boolean) {
+        return this.getTemplates().pipe(
+            map(templates => {
+                return (templates || []).find(template => {
+                    if (template.IsTest || !template.IsGlobalTemplate) {
+                        return false;
+                    }
+
+                    const name = template.Name || '';
+
+                    if (isEnk && name.includes('MAL AS')) {
+                        return false;
+                    }
+
+                    if (!isEnk && name.includes('MAL ENK')) {
+                        return false;
+                    }
+
+                    if (includeVat && name.includes('uten mva')) {
+                        return false;
+                    }
+
+                    if (!includeVat && name.includes('med mva')) {
+                        return false;
+                    }
+
+                    if (includeSalary && name.includes('uten lønn')) {
+                        return false;
+                    }
+
+                    if (!includeSalary && name.includes('med lønn')) {
+                        return false;
+                    }
+
+                    return true;
+                });
+            }),
+            catchError(() => of(null))
+        );
+    }
+
     createCompany(body) {
         return this.uniHttp
             .asPOST()

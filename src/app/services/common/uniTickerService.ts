@@ -22,7 +22,8 @@ import {
     StatusCodeSharing,
     TaxType,
     StdWageType,
-    SpecialAgaRule
+    SpecialAgaRule,
+    SupplierInvoiceOriginType
 } from '../../unientities';
 import {ErrorService} from './errorService';
 import {StatusService} from './statusService';
@@ -1041,7 +1042,7 @@ export class UniTickerService {
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
-                    {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint'},
+                    {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint (fra Nets)'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
                     {ID: SharingType.Efaktura,      Name: 'Efaktura'},
                     {ID: SharingType.Avtalegiro,    Name: 'Avtalegiro'}
@@ -1179,6 +1180,12 @@ export class UniTickerService {
                     { ID: 30111, Name: 'Delbetalt' },
                     { ID: 30110, Name: 'Overført til bank' },
                     { ID: 30009, Name: 'Ubetalt' }
+                ];
+            case 'InvoiceOriginType':
+                return [
+                    { ID: SupplierInvoiceOriginType.SupplierInvoice,    Name: 'Regning' },
+                    { ID: SupplierInvoiceOriginType.Receipt,            Name: 'Kvittering' },
+                    { ID: SupplierInvoiceOriginType.Refund,             Name: 'Tilbakebetaling' }
                 ];
             default:
                 return [];

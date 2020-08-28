@@ -159,8 +159,8 @@ export class BankService extends BizHttp<Bank> {
 
     public getRegisteredPayments(id: number): Observable<any> {
         return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
-        + `&select=id,postpost.amount as Amount,postpost.amountCurrency as AmountCurrency,`
-        + `postpost.date as PaymentDate,CurrencyCode.Code as CurrencyCode,statuscode as StatusCode`
+        + `&select=id,postpost.amount as Amount,postpost.amountCurrency as AmountCurrency,postpost.date as PaymentDate,`
+        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode,JournalEntryNumber as JournalEntryNumber`
         + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
         + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
         + `&join= JournalEntryline.AccountID eq Account.ID and `
@@ -247,7 +247,7 @@ export class BankService extends BizHttp<Bank> {
         return this.http.asGET()
             .usingStatisticsDomain()
             .withEndPoint(
-                '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,' +
+                '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,Account.Locked as LockedAccount,' +
                 'Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,AccountNumber as BankAccountNumber,' +
                 'Bank.Name,casewhen(companysettings.id gt 0\,1\,0) as IsDefault,companysettings.id,' +
                 'sum(casewhen(be.statuscode eq 48002,1,0)) as closed,sum(casewhen(be.id gt 0,1,0)) as total' +

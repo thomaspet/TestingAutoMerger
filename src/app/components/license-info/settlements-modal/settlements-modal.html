@@ -1,0 +1,40 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>{{headerText}}</header>
+
+    <div class="list-container">
+        <div class="period-header" [innerHTML]="settlement['_periodText']"></div>
+    
+        <simple-table>
+            <thead>
+                <tr>
+                    <th>Varenr</th>
+                    <th>Varenavn</th>
+                    <th class="align-right">Antall</th>
+                    <th>Enhet</th>
+                    <th class="align-right">Pris</th>
+                    <th class="align-right">Rabatt</th>
+                    <th class="align-right">Sum eks. mva.</th>
+                </tr>
+            </thead>
+    
+            <tbody>
+                <tr *ngFor="let item of settlement.Items" class="body-row">
+                    <td>{{item.ProductID}}</td>
+                    <td>{{item.ProductName}}</td>
+                    <td class="align-right">{{item.Amount}}</td>
+                    <td>{{item.Unit}}</td>
+                    <td class="align-right">{{item.Price | unicurrency}}</td>
+                    <td class="align-right">{{item.DiscountPrc > 0 ? item.DiscountPrc + '%' : ''}}</td>
+                    <td class="align-right">{{item.Sum | unicurrency}}</td>
+                </tr>
+                <tr class="row-divider">
+                    <td colspan="7"></td>
+                </tr>
+                <tr class="period-total">
+                    <td colspan="6">Sum for perioden</td>
+                    <td colspan="1" class="align-right">{{settlement.Total | unicurrency}}</td>
+                </tr>
+            </tbody>
+        </simple-table>
+    </div>
+</section>

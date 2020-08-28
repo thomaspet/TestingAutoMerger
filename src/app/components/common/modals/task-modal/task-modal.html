@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal task-modal">
+    <header>{{task.ID ? 'Rediger oppgave' : 'Opprett oppgave'}}</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <label class="uni-label" (keydown.enter)="save()">
+            <span>Oppgavetekst</span>
+            <input type="text" [(ngModel)]="task.Title" (ngModelChange)="dirty = true" name="task-text">
+        </label>
+
+        <label class="uni-label" *ngIf="users?.length">
+            <span>Tildel til</span>
+            <uni-select class="drop-up"
+                [config]="userSelectConfig"
+                [items]="users"
+                [value]="task.UserID"
+                (valueChange)="onUserChange($event)">
+            </uni-select>
+        </label>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit(false)">Avbryt</button>
+
+        <button class="good pull-right" *ngIf="task.ID" (click)="completeTask()" [attr.aria-busy]="completeInProgress">
+            <i class="material-icons pad-right">done</i>
+            Marker som fullført
+        </button>
+
+        <button class="c2a" (click)="save()" [disabled]="!dirty || !task.Title">
+            {{ task.ID ? 'Lagre endringer' : 'Lagre oppgave' }}
+        </button>
+    </footer>
+</section>

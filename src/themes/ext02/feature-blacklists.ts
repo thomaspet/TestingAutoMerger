@@ -13,6 +13,8 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.sales.customer.ehf_setup',
         'ui.sales.customer.sub_company',
         'ui.sales.customer.delivery-terms',
+        'ui.sales.products.costprice',
+        'ui.sales.contribution-margin',
 
         'ui.accounting.supplier.cost_allocation',
         'ui.accounting.supplier.ehf_setup',
@@ -30,7 +32,6 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui_overview',
         'ui_uniqueries',
         'ui_assignments_*',
-        'ui_sharings',
         'ui_admin_flow',
         'ui_admin_jobs',
         'ui_settings_teams',
@@ -55,7 +56,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.timetracking',
 
         'ui.accounting.assets',
-        'ui.assignment-list',
+        'ui.task.assign-to-user',
 
         'ui.sales.customer.tof_report_setup',
         'ui.sales.customer.avtalegiro',

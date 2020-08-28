@@ -88,6 +88,7 @@ export class SupplierInvoiceView {
         this.resizeObserver.disconnect();
         this.onDestroy$.next();
         this.onDestroy$.complete();
+        this.store.selectedFile = null;
     }
 
     private syncFormAndAttachmentsHeight() {
@@ -257,7 +258,7 @@ export class SupplierInvoiceView {
         if (!invoice.StatusCode || invoice?.StatusCode < StatusCodeSupplierInvoice.Journaled) {
             this.toolbarconfig.contextmenu = [
                 {
-                    label: 'Kjør OCR-tolk',
+                    label: 'Kjør fakturatolkning',
                     action: () => { this.store.runOcr(true); }
                 },
                 {

@@ -29,6 +29,8 @@ export class UserSettingsModal implements IUniModal {
     countryCodes: Object;
     oldAuthNumber: string;
 
+    showResetAutobankPassword = theme.theme !== THEMES.EXT02;
+
     // Hide two factor for bruno until it works properly
     showTwoFactorSettings = theme.theme !== THEMES.EXT02;
 

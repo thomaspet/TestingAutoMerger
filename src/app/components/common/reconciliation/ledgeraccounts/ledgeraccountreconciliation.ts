@@ -10,7 +10,8 @@ import {
     BusinessRelation,
     Customer,
     CompanySettings,
-    CurrencyCode
+    CurrencyCode,
+    SupplierInvoice
 } from '../../../../unientities';
 import {
     UniTableColumn,
@@ -34,7 +35,9 @@ import {
     CustomerService,
     BankAccountService,
     CompanySettingsService,
-    TickerHistory
+    TickerHistory,
+    SupplierInvoiceService,
+    PaymentBatchService
 } from '../../../../services/services';
 import {ColumnMenuNew} from '@uni-framework/ui/ag-grid/column-menu-modal';
 import {AddPaymentModal} from '@app/components/common/modals/addPaymentModal';
@@ -44,6 +47,10 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable, Subject} from 'rxjs';
 import {UniMarkingDetailsModal} from './markingDetails';
 import * as moment from 'moment';
+import { THEMES, theme } from 'src/themes/theme';
+import { RegisterCustomerClaimPaymentModal } from '../../modals/RegisterCustomerClaimPaymentModal';
+import { ToPaymentModal } from '@app/components/accounting/supplier-invoice/modals/to-payment-modal/to-payment-modal';
+import { ActionOnReload } from '@app/components/accounting/supplier-invoice/journal-and-pay-helper';
 declare var _;
 
 export enum LedgerTableEmitValues {
@@ -135,6 +142,8 @@ export class LedgerAccountReconciliation {
 
     searchControl: FormControl = new FormControl('');
 
+    hasAutobank: boolean;
+
     public summaryData: any = {
         SumOpen: 0,
         SumBalance: 0,
@@ -155,7 +164,8 @@ export class LedgerAccountReconciliation {
         private paymentService: PaymentService,
         private customerService: CustomerService,
         private bankaccountService: BankAccountService,
-        private companySettingsService: CompanySettingsService
+        private companySettingsService: CompanySettingsService,
+        private paymentBatchService: PaymentBatchService
     ) {
         this.setupUniTable();
     }
@@ -168,6 +178,10 @@ export class LedgerAccountReconciliation {
                 this.searchUpdated.emit(this.searchValue);
                 this.setDisplayArray();
             });
+
+        this.companySettingsService.getCompanySettings().take(1).subscribe((companySettings) => {
+            this.hasAutobank = companySettings.HasAutobank;
+        });
     }
 
     public ngOnChanges(changes: SimpleChanges) {
@@ -820,22 +834,99 @@ export class LedgerAccountReconciliation {
                 newPayment.IsCustomerPayment = false;
                 newPayment.AutoJournal = true;
                 newPayment.CurrencyCode = payment.CurrencyCode || new CurrencyCode();
-                this.modalService.open(AddPaymentModal, {
-                    data: {
-                        model: newPayment,
-                        disablePaymentToField: this.disablePaymentToField,
-                        customerBankAccounts: this.customerBankAccounts
+
+                if (theme.theme === THEMES.EXT02) {
+                    if (!this.hasAutobank) {
+                        // Manually register payment
+                        this.modalService.open(RegisterCustomerClaimPaymentModal, {
+                            data: {
+                                model: newPayment,
+                                journalEntryLine: item,
+                                disablePaymentToField: this.disablePaymentToField,
+                                customerBankAccounts: this.customerBankAccounts
+                            }
+                        }).onClose.subscribe((finishedPayment: Payment) => {
+                            if (finishedPayment) {
+                                this.loadData();
+                                this.toastService.addToast(
+                                    'Tilbakebetaling',
+                                    ToastType.info, 5,
+                                    'Betaling er registrert.'
+                                );
+                            }
+                        });
+                    } else {
+                        this.modalService.open(AddPaymentModal, {
+                            data: {
+                                model: newPayment,
+                                disablePaymentToField: this.disablePaymentToField,
+                                customerBankAccounts: this.customerBankAccounts
+                            },
+                            buttonLabels: {
+                                accept: 'Betal'
+                            }
+                        }).onClose.subscribe((updatedPaymentInfo: Payment) => {
+                            if (updatedPaymentInfo) {
+                                const options = {
+                                    data: {
+                                        supplierInvoice: null,
+                                        payment: updatedPaymentInfo,
+                                        journalEntryLine: item,
+                                        isPaymentOnly: true,
+                                        onlyToPayment: true
+                                    }
+                                };
+                                this.modalService.open(ToPaymentModal, options).onClose
+                                    .subscribe((response: ActionOnReload) => {
+                                        this.loadData();
+                                        switch (response) {
+                                            case ActionOnReload.SentToBank: {
+                                                this.toastService.addToast(
+                                                    'Tilbakebetaling',
+                                                    ToastType.info, 5,
+                                                    'Betaling er sendt til banken.'
+                                                );
+                                                break;
+                                            }
+                                            case ActionOnReload.SentToPaymentList: {
+                                                this.toastService.addToast(
+                                                    'Tilbakebetaling',
+                                                    ToastType.info, 5,
+                                                    'Betaling er lagt til i utbetalingslisten.'
+                                                );
+                                                break;
+                                            }
+                                            case ActionOnReload.FailedToSendToBank: {
+                                                this.toastService.addToast(
+                                                    'Tilbakebetaling feilet',
+                                                    ToastType.bad, 5,
+                                                    'Noe gikk galt under oppretting av betalingen.'
+                                                );
+                                                break;
+                                            }
+                                        }
+                                    });
+                            }
+                        });
                     }
-                }).onClose.subscribe((updatedPaymentInfo: Payment) => {
-                    if (updatedPaymentInfo) {
-                        this.paymentService.ActionWithBody(null,
-                            updatedPaymentInfo,
-                            'create-payment-with-tracelink',
-                            RequestMethod.Post,
-                            'journalEntryID=' + item.JournalEntryID
-                        ).subscribe(paymentResponse => {});
-                    }
-                });
+                } else {
+                    this.modalService.open(AddPaymentModal, {
+                        data: {
+                            model: newPayment,
+                            disablePaymentToField: this.disablePaymentToField,
+                            customerBankAccounts: this.customerBankAccounts
+                        }
+                    }).onClose.subscribe((updatedPaymentInfo: Payment) => {
+                        if (updatedPaymentInfo) {
+                            this.paymentService.ActionWithBody(null,
+                                updatedPaymentInfo,
+                                'create-payment-with-tracelink',
+                                RequestMethod.Post,
+                                'journalEntryID=' + item.JournalEntryID
+                            ).subscribe(paymentResponse => {});
+                        }
+                    });
+                }
             });
     }
 
@@ -909,7 +1000,7 @@ export class LedgerAccountReconciliation {
 
         if (this.isOverpaid(item, this.customerID)) {
             actions.push({
-                label: 'Tilbakebetal beløp',
+                label: theme.theme === THEMES.EXT02 && this.hasAutobank === false ? 'Registrer tilbakebetaling' : 'Tilbakebetal beløp',
                 name: 'RECLAIM'
             });
         }

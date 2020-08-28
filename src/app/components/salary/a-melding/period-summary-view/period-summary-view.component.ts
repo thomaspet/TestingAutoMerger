@@ -1,7 +1,7 @@
-import {Component, Input} from '@angular/core';
-import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {AmeldingData, CompanySalary} from '@uni-entities';
-import {ISummaryConfig} from '../../../common/summary/summary';
+import { Component, Input } from '@angular/core';
+import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { AmeldingData, CompanySalary } from '@uni-entities';
+import { ISummaryConfig } from '../../../common/summary/summary';
 import * as moment from 'moment';
 import { ITaxAndAgaSums, ISystemTaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
 import { NumberFormat } from '@app/services/services';
@@ -15,18 +15,21 @@ export class AmeldingPeriodSummaryViewComponent {
     @Input() public currentAMelding: any;
     @Input() public aMeldingerInPeriod: AmeldingData[];
     @Input() public companySalary: CompanySalary;
+    @Input() public showGarnishment: boolean;
 
     public systemSource: ISystemTaxAndAgaSums[] = [];
     private sumGrunnlagAga: number;
     private sumCalculatedAga: number;
     private sumForskuddstrekk: number;
     private sumFinansskattLoenn: number;
+    private sumGarnishmentTax: number;
     public systemTableConfig: UniTableConfig;
 
     private forfallsdato: string = '';
     private sumAmldAga: number = 0;
     private sumAmldFtrekk: number = 0;
     private sumAmldFinansskattLoenn: number = 0;
+    private sumAmldGarnishementTax: number = 0;
     public amldData: any[] = [];
     public amldTableConfig: UniTableConfig;
 
@@ -37,6 +40,7 @@ export class AmeldingPeriodSummaryViewComponent {
     public kidAGA: string;
     public kidTrekk: string;
     public kidFinancial: string;
+    public kidGarnishment: string = '';
     public accountNumber: string;
 
     constructor(
@@ -44,43 +48,51 @@ export class AmeldingPeriodSummaryViewComponent {
         private sumService: SalarySumsService,
     ) {
         this.setupSystemTableConfig();
-        this.setupAmeldingTableConfig();
     }
 
     public ngOnChanges() {
 
         if (this.systemData) {
+            this.setupAmeldingTableConfig(this.showGarnishment);
             this.sumGrunnlagAga = 0;
             this.sumCalculatedAga = 0;
             this.sumForskuddstrekk = 0;
             this.sumFinansskattLoenn = 0;
-
             this.sumGrunnlagAga = this.sumService.getAgaBase(this.systemData.Aga);
             this.sumCalculatedAga = this.sumService.getAgaSum(this.systemData.Aga);
             this.sumForskuddstrekk = this.systemData.WithholdingTax;
             this.sumFinansskattLoenn = this.systemData.FinancialTax;
+            this.sumGarnishmentTax = this.systemData.GarnishmentTax;
 
             this.systemSource = this.sumService.getAgaList(this.systemData.Aga);
 
             this.systemPeriodSums = [
                 {
                     title: 'Grunnlag aga',
-                    value: this.numberFormat.asMoney(this.sumGrunnlagAga, {decimalLength: 0})
+                    value: this.numberFormat.asMoney(this.sumGrunnlagAga, { decimalLength: 0 })
                 },
                 {
                     title: 'Sum aga',
-                    value: this.numberFormat.asMoney(this.sumCalculatedAga, {decimalLength: 0})
+                    value: this.numberFormat.asMoney(this.sumCalculatedAga, { decimalLength: 0 })
                 },
                 {
                     title: 'Sum forskuddstrekk',
-                    value: this.numberFormat.asMoney(this.sumForskuddstrekk, {decimalLength: 0})
+                    value: this.numberFormat.asMoney(this.sumForskuddstrekk, { decimalLength: 0 })
                 }
             ];
             if (this.companySalary && this.companySalary.CalculateFinancialTax) {
                 this.systemPeriodSums.push(
                     {
                         title: 'Sum finansskatt',
-                        value: this.numberFormat.asMoney(this.sumFinansskattLoenn, {decimalLength: 0})
+                        value: this.numberFormat.asMoney(this.sumFinansskattLoenn, { decimalLength: 0 })
+                    }
+                );
+            }
+            if (this.showGarnishment) {
+                this.systemPeriodSums.push(
+                    {
+                        title: 'Sum utleggstrekk',
+                        value: this.numberFormat.asMoney(this.sumGarnishmentTax, { decimalLength: 0 })
                     }
                 );
             }
@@ -101,13 +113,13 @@ export class AmeldingPeriodSummaryViewComponent {
                         const period = parseInt(pr.split('-').pop(), 10);
                         if ((period === this.currentAMelding.period)
                             && (parseInt(pr.substring(0, pr.indexOf('-')), 10)
-                            === this.currentAMelding.year)) {
-                                this.forfallsdato = moment(
-                                    mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
+                                === this.currentAMelding.year)) {
+                            this.forfallsdato = moment(
+                                mottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
                                 );
-                                this.checkLeveranser(mottak.mottattLeveranse, period);
-                                this.checkMottattPeriode(mottak);
-                                this.checkInnbetalingsinformsajon(mottak);
+                            this.checkLeveranser(mottak.mottattLeveranse, period);
+                            this.checkMottattPeriode(mottak);
+                            this.checkInnbetalingsinformsajon(mottak);
                         }
                     });
                 } else {
@@ -116,12 +128,12 @@ export class AmeldingPeriodSummaryViewComponent {
                         const period = parseInt(pr.split('-').pop(), 10);
                         if ((period === this.currentAMelding.period)
                             && (parseInt(pr.substring(0, pr.indexOf('-')), 10) === this.currentAMelding.year)) {
-                                this.forfallsdato = moment(
-                                    alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
+                            this.forfallsdato = moment(
+                                alleMottak.innbetalingsinformasjon.forfallsdato).format('DD.MM.YYYY'
                                 );
-                                this.checkLeveranser(alleMottak.mottattLeveranse, period);
-                                this.checkMottattPeriode(alleMottak);
-                                this.checkInnbetalingsinformsajon(alleMottak);
+                            this.checkLeveranser(alleMottak.mottattLeveranse, period);
+                            this.checkMottattPeriode(alleMottak);
+                            this.checkInnbetalingsinformsajon(alleMottak);
                         }
                     }
                 }
@@ -133,18 +145,26 @@ export class AmeldingPeriodSummaryViewComponent {
                     },
                     {
                         title: 'Sum aga',
-                        value: this.numberFormat.asMoney(this.sumAmldAga || 0, {decimalLength: 0})
+                        value: this.numberFormat.asMoney(this.sumAmldAga || 0, { decimalLength: 0 })
                     },
                     {
                         title: 'Sum forskuddstrekk',
-                        value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, {decimalLength: 0})
+                        value: this.numberFormat.asMoney(this.sumAmldFtrekk || 0, { decimalLength: 0 })
                     }
                 ];
                 if (this.companySalary && this.companySalary.CalculateFinancialTax) {
                     this.ameldingPeriodSums.push(
                         {
                             title: 'Sum finansskatt',
-                            value: this.numberFormat.asMoney(this.sumAmldFinansskattLoenn || 0, {decimalLength: 0})
+                            value: this.numberFormat.asMoney(this.sumAmldFinansskattLoenn || 0, { decimalLength: 0 })
+                        }
+                    );
+                }
+                if (this.showGarnishment) {
+                    this.ameldingPeriodSums.push(
+                        {
+                            title: 'Sum utleggtrekk',
+                            value: this.numberFormat.asMoney(this.sumAmldGarnishementTax || 0, { decimalLength: 0 })
                         }
                     );
                 }
@@ -168,6 +188,7 @@ export class AmeldingPeriodSummaryViewComponent {
                 this.sumAmldAga = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
                 this.sumAmldFtrekk = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
                 this.sumAmldFinansskattLoenn = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumFinansskattLoenn;
+                this.sumAmldGarnishementTax = mottak.mottattPeriode.mottattAvgiftOgTrekkTotalt.sumUtleggstrekk;
             }
         }
     }
@@ -184,6 +205,9 @@ export class AmeldingPeriodSummaryViewComponent {
                 if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForFinansskattLoenn')) {
                     this.kidFinancial = mottak.innbetalingsinformasjon.kidForFinansskattLoenn;
                 }
+                if (mottak.innbetalingsinformasjon.hasOwnProperty('kidForUtleggstrekk')) {
+                    this.kidGarnishment = mottak.innbetalingsinformasjon.kidForUtleggstrekk;
+                }
                 if (mottak.innbetalingsinformasjon.hasOwnProperty('kontonummer')) {
                     this.accountNumber = mottak.innbetalingsinformasjon.kontonummer;
                 }
@@ -198,6 +222,9 @@ export class AmeldingPeriodSummaryViewComponent {
         if (leveranse.hasOwnProperty('mottattAvgiftOgTrekkTotalt')) {
             amldObj.Ftrekk = leveranse.mottattAvgiftOgTrekkTotalt.sumForskuddstrekk;
             amldObj.Agatrekk = leveranse.mottattAvgiftOgTrekkTotalt.sumArbeidsgiveravgift;
+            if (leveranse.mottattAvgiftOgTrekkTotalt.hasOwnProperty('sumUtleggstrekk')) {
+                amldObj.Utleggstrekk = leveranse.mottattAvgiftOgTrekkTotalt.sumUtleggstrekk;
+            }
         } else {
             amldObj.Ftrekk = '0';
             amldObj.Agatrekk = '0';
@@ -218,7 +245,7 @@ export class AmeldingPeriodSummaryViewComponent {
             .setColumns([orgnrCol, soneCol, municipalCol, typeCol, rateCol, amountCol, agaCol]);
     }
 
-    private setupAmeldingTableConfig() {
+    private setupAmeldingTableConfig(showGarnishment) {
         const periodCol = new UniTableColumn('Periode', 'Periode', UniTableColumnType.Text);
         const meldCol = new UniTableColumn('MeldingsId', 'MeldingsID', UniTableColumnType.Text)
             .setTemplate((dataItem) => {
@@ -233,7 +260,14 @@ export class AmeldingPeriodSummaryViewComponent {
         const ftrekkCol = new UniTableColumn('Ftrekk', 'Forskuddstrekk', UniTableColumnType.Money);
         const agaCol = new UniTableColumn('Agatrekk', 'Arbeidsgiveravgift', UniTableColumnType.Money);
 
+        const kolonner: any[] = [periodCol, meldCol, ftrekkCol, agaCol];
+        if (showGarnishment) {
+            const garnishmentCol = new UniTableColumn('Utleggstrekk', 'Utleggstrekk', UniTableColumnType.Money);
+            kolonner.push(garnishmentCol);
+        }
+
         this.amldTableConfig = new UniTableConfig('salary.amelding.ameldingPeriod.period', false, true, 10)
-            .setColumns([periodCol, meldCol, ftrekkCol, agaCol]);
+            .setColumns(kolonner);
+
     }
 }

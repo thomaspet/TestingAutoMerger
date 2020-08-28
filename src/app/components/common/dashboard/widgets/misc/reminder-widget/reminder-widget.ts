@@ -1,18 +1,17 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
-import {of, Observable, forkJoin} from 'rxjs';
+import {of, Observable, forkJoin, Subscription} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {DashboardDataService} from '../../../dashboard-data.service';
 
-import PerfectScrollbar from 'perfect-scrollbar';
-import * as moment from 'moment';
-import {ApprovalService, TaskService} from '@app/services/services';
+import {ApprovalService} from '@app/services/services';
 import {AuthService} from '@app/authService';
 import {ApprovalStatus, Task, Approval, FinancialDeadline} from '@uni-entities';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {NewTaskModal} from '@app/components/common/modals/new-task-modal/new-task-modal';
-import { Router } from '@angular/router';
-import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import {TaskModal} from '@app/components/common/modals/task-modal/task-modal';
+
+import PerfectScrollbar from 'perfect-scrollbar';
+import * as moment from 'moment';
 
 @Component({
     selector: 'reminder-widget',
@@ -23,6 +22,7 @@ import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 export class ReminderWidget {
     options: { showPublicDueDates: boolean };
 
+    dataSubscription: Subscription;
     scrollbar: PerfectScrollbar;
 
     tasks: Task[] = [];
@@ -37,30 +37,22 @@ export class ReminderWidget {
         inbox?: number
     } = {};
 
-    // visibilitySettings = {
-    //     tasks: true,
-    //     approvals: true,
-    //     publicDueDates: true,
-    // };
-
     constructor(
         private modalService: UniModalService,
         private featurePermissionService: FeaturePermissionService,
         private authService: AuthService,
         private dataService: DashboardDataService,
         private approvalService: ApprovalService,
-        private taskService: TaskService,
-        private toast: ToastService,
         private cdr: ChangeDetectorRef,
-        private router: Router
     ) {}
 
-    ngAfterViewInit() {
+    ngOnInit() {
         this.loadData();
     }
 
     ngOnDestroy() {
         this.scrollbar?.destroy();
+        this.dataSubscription?.unsubscribe();
     }
 
     private loadData() {
@@ -74,7 +66,7 @@ export class ReminderWidget {
             requests.push(this.getPublicDueDates());
         }
 
-        forkJoin(requests).subscribe(
+        this.dataSubscription = forkJoin(requests).subscribe(
             ([approvals, tasks, counters, publiceDuedates]) => {
                 this.invoiceApprovals = approvals.invoices;
                 this.timesheetApprovals = approvals.timesheets;
@@ -218,28 +210,9 @@ export class ReminderWidget {
         );
     }
 
-    onTaskClicked() {
-        this.router.navigateByUrl('/assignments/tasks');
-    }
-
-    quickApproveTask(task: Task, event, index) {
-        event.stopPropagation();
-        task['_completed'] = true;
-
-        this.taskService.PostAction(task.ID, 'complete').subscribe(res => {
-            this.toast.addToast('Oppgave satt som fullført.', ToastType.good, 8, `Oppgave "${task.Title}" ferdigstilt og markert som fullført.`);
-            setTimeout(() => {
-                this.tasks.splice(index, 1);
-                this.cdr.markForCheck();
-            }, 1500);
-        }, err => {
-            this.toast.addToast('Noe gikk galt', ToastType.good, 8, `Kunne ikke markere oppgave som fullført. Prøv igjen senere`);
-        });
-    }
-
-    createTask() {
-        this.modalService.open(NewTaskModal).onClose.subscribe(taskAdded => {
-            if (taskAdded) {
+    createOrEditTask(task?: Task) {
+        this.modalService.open(TaskModal, { data: task }).onClose.subscribe(changes => {
+            if (changes) {
                 this.getTasks(true).subscribe(tasks => {
                     this.tasks = tasks;
                     this.cdr.markForCheck();

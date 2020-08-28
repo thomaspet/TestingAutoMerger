@@ -49,6 +49,7 @@ export class SupplierInvoiceExpense {
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
+        this.store.selectedFile = null;
     }
 
     setUpSaveActions() {

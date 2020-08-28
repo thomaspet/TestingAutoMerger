@@ -30,6 +30,7 @@ import {ReminderRules} from './reminder/settings/reminderRules';
 import {ContactDetails} from './contact/contactDetails';
 import {Contacts} from './contact/contacts';
 import {AddPaymentModal} from './modals/addPaymentModal';
+import {RegisterCustomerClaimPaymentModal} from './modals/RegisterCustomerClaimPaymentModal';
 import {ModelTreeView} from './modeltreeview/modeltreeview';
 import {ModelTreeRelationNode} from './modeltreeview/relationNode';
 import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
@@ -56,10 +57,9 @@ import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-r
 import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 
-import {NewTaskModal} from '../common/modals/new-task-modal/new-task-modal';
+import {TaskModal} from '../common/modals/task-modal/task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
-import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import {ImportCentralTemplateModal} from './modals/import-central-modal/import-central-template-modal';
 import {DisclaimerModal} from '../import-central/modals/disclaimer/disclaimer-modal';
 import {ImportTemplateModal} from '../import-central/modals/import-template/import-template-modal';
@@ -105,6 +105,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        RegisterCustomerClaimPaymentModal,
         ModelTreeView,
         ModelTreeRelationNode,
         LedgerAccountReconciliation,
@@ -148,11 +149,9 @@ import {DashboardModule} from './dashboard/dashboard.module';
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
-        NewTaskModal,
-        UniNewCompanyModal,
+        TaskModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
-        ...NEW_COMPANY_VIEWS,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
         GrantSelfAccessModal,
@@ -183,6 +182,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         UniAttachments,
         UniTags,
         AddPaymentModal,
+        RegisterCustomerClaimPaymentModal,
         UniDimensionTOFView,
         ModelTreeView,
         ModelTreeRelationNode,
@@ -193,7 +193,7 @@ import {DashboardModule} from './dashboard/dashboard.module';
         ReminderSettings,
         UniReminderSettingsModal,
         VacationPaySettingsModal,
-        NewTaskModal,
+        TaskModal,
 
         ContactDetails,
         Contacts,

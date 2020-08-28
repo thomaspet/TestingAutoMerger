@@ -1,10 +1,10 @@
 import {Injectable} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 import {UniHttp} from '../../../framework/core/http/http';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {ElsaPurchase} from '@app/models';
 import {cloneDeep} from 'lodash';
-import {map, take} from 'rxjs/operators';
+import {map, take, catchError} from 'rxjs/operators';
 
 @Injectable()
 export class ElsaPurchaseService {
@@ -21,9 +21,13 @@ export class ElsaPurchaseService {
     }
 
     getPurchaseByProductName(productName: string): Observable<ElsaPurchase> {
-        return this.getAll(`ProductName=${productName}`).map(res => {
-            return (res && res[0]) || null;
-        });
+        return this.getAll(`ProductName=${productName}`).pipe(
+            map(res => (res && res[0]) || null),
+            catchError(err => {
+                console.error(err);
+                return of(null);
+            })
+        );
     }
 
     getAll(filter?: string, companyKeyOverride?: string): Observable<ElsaPurchase[]> {

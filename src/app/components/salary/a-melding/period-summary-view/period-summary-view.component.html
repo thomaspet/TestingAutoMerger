@@ -24,6 +24,10 @@
                         <td>KID Finansskatt</td>
                         <td>{{kidFinancial}}</td>
                     </tr>
+                    <tr *ngIf="kidGarnishment.length">
+                        <td>KID Utleggstrekk skatt</td>
+                        <td>{{kidGarnishment}}</td>
+                    </tr>
                     <tr>
                         <td>Kontonummer</td>
                         <td>{{accountNumber}}</td>

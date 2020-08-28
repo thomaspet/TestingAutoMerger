@@ -148,6 +148,7 @@ export class SendInvoiceModal implements IUniModal {
 
     runSelectedOption() {
         if (this.selectedOption) {
+            this.busy = true;
             this.selectedOption.action();
         }
     }
@@ -165,7 +166,7 @@ export class SendInvoiceModal implements IUniModal {
             case SharingType.Export:
                 return 'Eksportert';
             case SharingType.InvoicePrint:
-                return 'Fakturaprint';
+                return 'Fakturaprint (fra Nets)';
             case SharingType.Efaktura:
                 return 'Sending via eFaktura';
             case SharingType.Avtalegiro:
@@ -222,6 +223,7 @@ export class SendInvoiceModal implements IUniModal {
                 this.invoiceService.setPrintStatus(this.invoice.ID, '200').subscribe();
                 this.onClose.emit();
             }
+            this.busy = false;
         });
     }
 
@@ -232,10 +234,11 @@ export class SendInvoiceModal implements IUniModal {
                 entityType: 'CustomerInvoice',
                 reportType: ReportTypeEnum.INVOICE
             }
-        }).onClose.subscribe(emailSent => {
-            if (emailSent) {
-                this.onClose.emit('email');
+        }).onClose.subscribe(emailSentTo => {
+            if (emailSentTo) {
+                this.onClose.emit(emailSentTo);
             }
+            this.busy = false;
         });
     }
 

@@ -3,13 +3,13 @@ import {BizHttp, UniHttp, RequestMethod, IHttpCacheStore} from '@uni-framework/c
 import {
     Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
 } from '@uni-entities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {EmployeeService} from '../employee/employeeService';
 import {ApiKeyService} from '../../common/apikeyService';
 import {FileService} from '../../common/fileService';
 import {SupplierService} from '@app/services/accounting/supplierService';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, switchMap, catchError } from 'rxjs/operators';
 import { isArray } from 'util';
 
 @Injectable()
@@ -36,11 +36,14 @@ export class TravelService extends BizHttp<Travel> {
         this.suppliers$.next(null);
     }
 
-    public ttImport(apiKey: ApiKey): Observable<Travel[]> {
-        if (!apiKey) {
-            return Observable.of([]);
-        }
-        return super.PostAction(null, 'traveltext', `apikeyID=${apiKey.ID}`);
+    public ttImport(): Observable<Travel[]> {
+        return this.apiKeyService.getApiKey(TypeOfIntegration.TravelAndExpenses).pipe(
+            switchMap(apiKey => super.PostAction(null, 'traveltext', `apikeyID=${apiKey.ID}`)),
+            catchError(err => {
+                console.error(err);
+                return of([]);
+            })
+        );
     }
 
     public save(travel: Travel): Observable<Travel> {

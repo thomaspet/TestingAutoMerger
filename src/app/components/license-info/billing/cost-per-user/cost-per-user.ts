@@ -1,6 +1,7 @@
 import {Component, Input} from '@angular/core';
-import {BillingData} from '../billing';
 import {ListViewColumn} from '../../list-view/list-view';
+import * as moment from 'moment';
+import {BillingData} from '@app/models/elsa-models';
 
 @Component({
     selector: 'cost-per-user',
@@ -42,6 +43,8 @@ export class CostPerUser {
     getCostPerUser() {
         const costPerUser: any = {};
 
+        const daysInPeriod = moment(this.billingData.FromDate).daysInMonth();
+
         this.billingData.Items.forEach(item => {
             if (item.Unit === 'bruker') {
                 item.Details.forEach(itemUsage => {
@@ -58,9 +61,9 @@ export class CostPerUser {
 
                     // If user has had access for less than the full period
                     // we need to decrease the displayed sum
-                    const usageMultiplier = (transactionItem.days / item.Days) || 1;
+                    const usageMultiplier = (transactionItem.days / daysInPeriod) || 1;
 
-                    let sum = transactionItem.price * usageMultiplier;
+                    let sum = transactionItem.price * +usageMultiplier.toFixed(2);
                     if (transactionItem.discount) {
                         sum = sum * (1 - (transactionItem.discount / 100));
                     }

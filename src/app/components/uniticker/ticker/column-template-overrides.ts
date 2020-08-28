@@ -1,6 +1,6 @@
 import {EmploymentStatuses} from '@app/models/employmentStatuses';
 import {TickerColumn} from '@app/services/services';
-import {Leavetype, TaxType, SpecialTaxAndContributionsRule, StdWageType, SalBalType} from '@uni-entities';
+import {Leavetype, TaxType, SpecialTaxAndContributionsRule, StdWageType, SalBalType, SupplierInvoiceOriginType} from '@uni-entities';
 
 interface ColumnTemplateOverrides {
     [tickerCode: string]: {
@@ -10,6 +10,20 @@ interface ColumnTemplateOverrides {
 
 export const ColumnTemplateOverrides: ColumnTemplateOverrides = {
     // Accounting
+    supplierinvoice_list: {
+        'InvoiceOriginType': (row, column) => {
+            switch (row[column.Alias]) {
+                case SupplierInvoiceOriginType.SupplierInvoice:
+                    return 'Regning';
+                case SupplierInvoiceOriginType.Receipt:
+                    return 'Kvittering';
+                case SupplierInvoiceOriginType.Refund:
+                    return 'Tilbakebetaling';
+                default:
+                    return '';
+            }
+        }
+    },
 
     // Sales
 

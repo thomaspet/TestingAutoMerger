@@ -45,7 +45,7 @@ export class InvoicedWidget {
             if (this.hasData) {
                 // Since we're showing last 12 months we need to reorganize the items.
                 // E.g if current month is July then the first bar of the chart will be July last year
-                const endMonth = new Date().getMonth();
+                const endMonth = new Date().getMonth() + 1;
                 const labels = ['Jan', 'Feb', 'Mar', 'Apr', 'Mai', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'];
                 labels.push(...labels.splice(0, endMonth));
                 this.labels = labels;
@@ -178,7 +178,7 @@ export class InvoicedWidget {
     }
 
     private getInvoiceSums(sumField: string) {
-        const fromDate = moment().subtract(12, 'month').startOf('month').format('YYYYMMDD');
+        const fromDate = moment().subtract(11, 'month').startOf('month').format('YYYYMMDD');
         const toDate = moment().endOf('month').format('YYYYMMDD');
 
         const filter = [

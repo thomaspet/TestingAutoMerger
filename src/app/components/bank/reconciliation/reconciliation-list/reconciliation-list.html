@@ -62,7 +62,7 @@
 
         <!-- NO ACCOUNTS VIEW -->
         <section *ngIf="dataLoaded && !bankAccounts.length" class="empty-statement-msg">
-            Ingen kontoer å vise. Gå til <strong (click)="goToSettings()" title="Link til firmaoppsett"> firmaoppsett </strong> for å sette opp kontoer.
+            Ingen kontoer å vise. Gå til <strong (click)="goToBankSettings()" title="Link til firmaoppsett"> innstillinger - Bank </strong> for å sette opp kontoer.
         </section>
     </section>
 

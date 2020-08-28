@@ -1,17 +1,21 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy, Input} from '@angular/core';
-import * as Muuri from 'muuri';
+import {Subscription} from 'rxjs';
 import {WidgetDefinition} from './models';
 import {WIDGET_DEFINITIONS} from './widgets';
 
-import * as Chart from 'chart.js';
-import './rounded-bar-chart';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {WidgetSelectorDialog} from './widget-selector-dialog/widget-selector-dialog';
 import {DashboardDataService} from './dashboard-data.service';
-import {Subscription} from 'rxjs';
 import {UserDto} from '@uni-entities';
 import {AuthService} from '@app/authService';
+import {NumberFormat} from '@app/services/services';
 import {cloneDeep} from 'lodash';
+
+import * as Muuri from 'muuri';
+import * as Chart from 'chart.js';
+
+import './rounded-bar-chart';
+import 'chartjs-plugin-datalabels';
 
 export interface DashboardConfig {
     storageKey: string;
@@ -62,11 +66,10 @@ export class DashboardNew {
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private dataService: DashboardDataService,
+        private numberFormatter: NumberFormat,
     ) {
-        const style = getComputedStyle(document.body);
-        const font = style.getPropertyValue('--font-family');
-        Chart.defaults.global.defaultFontFamily = font;
-        Chart.defaults.global.maintainAspectRatio = false;
+        this.setChartDefaults();
+
 
         // Clear dataService cache on init. This means the dashboard will always
         // show "fresh" data, but the service cache still helps avoid too many requests
@@ -210,5 +213,37 @@ export class DashboardNew {
                 this.initGrid();
             }
         });
+    }
+
+    private setChartDefaults() {
+        const style = getComputedStyle(document.body);
+        const font = style.getPropertyValue('--font-family');
+
+        Chart.defaults.global.defaultFontFamily = font;
+        Chart.defaults.global.maintainAspectRatio = false;
+        Chart.defaults.global.plugins.datalabels.display = false;
+
+        Chart.defaults.global.tooltips.bodyFontSize = 14;
+        Chart.defaults.global.tooltips.xPadding = 10;
+        Chart.defaults.global.tooltips.yPadding = 8;
+        Chart.defaults.global.tooltips.displayColors = false;
+        Chart.defaults.global.tooltips.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+
+        Chart.defaults.global.legend.labels.fontSize = 14;
+        Chart.defaults.global.legend.labels.fontColor = '#2B2B2B';
+        Chart.defaults.global.legend.labels.boxWidth = 10;
+        Chart.defaults.global.legend.labels.usePointStyle = true;
+        Chart.defaults.global.legend.labels.padding = 10;
+
+        Chart.defaults.pie.tooltips.callbacks.label = (tooltipItem, data) => {
+            try {
+                const datasetIndex = tooltipItem.datasetIndex;
+                const index = tooltipItem.index;
+                const value = data.datasets[datasetIndex].data[index];
+                return data.labels[index] + ': ' + this.numberFormatter.asMoney(value as number);
+            } catch (e) {
+                console.error('Default tooltip generator in dashboard.ts failed', e);
+            }
+        };
     }
 }

@@ -32,6 +32,7 @@ export const NO = {
             'INVOICE_DATE': 'Fakturadato',
             'CREDIT_DAYS': 'Kredittdager',
             'INVOICE_REF': 'Fakturaref.',
+            'PAYMENT_INFO_TEXT': 'Betalingen fra kunde vil bli registrert i Uni Economy. Husk at betalingen fra kunde må ha kommet inn i banken før du registrerer betalingen i Uni Economy.'
         },
         RECURRING_INVOICE: {
             'RECURRING_INVOICE_NEW': 'Ny repeterende faktura',
@@ -169,9 +170,9 @@ export const NO = {
         'PAYMENT_TERMS_INFOTEXT': 'Oppsett av forhåndsdefinerte kredittdager. Disse betingelsene vil være alternativene man har for kredittdager ved utfakturering dersom man ønsker å avvike fra standard.',
         'DELIVERY_TERMS_INFOTEXT': 'Oppsett av forhåndsdefinerte leveringsdager. Disse betingelsene vil være alternativene man har for leveringsbetingelser ved salg.',
         'REPORT_INFOTEXT': 'Velg hvordan blanketter skal se ut, logoplassering og standard språk. Sett standardblanketter for tilbud, ordre og faktura og sett opp faste tekster.',
-        'LOGO_INFOTEXT': 'Har kan du laste opp logo som brukes på blanketter.',
+        'LOGO_INFOTEXT': 'Her kan du laste opp logo som brukes på blanketter.',
         'ACCOUNTS_INFOTEXT': 'Oppsett av samlekonto for reskontroer.',
-        'ELECTRONIC_INVOICE_INFOTEXT': 'Har kan du aktivere EHF og OCR-tolkning for faktura. Om du ikke har kjøpt tjenestene, vil vi ta deg til markedsplassen først.',
+        'ELECTRONIC_INVOICE_INFOTEXT': 'Her kan du aktivere EHF og Fakturaprint. Om du ikke har kjøpt tjenestene, vil vi ta deg til markedsplassen først.',
         'PERIODE_AND_VAT_INFOTEXT': 'Registrering av MVA-status for selskapet, MVA-perioder og type næring for MVA-formål. Her sperrer man også henholdsvis bokføring og MVA-føringer i regnskapet.',
         'CURRENCY_INFOTEXT': 'Valg av standard valuta for selskapet og hovedbokskonto for valutaposteringer.',
         'OPENING_BALANCE_INFOTEXT': 'Har du et nystiftet aksjeselskap, kan du registrere åpningsbalansen din ved hjelp av denne veiviseren.',

@@ -1157,8 +1157,8 @@ export class QuoteDetails implements OnInit {
                             entityType: 'CustomerQuote',
                             reportType: ReportTypeEnum.QUOTE
                         }
-                    }).onClose.subscribe(emailSent => {
-                        if (emailSent) {
+                    }).onClose.subscribe(emailSentTo => {
+                        if (emailSentTo) {
                             this.customerQuoteService.setPrintStatus(this.quote.ID, '100').subscribe(
                                 () => {
                                     this.quote.PrintStatus = 100;
@@ -1166,6 +1166,9 @@ export class QuoteDetails implements OnInit {
                                 },
                                 err => console.error(err)
                             );
+
+                            this.quote.EmailAddress = emailSentTo;
+                            this.refreshQuote(this.quote);
                         }
 
                         done();

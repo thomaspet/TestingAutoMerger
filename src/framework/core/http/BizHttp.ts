@@ -332,7 +332,7 @@ export class BizHttp<T> {
             this.storeInCache(hash, request, false);
         }
 
-        return request.map((res) => res.body);
+        return request.map((res) => cloneDeep(res.body));
     }
 
     public GetLayout(ID: string) {

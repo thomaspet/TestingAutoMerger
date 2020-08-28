@@ -53,6 +53,8 @@ export class UniBankReconciliationList {
             this.bankAccounts = accounts.map(acc => {
                 acc.count = acc.total - acc.closed;
                 return acc;
+            }).filter(bankAccount => {
+                return bankAccount.LockedAccount === false;
             }).sort((a, b) => {
                 return a.count === b.count ? 0 : a.count ? -1 : 1;
             });
@@ -67,8 +69,8 @@ export class UniBankReconciliationList {
         this.pageStateService.setPageState('tabIndex', this.activeIndex.toString());
     }
 
-    goToSettings() {
-        this.router.navigateByUrl('/settings/company');
+    goToBankSettings() {
+        this.router.navigateByUrl('/settings/bank');
     }
 
     onActionClick(action: any, account: any) {

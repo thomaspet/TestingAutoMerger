@@ -672,6 +672,9 @@
                 "Code": "transferred_bank",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
+                "tooltip": "BANK.TRANSFERED_BANK_TOOLTIP",
+                "themeOnlyTooltip": "EXT02",
+                "hideTooltipWithoutCount": true,
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [

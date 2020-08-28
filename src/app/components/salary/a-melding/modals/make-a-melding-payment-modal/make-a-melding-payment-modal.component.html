@@ -30,6 +30,15 @@
                     [disableRipple]="true">
                 </mat-checkbox>
             </li>
+            <li *ngIf="showGarnishment">
+                <span>Utleggstrekk ({{totalGarnishmentFeedbackStr}} kr)</span>
+                <mat-checkbox
+                    tabindex="-1"
+                    [(ngModel)]="dto.payGarnishment"
+                    [labelPosition]="'before'"
+                    [disableRipple]="true">
+                </mat-checkbox>
+            </li>
         </ul>
         <ul>
            <li>

@@ -106,7 +106,6 @@ export class NumberSeries {
             {ID: 'Accounts', Name: 'Kontoer'},
         ];
 
-        // REVISIT: this doesn't seem like a good idea.. Make sure bruno _really_ want this.
         if (this.featurePermissionService.canShowUiFeature('ui.numberseries-others')) {
             this.series.push({ID: 'Others', Name: 'Andre serier'});
         }
