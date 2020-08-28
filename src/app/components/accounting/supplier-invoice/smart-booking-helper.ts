@@ -53,8 +53,8 @@ export class SmartBookingHelperClass {
 				response.message = result.Source === 1
 					? 'Kontoforslag basert på ditt firmas tidligere bokføringer på fakturaer fra denne leverandøren.'
 					: result.Source === 2
-					? 'Kontoforslag basert på bokføringer gjort på denne leverandøren i UniEconomy'
-					: 'Kontoforslag basert på bokføringer gjort i UniEconomy på levernadører i samme bransje som valgt leverandør på din faktura.';
+					? 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_2'
+					: 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_3';
 
 				return this.journalEntryService.getAccountsFromSuggeestions(result.Suggestion.AccountNumber.toString().substr(0, 3));
 			}).subscribe(accounts => {

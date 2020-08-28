@@ -8,7 +8,7 @@
             <i class="material-icons">info</i>
             <span>
                 <strong>Smart bokføring:</strong>
-                {{ store.smartBookingResult.message }}
+                {{ store.smartBookingResult.message | translate }}
             </span>
 
             <i role="button" class="material-icons pull-right" (click)="store.smartBookingResult.visible = false">close</i>
