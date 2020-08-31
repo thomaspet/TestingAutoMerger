@@ -177,6 +177,8 @@ export class InvoiceDetails implements OnInit {
         'Info.Emails',
         'Info.DefaultEmail',
         'Info.Contacts.Info',
+        'Info.DefaultPhone',
+        'Info.Phones',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
