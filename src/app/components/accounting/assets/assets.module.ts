@@ -27,6 +27,7 @@ import {UniFrameworkModule} from '@uni-framework/frameworkModule';
 import {LayoutModule} from '@app/components/layout/layoutModule';
 import {AppCommonModule} from '@app/components/common/appCommonModule';
 import {AssetDocumentsComponent} from '@app/components/accounting/assets/asset-documents/asset-documents';
+import {ManualDepreciationModal} from '@app/components/accounting/assets/manual-depreciation-modal/manual-depreciation-modal';
 
 @NgModule({
     imports: [
@@ -50,6 +51,7 @@ import {AssetDocumentsComponent} from '@app/components/accounting/assets/asset-d
         RegisterDepreciationModal,
         RegisterAssetAsLostModal,
         DeleteAssetModal,
+        ManualDepreciationModal,
         AssetDetailsTab,
         AssetsListTab,
         AssetDetailsToolbar,
