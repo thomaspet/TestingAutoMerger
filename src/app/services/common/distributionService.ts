@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {DistributionPlan} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import {ElementTypes, ElementType} from '@app/models/distribution';
 
 @Injectable()
 export class DistributionPlanService extends BizHttp<DistributionPlan> {
@@ -79,5 +80,15 @@ export class DistributionPlanService extends BizHttp<DistributionPlan> {
             // case 'Models.Salary.AnnualStatement':
             //     return 'AnnualStatementDistributionPlanID';
         }
+    }
+
+    public getElementTypeText(elementType: ElementType) {
+        const type = ElementTypes.find(x => x.type === elementType);
+        return type.label;
+    }
+
+    public getElementName(elementType: ElementType) {
+        const type = ElementTypes.find(x => x.type === elementType);
+        return type.name;
     }
 }

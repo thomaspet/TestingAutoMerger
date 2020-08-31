@@ -51,7 +51,9 @@ export const TRANSLATION_OVERRIDES = {
             'BOOK_TO_PAYMENT_WITH_SUPPLIER_NAME': 'Godkjenne, bokføre og til betaling av regning fra {name}',
             'FILE_IN_USE_MSG': 'Filen er allerede brukt til å føre bilag eller på en regning og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
             'MULTIPLE_USE_MSG1': 'Flere regninger knyttet til filen, viser siste',
-            'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.'
+            'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.',
+            'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i DNB-Regnskap',
+            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i DNB-Regnskap på levernadører i samme bransje som valgt leverandør på din faktura.',
         },
         POSTPOST: {
             'ALL_WITH_OPEN': 'Alle med utestående',
@@ -87,6 +89,8 @@ export const TRANSLATION_OVERRIDES = {
         'BILLING_HOURS': 'Fakturere timer',
         'PERSONS': 'Timebrukere',
         'EXPENSE': 'Utgift',
-        'BANK_PRODUCTS': 'Bankprodukter'
+        'BANK_PRODUCTS': 'Bankprodukter',
+        'MODULES': 'Pakker og utvidelser',
+        'PURCHASES': 'Mine produkter'
     }
 };

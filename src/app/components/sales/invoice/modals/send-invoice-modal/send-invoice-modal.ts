@@ -1,8 +1,8 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
-import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusCodeSharing} from '@app/unientities';
-import {map, catchError} from 'rxjs/operators';
-import {forkJoin, of as observableOf} from 'rxjs';
+import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusCodeSharing, DistributionPlanElement} from '@app/unientities';
+import {map, catchError, finalize, filter, tap, mergeMap} from 'rxjs/operators';
+import {forkJoin, of as observableOf, Observable, combineLatest} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import {ReportTypeEnum} from '@app/models';
@@ -20,6 +20,7 @@ import {
     ElsaPurchaseService
 } from '@app/services/services';
 import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
+import {ElementType} from '@app/models/distribution';
 import * as moment from 'moment';
 
 interface SendingOption {
@@ -27,6 +28,7 @@ interface SendingOption {
     tooltip?: string;
     small?: string;
     action: () => void;
+    type: ElementType;
 }
 
 @Component({
@@ -44,8 +46,8 @@ export class SendInvoiceModal implements IUniModal {
     companySettings: CompanySettings;
 
     sendingOptions: SendingOption[] = [
-        { label: 'Send på epost', action: () => this.sendEmail() },
-        { label: 'Skriv ut', action: () => this.print() },
+        { label: 'Send på epost', action: () => this.sendEmail(), type: ElementType.Email },
+        { label: 'Skriv ut', action: () => this.print(), type: ElementType.Print }
     ];
 
     selectedOption = this.sendingOptions[0];
@@ -70,8 +72,8 @@ export class SendInvoiceModal implements IUniModal {
         this.invoice = this.options.data;
         this.journalEntryUrl = this.buildJournalEntryNumberUrl(this.invoice.JournalEntry.JournalEntryNumber);
         this.sendingOptions = [
-            { label: 'Send på epost', action: () => this.sendEmail() },
-            { label: 'Skriv ut', action: () => this.print() },
+            { label: 'Send på epost', action: () => this.sendEmail(), type: ElementType.Email },
+            { label: 'Skriv ut', action: () => this.print(), type: ElementType.Print }
         ];
 
         // Might be added back later. Same with runDistributionPlan(), which is only used here.
@@ -119,31 +121,88 @@ export class SendInvoiceModal implements IUniModal {
 
         forkJoin(
             this.statisticsService.GetAllUnwrapped(previousSharingsQuery),
-            this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing']),
+            this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing', 'CompanyBankAccount']),
             this.elsaPurchaseService.getPurchaseByProductName('EHF_OUT'),
+            this.invoice.DistributionPlanID
+                ? this.distributionPlanService.Get(this.invoice.DistributionPlanID, ['Elements.ElementType'])
+                : Observable.of(null)
         ).subscribe(
             res => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
                 const hasPurchasedEhfOut = !!res[2];
+                var plan = res[3];
 
-                this.canSendEHF(this.companySettings, hasPurchasedEhfOut).subscribe(canSendEHF => {
-                    if (canSendEHF) {
-                        this.sendingOptions.push({
-                            label: 'Send EHF',
-                            action: () => this.sendEHF()
-                        });
+                if (plan) {
+                    this.sendingOptions = [];
 
-                        if (!this.invoice.DistributionPlanID) {
-                            this.selectedOption = this.sendingOptions[this.sendingOptions.length - 1];
-                        }
-                    }
-
+                    Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
+                        mergeMap((el: DistributionPlanElement) => { // combine flag if allowed and element 
+                            let allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);                          
+                            return combineLatest(allowed, Observable.of(el));
+                        }),
+                        filter(([allow, _]: [boolean, DistributionPlanElement]) => allow), // only keep allowed
+                        tap(([_, el]) => { // add element to options
+                            this.addSendingOptionForElementType(el.ElementType.ID);
+                        }),
+                        finalize(() => { // add default alternatives if missing
+                            this.addDefaultSendingOptionsIfMissing();
+                            this.selectedOption = this.sendingOptions[0];
+                            this.busy = false;    
+                        })
+                    ).subscribe();
+                }
+                else
+                {
                     this.busy = false;
-                });
+                }
             },
             () => this.busy = false
         );
+    }
+
+    addDefaultSendingOptionsIfMissing() {
+        if (!this.sendingOptions.find(opt => opt.type === ElementType.Email)) {
+            this.addSendingOptionForElementType(ElementType.Email);
+        }
+
+        if (!this.sendingOptions.find(opt => opt.type === ElementType.Print)) {
+            this.addSendingOptionForElementType(ElementType.Print);
+        }
+    }
+
+    addSendingOptionForElementType(elementType: ElementType)
+    {
+        this.sendingOptions.push(
+            {
+                label: `${this.distributionPlanService.getElementTypeText(elementType)}`,
+                action: this.createActionForElementType(elementType),
+                type: elementType
+            }
+        );
+    }
+
+    createActionForElementType(elementType: ElementType) {
+        let action = null;
+        let label = this.distributionPlanService.getElementTypeText(elementType);
+        let name = this.distributionPlanService.getElementName(elementType);
+
+        switch (elementType) {
+            case ElementType.Print:
+                action = () => this.print();
+                break;
+            case ElementType.EHF:
+                action = () => this.sendEHF();
+                break;
+            case ElementType.Email:
+                action = () => this.sendEmail();
+                break;
+            default:
+                action = () => this.sendElementWithType(name, label);
+                break;
+        }
+
+        return action;
     }
 
     runSelectedOption() {
@@ -191,8 +250,79 @@ export class SendInvoiceModal implements IUniModal {
         }
     }
 
-    private canSendEHF(settings: CompanySettings, hasPurchasedEhfOut: boolean) {
-        const ehfActive = this.ehfService.isEHFActivated(settings);
+    //
+    // Section allowed to use elementtype
+    //
+
+    private canUseThisElement(elementType: ElementType, hasPurchasedEhfOut: boolean) {
+        switch (elementType) {
+            case ElementType.EHF:
+                return this.canSendEHF(hasPurchasedEhfOut);
+            case ElementType.Invoiceprint:
+                return this.canSendInvoicePrint();
+            case ElementType.Vipps:
+                return this.canSendVippsinvoice();
+            case ElementType.AvtaleGiro:
+                return this.canSendAvtaleGiro();
+            case ElementType.AvtaleGiroEfaktura:
+                return this.canSendAvtaleGiroEfaktura();
+            case ElementType.Efaktura:
+                return this.canSendEfaktura();
+            case ElementType.Factoring:
+                return this.canSendFactoring();
+            default:
+                return Observable.of(true);
+        }
+    }
+
+    private canSendFactoring() {
+        return Observable.of(this.companySettings.FactoringNumber > 0
+            && this.companySettings.Factoring > 0
+            && this.invoice.Customer.FactoringNumber > 0);
+    }
+
+    private canSendAvtaleGiro() {
+        return Observable.of(this.invoice.Customer.AvtaleGiro 
+            && this.invoice.PaymentID
+            && (this.invoice.EmailAddress || !this.invoice.Customer.AvtaleGiroNotification));
+    }
+
+    private canSendEfaktura() {
+        return Observable.of(this.invoice.TaxInclusiveAmount >= 0
+            && this.companySettings.NetsIntegrationActivated
+            && this.invoice.Customer.EInvoiceAgreementReference
+            && this.invoice.Customer.EfakturaIdentifier);
+    }
+
+    private canSendAvtaleGiroEfaktura() {
+        return combineLatest(this.canSendAvtaleGiro(), this.canSendEfaktura())
+            .mergeMap(([avtaleGiro, eFaktura]) => Observable.of(avtaleGiro && eFaktura));
+    }
+
+    private canSendVippsinvoice() {
+        let then = this.invoice.PaymentDueDate != null
+            ? moment(this.invoice.PaymentDueDate)
+            : moment().add(72, 'hours');
+
+        var diffHours = then.diff(moment(), 'hours');
+        var diffDays = then.diff(moment(), 'days');
+
+        if (diffHours <= 72 || diffDays >= 365
+            || !this.companySettings.CompanyBankAccount?.AccountNumber
+            || (!this.invoice.Customer?.Info?.DefaultPhone && !((this.invoice.Customer?.Info?.Phones || []).length > 0))) {
+            return Observable.of(false);
+        }
+   
+        return Observable.of(true);
+    }
+
+    private canSendInvoicePrint() {
+        const invoicePrintActive = this.ehfService.isInvoicePrintActivated(this.companySettings);
+        return Observable.of(invoicePrintActive);
+    }
+
+    private canSendEHF(hasPurchasedEhfOut: boolean) {
+        const ehfActive = this.ehfService.isEHFActivated(this.companySettings);
         const peppoladdress = this.invoice.Customer.PeppolAddress
             || '0192:' + this.invoice.Customer.OrgNumber;
 
@@ -206,6 +336,10 @@ export class SendInvoiceModal implements IUniModal {
             return observableOf(false);
         }
     }
+
+    //
+    // End section
+    //
 
     private print() {
         this.modalService.open(TofReportModal, {
@@ -303,6 +437,26 @@ export class SendInvoiceModal implements IUniModal {
             );
         }
     } */
+
+    private sendElementWithType(name: string, label: string) {
+        this.reportService.distributeWithType(
+            this.invoice.ID, 'Models.Sales.CustomerInvoice', name
+        ).subscribe(
+            () => {
+                this.toastService.toast({
+                    title: (this.invoice.InvoiceType === 1 ? 'Kreditnota' : 'Faktura') + ` er lagt i kø for ${label} utsendelse`,
+                    type: ToastType.good,
+                    duration: 5,
+                });
+
+                this.onClose.emit();
+            },
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
+        );
+    }
 
     private sendEHF() {
         if (this.companySettings.DefaultAddress && this.companySettings.DefaultAddress.AddressLine1) {

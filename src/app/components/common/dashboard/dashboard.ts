@@ -6,8 +6,6 @@ import {WIDGET_DEFINITIONS} from './widgets';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {WidgetSelectorDialog} from './widget-selector-dialog/widget-selector-dialog';
 import {DashboardDataService} from './dashboard-data.service';
-import {UserDto} from '@uni-entities';
-import {AuthService} from '@app/authService';
 import {NumberFormat} from '@app/services/services';
 import {cloneDeep} from 'lodash';
 
@@ -16,11 +14,12 @@ import * as Chart from 'chart.js';
 
 import './rounded-bar-chart';
 import 'chartjs-plugin-datalabels';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 export interface DashboardConfig {
     storageKey: string;
     header: string;
-    layout: string[] | ((user?: UserDto) => string[]);
+    layout: string[] | ((contractType: string) => string[]);
 }
 
 @Component({
@@ -62,7 +61,7 @@ export class DashboardNew {
     }
 
     constructor(
-        private authService: AuthService,
+        private permissionService: FeaturePermissionService,
         private cdr: ChangeDetectorRef,
         private modalService: UniModalService,
         private dataService: DashboardDataService,
@@ -86,7 +85,7 @@ export class DashboardNew {
     ngOnChanges() {
         if (this.config) {
             this.defaultLayout = typeof this.config.layout === 'function'
-                ? this.config.layout(this.authService.currentUser)
+                ? this.config.layout(this.permissionService.packageName)
                 : this.config.layout;
 
             this.currentLayout = this.getSavedLayout() || this.defaultLayout;

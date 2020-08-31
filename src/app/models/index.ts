@@ -8,3 +8,4 @@ export * from './elsa-models';
 export * from './accounting/CostAllocationData';
 export * from './pushMessage';
 export * from './business-object.model';
+export * from './distribution';

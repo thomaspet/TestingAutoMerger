@@ -1,13 +1,9 @@
-import {UserDto} from '@uni-entities';
-
 export const DASHBOARD_CONFIGS = {
     main: {
         header: 'Hjem',
         storageKey: 'main_dashboard',
-        layout: (user: UserDto) => {
-            const contractType = user?.License?.ContractType?.TypeName?.toLowerCase();
-
-            if (contractType === 'mini') {
+        layout: (contractType) => {
+            if (contractType === 'Mini' || contractType === 'Demo') {
                 return [
                     'BANK_BALANCE',
                     'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
