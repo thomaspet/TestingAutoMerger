@@ -103,6 +103,7 @@ export class BankComponent {
     private rows: Array<any> = [];
     private canEdit: boolean = true;
     private agreements: any[] = [];
+    private unfilteredAgreements: any[] = [];
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
     isSrEnvirnment = environment.isSrEnvironment;
@@ -335,6 +336,7 @@ export class BankComponent {
 
                             if (this.hasAccessToAutobank) {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
+                                    this.unfilteredAgreements = agreements;
                                     this.agreements = agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
                                     this.initiateBank();
                                 });
@@ -423,7 +425,7 @@ export class BankComponent {
                 });
             }
 
-            if (this.isAutobankAdmin && this.agreements.length) {
+            if (this.isAutobankAdmin && this.unfilteredAgreements.length) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
@@ -1209,12 +1211,13 @@ export class BankComponent {
     public openAgreementsModal() {
         const options: IModalOptions = {
             header: 'Mine autobankavtaler',
-            list: this.agreements,
+            list: this.unfilteredAgreements,
             listkey: 'AGREEMENT'
         };
         this.modalService.open(UniBankListModal, options).onClose.subscribe(() => {
             this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {
-                this.agreements = result;
+                this.unfilteredAgreements = result;
+                this.agreements = result.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
                 this.toolbarconfig.contextmenu = this.getContextMenu();
             });
         });
