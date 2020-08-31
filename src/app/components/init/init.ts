@@ -22,7 +22,7 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-                this.showTryForFree = theme.theme !== THEMES.UE && !event.url.includes('sign-up');
+                this.showTryForFree = theme.theme !== THEMES.UE && theme.theme !== THEMES.EXT02 && !event.url.includes('sign-up');
             }
         });
 
@@ -36,5 +36,13 @@ export class UniInit {
 
     logout() {
         this.authService.idsLogout();
+    }
+
+    // temporary "easy access to sign-up" until ext02 goes live
+    navigateToSignUp() {
+        if (theme.theme !== THEMES.EXT02) {
+            return;
+        }
+        this.router.navigateByUrl('/init/sign-up');
     }
 }
