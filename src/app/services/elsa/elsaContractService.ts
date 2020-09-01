@@ -205,8 +205,4 @@ export class ElsaContractService {
     getBillingHistory(contractID: number): Observable<BillingData[]> {
         return this.http.get<BillingData[]>(this.ELSA_SERVER_URL + `/api/billing/contract/${contractID}/history/data`);
     }
-
-    updateCompanyLicense(companyID: number, companyLicense: ElsaCompanyLicense) {
-        return this.http.put(this.ELSA_SERVER_URL + `/api/companylicenses/${companyID}`, companyLicense);
-    }
 }

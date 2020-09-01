@@ -111,7 +111,7 @@ export class CompanyService extends BizHttp<Company> {
             .do(() => super.invalidateCache());
     }
 
-    updateTwoFactorAuthentication(companyID: number, body) {
+    updateCompanyLicense(companyID: number, body) {
         return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/companylicenses/${companyID}`, body).pipe(map(res => res[0]));
     }
 }

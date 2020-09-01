@@ -212,7 +212,7 @@ export class CompanyList {
             }
         }).onClose.subscribe(res => {
             if (res === ConfirmActions.ACCEPT) {
-                this.companyService.updateTwoFactorAuthentication(
+                this.companyService.updateCompanyLicense(
                     company.ID, { TwoFactorEnabled: !company.TwoFactorEnabled })
                     .subscribe(
                     () => {
@@ -251,8 +251,7 @@ export class CompanyList {
 
         this.modalService.open(UniEditFieldModal, options).onClose.subscribe(res => {
             if (res !== false) {
-                company.ExternalCustomerID = res;
-                this.elsaContractService.updateCompanyLicense(company.ID, company).subscribe(() => {
+                this.companyService.updateCompanyLicense(company.ID, {ExternalCustomerID: res}).subscribe(() => {
                     this.loadData();
                 }, (err) => {
                     this.errorService.handle(err);
