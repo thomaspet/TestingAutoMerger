@@ -63,9 +63,9 @@ export class TradeItemTable {
     @Input() public items: any[];
     @Input() public dimensionTypes: any;
     @Input() public vatDate: LocalDate;
-    @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
-
+    @Input() public deliveryDate: LocalDate;
     @Input() public vatTypes: VatType[];
+    @Output() public itemsChange: EventEmitter<any> = new EventEmitter();
 
     showTable: boolean = true; // used for hard re-draw
 
@@ -142,10 +142,19 @@ export class TradeItemTable {
                 this.showTable = true;
             });
         }
-
-        if (changes['vatDate']) {
+        console.log(changes);
+        if (changes['vatDate'] && !this.settings.UseFinancialDateToCalculateVatPercent) {
             const prev = changes['vatDate'].previousValue;
             const curr = changes['vatDate'].currentValue;
+
+            if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+                this.updateVatPercentsAndItems();
+            }
+        }
+
+        if (changes['deliveryDate'] && this.settings.UseFinancialDateToCalculateVatPercent) {
+            const prev = changes['deliveryDate'].previousValue;
+            const curr = changes['deliveryDate'].currentValue;
 
             if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
                 this.updateVatPercentsAndItems();
@@ -182,7 +191,12 @@ export class TradeItemTable {
             // find the correct vatpercentage based on the either vatdate or current date,
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
-            const vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
+
+            let vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
+            if (this.settings.UseFinancialDateToCalculateVatPercent) {
+                let vatDate = this.deliveryDate ? moment(this.deliveryDate) : this.vatDate;
+            }
+            
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
