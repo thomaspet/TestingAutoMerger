@@ -1,7 +1,7 @@
 ﻿import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {WorkRelation, WorkItem, Worker, WorkBalance, LocalDate} from '../../../unientities';
-import { exportToFile, arrayToCsv, safeInt, trimLength, parseTime } from '../../common/utils/utils';
+import { exportToFile, arrayToCsv, trimLength, parseTime } from '../../common/utils/utils';
 import {IToolbarConfig} from '../../common/toolbar/toolbar';
 import {IsoTimePipe} from '../../common/utils/pipes';
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -387,8 +387,8 @@ export class TimeEntry {
 
     private initNewUser() {
         this.modalService.confirm({
-            header: 'Aktivere timeføring',
-            message: 'Ønsker du å aktivere din bruker for timeføring på denne klienten?'
+            header: 'Velkommen som ny timefører!',
+            message: 'Ønsker du at vi skal sette opp din bruker med standard arbeidstid og startdato = i dag ?'
         }).onClose.subscribe(response => {
             if (response === ConfirmActions.ACCEPT) {
                 this.initWorker(undefined, true);
