@@ -37,7 +37,7 @@ export class UniEditFieldModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     public newValue = {
-        Value: 0
+        Value: null
     };
 
     public formConfig$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
@@ -51,7 +51,7 @@ export class UniEditFieldModal implements IUniModal {
                 cancel: 'Avbryt'
             };
         }
-        this.newValue.Value = this.options.data.ClientNumber || 0;
+        this.newValue.Value = this.options.data.Value || null;
         this.formModel$.next(this.newValue);
         this.formFields$.next(this.getLayout());
     }
@@ -68,8 +68,8 @@ export class UniEditFieldModal implements IUniModal {
         return [
             <any> {
                 Property: 'Value',
-                FieldType: FieldType.NUMERIC,
-                Label: 'Klientnr',
+                FieldType: this.options.fieldType,
+                Label: this.options.fieldLabel,
             }
         ];
     }

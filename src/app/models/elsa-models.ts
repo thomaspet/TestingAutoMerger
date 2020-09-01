@@ -40,6 +40,7 @@ export interface ElsaCompanyLicense {
     UpdatedBy: string;
     UpdatedByEmail: string;
     TwoFactorEnabled?: boolean;
+    ExternalCustomerID: string;
 }
 
 export interface ElsaPurchase {

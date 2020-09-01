@@ -7,14 +7,15 @@ import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
 import {ElsaContractService, ErrorService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService, UniEditFieldModal} from '@uni-framework/uni-modal';
 import {GrantAccessModal, GrantSelfAccessModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 import {LicenseInfo} from '../license-info';
-import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {NewCompanyModal} from '../new-company-modal/new-company-modal';
+import {FieldType} from '@uni-entities';
 
 @Component({
     selector: 'license-info-company-list',
@@ -43,6 +44,10 @@ export class CompanyList {
         {
             header: 'Organisasjonsnummer',
             field: '_orgNumberText'
+        },
+        {
+            header: 'Kundenummer',
+            field: 'ExternalCustomerID'
         }
     ];
     contextMenu = [
@@ -62,6 +67,12 @@ export class CompanyList {
             label: 'To-faktor',
             action: (company: ElsaCompanyLicense) => {
                 this.twoFactorEnabledChange(company);
+            },
+        },
+        {
+            label: 'Rediger kundenummer',
+            action: (company: ElsaCompanyLicense) => {
+                this.editExternalCustomerID(company);
             },
         }
     ];
@@ -220,6 +231,32 @@ export class CompanyList {
                         this.errorService.handle('Kan ikke slå av to-faktor pålogging for selskapet, da dette er påkrevd av lisensen.');
                     }
                 );
+            }
+        });
+    }
+
+    editExternalCustomerID(company: ElsaCompanyLicense) {
+        const options: IModalOptions = {
+            buttonLabels: {
+                accept: 'Lagre',
+                cancel: 'Avbryt'
+            },
+            header: 'Rediger kundenummer for: ' + company.CompanyName,
+            fieldLabel: 'Kundenummer',
+            fieldType: FieldType.TEXT,
+            data: {
+                Value: company.ExternalCustomerID || ''
+            }
+        };
+
+        this.modalService.open(UniEditFieldModal, options).onClose.subscribe(res => {
+            if (res !== false) {
+                company.ExternalCustomerID = res;
+                this.elsaContractService.updateCompanyLicense(company.ID, company).subscribe(() => {
+                    this.loadData();
+                }, (err) => {
+                    this.errorService.handle(err);
+                });
             }
         });
     }
