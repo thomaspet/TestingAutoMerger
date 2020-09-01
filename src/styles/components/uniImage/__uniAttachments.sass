@@ -12,6 +12,22 @@ uni-attachments
     margin-left: .1rem
     margin-bottom: 1rem
 
+    &.modal-upload
+        display: flex
+        flex-direction: column
+        box-sizing: border-box
+        cursor: pointer
+        margin: 1rem auto
+        width: 25rem
+        border-radius: 13rem
+        align-items: center
+        justify-content: center
+
+    &.drag-over
+        border: 1px dashed
+        background-color: var(--dropdown-select-background)
+        opacity: .8
+
     .material-icons
         color: var(--color-c2a)
         vertical-align: middle
@@ -24,6 +40,6 @@ uni-attachments
     input[type=file]
         // "visible" only for screen readers
         @extend %visuallyHidden
-    
+
     .tooltip
         margin-left: 1rem

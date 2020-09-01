@@ -22,10 +22,10 @@ export enum EntityForFileUpload {
 
             <article>
                 <p *ngIf="options?.message"> {{ options.message }}</p>
-                <label class="upload-input" *ngIf="!files.length">
+                <label id="upload-input-element" class="upload-input modal-upload" (dragover)="dragFile($event)" (drop)="dropFile($event)" (dragenter)="onDragEnter($event)" (dragleave)="onDragLeave($event)">
                     <i class="material-icons">cloud_upload</i>
-                    <span>Velg {{ files.length ? 'flere' : '' }} filer</span>
-                    <input type="file" (change)="uploadFile($event)" [disabled]="busy" multiple />
+                    <span>Velg {{ files.length ? 'flere' : '' }} filer eller dra og slipp her </span>
+                    <input type="file" (change)="uploadFile($event)" multiple />
                 </label>
 
                 <mat-progress-bar
@@ -99,6 +99,7 @@ export class UniFileUploadModal implements IUniModal {
     hasErrors: boolean = false;
     message: string = '';
     allFilesSelected: boolean = false;
+    counter = 0;
 
     constructor(
         private ngHttp: HttpClient,
@@ -114,8 +115,56 @@ export class UniFileUploadModal implements IUniModal {
         }
     }
 
-    public uploadFile(event) {
-        const source = event.srcElement || event.target;
+    // Get file after user drop into the modal
+    dropFile(event) {
+        event.stopPropagation();
+        event.preventDefault();
+
+        const el = document.getElementById('upload-input-element');
+        if (el) {
+            el.classList.remove('drag-over');
+        }
+
+        this.uploadFile(event, true);
+    }
+
+    onDragEnter(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.counter++;
+        const el = document.getElementById('upload-input-element');
+        if (el) {
+            el.classList.add('drag-over');
+        }
+    }
+
+    onDragLeave(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.counter--;
+
+        if (this.counter === 0) {
+            const el = document.getElementById('upload-input-element');
+            if (el) {
+                el.classList.remove('drag-over');
+            }
+        }
+    }
+
+    // Needed for drop function to work
+    dragFile(event) {
+        event.stopPropagation();
+        event.preventDefault();
+    }
+
+    public uploadFile(event, isdrop: boolean = false) {
+        let source;
+        if (isdrop) {
+            source = event.dataTransfer;
+        } else {
+            source = event.srcElement || event.target;
+        }
+
         let newFiles: any = Array.from(source.files);
         this.hasErrors = false;
         newFiles = newFiles.map(f => {f.selected = false; return f; });
@@ -142,7 +191,7 @@ export class UniFileUploadModal implements IUniModal {
             Observable.forkJoin(getRequests).subscribe((files) => {
                 this.uploadedFileIds = files.map(f => f.ID);
 
-                this.files = files;
+                this.files = this.files.concat(files);
                 if (this.files.length) {
                     setTimeout(() => {
                      this.scrollbar = new PerfectScrollbar('#file-list');
