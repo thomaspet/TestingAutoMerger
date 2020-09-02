@@ -112,6 +112,7 @@ export class TradeItemTable {
         this.companySettingsService.Get(1).subscribe(settings => {
             this.settings = settings;
             this.initTableConfig();
+
         });
 
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(
@@ -135,42 +136,52 @@ export class TradeItemTable {
     }
 
     public ngOnChanges(changes) {
-        if (changes['readonly'] && this.table) {
-            this.showTable = false;
-            setTimeout(() => {
-                this.initTableConfig();
-                this.showTable = true;
-            });
-        }
-        console.log(changes);
-        if (changes['vatDate'] && !this.settings.UseFinancialDateToCalculateVatPercent) {
-            const prev = changes['vatDate'].previousValue;
-            const curr = changes['vatDate'].currentValue;
 
-            if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+        const source = this.settings ? observableOf(this.settings) : this.companySettingsService.getCompanySettings();
+
+        source.subscribe(settings => {
+            this.settings = settings;
+            // do ngOnChanges stuff
+            
+            if (changes['readonly'] && this.table) {
+                this.showTable = false;
+                setTimeout(() => {
+                    this.initTableConfig();
+                    this.showTable = true;
+                });
+            }
+           
+            if (changes['vatDate'] && !settings.UseFinancialDateToCalculateVatPercent) {
+                this.vatDate = changes['vatDate'];
+                const prev = changes['vatDate'].previousValue;
+                const curr = changes['vatDate'].currentValue;
+
+                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+                    this.updateVatPercentsAndItems();
+                }
+            }
+
+            if (changes['deliveryDate'] && settings.UseFinancialDateToCalculateVatPercent) {
+                this.vatDate = changes['DeliveryDate'];
+                const prev = changes['deliveryDate'].previousValue;
+                const curr = changes['deliveryDate'].currentValue;
+
+                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+                    this.updateVatPercentsAndItems();
+                }
+            }
+
+            if (changes['vatTypes']) {
+                this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
                 this.updateVatPercentsAndItems();
             }
-        }
 
-        if (changes['deliveryDate'] && this.settings.UseFinancialDateToCalculateVatPercent) {
-            const prev = changes['deliveryDate'].previousValue;
-            const curr = changes['deliveryDate'].currentValue;
-
-            if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
-                this.updateVatPercentsAndItems();
+            if (changes['items'] && this.items) {
+                this.items.forEach(item => {
+                    item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
+                });
             }
-        }
-
-        if (changes['vatTypes']) {
-            this.foreignVatType = this.vatTypes.find(vt => vt.VatCode === '52');
-            this.updateVatPercentsAndItems();
-        }
-
-        if (changes['items'] && this.items) {
-            this.items.forEach(item => {
-                item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
-            });
-        }
+        });
     }
 
     public ngOnDestroy() {
@@ -193,16 +204,16 @@ export class TradeItemTable {
             // the date changes
 
             let vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
-            if (this.settings.UseFinancialDateToCalculateVatPercent) {
-                let vatDate = this.deliveryDate ? moment(this.deliveryDate) : this.vatDate;
-            }
             
+            if (this.settings.UseFinancialDateToCalculateVatPercent) {                
+                this.vatDate = this.deliveryDate ? this.deliveryDate : this.vatDate;
+            }
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
                 const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
-                    return moment(vatPercentage.ValidFrom) <= vatDate
-                        && (!vatPercentage.ValidTo || moment(vatPercentage.ValidTo) >= vatDate);
+                    return vatPercentage.ValidFrom <= this.vatDate
+                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= this.vatDate;
                 });
 
                 const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
@@ -216,6 +227,7 @@ export class TradeItemTable {
             });
 
             if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
+                
                 this.vatTypes = vatTypes;
                 this.items = this.items.map(item => {
                     if (item.VatType) {
@@ -223,7 +235,6 @@ export class TradeItemTable {
                         if (item.VatType) {
                             item.VatPercent = item.VatType.VatPercent;
                         }
-
                         this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
                         this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
                         this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
