@@ -1,4 +1,4 @@
-<assets-list-toolbar></assets-list-toolbar>
+<assets-list-toolbar (actionEvent)="onActionEvent($event)"></assets-list-toolbar>
 <section class="application">
     <p *ngIf="hasNotStartedDepreciations" class="assets-list-warning">
         <i class="material-icons ng-star-inserted"> info_outline </i>
