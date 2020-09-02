@@ -47,11 +47,6 @@ export class TravelComponent implements OnInit {
 
     toolbarConfig: IToolbarConfig = {
         title: 'Import av reiser/utlegg',
-        buttons: [{
-            label: 'Importer',
-            icon: 'sync',
-            action: () => this.travelService.ttImport()
-        }]
     };
 
     constructor(

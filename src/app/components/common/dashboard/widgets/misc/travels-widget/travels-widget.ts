@@ -1,8 +1,8 @@
 import {Component, ChangeDetectorRef, ChangeDetectionStrategy} from '@angular/core';
 import {Subscription} from 'rxjs';
-import {finalize} from 'rxjs/operators';
-import {Travel} from '@uni-entities';
-import {TravelService, ErrorService} from '@app/services/services';
+import {finalize, map} from 'rxjs/operators';
+import {Travel, TypeOfIntegration} from '@uni-entities';
+import {TravelService, ErrorService, ApiKeyService} from '@app/services/services';
 import {DashboardDataService} from '../../../dashboard-data.service';
 import PerfectScrollbar from 'perfect-scrollbar';
 
@@ -25,15 +25,48 @@ export class TravelsWidget {
         private dataService: DashboardDataService,
         private travelService: TravelService,
         private errorService: ErrorService,
+        private apiKeyService: ApiKeyService,
     ) {}
 
     ngOnInit() {
-        this.loadTravels();
+        this.checkImportAndLoadTravels();
     }
 
     ngOnDestroy() {
         this.dataSubscription?.unsubscribe();
         this.scrollbar?.destroy();
+    }
+
+    private checkImportAndLoadTravels() {
+        this.canImport()
+            .subscribe(canImport => {
+                if (canImport) {
+                    this.importAndLoadTravels();
+                } else {
+                    this.loadTravels();
+                }
+            });
+    }
+
+    private canImport() {
+        return this.apiKeyService
+            .getApiKey(TypeOfIntegration.TravelAndExpenses)
+            .pipe(
+                map(key => !!key),
+            );
+    }
+
+    private importAndLoadTravels() {
+        this.importBusy = true;
+        this.travelService.ttImport().pipe(
+            finalize(() => {
+                this.importBusy = false;
+                this.cdr.markForCheck();
+            })
+        ).subscribe(
+            () => this.loadTravels(),
+            err => this.errorService.handle(err)
+        );
     }
 
     private loadTravels() {
@@ -73,19 +106,6 @@ export class TravelsWidget {
                 this.loading = false;
                 this.cdr.markForCheck();
             }
-        );
-    }
-
-    importTravels() {
-        this.importBusy = true;
-        this.travelService.ttImport().pipe(
-            finalize(() => {
-                this.importBusy = false;
-                this.cdr.markForCheck();
-            })
-        ).subscribe(
-            () => this.loadTravels(),
-            err => this.errorService.handle(err)
         );
     }
 }
