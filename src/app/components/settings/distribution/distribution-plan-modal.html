@@ -18,7 +18,7 @@
             <span>Prioritet {{ i + 1 }}</span>
             <select [(ngModel)]="currentPlan.Elements[i].DistributionPlanElementTypeID">
                 <option *ngFor="let type of types" [value]="type.ID">
-                    {{ type.Name }}
+                    {{ type._label }}
                 </option>
             </select>
             <i class="material-icons" title="Slett prioritet" (click)="deletePriority(i)"> delete_outline </i>

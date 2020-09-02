@@ -1,6 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '../../../../../framework/uni-modal';
-import {EHFService} from '@app/services/services';
+import {EHFService, DistributionPlanService} from '@app/services/services';
+import {ElementType} from '@app/models/distribution';
 import { CustomReminder } from './reminderSending';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 
@@ -25,7 +26,7 @@ import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framewo
             <footer>
                 <button class="good" (click)="sendEmailPrint()">Send valgte til epost/utskrift</button>
                 <button *ngIf="ehfService.isInvoicePrintActivated()" class="good" (click)="sendInvoicePrint()">
-                    Send valgte til fakturaprint
+                    Send valgte til {{getInvoicePrintText()}}
                 </button>
                 <button class="warning" (click)="sendPrint()">Skriv ut valgte</button>
                 <button class="bad" (click)="close()">Avbryt</button>
@@ -43,7 +44,10 @@ export class UniReminderSendingMethodModal implements IUniModal {
     public reminders: CustomReminder[];
     public tableConfig: UniTableConfig;
 
-    constructor( public ehfService: EHFService) { }
+    constructor(
+        public ehfService: EHFService,
+        private distributionService: DistributionPlanService
+    ) { }
 
     public ngOnInit() {
         this.reminders = this.options.data.reminders;
@@ -75,6 +79,10 @@ export class UniReminderSendingMethodModal implements IUniModal {
 
     sendInvoicePrint() {
         this.onClose.emit('SendInvoicePrint');
+    }
+
+    getInvoicePrintText() {
+        return this.distributionService.getElementTypeText(ElementType.Invoiceprint);
     }
 
     close() {
