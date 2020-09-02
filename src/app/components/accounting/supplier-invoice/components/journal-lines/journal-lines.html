@@ -38,7 +38,7 @@
         </section>
 
         <ng-container *ngFor="let line of lines; let idx = index">
-            <section *ngIf="!line.Deleted" class="line">
+            <section *ngIf="!line.Deleted" class="line" id="lines-container">
                 <section *ngIf="idx > 0" class="line-header">
                     <span>Konteringslinje {{idx + 1}}</span>
                     <button (click)="removeLine(idx)" class="tertiary c2a">
@@ -63,7 +63,7 @@
 
                     <label class="uni-label label-above">
                         <span>Beløp</span>
-                        <input [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" type="number">
+                        <input class="number-input-fields" [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" (blur)="blurHandler($event)" type="text">
                     </label>
 
                     <label class="uni-label label-above">

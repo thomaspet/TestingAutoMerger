@@ -415,7 +415,7 @@ export class SupplierInvoiceStore {
 
     prepExpenseForSave(date?) {
         const invoice = this.invoice$.value;
-        const total = this.journalEntryLines$.value.map(l => l.AmountCurrency).reduce((a, b) => a + b);
+        const total = this.journalEntryLines$.value.map((l: any) => parseFloat(l.AmountCurrency)).reduce((a, b) => a + b);
 
         invoice.TaxInclusiveAmountCurrency = total;
         invoice.InvoiceOriginType = this.currentMode + 1;
