@@ -22,13 +22,34 @@ export class DistributionPlanService extends BizHttp<DistributionPlan> {
         this.DefaultOrderBy = null;
     }
 
+    public getAllPlans() {
+        return this.GetAll('', ['Elements', 'Elements.ElementType'])
+            .map(distributions => {
+                distributions.forEach(distribution => {
+                    if (distribution && distribution.Elements && distribution.Elements.length > 0) {
+                        distribution.Elements.forEach(element => {
+                            element.ElementType._label = this.getElementTypeText(element.ElementType.ID); 
+                        });
+                    }
+                });
+
+                return distributions;
+            })
+    }
+
     public getElementTypes() {
         return this.http
             .asGET()
             .usingStatisticsDomain()
             .withEndPoint('?model=DistributionPlanElementType&select=ID as ID,Name as Name,StatusCode as StausCode&wrap=false')
             .send()
-            .map(res => res.body);
+            .map(res => res.body)
+            .map(elementTypes => { // Add frontend labels
+                elementTypes.forEach(elementType => {
+                    elementType._label = this.getElementTypeText(elementType.ID);                    
+                });
+                return elementTypes;
+            })
     }
 
     public saveDistributionPlan(plan) {

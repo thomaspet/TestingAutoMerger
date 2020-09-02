@@ -20,7 +20,7 @@
             <div style="overflow: auto">
                 <ul class="distribution-elements-stepper" *ngIf="type.defaultPlan">
                     <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
-                        <li class="list-item customer-view"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                        <li class="list-item customer-view"> {{ elem.Priority }}. {{ elem.ElementType._label }} </li>
                         <li class="divider customer-view" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
                     </ng-container>
                     <li class="list-item customer-view" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>

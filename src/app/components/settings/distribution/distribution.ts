@@ -133,7 +133,7 @@ export class UniDistributionSettings {
         this.distributionPlanService.invalidateCache();
 
         Observable.forkJoin([
-            this.distributionPlanService.GetAll('', ['Elements', 'Elements.ElementType']),
+            this.distributionPlanService.getAllPlans(),
             this.distributionPlanService.getElementTypes(),
             this.companySettingsService.Get(1, ['Distributions'])
         ]).subscribe(([plans, types, companySettings]) => {
