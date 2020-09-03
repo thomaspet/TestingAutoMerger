@@ -6,7 +6,7 @@
             <h2>{{group.header}}</h2>
             <section class="widget-list">
                 <mat-checkbox *ngFor="let widget of group.widgets" [(ngModel)]="widget['_active']">
-                    {{widget.label}}
+                    {{widget.label | translate}}
                 </mat-checkbox>
             </section>
         </section>

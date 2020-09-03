@@ -17,6 +17,8 @@ import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-custome
 import {BalanceWidget} from './charts/balance-widget/balance-widget';
 import {PaymentsWidget} from './charts/payments-widget/payments-widget';
 import {TravelsWidget} from './misc/travels-widget/travels-widget';
+import { RecentEmployeesComponent } from './misc/recent-employees/recent-employees.component';
+import { RecentPayrollRunsComponent } from './misc/recent-payroll-runs/recent-payroll-runs.component';
 import { EmployeesWidget } from './misc/employees/employees-widget';
 
 export * from './widget';
@@ -42,6 +44,8 @@ export const WIDGET_COMPONENTS = [
     BalanceWidget,
     PaymentsWidget,
     TravelsWidget,
+    RecentEmployeesComponent,
+    RecentPayrollRunsComponent,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -170,6 +174,24 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         category: WidgetCategory.CHART,
         module: WidgetModule.SALARY,
         component: EmploymentsPerJobCodeWidget,
+        routePermissions: ['ui_salary'],
+    },
+    {
+        name: 'RECENT_EMPLOYEES',
+        label: 'Siste ansatte',
+        size: 'large',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.SALARY,
+        component: RecentEmployeesComponent,
+        routePermissions: ['ui_salary'],
+    },
+    {
+        name: 'RECENT_PAYROLL_RUNS',
+        label: 'DASHBOARD.RECENT_PAYROLL_RUNS.HEADER',
+        size: 'large',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.SALARY,
+        component: RecentPayrollRunsComponent,
         routePermissions: ['ui_salary'],
     },
     {

@@ -1,0 +1,27 @@
+<header class="header">
+    <h1>{{'DASHBOARD.RECENT_EMPLOYEES.HEADER' | translate}}</h1>
+</header>
+<article class="content">
+    <widget-empty-state *ngIf="ready && !model?.length">
+        {{'DASHBOARD.RECENT_EMPLOYEES.EMPTY' | translate}}
+    </widget-empty-state>
+    <simple-table *ngIf="ready && model?.length" class="selectable">
+        <thead>
+            <tr>
+                <th>{{'DASHBOARD.RECENT_EMPLOYEES.EMPLOYEE_COLUMN' | translate}}</th>
+                <th>{{'DASHBOARD.RECENT_EMPLOYEES.EMAIL_COLUMN' | translate}}</th>
+                <th>{{'DASHBOARD.RECENT_EMPLOYEES.BIRTH_DATE_COLUMN' | translate}}</th>
+                <th>{{'DASHBOARD.RECENT_EMPLOYEES.SUB_ENTITY_COLUMN' | translate}}</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr *ngFor="let item of model" (click)="goToEmployee(item)">
+                <td>{{item.number}} - {{item.name}}</td>
+                <td>{{item.eMail}}</td>
+                <td>{{item.birthDate}}</td>
+                <td>{{item.subEntityName}}</td>
+            </tr>
+        </tbody>
+    </simple-table>
+</article>

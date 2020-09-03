@@ -128,6 +128,11 @@ export const NO = {
             'ALL': 'Alle',
             'MINE': 'Mine',
             'DRAFT': 'Kladd'
+        },
+        PAYROLL_RUN: {
+            'CREATED': 'Opprettet',
+            'CALCULATED': 'Avregnet',
+            'BOOKED': 'Bokført',
         }
     },
 
@@ -305,5 +310,23 @@ export const NO = {
         'BANK_SETTINGS': 'Bankinnstillinger',
         'ASSETS': 'Eiendeler',
         'OPENING_BALANCE': 'Åpningsbalanse'
-    }
+    },
+
+    DASHBOARD: {
+        RECENT_PAYROLL_RUNS: {
+            'HEADER': 'Siste lønnsavregninger',
+            'EMPTY': 'Det ser ikke ut som du har noen lønnsavregninger',
+            'PAYROLL_COLUMN': 'Lønnsavregning',
+            'STATUS_COLUMN': 'Status',
+            'PAY_DATE_COLUMN': 'Utbetalingsdato',
+        },
+        RECENT_EMPLOYEES: {
+            'HEADER': 'Siste ansatte',
+            'EMPTY': 'Det ser ikke ut som du har noen ansatte',
+            'EMPLOYEE_COLUMN': 'Ansatt',
+            'EMAIL_COLUMN': 'E-post',
+            'BIRTH_DATE_COLUMN': 'Fødselsdato',
+            'SUB_ENTITY_COLUMN': 'Virksomhet',
+        }
+    },
 };
