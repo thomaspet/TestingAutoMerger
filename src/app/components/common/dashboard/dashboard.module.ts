@@ -11,6 +11,8 @@ import {WidgetSelectorDialog} from './widget-selector-dialog/widget-selector-dia
 import {DashboardDataService} from './dashboard-data.service';
 import {WidgetEmptyState} from './widgets/widget-empty-state';
 import {LiquidityPaymentModal} from './widgets/charts/liquidity/payment-modal/liquidity-payment-modal';
+import { RecentEmployeesService } from './widgets/misc/recent-employees/recent-employees.service';
+import { RecentPayrollRunsService } from './widgets/misc/recent-payroll-runs/recent-payroll-runs.service';
 import {EmployeeWidgetService} from './widgets/misc/employees/shared/services/employee-widget.service';
 
 @NgModule({
@@ -29,7 +31,12 @@ import {EmployeeWidgetService} from './widgets/misc/employees/shared/services/em
         LiquidityPaymentModal,
         ...WIDGET_COMPONENTS,
     ],
-    providers: [DashboardDataService, EmployeeWidgetService],
+    providers: [
+        DashboardDataService,
+        RecentEmployeesService,
+        RecentPayrollRunsService,
+        EmployeeWidgetService,
+    ],
     exports: [DashboardNew]
 })
 export class DashboardModule {}

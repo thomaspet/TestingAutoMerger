@@ -91,5 +91,13 @@ export const TRANSLATION_OVERRIDES = {
         'BANK_PRODUCTS': 'Bankprodukter',
         'PURCHASES': 'Produktkjøp',
         'DIMENSION': 'Prosjekt og avdeling'
-    }
+    },
+
+    DASHBOARD: {
+        RECENT_PAYROLL_RUNS: {
+            'HEADER': 'Siste lønnskjøringer',
+            'EMPTY': 'Det ser ikke ut som du har noen lønnskjøringer',
+            'PAYROLL_COLUMN': 'Lønnskjøring',
+        }
+    },
 };

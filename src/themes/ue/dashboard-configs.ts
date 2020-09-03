@@ -44,6 +44,7 @@ export const DASHBOARD_CONFIGS = {
             'EMPLOYEES',
             'EMPLOYMENTS_PER_JOBCODE',
             'TRAVELS',
+            'RECENT_PAYROLL_RUNS',
         ]
     },
     timetracking: {
