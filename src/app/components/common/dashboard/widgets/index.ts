@@ -11,13 +11,13 @@ import {InvoicedWidget} from './charts/invoiced/invoiced';
 import {BrunoAccountingServicesWidget} from './misc/bruno-accounting-services/bruno-accounting-services';
 import {THEMES, theme} from 'src/themes/theme';
 import {LiquidityWidget} from './charts/liquidity/liquidity';
-import {EmployeesWidget} from './misc/employees/employees-widget';
 import {EmploymentsPerJobCodeWidget} from './charts/employments-per-job-code/employments-per-job-code';
 import {TopTenCustomersWidget} from './misc/top-ten-customers/top-ten-customers';
 import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-customer';
 import {BalanceWidget} from './charts/balance-widget/balance-widget';
 import {PaymentsWidget} from './charts/payments-widget/payments-widget';
 import {TravelsWidget} from './misc/travels-widget/travels-widget';
+import { EmployeesWidget } from './misc/employees/employees-widget';
 
 export * from './widget';
 
