@@ -50,7 +50,9 @@ export class UniCompanyAccountingView {
         'AgioLossAccount',
         'SupplierAccount',
         'CustomerAccount',
-        'AcceptableDelta4CustomerPaymentAccount'
+        'AcceptableDelta4CustomerPaymentAccount',
+        'APOutgoing',
+        'APIncomming'
     ];
     isDirty: boolean = false;
     periods: any[] = [];

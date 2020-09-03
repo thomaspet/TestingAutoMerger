@@ -2,43 +2,36 @@
 
 <section class="distribution-container container-for-spinner">
 
+    <uni-tabs
+        [tabs]="tabs"
+        [(activeIndex)]="activeIndex"
+        (tabClick)="updateTabAndUrl()">
+    </uni-tabs>
+
     <section *ngIf="busy" class="modal-spinner">
         <mat-spinner class="c2a"></mat-spinner>
     </section>
 
-    <section class="distribution-type-container" *ngFor="let type of entityTypes">
-        <div class="content-container">
-            <section class="entity-name-container">
-                <span (click)="type.showPlansView = !type.showPlansView" title="Se alle planer for {{ type.label }}"> {{ type.label }} </span>
-            </section>
+    <section style="background-color: white; padding: 2rem;">
+        <header class="distribution-header-section">
+            <span class="title"> Utsendelse </span>
+            <span class="auto-slider-title" *ngIf="type?.value === 'Models.Sales.CustomerInvoice'"> Slå på automatisk bruk av utsendelsesplan for faktura </span>
+            <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" ></mat-slide-toggle>
+        </header>
 
-            <section class="entity-priority-container">
-                <span *ngIf="!type.showPlansView && type.defaultPlan">
-                    {{ 'Standardplan: ' + type.defaultPlan.Name }}
+        <section>
+            <section *ngIf="!hideDistributionInfo" class="alert info">
+                <i class="material-icons">info</i>
+                <span>
+                    Her kan du lage en plan for hvordan systemet skal sende ut faktura. I oppsettet velger du utsendelsesmetoder som du vil ha som førstevalg, andrevalg, opp til femtevalg. Kan ikke kunden ta imot ditt oppsatte førstevalg vil systemet prøve å sende på andrevalget osv.
+                    <a (click)="openLearnModal()">Lær mer om oppsett av utsendelsesplaner her</a>
                 </span>
-                <a *ngIf="!type.showPlansView && !type.defaultPlan" style="font-size: 13px;" (click)="openPlanModal(null, type)"> Opprett ny utsendelsesplan </a>
-                <ul class="distribution-elements-stepper" *ngIf="!type.showPlansView && type.defaultPlan">
-                    <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
-                        <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType._label }} </li>
-                        <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
-                    </ng-container>
-                    <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
-                </ul>
+                <i class="material-icons close-icon" (click)="hideInfo()">close</i>
             </section>
+        </section>
 
-            <section class="entity-functionality-container settings-view">
-                <span *ngIf="type.value === 'Models.Sales.CustomerInvoice'"> Automatisk utsendelse </span>
-
-                <mat-slide-toggle [(ngModel)]="active" (change)="turnOnOffAutomaticDistribution()" style="margin-right: 3rem;" [labelPosition]="'before'" *ngIf="type.value === 'Models.Sales.CustomerInvoice'" > </mat-slide-toggle>
-
-                <i class="material-icons" title="Se alle planer" (click)="type.showPlansView = !type.showPlansView">
-                    {{ type.showPlansView ? 'keyboard_arrow_right' : 'keyboard_arrow_down' }}
-                </i>
-
-            </section>
-        </div>
-        <div class="plans-info-container" *ngIf="type.showPlansView">
-            <table>
+        <div class="plans-info-container" *ngIf="type?.plans?.length">
+            <simple-table>
                 <thead>
                     <tr>
                         <th> Navn </th>
@@ -50,7 +43,7 @@
 
                 <tbody>
                     <tr *ngFor="let plan of type.plans">
-                        <td> {{ plan.Name }} </td>
+                        <td class="plan-name"> {{ plan.Name }} </td>
                         <td>
                             <ul class="distribution-elements-stepper" style="margin: 0;">
                                 <ng-container *ngFor="let elem of plan.Elements; let i = index;">
@@ -59,7 +52,7 @@
                                 </ng-container>
                             </ul>
                         </td>
-                        <td> <a (click)="onActionClick('customer', plan, type)"> {{ plan._count }} kunder </a> </td>
+                        <td> <a (click)="onActionClick('customer', plan, type)"> {{ plan._count || 0 }} kunder </a> </td>
                         <td>
                             <span *ngIf="type.defaultPlan && type.defaultPlan.ID === plan.ID"> Firmastandard </span>
                             <i #toggle class="material-icons">more_horiz</i>
@@ -77,11 +70,6 @@
                                         Slett
                                     </section>
 
-                                    <section class="dropdown-menu-item" (click)="onActionClick('remove', plan, type)"
-                                        *ngIf="type.defaultPlan && plan.ID === type.defaultPlan.ID">
-                                        Fjern standard
-                                    </section>
-
                                     <section class="dropdown-menu-item" (click)="onActionClick('standard', plan, type)"
                                         *ngIf="!type.defaultPlan || plan.ID !== type.defaultPlan.ID">
                                         Sett som standard
@@ -92,10 +80,19 @@
                     </tr>
                 </tbody>
 
-            </table>
-            <button class="add-button tertiary c2a" (click)="openPlanModal(null, type)">
-                + Ny utsendelsesplan
+            </simple-table>
+
+            <button class="add-button secondary c2a" (click)="openPlanModal(null, type)">
+                Opprett ny utsendelsesplan
             </button>
         </div>
+        <section *ngIf="!type?.plans?.length && loaded" class="no-plans-container">
+            <img [src]="defaultImageUrl" alt="Illustration indicating missing widget data" />
+
+            <section>
+                <span> Du har ikke satt opp noen utsendelsesplan </span>
+                <button class="c2a" (click)="openPlanModal(null, type)"> Opprett ny utsendelsesplan </button>
+            </section>
+        </section>
     </section>
 </section>

@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal" style="width: 35rem">
+<section role="dialog" class="uni-modal" style="width: 42rem">
     <header>{{ options.header }}</header>
 
     <article class="distribution-plan-modal-container">
@@ -7,7 +7,7 @@
         </section>
 
         <label class="uni-label name-input-label">
-            <span>Navn</span>
+            <span>Navn på utsendelsesplan</span>
             <input type="text" [(ngModel)]="currentPlan.Name" name="Name" />
             <span class="standard-span-box" *ngIf="currentType.defaultPlan && currentPlan && currentType.defaultPlan.ID === currentPlan.ID">
                 Standard
@@ -15,31 +15,46 @@
         </label>
 
         <label class="uni-label label-left step" *ngFor="let elem of currentPlan.Elements; let i = index;">
-            <span>Prioritet {{ i + 1 }}</span>
-            <select [(ngModel)]="currentPlan.Elements[i].DistributionPlanElementTypeID">
-                <option *ngFor="let type of types" [value]="type.ID">
-                    {{ type._label }}
-                </option>
-            </select>
-            <i class="material-icons" title="Slett prioritet" (click)="deletePriority(i)"> delete_outline </i>
+            <span class="label-text">Prioritet {{ i + 1 }}</span>
+
+            <section class="dropdown-section" #toggle>
+                <span>
+                    {{ currentPlan.Elements[i].ElementType?.Name }}
+                </span>
+
+                <i class="material-icons">expand_more</i>
+            </section>
+
+            <dropdown-menu [trigger]="toggle">
+                <ng-template>
+                    <section *ngFor="let type of types" class="dropdown-menu-item dropdown-menu-item-with-button" [class.unavailable]="type.StatusCode !== 30001 && type.StatusCode !== 30002" (click)="onTypeChange(type, i)">
+                       <span class="name-span"> {{ type._label }} </span>
+                       <button class="secondary c2a" *ngIf="type.StatusCode !== 30001" (click)="buyType(type, i)" [title]="getTitleText(type.StatusCode)"> {{ getButtonText(type.StatusCode) }} </button>
+                       <span class="good-span" *ngIf="type.StatusCode === 30001"> Klar for bruk </span>
+                       <!-- <i class="material-icons" *ngIf="type.StatusCode === 30001">check_circle_outline</i> -->
+                    </section>
+                </ng-template>
+            </dropdown-menu>
+
+            <i class="material-icons d-icon" title="Slett prioritet" (click)="deletePriority(i)"> remove_circle_outline </i>
         </label>
 
-        <span *ngIf="!currentPlan.Elements.length" class="empty-priority-messages">
-            En plan for utsendelse av {{ currentType.label.toLowerCase() }} uten prioriterte utsendelsesmetoder,
-            vil forhindre utsendelse om satt til aktiv på firmainnstilliger eller kunde.
-        </span>
+        <section *ngIf="!currentPlan.Elements.length && !busy" class="alert warn">
+            <i class="material-icons">error</i>
+            <span> En plan for utsendelse av {{ currentType.label.toLowerCase() }} uten prioriterte utsendelsesmetoder, vil forhindre utsendelse om satt til aktiv på firmainnstilliger eller kunde.  </span>
+        </section>
 
-        <button class="add-priority tertiary c2a" (click)="addPriority()">
-            + Ny prioritet
+        <button class="add-priority tertiary c2a" (click)="addEmptyPriority()">
+            + Legg til prioritet
         </button>
 
-        <mat-checkbox [(ngModel)]="setAsCompanyDefault">
-            Firmastandard
+        <mat-checkbox [(ngModel)]="setAsCompanyDefault" *ngIf="!isAlreadyDefault">
+            Sett som firmastandard
         </mat-checkbox>
     </article>
 
-    <footer>
+    <footer class="center">
         <button class="secondary" (click)="close()">Lukk</button>
-        <button class="c2a" (click)="saveOrCreate()">Lagre</button>
+        <button class="good" (click)="saveOrCreate()">Lagre</button>
     </footer>
 </section>

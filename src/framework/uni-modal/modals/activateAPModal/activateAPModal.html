@@ -1,6 +1,10 @@
 <section role="dialog" class="uni-modal uni-redesign">
     <header>{{options.header || 'EHF aktivering'}}</header>
     <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
         <uni-form
             [config]="formConfig$"
             [fields]="formFields$"

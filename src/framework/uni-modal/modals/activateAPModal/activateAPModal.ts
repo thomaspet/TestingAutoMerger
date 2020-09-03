@@ -39,6 +39,7 @@ export class UniActivateAPModal implements IUniModal {
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
     public termsAgreed: boolean;
+    busy: boolean = false;
 
     constructor(
         private ehfService: EHFService,
@@ -126,6 +127,7 @@ export class UniActivateAPModal implements IUniModal {
 
     public activate() {
         const model = this.formModel$.getValue();
+        this.busy = true;
 
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
@@ -141,7 +143,7 @@ export class UniActivateAPModal implements IUniModal {
                                     'Aktivering på vent',
                                     ToastType.warn, 15,
                                     `Org.nr. ${model.orgnumber} er allerede aktivert for mottak av faktura hos ${serviceMetadata.ServiceName} og dermed kan kun sending aktiveres. For å kunne aktivere mottak må dere først få deaktivert mottak i ELMA hos tjenesten som bruker aksesspunktet ${serviceMetadata.ServiceName}. Deretter forsøk igjen eller ta kontakt med support.`
-                                );   
+                                );
                             },
                             err => this.errorService.handle(err)
                         );
@@ -153,12 +155,19 @@ export class UniActivateAPModal implements IUniModal {
                         );
                     }
 
+                    this.busy = false;
                     this.close(<any> status);
                 },
-                err => this.errorService.handle(err)
+                err => {
+                    this.busy = false;
+                    this.errorService.handle(err);
+                }
             );
         },
-        err => this.errorService.handle(err));
+        err => {
+            this.busy = false;
+            this.errorService.handle(err);
+        });
     }
 
     public cancelPurchase() {

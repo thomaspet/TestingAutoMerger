@@ -21,6 +21,11 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
         <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Aktiver Efaktura'}}</header>
             <article>
+
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
+
                 <p *ngIf="!isMissingData">
                    Opplysningene under vil oversendes Nets for aktivering av Efaktura. Vennligst se over at
                    disse opplysningene er riktige før du fortsetter. Eventuelle endringer gjøres under
@@ -49,7 +54,10 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
             </article>
 
             <footer>
-                <button class="warning" (click)="confirmTerms()">
+                <button class="secondary bad pull-left" (click)="close()">
+                    Avbryt
+                </button>
+                <button class="secondary c2a" (click)="confirmTerms()">
                     Betingelser
                 </button>
 
@@ -57,10 +65,6 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
                     title="Betingelser må aksepteres før du kan aktivere Efaktura"
                     [disabled]="!termsAgreed || isMissingData">
                     Aktiver Efaktura
-                </button>
-
-                <button class="bad" (click)="close()">
-                    Avbryt
                 </button>
             </footer>
         </section>
@@ -80,9 +84,9 @@ export class UniActivateEInvoiceModal implements IUniModal {
     public formModel$: BehaviorSubject<any> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    public termsAgreed: boolean;
-
-    public isMissingData: boolean;
+    termsAgreed: boolean;
+    isMissingData: boolean;
+    busy: boolean = false;
 
     constructor(
         private agreementService: AgreementService,
@@ -95,7 +99,6 @@ export class UniActivateEInvoiceModal implements IUniModal {
 
     public ngOnInit() {
         this.formFields$.next(this.getFormFields());
-        this.extendFormConfig();
         this.initActivationModel();
 
         this.options.cancelValue = ActivationEnum.NOT_ACTIVATED;
@@ -192,6 +195,7 @@ export class UniActivateEInvoiceModal implements IUniModal {
     }
 
     public activate() {
+        this.busy = true;
         const model = this.formModel$.getValue();
 
         // activate einvoice using action - this will update companysettings and trigger jobserver activation job
@@ -206,17 +210,15 @@ export class UniActivateEInvoiceModal implements IUniModal {
 
                 this.close(<any> status);
             },
-            err => this.errorService.handle(err)
+            err => {
+                this.busy = false;
+                this.errorService.handle(err);
+            }
         );
     }
 
     public close(activationCode = ActivationEnum.NOT_ACTIVATED) {
         this.onClose.emit(activationCode);
-    }
-
-    private extendFormConfig() {
-        const fields = this.formFields$.getValue();
-
     }
 
     private getFormFields(): UniFieldLayout[] {
