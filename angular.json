@@ -486,6 +486,110 @@
                   "src/themes/ext01"
                 ]
               }
+            },
+            "ext03-poc01-serve": {
+              "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext03-poc01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext03-poc01.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext03-poc01"
+                ]
+              }
+            },
+            "ext03-poc02-serve": {
+              "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.ext03-poc01.ts"
+                },
+                {
+                  "replace": "src/themes/favicon.ico",
+                  "with": "src/themes/favicon.ext01.ico"
+                },
+                {
+                  "replace": "src/themes/logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/navbar_logo.svg",
+                  "with": "src/themes/ext03-poc02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/theme.ts",
+                  "with": "src/themes/theme.ext03-poc02.ts"
+                },
+                {
+                  "replace": "src/app/components/layout/navbar/navbar-links.ts",
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
+                }
+              ],
+              "stylePreprocessorOptions": {
+                "includePaths": [
+                  "src/themes/ext03-poc02"
+                ]
+              }
             },"softrig-dev": {
               "aot": true,
               "optimization": true,
@@ -547,28 +651,28 @@
                 },
                 {
                   "replace": "src/themes/favicon.ico",
-                  "with": "src/themes/favicon.softrig.ico"
+                  "with": "src/themes/favicon.ext01.ico"
                 },
                 {
                   "replace": "src/themes/logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
                   "replace": "src/themes/navbar_logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "with": "src/themes/ext03-poc01/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
-                  "with": "src/themes/theme.softrig.ts"
+                  "with": "src/themes/theme.ext03-poc01.ts"
                 },
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
                 "includePaths": [
-                  "src/themes/softrig"
+                  "src/themes/ext03-poc01"
                 ]
               }
             },
@@ -590,28 +694,28 @@
                 },
                 {
                   "replace": "src/themes/favicon.ico",
-                  "with": "src/themes/favicon.softrig.ico"
+                  "with": "src/themes/favicon.ext01.ico"
                 },
                 {
                   "replace": "src/themes/logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
                   "replace": "src/themes/navbar_logo.svg",
-                  "with": "src/themes/softrig/logo.svg"
+                  "with": "src/themes/ext03-poc02/logo.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
-                  "with": "src/themes/theme.softrig.ts"
+                  "with": "src/themes/theme.ext03-poc02.ts"
                 },
                 {
                   "replace": "src/app/components/layout/navbar/navbar-links.ts",
-                  "with": "src/app/components/layout/navbar/navbar-links.ts"
+                  "with": "src/app/components/layout/navbar/navbar-links.ext01.ts"
                 }
               ],
               "stylePreprocessorOptions": {
                 "includePaths": [
-                  "src/themes/softrig"
+                  "src/themes/ext03-poc02"
                 ]
               }
             },
@@ -1055,6 +1159,12 @@
             "ext02-rc-serve": {
               "browserTarget": "economy-frontend:build:ext02-rc-serve"
             },
+            "ext03-poc01-serve": {
+              "browserTarget": "economy-frontend:build:ext03-poc01-serve"
+            },
+            "ext03-poc02-serve": {
+              "browserTarget": "economy-frontend:build:ext03-poc02-serve"
+            },
             "local": {
               "browserTarget": "economy-frontend:build:local"
             },
@@ -1096,7 +1206,7 @@
             ],
             "assets": [
               "src/assets",
-              "src/favicon.png",
+              "src/favicon.svg",
               "src/robots.txt",
               "src/security.txt"
             ]
