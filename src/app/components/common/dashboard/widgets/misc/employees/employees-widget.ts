@@ -1,8 +1,10 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostBinding} from '@angular/core';
-import {DashboardDataService} from '../../../dashboard-data.service';
-import {catchError, map} from 'rxjs/operators';
-import {of, forkJoin} from 'rxjs';
-import {theme} from 'src/themes/theme';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {forkJoin} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
+import { EmployeeWidgetService } from './shared/services/employee-widget.service';
+import { Router } from '@angular/router';
+import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { StandardVacationPayModalComponent } from '@app/components/common/modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
 
 @Component({
     selector: 'employees-widget',
@@ -15,22 +17,29 @@ export class EmployeesWidget {
     hasData = false;
 
     colors = [theme.widgets.primary, theme.widgets.secondary];
-    chartConfig;
 
+    isBruno: boolean = theme.theme === THEMES.EXT02;
     activeEmployees: number;
     femaleEmployees: number;
     maleEmployees: number;
     startDateThisYear: number;
     endDateThisYear: number;
     fullTimeEquivalents: number;
+    isFirstTimeUser: boolean;
 
     constructor(
         private cdr: ChangeDetectorRef,
-        private dataService: DashboardDataService,
+        private widgetService: EmployeeWidgetService,
+        private router: Router,
+        private modalService: UniModalService,
     ) {}
 
     ngOnInit() {
-        this.getEmployeeCounts().subscribe(res => {
+        this.widgetService
+            .hasNoEmployees()
+            .subscribe(noEmployees => this.isFirstTimeUser = noEmployees);
+
+        this.widgetService.getEmployeeCounts().subscribe(res => {
             const counts = res && res[0] || {};
             if (counts.employeeCount) {
                 this.hasData = true;
@@ -40,11 +49,9 @@ export class EmployeesWidget {
                 this.maleEmployees = counts.male || 0;
                 this.fullTimeEquivalents = Math.round((counts.fullTimeEquivalents || 0));
 
-                forkJoin([this.getStartDateThisYear(), this.getEndDateThisYear()]).subscribe(([start, end]) => {
+                forkJoin([this.widgetService.getStartDateThisYear(), this.widgetService.getEndDateThisYear()]).subscribe(([start, end]) => {
                     this.startDateThisYear = start || 0;
                     this.endDateThisYear = end || 0;
-
-                    this.chartConfig = this.getChartConfig();
                     this.loading = false;
                     this.cdr.markForCheck();
                 });
@@ -56,80 +63,12 @@ export class EmployeesWidget {
         });
     }
 
-    private getStartDateThisYear() {
-        return this.dataService.get(
-            '/api/statistics?model=Employment&select=min(StartDate),employeeID&having=year(min(StartDate)) eq activeyear()&wrap=false'
-        ).pipe(
-            catchError(err => {
-                console.error(err);
-                return of([]);
-            }),
-            map(employments => employments?.length)
-        );
-    }
-
-    private getEndDateThisYear() {
-        return this.dataService.get(
-            '/api/statistics?model=Employment&select=max(EndDate),employeeID,sum(casewhen(setornull(EndDate),1,0))&having=year(max(EndDate)) eq activeyear() and sum(casewhen(setornull(EndDate),1,0)) le 0&wrap=false'
-        ).pipe(
-            catchError(err => {
-                console.error(err);
-                return of(null);
-            }),
-            map(employments => employments?.length)
-        );
-    }
-
-    private getEmployeeCounts() {
-        const select = `count(ID) as employeeCount,divide(sum(WorkPercent),100) as fullTimeEquivalents,sum(casewhen(Employee.Sex eq 1,1,0)) as female,sum(casewhen(Employee.Sex eq 2,1,0)) as male`;
-        const filter = `StartDate le getdate() and (setornull(EndDate) or EndDate ge getdate() )`;
-
-        return this.dataService.get(`/api/statistics?model=Employment&expand=Employee&select=${select}&filter=${filter}&wrap=false`).pipe(
-            catchError(err => {
-                console.error(err);
-                return of(null);
-            })
-        );
-    }
-
-    private getChartConfig() {
-        return {
-            type: 'pie',
-            data: {
-                labels: ['Kvinner', 'Menn'],
-                datasets: [{
-                    data: [this.femaleEmployees, this.maleEmployees],
-                    backgroundColor: this.colors,
-                    borderColor: '#fff',
-                    hoverBorderColor: '#fff'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutoutPercentage: 72,
-                legend: {display: false},
-                tooltips: {enabled: false},
-                elements: {arc: {borderWidth: 8}},
-                animation: {animateScale: true},
-                plugins: {
-                    doughnutlabel: {
-                        labels: [
-                            {
-                                text: this.fullTimeEquivalents,
-                                color: '#2b2b2b',
-                                font: {size: '17', weight: '500'}
-                            },
-                            {
-                                text: 'årsverk',
-                                color: '#2b2b2b',
-                                font: {size: '15', weight: '400'}
-                            }
-                        ]
-                    }
-                },
+    openStandardVacationPayModal(): void {
+        this.modalService.open(StandardVacationPayModalComponent).onClose.subscribe((x: ConfirmActions) => {
+            if (x === ConfirmActions.ACCEPT) {
+                this.router.navigateByUrl('/salary/employees');
             }
-        };
+        });
     }
 
 }
