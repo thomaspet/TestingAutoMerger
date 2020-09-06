@@ -4,7 +4,7 @@ import {tap} from 'rxjs/operators';
 import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry} from '@app/services/services';
-import {BankAccount, BankStatementRule} from '@uni-entities';
+import {BankAccount, BankStatementRule, ValidationLevel} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IVatType} from '@uni-framework/interfaces/interfaces';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -15,6 +15,7 @@ import {ImageModal} from '@app/components/common/modals/ImageModal';
 import {of, Observable} from 'rxjs';
 import {UnsavedAttachmentsModal} from './unsaved-journal-modal/unsaved-attachments-modal';
 import {theme, THEMES} from 'src/themes/theme';
+import { ValidationMessage } from '@app/models/validationResult';
 
 @Component({
     selector: 'bank-statement-journal-modal',
@@ -33,6 +34,7 @@ export class BankStatementJournalModal implements IUniModal {
     data = [];
     cachedQuery = {};
     settings = { journalAsDraft: false };
+    errorMessages: ValidationMessage[] = [];
 
     matchEntries: IMatchEntry[];
     bankStatementRules: BankStatementRule[];
@@ -159,14 +161,17 @@ export class BankStatementJournalModal implements IUniModal {
 
     public onRowDeleted(event: any) {
         this.session.recalc();
+        this.ValidateTableData();
     }
 
     public onEditChange(event) {
         if (event.field && event.rowModel && event.newValue) {
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
+            this.ValidateTableData();
             return event.rowModel;
         } else if (event.field) {
             this.session.items[event.originalIndex][event.field] = event.newValue;
+            this.ValidateTableData();
             return;
         }
     }
@@ -280,6 +285,51 @@ export class BankStatementJournalModal implements IUniModal {
         return col;
     }
 
+    private ValidateTableData() {        
+        this.errorMessages = [];
+
+        // Check if any accounts are locked
+        const rowsWithInvalidAccounts = this.session?.items.filter(x => (x.Debet && x.Debet.Locked) || (x.Credit && x.Credit.Locked));
+        if (rowsWithInvalidAccounts.length > 0) {
+            rowsWithInvalidAccounts.forEach(row => {
+                let errorMsg = 'Kan ikke avstemme mot kontonr ';
+                if (row.Debet && row.Debet.Locked) {
+                    errorMsg += row.Debet.AccountNumber;
+                    errorMsg += ', kontoen er sperret';
+                } else if (row.Credit && row.Credit.Locked) {
+                    errorMsg += row.Credit.AccountNumber;
+                    errorMsg += ', kontoen er sperret';
+                }
+
+                // only notify once about each locked account
+                if (!this.errorMessages.find(x => x.Message === errorMsg)) {
+                    const message = new ValidationMessage();
+                    message.Level = ValidationLevel.Error;
+                    message.Message = errorMsg;
+                    this.errorMessages.push(message);
+                }
+            });
+        }
+    }
+
+    public getValidationLevelCss(validationLevel) {
+        if (validationLevel === ValidationLevel.Error) {
+            return 'error';
+        } else if (validationLevel === ValidationLevel.Warning) {
+            return 'warn';
+        }
+        return 'good';
+    }
+
+    public getValidationIcon(validationLevel: number): string {
+        const type = this.getValidationLevelCss(validationLevel);
+        if (type === 'good') {
+            return 'check_circle';
+        } else {
+            return type === 'error' ? 'error' : 'warning';
+        }
+    }
+
     private filterInputAllowPercent(v: string) {
         return v.replace(/[`~!@#$^&*()_|+\=?;:'",.<>\{\}\[\]\\\/]/gi, '');
     }
@@ -295,14 +345,14 @@ export class BankStatementJournalModal implements IUniModal {
 
         let filter = '';
         if (isNumeric > 0) {
-            filter = `startswith(accountnumber,'${lcaseText}')`;
+            filter = `Visible eq 'true' and startswith(accountnumber,'${lcaseText}')`;
         } else {
-            filter = `( contains(keywords,'${lcaseText}') or contains(Description,'${lcaseText}')`
+            filter = `Visible eq 'true' and ( contains(keywords,'${lcaseText}') or contains(Description,'${lcaseText}')`
             + ` or contains(accountname,'${lcaseText}') )`;
         }
         return this.session.query(
             'accounts',
-            'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description',
+            'select', 'ID,AccountNumber,AccountName,CustomerID,SupplierID,VatTypeID,Keywords,Description,Locked',
             'filter', filter,
             'orderby', 'AccountNumber',
             'top', 50
