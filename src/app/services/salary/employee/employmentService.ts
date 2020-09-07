@@ -188,12 +188,12 @@ export class EmploymentService extends BizHttp<Employment> {
         this.employment$.next(employment);
     }
 
-    public layout(layoutID: string) {
+    public layout(layoutID: string, hasEndDate: boolean) {
         return this.companySalaryService
             .getCompanySalary()
             .pipe(
                 switchMap(compSal => forkJoin(
-                    this.getStandardFields(compSal),
+                    this.getStandardFields(compSal, hasEndDate),
                     this.getRegulativeFields(compSal),
                     this.getShipFields(compSal),
                 )),
@@ -207,7 +207,7 @@ export class EmploymentService extends BizHttp<Employment> {
         });
     }
 
-    private getStandardFields(compSal: CompanySalary): Observable<UniFieldLayout[]> {
+    private getStandardFields(compSal: CompanySalary, hasEndDate: boolean): Observable<UniFieldLayout[]> {
         return of(<UniFieldLayout[]>[
             {
                 EntityType: 'Employment',
@@ -256,6 +256,31 @@ export class EmploymentService extends BizHttp<Employment> {
                 FieldSet: 1,
                 Section: 0
             },
+            (hasEndDate) ?
+            {
+                EntityType: 'Employment',
+                Property: 'EndDateReason',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Årsak til sluttdato',
+                FieldSet: 1,
+                Section: 0,
+                Required: true,
+                Options: {
+                    source: [
+                        { ID: 0, Name: 'Ikke valgt' },
+                        { ID: 1, Name: 'Arbeidsforholdet skulle aldri vært rapportert' },
+                        { ID: 2, Name: 'Arbeidsgiver har sagt opp arbeidstaker' },
+                        { ID: 3, Name: 'Arbeidstaker har sagt opp selv' },
+                        { ID: 4, Name: 'Byttet lønnsystem eller regnskapsfører' },
+                        { ID: 5, Name: 'Ending i orginisasjonsstruktur eller byttet jobb internt' },
+                        { ID: 6, Name: 'Kontrakt, engasjement eller vikariat er utløpt' },
+                    ],
+                    valueProperty: 'ID',
+                    displayProperty: 'Name',
+                },
+                hasLineBreak: true
+
+            } : {},
             {
                 EntityType: 'Employment',
                 Property: 'SubEntityID',
@@ -368,6 +393,24 @@ export class EmploymentService extends BizHttp<Employment> {
                 FieldSet: 2,
                 Section: 0,
                 openByDefault: true
+            },
+            {
+                EntityType: 'Employment',
+                Property: 'EmploymentType',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Ansettelsesform',
+                FieldSet: 2,
+                Section: 0,
+                Options: {
+                    source: [
+                        { ID: 0, Name: 'Ikke valgt' },
+                        { ID: 1, Name: 'Fast' },
+                        { ID: 2, Name: 'Midlertidig' },
+                    ],
+                    valueProperty: 'ID',
+                    displayProperty: 'Name'
+                },
+                hasLineBreak: true
             },
             {
                 EntityType: 'Employment',

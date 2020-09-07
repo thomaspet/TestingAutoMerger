@@ -84,7 +84,6 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
             this.employment = null;
             this.formReady = false;
         }
-
         if (!this.formReady) {
             this.buildForm();
         }
@@ -134,8 +133,8 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         this.employmentService.clearRegulativeCache();
     }
 
-    private buildForm() {
-        this.employmentService.layout('EmploymentDetails').subscribe((layout: any) => {
+    private buildForm(employment: Employment = this.employment) {
+        this.employmentService.layout('EmploymentDetails', !!employment?.EndDate).subscribe((layout: any) => {
             // Expand A-meldings section by default
             this.config$.next({
                 sections: {
@@ -164,8 +163,8 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
                 debounceTime: 200,
             };
             const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
-            const accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
-                ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
+            const accountObs: Observable<Account> = employment && employment.LedgerAccount
+                ? this.accountService.GetAll(`filter=AccountNumber eq ${employment.LedgerAccount}` + '&top=1')
                 : Observable.of([undefined]);
             ledgerAccountField.Options = {
                 getDefaultData: () => accountObs,
@@ -203,6 +202,7 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
 
         // TypeOfEmployment is always required
         this.setRequiredTooltip(fields, employment, 'TypeOfEmployment');
+        this.setRequiredTooltip(fields, employment, 'EndDateReason');
 
         // "Not set" and Pension has no more required fields
         if (employment.TypeOfEmployment === TypeOfEmployment.notSet
@@ -438,6 +438,7 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         }
 
         if (changes['EndDate']) {
+            this.buildForm(employment);
             const enddate: LocalDate = changes['EndDate'].currentValue;
             if (!!enddate) {
                 if (this.companySalarySettings.OtpExportActive) {
