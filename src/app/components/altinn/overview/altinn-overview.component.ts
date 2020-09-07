@@ -55,8 +55,12 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             .do(receipts => this.receipts$.next(receipts))
             .subscribe(receipts => this.focus(receipts[0]));
 
-            this.taxReportService.CreateTaxReport().subscribe((form) => {
-                let tmp = form.Data;
+            this.taxReportService.CreateTaxReport().subscribe((report) => {
+                let data = report.Data;
+                // TODO show in editable list, let user enter and verify data
+                this.taxReportService.SaveTaxReport(report).subscribe((saved) => {
+                    this.taxReportService.SendTaxReport(saved.ID);
+                });
             });
 
         this.config$.next(this.getConfig());
