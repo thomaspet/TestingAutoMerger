@@ -1,7 +1,7 @@
-<article class="container">
+<article class="container" *ngIf="!isFirstTimeUser">
     <section class="row1">
         <p class="left-text">
-            Aktive ansatte
+            {{'DASHBOARD.ACTIVE_EMPLOYEES.HEADER' | translate}}
         </p>
         <p class="right-text">
             {{activeEmployees}}
@@ -95,38 +95,49 @@
             </p>
         </section>
     </section>
-    <section class="row3" *ngIf="!isFirstTimeUser">
+    <section class="row3">
         <p class="blue-text">
             {{startDateThisYear}}
         </p>
         <p class="normal-text">
-            personer er ansatt i år
+            {{'DASHBOARD.ACTIVE_EMPLOYEES.HIRED_THIS_YEAR' | translate}}
         </p>
     </section>
 
-    <section class="row4" *ngIf="!isFirstTimeUser">
+    <section class="row4">
         <p class="blue-text">
             {{endDateThisYear}}
         </p>
         <p class="normal-text">
-            personer har sluttdato i år
+            {{'DASHBOARD.ACTIVE_EMPLOYEES.ENDDATE_THIS_YEAR' | translate}}
         </p>
     </section>
 
-    <section class="row5" *ngIf="!isFirstTimeUser">
+    <section class="row5">
         <section>
             <p class="left-text">
-                Total antall årsverk:
+                {{'DASHBOARD.ACTIVE_EMPLOYEES.FULL_TIME_EQUIVALENTS' | translate}}
             </p>
             <p class="right-text">
                 {{fullTimeEquivalents}}
             </p>
         </section>
     </section>
-    <section *ngIf="isFirstTimeUser" class="row6">
-            <p>Du har ingen ansatte. <br>Registrer din første ansatte i dag!</p>
-    </section>
-    <section *ngIf="isFirstTimeUser" class="row7">
-        <button class="good"(click)="openStandardVacationPayModal()">Registrer ansatte</button>
-    </section>
+</article>
+
+<!--empty-->
+
+<header class="header" *ngIf="isFirstTimeUser">
+    <h1>{{'DASHBOARD.ACTIVE_EMPLOYEES.HEADER' | translate}}</h1>
+</header>
+
+<article *ngIf="isFirstTimeUser">
+    <widget-empty-state>
+        <section *ngIf="isFirstTimeUser">
+            <p>{{'DASHBOARD.ACTIVE_EMPLOYEES.EMPTY_MESSAGE' | translate}}</p>
+        </section>
+        <section *ngIf="isFirstTimeUser">
+            <button class="good"(click)="openStandardVacationPayModal()">{{'DASHBOARD.ACTIVE_EMPLOYEES.EMPTY_STATE_BUTTON' | translate}}</button>
+        </section>
+    </widget-empty-state>
 </article>

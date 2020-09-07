@@ -5,6 +5,7 @@ import { EmployeeWidgetService } from './shared/services/employee-widget.service
 import { Router } from '@angular/router';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { StandardVacationPayModalComponent } from '@app/components/common/modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'employees-widget',
@@ -37,29 +38,38 @@ export class EmployeesWidget {
     ngOnInit() {
         this.widgetService
             .hasNoEmployees()
+            .pipe(
+                finalize(() => this.cdr.markForCheck()),
+            )
             .subscribe(noEmployees => this.isFirstTimeUser = noEmployees);
 
-        this.widgetService.getEmployeeCounts().subscribe(res => {
-            const counts = res && res[0] || {};
-            if (counts.employeeCount) {
-                this.hasData = true;
+        this.widgetService
+            .getEmployeeCounts()
+            .subscribe(res => {
+                const counts = res && res[0] || {};
+                if (counts.employeeCount) {
+                    this.hasData = true;
 
-                this.activeEmployees = counts.employeeCount;
-                this.femaleEmployees = counts.female || 0;
-                this.maleEmployees = counts.male || 0;
-                this.fullTimeEquivalents = Math.round((counts.fullTimeEquivalents || 0));
+                    this.activeEmployees = counts.employeeCount;
+                    this.femaleEmployees = counts.female || 0;
+                    this.maleEmployees = counts.male || 0;
+                    this.fullTimeEquivalents = Math.round((counts.fullTimeEquivalents || 0));
 
-                forkJoin([this.widgetService.getStartDateThisYear(), this.widgetService.getEndDateThisYear()]).subscribe(([start, end]) => {
-                    this.startDateThisYear = start || 0;
-                    this.endDateThisYear = end || 0;
+                    forkJoin([
+                        this.widgetService.getStartDateThisYear(),
+                        this.widgetService.getEndDateThisYear(),
+                    ])
+                    .subscribe(([start, end]) => {
+                        this.startDateThisYear = start || 0;
+                        this.endDateThisYear = end || 0;
+                        this.loading = false;
+                        this.cdr.markForCheck();
+                    });
+                } else {
+                    this.hasData = false;
                     this.loading = false;
                     this.cdr.markForCheck();
-                });
-            } else {
-                this.hasData = false;
-                this.loading = false;
-                this.cdr.markForCheck();
-            }
+                }
         });
     }
 
