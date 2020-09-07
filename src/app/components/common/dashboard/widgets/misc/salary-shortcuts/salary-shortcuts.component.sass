@@ -1,0 +1,21 @@
+.content
+    display: flex
+    flex-direction: column
+    margin: .5rem 0 .75rem
+    padding: 0 1.5rem
+
+.shortcut-item
+    flex: 0 0 auto
+    min-height: 3.5rem
+    display: flex
+    align-items: center
+    padding: 0 .5rem
+    cursor: pointer
+    outline: none
+
+    &:hover, &:focus
+        background: var(--dropdown-select-background)
+        color: var(--dropdown-select-color)
+
+    & + .shortcut-item
+        border-top: 1px solid var(--border-color)

@@ -14,6 +14,7 @@ import {LiquidityPaymentModal} from './widgets/charts/liquidity/payment-modal/li
 import { RecentEmployeesService } from './widgets/misc/recent-employees/recent-employees.service';
 import { RecentPayrollRunsService } from './widgets/misc/recent-payroll-runs/recent-payroll-runs.service';
 import {EmployeeWidgetService} from './widgets/misc/employees/shared/services/employee-widget.service';
+import { SalaryShortcutsService } from './widgets/misc/salary-shortcuts/salary-shortcuts.service';
 
 @NgModule({
     imports: [
@@ -36,6 +37,7 @@ import {EmployeeWidgetService} from './widgets/misc/employees/shared/services/em
         RecentEmployeesService,
         RecentPayrollRunsService,
         EmployeeWidgetService,
+        SalaryShortcutsService,
     ],
     exports: [DashboardNew]
 })

@@ -62,6 +62,7 @@ export const DASHBOARD_CONFIGS = {
             'EMPLOYEES',
             'EMPLOYMENTS_PER_JOBCODE',
             'RECENT_EMPLOYEES',
+            'SALARY_SHORTCUTS',
         ]
     },
     timetracking: {

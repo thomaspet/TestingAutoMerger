@@ -335,6 +335,15 @@ export const NO = {
             'HIRED_THIS_YEAR': 'personer er ansatt i år',
             'ENDDATE_THIS_YEAR': 'personer har sluttdato i år',
             'FULL_TIME_EQUIVALENTS': 'Total antall årsverk:'
-        }
+        },
+        SALARY_SHORTCUTS: {
+            'HEADER': 'Snarveier',
+            'EMPLOYEE_TITLE': 'Ansatte',
+            'WAGE_TYPE_TITLE': 'Lønnsarter',
+            'PAYROLL_RUN_TITLE': 'Lønnsavregning',
+            'A_MELDING_TITLE': 'A-melding',
+            'TICKER_TITLE': 'Oversikt',
+            'REPORT_TITLE': 'Rapporter',
+        },
     },
 };

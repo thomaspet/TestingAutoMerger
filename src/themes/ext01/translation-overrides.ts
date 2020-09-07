@@ -98,6 +98,9 @@ export const TRANSLATION_OVERRIDES = {
             'HEADER': 'Siste lønnskjøringer',
             'EMPTY': 'Det ser ikke ut som du har noen lønnskjøringer',
             'PAYROLL_COLUMN': 'Lønnskjøring',
-        }
+        },
+        SALARY_SHORTCUTS: {
+            'PAYROLL_RUN_TITLE': 'Lønnskjøring',
+        },
     },
 };
