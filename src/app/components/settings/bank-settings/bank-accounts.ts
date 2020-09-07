@@ -7,7 +7,7 @@ import {CompanyBankAccountModal} from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
 import {BankAccountService, BrunoOnboardingService, BankService} from '@app/services/services';
 import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
-
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'bank-setttings-accountlist',
@@ -41,16 +41,22 @@ export class BankSettingsAccountlist {
     @Input()
     companySettings: CompanySettings;
 
+    @Input()
+    agreements: any[];
+
     @Output()
     changeAccount = new EventEmitter();
+
     @Output()
     orderedIntegration = new EventEmitter();
 
     uniTableConfig: UniTableConfig;
+    tabs = [ {name: 'Kontodetaljer'}, {name: 'Kobling mot bank'} ];
 
+    isExt02Environment: boolean = theme.theme === THEMES.EXT02;
     bankAccount: BankAccount;
     activeIndex: number = 0;
-    busy = true;
+    busy = false;
 
     constructor (
         private modalService: UniModalService,
@@ -92,12 +98,13 @@ export class BankSettingsAccountlist {
                 new UniTableColumn('_isStandard', 'Status', UniTableColumnType.Text)
                     .setTemplate( (row) => this.getIsStandardText(row))
                     .setCls('colored-pill-class')
+                    .setAlignment('center')
                     .setWidth('5rem'),
                 new UniTableColumn('IntegrationStatus', 'Kobling mot bank', UniTableColumnType.Link)
                     .setAlignment('center')
                     .setWidth('5rem')
+                    .setCls('bank-integration-class')
                     .setTemplate( (row) => this.getIntegrationStatusText(row))
-
             ])
             .setContextMenu([
                 {
@@ -133,20 +140,27 @@ export class BankSettingsAccountlist {
     }
 
     getIntegrationStatusText(row: BankAccount): string {
-        if (!row['IntegrationStatus']) {
-            return '';
-        }
+        if (!this.isExt02Environment) {
+            if (row['HasIncoming'] || row['HasOutgoing'] || row['HasStatements']) {
+                return '<i class="material-icons">check_circle_outline<i>';
+            }
+            return 'Ingen kobling';
+        } else {
+            if (!row['IntegrationStatus']) {
+                return '';
+            }
 
-        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Active) {
-            return '<i class="material-icons">check_circle_outline<i>';
-        }
+            if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Active) {
+                return '<i class="material-icons">check_circle_outline<i>';
+            }
 
-        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Pending) {
-            return 'Avventer';
-        }
+            if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Pending) {
+                return 'Avventer';
+            }
 
-        if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Canceled) {
-            return 'Kansellert';
+            if (row['IntegrationStatus'] === StatusCodeBankIntegrationAgreement.Canceled) {
+                return 'Kansellert';
+            }
         }
 
         return '';
@@ -262,6 +276,7 @@ export class BankSettingsAccountlist {
     savedFromSidemenu(response) {
         if (response) {
             const index = this.bankAccount['_originalIndex'];
+            response = this.bankService.mapBankIntegrationValues(response, this.agreements);
             this.companySettings.BankAccounts.splice(index, 1, response);
             this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
 

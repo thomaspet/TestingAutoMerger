@@ -27,7 +27,7 @@ export class CompanyBankAccountModal implements IUniModal {
     onClose = new EventEmitter();
 
     bankAccount: BankAccount;
-    busy: boolean = true;
+    busy: boolean = false;
 
     constructor () { }
 

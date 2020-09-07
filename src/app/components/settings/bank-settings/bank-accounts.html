@@ -2,7 +2,7 @@
 	<section class="uni-card-header">
 		<h1> Bankkontoer </h1>
 		<section class="pull-right">
-			<button class="tertiary c2a" (click)="connectBankAndAccounting()"> {{!companySettings.HasAutobank ? "Bestill kobling mot bank" : "Endre kobling mot bank"}} </button>
+			<button class="tertiary c2a" (click)="connectBankAndAccounting()" *ngIf="isExt02Environment"> {{!companySettings.HasAutobank ? "Bestill kobling mot bank" : "Endre kobling mot bank"}} </button>
 			<button class="tertiary c2a" (click)="openBankAccountEditModal()"> Legg til ny bankkonto </button>
 		</section>
 	</section>
@@ -30,7 +30,7 @@
 	</header>
 
 	<uni-tabs
-        [tabs]="[{name: 'Kontodetaljer'}, {name: 'Kobling mot bank'}]"
+        [tabs]="tabs"
         [(activeIndex)]="activeIndex">
 	</uni-tabs>
 
@@ -39,8 +39,12 @@
 	<section [hidden]="activeIndex !== 1" class="integrations-container">
 		<header>
 			Bankintegrasjon
-			<span class="pull-right" [class.active]="bankAccount.IntegrationStatus === 700005">
+			<span class="pull-right" [class.active]="bankAccount.IntegrationStatus === 700005" *ngIf="isExt02Environment">
 				{{ bankAccount.IntegrationStatus === 700005 ? 'Aktiv' : 'Ikke koblet til bank' }}
+			</span>
+
+			<span class="pull-right" [class.active]="bankAccount.HasIncoming || bankAccount.HasOutgoing || bankAccount.HasStatements" *ngIf="!isExt02Environment">
+				{{ bankAccount.HasIncoming || bankAccount.HasOutgoing || bankAccount.HasStatements ? 'Aktiv' : 'Ikke koblet til bank' }}
 			</span>
 		</header>
 
