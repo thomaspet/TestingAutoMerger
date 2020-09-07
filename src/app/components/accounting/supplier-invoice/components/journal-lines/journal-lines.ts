@@ -238,8 +238,8 @@ export class JournalLines {
         this.lines.filter(line => !line.Deleted).forEach(line => {
             if (line.AmountCurrency) {
 
-                let amount: any = line.AmountCurrency;
-                amount = parseFloat(amount);
+                let amount: any = line.AmountCurrency + '';
+                amount = parseFloat(amount.replace(',', '.'));
 
                 line.Amount = amount * (line.CurrencyExchangeRate || 1);
                 const net = !line.VatType ? amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
