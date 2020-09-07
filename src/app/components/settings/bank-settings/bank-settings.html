@@ -8,35 +8,14 @@
         (tabClick)="updateTabAndUrl()">
     </uni-tabs>
 
+     <!-- BANKKONTOER -->
     <ng-container *ngIf="activeIndex === 0 && companySettings">
-        <bank-setttings-accountlist *ngIf="isExt02Environment" 
-        [(companySettings)]="companySettings"
-        (changeAccount)="setAsDirty()"
-        (orderedIntegration)="onOrderedIntegrationChange()"> 
+        <bank-setttings-accountlist
+            [(companySettings)]="companySettings"
+            [agreements]="agreements"
+            (changeAccount)="setAsDirty()"
+            (orderedIntegration)="onOrderedIntegrationChange()">
         </bank-setttings-accountlist>
-
-        <!-- BANKKONTOER -->
-        <section class="row form-row last" *ngIf="!isExt02Environment">
-            <section class="col-md-4">
-                <section class="form-info-section">
-                    <h1> {{ 'SETTINGS.BANK_ACCOUNTS' | translate }} </h1>
-                    <p> {{ 'SETTINGS.BANK_ACCOUNTS_INFOTEXT' | translate }} </p>
-                </section>
-            </section>
-
-            <section class="col-md-8">
-                <section class="uni-card">
-                    <section class="uni-card-content">
-                        <uni-form
-                            [config]="{showLabelAbove: true, autoFocus: true}"
-                            [fields]="accountFields$"
-                            [model]="companySettings$"
-                            (changeEvent)="setAsDirty()">
-                        </uni-form>
-                    </section>
-                </section>
-            </section>
-        </section>
     </ng-container>
 
     <ng-container *ngIf="activeIndex === 1">

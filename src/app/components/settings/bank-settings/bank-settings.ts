@@ -9,20 +9,19 @@ import {
     PageStateService,
     StatisticsService,
     BankService,
-    BrunoOnboardingService
+    BrunoOnboardingService,
+    PaymentBatchService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {THEMES, theme} from 'src/themes/theme';
 import {Observable, BehaviorSubject} from 'rxjs';
 import {
-    UniBankAccountModal,
     UniModalService,
     ConfirmActions
 } from '@uni-framework/uni-modal';
 import { IUniTab } from '@uni-framework/uni-tabs';
 import { ActivatedRoute } from '@angular/router';
-import { FeaturePermissionDirective } from '@uni-framework/featurePermission.directive';
 import { FeaturePermissionService } from '@app/featurePermissionService';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 
@@ -52,7 +51,6 @@ export class UniBankSettings {
     ];
 
     bankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
-    accountFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     autobankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     remitteringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     remitteringFields$2 = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -60,6 +58,7 @@ export class UniBankSettings {
     companySalary$ = new BehaviorSubject<CompanySalary>(null);
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     companySettings: CompanySettings;
+    agreements: any[];
 
     activeIndex: number = 0;
     tabs: IUniTab[] = [
@@ -93,7 +92,8 @@ export class UniBankSettings {
         private statisticsService: StatisticsService,
         private bankService: BankService,
         private featurePermissionService: FeaturePermissionService,
-        private brunoOnboardingService: BrunoOnboardingService
+        private brunoOnboardingService: BrunoOnboardingService,
+        private paymentBatchService: PaymentBatchService
     ) {}
 
     ngOnInit() {
@@ -110,7 +110,6 @@ export class UniBankSettings {
 
     ngOnDestroy() {
         this.bankFields$.complete();
-        this.accountFields$.complete();
         this.autobankFields$.complete();
         this.remitteringFields$.complete();
         this.remitteringFields$2.complete();
@@ -123,9 +122,11 @@ export class UniBankSettings {
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
             this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
-        ).subscribe(([companySettings, companySalary, accountCounts]) => {
+            this.paymentBatchService.checkAutoBankAgreement()
+        ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
 
-            companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account));
+            this.agreements = agreements;
+            companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account, agreements));
 
             // This should always be ordered the same way..
             accountCounts.forEach((account, index) => {
@@ -352,30 +353,6 @@ export class UniBankSettings {
             }
         ]);
 
-        this.accountFields$.next([
-            <any>{
-                EntityType: 'CompanySettings',
-                Property: 'CompanyBankAccount',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Driftskonto',
-                Options: this.getBankAccountOptions('CompanyBankAccount', 'company')
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'TaxBankAccount',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Skattetrekkskonto',
-                Options: this.getBankAccountOptions('TaxBankAccount', 'tax')
-            },
-            {
-                EntityType: 'CompanySettings',
-                Property: 'SalaryBankAccount',
-                FieldType: FieldType.MULTIVALUE,
-                Label: 'Lønnskonto',
-                Options: this.getBankAccountOptions('SalaryBankAccount', 'salary')
-            }
-        ]);
-
         this.autobankFields$.next([
             <any>{
                 EntityType: 'CompanySettings',
@@ -514,53 +491,5 @@ export class UniBankSettings {
         } else {
             return this.brunoOnboardingService.isPendingAgreement(agreement);
         }
-    }
-
-    private getBankAccountOptions(storeResultInProperty: string, bankAccountType: string) {
-        const modalConfig: any = {
-            ledgerAccountVisible: true,
-            defaultAccountNumber: bankAccountType === 'company' ? 1920 : bankAccountType === 'tax' ? 1950 : null,
-        };
-
-        if (this.isSrEnvironment) {
-            modalConfig.BICLock = {
-                BIC:  'SPRONO22',
-                BankName: 'SpareBank 1 SR-Bank'
-            };
-        }
-
-        return {
-            entity: BankAccount,
-            listProperty: 'BankAccounts',
-            display: (bankAccount: BankAccount) => {
-                let ret = bankAccount.AccountNumber ? (bankAccount.AccountNumber.substr(0, 4) + ' '
-                        + bankAccount.AccountNumber.substr(4, 2) + ' ' + bankAccount.AccountNumber.substr(6)) : '';
-                    if (bankAccount['Label']) {
-                        ret = ret + ' - ' + bankAccount['Label'];
-                    } else if (bankAccount.Account) {
-                        ret = ret + ' - ' + bankAccount.Account.AccountNumber + ' (' + bankAccount.Account.AccountName + ')' ;
-                    }
-                return ret; },
-            linkProperty: 'ID',
-            storeResultInProperty: storeResultInProperty,
-            storeIdInProperty: storeResultInProperty + 'ID',
-            editor: (bankaccount: BankAccount) => {
-                if (!bankaccount || bankaccount.ID <= 0) {
-                    bankaccount = bankaccount || new BankAccount();
-                    bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
-                    bankaccount.BankAccountType = bankAccountType;
-                    bankaccount.CompanySettingsID = this.companySettings$.getValue().ID;
-                    bankaccount.ID = 0;
-                }
-
-                const modal = this.modalService.open(UniBankAccountModal, {
-                    data: bankaccount,
-                    modalConfig: modalConfig,
-                    closeOnClickOutside: false
-                });
-
-                return modal.onClose.take(1).toPromise();
-            }
-        };
     }
 }

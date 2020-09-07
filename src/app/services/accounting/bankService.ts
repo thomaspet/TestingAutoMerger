@@ -5,6 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {BankData} from '@app/models';
 import {StatisticsService} from '../common/statisticsService';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Injectable()
 export class BankService extends BizHttp<Bank> {
@@ -181,32 +182,46 @@ export class BankService extends BizHttp<Bank> {
     }
 
     // This might be temporary
-    mapBankIntegrationValues(bankAccount: BankAccount): BankAccount {
+    mapBankIntegrationValues(bankAccount: BankAccount, agreements: any[] = null): BankAccount {
+        if (theme.theme === THEMES.EXT02) {
+            if (bankAccount['IntegrationSettings']) {
+                let bit = (+bankAccount['IntegrationSettings']).toString(2);
 
-        if (!bankAccount['IntegrationSettings']) {
-            return bankAccount;
+                switch (bit.length) {
+                    case 1: {
+                        bit = '00' + bit;
+                        break;
+                    }
+                    case 2: {
+                        bit = '0' + bit;
+                        break;
+                    }
+                }
+
+                if (+bit.substr(0, 1) > 0) {
+                    bankAccount['HasStatements'] = true;
+                }
+                if (+bit.substr(1, 1) > 0) {
+                    bankAccount['HasOutgoing'] = true;
+                }
+                if (+bit.substr(2, 1) > 0) {
+                    bankAccount['HasIncoming'] = true;
+                }
+            }
+        // SR always has bank integration
+        } else if (theme.theme === THEMES.SR) {
+            bankAccount['HasStatements'] = true;
+            bankAccount['HasOutgoing'] = true;
+            bankAccount['HasIncoming'] = true;
         } else {
-            let bit = (+bankAccount['IntegrationSettings']).toString(2);
+            if (agreements) {
+                const currentBankAgreement = agreements.find(ag => ag?.BankAccount?.BankID === bankAccount.BankID);
 
-            switch (bit.length) {
-                case 1: {
-                    bit = '00' + bit;
-                    break;
+                if (currentBankAgreement) {
+                    bankAccount['HasStatements'] = currentBankAgreement.IsBankBalance;
+                    bankAccount['HasOutgoing'] = currentBankAgreement.IsOutgoing;
+                    bankAccount['HasIncoming'] = currentBankAgreement.IsInbound;
                 }
-                case 2: {
-                    bit = '0' + bit;
-                    break;
-                }
-            }
-
-            if (+bit.substr(0, 1) > 0) {
-                bankAccount['HasStatements'] = true;
-            }
-            if (+bit.substr(1, 1) > 0) {
-                bankAccount['HasOutgoing'] = true;
-            }
-            if (+bit.substr(2, 1) > 0) {
-                bankAccount['HasIncoming'] = true;
             }
         }
 
