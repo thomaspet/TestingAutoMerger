@@ -327,6 +327,14 @@ export const NO = {
             'EMAIL_COLUMN': 'E-post',
             'BIRTH_DATE_COLUMN': 'Fødselsdato',
             'SUB_ENTITY_COLUMN': 'Virksomhet',
+        },
+        ACTIVE_EMPLOYEES: {
+            'HEADER': 'Aktive ansatte',
+            'EMPTY_MESSAGE': 'Du har ingen ansatte. Registrer din første ansatte i dag!',
+            'EMPTY_STATE_BUTTON': 'Registrer ansatte',
+            'HIRED_THIS_YEAR': 'personer er ansatt i år',
+            'ENDDATE_THIS_YEAR': 'personer har sluttdato i år',
+            'FULL_TIME_EQUIVALENTS': 'Total antall årsverk:'
         }
     },
 };
