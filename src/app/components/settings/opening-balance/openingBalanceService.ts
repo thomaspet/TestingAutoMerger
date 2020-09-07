@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
 import {AccountService} from '@app/services/accounting/accountService';
 import {Observable, of} from 'rxjs';
-import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
-import {map, switchMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {NumberSeriesService} from '@app/services/common/numberSeriesService';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {JournalEntryService} from '@app/services/accounting/journalEntryService';
+import {Account} from '@uni-entities';
 
 @Injectable()
 export class OpeningBalanceService {
@@ -35,7 +35,20 @@ export class OpeningBalanceService {
         const filter = accountNumbers
             .map(accountNumber => `(Account.AccountNumber eq ${accountNumber})`)
             .join(' or ');
-        return this.accountService.searchAccounts(`(${filter})`);
+        return this.accountService.searchAccounts(`(${filter})`).pipe(
+            map(accounts => this.removeDuplicates(accounts))
+        );
+    }
+
+    removeDuplicates(accounts: Account[]) {
+        const accountNumbersInArray = [];
+        return accounts.filter(account => {
+            const inArray = accountNumbersInArray.includes(account.AccountNumber);
+            if (!inArray) {
+                accountNumbersInArray.push(account.AccountNumber);
+            }
+            return !inArray;
+        });
     }
 
     getActiveFinancialYear() {
