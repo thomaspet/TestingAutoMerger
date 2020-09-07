@@ -83,49 +83,24 @@ tof-customer-card
             &:hover
                 color: var(--color-c2a)
 
-        .badge-pending
-            background-color: var(--color-warn)
+    .sharing-badges
+        display: flex
+        flex-wrap: wrap
+        justify-content: flex-end
+        min-height: 0
 
-        .badge-in-progress
-            background-color: var(--color-warn)
+        span
+            background: var(--alert-info)
+            color: var(--alert-info-text-color)
+            margin-top: .75rem
+            padding: 1px 10px
+            border-radius: var(--section-radius)
+            font-size: 14px
+            cursor: default
 
-        .badge-cancelled
-            background-color: var(--color-bad)
+            & + span
+                margin-left: .5rem
 
-        .badge-completed
-            background-color: var(--color-good)
-
-        .badge-failed
-            background-color: var(--color-bad)
-
-        .badge-available
-            background-color: var(--color-c2a)
-
-        .badge-unavailable
-            display: none
-
-        .sharing-badges
-            margin-top: auto
-            display: flex
-            justify-content: flex-end
-            flex-wrap: wrap
-
-            > span
-                flex: 0 0 auto
-                min-width: 3rem
-                height: 24px
-                line-height: 24px
-                color: #fff
-                font-size: 14px
-                text-align: center
-                padding: 0 8px
-                border-radius: 25px
-                margin-top: .5rem
-                & + span
-                    margin-left: .25rem
-
-        .unpaid-invoices a
-            color: var(--color-bad)
 
 .tradeitem-container
     margin-right: 0
