@@ -9,6 +9,7 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable} from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router } from '@angular/router';
+import { TaxReportService } from '@app/services/common/taxReportService';
 
 @Component({
     selector: 'uni-altinn-overview',
@@ -42,6 +43,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
     constructor (
         private altinnReceiptService: AltinnReceiptService,
+        private taxReportService: TaxReportService,
         private tabService: TabService,
         private router: Router
     ) {}
@@ -52,6 +54,10 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             .map(receipts => this.updateStatuses(receipts))
             .do(receipts => this.receipts$.next(receipts))
             .subscribe(receipts => this.focus(receipts[0]));
+
+            this.taxReportService.CreateTaxReport().subscribe((form) => {
+                let tmp = form.Data;
+            });
 
         this.config$.next(this.getConfig());
 

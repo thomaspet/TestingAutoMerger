@@ -69,6 +69,7 @@ import {ApprovalSubstituteService} from './common/approvalSubstituteService';
 import {UniTranslationService} from './common/translationService';
 import {InitService} from './common/initService';
 import {AssetsService} from './common/assetsService';
+import { TaxReportService } from './common/taxReportService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -152,6 +153,7 @@ export class CommonServicesModule {
                 AltinnAuthenticationService,
                 AltinnIntegrationService,
                 AltinnReceiptService,
+                TaxReportService,
                 CompanySettingsService,
                 CompanyTypeService,
                 ContactService,
