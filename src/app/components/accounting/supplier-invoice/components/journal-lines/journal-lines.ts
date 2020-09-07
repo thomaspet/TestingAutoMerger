@@ -163,7 +163,8 @@ export class JournalLines {
 
         let restAmount = 0;
         if (this.store.currentMode === 0) {
-            restAmount = invoice.TaxInclusiveAmountCurrency - this.lines.map(l => l.AmountCurrency).reduce((a, b) => a + b);
+            restAmount = invoice.TaxInclusiveAmountCurrency -
+                this.lines.map(l => parseFloat((l.AmountCurrency + '').replace(',', '.'))).reduce((a, b) => a + b);
         }
 
         const newLine = <JournalEntryLineDraft> {
