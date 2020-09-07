@@ -45,6 +45,7 @@ export const DASHBOARD_CONFIGS = {
             'EMPLOYMENTS_PER_JOBCODE',
             'TRAVELS',
             'RECENT_PAYROLL_RUNS',
+            'SALARY_SHORTCUTS',
         ]
     },
     timetracking: {

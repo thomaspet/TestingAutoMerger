@@ -1,0 +1,8 @@
+<header class="header">
+    <h1>{{'DASHBOARD.SALARY_SHORTCUTS.HEADER' | translate}}</h1>
+</header>
+<article class="content">
+    <section *ngFor="let item of shortcuts" class="shortcut-item" (click)="navigate(item)">
+        {{item.name | translate}}
+    </section>
+</article>

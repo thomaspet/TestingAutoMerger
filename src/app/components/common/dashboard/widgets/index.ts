@@ -20,6 +20,7 @@ import {TravelsWidget} from './misc/travels-widget/travels-widget';
 import { RecentEmployeesComponent } from './misc/recent-employees/recent-employees.component';
 import { RecentPayrollRunsComponent } from './misc/recent-payroll-runs/recent-payroll-runs.component';
 import { EmployeesWidget } from './misc/employees/employees-widget';
+import { SalaryShortcutsComponent } from './misc/salary-shortcuts/salary-shortcuts.component';
 
 export * from './widget';
 
@@ -46,6 +47,7 @@ export const WIDGET_COMPONENTS = [
     TravelsWidget,
     RecentEmployeesComponent,
     RecentPayrollRunsComponent,
+    SalaryShortcutsComponent,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -192,6 +194,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         category: WidgetCategory.MISC,
         module: WidgetModule.SALARY,
         component: RecentPayrollRunsComponent,
+        routePermissions: ['ui_salary'],
+    },
+    {
+        name: 'SALARY_SHORTCUTS',
+        label: 'Snarveier',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.SALARY,
+        component: SalaryShortcutsComponent,
         routePermissions: ['ui_salary'],
     },
     {
