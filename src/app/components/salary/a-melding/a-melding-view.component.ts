@@ -2,7 +2,7 @@ import { Component, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable, of } from 'rxjs';
-import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
+import { ToastService, ToastTime, ToastType, IToastAction } from '@uni-framework/uniToast/toastService';
 import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity } from '@uni-entities';
 import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
 import { IUniSaveAction } from '@uni-framework/save/save';
@@ -74,7 +74,7 @@ export class AMeldingViewComponent implements OnInit {
     public totalFinancialFeedbackStr: string;
 
 
-    public legalEntityNo: string;
+    public legalEntityNo: string = '';
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
     public toolbarConfig: IToolbarConfig;
     public toolbarSearchConfig: IToolbarSearchConfig;
@@ -189,6 +189,19 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
 
+    private informAboutFastAnsatt() {
+        const reminded = localStorage.getItem('fastansatt_notificaton');
+        if ((!reminded || reminded === 'false') && (this.activeYear === 2021 && this.currentPeriod <= 3)) {
+            const toastAction = { label : 'Ikke minn meg igjen', displayInHeader : true,
+                click : () => { localStorage.setItem('fastansatt_notificaton', 'true'); } };
+
+            this._toastService.addToast('Alle ansatte har fått ansattform fast ansatt', ToastType.info, 20,
+                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaer er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.', 
+                toastAction );
+        }
+    }
+
+
     private openReport() {
         this.reportDefinitionService
             .getReportByName('Forskuddstrekk og arbeidsgiveravgift')
@@ -232,12 +245,14 @@ export class AMeldingViewComponent implements OnInit {
                     this.getSumsInPeriod();
                     this.getAMeldingForPeriod();
                     this.updateToolbar();
+                    this.informAboutFastAnsatt();
                 }, err => this.errorService.handle(err));
         } else {
             this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.getSumsInPeriod();
             this.getAMeldingForPeriod();
             this.updateToolbar();
+            this.informAboutFastAnsatt();
         }
     }
 
