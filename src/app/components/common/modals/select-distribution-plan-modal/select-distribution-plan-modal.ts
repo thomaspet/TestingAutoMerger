@@ -33,7 +33,7 @@ export class SelectDistributionPlanModal implements OnInit, IUniModal {
         this.currentPlan = this.type.defaultPlan;
 
         this.type.plans.map((plan) => {
-            plan.text = plan.Elements.map((p, index) => (index + 1) + '. ' + p.ElementType.Name).join(' - ');
+            plan.text = plan.Elements.map((p, index) => (index + 1) + '. ' + p.ElementType._label).join(' - ');
         });
     }
 

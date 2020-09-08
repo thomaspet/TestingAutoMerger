@@ -2,8 +2,9 @@ import {Component, Input} from '@angular/core';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
 import {JournalEntryLineDraft} from '@uni-entities';
 import {Subject, Observable} from 'rxjs';
-import {takeUntil, take, shareReplay, refCount} from 'rxjs/operators';
-import {GuidService, StatisticsService, CurrencyCodeService} from '@app/services/services';
+import {takeUntil, take, shareReplay} from 'rxjs/operators';
+import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat} from '@app/services/services';
+import * as _ from 'lodash';
 
 interface ITotalObject {
     net?: number;
@@ -16,7 +17,10 @@ interface ITotalObject {
 @Component({
     selector: 'journal-lines',
     templateUrl: './journal-lines.html',
-    styleUrls: ['./journal-lines.sass']
+    styleUrls: ['./journal-lines.sass'],
+    host: {
+        '(document:keydown)': 'handleKeyboardEvents($event)'
+    }
 })
 export class JournalLines {
 
@@ -84,7 +88,8 @@ export class JournalLines {
         public store: SupplierInvoiceStore,
         private guidService: GuidService,
         private statisticsService: StatisticsService,
-        private currencyCodeService: CurrencyCodeService
+        private currencyCodeService: CurrencyCodeService,
+        private numberFormatter: NumberFormat,
     ) {
         this.currencyCodeService.GetAll().subscribe(codes => {
             this.currencyCodes = codes;
@@ -93,8 +98,17 @@ export class JournalLines {
             this.store.journalEntryLines$.pipe(
                 takeUntil(this.onDestroy$)
             ).subscribe(lines => {
-                this.lines = (lines || []).map(line => {
+                this.lines = (lines || []).map((line, i) => {
                     line.VatType = line.VatType || null;
+                    const formattedValue = this.format(line.AmountCurrency);
+                    if (formattedValue) {
+                        setTimeout(() => {
+                            const el = <HTMLInputElement>document.getElementsByClassName('number-input-fields')[i];
+                            if (el) {
+                                el.value = formattedValue;
+                            }
+                        }, 0);
+                    }
                     return line;
                 });
 
@@ -102,6 +116,22 @@ export class JournalLines {
             });
             this.store.readonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => this.readonly = readonly);
         });
+    }
+
+    // Lets user navigate with enter
+    handleKeyboardEvents(event: KeyboardEvent) {
+        if (event.keyCode === 13) {
+            const elements = document.getElementById('lines-container').getElementsByTagName('input');
+
+            for (let i = 0; i < elements.length; i++) {
+                if (elements[i] === document.activeElement && !!elements[i + 1]) {
+                    elements[i + 1].focus();
+                    i = elements.length + 1;
+                }
+            }
+
+
+        }
     }
 
     ngOnChanges(event) {
@@ -131,16 +161,23 @@ export class JournalLines {
         const lines = this.lines;
         const invoice = this.store.invoice$.value;
 
+        let restAmount = 0;
+        if (this.store.currentMode === 0) {
+            restAmount = invoice.TaxInclusiveAmountCurrency -
+                this.lines.map(l => parseFloat((l.AmountCurrency + '').replace(',', '.'))).reduce((a, b) => a + b);
+        }
+
         const newLine = <JournalEntryLineDraft> {
             _createguid: this.guidService.guid(),
             FinancialDate: invoice?.InvoiceDate,
             VatDate: invoice?.InvoiceDate,
-            Amount: 0,
-            AmountCurrency: 0
+            Amount: restAmount,
+            AmountCurrency: restAmount
         };
 
         lines.push(newLine);
         this.store.journalEntryLines$.next(lines);
+        this.recalcDiff();
     }
 
     removeLine(index: number) {
@@ -201,10 +238,14 @@ export class JournalLines {
 
         this.lines.filter(line => !line.Deleted).forEach(line => {
             if (line.AmountCurrency) {
-                line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
-                const net = !line.VatType ? line.AmountCurrency : line.AmountCurrency / ( 1 + ( line.VatType.VatPercent / 100 ) );
-                this.total.vat += line.AmountCurrency - net;
-                this.total.sum += line.AmountCurrency || 0;
+
+                let amount: any = line.AmountCurrency + '';
+                amount = parseFloat(amount.replace(',', '.'));
+
+                line.Amount = amount * (line.CurrencyExchangeRate || 1);
+                const net = !line.VatType ? amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
+                this.total.vat += amount - net;
+                this.total.sum += amount || 0;
                 this.total.net += net;
             }
         });
@@ -238,5 +279,39 @@ export class JournalLines {
         }
 
         return this.accountLookupCache[odata].pipe(take(1));
+    }
+
+    blurHandler(e) {
+        const input = e.target;
+        input.value = this.format(input.value);
+    }
+
+    private format(value: number): string {
+        if (!value) {
+            return;
+        }
+
+        const parsed = this._parseValue((value || '').toString());
+
+        return this.numberFormatter.asNumber(parsed, {
+            decimalLength: 2,
+            thousandSeparator: ' '
+        });
+    }
+
+    private _parseValue(value): number {
+        if (_.isNumber(value)) {
+            return value;
+        }
+
+        if (value === null || value === undefined) {
+            return null;
+        }
+
+        value = value.replace(' ', '');
+        value = value.replace(',', '.');
+
+        const parsed = parseFloat(value);
+        return isNaN(parsed) ? null : parsed;
     }
 }

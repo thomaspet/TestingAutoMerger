@@ -415,7 +415,9 @@ export class SupplierInvoiceStore {
 
     prepExpenseForSave(date?) {
         const invoice = this.invoice$.value;
-        const total = this.journalEntryLines$.value.map(l => l.AmountCurrency).reduce((a, b) => a + b);
+        const total = this.journalEntryLines$.value
+            .map((l: any) =>  parseFloat((l.AmountCurrency + '').replace(',', '.')))
+            .reduce((a, b) => a + b);
 
         invoice.TaxInclusiveAmountCurrency = total;
         invoice.InvoiceOriginType = this.currentMode + 1;
@@ -443,6 +445,7 @@ export class SupplierInvoiceStore {
         // Lets get journal-lines and map dimensions from the head
         invoice.JournalEntry.DraftLines = this.journalEntryLines$.value.map(line => {
             line.Dimensions = invoice.DefaultDimensions;
+            line.AmountCurrency = parseFloat((line.AmountCurrency + '').replace(',', '.'))
             return line;
         });
 

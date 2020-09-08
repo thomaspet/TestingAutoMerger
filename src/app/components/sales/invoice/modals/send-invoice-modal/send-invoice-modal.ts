@@ -1,7 +1,7 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusCodeSharing, DistributionPlanElement} from '@app/unientities';
-import {map, catchError, finalize, filter, tap, mergeMap} from 'rxjs/operators';
+import {map, catchError, finalize, filter, tap, concatMap} from 'rxjs/operators';
 import {forkJoin, of as observableOf, Observable, combineLatest} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
@@ -137,7 +137,7 @@ export class SendInvoiceModal implements IUniModal {
                     this.sendingOptions = [];
 
                     Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
-                        mergeMap((el: DistributionPlanElement) => { // combine flag if allowed and element 
+                        concatMap((el: DistributionPlanElement) => { // combine flag if allowed and element
                             let allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);                          
                             return combineLatest(allowed, Observable.of(el));
                         }),

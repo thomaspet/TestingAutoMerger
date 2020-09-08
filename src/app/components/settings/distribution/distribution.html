@@ -19,7 +19,7 @@
                 <a *ngIf="!type.showPlansView && !type.defaultPlan" style="font-size: 13px;" (click)="openPlanModal(null, type)"> Opprett ny utsendelsesplan </a>
                 <ul class="distribution-elements-stepper" *ngIf="!type.showPlansView && type.defaultPlan">
                     <ng-container *ngFor="let elem of type.defaultPlan.Elements; let i = index;">
-                        <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                        <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType._label }} </li>
                         <li class="divider" *ngIf="i < type.defaultPlan.Elements.length - 1"></li>
                     </ng-container>
                     <li class="list-item" *ngIf="!type.defaultPlan.Elements.length"> Ingen automatisk utsendelse </li>
@@ -54,7 +54,7 @@
                         <td>
                             <ul class="distribution-elements-stepper" style="margin: 0;">
                                 <ng-container *ngFor="let elem of plan.Elements; let i = index;">
-                                    <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType.Name }} </li>
+                                    <li class="list-item"> {{ elem.Priority }}. {{ elem.ElementType._label }} </li>
                                     <li class="divider" *ngIf="i < plan.Elements.length - 1"></li>
                                 </ng-container>
                             </ul>

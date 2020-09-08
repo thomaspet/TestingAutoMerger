@@ -581,7 +581,7 @@ export class CustomerDetails implements OnInit {
                     ['NumberSeriesType']
                 ),
                 this.sellerService.GetAll(null),
-                this.distributionPlanService.GetAll(null, ['Elements', 'Elements.ElementType']),
+                this.distributionPlanService.getAllPlans(),
                 this.customDimensionService.getMetadata(),
                 this.companySettingsService.Get(1, ['Distributions'])
             ).subscribe(response => {
