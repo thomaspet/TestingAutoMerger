@@ -11,7 +11,7 @@
                     *ngFor="let contract of customer.Contracts" 
                     class="dropdown-menu-item" 
                     (click)="selectContract(contract)"
-                    [ngStyle]="{'color': contract.ID === (selectedContractID$ | async) ? '#0070e0' : ''}"
+                    [attr.aria-selected]="contract.ID === (selectedContractID$ | async)"
                     >
                         {{customer.Name}}
                         <span class="pull-right" style="padding-left: 25px">{{contract.ContractType | elsaContractType}}</span>
