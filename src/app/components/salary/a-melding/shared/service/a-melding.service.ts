@@ -4,7 +4,10 @@ import {map} from 'rxjs/operators';
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
 import { AmeldingData, PayrollRunInAmeldingPeriod } from '@uni-entities';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
-
+export interface IAmeldingPeriod {
+    year: number;
+    month: number;
+}
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
 

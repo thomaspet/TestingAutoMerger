@@ -47,7 +47,7 @@ export class AMeldingViewComponent implements OnInit {
     public currentPeriod: number;
     public currentMonth: string;
     public currentSumsInPeriod: ITaxAndAgaSums;
-    public currentAMelding: any;
+    public currentAMelding: AmeldingData;
     public currentSumUp: any;
     public aMeldingerInPeriod: AmeldingData[];
     public actions: IUniSaveAction[];
@@ -408,8 +408,8 @@ export class AMeldingViewComponent implements OnInit {
                 this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, { decimalLength: 0 });
                 if (!!this.currentAMelding) {
                     if (this.currentAMelding.hasOwnProperty('feedBack')) {
-                        if (this.currentAMelding.feedBack !== null) {
-                            const alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                        if (this.currentAMelding['feedBack'] !== null) {
+                            const alleMottak = this.currentAMelding['feedBack'].melding.Mottak;
                             if (alleMottak instanceof Array) {
                                 alleMottak.forEach(mottak => {
                                     const pr = mottak.kalendermaaned;

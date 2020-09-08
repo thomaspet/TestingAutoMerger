@@ -1,16 +1,22 @@
-import {Component, Input, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges, EventEmitter, Output} from '@angular/core';
 import * as moment from 'moment';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { AMeldingService } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { AMeldingService, IAmeldingPeriod } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { PensionSchemeService, IPensionSchemeDto } from '../shared/service/pension-scheme.service';
+import { AmeldingData } from '@uni-entities';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { PensionSchemeModalComponent } from '@app/components/salary/a-melding/modals/pension-scheme-modal/pension-scheme-modal.component';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'amelding-summary-view',
-    templateUrl: './summary.component.html'
+    templateUrl: './summary.component.html',
+    styleUrls: ['./summary.component.sass']
 })
 
 export class AmeldingSummaryViewComponent implements OnChanges {
     @Input() public currentSumUp: any;
-    @Input() public currentAMelding: any;
+    @Input() public currentAMelding: AmeldingData;
     @Input() public errorMessage: string;
     public employeeTableConfig: UniTableConfig;
     public leaveTableConfig: UniTableConfig;
@@ -26,13 +32,21 @@ export class AmeldingSummaryViewComponent implements OnChanges {
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
     public showXMLValidationError: boolean;
     public validationErrorsInAmelding: string;
+    public pensionSchemeText: string;
 
     constructor(
-        private ameldingService: AMeldingService
+        private ameldingService: AMeldingService,
+        private pensionSchemeService: PensionSchemeService,
+        private modalService: UniModalService,
+        private toastService: ToastService,
     ) {
         this.setupEmployees();
         this.setupLeaves();
         this.setupTransactions();
+    }
+
+    public ngOnInit() {
+
     }
 
     public ngOnChanges() {
@@ -53,6 +67,9 @@ export class AmeldingSummaryViewComponent implements OnChanges {
                 this.sentDate = moment(this.currentAMelding.sent)
                     .format('DD.MM.YYYY HH:mm');
             }
+            this.pensionSchemeService
+                .getNames(this.currentAMelding.year, this.currentAMelding.period)
+                .subscribe(names => this.pensionSchemeText = names);
         }
 
         if (this.currentSumUp && this.currentAMelding) {
@@ -70,6 +87,32 @@ export class AmeldingSummaryViewComponent implements OnChanges {
         }
         this.showXMLValidationError = this.validationErrorsInAmelding !== '' ? true : false;
 
+    }
+
+    openPensionSchemeModal() {
+        if (!this.currentAMelding) {
+            return;
+        }
+        const period: IAmeldingPeriod = {
+            year: this.currentAMelding.year,
+            month: this.currentAMelding.period,
+        };
+        this.modalService
+            .open(PensionSchemeModalComponent, {data: period})
+            .onClose
+            .subscribe((schemes: IPensionSchemeDto[]) => {
+                const updatedPensionSchemeText = this.pensionSchemeService.toNames(schemes);
+                if (this.pensionSchemeText !== updatedPensionSchemeText) {
+                    this.pensionSchemeText = updatedPensionSchemeText;
+                    this.toastService
+                        .addToast(
+                            'SALARY.AMELDING.SUMMARY.PENSION_SCHEME_TOAST_HEADER',
+                            ToastType.good,
+                            ToastTime.medium,
+                            'SALARY.AMELDING.SUMMARY.PENSION_SCHEME_TOAST_MESSAGE'
+                        );
+                }
+            });
     }
 
     private mapData() {

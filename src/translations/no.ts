@@ -104,7 +104,30 @@ export const NO = {
             'NEW': 'Ny lønnsavregning',
             'NUMBER': 'Lønnsavregning {nr}',
             'LATEST': 'Siste lønnsavregninger'
-        }
+        },
+        PENSION_SCHEME: {
+            'MODAL_HEADER': 'Pensjonsinnretning',
+            'MODAL_MESSAGE': 'Registrer dine pensjonsinnretninger slik at de blir innrapportert korrekt i a-meldingen',
+            'NO_DATA': 'Ikke valgt',
+            'SEARCH_PLACEHOLDER': 'Pensjonsinnretning',
+            'NEW_CUSTOM_PENSION_SCHEME': '+ Legg til egen pensjonsinnretning'
+        },
+        CUSTOM_PENSION_SCHEME: {
+            'HEADER': 'Legg til egen pensjonsinnretning',
+            'MESSAGE': 'Dersom du ikke finner din pensjonsinnretning under listen over pensjonsinnretninger kan du legge til din egen her',
+            'IDENTIFICATOR': 'Organisasjonsnummer',
+            'NAME': 'Navn',
+        },
+        AMELDING: {
+            SUMMARY: {
+                'PENSION_SCHEME_TOAST_HEADER': 'Endring lagret',
+                'PENSION_SCHEME_TOAST_MESSAGE': 'Endring av pensjonsinnretning er lagret og trer i kraft etter at a-meldingen er generert og sendt'
+            },
+            PENSION_SCHEME: {
+                'EDIT': 'Rediger',
+                'ADD': 'Legg til'
+            }
+        },
     },
 
     TIMETRACKING: {
@@ -310,6 +333,12 @@ export const NO = {
         'BANK_SETTINGS': 'Bankinnstillinger',
         'ASSETS': 'Eiendeler',
         'OPENING_BALANCE': 'Åpningsbalanse'
+    },
+
+    COMMON: {
+        'OK': 'Ok',
+        'CANCEL': 'Avbryt',
+        'SAVE': 'Lagre',
     },
 
     DASHBOARD: {

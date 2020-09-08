@@ -11,6 +11,20 @@
 
         <dt>Status</dt>
         <dd>{{statusText}}</dd>
+
+        <section class="pension-scheme-text-container">
+            <dt>Pensjonsinnretning</dt>
+            <dd class="pension-scheme-text">
+                <p>{{pensionSchemeText}}</p>
+                <button (click)="openPensionSchemeModal()" class="tertiary c2a">
+                    {{(pensionSchemeText
+                        ? 'SALARY.AMELDING.PENSION_SCHEME.EDIT'
+                        : 'SALARY.AMELDING.PENSION_SCHEME.ADD') | translate
+                    }}
+                </button>
+            </dd>
+        </section>
+
     </dl>
     <dl class="amelding_summary_overview" *ngIf="showXMLValidationError">
         <dt style="color: red">Validering av xml feilet</dt>
