@@ -62,7 +62,7 @@ export class AssetDetailsToolbar {
             case AssetStatusCode.DepreciationFailed:
                 return 'Avskrivsning feil';
             default:
-                return 'Status not defined';
+                return 'Kladd';
         }
     }
 
