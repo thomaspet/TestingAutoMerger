@@ -3,6 +3,12 @@
     <nav class="splitview_list">
         <ag-grid-wrapper [resource]="receipts$ | async" [config]="config$ | async" (rowSelectionChange)="updateSelected($event)"></ag-grid-wrapper>
     </nav>
+    <!--testing årsoppgjør - move mo modal-->
+    <nav class="splitview_list">
+        <label>Skjema </label><span>{{taxReportCode}}</span>
+        <ag-grid-wrapper [resource]="taxRecords$ | async" [config]="taxConfig$ | async"></ag-grid-wrapper>
+    </nav>
+    <!--testing årsoppgjør-->
     <main class="splitview_detail uni-container">
         <header>
             Detaljer

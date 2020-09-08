@@ -12,8 +12,12 @@ export class TaxReportService extends BizHttp<TaxReport> {
         this.entityType = TaxReport.EntityType;
     }
 
-    public CreateTaxReport(): Observable<TaxReport> {
-        return super.PostAction(null, 'create', 'year=2020&code=RF-1167');
+    public GetOrCreateTaxReport(): Observable<TaxReport> {
+        return super.PostAction(null, 'get-or-create', 'year=2020&code=RF-1167');
+    }
+
+    public GetTaxReport(id: number): Observable<TaxReport> {
+        return super.Get(id);
     }
 
     public SaveTaxReport(taxReport: TaxReport): Observable<TaxReport> {
@@ -38,4 +42,12 @@ export class TaxReport extends UniEntity {
     public UpdatedBy: string;
     public StatusCode: number;
     public CreatedBy: string;
+    public Records: { Key: string, record: FormRecord}[];
+}
+export class FormRecord {
+    public Type: string;
+    public Text: string;
+    public Value: string;
+    public Verified: boolean;
+    public ReadOnly: boolean;
 }
