@@ -2,7 +2,7 @@ import { Component, OnChanges, SimpleChanges, ViewChild, Input, Output, EventEmi
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { SalaryBalance, SalBalType, Supplier, SalaryBalanceTemplate, WageType, StdWageType, SalaryBalanceLine } from '@uni-entities';
 import { UniImage } from '@uni-framework/uniImage/uniImage';
-import { UniForm } from '@uni-framework/ui/uniform';
+import { UniForm, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { SalarybalanceService, UniCacheService} from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { tap, switchMap, filter, take, map } from 'rxjs/operators';
@@ -19,7 +19,7 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
         public salarybalance$: BehaviorSubject<SalaryBalance> = new BehaviorSubject(new SalaryBalance());
 
         public config$: BehaviorSubject<any> = new BehaviorSubject({autofocus: true});
-        public fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
+        public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
         public unlinkedFiles: Array<number> = [];
         public collapseSummary: boolean = false;
         public summaryBusy$: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -111,16 +111,14 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
                     if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID'] || changes['EmployeeID']) {
                         this.salarybalanceService.refreshLayout(
                             model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
-                            .subscribe(result => {
+                            .subscribe((result: UniFieldLayout[]) => {
                                 this.fields$.next(result);
                             });
                     } else {
                         this.salarybalanceService.updateFields(
                             model, 'salarybalance', false, changes, this.lastChanges$,
                             this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID)
-                            .subscribe(result => {
-                                this.fields$.next(result);
-                            });
+                            .subscribe();
                     }
                 });
         }
@@ -155,7 +153,9 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
             return this.salarybalanceService
             .refreshLayout(salaryBalance, this.ignoreFields,
                 'salarybalance', 'SalarybalanceDetails', !!salaryBalance.SalaryBalanceTemplateID)
-            .do((layout) => this.fields$.next(layout))
+            .do((layout: UniFieldLayout[]) => {
+                this.fields$.next(layout);
+            })
             .do(() => {
                 this.salarybalanceService.getTemplates()
                 .subscribe((templates: SalaryBalanceTemplate[]) => {
@@ -170,9 +170,9 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
         }
 
         private toggleReadOnly(salarybalance: SalaryBalance, changedField: string): SalaryBalance {
-            const fields = this.fields$.getValue();
+            let fields = this.fields$.getValue();
             if (fields.length > 0) {
-                fields.map(field => {
+                fields = fields.map((field: UniFieldLayout) => {
                     switch (changedField.toLowerCase()) {
                         case 'salarybalancetemplateid':
                             if (field.Property !== 'SalaryBalanceTemplateID'
@@ -189,10 +189,8 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
                             break;
                     }
                     return field;
-                })
-                .map(field => {
-                    this.fields$.next(field);
                 });
+                this.fields$.next(fields);
             }
             return salarybalance;
         }
