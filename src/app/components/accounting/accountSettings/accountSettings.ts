@@ -48,7 +48,8 @@ export class AccountSettings {
             },
             {
                 label: 'Sett påkrevde dimensjoner',
-                action: () => this.openMandatoryDimensionsModal()
+                action: () => this.openMandatoryDimensionsModal(),
+                disabled: () => this.featurePermissionService.canShowUiFeature('ui.dimensions')
             }
         ]
     };

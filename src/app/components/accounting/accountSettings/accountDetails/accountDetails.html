@@ -4,19 +4,20 @@
 
 <div *ngIf="account$ | async">
      <uni-form
-        [config]="config$ | async"
+        [config]="{}"
         [fields]="fields$ | async"
         [model]="account$ | async"
         (changeEvent)="onChange($event)">
     </uni-form>
-    <uni-form
-        [config]="dimensionsConfig$ | async"
+
+    <uni-form *ngIf="dimensionsFormVisible"
+        [config]="{}"
         [fields]="dimensionsFields$ | async"
         [model]="dimensions$ | async"
-        (changeEvent)="onDimensionsChange($event)"
-    ></uni-form>
+        (changeEvent)="onDimensionsChange($event)">
+    </uni-form>
 
-    <button class="secondary bad" (click)="deleteAccount()" *ngIf="!deleteButtonDisabled">
+    <button class="secondary bad" (click)="deleteAccount()" *ngIf="canDeleteAccount">
         Slett konto
     </button>
 </div>
