@@ -107,8 +107,9 @@ export class Billing {
         const formatNumber = value => value.toString().replace('.', ',');
         const csv = [];
 
+        // csv files has to start with BOM (uFEFF) to support ÆØÅ
         csv.push(
-            `${this.billingData.CustomerName};`
+            `\uFEFF${this.billingData.CustomerName};`
             + `${this.contractService.getContractTypeText(this.billingData.ContractType)};`
             + `${moment(this.billingData.FromDate).format('DD.MM.YYYY')};`
             + `${moment(this.billingData.ToDate).format('DD.MM.YYYY')};`
