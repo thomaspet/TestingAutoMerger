@@ -70,7 +70,7 @@ export class TableDataService {
             );
         } else if (configFiltersChanged) {
             this.filterString = undefined;
-            this.setFilters(config.filters, [], [], false);
+            this.setFilters(config.filters, [], config.quickFilters, false);
         }
 
         if (Array.isArray(resource)) {
@@ -124,16 +124,21 @@ export class TableDataService {
         }
     }
 
-    private didConfigFiltersChange(config) {
-        let configFiltersChanged = false;
+    private didConfigFiltersChange(config: UniTableConfig) {
+        let filtersChanged = false;
+        let quickFiltersChanged = false;
+
         const oldFilters = (this.config && this.config.filters) || [];
         const newFilters = (config && config.filters) || [];
 
+        const oldQuickFilters = this.config?.quickFilters || [];
+        const newQuickFilters = config?.quickFilters || [];
+
         if (oldFilters.length !== newFilters.length) {
-            configFiltersChanged = true;
+            filtersChanged = true;
         } else {
             // Check if there exists a filter in the new config that didn't exist  in the old.
-            configFiltersChanged = newFilters.some(filter => {
+            filtersChanged = newFilters.some(filter => {
                 return !oldFilters.some(oldFilter => {
                     return oldFilter.field === filter.field
                         && oldFilter.operator === filter.operator
@@ -142,7 +147,15 @@ export class TableDataService {
             });
         }
 
-        return configFiltersChanged;
+        if (oldQuickFilters.length !== newQuickFilters.length) {
+            quickFiltersChanged = true;
+        } else {
+            quickFiltersChanged = newQuickFilters.some(filter => {
+                return !oldQuickFilters.some(f => f.field === filter.field);
+            });
+        }
+
+        return filtersChanged || quickFiltersChanged;
     }
 
     private setMetadata(data: any[], startIndex: number = 0): any[] {
