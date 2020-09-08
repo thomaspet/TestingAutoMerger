@@ -6,6 +6,8 @@ import * as moment from 'moment';
 import {LicenseInfo} from '../license-info';
 import {ElsaContractTypePipe} from '@uni-framework/pipes/elsaContractTypePipe';
 import {BillingData, BillingDataItem} from '@app/models/elsa-models';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {ExportBillingModal} from '../export-billing-modal/export-billing-modal';
 
 @Component({
     selector: 'license-billing',
@@ -38,6 +40,7 @@ export class Billing {
         private contractService: ElsaContractService,
         private licenseInfo: LicenseInfo,
         private elsaContractTypePipe: ElsaContractTypePipe,
+        private modalService: UniModalService,
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -88,6 +91,16 @@ export class Billing {
         const period = 'Delavregning ' + moment(order.FromDate).format('D') + '-' + moment(order.ToDate).format('LL');
         const contracttype = 'Lisens: ' + this.elsaContractTypePipe.transform(order.ContractType);
         return period + '&nbsp;&nbsp; &mdash; &nbsp;&nbsp;' + contracttype;
+    }
+
+    openExportBillingModal() {
+        this.modalService.open(ExportBillingModal, {
+            data: {
+                contractID: this.contractID,
+                selectedYear: this.periodFilter.year,
+                selectedMonth: +this.periodFilter.month
+            }
+        });
     }
 
     export() {
