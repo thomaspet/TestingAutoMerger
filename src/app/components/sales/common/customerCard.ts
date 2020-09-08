@@ -2,13 +2,12 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer} from '@uni-entities';
 import {
-    UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
     StatisticsService,
+    EHFService,
 } from '@app/services/services';
 import {TofHelper} from '../salesHelper/tofHelper';
-import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
@@ -46,14 +45,11 @@ import {cloneDeep} from 'lodash';
             <div *ngIf="entity?.Customer?.Info?.Emails">
                 {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
             </div>
+        </section>
 
-            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}">
-                    Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
-                    forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
-                    faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
-                </a>
-            </div>
+        <section class="sharing-badges">
+            <span *ngIf="canSendEHF" matTooltip="Kunden kan motta EHF">EHF</span>
+            <span *ngIf="canSendEfaktura" matTooltip="Kunden kan motta eFaktura">eFaktura</span>
         </section>
     `
 })
@@ -65,12 +61,6 @@ export class TofCustomerCard {
     @Input() entityType: string;
 
     @Output() entityChange: EventEmitter<any> = new EventEmitter();
-
-    uniSearchConfig: IUniSearchConfig;
-    customerDueInvoiceData: any;
-
-    private emailControl: FormControl = new FormControl('');
-    private yourRefControl: FormControl = new FormControl('');
 
     autocompleteOptions: AutocompleteOptions;
 
@@ -101,24 +91,20 @@ export class TofCustomerCard {
         'Distributions'
     ];
 
+    lastPeppolAddressChecked: string;
+    canSendEHF: boolean;
+    canSendEfaktura: boolean;
+
     constructor(
-        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private tofHelper: TofHelper,
+        private ehfService: EHFService,
     ) {}
 
     ngOnInit() {
-        // Recurring invoice does not have functionality for creating customers when saving
-        // so we create them when selecting from 1880
-        if (this.entityType === 'RecurringInvoice') {
-            this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
-        } else {
-            this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
-        }
-
         this.autocompleteOptions = {
             placeholder: 'Velg kunde',
             autofocus: true,
@@ -153,22 +139,35 @@ export class TofCustomerCard {
 
     ngOnChanges(changes) {
         if (changes['entity'] && this.entity) {
-            this.customerDueInvoiceData = null;
+            this.canSendEfaktura = false;
+            this.canSendEHF = false;
 
-            const customer: any = this.entity.Customer || {Info: {Name: ''}};
-            if (this.uniSearchConfig) {
-                this.uniSearchConfig.initialItem$.next(customer);
-            } else {
-                setTimeout(() => {
-                    if (this.uniSearchConfig) {
-                        this.uniSearchConfig.initialItem$.next(customer);
+            const customer: Customer = this.entity.Customer;
+            if (customer) {
+                if (customer.PeppolAddress || customer.OrgNumber) {
+                    const peppoladdress = customer.PeppolAddress
+                        ? customer.PeppolAddress
+                        : `9908:${customer.OrgNumber}`;
+
+                    if (peppoladdress !== this.lastPeppolAddressChecked) {
+                        this.ehfService.GetAction(
+                            null,
+                            'is-ehf-receiver',
+                            'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
+                        ).subscribe(
+                            isEnabled => {
+                                this.canSendEHF = isEnabled;
+                                this.lastPeppolAddressChecked = peppoladdress;
+                                console.log(this.canSendEHF);
+                            },
+                            err => console.error(err)
+                        );
                     }
-                });
-            }
+                }
 
-            if (customer && customer.customerID) {
-                this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
-                this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
+                if (customer.EInvoiceAgreementReference || customer.EfakturaIdentifier) {
+                    this.canSendEfaktura = true;
+                }
             }
         }
     }
