@@ -115,10 +115,6 @@ export class TradeItemTable {
             this.settings = settings;
             this.initTableConfig();
             this.useVateDate = settings.UseFinancialDateToCalculateVatPercent ? this.deliveryDate : this.vatDate;
-            console.log(this.vatDate, 'VatDate');
-            console.log(this.deliveryDate, 'DeliveryDate');
-            console.log(this.useVateDate,'UseVatDate');
-
         });
 
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(
