@@ -434,7 +434,6 @@ export class TradeItemHelper  {
         const price = priceExVatCurrency * taxPercentage;
         rowModel['PriceIncVatCurrency'] = this.round(price, 4);
         rowModel['PriceIncVat'] = rowModel['PriceExVatCurrency'] * currencyExchangeRate;
-
     }
 
     public calculateDiscount(rowModel, currencyExchangeRate) {
