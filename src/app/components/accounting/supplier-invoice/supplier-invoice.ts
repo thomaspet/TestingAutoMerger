@@ -177,7 +177,8 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.sendToPayment(false, done);
                 },
-                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft && hasAutobank,
+                main: invoice?.ID && hasAutobank
+                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || !hasAutobank
             },
             {
@@ -185,14 +186,18 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.registerPayment(done, true);
                 },
-                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft && !hasAutobank,
-                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || hasAutobank
+                main: invoice?.ID && !hasAutobank && !changes
+                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
+                disabled: (!invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || hasAutobank)
+                    && !(invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning'))
             },
             {
                 label: 'Bokfør',
                 action: (done) => { this.store.journal(done); },
-                main: invoice?.ID && invoice?.StatusCode === StatusCodeSupplierInvoice.Draft,
-                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes
+                main: invoice?.ID && !changes
+                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
+                disabled: ( !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes )
+                && !(invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning'))
             },
             {
                 label: 'Send til betaling',

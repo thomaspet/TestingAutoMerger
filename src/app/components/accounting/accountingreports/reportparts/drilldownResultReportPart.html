@@ -10,8 +10,8 @@
                 <th *ngIf="showPreviousAccountYear" style="width: 20%" class="amount">{{periodFilter2.year}}</th>
                 <!-- <th *ngIf="showPercentOfBudget && showPreviousAccountYear" style="width: 5%" class="percentage"></th> -->
             </tr>
-            <tr *ngFor="let summaryData of flattenedTreeSummaryList" (click)="rowClicked(summaryData)" [class.expanded]="summaryData.expanded">
-                <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}">{{summaryData.number == 9 ? summaryData.amountPeriod1 > 0 ? 'SUM (overskudd)' : (summaryData.amountPeriod1 < 0 ? 'SUM (underskudd)' : 'Sum resultat') : ((summaryData.isAccount ? summaryData.number + ' - ' : '') + summaryData.name)}}</td>
+            <tr *ngFor="let summaryData of flattenedTreeSummaryList; let i = index;" (click)="rowClicked(summaryData)" [class.expanded]="summaryData.expanded" [title]="(summaryData.level === 0 && i < flattenedTreeSummaryList.length - 1) ? 'Vis underkonto' : summaryData.name">
+                <td [ngStyle]="{'padding-left': getPaddingLeft(summaryData.level)}"> <i class="material-icons" *ngIf="summaryData.level === 0 && i < flattenedTreeSummaryList.length - 1"> {{ summaryData.expanded ? 'expand_less' : 'expand_more' }} </i> {{summaryData.number == 9 ? summaryData.amountPeriod1 > 0 ? 'SUM (overskudd)' : (summaryData.amountPeriod1 < 0 ? 'SUM (underskudd)' : 'Sum resultat') : ((summaryData.isAccount ? summaryData.number + ' - ' : '') + summaryData.name)}}</td>
                 <td class="amount" [ngClass]="(summaryData.turned ? summaryData.amountPeriod1 >= 0 : summaryData.amountPeriod1 < 0) ? 'negative' : 'positive'">{{numberFormatService.asMoney(summaryData.amountPeriod1, numberFormat)}}</td>
                 <td *ngIf="showPercent" class="percentage">{{summaryData.percantageOfLastYear1}}</td>
                 <td *ngIf="showPercentOfBudget" class="percentage">{{summaryData.percentageOfBudget1}}</td>

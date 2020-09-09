@@ -377,7 +377,7 @@ export class DrilldownResultReportPart implements OnChanges {
 
     public getPaddingLeft(level) {
         if (level > 0) {
-            return (level * 20).toString() + 'px';
+            return (level * 35).toString() + 'px';
         }
     }
 
