@@ -24,6 +24,8 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.accounting.bill.delivery_date',
         'ui.accounting.vat-deduction-settings',
         'ui.accounting.budget',
+        'ui.accounting.costallocation',
+        'ui.accounting.advanced-account-settings',
 
         'ui.bank.payment-batch',
         'ui.bank.journaling-rules',

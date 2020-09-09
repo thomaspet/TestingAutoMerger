@@ -82,7 +82,7 @@ export class AMeldingViewComponent implements OnInit {
     public ameldingStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
-    private companySalary: CompanySalary;
+    public companySalary: CompanySalary;
     public showFinanceTax: boolean;
     public showGarnishment: boolean = false;
     public triggerForOpenBeforeMakePaymentModalResolver = null;
