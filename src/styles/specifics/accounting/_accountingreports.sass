@@ -120,7 +120,7 @@ accounting-reports, accounting-details-report
         cursor: pointer
         border-collapse: collapse
         width: 100%
-        font-size: smaller
+        font-size: 14px
 
         td, th
             padding: pxToRem(2) pxToRem(6)
@@ -135,6 +135,7 @@ accounting-reports, accounting-details-report
 
         tr
             border-bottom: 1px solid var(--border-color)
+            height: 45px
 
             &:nth-of-type(odd)
                 background: var(--table-row-odd-background)
@@ -162,6 +163,10 @@ accounting-reports, accounting-details-report
 
             td.positive
                 color: blue
+
+            i.material-icons
+                font-size: 20px
+                color: var(--table-icon-color)
 
         th
             border-bottom: 1px solid var(--border-color)
