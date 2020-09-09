@@ -69,6 +69,8 @@ export class TradeItemTable {
 
     showTable: boolean = true; // used for hard re-draw
 
+
+    private useVateDate: LocalDate;
     private foreignVatType: VatType;
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
@@ -112,6 +114,10 @@ export class TradeItemTable {
         this.companySettingsService.Get(1).subscribe(settings => {
             this.settings = settings;
             this.initTableConfig();
+            this.useVateDate = settings.UseFinancialDateToCalculateVatPercent ? this.deliveryDate : this.vatDate;
+            console.log(this.vatDate, 'VatDate');
+            console.log(this.deliveryDate, 'DeliveryDate');
+            console.log(this.useVateDate,'UseVatDate');
 
         });
 
@@ -152,7 +158,7 @@ export class TradeItemTable {
             }
            
             if (changes['vatDate'] && !settings.UseFinancialDateToCalculateVatPercent) {
-                this.vatDate = changes['vatDate'];
+                this.useVateDate = changes['vatDate'];
                 const prev = changes['vatDate'].previousValue;
                 const curr = changes['vatDate'].currentValue;
 
@@ -162,11 +168,11 @@ export class TradeItemTable {
             }
 
             if (changes['deliveryDate'] && settings.UseFinancialDateToCalculateVatPercent) {
-                this.vatDate = changes['DeliveryDate'];
+                this.useVateDate = changes['DeliveryDate'];
                 const prev = changes['deliveryDate'].previousValue;
                 const curr = changes['deliveryDate'].currentValue;
 
-                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
+                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) { 
                     this.updateVatPercentsAndItems();
                 }
             }
@@ -203,17 +209,16 @@ export class TradeItemTable {
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
 
-            let vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
             
             if (this.settings.UseFinancialDateToCalculateVatPercent) {                
-                this.vatDate = this.deliveryDate ? this.deliveryDate : this.vatDate;
+                this.useVateDate = this.deliveryDate ? this.deliveryDate : this.useVateDate;
             }
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
                 const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
-                    return vatPercentage.ValidFrom <= this.vatDate
-                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= this.vatDate;
+                    return vatPercentage.ValidFrom <= this.useVateDate
+                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= this.useVateDate;
                 });
 
                 const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
@@ -789,7 +794,7 @@ export class TradeItemTable {
                     this.settings,
                     this.vatTypes,
                     this.foreignVatType,
-                    this.vatDate,
+                    this.useVateDate,
                     this.pricingSourceLabels,
                     this.priceFactor
                 );

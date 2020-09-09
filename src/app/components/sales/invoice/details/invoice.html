@@ -38,7 +38,7 @@
             [departments]="departments"
             [vatTypes]="vatTypes"
             [vatDate]="invoice.InvoiceDate"
-            [deliveryDate]="invoice.DeliveryDate"
+            [deliveryDate]="invoice.DeliveryDate || invoice.InvoiceDate"
             [(items)]="invoiceItems"
             [dimensionTypes]="dimensionTypes"
             [currencyCodeID]="currencyCodeID"
