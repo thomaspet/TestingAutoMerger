@@ -148,7 +148,7 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
-                        filter((emp: IEmployee) => emp?.ID !== (this.selectedEmp && this.selectedEmp.ID)),
+                        filter((emp: IEmployee) => emp && (emp?.ID !== this.selectedEmp?.ID)),
                         switchMap(emp => {
                             return this.getStateSubject(EMPLOYMENTS_KEY)
                                 .pipe(
