@@ -8,6 +8,7 @@ import {ElsaContractTypePipe} from '@uni-framework/pipes/elsaContractTypePipe';
 import {BillingData, BillingDataItem} from '@app/models/elsa-models';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {ExportBillingModal} from '../export-billing-modal/export-billing-modal';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'license-billing',
@@ -25,6 +26,13 @@ export class Billing {
     detailsVisible: boolean;
     hasPermission: boolean;
     totalSumWithPeriods: number;
+
+    emptyData: boolean;
+    emptyDataImageUrl = theme.widgets?.empty_state_illustration || 'themes/empty_state.svg';
+    emptyDataImageLoaded = false;
+    hideEmptyDataImage = false;
+
+    settledUntilInfo: string;
 
     columns: ListViewColumn[] = [
         {header: 'Varenr', field: 'ProductID'},
@@ -63,6 +71,18 @@ export class Billing {
             res => {
                 this.hasPermission = true;
                 this.billingData = res;
+
+                this.settledUntilInfo = moment(this.billingData?.SettledUntil).month() === +this.periodFilter.month
+                    ? `I denne perioden starter avregningen fra <b>${moment(this.billingData.SettledUntil).format('DD.MM.YYYY')}</b>`
+                    : '';
+
+
+                if (this.billingData?.Items?.length === 0 && this.billingData?.RelatedOrders?.length === 0) {
+                    this.emptyData = true;
+                    return;
+                }
+                this.emptyData = false;
+
                 if (this.billingData?.RelatedOrders?.length > 0) {
                     this.totalSumWithPeriods = 0;
                     this.billingData.RelatedOrders.forEach(order => {

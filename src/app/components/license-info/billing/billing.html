@@ -46,24 +46,40 @@
         </section>
     </section>
 
-    <license-info-list
-        *ngIf="+viewMode === 0"
-        class="selection-list"
-        [columns]="columns"
-        [rows]="billingData?.Items"
-        [billingData]="billingData"
-        (rowClick)="onRowClick($event)">
-    </license-info-list>
+    <section *ngIf="settledUntilInfo?.length" class="settled-until" [innerHTML]="settledUntilInfo"></section>
 
-    <cost-per-user
-        *ngIf="+viewMode === 1"
-        [billingData]="billingData">
-    </cost-per-user>
+    <ng-container *ngIf="emptyData === false">
+        <license-info-list
+            *ngIf="+viewMode === 0"
+            class="selection-list"
+            [columns]="columns"
+            [rows]="billingData?.Items"
+            [billingData]="billingData"
+            (rowClick)="onRowClick($event)">
+        </license-info-list>
+    
+        <cost-per-user
+            *ngIf="+viewMode === 1"
+            [billingData]="billingData">
+        </cost-per-user>
+    
+        <transactions-per-company
+            *ngIf="+viewMode === 2"
+            [billingData]="billingData">
+        </transactions-per-company>
+    </ng-container>
 
-    <transactions-per-company
-        *ngIf="+viewMode === 2"
-        [billingData]="billingData">
-    </transactions-per-company>
+    <section *ngIf="emptyData === true" class="empty-data">
+        <img *ngIf="!hideEmptyDataImage"
+            [src]="emptyDataImageUrl" 
+            (load)="emptyDataImageLoaded = true"
+            (error)="hideEmptyDataImage = true"
+            alt="Illustration indicating missing data"
+        />
+        <section *ngIf="hideEmptyDataImage || emptyDataImageLoaded">
+            Det finnes ikke estimert forbruk for denne perioden
+        </section>
+    </section>
 </section>
 
 <invoice-item-details
