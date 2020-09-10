@@ -1122,9 +1122,9 @@ export class UniTicker {
                             break;
                         case 'DueDate':
                             col.setConditionalCls(row => {
-                                return moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}))
-                                    ? 'date-bad'
-                                    : 'date-good';
+                                const isBefore = moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}));
+                                const isPayed = row['CustomerInvoiceStatusCode'] === 42004;
+                                return isBefore && !isPayed ? 'date-bad' : 'date-good';
                             });
                             break;
                         case 'SharingStatus':
