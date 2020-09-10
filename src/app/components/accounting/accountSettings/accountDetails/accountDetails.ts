@@ -643,7 +643,6 @@ export class AccountDetails implements OnInit {
                 Tooltip: {
                     Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
                 },
-                FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
             {
                 FieldSet: 5,
@@ -653,7 +652,6 @@ export class AccountDetails implements OnInit {
                 FieldType: FieldType.TEXTAREA,
                 MaxLength: 255,
                 Label: 'Beskrivelse',
-                FeaturePermission: 'ui.accounting.advanced-account-settings',
             }
         ];
 
