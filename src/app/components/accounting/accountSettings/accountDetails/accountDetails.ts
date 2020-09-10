@@ -633,33 +633,29 @@ export class AccountDetails implements OnInit {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Sperre manuelle poster',
             },
-        ];
-
-        // Only available on SR currently. Will be added to UE later
-        if (theme.theme === THEMES.SR) {
-            fields.push(
-                {
-                    FieldSet: 5,
-                    Legend: 'Kontohjelp',
-                    EntityType: 'Account',
-                    Property: 'Keywords',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Søkeord',
-                    Tooltip: {
-                        Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
-                    }
+            {
+                FieldSet: 5,
+                Legend: 'Kontohjelp',
+                EntityType: 'Account',
+                Property: 'Keywords',
+                FieldType: FieldType.TEXT,
+                Label: 'Søkeord',
+                Tooltip: {
+                    Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
                 },
-                {
-                    FieldSet: 5,
-                    Legend: 'Kontohjelp',
-                    EntityType: 'Account',
-                    Property: 'Description',
-                    FieldType: FieldType.TEXTAREA,
-                    MaxLength: 255,
-                    Label: 'Beskrivelse',
-                }
-            );
-        }
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
+            },
+            {
+                FieldSet: 5,
+                Legend: 'Kontohjelp',
+                EntityType: 'Account',
+                Property: 'Description',
+                FieldType: FieldType.TEXTAREA,
+                MaxLength: 255,
+                Label: 'Beskrivelse',
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
+            }
+        ];
 
         return fields;
     }
