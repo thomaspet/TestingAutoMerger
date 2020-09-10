@@ -235,8 +235,9 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.ASSETS',
                         url: '/accounting/assets',
-                        moduleID: UniModules.SubSettings,
+                        moduleID: UniModules.Accounting,
                         activeInSidebar: true,
+                        featurePermission: 'ui.accounting.assets'
                     },
                     {
                         name: 'NAVBAR.SEARCH_JOURNALENTRY',
