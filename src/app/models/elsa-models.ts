@@ -239,4 +239,5 @@ export interface BillingData {
     OrderDays: number;
     Items: BillingDataItem[];
     RelatedOrders: BillingData[];
+    SettledUntil?: Date;
 }
