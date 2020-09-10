@@ -1,6 +1,6 @@
 import { BizHttp, UniHttp, RequestMethod } from '@uni-framework/core/http';
-import { PayrollRun, LocalDate, WorkItemToSalary, EmployeeCategory, Employee } from '@uni-entities';
-import { Observable } from 'rxjs';
+import { PayrollRun, LocalDate, WorkItemToSalary, EmployeeCategory, Employee, StdWageType } from '@uni-entities';
+import { Observable} from 'rxjs';
 import {
     ErrorService, SalarybalanceService, SalaryBalanceLineService, SalaryTransactionService,
     StatisticsService, SalaryBookingType, BrowserStorageService, SharedPayrollRunService
@@ -221,6 +221,7 @@ export class PayrollRunService {
         return forkJoin(
             this.validateRunHasTranses(runID),
             this.validateAccountsOnTranses(runID),
+            this.validateAmeldingGarnishmentTrans(runID)
         )
         .pipe(
             map(result => result.reduce((acc, curr) => acc && curr, true))
@@ -238,6 +239,31 @@ export class PayrollRunService {
     public getLatestSettledPeriod(id: number, yr: number) {
         return this.sharedPayrollRunService.GetAction(id, 'latestperiod', `currYear=${yr}`);
     }
+
+    private validateAmeldingGarnishmentTrans(runID: number): Observable<boolean> {
+        return this.statisticsService
+            .GetAllUnwrapped(
+                `Select=count(ID) as count&` +
+                `model=SalaryTransaction&` +
+                `expand=wagetype&` +
+                `filter=PayrollRunID eq ${runID} and WageType.StandardWageTypeFor eq ${StdWageType.Garnishment} and WageType.ValidYear ge 2021` +
+                ` and (WageType.IncomeType ne 'Utleggstrekk' or WageType.Description ne 'utleggstrekkSkatt')`
+            )
+            .pipe(
+                map(data => {
+                    if (!!data[0].count) {
+                        this.toastService
+                        .addToast(
+                            'Sjekk oppsett',
+                            ToastType.warn,
+                            ToastTime.medium,
+                            'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding');
+                    }
+                    return true;
+                })
+            );
+    }
+
 
     private validateAccountsOnTranses(runID: number): Observable<boolean> {
         return this.statisticsService

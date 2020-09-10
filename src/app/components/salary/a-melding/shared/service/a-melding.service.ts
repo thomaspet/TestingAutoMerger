@@ -2,8 +2,9 @@ import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
-import { AmeldingData, PayrollRunInAmeldingPeriod } from '@uni-entities';
+import { AmeldingData, PayrollRunInAmeldingPeriod, StdWageType } from '@uni-entities';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
+import { StatisticsService } from '@app/services/common/statisticsService';
 export interface IAmeldingPeriod {
     year: number;
     month: number;
@@ -37,7 +38,8 @@ export class AMeldingService extends BizHttp<AmeldingData> {
         ];
     }
 
-    constructor(http: UniHttp) {
+    constructor(http: UniHttp,
+        private statisticsService: StatisticsService) {
         super(http);
         this.relativeURL = AmeldingData.RelativeUrl;
         this.entityType = AmeldingData.EntityType;
@@ -117,6 +119,23 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     public getPayrollrunsInAmeldingPeriod(period: number): Observable<PayrollRunInAmeldingPeriod[]> {
         return super.GetAction(null, 'payrollruns-in-amelding-period', `period=${period}`);
     }
+
+    public CheckGarnishmentInPayroll(year: number, period: number ): Observable<Boolean> {
+        const filter = `month(Paydate) eq ${period} and year(Paydate) eq ${year} and isnull(StatusCode,0) gt 0`;
+        return this.statisticsService
+        .GetAllUnwrapped(
+            `Select=count(ID) as count&` +
+            `model=PayrollRun&` +
+            `expand=transactions, transactions.WageType&` +
+            `filter= ` + filter +
+            ` and WageType.StandardWageTypeFor eq ${StdWageType.Garnishment} and WageType.ValidYear ge 2021` +
+            ` and (WageType.IncomeType ne 'Utleggstrekk' or WageType.Description ne 'utleggstrekkSkatt')`
+        )
+        .pipe(
+            map(data => !data[0].count)
+        );
+    }
+
 
     public getAMeldingForPeriod(periode: number, currentYear: number): Observable<AmeldingData[]> {
         return this.http

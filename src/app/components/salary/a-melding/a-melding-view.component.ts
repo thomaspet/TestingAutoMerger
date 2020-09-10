@@ -346,6 +346,15 @@ export class AMeldingViewComponent implements OnInit {
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
+        this._ameldingService.CheckGarnishmentInPayroll(this.activeYear, this.currentPeriod).subscribe(
+            isValid => {
+                if (isValid === false) {
+                    this._toastService.addToast('Sjekk oppsett',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding'); 
+                    }
+        });
         this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeYear)
             .subscribe(response => {
                 this.saveStatus.completeCount++;
