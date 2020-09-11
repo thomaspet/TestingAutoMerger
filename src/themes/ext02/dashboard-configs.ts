@@ -68,6 +68,8 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'timetracking_dashboard',
         layout: [
             'TIME_ENTRY',
+            'HOURS_PER_WORKTYPE',
+            'HOURS_PER_PROJECT',
         ]
     },
     bank: {
