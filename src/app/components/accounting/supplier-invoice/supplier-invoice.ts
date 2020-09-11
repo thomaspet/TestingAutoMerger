@@ -160,9 +160,8 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.approveOrRejectInvoice('approve', done);
                 },
-                main: invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && this.featurePermissionService.canShowUiFeature('ui.assigning'),
-                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
-                || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
+                main: invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval,
+                disabled: invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
             },
             {
                 label: 'Avvis',
@@ -177,27 +176,28 @@ export class SupplierInvoiceView {
                 action: (done) => {
                     this.store.sendToPayment(false, done);
                 },
-                main: invoice?.ID && hasAutobank
-                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
-                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || !hasAutobank
+                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && hasAutobank,
+                disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || !hasAutobank
             },
             {
                 label: 'Bokfør og registrer betaling',
                 action: (done) => {
                     this.store.registerPayment(done, true);
                 },
-                main: invoice?.ID && !hasAutobank && !changes
-                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
-                disabled: (!invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes || hasAutobank)
-                    && !(invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning'))
+                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank,
+                disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || hasAutobank
             },
             {
                 label: 'Bokfør',
                 action: (done) => { this.store.journal(done); },
-                main: invoice?.ID && !changes
-                    && (invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning') || invoice?.StatusCode === StatusCodeSupplierInvoice.Draft),
-                disabled: ( !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft || changes )
-                && !(invoice?.StatusCode === StatusCodeSupplierInvoice.ForApproval && !this.featurePermissionService.canShowUiFeature('ui.assigning'))
+                main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved),
+                disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes
             },
             {
                 label: 'Send til betaling',
