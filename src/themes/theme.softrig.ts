@@ -17,11 +17,11 @@ export const theme = {
     featureBlacklists: undefined,
 
     init: {
-        illustration: 'themes/softrig/init_bg.svg',
-        background: '#b4f5ff',
+        illustration: 'themes/softrig/init_bg_softrig.svg',
+        background: '#E1FBFF',
         login_background: undefined,
         login_background_height: undefined,
-        signup_background_height: undefined,
+        signup_background_height: undefined, 
     },
 
     widgets: {
