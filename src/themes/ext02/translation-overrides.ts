@@ -3,6 +3,7 @@ export const TRANSLATION_OVERRIDES = {
     ENTITIES: {
         'SupplierInvoice': 'Regning',
         'RecurringInvoice': 'Gjentakende faktura',
+        'PayrollRun': 'Lønnskjøring',
     },
     SALES: {
         INVOICE: {
