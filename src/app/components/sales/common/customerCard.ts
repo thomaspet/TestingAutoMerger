@@ -133,7 +133,7 @@ export class TofCustomerCard {
                 { header: 'Orgnummer', field: 'OrgNumber' },
             ],
             createLabel: 'Opprett ny kunde',
-            createHandler: () => this.modalService.open(CustomerEditModal).onClose
+            createHandler: (search) => this.modalService.open(CustomerEditModal, {data: {search: search}}).onClose
         };
     }
 
@@ -200,7 +200,7 @@ export class TofCustomerCard {
 
     editCustomer() {
         this.modalService.open(CustomerEditModal, {
-            data: this.entity.Customer
+            data: {customer: this.entity.Customer}
         }).onClose.subscribe(editedCustomer => {
             if (editedCustomer) {
                 this.onCustomerSelected(editedCustomer, false);

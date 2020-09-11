@@ -29,6 +29,8 @@ export class CustomerEditModal implements IUniModal {
     isDirty: boolean;
     externalLookupOptions: AutocompleteOptions;
 
+    initSearchValue: string;
+
     constructor(
         private modalService: UniModalService,
         private errorService: ErrorService,
@@ -39,13 +41,17 @@ export class CustomerEditModal implements IUniModal {
     ) {}
 
     ngOnInit() {
-        const customer = this.options.data;
+        const customer = this.options.data?.customer;
         this.isNewCustomer = !!customer;
         if (customer) {
             this.customer$.next(customer);
             this.config$.next({autofocus: true});
         } else {
             this.initNewCustomer();
+        }
+
+        if (this.options.data?.search) {
+            this.initSearchValue = this.options.data?.search;
         }
 
         this.fields$.next(this.getFormFields());
