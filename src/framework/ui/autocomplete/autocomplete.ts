@@ -38,6 +38,7 @@ export class Autocomplete {
     @Input() readonly: boolean;
     @Input() options: AutocompleteOptions;
     @Input() value: any;
+    @Input() initSearchValue: string;
     @Output() valueChange = new EventEmitter();
 
     searchControl = new FormControl('');
@@ -59,6 +60,10 @@ export class Autocomplete {
             }),
             debounceTime(200),
         ).subscribe(query => this.performLookup(query));
+
+        if (this.initSearchValue) {
+            this.searchControl.setValue(this.initSearchValue);
+        }
     }
 
     ngOnDestroy() {

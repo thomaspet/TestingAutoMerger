@@ -9,6 +9,7 @@
         <section *ngIf="externalLookupOptions" class="external-search">
             <autocomplete
                 [options]="externalLookupOptions"
+                [initSearchValue]="initSearchValue"
                 (valueChange)="onExternalSearchSelected($event)">
             </autocomplete>
         </section>
