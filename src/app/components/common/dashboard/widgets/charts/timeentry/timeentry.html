@@ -1,7 +1,7 @@
 <section class="header">
-    <h1>Timeføring {{calendarMonthName}}</h1>
+    <h1>{{calendarMonthName}}</h1>
 
-    <section class="month-selector pull-right">
+    <section class="month-selector">
         <button (click)="prevMonth()" class="icon-button">
             <i class="material-icons">chevron_left</i>
         </button>
@@ -10,9 +10,11 @@
             <i class="material-icons">chevron_right</i>
         </button>
     </section>
+
+    <button class="tertiary c2a pull-right" routerLink="/timetracking/timeentry">Registrer timer</button>
 </section>
 
-<section *ngIf="!loading" class="content">
+<section *ngIf="!loading" class="content flex-row">
     <widget-empty-state *ngIf="missingWorker">
         Det ser ikke ut brukeren din er satt opp for timeføring på dette selskapet.
         <button class="c2a" [attr.aria-busy]="activating" (click)="activateWorker()">
@@ -20,25 +22,44 @@
         </button>
     </widget-empty-state>
 
-    <table *ngIf="!missingWorker && calendar">
-        <thead>
-            <tr>
-                <th class="week-number">
-                    <span>Uke</span>
-                </th>
-                <th *ngFor="let day of dayLabels">{{day}}</th>
-            </tr>
-        </thead>
+    <ng-container *ngIf="!missingWorker && calendar">
+        <table>
+            <thead>
+                <tr>
+                    <th class="week-number">
+                        <span>Uke</span>
+                    </th>
+                    <th *ngFor="let day of dayLabels">{{day}}</th>
+                </tr>
+            </thead>
 
-        <tbody>
-            <tr *ngFor="let week of calendar; let idx = index">
-                <td class="week-number">{{week[0]?.weekNumber}}</td>
-                <td *ngFor="let day of week" (click)="openTimeEntryDialog(day)" class="day">
-                    <span [ngClass]="day.classList">
-                        {{day.date | date: 'd'}}
-                    </span>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+            <tbody>
+                <tr *ngFor="let week of calendar; let idx = index">
+                    <td class="week-number">{{week[0]?.weekNumber}}</td>
+                    <td *ngFor="let day of week" (click)="openTimeEntryDialog(day)" class="day">
+                        <span [ngClass]="day.classList">
+                            {{day.date | date: 'd'}}
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <section class="flex-section">
+            <span>Timesaldo</span>
+            <span class="sum">{{flexBalance}}</span>
+
+            <section class="flex-balance-change">
+                <i *ngIf="flexBalanceChangeInPeriod === 0" class="material-icons">trending_flat</i>
+                <i *ngIf="flexBalanceChangeInPeriod > 0" class="material-icons">trending_up</i>
+                <i *ngIf="flexBalanceChangeInPeriod < 0" class="material-icons">trending_down</i>
+
+                <span>
+                    {{flexBalanceChangeInPeriod >= 0 ? '+' : ''}}
+                    {{flexBalanceChangeInPeriod}}
+                    timer i {{calendarMonthName}}
+                </span>
+            </section>
+        </section>
+    </ng-container>
 </section>

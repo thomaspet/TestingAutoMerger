@@ -1,0 +1,16 @@
+widget-empty-state
+    text-align: center
+    margin-top: 1rem
+
+.report-item
+    display: flex
+    align-items: center
+    height: 3.5rem
+    padding: 0 1rem
+
+    &:focus, &:hover
+        background: var(--dropdown-select-background)
+        color: var(--dropdown-select-color)
+
+    & + .report-item
+        border-top: 1px solid var(--border-color)

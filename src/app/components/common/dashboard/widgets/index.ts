@@ -17,15 +17,19 @@ import {UnpaidPerCustomer} from './charts/unpaid-per-customer/unpaid-per-custome
 import {BalanceWidget} from './charts/balance-widget/balance-widget';
 import {PaymentsWidget} from './charts/payments-widget/payments-widget';
 import {TravelsWidget} from './misc/travels-widget/travels-widget';
-import { RecentEmployeesComponent } from './misc/recent-employees/recent-employees.component';
-import { RecentPayrollRunsComponent } from './misc/recent-payroll-runs/recent-payroll-runs.component';
-import { EmployeesWidget } from './misc/employees/employees-widget';
-import { SalaryShortcutsComponent } from './misc/salary-shortcuts/salary-shortcuts.component';
+import {RecentEmployeesComponent} from './misc/recent-employees/recent-employees.component';
+import {RecentPayrollRunsComponent} from './misc/recent-payroll-runs/recent-payroll-runs.component';
+import {EmployeesWidget} from './misc/employees/employees-widget';
+import {SalaryShortcutsComponent} from './misc/salary-shortcuts/salary-shortcuts.component';
+import {NewEntitiesWidget} from './misc/new-entities/new-entities';
+import {ReportShortcutsWidget, SelectReportsModal} from './misc/report-shortcuts/report-shortcuts';
+import {WorkItemPieChart} from './charts/workitem-pie-chart/workitem-pie-chart';
 
 export * from './widget';
 
 export const WIDGET_COMPONENTS = [
     TimeentryWidget,
+    WorkItemPieChart,
     ReminderWidget,
     OperatingProfitsWidget,
     UnpaidWidget,
@@ -48,13 +52,16 @@ export const WIDGET_COMPONENTS = [
     RecentEmployeesComponent,
     RecentPayrollRunsComponent,
     SalaryShortcutsComponent,
+    NewEntitiesWidget,
+    ReportShortcutsWidget,
+    SelectReportsModal
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     {
         name: 'TIME_ENTRY',
         label: 'Timeføring',
-        size: 'small',
+        size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.TIMETRACKING,
         component: TimeentryWidget
@@ -65,7 +72,8 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         size: 'large',
         category: WidgetCategory.CHART,
         module: WidgetModule.MISC,
-        component: OperatingProfitsWidget
+        component: OperatingProfitsWidget,
+        routePermissions: ['ui_accounting']
     },
     {
         name: 'UNPAID',
@@ -249,6 +257,50 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.SALARY,
         component: TravelsWidget,
         routePermissions: ['ui_salary_travels']
-    }
+    },
+    {
+        name: 'NEW_ENTITIES',
+        label: 'Nye',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.MISC,
+        component: NewEntitiesWidget
+    },
+    {
+        name: 'REPORT_SHORTCUTS',
+        label: 'Rapportsnarveier',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.MISC,
+        component: ReportShortcutsWidget,
+    },
+    {
+        name: 'HOURS_PER_WORKTYPE',
+        label: 'Timer per timeart',
+        size: 'small',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.TIMETRACKING,
+        component: WorkItemPieChart,
+        options: {
+            viewMode: 'worktype',
+            header: 'Timer per timeart',
+            select: 'WorkType.Name',
+            expand: 'WorkType'
+        }
+    },
+    {
+        name: 'HOURS_PER_PROJECT',
+        label: 'Timer per prosjekt',
+        size: 'small',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.TIMETRACKING,
+        component: WorkItemPieChart,
+        options: {
+            viewMode: 'project',
+            header: 'Timer per prosjekt',
+            select: `isnull(Project.Name,'Uten prosjekt',Project.Name)`,
+            expand: 'Dimensions.Project'
+        }
+    },
 ];
 

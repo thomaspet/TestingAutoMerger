@@ -478,10 +478,13 @@ export class AgaAndSubEntitySettings implements OnInit {
         financial.FieldType = FieldType.UNI_SEARCH;
         financial.Options = {
             valueProperty: 'AccountNumber',
-            source: (model: CompanySalary) => this.accountService
-                .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedFinancial}`)
-                .map(results => results[0])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+            source: (model: CompanySalary) => {
+                console.log(model);
+                return this.accountService
+                    .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedFinancial}`)
+                    .map(results => results[0])
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            },
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 

@@ -1,0 +1,29 @@
+<section class="header">
+    <h1>{{viewMode === 'project' ? 'Timer per prosjekt' : 'Timer per timeart'}}</h1>
+    <button #toggle class="secondary pull-right">
+        {{ activeFilter.label }}
+        <i class="material-icons">expand_more</i>
+    </button>
+
+    <dropdown-menu [trigger]="toggle">
+        <ng-template>
+            <section class="dropdown-menu-item"
+                *ngFor="let filter of periodFilters"
+                (click)="setActiveFilter(filter)">
+                {{ filter.label }}
+            </section>
+        </ng-template>
+    </dropdown-menu>
+</section>
+
+<section *ngIf="!loading" class="content">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som du har ført timer i valgt periode.
+    </widget-empty-state>
+
+    <widget-pie-chart *ngIf="hasData" [chartConfig]="chartConfig"></widget-pie-chart>
+</section>
+
+<section *ngIf="projectPercent" class="footer border-top">
+    Prosjektprosent: {{projectPercent | uninumberformat: 'percent'}}%
+</section>
