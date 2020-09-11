@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { Observable, of, forkJoin } from 'rxjs';
 import { StatisticsService } from '@app/services/services';
 import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
 import { switchMap } from 'rxjs/operators';
@@ -15,8 +15,11 @@ export class NewEmployeeGuard implements CanActivate {
 
     canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
         if (Number(route.params.id) === 0) {
-            return this.statisticsService.GetAllUnwrapped('model=CompanyVacationRate').pipe(
-                switchMap(x => (!(x[0].countid > 0))
+            return forkJoin([
+                this.statisticsService.GetAllUnwrapped('model=CompanyVacationRate'),
+                this.statisticsService.GetAllUnwrapped('model=Employee')
+            ]).pipe(
+                switchMap(x => this.displayStandardVacationPayModal(x)
                     ? this.modalService.open(StandardVacationPayModalComponent).onClose
                     : of(ConfirmActions.ACCEPT)),
                     switchMap(res  => {
@@ -27,5 +30,12 @@ export class NewEmployeeGuard implements CanActivate {
                 }));
         }
         return of(true);
+    }
+
+    private displayStandardVacationPayModal([vacationRateCount, employeeCount]: [any[], any[]]): boolean {
+        const hasNotRegisteredVacationRate = vacationRateCount[0].countid === 0;
+        const isFirstEmployee = employeeCount[0].countid === 0;
+
+        return hasNotRegisteredVacationRate && isFirstEmployee;
     }
 }

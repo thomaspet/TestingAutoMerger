@@ -148,7 +148,7 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
         super.getStateSubject(SELECTED_EMP_KEY)
                     .pipe(
                         takeUntil(this.destroy$),
-                        filter((emp: IEmployee) => emp && (emp?.ID !== this.selectedEmp?.ID)),
+                        filter((emp: IEmployee) => emp?.ID && (emp?.ID !== this.selectedEmp?.ID)),
                         switchMap(emp => {
                             return this.getStateSubject(EMPLOYMENTS_KEY)
                                 .pipe(
@@ -159,10 +159,12 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
                                     })
                                 );
                         }),
-                        tap((emp: IEmployee) => this.selectedEmp = emp),
-                        tap(emp => this.handleAgaAndSumsOnEmp(emp)),
-                        tap(() => super.updateState(REFRESH_SUMS_KEY, true, false)),
-                        tap(emp => this.linkMenu$.next(this.generateLinkMenu(this.payrollRun, emp))),
+                        tap((emp: IEmployee) => {
+                            this.selectedEmp = emp;
+                            this.handleAgaAndSumsOnEmp(emp);
+                            super.updateState(REFRESH_SUMS_KEY, true, false);
+                            this.linkMenu$.next(this.generateLinkMenu(this.payrollRun, emp))
+                        }),
                     )
                     .subscribe();
 
@@ -440,10 +442,9 @@ export class SalaryTransactionSelectionListComponent extends UniView implements 
     }
 
     private handleAgaAndSumsOnEmp(emp: IEmployee) {
-        if (!emp) {
-            return;
+        if (emp) {
+            this.getAga(emp);
         }
-        this.getAga(emp);
     }
 
     public getEmployee() {
