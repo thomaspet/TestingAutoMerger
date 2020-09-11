@@ -1,0 +1,40 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Rapportsnarveier</header>
+
+    <article class="scrollable">
+
+        <mat-accordion multi="true">
+            <mat-expansion-panel #panel
+                *ngFor="let group of reportGroups; let idx = index"
+                [expanded]="true"
+                [hideToggle]="true">
+
+                <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
+                    <mat-panel-title>
+                        <i class="material-icons panel-toggle">
+                            {{panel.expanded ? 'keyboard_arrow_down' : 'keyboard_arrow_right'}}
+                        </i>
+                        {{group.name}}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+
+                <section>
+                    <mat-selection-list>
+                        <mat-list-option *ngFor="let report of group.reports"
+                            checkboxPosition="before"
+                            [selected]="report._selected"
+                            (click)="report._selected = !report._selected">
+
+                            {{report.Name}}
+                        </mat-list-option>
+                    </mat-selection-list>
+                </section>
+            </mat-expansion-panel>
+        </mat-accordion>
+    </article>
+
+    <footer>
+        <button (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="submit()">Lagre</button>
+    </footer>
+</section>
