@@ -388,7 +388,7 @@ export class AssetsActions {
     performDepreciations() {
         return this.modalService.open(ManualDepreciationModal, {}).onClose.pipe(
             mergeMap(date => date === null ? of([]) : this.assetsService
-                .PutAction(null, 'depreciate-month&date=' + date)
+                .PutAction(null, 'depreciate-missing')
             )
         );
     }
