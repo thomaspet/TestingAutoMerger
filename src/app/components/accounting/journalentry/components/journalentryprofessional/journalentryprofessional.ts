@@ -36,7 +36,8 @@ import {
     BankAccount,
     VatDeduction,
     InvoicePaymentData,
-    NumberSeries
+    NumberSeries,
+    SupplierInvoice
 } from '../../../../../unientities';
 import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData, AccountingCostSuggestion} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
@@ -1074,7 +1075,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.updateJournalEntryLine(row);
 
                             if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                this.showAgioDialogPostPost(row)
+                                this.showAgioDialog(row)
                                     .then((res) => {
                                         // reset focus after modal closes
                                         this.table.focusRow(row['_originalIndex']);
@@ -1094,7 +1095,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 this.updateJournalEntryLine(row);
 
                                 if (row.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                                    this.showAgioDialogPostPost(row)
+                                    this.showAgioDialog(row)
                                         .then((res) => {
                                             // reset focus after modal closes
                                             this.table.focusRow(row['_originalIndex']);
@@ -2050,6 +2051,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public showAgioDialogPostPost(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
+
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         return new Promise(resolve => {
@@ -2072,7 +2074,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 header: title,
                 data: journalEntryPaymentData,
                 modalConfig: {
-                    entityName: JournalEntryLine.EntityType,
+                    entityName: sign === 1 ? CustomerInvoice.EntityType : SupplierInvoice.EntityType,
                     currencyCode: postPostJournalEntryLine.CurrencyCode.Code,
                     currencyExchangeRate: postPostJournalEntryLine.CurrencyExchangeRate,
                     isDebit: journalEntryRow && journalEntryRow.DebitAccount && journalEntryRow.DebitAccount.UsePostPost,
@@ -2174,85 +2176,75 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
 
     private showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
-        const customerInvoice = journalEntryRow.CustomerInvoice;
+        
+        const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
+        const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
 
-        return new Promise(resolve => {
-            const paymentData = <InvoicePaymentData> {
-                Amount: customerInvoice.RestAmount,
-                AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
-                BankChargeAmount: 0,
-                CurrencyCodeID: customerInvoice.CurrencyCodeID,
-                CurrencyExchangeRate: 0,
-                PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
-                AgioAccountID: 0,
-                BankChargeAccountID: 0,
-                AgioAmount: 0,
-                PaymentID: null,
-                DimensionsID: null
-            };
+        if (sign == 1) {
+   
+            const customerInvoice = journalEntryRow.CustomerInvoice;
+        
+            const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
+            const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
+            return new Promise(resolve => {
+                const paymentData: Partial<InvoicePaymentData> = {
+                    Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
+                    AmountCurrency: UniMath.round(postPostJournalEntryLine.RestAmountCurrency * sign, 2),
+                    BankChargeAmount: 0,
+                    CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
+                    CurrencyExchangeRate: 0,
+                    PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
+                    AgioAccountID: 0,
+                    BankChargeAccountID: 0,
+                    AgioAmount: 0
+                };
 
-            const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
-                + ` ${customerInvoice.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
+                const title = `Faktura nr: ${postPostJournalEntryLine.JournalEntryNumber},`
+                    + ` ${postPostJournalEntryLine?.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
 
-            const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
-                header: title,
-                data: paymentData,
-                modalConfig: {
-                    entityName: CustomerInvoice.EntityType,
-                    customerID: customerInvoice.CustomerID,
-                    currencyCode: customerInvoice.CurrencyCode.Code,
-                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
-                    hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
-                }
+                const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+                    header: title,
+                    data: paymentData,
+                    modalConfig: {
+                        entityName: CustomerInvoice.EntityType,
+                        customerID: customerInvoice?.CustomerID,
+                        currencyCode: postPostJournalEntryLine?.CurrencyCode.Code,
+                        currencyExchangeRate: postPostJournalEntryLine?.CurrencyExchangeRate,
+                        hideBankCharges: false // temp fix until payInvoice endpoint support bankcharges
+                    }
+                });
+
+                paymentModal.onClose.subscribe((payment) => {
+                    if (payment) {
+        
+                        this.customerInvoiceService.ActionWithBody(postPostJournalEntryLine.CustomerInvoiceID, payment, 'payInvoice').subscribe(
+                            res => {
+                                this.toastService.addToast(
+                                    'Faktura er betalt. Betalingsnummer: ' + res.JournalEntryNumber,
+                                    ToastType.good,
+                                    5
+                        );
+                        this.table.removeRow(this.currentRowIndex);
+                        setTimeout(() => {
+                        const tableData = this.table.getTableData();
+                        this.dataChanged.emit(tableData);
+                        });
+                    },
+                            err => {
+                                this.errorService.handle(err);
+                            }
+                        );
+                    } 
+                });
+
+
+               
             });
-
-            paymentModal.onClose.subscribe(payment => {
-                if (!payment) {
-                    resolve(journalEntryRow);
-                }
-                journalEntryRow.FinancialDate = paymentData.PaymentDate;
-                journalEntryRow.VatDate = paymentData.PaymentDate;
-
-                // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
-                // the Amount that was paid in the base currency - the diff between this and what
-                // is registerred as a payment on the opposite account (normally a bankaccount)
-                // will be balanced using an agio line
-                journalEntryRow.Amount = paymentData.Amount;
-                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
-                journalEntryRow.NetAmount = journalEntryRow.Amount;
-                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
-                journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
-                journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
-                journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
-
-                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
-                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
-                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
-                    journalEntryRow.DebitAccount = null;
-                    journalEntryRow.DebitAccountID = null;
+        } else {
 
 
-                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
-                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
-                        agioRow.CustomerInvoiceID = customerInvoice.ID;
-                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
-                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
-                        this.updateJournalEntryLine(journalEntryRow);
-                        resolve(journalEntryRow);
-                        setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
-                    });
-                } else {
-                    resolve(journalEntryRow);
-                }
-                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
-                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
-                        bankChargesRow.CustomerInvoiceID = customerInvoice.ID;
-                        resolve(journalEntryRow);
-                        setTimeout(() => this.addJournalEntryLines([bankChargesRow]));
-                    });
-                }
-            });
-        });
+
+        }
     }
 
     private createOppositeRow(

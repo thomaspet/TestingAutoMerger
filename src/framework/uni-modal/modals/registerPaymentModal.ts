@@ -72,6 +72,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
     accounts: any[] = [];
+    private invoiceID: number;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -85,9 +86,6 @@ export class UniRegisterPaymentModal implements IUniModal {
 
     public ngOnInit() {
         this.config = this.options.modalConfig;
-        if (this.config.entityName === 'CustomerInvoice') { // temp disable for CustomerInvoice
-            this.config.hideBankCharges = true;
-        }
         const paymentData = this.options.data || {};
 
         this.accounts = paymentData._accounts || [];
@@ -194,6 +192,9 @@ export class UniRegisterPaymentModal implements IUniModal {
 
             const payment: Payment = this.formModel$.getValue();
             payment.CurrencyExchangeRate = this.paymentCurrencyExchangeRate;
+            
+           
+
             const diffCurrencyExchangeRate = Math.abs(
                 (this.config.currencyExchangeRate || 1) - (payment.CurrencyExchangeRate || 1)
             );
