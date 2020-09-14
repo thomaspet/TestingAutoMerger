@@ -259,15 +259,18 @@ export class AuthService {
 
                     this.reloadCurrentSession().subscribe(
                         authDetails => {
-                            const forcedRedirect = this.getForcedRedirect(
-                                authDetails
-                            );
+                            const forcedRedirect = this.getForcedRedirect(authDetails);
                             if (forcedRedirect) {
                                 redirect = forcedRedirect;
                             }
 
                             setTimeout(() => {
-                                this.router.navigateByUrl(redirect || '');
+                                this.router.navigateByUrl(redirect || '').then(success => {
+                                    if (!success) {
+                                        this.router.navigateByUrl('/');
+                                    }
+                                });
+
                                 this.setLoadIndicatorVisibility(false);
                             });
                         },
