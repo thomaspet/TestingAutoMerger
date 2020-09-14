@@ -15,8 +15,10 @@
 </section>
 
 <section class="content">
-    <a *ngFor="let item of items" [routerLink]="item.link" class="unstyled-link item">
-        <span>{{item.label | translate}}</span>
-        <span class="pull-right">{{item.hasAccess ? item.count : '-'}}</span>
-    </a>
+    <ul class="widget-link-list">
+        <a *ngFor="let item of items" [routerLink]="item.link">
+            <span>{{item.label | translate}}</span>
+            <span class="pull-right">{{item.hasAccess ? item.count : 'Mangler tilgang'}}</span>
+        </a>
+    </ul>
 </section>

@@ -1,11 +1,26 @@
 <section class="header">
     <h1>Driftsresultat</h1>
 
-    <button #toggle class="secondary pull-right">
+    <button #resultToggle class="secondary pull-right">
+        {{showAccumulatedResult ? 'Akkumulert resultat' : 'Månedlig resultat'}}
+        <i class="material-icons">expand_more</i>
+    </button>
+    <dropdown-menu [trigger]="resultToggle">
+        <ng-template>
+            <section class="dropdown-menu-item" (click)="setShowAccumulatedResult(false)">
+                Månedlig resultat
+            </section>
+            <section class="dropdown-menu-item" (click)="setShowAccumulatedResult(true)">
+                Akkumulert resultat
+            </section>
+        </ng-template>
+    </dropdown-menu>
+
+    <button #yearToggle class="secondary">
         {{ year }}
         <i class="material-icons">expand_more</i>
     </button>
-    <dropdown-menu [trigger]="toggle">
+    <dropdown-menu [trigger]="yearToggle">
         <ng-template>
             <section class="dropdown-menu-item center"
                 *ngFor="let year of years"
