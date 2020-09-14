@@ -62,7 +62,7 @@ export class VacationPaySettingsModal implements OnInit, IUniModal {
         this.busy = true;
         this.activeYear = this.financialYearService.getActiveYear();
         this.options.cancelValue = this.modalReturn;
-        this.hideCompanySalaryModel = !this.options?.data;
+        this.hideCompanySalaryModel = this.options?.data;
 
             Observable.forkJoin(
                 this._companysalaryService.getCompanySalary(),

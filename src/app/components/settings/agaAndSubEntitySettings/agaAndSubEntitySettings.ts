@@ -681,8 +681,8 @@ export class AgaAndSubEntitySettings implements OnInit {
         this.modalService.open(FreeAmountModal);
     }
 
-    public openVacationSettingsModal(data: boolean = true) {
-        this.modalService.open(VacationPaySettingsModal, {data: data}).onClose.pipe(
+    public openVacationSettingsModal() {
+        this.modalService.open(VacationPaySettingsModal, {data: true}).onClose.pipe(
             switchMap(() => this.companyVacationRateService.getCurrentRates(this.activeYear))
         ).subscribe(x => {
             this.stdCompVacRate = x;
