@@ -185,6 +185,7 @@ export class UniTimeModal implements IUniModal {
                 break;
             case 83: // S
                 if (event.ctrlKey) {
+                    event.preventDefault();
                     this.close('ok');
                 }
                 break;
