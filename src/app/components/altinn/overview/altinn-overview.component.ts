@@ -69,6 +69,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
 
+                // noen felt kommer fra backend, med verdi
                 // this.taxRecords = JSON.parse(data); // report.Data);
                 this.taxRecords.push(report.Records['EnhetNavndatadef1']);
                 this.taxRecords.push(report.Records['Bankinnskudddatadef1189']);
