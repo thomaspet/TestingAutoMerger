@@ -5,7 +5,7 @@ import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
 import { JobService, ErrorService, SharedPayrollRunService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { ImportFileType, ImportOption, TemplateType } from '@app/models/import-central/ImportDialogModel';
+import { ImportFileType, ImportOption, TemplateType, DateFormats } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
@@ -59,7 +59,8 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     attachedFile: File;
     baseUrl: string = environment.BASE_URL_FILES;
-
+    selectedFormat;
+    dateformats;
     constructor(
         public authService: AuthService,
         private http: HttpClient,
@@ -72,6 +73,13 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     ngOnInit(): void {
         if (this.options.data.entity == this.payrollType) {
+
+            this.dateformats = DateFormats;
+            this.selectedFormat = this.dateformats[0];
+
+
+
+
             this.config = {
                 placeholder: 'File type',
                 searchable: false,
@@ -181,6 +189,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
                     CompanyKey: company.Key,
                     CompanyName: company.Name,
                     Url: fileURL,
+                    DateFormat: this.selectedFormat?.type,
                     ImportFileType: this.fileType,
                     ImportOption: this.importOption,
                     OtherParams: { payrollId: this.selectedPayroll.id }
@@ -264,7 +273,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     private showToast(fileName: string, type: TemplateType) {
         if (type != this.saftType) {
             this.toastService.addToast('', ToastType.good, ToastTime.medium,
-            `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`);
+                `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`);
         } else {
             this.toastService.addToast('', ToastType.good, ToastTime.medium,
                 'Du kan lese inn filen flere ganger dersom det skulle oppstå problemer');
@@ -273,6 +282,9 @@ export class ImportTemplateModal implements OnInit, IUniModal {
 
     public onSelectChange(selectedItem) {
         this.selectedPayroll = selectedItem;
+    }
+    public onFormatSelectChange(selectedItem) {
+        this.selectedFormat = selectedItem;
     }
 
     public close() {

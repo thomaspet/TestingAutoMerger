@@ -5,7 +5,7 @@ import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
 import { JobService, ErrorService, SharedPayrollRunService, UserService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { ImportFileType, TemplateType, VoucherOptions } from '@app/models/import-central/ImportDialogModel';
+import { ImportFileType, TemplateType, VoucherOptions, DateFormats } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
 import { DisclaimerModal } from '../../../disclaimer/disclaimer-modal';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
@@ -41,6 +41,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     voucherOptions: VoucherOptions = VoucherOptions.Draft;
     draft: VoucherOptions = VoucherOptions.Draft;
     post: VoucherOptions = VoucherOptions.Post;
+    dateformats;
     isVatEnabled = true;
     keepExistingVoucherNumber = true;
     draftDescription: string = '';
@@ -50,6 +51,8 @@ export class ImportVoucherModal implements OnInit, IUniModal {
         name: 'Kladd',
         type: VoucherOptions.Draft
     };
+
+    selectedFormat;
 
     attachedFile: File;
     baseUrl: string = environment.BASE_URL_FILES;
@@ -66,6 +69,9 @@ export class ImportVoucherModal implements OnInit, IUniModal {
         this.userService.getCurrentUser().subscribe(res => {
             this.user = res;
         });
+
+        this.dateformats = DateFormats;
+        this.selectedFormat = this.dateformats[0]
     }
 
     ngOnInit(): void {
@@ -91,6 +97,11 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     public onSelectChange(selectedItem) {
         this.draftDescription = '';
         this.selectedOption = selectedItem;
+    }
+
+    public onFormatSelectChange(selectedItem) {
+        this.draftDescription = '';
+        this.selectedFormat = selectedItem;
     }
 
     // Trigger click event of input file
@@ -181,6 +192,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
                 const importModel = {
                     CompanyKey: company.Key,
                     CompanyName: company.Name,
+                    DateFormat: this.selectedFormat.type,
                     Url: fileURL,
                     ImportFileType: this.fileType,
                     OtherParams: {

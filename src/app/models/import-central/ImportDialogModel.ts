@@ -39,7 +39,14 @@ export enum TemplateType {
     Order,
     All
 }
+export const DateFormats = [
+    { name: 'dd.MM.yyyy', type: "dd.MM.yyyy" },
+    { name: 'dd/MM/yyyy', type: "dd/MM/yyyy" },
+    { name: 'MM.dd.yyyy', type: "MM.dd.yyyy" },
+    { name: 'MM/dd/yyyy', type: "MM/dd/yyyy" },
 
+
+];
 export enum ImportJobName {
     Customer = 'CustomerImportJob',
     Product = 'ProductImportJob',
