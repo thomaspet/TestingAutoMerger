@@ -6,7 +6,8 @@
 	<article>
         <section>
             Før du kan komme i gang med lønn må standard feriepengesats settes opp i systemet
-            og så kan ansatte registreres. Når begge deler er på plass kan du gjennomføre din første lønnskjøring.
+            og så kan ansatte registreres. Når begge deler er på plass kan du gjennomføre din første
+            {{ 'ENTITIES.PayrollRun' | translate | lowercase }}.
         </section>
         <section *ngIf="!isStandardVacationPaySet">
             <section class="second-header">

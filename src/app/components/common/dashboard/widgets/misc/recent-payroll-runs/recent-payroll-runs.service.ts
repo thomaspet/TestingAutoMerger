@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { DashboardDataService } from '../../../dashboard-data.service';
-import { UniTranslationService } from '@app/services/services';
+import { UniTranslationService, FinancialYearService } from '@app/services/services';
 import { map } from 'rxjs/operators';
 import * as moment from 'moment';
 
@@ -19,7 +19,7 @@ export class RecentPayrollRunsService {
         private translationService: UniTranslationService,
     ) { }
 
-    getData(): Observable<IPayrollRun[]> {
+    getData(year: number): Observable<IPayrollRun[]> {
         return this.dataService
             .get(`/api/statistics`
                 + `?model=PayrollRun`
@@ -31,7 +31,7 @@ export class RecentPayrollRunsService {
                     + `,CreatedAt`
                 + `&orderby=CreatedAt desc`
                 + `&top=10`
-                + `&filter=year(PayDate) eq activeyear()`
+                + `&filter=year(PayDate) eq ${year}`
             )
             .pipe(
                 map(result => result.Data.map(data => ({...data, payDate: data.payDate && moment(data.payDate).format('L')})))

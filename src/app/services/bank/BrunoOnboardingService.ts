@@ -78,29 +78,29 @@ export class BrunoOnboardingService {
         return new Observable(observer => {
             this.bankService.createInitialAgreement(this.agreementDetails).subscribe(
                 agreement => {
-                    this.modalService.open(BrunoBankOnboardingModal, {
-                        data: agreement
-                    }).onClose.subscribe(externalOnboardingOpened => {
-                        if (externalOnboardingOpened) {
-                            this.authService.reloadCurrentSession().subscribe(() => {
+                    this.authService.reloadCurrentSession().subscribe(() => {
+                        this.modalService.open(BrunoBankOnboardingModal, {
+                            data: agreement
+                        }).onClose.subscribe(externalOnboardingOpened => {
+                            if (externalOnboardingOpened) {
                                 observer.next(agreement);
                                 observer.complete();
-                            });
-                        } else {
-                            // Remove the newly created agreement if the user just closed
-                            // the dialog without going to the external onboarding step.
-                            this.bankService.deleteAgreement(agreement).subscribe(
-                                () => {
-                                    observer.next(null);
-                                    observer.complete();
-                                },
-                                err => {
-                                    console.error(err);
-                                    observer.next(null);
-                                    observer.complete();
-                                }
-                            );
-                        }
+                            } else {
+                                // Remove the newly created agreement if the user just closed
+                                // the dialog without going to the external onboarding step.
+                                this.bankService.deleteAgreement(agreement).subscribe(
+                                    () => {
+                                        observer.next(null);
+                                        observer.complete();
+                                    },
+                                    err => {
+                                        console.error(err);
+                                        observer.next(null);
+                                        observer.complete();
+                                    }
+                                );
+                            }
+                        });
                     });
                 },
                 err => {

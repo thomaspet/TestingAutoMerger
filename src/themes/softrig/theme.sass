@@ -63,7 +63,7 @@ body
 
     --button-c2a: #00c8eb
     --button-c2a-hover: #00aacd
-
+    
     --button-good: #00c8eb
     --button-good-hover:#00aacd
 
@@ -145,6 +145,21 @@ button
         color: #000 !important
         font-weight: 500 !important
 
+//--------------------------overriding the login.sass, feels hacky------------------------------
+
+.login-container
+    button.c2a
+        font-family: 'Montserrat', sans-serif !important
+        font-size: 27px !important
+
+.background
+    margin-top: 5rem !important
+
+.init-header
+    margin-top: 2rem
+
+//-----------------------------end the login and init part---------------------------------------
+
 .tab-strip
     span
         font-weight: 600
@@ -154,4 +169,5 @@ button
 h1, h2, h3, h4, h5
     font-family: 'Montserrat', sans-serif !important
     font-weight: 600 !important
+
 //------------------above should be replaced with var options later---------------------------
