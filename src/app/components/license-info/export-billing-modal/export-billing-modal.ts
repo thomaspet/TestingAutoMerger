@@ -161,6 +161,7 @@ export class ExportBillingModal implements IUniModal {
 
     convertToCsvAndDownload (cb: CompanyBilling[]) {
         try {
+            const formatNumber = value => value.toString().replace('.', ',');
             const csv = [];
 
             // csv files has to start with BOM (uFEFF) to support ÆØÅ
@@ -187,7 +188,7 @@ export class ExportBillingModal implements IUniModal {
                         '',
                         product.ProductID,
                         '',
-                        product.Amount,
+                        formatNumber(product.Amount),
                         '',
                         '',
                         '',
