@@ -60,6 +60,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'BANK_BALANCE',
             'PAYMENTS',
+            'BANK_STATUS'
         ]
     }
 };

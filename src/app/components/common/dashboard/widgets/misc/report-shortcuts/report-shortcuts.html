@@ -13,18 +13,9 @@
     </widget-empty-state>
 
 
-    <section id="report-list">
-        <a *ngFor="let report of selectedReports" (click)="openReport(report)" class="unstyled-link report-item">
+    <ul id="report-list" class="widget-link-list">
+        <a *ngFor="let report of selectedReports" tabindex="0" (click)="openReport(report)">
             {{report.Name}}
         </a>
-    </section>
-
-
-    <!-- <ul id="report-list">
-        <ng-container *ngIf="!unauthorized">
-            <li *ngFor="let report of selectedReports" (click)="openReport(report)">
-                {{ report.Name }}
-            </li>
-        </ng-container>
-    </ul> -->
+    </ul>
 </section>

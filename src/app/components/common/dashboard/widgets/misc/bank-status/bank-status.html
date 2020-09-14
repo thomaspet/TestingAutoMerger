@@ -1,0 +1,23 @@
+<section class="header">
+    <h1>Bankstatus</h1>
+</section>
+
+<section class="content">
+    <ul class="widget-link-list">
+        <a *ngFor="let item of items" (click)="navigate(item.route)" tabindex="0">
+            <span>{{item.label}}</span>
+            <span class="pull-right">{{item.count}}</span>
+        </a>
+    </ul>
+
+    <a *ngIf="lastAvtaleGiroBatch" (click)="navigate('/bank/ticker?code=avtalegiro_list')" class="alert info unstyled-link" tabindex="0">
+        <section>
+            <strong>Siste avtalegiro forsendelse:</strong>
+            {{lastAvtaleGiroBatch.CreatedAt | date: 'dd.MM.yyyy'}}
+        </section>
+
+        <section>
+            {{lastAvtaleGiroBatch.NumberOfPayments}} poster med en totalsum på {{lastAvtaleGiroBatch.TotalAmount | uninumberformat: 'money'}}
+        </section>
+    </a>
+</section>

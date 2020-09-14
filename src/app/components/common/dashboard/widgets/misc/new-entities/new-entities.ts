@@ -9,7 +9,6 @@ import {catchError, map} from 'rxjs/operators';
 @Component({
     selector: 'new-entities-widget',
     templateUrl: './new-entities.html',
-    styleUrls: ['./new-entities.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NewEntitiesWidget {
