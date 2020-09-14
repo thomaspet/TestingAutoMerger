@@ -24,6 +24,7 @@ import {SalaryShortcutsComponent} from './misc/salary-shortcuts/salary-shortcuts
 import {NewEntitiesWidget} from './misc/new-entities/new-entities';
 import {ReportShortcutsWidget, SelectReportsModal} from './misc/report-shortcuts/report-shortcuts';
 import {WorkItemPieChart} from './charts/workitem-pie-chart/workitem-pie-chart';
+import {BankStatusWidget} from './misc/bank-status/bank-status';
 
 export * from './widget';
 
@@ -54,7 +55,8 @@ export const WIDGET_COMPONENTS = [
     SalaryShortcutsComponent,
     NewEntitiesWidget,
     ReportShortcutsWidget,
-    SelectReportsModal
+    SelectReportsModal,
+    BankStatusWidget,
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -141,7 +143,15 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         component: theme.theme === THEMES.EXT02 ? Ext02BankBalanceWidget : BankBalanceWidget,
         routePermissions: ['ui_bank']
     },
-
+    {
+        name: 'BANK_STATUS',
+        label: 'Bankstatus',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.BANK,
+        component: BankStatusWidget,
+        routePermissions: ['ui_bank']
+    },
     {
         name: 'INVOICED',
         label: 'Fakturert',
