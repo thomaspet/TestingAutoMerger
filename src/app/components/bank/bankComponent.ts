@@ -1242,8 +1242,10 @@ export class BankComponent {
             return;
         }
 
-        this.modalService.open(UniAutobankAgreementModal, { data: { agreements: this.agreements },
-            closeOnClickOutside: false }).onClose.subscribe(() => {
+        this.modalService.open(UniAutobankAgreementModal, {
+            data: { agreements: this.unfilteredAgreements },
+            closeOnClickOutside: false
+        }).onClose.subscribe(() => {
             this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {
                 this.agreements = result;
                 this.toolbarconfig.contextmenu = this.getContextMenu();
