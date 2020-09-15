@@ -2181,12 +2181,10 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
+        const customerInvoice = journalEntryRow.CustomerInvoice;
 
         if (sign === 1) {
    
-            const customerInvoice = journalEntryRow.CustomerInvoice;
-
-            const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
             return new Promise(resolve => {
                 const paymentData: Partial<InvoicePaymentData> = {
                     Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
@@ -2241,8 +2239,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         } else {
 
-            const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
-            const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
             return new Promise(resolve => {
                 const paymentData: Partial<InvoicePaymentData> = {
                     Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
