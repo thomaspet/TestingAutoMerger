@@ -4,12 +4,18 @@ import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {AuthService} from '@app/authService';
 import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService} from '@app/services/services';
-import {map, catchError} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {get} from 'lodash';
-import {of, Subscription, forkJoin} from 'rxjs';
+import {forkJoin} from 'rxjs';
 import {THEMES, theme} from 'src/themes/theme';
 import {ElsaContractType, ElsaContract} from '@app/models/elsa-models';
-import {ActivatedRoute, Router} from '@angular/router';
+
+enum STEPS {
+    CONTRACT_TYPE,
+    COMPANY_STEP1,
+    COMPANY_STEP2,
+    CONTRACT_ACTIVATION,
+}
 
 @Component({
     selector: 'company-creation-wizard',
@@ -20,6 +26,8 @@ export class CompanyCreationWizard {
     @ViewChild('companyNameInput') companyNameInput: ElementRef<HTMLInputElement>;
 
     @Input() contractID: number;
+    @Input() includeContractActivation: boolean;
+    @Input() createDemoCompany: boolean;
 
     contractActivated: boolean;
     isBrunoEnv = theme.theme === THEMES.EXT02;
@@ -28,9 +36,6 @@ export class CompanyCreationWizard {
     contract: ElsaContract;
     contractTypes: ElsaContractType[];
     selectedContractType: number;
-
-    createDemoCompany: boolean;
-    includeContractActivation: boolean;
 
     step1Form = new FormGroup({
         CompanyName: new FormControl('', Validators.required),
@@ -52,13 +57,9 @@ export class CompanyCreationWizard {
     companyName: string;
     orgNumber: string;
 
+    STEPS = STEPS;
     currentStep: number;
-    contractActivationVisible = false;
     companyCreationFailed = false;
-
-    routeSubscription: Subscription;
-    isTest: boolean;
-    headerText: string;
 
     constructor(
         private authService: AuthService,
@@ -68,8 +69,6 @@ export class CompanyCreationWizard {
         private errorService: ErrorService,
         private companyService: CompanyService,
         private elsaContractService: ElsaContractService,
-        private route: ActivatedRoute,
-        private router: Router,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -83,55 +82,32 @@ export class CompanyCreationWizard {
         if (this.isBrunoEnv) {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
         }
-
-        this.routeSubscription = this.route.queryParamMap.subscribe(params => {
-            this.isTest = params.get('isTest') === 'true' || false;
-
-            this.createDemoCompany = this.isTest;
-            this.includeContractActivation = !this.isTest;
-            if (!this.currentStep  && this.isTest) {
-                this.currentStep = 1;
-            }
-
-            this.setHeaderText();
-        });
-
-        forkJoin([
-            this.elsaContractService.getAll(),
-            this.elsaContractService.getCustomContractTypes()
-        ]).subscribe(
-            ([contracts, contractTypes]) => {
-                this.contract = contracts && contracts[0];
-                this.contractTypes = contractTypes || [];
-                this.currentStep = this.contractTypes.length && !this.createDemoCompany ? 0 : 1;
-            },
-            err => console.error(err)
-        );
     }
 
-    ngOnDestroy() {
-        this.routeSubscription?.unsubscribe();
-    }
-
-    setHeaderText() {
-        if (this.includeContractActivation) {
-            if (this.currentStep === 1) {
-                this.headerText = 'Selskapsinformasjon';
-            } else if (this.currentStep === 2) {
-                this.headerText = 'Selskapsinnstillinger';
+    ngOnChanges() {
+        if (this.contractID) {
+            if (this.createDemoCompany) {
+                this.currentStep = STEPS.COMPANY_STEP1;
             } else {
-                this.headerText = 'Aktiver kundeforhold';
+                console.log('lookup');
+                forkJoin([
+                    this.elsaContractService.getAll(),
+                    this.elsaContractService.getCustomContractTypes()
+                ]).subscribe(
+                    ([contracts, contractTypes]) => {
+                        this.contract = contracts?.find(c => c.ID === this.contractID);
+                        this.contractTypes = contractTypes || [];
+                        this.currentStep = this.contractTypes.length ? STEPS.CONTRACT_TYPE : STEPS.COMPANY_STEP1;
+                    },
+                    err => console.error(err)
+                );
             }
-
-        } else {
-            this.headerText = 'Opprett selskap';
         }
     }
 
     onContractTypeSelected(type: ElsaContractType) {
         this.selectedContractType = type.ContractType;
-        this.currentStep = 1;
-        this.setHeaderText();
+        this.currentStep = STEPS.COMPANY_STEP1;
         if (this.contract?.Customer?.OrgNumber?.length) {
             this.orgNumberLookup(this.contract.Customer.OrgNumber).subscribe(
                 res => this.onBrRegCompanyChange(res[0]),
@@ -177,38 +153,30 @@ export class CompanyCreationWizard {
         setTimeout(() => this.companyNameInput?.nativeElement?.focus());
     }
 
-    back() {
-        if ((this.includeContractActivation && this.currentStep > 0) || (!this.includeContractActivation && this.currentStep === 2)) {
-            this.currentStep--;
-            this.setHeaderText();
-        } else {
-            this.router.navigateByUrl('/init/register-company');
-        }
-    }
-
-    next() {
+    step1FormSubmit() {
         this.step1Form.markAllAsTouched();
         if (this.step1Form.valid) {
-            this.currentStep++;
-            this.setHeaderText();
+            this.currentStep = STEPS.COMPANY_STEP2;
         }
     }
 
-    onCompanyFormSubmit() {
-        if (this.includeContractActivation && !this.contractActivated) {
-            const companyData = this.step1Form.value;
-            this.orgNumber = companyData.OrganizationNumber;
-            this.companyName = companyData.CompanyName;
+    step2FormSubmit() {
+        this.step2Form.markAllAsTouched();
+        if (this.step2Form.valid) {
+            if (this.includeContractActivation && !this.contractActivated) {
+                const companyData = this.step1Form.value;
+                this.orgNumber = companyData.OrganizationNumber;
+                this.companyName = companyData.CompanyName;
 
-            this.contractActivationVisible = true;
-        } else {
-            this.createCompany();
+                this.currentStep = STEPS.CONTRACT_ACTIVATION;
+            } else {
+                this.createCompany();
+            }
         }
     }
 
     onContractActivated() {
         this.contractActivated = true;
-        this.contractActivationVisible = false;
         this.createCompany();
     }
 
@@ -242,7 +210,7 @@ export class CompanyCreationWizard {
                 () => this.checkCompanyCreationStatus(body.CompanyName),
                 err => {
                     this.errorService.handle(err);
-                    this.currentStep = 1;
+                    this.currentStep = STEPS.COMPANY_STEP1;
                     this.companyCreationFailed = true;
                     this.busyCreatingCompany = false;
                 }
