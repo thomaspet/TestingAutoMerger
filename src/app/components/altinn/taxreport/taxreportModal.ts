@@ -62,14 +62,14 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     private getTaxConfig(): IUniTableConfig {
 
-        const keyCol = new UniTableColumn('Key', 'Tekst', UniTableColumnType.Text);
-        const formCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
-        const yearCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text);
-        const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean);
+        const keyCol = new UniTableColumn('Key', 'Tekst', UniTableColumnType.Text); // hidden
+        const textCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text, false);
+        const valueCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text, true);
+        const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true); // TODO checkbox
 
-        return new UniTableConfig('salary.altinn-overview', false)
+        return new UniTableConfig('salary.altinn-overview')
             // .setColumns([keyCol]);
-            .setColumns([formCol, yearCol, verifiedCol]);
+            .setColumns([textCol, valueCol, verifiedCol]);
     }
 
     private focus(record: FormRecord) {
