@@ -10,6 +10,8 @@ import {Observable} from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router } from '@angular/router';
 import { TaxReportService, TaxReport, FormRecord } from '@app/services/common/taxReportService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { TaxReportModal } from '../taxreport/taxreportModal';
 
 @Component({
     selector: 'uni-altinn-overview',
@@ -44,6 +46,12 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             action: () => this.router.navigateByUrl('/altinn/childcare'),
             disabled: false,
             main: false
+        },
+        {
+            label: 'Test årsoppgjør',
+            action: () => this.modalService.open(TaxReportModal)/*.onClose.subscribe(() => { })*/,
+            disabled: false,
+            main: false
         }
     ];
 
@@ -53,6 +61,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         private altinnReceiptService: AltinnReceiptService,
         private taxReportService: TaxReportService,
         private tabService: TabService,
+        private modalService: UniModalService,
         private router: Router
     ) {}
 
@@ -71,8 +80,8 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
                 // noen felt kommer fra backend, med verdi
                 // this.taxRecords = JSON.parse(data); // report.Data);
-                this.taxRecords.push(report.Records['EnhetNavndatadef1']);
-                this.taxRecords.push(report.Records['Bankinnskudddatadef1189']);
+                this.taxRecords.push(report.Records['EnhetNavn-datadef-1']);
+                this.taxRecords.push(report.Records['Bankinnskudd-datadef-1189']);
                 this.taxRecords$.next(this.taxRecords);
             /* this.taxReportService.SaveTaxReport(report).subscribe((saved) => {
                 this.taxReportService.SendTaxReport(saved.ID);
