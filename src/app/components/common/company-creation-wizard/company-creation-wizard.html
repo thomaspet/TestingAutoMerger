@@ -1,5 +1,6 @@
 <ng-container *ngIf="!busyCreatingCompany">
-    <section class="contract-types" *ngIf="currentStep === 0 && includeContractActivation && contractTypes?.length">
+    <!-- Contract type selection -->
+    <section class="contract-types" *ngIf="currentStep === STEPS.CONTRACT_TYPE">
         <section class="contract-type-grid">
             <contract-type-card
                 *ngFor="let contractType of contractTypes"
@@ -11,51 +12,71 @@
 
         <contract-types-comparison></contract-types-comparison>
     </section>
-    <section *ngIf="!contractActivationVisible && currentStep > 0" class="uni-card shadow">
+
+
+    <!-- Company form part 1 -->
+    <section *ngIf="currentStep === STEPS.COMPANY_STEP1" class="uni-card shadow">
         <section class="uni-card-content">
-            <h1>{{headerText}}</h1>
+            <h1>Selskapsinformasjon</h1>
 
-            <ng-container *ngIf="currentStep === 1">
-                <autocomplete
-                    [options]="autocompleteOptions"
-                    (valueChange)="onBrRegCompanyChange($event)">
-                </autocomplete>
+            <autocomplete
+                [options]="autocompleteOptions"
+                (valueChange)="onBrRegCompanyChange($event)">
+            </autocomplete>
 
-                <section *ngIf="companyCreationFailed" class="alert bad">
-                    Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
+            <section *ngIf="companyCreationFailed" class="alert bad">
+                Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
+            </section>
+
+            <form [formGroup]="step1Form">
+                <label #companyNameInput class="uni-label">
+                    <span>Firmanavn</span>
+                    <input type="text" formControlName="CompanyName">
+                </label>
+
+                <label class="uni-label">
+                    <span>Organisasjonsnummer</span>
+                    <input type="text" formControlName="OrganizationNumber">
+                </label>
+
+                <label class="uni-label">
+                    <span>Adresse</span>
+                    <input type="text" formControlName="Address">
+                </label>
+
+                <section class="input-row">
+                    <label class="uni-label">
+                        <span>Postnummer</span>
+                        <input type="text" formControlName="PostalCode">
+                    </label>
+
+                    <label class="uni-label">
+                        <span>Poststed</span>
+                        <input type="text" formControlName="City">
+                    </label>
                 </section>
+            </form>
+        </section>
 
-                <form [formGroup]="step1Form">
-                    <label #companyNameInput class="uni-label">
-                        <span>Firmanavn</span>
-                        <input type="text" formControlName="CompanyName">
-                    </label>
+        <section class="uni-card-footer">
+            <button class="secondary pull-left"
+                *ngIf="includeContractActivation && contractTypes?.length"
+                (click)="currentStep = STEPS.CONTRACT_TYPE">
+                Tilbake
+            </button>
 
-                    <label class="uni-label">
-                        <span>Organisasjonsnummer</span>
-                        <input type="text" formControlName="OrganizationNumber">
-                    </label>
+            <button class="c2a" (click)="step1FormSubmit()" (keydown.tab)="$event.preventDefault()">
+                Neste
+            </button>
+        </section>
+    </section>
 
-                    <label class="uni-label">
-                        <span>Adresse</span>
-                        <input type="text" formControlName="Address">
-                    </label>
+    <!-- Company form part 2 -->
+    <section *ngIf="currentStep === STEPS.COMPANY_STEP2" class="uni-card shadow">
+        <section class="uni-card-content">
+            <h1>Selskapsinnstillinger</h1>
 
-                    <section class="input-row">
-                        <label class="uni-label">
-                            <span>Postnummer</span>
-                            <input type="text" formControlName="PostalCode">
-                        </label>
-
-                        <label class="uni-label">
-                            <span>Poststed</span>
-                            <input type="text" formControlName="City">
-                        </label>
-                    </section>
-                </form>
-            </ng-container>
-
-            <form *ngIf="currentStep === 2" [formGroup]="step2Form" uniAutoFocus>
+            <form [formGroup]="step2Form" uniAutoFocus>
                 <label *ngIf="step2Form.controls['AccountNumber']" class="uni-label">
                     <span>Driftskonto</span>
                     <input type="text" formControlName="AccountNumber">
@@ -84,33 +105,29 @@
         </section>
 
         <section class="uni-card-footer">
-            <button class="secondary pull-left" (click)="back()">
+            <button class="secondary pull-left" (click)="currentStep = STEPS.COMPANY_STEP1">
                 Tilbake
             </button>
 
-            <button class="c2a" *ngIf="currentStep === 1" (click)="next()" (keydown.tab)="$event.preventDefault()">
-                Neste
-            </button>
-
             <button class="c2a"
-                *ngIf="currentStep === 2"
                 [disabled]="!step2Form.valid"
-                (click)="onCompanyFormSubmit()"
+                (click)="step2FormSubmit()"
                 (keydown.tab)="$event.preventDefault()">
                 {{includeContractActivation && !contractActivated ? 'Neste' : 'Opprett selskap'}}
             </button>
         </section>
     </section>
 
+    <!-- Contract activation -->
     <contract-activation-wizard
-        *ngIf="contractActivationVisible"
+        *ngIf="currentStep === STEPS.CONTRACT_ACTIVATION"
         [contractID]="contractID"
         [companyName]="companyName"
         [orgNumber]="orgNumber"
         [contractType]="selectedContractType"
         [customer]="contract.Customer"
         (contractActivated)="onContractActivated()"
-        (back)="contractActivationVisible = false; currentStep = 2">
+        (back)="currentStep = STEPS.COMPANY_STEP2">
     </contract-activation-wizard>
 </ng-container>
 

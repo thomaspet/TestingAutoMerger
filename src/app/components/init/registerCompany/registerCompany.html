@@ -12,7 +12,8 @@
         <!-- If the user already have an active contract we only offer company creation -->
         <company-creation-wizard
             *ngIf="hasActiveContract"
-            [contractID]="contractID">
+            [contractID]="contractID"
+            [includeContractActivation]="false">
         </company-creation-wizard>
 
         <ng-container *ngIf="!hasActiveContract">
@@ -44,7 +45,9 @@
 
             <company-creation-wizard
                 *ngIf="selectedCompanyType === 'company'"
-                [contractID]="contractID">
+                [contractID]="contractID"
+                [createDemoCompany]="isTest"
+                [includeContractActivation]="!isTest">
             </company-creation-wizard>
         </ng-container>
     </ng-container>
