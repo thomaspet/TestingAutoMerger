@@ -82,11 +82,15 @@ export class SalaryBalanceListComponent implements OnInit, OnChanges, AfterViewI
         }
 
         private setFocus(salaryBalance: SalaryBalance, salaryBalances: SalaryBalance[], table: UniTable) {
+            if (this.focus?._createguid === salaryBalance?._createguid || this.focus?.ID === salaryBalance?.ID) {
+                return;
+            }
             table.focusRow(
                 salaryBalance['_originalIndex'] ||
                 salaryBalances.findIndex(salBal => salaryBalance.ID
                     ? salBal.ID === salaryBalance.ID
                     : salBal._createguid === salaryBalance._createguid));
+            this.focus = salaryBalance;
         }
 
         private setSelected(salaryBalances: SalaryBalance[]) {

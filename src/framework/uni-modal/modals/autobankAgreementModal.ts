@@ -10,6 +10,7 @@ import {
 } from '@app/services/services';
 import {Observable} from 'rxjs';
 import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
+import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
 
 
 @Component({
@@ -181,7 +182,7 @@ import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/model
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
 
                     <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
-                        Bekreft eksisterende passord
+                        Bekreft eksisterende autobankpassord
                     </span>
 
                     <section class="uni-html-form bank-agreement-password-form">
@@ -279,8 +280,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     public ngOnInit() {
         if (this.options && this.options.data && this.options.data.agreements) {
-            this.agreements = this.options.data.agreements;
-            this.hasAgreements = !!this.agreements && this.agreements.length > 0;
+            this.hasAgreements = !!this.options?.data?.agreements && this.options?.data?.agreements?.length > 0;
+            this.agreements = this.options.data.agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
         }
 
         Observable.forkJoin(

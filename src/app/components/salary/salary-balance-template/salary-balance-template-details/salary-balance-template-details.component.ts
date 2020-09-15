@@ -1,7 +1,7 @@
 import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, forkJoin, of} from 'rxjs';
 import {SalaryBalanceTemplate, Supplier, Employee} from '@uni-entities';
-import {UniForm} from '@uni-framework/ui/uniform';
+import {UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
 import {ActivatedRoute, Router} from '@angular/router';
 import {
   SalarybalanceService, ErrorService, UniCacheService
@@ -39,17 +39,22 @@ export class SalaryBalanceTemplateDetailsComponent extends UniView {
         super.updateCacheKey(router.url);
         super.getStateSubject(SALBAL_TEMPLATE_KEY)
           .switchMap(salarybalanceTemplate =>
-            salarybalanceService.updateFields(
-              salarybalanceTemplate,
-              'salarybalancetemplate',
-              salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID,
-              null,
-              this.lastChanges$,
-              this.uniform,
-              this.fields$,
-              this.ignoreFields)
+                forkJoin(
+                    [
+                        of(salarybalanceTemplate),
+                        salarybalanceService.updateFields(
+                            salarybalanceTemplate,
+                            'salarybalancetemplate',
+                            salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID,
+                            null,
+                            this.lastChanges$,
+                            this.uniform,
+                            this.ignoreFields
+                        )
+                    ]
+                )
           )
-          .subscribe((salarybalanceTemplate: SalaryBalanceTemplate) => {
+          .subscribe(([salarybalanceTemplate, layout]: [SalaryBalanceTemplate, UniFieldLayout[]]) => {
             if (salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID) {
               this.setup(salarybalanceTemplate);
             }
@@ -99,7 +104,7 @@ export class SalaryBalanceTemplateDetailsComponent extends UniView {
   private setup(currTemplate: SalaryBalanceTemplate) {
     this.salarybalanceService
       .refreshLayout(currTemplate, this.ignoreFields, 'salarybalancetemplate', 'SalaryBalanceTemplateID', false)
-      .map(reponse => this.setText(currTemplate))
+      .map(() => this.setText(currTemplate))
       .subscribe(response => {
         this.currentTemplate$.next(response);
       });

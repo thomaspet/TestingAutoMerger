@@ -277,4 +277,12 @@ export class MarketplaceModules implements AfterViewInit {
             this.modalService.open(MissingPurchasePermissionModal);
         }
     }
+
+    openLinkInNewTab() {
+        if (theme.theme === THEMES.SR) {
+            window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
+        } else {
+            window.open('https://info.unieconomy.no/priser', '_blank');
+        }
+    }
 }
