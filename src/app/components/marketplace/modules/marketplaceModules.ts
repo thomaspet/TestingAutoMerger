@@ -75,7 +75,7 @@ export class MarketplaceModules implements AfterViewInit {
         });
 
         if (theme.theme === THEMES.UE) {
-            this.priceListLink = 'https://www.unimicro.no/vaare-losninger/uni-economy/priser';
+            this.priceListLink = 'https://info.unieconomy.no/priser';
         } else if (theme.theme === THEMES.SR) {
             this.priceListLink = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html';
         }
@@ -275,14 +275,6 @@ export class MarketplaceModules implements AfterViewInit {
             );
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
-        }
-    }
-
-    openLinkInNewTab() {
-        if (theme.theme === THEMES.SR) {
-            window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
-        } else {
-            window.open('https://info.unieconomy.no/priser', '_blank');
         }
     }
 }
