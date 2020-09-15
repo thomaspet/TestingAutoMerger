@@ -254,7 +254,7 @@ export const NO = {
         'PAYROLL': 'Lønnsavregning',
         'AMELDING': 'A-melding',
         'BALANCE': 'Saldo',
-        'ADDITIONAL_INFORMATION': 'Tillegsopplysninger',
+        'ADDITIONAL_INFORMATION': 'Tilleggsopplysninger',
         'ANNUAL_ASSIGNMENT': 'Årsoppgave til inntektsmottaker',
         'OTP_EXPORT': 'OTP-eksport',
         'VARIABLE_PAYROLLS': 'Variable lønnsposter',
