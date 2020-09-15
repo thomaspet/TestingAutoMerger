@@ -245,7 +245,7 @@ export class MarketplaceModules implements AfterViewInit {
         if (this.isSrEnvironment) {
             window.open('https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html', '_blank');
         } else {
-            window.open('https://www.unimicro.no/vaare-losninger/uni-economy/priser', '_blank');
+            window.open('https://info.unieconomy.no/priser', '_blank');
         }
     }
 }
