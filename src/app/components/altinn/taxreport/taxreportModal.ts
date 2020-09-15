@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, OnInit, ViewChild } from '@angu
 import { FormRecord, TaxReport, TaxReportService } from '@app/services/common/taxReportService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
-import { IUniModal, UniModalService } from '@uni-framework/uni-modal';
+import { IUniModal } from '@uni-framework/uni-modal';
 import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
 
 @Component({
@@ -31,22 +31,22 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
             .subscribe((report: TaxReport) => {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
-
+                // this.taxRecords = this.taxReportService.getTaxReportRecords(report);
                 // noen felt kommer fra backend, med verdi
-                // this.taxRecords = JSON.parse(data); // report.Data);
-                this.taxRecords.push(report.Records['EnhetNavn-datadef-1']);
-                this.taxRecords.push(report.Records['Bankinnskudd-datadef-1189']);
+                const data = JSON.parse(report.Data);
+                Object.keys(data).forEach(key => {
+                    const value = data[key];
+                    this.taxRecords.push(value);
+                });
                 this.taxRecords$.next(this.taxRecords);
 
-                this.focus(this.taxRecords[0]);
+                // this.focus(this.taxRecords[0]);
         });
         this.taxConfig$.next(this.getTaxConfig());
     }
 
     public ngAfterViewInit(): void {
         this.table$.next(this.table);
-
-        // .subscribe(receipts => this.focus(receipts[0])
     }
 
     public saveAndSend() {

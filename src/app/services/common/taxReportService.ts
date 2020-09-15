@@ -69,6 +69,18 @@ export class TaxReportService extends BizHttp<TaxReport> {
         return result;
     }
 
+    // Dette er kun for visning. For oppdatering må vi også ha Key
+    public getTaxReportRecords(taxReport: TaxReport): FormRecord[] {
+        const taxRecords: FormRecord[] = [];
+        // Object.entries(obj).map(([key, val]) => console.log(key, '=>', val));
+        Object.keys(taxReport.Records).forEach(key => {
+            // her kommer trolig en endring, Text hentes fra json fil i front e.l.
+            const value = taxReport.Records[key];
+            taxRecords.push(value);
+        });
+        return taxRecords;
+    }
+
     public getRecords(code: string): FormRecord[] {
         const taxRecords: FormRecord[] = [];
         if (code === 'RF-1167') {
