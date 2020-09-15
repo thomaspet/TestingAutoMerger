@@ -1313,7 +1313,7 @@ export class BankComponent {
         }
 
         this.modalService.open(UniAutobankAgreementModal, {
-            data: { agreements: this.agreements },
+            data: { agreements: this.unfilteredAgreements },
             closeOnClickOutside: false
         }).onClose.subscribe(() => {
             this.paymentBatchService.checkAutoBankAgreement().subscribe(result => {
