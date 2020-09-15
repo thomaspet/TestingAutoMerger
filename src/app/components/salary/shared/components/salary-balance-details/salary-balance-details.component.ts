@@ -63,7 +63,7 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
                             ? this.salarybalanceService.fill(model)
                             : of(model);
                     }),
-                    map(model => {
+                    map((model: SalaryBalance) => {
 
                         if (changes['InstalmentType']) {
                             this.salarybalanceService.resetFields(model);
@@ -104,23 +104,33 @@ export class SalaryBalanceDetailsComponent implements OnChanges {
 
                         return model;
                     }),
-                    tap(() => this.lastChanges$.next(changes))
+                    tap((model) => {
+                        this.lastChanges$.next(changes);
+                        this.updateSalaryBalance(model);
+                    }),
+                    switchMap(model => changes['InstalmentType'] || changes['SalaryBalanceTemplateID'] || changes['EmployeeID']
+                        ? this.salarybalanceService
+                            .refreshLayout(
+                                model,
+                                this.ignoreFields,
+                                'salarybalance',
+                                'SalarybalanceDetails',
+                                !!model.SalaryBalanceTemplateID
+                            )
+                        : this.salarybalanceService
+                            .updateFields(
+                                model,
+                                'salarybalance',
+                                false,
+                                changes,
+                                this.lastChanges$,
+                                this.form,
+                                this.ignoreFields,
+                                !!model.SalaryBalanceTemplateID
+                            )
+                    ),
                 )
-                .subscribe((model: SalaryBalance) => {
-                    this.updateSalaryBalance(model);
-                    if (changes['InstalmentType'] || changes['SalaryBalanceTemplateID'] || changes['EmployeeID']) {
-                        this.salarybalanceService.refreshLayout(
-                            model, this.ignoreFields, 'salarybalance', 'SalarybalanceDetails', !!model.SalaryBalanceTemplateID)
-                            .subscribe((result: UniFieldLayout[]) => {
-                                this.fields$.next(result);
-                            });
-                    } else {
-                        this.salarybalanceService.updateFields(
-                            model, 'salarybalance', false, changes, this.lastChanges$,
-                            this.form, this.fields$, this.ignoreFields, !!model.SalaryBalanceTemplateID)
-                            .subscribe();
-                    }
-                });
+                .subscribe((fields) => this.fields$.next(fields));
         }
 
         private updateSalaryBalance(model: SalaryBalance) {

@@ -56,7 +56,7 @@ export class SalaryBalanceComponent extends UniView implements OnInit {
         if (!salaryBalances) {
             return;
         }
-        this.salarybalances = _.cloneDeep(salaryBalances);
+        this.salarybalances = [...salaryBalances];
     }
 
     public onUpdatedList(salaryBalances: SalaryBalance[]) {
