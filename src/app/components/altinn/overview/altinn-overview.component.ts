@@ -9,7 +9,6 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {Observable} from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router } from '@angular/router';
-import { TaxReportService, TaxReport, FormRecord } from '@app/services/common/taxReportService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { TaxReportModal } from '../taxreport/taxreportModal';
 
@@ -25,14 +24,6 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
     receipts$: BehaviorSubject<AltinnReceipt[]> = new BehaviorSubject([]);
     config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
     selectedReceipt$: BehaviorSubject<AltinnReceipt> = new BehaviorSubject(null);
-    // testing årsoppgjør - move to modal
-    taxReport$: BehaviorSubject<TaxReport> = new BehaviorSubject(null);
-    taxRecords$: BehaviorSubject<FormRecord[]> = new BehaviorSubject([]);
-    // taxRecords$: BehaviorSubject<{ Key: string, record: FormRecord}[]> = new BehaviorSubject([]);
-    taxReportCode: string;
-    taxRecords: FormRecord[] = [];
-    taxConfig$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
-    // testing årsoppgjør
     busy: boolean;
     actions: IUniSaveAction[] = [
         {
@@ -59,7 +50,6 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
 
     constructor (
         private altinnReceiptService: AltinnReceiptService,
-        private taxReportService: TaxReportService,
         private tabService: TabService,
         private modalService: UniModalService,
         private router: Router
@@ -72,25 +62,8 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             .do(receipts => this.receipts$.next(receipts))
             .subscribe(receipts => this.focus(receipts[0]));
 
-        // testing årsoppgjør - move to modal
-        this.taxReportService.GetOrCreateTaxReport()
-            .subscribe((report: TaxReport) => {
-                this.taxReport$.next(report);
-                this.taxReportCode = report.Code;
-
-                // noen felt kommer fra backend, med verdi
-                // this.taxRecords = JSON.parse(data); // report.Data);
-                this.taxRecords.push(report.Records['EnhetNavn-datadef-1']);
-                this.taxRecords.push(report.Records['Bankinnskudd-datadef-1189']);
-                this.taxRecords$.next(this.taxRecords);
-            /* this.taxReportService.SaveTaxReport(report).subscribe((saved) => {
-                this.taxReportService.SendTaxReport(saved.ID);
-            });*/
-        });
-        // testing årsoppgjør
 
         this.config$.next(this.getConfig());
-        this.taxConfig$.next(this.getTaxConfig()); // testing årsoppgjør
 
         this.tabService.addTab({
             moduleID: UniModules.AltinnOverview,
@@ -151,20 +124,6 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         return new UniTableConfig('salary.altinn-overview', false)
             .setColumns([formCol, timeStampCol, signatureCol]);
     }
-
-    // testing årsoppgjør - move to modal
-    private getTaxConfig(): IUniTableConfig {
-
-        const keyCol = new UniTableColumn('Key', 'Tekst', UniTableColumnType.Text);
-        const formCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text);
-        const yearCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text);
-        const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean);
-
-        return new UniTableConfig('salary.altinn-overview', false)
-            // .setColumns([keyCol]);
-            .setColumns([formCol, yearCol, verifiedCol]);
-    }
-    // testing årsoppgjør
 
     private focus(receipt: AltinnReceipt) {
         if (!receipt) {
