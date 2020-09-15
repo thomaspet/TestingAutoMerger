@@ -53,12 +53,6 @@ export class TaxResponseModalComponent implements OnInit, IUniModal {
                         }
                     );
                 }),
-                tap(() => {
-                    const config = this.options.modalConfig;
-                    if (config.update) {
-                        config.update();
-                    }
-                }),
                 finalize(() => this.busy = false),
             )
             .subscribe((responseMessage) => this.taxStatus$.next(responseMessage));

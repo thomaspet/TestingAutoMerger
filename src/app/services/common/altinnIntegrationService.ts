@@ -31,6 +31,13 @@ export interface ThirdPartyItem {
     amount: number;
 }
 
+export type TaxRequestOption = 'ALL_EMPS_WITHOUT_ENDDATE'
+    | 'ALL_EMPS'
+    | 'EMPS_WITHOUT_TAXINFO'
+    | 'EMPS_IN_CATEGORY'
+    | 'CHANGED_ONLY'
+    | 'SINGLE_EMP';
+
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
 
@@ -77,7 +84,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public sendTaxRequestAction(
-        option: string,
+        option: TaxRequestOption,
         empId: number = 0,
         empsAndChanged: boolean = false,
         categoryID: number = 0): Observable<AltinnReceipt> {

@@ -105,6 +105,39 @@ export const NO = {
             'NUMBER': 'Lønnsavregning {nr}',
             'LATEST': 'Siste lønnsavregninger'
         },
+
+        TAX_CARD_MODAL: {
+            'HEADER': 'Administrer elektronisk skattekort',
+        },
+
+        TAX_CARD_REQUEST: {
+            'TITLE_GOOD': 'Skatteforespørsel er sendt',
+            'TITLE_BAD': 'Feil angående Altinn-forespørsel',
+            'HEADER': 'Send forespørsel om skattekort',
+            'INFO': 'Her kan du sende forespørsel om skattekort til altinn. Din forespørsel vil bli behandlet i altinn, dette kan ta inntil ett døgn',
+            'EMPLOYEE_SELECTION_HEADER': 'Utvalg skattekortforespørsel:',
+            'RADIO_0_NO_END_DATE': 'Alle ansatte uten sluttdato på minst ett arbeidsforhold',
+            'RADIO_1_ALL_EMPLOYEES': 'Alle ansatte',
+            'RADIO_2_NO_TAX': 'Ansatte uten skatteopplysninger i {year}',
+            'RADIO_3_EMPLOYEES_IN_CATEGORY': 'Ansatte i kategori',
+            'RADIO_4_ONLY_CHANGED': 'Hent kun endrede skattekort',
+            'EMPLOYEE_INFO': 'Ansatt nr.{number} - {name}',
+            'CHANGED_EMPS_LABEL': 'Ta med endrede skattekort',
+            'EMP_COUNT_MESSAGE': 'Det er med {count} ansatte i dette utvalget',
+            'CHANGED_EMPS_INFO': 'Om du ønsker å ta med endrede skattekort for andre ansatte i samme forespørsel holder det med å logge på Altinn en gang for å motta og lese inn alle samtidig.',
+            'SEND_REQUEST_LABEL': 'Send forespørsel til Altinn',
+        },
+
+        READ_TAX_CARD: {
+            'HEADER': 'Hent skattekort',
+            'INFO': 'Trykk på “Hent og les inn” -knappen for å lese inn skatteopplysinger fra Altinn. Der vil du få opp påloggingsbildet for personlig pålogging til Altinn.',
+            'CLOSE': 'Lukk',
+            'TIME_STAMP_COL': 'Dato sendt',
+            'ID_COL': 'ID',
+            'SIGNATURE_COL': 'Signatur',
+            'HAS_BEEN_REGISTERED_COL': 'Innlest',
+        },
+
         PENSION_SCHEME: {
             'MODAL_HEADER': 'Pensjonsinnretning',
             'MODAL_MESSAGE': 'Registrer dine pensjonsinnretninger slik at de blir innrapportert korrekt i a-meldingen',
@@ -339,6 +372,7 @@ export const NO = {
         'OK': 'Ok',
         'CANCEL': 'Avbryt',
         'SAVE': 'Lagre',
+        'CLOSE': 'Lukk',
     },
 
     DASHBOARD: {

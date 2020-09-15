@@ -5,7 +5,7 @@ import {
 import {TaxCardReadStatus, EmployeeStatus} from '@uni-entities';
 import {ErrorService, StatisticsService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 @Component({
     selector: 'tax-card-read-status',
@@ -68,24 +68,24 @@ export class TaxCardReadStatusComponent implements OnInit, OnChanges {
             .GetAllUnwrapped(
                 `select=ID as ID,EmployeeNumber as EmployeeNumber,BusinessRelationInfo.Name as Name` +
                 `&model=Employee` +
-                `&filter=ID ge ${Math.min(...status.employeestatus.map(emp => emp.employeeID))} ` +
-                    `and ID le ${Math.max(...status.employeestatus.map(emp => emp.employeeID))}` +
+                `&filter=ID ge ${Math.min(...status.employeestatus.map(employee => employee.employeeID))} ` +
+                    `and ID le ${Math.max(...status.employeestatus.map(employee => employee.employeeID))}` +
                 `&expand=BusinessRelationInfo`
             )
             .pipe(
-                map((emps: {ID: number, EmployeeNumber: number, Name: string}[]) => {
+                map((employees: {ID: number, EmployeeNumber: number, Name: string}[]) => {
                     status.employeestatus.forEach(empStat => {
-                        const emp = emps.find(x => x.ID === empStat.employeeID);
-                        if (!emp) {
+                        const employee = employees.find(x => x.ID === empStat.employeeID);
+                        if (!employee) {
                             return;
                         }
 
-                        const empInfo = emp.Name
-                            ? ['' + emp.EmployeeNumber, emp.Name]
-                            : ['' + emp.EmployeeNumber];
+                        const empInfo = employee.Name
+                            ? ['' + employee.EmployeeNumber, employee.Name]
+                            : ['' + employee.EmployeeNumber];
 
                         empStat['_empInfo'] = empInfo.join(' - ');
-                        empStat['_sortIndex'] = emp.EmployeeNumber;
+                        empStat['_sortIndex'] = employee.EmployeeNumber;
                     });
                     return status.employeestatus;
                 })

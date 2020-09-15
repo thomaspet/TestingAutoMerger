@@ -1,9 +1,0 @@
-<section role="dialog" class="uni-modal large taxCardRequest">
-    <article>
-        <tax-card-request [employee]="employee" (newReceipt)="getReceipts()"></tax-card-request>
-        <read-tax-card [changeEvent]="changeEvent" (updateTax)="triggerUpdate()"></read-tax-card>
-    </article>
-    <footer class="main-footer">
-        <button class="secondary" (click)="close()"> Lukk </button>
-    </footer>
-</section>
