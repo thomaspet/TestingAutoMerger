@@ -54,6 +54,7 @@ import {
     ProjectService,
     CustomDimensionService,
     CustomerInvoiceService,
+    SupplierInvoiceService,
     CompanySettingsService,
     ErrorService,
     StatisticsService,
@@ -189,6 +190,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private departmentService: DepartmentService,
         private projectService: ProjectService,
         private customDimensionService: CustomDimensionService,
+        private supplierInvoiceService: SupplierInvoiceService,
         private customerInvoiceService: CustomerInvoiceService,
         private toastService: ToastService,
         private errorService: ErrorService,
@@ -2183,8 +2185,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (sign == 1) {
    
             const customerInvoice = journalEntryRow.CustomerInvoice;
-        
-            const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
+
             const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
             return new Promise(resolve => {
                 const paymentData: Partial<InvoicePaymentData> = {
@@ -2236,14 +2237,59 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                         );
                     } 
                 });
-
-
-               
             });
+
         } else {
 
+            const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
+            const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
+            return new Promise(resolve => {
+                const paymentData: Partial<InvoicePaymentData> = {
+                    Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
+                    AmountCurrency: UniMath.round(postPostJournalEntryLine.RestAmountCurrency * sign, 2),
+                    BankChargeAmount: 0,
+                    CurrencyCodeID: postPostJournalEntryLine.CurrencyCodeID,
+                    CurrencyExchangeRate: 0,
+                    PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
+                    AgioAccountID: 0,
+                    BankChargeAccountID: 0,
+                    AgioAmount: 0
+                };
+    
+                this.modalService.open(UniRegisterPaymentModal, {
+                    header: 'Registrer betaling',
+                    message: 'Regningen vil bli registrert som betalt i systemet. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
+                    data: paymentData,
+                    modalConfig: {
+                        entityName: 'SupplierInvoice',
+                        currencyCode: postPostJournalEntryLine?.CurrencyCode.Code,
+                        currencyExchangeRate: postPostJournalEntryLine?.CurrencyExchangeRate,
+                        entityID: journalEntryRow.SupplierInvoiceID
+                    },
+                    buttonLabels: {
+                        accept: 'Registrer betaling'
+                    }
+                }).onClose.subscribe((payment) => {
+                    if (payment) {
+                        this.supplierInvoiceService.payinvoice(postPostJournalEntryLine.SupplierInvoiceID, payment)
+                            .subscribe(() => {
+                            this.toastService.addToast(
+                                'Faktura er betalt',
+                                ToastType.good,
+                                5                                  
+                                );
+                                this.table.removeRow(this.currentRowIndex);
+                                setTimeout(() => {
+                                const tableData = this.table.getTableData();
+                                this.dataChanged.emit(tableData);
+                                });
+                            }), err => {
+                            this.errorService.handle(err);
+                        }
+                    }
 
-
+                });
+            });
         }
     }
 

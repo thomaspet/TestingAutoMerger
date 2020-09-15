@@ -72,8 +72,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
     accounts: any[] = [];
-    private invoiceID: number;
-
+ 
     constructor(
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
