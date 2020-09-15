@@ -192,11 +192,12 @@ export class EmploymentService extends BizHttp<Employment> {
         return this.companySalaryService
             .getCompanySalary()
             .pipe(
-                switchMap(compSal => forkJoin(
-                    this.getStandardFields(compSal, hasEndDate),
-                    this.getRegulativeFields(compSal),
-                    this.getShipFields(compSal),
-                )),
+                switchMap(compSal => forkJoin([
+                        this.getStandardFields(compSal, hasEndDate),
+                        this.getRegulativeFields(compSal),
+                        this.getShipFields(compSal),
+                    ])
+                ),
                 map(fieldLists => fieldLists.reduce((acc, curr) => [...acc, ...curr], []))
             )
             .map(fields => {return {
@@ -264,7 +265,6 @@ export class EmploymentService extends BizHttp<Employment> {
                 Label: 'Årsak til sluttdato',
                 FieldSet: 1,
                 Section: 0,
-                Required: true,
                 Options: {
                     source: [
                         { ID: 0, Name: 'Ikke valgt' },

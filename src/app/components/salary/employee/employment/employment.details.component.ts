@@ -1,7 +1,7 @@
-import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
+import {UniForm, UniFieldLayout, UniComponentLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {filter, take, switchMap, map, tap} from 'rxjs/operators';
+import {filter, take, switchMap, map, tap, finalize} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
@@ -133,52 +133,67 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         this.employmentService.clearRegulativeCache();
     }
 
-    private buildForm(employment: Employment = this.employment) {
-        this.employmentService.layout('EmploymentDetails', !!employment?.EndDate).subscribe((layout: any) => {
-            // Expand A-meldings section by default
-            this.config$.next({
-                sections: {
-                    '1': { isOpen: true }
-                }
-            });
+    private generateFields(employment: Employment = this.employment) {
+        return this.employmentService
+            .layout('EmploymentDetails', !!employment?.EndDate)
+            .pipe(
+                map((layout: UniComponentLayout) => {
+                    // Expand A-meldings section by default
+                    this.config$.next({
+                        sections: {
+                            '1': { isOpen: true }
+                        }
+                    });
 
-            const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
-            jobCodeField.Options = {
-                getDefaultData: () => this.jobCodeDefaultData,
-                template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
-                search: (query: string) => {
-                    if (this.searchCache[query]) {
-                        return this.searchCache[query];
-                    }
-                    return this.statisticsService
-                        .GetAll(
-                            `top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel`
-                            + `&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`
-                        )
-                        .do(x => this.searchCache[query] = Observable.of(x.Data))
-                        .map(x => x.Data);
-                },
-                displayProperty: 'styrk',
-                valueProperty: 'styrk',
-                debounceTime: 200,
-            };
-            const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
-            const accountObs: Observable<Account> = employment && employment.LedgerAccount
-                ? this.accountService.GetAll(`filter=AccountNumber eq ${employment.LedgerAccount}` + '&top=1')
-                : Observable.of([undefined]);
-            ledgerAccountField.Options = {
-                getDefaultData: () => accountObs,
-                search: (query: string) => {
-                    const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
-                    return this.accountService.GetAll(filtr);
-                },
-                displayProperty: 'AccountName',
-                valueProperty: 'AccountNumber',
-                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-            };
-            this.fields$.next(layout.Fields);
-        }, err => this.errorService.handle(err));
-        this.formReady = true;
+                    const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
+                    jobCodeField.Options = {
+                        getDefaultData: () => this.jobCodeDefaultData,
+                        template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
+                        search: (query: string) => {
+                            if (this.searchCache[query]) {
+                                return this.searchCache[query];
+                            }
+                            return this.statisticsService
+                                .GetAll(
+                                    `top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel`
+                                    + `&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`
+                                )
+                                .do(x => this.searchCache[query] = Observable.of(x.Data))
+                                .map(x => x.Data);
+                        },
+                        displayProperty: 'styrk',
+                        valueProperty: 'styrk',
+                        debounceTime: 200,
+                    };
+                    const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
+                    const accountObs: Observable<Account> = employment && employment.LedgerAccount
+                        ? this.accountService.GetAll(`filter=AccountNumber eq ${employment.LedgerAccount}` + '&top=1')
+                        : Observable.of([undefined]);
+                    ledgerAccountField.Options = {
+                        getDefaultData: () => accountObs,
+                        search: (query: string) => {
+                            const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
+                            return this.accountService.GetAll(filtr);
+                        },
+                        displayProperty: 'AccountName',
+                        valueProperty: 'AccountNumber',
+                        template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+                    };
+
+                    return layout.Fields;
+                })
+            );
+    }
+
+    private buildForm(employment: Employment = this.employment) {
+        this.generateFields(employment)
+            .pipe(
+                finalize(() => this.formReady = true),
+            )
+            .subscribe(
+                fields => this.fields$.next(fields),
+                err => this.errorService.handle(err),
+            );
     }
 
     private checkReadOnlyOnForm(employment: Employment, fields: UniFieldLayout[]) {
@@ -200,7 +215,7 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
             }
         });
 
-        // TypeOfEmployment is always required
+        // Always required
         this.setRequiredTooltip(fields, employment, 'TypeOfEmployment');
         this.setRequiredTooltip(fields, employment, 'EndDateReason');
 
@@ -438,7 +453,11 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         }
 
         if (changes['EndDate']) {
-            this.buildForm(employment);
+            this.generateFields(employment)
+                .subscribe(
+                    flds => this.updateAmeldingTooltips(employment, flds),
+                    err => this.errorService.handle(err),
+                );
             const enddate: LocalDate = changes['EndDate'].currentValue;
             if (!!enddate) {
                 if (this.companySalarySettings.OtpExportActive) {
