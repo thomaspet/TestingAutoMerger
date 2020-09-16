@@ -70,7 +70,13 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
        this.keys = [
             // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
             'Revisjonsplikt-datadef-310',
-            // TODO Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
+            'RevisorOrganisasjonsnummer-datadef-1938',
+            'RevisjonsselskapNavn-datadef-13035',
+            'RevisorNavn-datadef-1937',
+            'RevisorAdresse-datadef-2247',
+            'RevisorPostnummer-datadef-11265',
+            'RevisorPoststed-datadef-11266',
+            'FremforbartUnderskudd',
             // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
             'RegnskapsforingEkstern-datadef-11262',
             'RegnskapsforerNavn-datadef-280',
