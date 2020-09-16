@@ -70,7 +70,6 @@ export class TradeItemTable {
     showTable: boolean = true; // used for hard re-draw
 
 
-    private useVateDate: LocalDate;
     private foreignVatType: VatType;
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
@@ -114,7 +113,6 @@ export class TradeItemTable {
         this.companySettingsService.Get(1).subscribe(settings => {
             this.settings = settings;
             this.initTableConfig();
-            this.useVateDate = settings.UseFinancialDateToCalculateVatPercent ? this.deliveryDate : this.vatDate;
         });
 
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(
@@ -154,7 +152,6 @@ export class TradeItemTable {
             }
            
             if (changes['vatDate'] && !settings.UseFinancialDateToCalculateVatPercent) {
-                this.useVateDate = changes['vatDate'];
                 const prev = changes['vatDate'].previousValue;
                 const curr = changes['vatDate'].currentValue;
 
@@ -164,7 +161,6 @@ export class TradeItemTable {
             }
 
             if (changes['deliveryDate'] && settings.UseFinancialDateToCalculateVatPercent) {
-                this.useVateDate = changes['DeliveryDate'];
                 const prev = changes['deliveryDate'].previousValue;
                 const curr = changes['deliveryDate'].currentValue;
 
@@ -205,16 +201,16 @@ export class TradeItemTable {
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
 
-            
-            if (this.settings.UseFinancialDateToCalculateVatPercent) {                
-                this.useVateDate = this.deliveryDate ? this.deliveryDate : this.useVateDate;
+            let vdate = this.vatDate;
+            if (this.settings.UseFinancialDateToCalculateVatPercent && this.deliveryDate) {                
+                vdate = this.deliveryDate;
             }
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
                 const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
-                    return vatPercentage.ValidFrom <= this.useVateDate
-                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= this.useVateDate;
+                    return vatPercentage.ValidFrom <= vdate
+                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo>= vdate);
                 });
 
                 const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
@@ -790,7 +786,6 @@ export class TradeItemTable {
                     this.settings,
                     this.vatTypes,
                     this.foreignVatType,
-                    this.useVateDate,
                     this.pricingSourceLabels,
                     this.priceFactor
                 );
