@@ -196,7 +196,7 @@ export class AMeldingViewComponent implements OnInit {
                 click : () => { localStorage.setItem('fastansatt_notificaton', 'true'); } };
 
             this._toastService.addToast('Alle ansatte har fått ansattform fast ansatt', ToastType.info, 20,
-                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaer er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.', 
+                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaet er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.', 
                 toastAction );
         }
     }
