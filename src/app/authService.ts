@@ -343,21 +343,12 @@ export class AuthService {
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
             this.featurePermissionService.activatePackage(contract.TypeName);
 
-            const isDemo = contract.TypeName === 'Demo';
-            let hasActiveContract = user && !this.isTrialExpired(contract);
-
-
-            // In SR a demo with non-demo company requires contract activation immediately
-            if (theme.theme === THEMES.SR && isDemo && !this.activeCompany.IsTest) {
-                hasActiveContract = false;
-            }
-
             const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
-                hasActiveContract: hasActiveContract,
-                isDemo: isDemo,
+                hasActiveContract: !this.isTrialExpired(contract),
+                isDemo: contract.TypeName === 'Demo',
             };
 
             this.authentication$.next(authDetails);
