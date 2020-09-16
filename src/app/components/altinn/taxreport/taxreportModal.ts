@@ -146,7 +146,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         revisjonspliktField.Options = {
             source: revisjonspliktValues,
             valueProperty: 'Key',
-            displayValue: 'Name',
+            template: (item) => item.Name,
             debounceTime: 200,
             hideDeleteButton: true
         };
