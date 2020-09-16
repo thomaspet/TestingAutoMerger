@@ -3,7 +3,7 @@
 
     <article>
         <label>Skjema </label><span>{{taxReportCode}}</span>
-        <ag-grid-wrapper [resource]="taxRecords$ | async" [config]="taxConfig$ | async"></ag-grid-wrapper>
+        <!--<ag-grid-wrapper [resource]="taxRecords$ | async" [config]="taxConfig$ | async"></ag-grid-wrapper>-->
         <ag-grid-wrapper [resource]="taxRecordsDict$ | async" [config]="taxConfigDict$ | async"></ag-grid-wrapper>
     </article>
 

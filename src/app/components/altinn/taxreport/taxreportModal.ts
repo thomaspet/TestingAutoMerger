@@ -34,19 +34,19 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
                 taxRecordsDict = this.taxReportService.getRecords(report);
-                this.taxRecords = this.taxReportService.getTaxReportRecords(report);
-                /*
+                // this.taxRecords = this.taxReportService.getTaxReportRecords(report);
+                /* all records
                 const data = JSON.parse(report.Data);
                 Object.keys(data).forEach(key => {
                     const value = data[key];
                     this.taxRecords.push(value);
                 }); */
-                this.taxRecords$.next(this.taxRecords);
+                // this.taxRecords$.next(this.taxRecords);
                 this.taxRecordsDict$.next(taxRecordsDict);
 
                 // this.focus(this.taxRecords[0]);
         });
-        this.taxConfig$.next(this.getTaxConfig(false));
+        // this.taxConfig$.next(this.getTaxConfig(false));
         this.taxConfigDict$.next(this.getTaxConfig(true));
     }
 
@@ -68,7 +68,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     private getTaxConfig(key: boolean): IUniTableConfig {
 
-        const keyCol = new UniTableColumn('Key', 'Tekst', UniTableColumnType.Text); // hidden
+        const keyCol = new UniTableColumn('Key', 'Tekst', UniTableColumnType.Text); // TODO hidden
         const textCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text, false);
         const valueCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text, true);
         const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true); // TODO checkbox

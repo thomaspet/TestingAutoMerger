@@ -86,11 +86,22 @@ export class TaxReportService extends BizHttp<TaxReport> {
         return taxRecords;
     }
 
+/*
+Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
+Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
+Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
+Hvis Ja på forrige spørsmål -> Regnskapsfører sitt navn, orgnr og kontaktperson (3 felter)
+Fremførbart underskudd - tall-felt
+*/
     public getRecords(taxReport: TaxReport): FormRecordWithKey[] {
         // { Key: string, record: FormRecord}[]
         const taxRecords: FormRecordWithKey[] = [];
         const data = JSON.parse(taxReport.Data);
-        Object.entries(data).map(([key, val]) => console.log(key, '=>', val));
+        // Object.entries(data).map(([key, val]) => console.log(key, '=>', val));
+        const key = 'Sysselsatte-datadef-30';
+        const record: FormRecord = data[key];
+        taxRecords.push(this.getFormRecordWithKey(key, record));
+        /*
         Object.keys(data).forEach(key => {
             // her kommer trolig en endring, Text hentes fra json fil i front e.l.
             const value: FormRecord = data[key];
@@ -100,8 +111,17 @@ export class TaxReportService extends BizHttp<TaxReport> {
             record.Value = value.Value;
             record.Verified = value.Verified;
             taxRecords.push(record);
-        });
+        });*/
         return taxRecords;
+    }
+
+    private getFormRecordWithKey(key: string, value: FormRecord) {
+        const record = new FormRecordWithKey();
+            record.Key = key;
+            record.Text = value.Text;
+            record.Value = value.Value;
+            record.Verified = value.Verified;
+        return record;
     }
 
     public getTaxReportRecords_v1(taxReport: TaxReport): FormRecord[] {
@@ -116,13 +136,6 @@ export class TaxReportService extends BizHttp<TaxReport> {
                 */
         const item = Object.entries(data)['Sysselsatte-datadef-30'];
         taxRecords.push(Object.entries(data)['Sysselsatte-datadef-30']);
-        /*
-Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
-Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
-Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
-Hvis Ja på forrige spørsmål -> Regnskapsfører sitt navn, orgnr og kontaktperson (3 felter)
-Fremførbart underskudd - tall-felt
-        */
         return taxRecords;
     }
 /*
