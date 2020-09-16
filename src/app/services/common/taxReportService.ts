@@ -3,6 +3,7 @@ import { UniHttp } from '@uni-framework/core/http/http';
 import { UniEntity } from '@uni-entities';
 import { BizHttp } from '@uni-framework/core/http';
 import {Observable} from 'rxjs';
+import { inherits } from 'util';
 
 export class TaxReport extends UniEntity {
     public static RelativeUrl = 'taxreport';
@@ -28,6 +29,9 @@ export class FormRecord {
         this.Text = text || '';
         this.Verified = verified;
     }
+}
+export class FormRecordWithKey extends FormRecord {
+    public Key: string;
 }
 
 @Injectable()
@@ -72,15 +76,56 @@ export class TaxReportService extends BizHttp<TaxReport> {
     // Dette er kun for visning. For oppdatering må vi også ha Key
     public getTaxReportRecords(taxReport: TaxReport): FormRecord[] {
         const taxRecords: FormRecord[] = [];
+        const data = JSON.parse(taxReport.Data);
         // Object.entries(obj).map(([key, val]) => console.log(key, '=>', val));
-        Object.keys(taxReport.Records).forEach(key => {
+        Object.keys(data).forEach(key => {
             // her kommer trolig en endring, Text hentes fra json fil i front e.l.
-            const value = taxReport.Records[key];
+            const value = data[key];
             taxRecords.push(value);
         });
         return taxRecords;
     }
 
+    public getRecords(taxReport: TaxReport): FormRecordWithKey[] {
+        // { Key: string, record: FormRecord}[]
+        const taxRecords: FormRecordWithKey[] = [];
+        const data = JSON.parse(taxReport.Data);
+        Object.entries(data).map(([key, val]) => console.log(key, '=>', val));
+        Object.keys(data).forEach(key => {
+            // her kommer trolig en endring, Text hentes fra json fil i front e.l.
+            const value: FormRecord = data[key];
+            const record = new FormRecordWithKey(); // { Key = key, Text = value.Text };
+            record.Key = key;
+            record.Text = value.Text;
+            record.Value = value.Value;
+            record.Verified = value.Verified;
+            taxRecords.push(record);
+        });
+        return taxRecords;
+    }
+
+    public getTaxReportRecords_v1(taxReport: TaxReport): FormRecord[] {
+        const taxRecords: FormRecord[] = [];
+        const data = JSON.parse(taxReport.Data);
+        const records = Object.entries(data);
+        /*
+                Object.keys(data).forEach(key => {
+                    const value = data[key];
+                    this.taxRecords.push(value);
+                });
+                */
+        const item = Object.entries(data)['Sysselsatte-datadef-30'];
+        taxRecords.push(Object.entries(data)['Sysselsatte-datadef-30']);
+        /*
+Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
+Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
+Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
+Hvis Ja på forrige spørsmål -> Regnskapsfører sitt navn, orgnr og kontaktperson (3 felter)
+Fremførbart underskudd - tall-felt
+        */
+        return taxRecords;
+    }
+/*
     public getRecords(code: string): FormRecord[] {
         const taxRecords: FormRecord[] = [];
         if (code === 'RF-1167') {
@@ -89,6 +134,7 @@ export class TaxReportService extends BizHttp<TaxReport> {
         }
         return taxRecords;
     }
+*/
 }
 
 
