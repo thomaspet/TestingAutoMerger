@@ -210,7 +210,7 @@ export class TradeItemTable {
             vatTypes.forEach(vatType => {
                 const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
                     return vatPercentage.ValidFrom <= vdate
-                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= vdate;
+                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo>= vdate);
                 });
 
                 const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
