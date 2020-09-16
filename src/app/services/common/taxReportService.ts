@@ -3,7 +3,6 @@ import { UniHttp } from '@uni-framework/core/http/http';
 import { UniEntity } from '@uni-entities';
 import { BizHttp } from '@uni-framework/core/http';
 import {Observable} from 'rxjs';
-import { inherits } from 'util';
 
 export class TaxReport extends UniEntity {
     public static RelativeUrl = 'taxreport';
@@ -32,6 +31,19 @@ export class FormRecord {
 }
 export class FormRecordWithKey extends FormRecord {
     public Key: string;
+}
+
+export class SchemaRF1167 {
+    public Revisjonsplikt: string;
+}
+export class NameKey {
+    public Key: string;
+    public Name: string;
+
+    constructor(key: string, name?: string) {
+        this.Key = key || '';
+        this.Name = name || key;
+    }
 }
 
 @Injectable()
