@@ -117,15 +117,13 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
                 this.jobCodeDefaultData = Observable.of([{ styrk: '', tittel: '' }]);
             }
 
-            this.employment$.next(change['employment'].currentValue);
-            this.employmentService.updateDefaults(change['employment'].currentValue);
-            this.fields$
+            this.employment$.next(currEmployment);
+            this.employmentService.updateDefaults(currEmployment);
+            this.generateFields(currEmployment)
                 .pipe(
-                    filter(fields => !!fields && !!fields.length),
-                    take(1),
-                    map(fields => this.checkReadOnlyOnForm(change['employment'].currentValue, fields)),
+                    map(fields => this.checkReadOnlyOnForm(currEmployment, fields)),
                 )
-                .subscribe(fields => this.updateAmeldingTooltips(change['employment'].currentValue, fields));
+                .subscribe(fields => this.updateAmeldingTooltips(currEmployment, fields));
         }
     }
 
