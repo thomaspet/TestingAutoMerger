@@ -71,27 +71,40 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
     }
 
     public save() {
-        // få med endringer i grid
-        const current = this.current.getValue();
-        const revisjonspliktValue = current.Revisjonsplikt;
-
-        const records: FormRecordWithKey[] = this.taxRecordsDict$.getValue();
-        const key = 'Revisjonsplikt-datadef-310';
-        const record = records.find(x => x.Key === key);
-        const report = this.taxReport$.getValue();
-        const data = JSON.parse(report.Data);
-        // const item: FormRecord = Object.keys(data)[key]; // Object.entries(data)[key];
-        // item.Value = record.Value;
-        Object.keys(data).forEach(key1 => {
-            if (key1 === key) {
-                const item: FormRecord = data[key1];
-                item.Value = revisjonspliktValue; // record.Value;
-            }
-        });
-        report.Data = JSON.stringify(data);
-        this.taxReport$.next(report);
+        this.updateValues();
         this.taxReportService.SaveTaxReport(this.taxReport$.value).subscribe((saved) => {
         });
+    }
+
+    private updateValues() {
+        /* testing 2 different methods for updating values
+           1: schema has class with properties (only Revisjonsplikt atm)
+           2: generic - fields in grid
+        */
+       // TODO get keys from json-file or similar
+        const revisjonsplikt = 'Revisjonsplikt-datadef-310';
+        const keys: string[] = [
+            revisjonsplikt,
+            'RegnskapsforerNavn-datadef-280'];
+
+        const current = this.current.getValue();
+        const records: FormRecordWithKey[] = this.taxRecordsDict$.getValue();
+        const report = this.taxReport$.getValue();
+        const data = JSON.parse(report.Data);
+
+        const revisjonspliktValue = current.Revisjonsplikt;
+        keys.forEach((key) => {
+            const record = records.find(x => x.Key === key);
+            const item = data[key];
+            if (key === revisjonsplikt) {
+                item.Value = revisjonspliktValue;
+            } else {
+                item.Value = record.Value;
+            }
+        });
+
+        report.Data = JSON.stringify(data);
+        this.taxReport$.next(report);
     }
 
     private getTaxConfig(key: boolean): IUniTableConfig {
@@ -109,36 +122,19 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
             .setColumns([textCol, valueCol, verifiedCol]);
     }
 
-    private focus(record: FormRecord) {
-        if (!record) {
-            return;
-        }
-        this.taxRecords$
-            .take(1)
-            .delay(200)
-            .switchMap(records => Observable.forkJoin(Observable.of(records), this.table$.take(1)))
-            .subscribe((result) => {
-                const [table] = result;
-                /*const receiptRows = receipts.find(row => row.ID === taxReport.ID);
-                if (!receiptRows) {
-                    return;
-                }
-                table.focusRow(receiptRows['_originalIndex']);*/
-            });
-    }
-
     private initForm() {
         const fields: Partial<UniFieldLayout>[] = [
             {
                 Property: 'Revisjonsplikt',
                 FieldType: FieldType.DROPDOWN,
-                Label: 'Valuta',
+                Label: 'Revisjonsplikt',
                 Classes: 'bill-small-field right',
                 Section: 0
             }
         ];
 
         const revisjonspliktValues: NameKey[] = [];
+        // TODO get the values from json-file or similar
         revisjonspliktValues.push(new NameKey('Ja'));
         revisjonspliktValues.push(new NameKey('Nei'));
         revisjonspliktValues.push(new NameKey('Valgt_bort_revisjon', 'Valgt bort'));
@@ -155,7 +151,6 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
     }
 
     emit() {
-        // this.saveAndSend();
         this.onClose.emit();
     }
 }
