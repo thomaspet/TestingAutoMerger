@@ -105,7 +105,7 @@ export class TradeItemHelper  {
 
     public tradeItemChangeCallback(
         event, currencyCodeID: number, currencyExchangeRate: number,
-        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, vatDate: LocalDate,
+        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, 
         pricingSourceLabels, priceFactor
     ) {
         const newRow = event.rowModel;
