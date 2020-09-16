@@ -167,7 +167,7 @@ export class ExportBillingModal implements IUniModal {
             // csv files has to start with BOM (uFEFF) to support ÆØÅ
             csv.push(
                 `\uFEFFOrdrenr;Ordredato;Leveringsdato;Kundenr;Kundenavn;Vår referanse;Deres referanse;` +
-                `Hovedselger;Rekvisisjon;Leveringsadr.;Lev.postnr.;Lev.poststed;Varenr;Varenavn;` +
+                `Hovedselger;Rekvisisjon;Leveringsadr.;Lev.postnr.;Lev.poststed;Varenr.;Varenavn;` +
                 `Antall;Pris eks. mva;Rabatt %;Prosjekt;Avdeling`
             );
 
@@ -175,7 +175,7 @@ export class ExportBillingModal implements IUniModal {
                 for (const product of order.Product) {
                     csv.push([
                         order.OrderNumber,
-                        moment(this.form.value.OrderDate).format('MM.DD.YYYY'),
+                        moment(this.form.value.OrderDate).format('DD.MM.YYYY'),
                         '',
                         order.ExternalCustomerID,
                         order.CompanyName,
