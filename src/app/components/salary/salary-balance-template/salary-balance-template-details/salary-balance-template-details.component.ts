@@ -7,6 +7,7 @@ import {
   SalarybalanceService, ErrorService, UniCacheService
 } from '@app/services/services';
 import {UniView} from '@uni-framework/core/uniView';
+import { map, tap } from 'rxjs/operators';
 
 const SALBAL_TEMPLATE_KEY = 'salarybalancetemplate';
 
@@ -55,6 +56,7 @@ export class SalaryBalanceTemplateDetailsComponent extends UniView {
                 )
           )
           .subscribe(([salarybalanceTemplate, layout]: [SalaryBalanceTemplate, UniFieldLayout[]]) => {
+            this.fields$.next(layout);
             if (salarybalanceTemplate.ID !== this.currentTemplate$.getValue().ID) {
               this.setup(salarybalanceTemplate);
             }
@@ -104,7 +106,10 @@ export class SalaryBalanceTemplateDetailsComponent extends UniView {
   private setup(currTemplate: SalaryBalanceTemplate) {
     this.salarybalanceService
       .refreshLayout(currTemplate, this.ignoreFields, 'salarybalancetemplate', 'SalaryBalanceTemplateID', false)
-      .map(() => this.setText(currTemplate))
+      .pipe(
+          tap(fields => this.fields$.next(fields)),
+          map(() => this.setText(currTemplate))
+      )
       .subscribe(response => {
         this.currentTemplate$.next(response);
       });

@@ -629,7 +629,7 @@ export class EmploymentService extends BizHttp<Employment> {
     }
 
     public searchEmployments(query: string, employeeID?: number): Observable<{ID: number, JobName: string}[]> {
-        let statisticsQuery = `startswith(ID,${query}) or contains(JobName,${query})`;
+        let statisticsQuery = `startswith(ID,'${query}') or contains(JobName,'${query}')`;
         if (employeeID) {
             statisticsQuery = `EmployeeID eq ${employeeID} and ( ${statisticsQuery} )`;
         }
