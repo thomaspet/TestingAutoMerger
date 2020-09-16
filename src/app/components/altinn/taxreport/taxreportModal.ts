@@ -62,6 +62,21 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     public save() {
         // få med endringer i grid
+        const records: FormRecordWithKey[] = this.taxRecordsDict$.getValue();
+        const key = 'Revisjonsplikt-datadef-310';
+        const record = records.find(x => x.Key === key);
+        const report = this.taxReport$.getValue();
+        const data = JSON.parse(report.Data);
+        // const item: FormRecord = Object.keys(data)[key]; // Object.entries(data)[key];
+        // item.Value = record.Value;
+        Object.keys(data).forEach(key1 => {
+            if (key1 === key) {
+                const item: FormRecord = data[key1];
+                item.Value = record.Value;
+            }
+        });
+        report.Data = JSON.stringify(data);
+        this.taxReport$.next(report);
         this.taxReportService.SaveTaxReport(this.taxReport$.value).subscribe((saved) => {
         });
     }
