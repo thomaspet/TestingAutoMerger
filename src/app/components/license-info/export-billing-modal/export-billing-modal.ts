@@ -175,7 +175,7 @@ export class ExportBillingModal implements IUniModal {
                 for (const product of order.Product) {
                     csv.push([
                         order.OrderNumber,
-                        moment(this.form.value.OrderDate).format('MM.DD.YYYY'),
+                        moment(this.form.value.OrderDate).format('DD.MM.YYYY'),
                         '',
                         order.ExternalCustomerID,
                         order.CompanyName,
