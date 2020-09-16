@@ -98,44 +98,13 @@ export class TaxReportService extends BizHttp<TaxReport> {
         return taxRecords;
     }
 
-    public getRecords(taxReport: TaxReport): FormRecordWithKey[] {
+    public getRecords(taxReport: TaxReport, keys: string[]): FormRecordWithKey[] {
         const taxRecords: FormRecordWithKey[] = [];
         const data = JSON.parse(taxReport.Data);
-        // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
-        let key = 'Revisjonsplikt-datadef-310';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        // TODO Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
 
-        // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
-        key = 'RegnskapsforingEkstern-datadef-11262';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        // Hvis Ja på forrige spørsmål -> Regnskapsfører sitt navn, orgnr og kontaktperson (3 felter)
-        key = 'RegnskapsforerNavn-datadef-280';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        key = 'RegnskapsforerOrganisasjonsnummer-datadef-3651';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        key = 'RegnskapsforerAdresse-datadef-281';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        key = 'RegnskapsforerPostnummer-datadef-6678';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        key = 'RegnskapsforerPoststed-datadef-6679';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        // TODO Fremførbart underskudd - tall-felt
-        //
-        key = 'Sysselsatte-datadef-30';
-        taxRecords.push(this.getFormRecordWithKey(key, data[key]));
-        /*
-        // Object.entries(data).map(([key, val]) => console.log(key, '=>', val));
-        Object.keys(data).forEach(key => {
-            // her kommer trolig en endring, Text hentes fra json fil i front e.l.
-            const value: FormRecord = data[key];
-            const record = new FormRecordWithKey(); // { Key = key, Text = value.Text };
-            record.Key = key;
-            record.Text = value.Text;
-            record.Value = value.Value;
-            record.Verified = value.Verified;
-            taxRecords.push(record);
-        });*/
+        keys.forEach((key) => {
+            taxRecords.push(this.getFormRecordWithKey(key, data[key]));
+        });
         return taxRecords;
     }
 

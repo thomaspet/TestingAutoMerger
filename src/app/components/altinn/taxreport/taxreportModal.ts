@@ -17,6 +17,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     public fields$: BehaviorSubject<Partial<UniFieldLayout>[]>;
     public current = new BehaviorSubject(new SchemaRF1167());
+    keys: string[] = [];
 
     taxReport$: BehaviorSubject<TaxReport> = new BehaviorSubject(null);
     taxRecords$: BehaviorSubject<FormRecord[]> = new BehaviorSubject([]);
@@ -37,7 +38,8 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
             .subscribe((report: TaxReport) => {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
-                taxRecordsDict = this.taxReportService.getRecords(report);
+                // what is best - Dictionary (as received from backend) or own class FormRecordWithKey?
+                taxRecordsDict = this.taxReportService.getRecords(report, this.keys);
                 // this.taxRecords = this.taxReportService.getTaxReportRecords(report);
                 /* all records
                 const data = JSON.parse(report.Data);
@@ -50,18 +52,35 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
                 // this.focus(this.taxRecords[0]);
 
-                const schema = new SchemaRF1167();
-                schema.Revisjonsplikt = 'Nei';
-                this.current.next(schema);
+                this.setCurrent(taxRecordsDict);
         });
         // this.taxConfig$.next(this.getTaxConfig(false));
         this.taxConfigDict$.next(this.getTaxConfig(true));
 
         this.initForm();
+        this.populateKeys();
     }
 
     public ngAfterViewInit(): void {
         this.table$.next(this.table);
+    }
+
+    private populateKeys() {
+       // TODO get keys from json-file or similar
+       this.keys = [
+            // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
+            'Revisjonsplikt-datadef-310',
+            // TODO Hvis Ja på forrige spørsmål -> Revisor sitt orgnr, navn og kontaktperson (3 felter)
+            // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
+            'RegnskapsforingEkstern-datadef-11262',
+            'RegnskapsforerNavn-datadef-280',
+            'RegnskapsforerOrganisasjonsnummer-datadef-3651',
+            'RegnskapsforerAdresse-datadef-281',
+            'RegnskapsforerPostnummer-datadef-6678',
+            'RegnskapsforerPoststed-datadef-6679',
+            // TODO Fremførbart underskudd - tall-felt
+            'Sysselsatte-datadef-30'
+        ];
     }
 
     public saveAndSend() {
@@ -76,27 +95,28 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         });
     }
 
+    private setCurrent(records: FormRecordWithKey[]) {
+        const schema = new SchemaRF1167();
+        const item = records.find(x => x.Key === 'Revisjonsplikt-datadef-310');
+        schema.Revisjonsplikt = item.Value;
+        this.current.next(schema);
+    }
+
     private updateValues() {
         /* testing 2 different methods for updating values
            1: schema has class with properties (only Revisjonsplikt atm)
            2: generic - fields in grid
         */
-       // TODO get keys from json-file or similar
-        const revisjonsplikt = 'Revisjonsplikt-datadef-310';
-        const keys: string[] = [
-            revisjonsplikt,
-            'RegnskapsforerNavn-datadef-280'];
-
         const current = this.current.getValue();
         const records: FormRecordWithKey[] = this.taxRecordsDict$.getValue();
         const report = this.taxReport$.getValue();
         const data = JSON.parse(report.Data);
 
         const revisjonspliktValue = current.Revisjonsplikt;
-        keys.forEach((key) => {
+        this.keys.forEach((key) => {
             const record = records.find(x => x.Key === key);
             const item = data[key];
-            if (key === revisjonsplikt) {
+            if (key === 'Revisjonsplikt-datadef-310') {
                 item.Value = revisjonspliktValue;
             } else {
                 item.Value = record.Value;
@@ -109,7 +129,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     private getTaxConfig(key: boolean): IUniTableConfig {
 
-        const keyCol = new UniTableColumn('Key', 'Navn', UniTableColumnType.Text); // TODO hidden
+        const keyCol = new UniTableColumn('Key', 'Navn', UniTableColumnType.Text, false); // TODO hidden
         const textCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text, false);
         const valueCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text, true);
         const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true); // TODO checkbox
