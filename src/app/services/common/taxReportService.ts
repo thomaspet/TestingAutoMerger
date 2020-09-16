@@ -31,8 +31,44 @@ export class FormRecord {
 }
 export class FormRecordWithKey extends FormRecord {
     public Key: string;
+
+    constructor(key: string, text?: string, value?: string, verified: boolean = false) {
+        super();
+        this.Key = key;
+        this.Text = text || '';
+        this.Value = value || '';
+        this.Verified = verified;
+    }
 }
 
+export class Schema {
+    private _records: FormRecordWithKey[] = [];
+    public GetRecords(): FormRecordWithKey[] {
+        return this._records;
+    }
+    constructor(code: string) {
+        // TODO get from json-file or similar
+        if (code === 'RF-1167') {
+            // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
+            this._records.push(new FormRecordWithKey('Revisjonsplikt-datadef-310', 'Er foretaket revisjonspliktig?'));
+            this._records.push(new FormRecordWithKey('RevisorOrganisasjonsnummer-datadef-1938', 'Revisors organisasjonsnr.'));
+            this._records.push(new FormRecordWithKey('RevisjonsselskapNavn-datadef-13035', ''));
+            this._records.push(new FormRecordWithKey('RevisorNavn-datadef-1937', ''));
+            this._records.push(new FormRecordWithKey('RevisorAdresse-datadef-2247', ''));
+            this._records.push(new FormRecordWithKey('RevisorPostnummer-datadef-11265', ''));
+            this._records.push(new FormRecordWithKey('RevisorPoststed-datadef-11266', ''));
+            // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
+            this._records.push(new FormRecordWithKey('RegnskapsforingEkstern-datadef-11262', ''));
+            this._records.push(new FormRecordWithKey('RegnskapsforerNavn-datadef-280', ''));
+            this._records.push(new FormRecordWithKey('RegnskapsforerOrganisasjonsnummer-datadef-3651', ''));
+            this._records.push(new FormRecordWithKey('RegnskapsforerAdresse-datadef-281', ''));
+            this._records.push(new FormRecordWithKey('RegnskapsforerPostnummer-datadef-6678', ''));
+            this._records.push(new FormRecordWithKey('RegnskapsforerPoststed-datadef-6679', ''));
+            this._records.push(new FormRecordWithKey('FremforbartUnderskudd', ''));
+            this._records.push(new FormRecordWithKey('Sysselsatte-datadef-30', 'Antall årsverk i regnskapsåret'));
+        }
+    }
+}
 export class SchemaRF1167 {
     public Revisjonsplikt: string;
 }
@@ -98,23 +134,22 @@ export class TaxReportService extends BizHttp<TaxReport> {
         return taxRecords;
     }
 
-    public getRecords(taxReport: TaxReport, keys: string[]): FormRecordWithKey[] {
+    public getRecords(taxReport: TaxReport): FormRecordWithKey[] {
         const taxRecords: FormRecordWithKey[] = [];
         const data = JSON.parse(taxReport.Data);
 
-        keys.forEach((key) => {
-            taxRecords.push(this.getFormRecordWithKey(key, data[key]));
+        // TODO kun key og value skal komme fra backend, resten her i front, json-fil e.l.
+        const schema = new Schema('RF-1167');
+        const records = schema.GetRecords();
+        records.forEach((record) => {
+            const item: FormRecord = data[record.Key];
+            taxRecords.push(new FormRecordWithKey(record.Key, record.Text, item.Value, item.Verified));
         });
         return taxRecords;
     }
 
     private getFormRecordWithKey(key: string, value: FormRecord) {
-        const record = new FormRecordWithKey();
-            record.Key = key;
-            record.Text = value.Text;
-            record.Value = value.Value;
-            record.Verified = value.Verified;
-        return record;
+        return new FormRecordWithKey(key, value.Text, value.Value, value.Verified);
     }
 
     public getTaxReportRecords_v1(taxReport: TaxReport): FormRecord[] {

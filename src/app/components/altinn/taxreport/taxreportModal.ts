@@ -39,7 +39,12 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
                 // what is best - Dictionary (as received from backend) or own class FormRecordWithKey?
-                taxRecordsDict = this.taxReportService.getRecords(report, this.keys);
+                taxRecordsDict = this.taxReportService.getRecords(report);
+                const keys: string[] = [];
+                taxRecordsDict.forEach((rec) => {
+                    keys.push(rec.Key);
+                });
+                this.keys = keys;
                 // this.taxRecords = this.taxReportService.getTaxReportRecords(report);
                 /* all records
                 const data = JSON.parse(report.Data);
@@ -58,35 +63,10 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         this.taxConfigDict$.next(this.getTaxConfig(true));
 
         this.initForm();
-        this.populateKeys();
     }
 
     public ngAfterViewInit(): void {
         this.table$.next(this.table);
-    }
-
-    private populateKeys() {
-       // TODO get keys from json-file or similar
-       this.keys = [
-            // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
-            'Revisjonsplikt-datadef-310',
-            'RevisorOrganisasjonsnummer-datadef-1938',
-            'RevisjonsselskapNavn-datadef-13035',
-            'RevisorNavn-datadef-1937',
-            'RevisorAdresse-datadef-2247',
-            'RevisorPostnummer-datadef-11265',
-            'RevisorPoststed-datadef-11266',
-            'FremforbartUnderskudd',
-            // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
-            'RegnskapsforingEkstern-datadef-11262',
-            'RegnskapsforerNavn-datadef-280',
-            'RegnskapsforerOrganisasjonsnummer-datadef-3651',
-            'RegnskapsforerAdresse-datadef-281',
-            'RegnskapsforerPostnummer-datadef-6678',
-            'RegnskapsforerPoststed-datadef-6679',
-            // TODO Fremførbart underskudd - tall-felt
-            'Sysselsatte-datadef-30'
-        ];
     }
 
     public saveAndSend() {
