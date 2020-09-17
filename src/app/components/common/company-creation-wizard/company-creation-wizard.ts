@@ -223,7 +223,9 @@ export class CompanyCreationWizard {
             companies => {
                 const nameLowerCase = companyName.toLowerCase();
                 const company = (companies || []).find(c => {
-                    return (c.Name || '').toLowerCase() === nameLowerCase;
+                    // Includes instead of equality check here because the name given
+                    // to the company will in some cases be "DEMO <companyname>"
+                    return (c.Name || '').toLowerCase().includes(nameLowerCase);
                 });
 
                 if (company) {
