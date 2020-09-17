@@ -137,15 +137,11 @@ export class RegisterCompany {
                         class: 'secondary',
                         action: () => this.router.navigateByUrl('/init/register-company?type=demo')
                     },
-
-                    // Demo with real company option disabled due to backend bug
-                    // https://unimicro.atlassian.net/browse/SMS-308
-
-                    // {
-                    //     label: 'Start demo med din bedrift',
-                    //     class: 'c2a',
-                    //     action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
-                    // }
+                    {
+                        label: 'Start demo med din bedrift',
+                        class: 'c2a',
+                        action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
+                    }
                 ]
             },
 
