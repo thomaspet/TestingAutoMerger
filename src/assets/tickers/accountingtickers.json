@@ -517,7 +517,8 @@
             {
                 "Header": "Type",
                 "Field": "InvoiceOriginType",
-                "FilterSelectConfigKey": "InvoiceOriginType"
+                "FilterSelectConfigKey": "InvoiceOriginType",
+                "ExcludeFromEnvironment": "UE"
             },
             {
                 "Header": "Bankgiro",

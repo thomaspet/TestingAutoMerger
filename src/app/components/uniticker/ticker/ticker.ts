@@ -54,7 +54,7 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -894,6 +894,8 @@ export class UniTicker {
         let selects: string[] = [];
         const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
         this.headers = '';
+
+        this.ticker.Columns = this.ticker.Columns.filter(col => col.ExcludeFromEnvironment !== theme.theme);
 
         for (let i = 0; i < this.ticker.Columns.length; i++) {
             const column = this.ticker.Columns[i];
