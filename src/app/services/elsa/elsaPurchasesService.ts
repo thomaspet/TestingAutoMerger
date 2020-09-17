@@ -90,4 +90,24 @@ export class ElsaPurchaseService {
             .send()
             .map(res => res.status === 200);
     }
+
+    getUserPurchasesOnContract(userGuid, contractID): Observable<{
+        PurchaseID: number;
+        CompanyName: string;
+        CompanyKey: string;
+        ProductName: string;
+        UserName: string;
+        Email: string;
+    }[]> {
+        const params = [
+            `globalUser=${userGuid}`,
+            `contractid=${contractID}`,
+        ];
+
+        return this.uniHttp.asGET()
+            .usingElsaDomain()
+            .withEndPoint(`/api/Purchases/on-contract?${params.join('&')}`)
+            .send()
+            .pipe(map(res => res.body));
+    }
 }

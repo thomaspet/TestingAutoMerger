@@ -1,9 +1,30 @@
 <section class="list-container" (clickOutside)="close.emit()">
-    <section class="header">{{user?.UserName}}</section>
+    <section class="header" *ngIf="user">
+        <section class="name-and-type">
+            <span class="name">{{user.UserName}}</span>
+            <span class="type">{{userType}}</span>
+        </section>
 
-    <license-info-list
-        [columns]="columns"
-        [rows]="companies"
-        [orderBy]="'CompanyName'">
-    </license-info-list>
+        <span *ngIf="user.Email" class="email">
+            <i class="material-icons-outlined">mail</i>
+            {{user.Email}}
+        </span>
+    </section>
+
+    <mat-spinner *ngIf="busy" class="c2a"></mat-spinner>
+
+    <section *ngIf="!busy" class="grid-wrapper">
+        <section *ngIf="gridTemplateColumns" class="grid" [ngStyle]="{'grid-template-columns': gridTemplateColumns}">
+            <span class="header-cell company">Selskap</span>
+            <span class="header-cell align-center" *ngFor="let product of products">{{product.Label}}</span>
+
+            <ng-container *ngFor="let row of purchasesPerCompany">
+                <span class="cell company">{{row.CompanyName}}</span>
+                <span class="cell align-center" *ngFor="let product of products">
+                    <i *ngIf="row[product.Name]" class="material-icons active">check_box</i>
+                    <i *ngIf="!row[product.Name]" class="material-icons">check_box_outline_blank</i>
+                </span>
+            </ng-container>
+        </section>
+    </section>
 </section>
