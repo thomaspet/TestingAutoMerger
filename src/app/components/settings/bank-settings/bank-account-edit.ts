@@ -258,6 +258,7 @@ export class CompanyBankAccountEdit {
         const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
         this.accountAndIBANSearch(currentValue).subscribe((error) => {
             this.setBusy.emit(false);
+            this.toastService.removeToast(toastSearchBankAccount);
 
             if (error !== null) {
                 this.errorMsg = error;
@@ -266,7 +267,6 @@ export class CompanyBankAccountEdit {
 
             this.errorMsg = '';
 
-            this.toastService.removeToast(toastSearchBankAccount);
             this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
                 if (res2.Data.length > 0) {
                     let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
