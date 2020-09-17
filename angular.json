@@ -70,6 +70,34 @@
               "extractLicenses": true,
               "vendorChunk": false
             },
+            "dev-short": {
+              "aot": true,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": true,
+              "buildOptimizer": false,
+              "outputHashing": "all",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.short.ts"
+                }
+              ]
+            },
             "dev-serve": {
               "aot": false,
               "budgets": [
@@ -90,6 +118,33 @@
               "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true
+            },
+            "dev-short-serve": {
+              "aot": false,
+              "budgets": [
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kb"
+                }
+              ],
+              "optimization": false,
+              "buildOptimizer": false,
+              "outputHashing": "none",
+              "evalSourceMap": true,
+              "sourceMap": {
+                "scripts": true,
+                "styles": false,
+                "vendor": false
+              },
+              "extractCss": true,
+              "namedChunks": true,
+              "vendorChunk": true,
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.dev.short.ts"
+                }
+              ]
             },
             "dev-serve-faster": {
               "aot": false,
