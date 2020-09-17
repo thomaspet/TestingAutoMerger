@@ -152,9 +152,9 @@ export class ImportCentralPage implements OnInit {
       },
       {
         uiPermission: {
-          hasComponentAccess: true, //this.uiPermission.order.hasComponentAccess
+          hasComponentAccess: this.uiPermission.order.hasComponentAccess,
           hasImportAccess: true,
-          hasTemplateAccess: true//this.uiPermission.order.hasTemplateAccess
+          hasTemplateAccess: this.uiPermission.order.hasTemplateAccess
         },
         iconName: 'shopping_cart',
         title: 'Ordre',
