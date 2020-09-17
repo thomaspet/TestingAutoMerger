@@ -12,8 +12,8 @@ import {Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {HourTotalsDrilldownModal} from './drilldown-modal';
-import {IReport, IPageState, IReportRow, IQueryData, ReportRow, HourReportInput} from './models';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import {IReport, IReportRow, IQueryData, ReportRow, HourReportInput} from './models';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'hourtotals',
@@ -23,6 +23,8 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 export class HourTotals {
     @Input() input: HourReportInput;
     onDestroy$ = new Subject();
+
+    @Input() triggerChangeInput: number;
 
     private currentOdata: { query: string, filter: string, details: { filter: string, join: string, expand: string, keyField: string } };
 
@@ -116,6 +118,13 @@ export class HourTotals {
                     });
 
             });
+        }
+    }
+
+    ngOnChanges(changes) {
+        // Need to trigger child function this way to avoid circular dependencies
+        if (changes['triggerChangeInput'] && changes['triggerChangeInput']?.currentValue > 0) {
+            this.exportToFile();
         }
     }
 
