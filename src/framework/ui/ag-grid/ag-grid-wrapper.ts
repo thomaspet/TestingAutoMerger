@@ -271,9 +271,11 @@ export class AgGridWrapper {
     }
 
     private initialize() {
-        // Only initialize if we have all required inputs and the config actually changed
+        // Only initialize if we have all required inputs and the config actually changed, or quickFilters have value and requires reload
         const configChanged = this.config && this.config.configStoreKey !== this.configStoreKey;
-        if (configChanged && this.resource && this.agGridApi) {
+        const quickFiltersHasValue = this?.quickFilters?.filter(x => x.filterGenerator(x.value)).length > 0;
+
+        if ((configChanged || quickFiltersHasValue) && this.resource && this.agGridApi) {
             this.configStoreKey = this.config.configStoreKey;
             this.dataService.initialize(this.agGridApi, this.config, this.resource, this.quickFilters);
         }
