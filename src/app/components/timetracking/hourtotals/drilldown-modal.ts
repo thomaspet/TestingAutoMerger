@@ -1,5 +1,7 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
+import * as utils from '../../common/utils/utils';
+import * as moment from 'moment';
 
 @Component({
     selector: 'hourtotals-drilldown-modal',
@@ -10,8 +12,7 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
         </header>
 
         <article>
-
-            <hourtotals *ngIf="!options.data.showDetails" [input]="options.data"></hourtotals>
+            <hourtotals *ngIf="!options.data.showDetails" [input]="options.data" [triggerChangeInput]="clicked"></hourtotals>
 
             <div *ngIf="options.data.showDetails">
                 <table class="report">
@@ -45,13 +46,58 @@ import { IUniModal, IModalOptions } from '@uni-framework/uni-modal';
         </article>
 
         <footer>
+            <button class="secondary good" (click)="exportFromModal()">Exporter til excel</button>
             <button class="secondary" (click)="onClose.emit()">Lukk</button>
         </footer>
     </section>`,
     styleUrls: ['hourtotals.sass']
 })
 export class HourTotalsDrilldownModal implements IUniModal {
+
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
+
+    clicked = 0;
+
+    exportFromModal() {
+        if (this.options.data.showDetails) {
+            this.exportToFile();
+        } else {
+            this.clicked++;
+        }
+    }
+
+    exportToFile() {
+        const csv = [];
+
+            if (!this.options.data.details || !this.options.data.details[0]) {
+                return;
+            }
+
+            const colCount = 7;
+
+            csv.push(utils.createRow(colCount, '', this.options.data.groupBy.labelSingle + ': ' + this.options.data.row.title));
+            csv.push(utils.createRow(colCount, ''));
+            csv.push(['Medarbeider', 'Dato', 'Start', 'Slutt', 'Timer', 'Tekst', 'Kunde']);
+
+            this.options.data.details.forEach( item => {
+                const itemRow = [];
+                itemRow.push(item.Name);
+                itemRow.push(moment(item.Date).format('DD.MM.YYYY'));
+                itemRow.push(moment(item.StartTime).format('HH:mm'));
+                itemRow.push(moment(item.EndTime).format('HH:mm'));
+                itemRow.push((item.Minutes / 60).toFixed(2));
+                itemRow.push(item.Description);
+                itemRow.push(item.CustomerName);
+
+                csv.push(itemRow);
+            });
+
+            // Empty-row
+            csv.push(utils.createRow(colCount, ''));
+
+            utils.exportToFile(utils.arrayToCsv(csv, undefined, undefined, undefined, false),
+                `Timerapport_${this.options.data.row.title}.csv`);
+    }
 
 }
