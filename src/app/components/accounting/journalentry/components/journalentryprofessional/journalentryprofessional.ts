@@ -86,6 +86,7 @@ import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'journal-entry-professional',
@@ -209,7 +210,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         private userService: UserService,
         private paymentService: PaymentService,
         private costAllocationService: CostAllocationService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.accountMandatoryDimensionService.getMandatoryDimensions().subscribe(result => {
             this.mandatoryDimensions = result;
@@ -1780,8 +1782,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 debitVatTypeCol,
                 deductionPercentCol,
                 financialDateCol,
-                projectCol,
-                departmentCol,
                 descriptionCol,
                 amountCol,
                 netAmountCol,
@@ -1792,8 +1792,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 journalEntryTypeCol
             ];
 
-            if (dimensionCols.length) {
-                columns.splice(6, 0, ...dimensionCols);
+            if (this.featurePermissionService.canShowUiFeature('ui.dimensions')) {
+
+                columns.splice(4, 0, projectCol, departmentCol);
+
+                if (dimensionCols.length) {
+                    columns.splice(6, 0, ...dimensionCols);
+                }
             }
         } else {
             // Manual == "Bilagsregistrering"
@@ -1840,8 +1845,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 amountCol,
                 netAmountCol,
                 currencyExchangeRate,
-                projectCol,
-                departmentCol,
                 descriptionCol,
                 createdAtCol,
                 createdByCol,
@@ -1852,10 +1855,15 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 journalEntryTypeCol
             ];
 
-            if (dimensionCols.length) {
-                dimensionCols.forEach((col, index) => {
-                    columns.splice(17 + index, 0, col);
-                });
+            if (this.featurePermissionService.canShowUiFeature('ui.dimensions')) {
+
+                columns.splice(15, 0, projectCol, departmentCol);
+
+                if (dimensionCols.length) {
+                    dimensionCols.forEach((col, index) => {
+                        columns.splice(17 + index, 0, col);
+                    });
+                }
             }
         }
 
