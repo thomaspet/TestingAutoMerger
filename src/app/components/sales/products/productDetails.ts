@@ -642,6 +642,7 @@ export class ProductDetails {
                 {
                     FieldSet: 1,
                     Section: 0,
+                    Legend: 'Produkt',
                     EntityType: 'Product',
                     Property: 'Name',
                     FieldType: FieldType.TEXT,
@@ -649,7 +650,6 @@ export class ProductDetails {
                 },
                 {
                     FieldSet: 1,
-                    Legend: 'Produkt',
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PartName',
