@@ -272,7 +272,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         { ID: 2, Name: 'Arbeidsgiver har sagt opp arbeidstaker' },
                         { ID: 3, Name: 'Arbeidstaker har sagt opp selv' },
                         { ID: 4, Name: 'Byttet lønnsystem eller regnskapsfører' },
-                        { ID: 5, Name: 'Ending i orginisasjonsstruktur eller byttet jobb internt' },
+                        { ID: 5, Name: 'Endring i organisasjonsstruktur eller byttet jobb internt' },
                         { ID: 6, Name: 'Kontrakt, engasjement eller vikariat er utløpt' },
                     ],
                     valueProperty: 'ID',
