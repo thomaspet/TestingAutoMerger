@@ -1,11 +1,11 @@
-import {Component, EventEmitter} from '@angular/core';
+import {Component, EventEmitter, Input} from '@angular/core';
 import {IModalOptions} from '../interfaces';
 import {
     CompanySettingsService,
     ErrorService,
-    ElsaProductService
 } from '@app/services/services';
 import {parse} from 'marked';
+import {ElsaProduct} from '@app/models';
 
 @Component({
     selector: 'activate-ocr-modal',
@@ -19,7 +19,7 @@ import {parse} from 'marked';
                 <button class="secondary" (click)="onClose.emit(false)" [disabled]="busy">
                     Avbryt
                 </button>
-                <button class="c2a" (click)="activate()" [disabled]="busy || !terms?.length">
+                <button class="c2a" (click)="activate()" [disabled]="busy">
                     Aksepter
                 </button>
             </footer>
@@ -27,31 +27,26 @@ import {parse} from 'marked';
     `
 })
 export class ActivateOCRModal {
+    @Input()
     options: IModalOptions = {};
     onClose: EventEmitter<any> = new EventEmitter();
 
     header: string;
     terms: string;
     busy: boolean;
+    product: ElsaProduct;
 
     constructor(
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private elsaProductService: ElsaProductService,
-    ) {
-        this.busy = true;
-        this.elsaProductService.GetAll(`name eq 'OCR-SCAN'`).subscribe(product => {
-            this.header = product[0].ProductAgreement?.Name || 'Fakturatolk avtale';
-            this.terms = product[0].ProductAgreement?.AgreementText || '';
-            this.terms = decodeURI(this.terms);
-            this.terms = parse(this.terms);
-            this.busy = false;
-        },
-            err => {
-                this.errorService.handle(err);
-                this.busy = false;
-            }
-        );
+    ) {}
+
+    ngOnInit() {
+        this.product = this.options.data;
+        this.header = this.product.ProductAgreement?.Name || 'Fakturatolk avtale';
+        this.terms = this.product.ProductAgreement?.AgreementText || '';
+        this.terms = decodeURI(this.terms);
+        this.terms = parse(this.terms);
     }
 
     activate() {
@@ -61,6 +56,7 @@ export class ActivateOCRModal {
             err => {
                 this.errorService.handle(err);
                 this.busy = false;
+                this.onClose.emit(false);
             }
         );
     }

@@ -199,8 +199,12 @@ export class MarketplaceModules implements AfterViewInit {
             activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
         } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
             activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
-        } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
-            activationModal = {modal: ActivateOCRModal};
+        } else if (
+            name === 'ocr-scan'
+            && !this.companySettings.UseOcrInterpretation
+            && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active
+        ) {
+            activationModal = {modal: ActivateOCRModal, options: {data: product}};
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
             activationModal = {modal: UniAutobankAgreementModal};
         } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
@@ -217,6 +221,14 @@ export class MarketplaceModules implements AfterViewInit {
                         }
                     });
                 }
+            };
+        }
+
+        // ocr-scan is not activated, and there is no active agreement
+        if (!activationModal && name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
+            product['_activationFunction'] = {
+                label: 'Aktiver',
+                click: () => this.activateOcrScan(product)
             };
         }
     }
@@ -325,5 +337,12 @@ export class MarketplaceModules implements AfterViewInit {
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
         }
+    }
+
+    activateOcrScan(product: ElsaProduct) {
+        this.companySettingsService.PostAction(1, 'accept-ocr-agreement').subscribe(
+            () => product['_activationFunction'] = undefined,
+            err => this.errorService.handle(err)
+        );
     }
 }

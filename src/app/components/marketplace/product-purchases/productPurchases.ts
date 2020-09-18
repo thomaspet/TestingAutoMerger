@@ -3,7 +3,7 @@ import {Observable, forkJoin} from 'rxjs';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {AuthService} from '@app/authService';
-import {ElsaProduct, ElsaProductType, ElsaPurchaseStatus} from '@app/models';
+import {ElsaAgreementStatus, ElsaProduct, ElsaProductType, ElsaPurchaseStatus} from '@app/models';
 import {
     ElsaProductService,
     ElsaPurchaseService,
@@ -162,8 +162,12 @@ export class ProductPurchases implements OnInit {
             activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
         } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
             activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
-        } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
-            activationModal = {modal: ActivateOCRModal};
+        } else if (
+            name === 'ocr-scan'
+            && !this.companySettings.UseOcrInterpretation
+            && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active
+        ) {
+            activationModal = {modal: ActivateOCRModal, options: {data: product}};
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
             activationModal = {modal: UniAutobankAgreementModal};
         } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
@@ -181,6 +185,14 @@ export class ProductPurchases implements OnInit {
                 }
             };
         }
+
+        // ocr-scan is not activated, and there is no active agreement
+        if (!activationModal && name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
+            product['_activationFunction'] = {
+                label: 'Aktiver',
+                click: () => this.activateOcrScan(product)
+            };
+        }
     }
 
     activatePurchasedProduct(product: ElsaProduct) {
@@ -192,6 +204,8 @@ export class ProductPurchases implements OnInit {
     deactivatePurchase(product: ElsaProduct) {
         if (product.ProductType === ElsaProductType.Module) {
             this.manageUserPurchases(product);
+        } else if (product.Name.toLowerCase() === 'ocr-scan') {
+            this.deactivateOcrScan(product);
         } else {
             this.elsaPurchaseService.cancelPurchase(product.ID).subscribe(() => {
                 this.products = this.products.filter(p => p.ID !== product.ID);
@@ -236,5 +250,23 @@ export class ProductPurchases implements OnInit {
             }
             return product.Label.toLowerCase().includes(filterLowerCase) && product.ProductType === this.selectedType;
         });
+    }
+
+    activateOcrScan(product: ElsaProduct) {
+        this.companySettingsService.PostAction(1, 'accept-ocr-agreement').subscribe(
+            () => product['_activationFunction'] = undefined,
+            err => this.errorService.handle(err)
+        );
+    }
+
+    deactivateOcrScan(product: ElsaProduct) {
+        this.companySettingsService.PostAction(1, 'reject-ocr-agreement').subscribe(
+            () => {
+                this.products = this.products.filter(p => p.ID !== product.ID);
+                this.filteredProducts = this.filteredProducts.filter(p => p.ID !== product.ID);
+                this.setCountsByProductType();
+            },
+            err => this.errorService.handle(err)
+        );
     }
 }
