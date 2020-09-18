@@ -641,20 +641,20 @@ export class ProductDetails {
                 // Fieldset 1 (Produkt)
                 {
                     FieldSet: 1,
+                    Section: 0,
+                    EntityType: 'Product',
+                    Property: 'Name',
+                    FieldType: FieldType.TEXT,
+                    Label: 'Navn'
+                },
+                {
+                    FieldSet: 1,
                     Legend: 'Produkt',
                     Section: 0,
                     EntityType: 'Product',
                     Property: 'PartName',
                     FieldType: FieldType.TEXT,
                     Label: 'Produktnr'
-                },
-                {
-                    FieldSet: 1,
-                    Section: 0,
-                    EntityType: 'Product',
-                    Property: 'Name',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Navn'
                 },
                 {
                     FieldSet: 1,
@@ -792,7 +792,7 @@ export class ProductDetails {
             if (modalResult === ConfirmActions.ACCEPT) {
                 return this.save()
                     .catch(err => Observable.of(false))
-                    .map(res => !!res);;
+                    .map(res => !!res);
             }
             return Observable.of(modalResult !== ConfirmActions.CANCEL);
         });
