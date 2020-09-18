@@ -20,6 +20,7 @@ import {
 import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confirmCreditedJournalEntryWithDate';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'journalentries',
@@ -62,7 +63,8 @@ export class JournalEntries {
         private journalEntryService: JournalEntryService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.route.params.subscribe(params => {
             const journalEntryID = +params['journalEntryID'];
@@ -162,16 +164,19 @@ export class JournalEntries {
                 disabled: () => false
             },
             {
-                action: (item) => this.openPredefinedDescriptions(),
-                disabled: (item) => false,
-                label: 'Faste tekster'
-            },
-            {
                 label: 'Hent kladd',
                 action: () => this.getDrafts(),
                 disabled: () => false
             }
         ];
+
+        if (this.featurePermissionService.canShowUiFeature('ui.accounting.fixed-texts')) {
+            this.contextMenuItems.push({
+                action: (item) => this.openPredefinedDescriptions(),
+                disabled: (item) => false,
+                label: 'Faste tekster'
+            });
+        }
 
         const toolbarConfig: IToolbarConfig = {
             title: 'Bilagsføring',

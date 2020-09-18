@@ -24,6 +24,7 @@ import {
 } from '../../../../../framework/uni-modal';
 import {JournalEntryData} from '@app/models';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'payments',
@@ -78,7 +79,8 @@ export class Payments {
         private statisticsService: StatisticsService,
         private numberSeriesService: NumberSeriesService,
         private journalEntryService: JournalEntryService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.tabService.addTab({
             name: 'Innbetalinger',
@@ -154,13 +156,16 @@ export class Payments {
                 label: 'Tøm listen',
                 action: () => this.journalEntryManual.removeJournalEntryData(),
                 disabled: () => false,
-            },
-            {
+            }
+        ];
+
+        if (this.featurePermissionService.canShowUiFeature('ui.accounting.fixed-texts')) {
+            this.contextMenuItems.push({
                 action: (item) => this.openPredefinedDescriptions(),
                 disabled: (item) => false,
                 label: 'Faste tekster'
-            }
-        ];
+            });
+        }
 
         const toolbarConfig: IToolbarConfig = {
             title: 'Registrering av innbetalinger',
