@@ -28,7 +28,7 @@ import {
     BankService,
     CurrencyCodeService,
     PaymentMode,
-    StatisticsService
+    StatisticsService, AccountService, AssetsService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
@@ -86,7 +86,9 @@ export class SupplierInvoiceStore {
         private modalService: UniModalService,
         private bankService: BankService,
         private currencyCodeService: CurrencyCodeService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private accountService: AccountService,
+        private assetsService: AssetsService
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
@@ -103,7 +105,7 @@ export class SupplierInvoiceStore {
         });
     }
 
-    loadInvoice(id?) {
+    loadInvoice(id?, checkAsset: boolean = false) {
         const expands =  [
             'Supplier.Info.BankAccounts',
             'BankAccount',
@@ -173,6 +175,10 @@ export class SupplierInvoiceStore {
             this.changes$.next(false);
             this.readonly$.next(invoice.StatusCode === StatusCodeSupplierInvoice.Journaled);
             this.initDataLoaded$.next(true);
+
+            if (checkAsset && this.itCanBeAnAsset(this.invoice$.value)) {
+                this.assetsService.openRegisterModal(this.invoice$.value);
+            }
         });
     }
 
@@ -531,14 +537,14 @@ export class SupplierInvoiceStore {
             if (response) {
                 if (alsoPay) {
                     this.supplierInvoiceService.payinvoice(invoice.ID, payment).subscribe(() => {
-                        this.loadInvoice(invoice.ID);
+                        this.loadInvoice(invoice.ID, true);
                         done('Faktura er bokført og registrert som betalt. Bilagsnummer med link vises i toppen.');
                     }, err => {
                         this.errorService.handle(err);
                         done('Betaling feilet');
                     });
                 } else {
-                    this.loadInvoice(this.invoice$.value.ID);
+                    this.loadInvoice(this.invoice$.value.ID, true);
                     done('Faktura er bokført. Bilagsnummer med link vises i toppen.');
                 }
             } else {
@@ -566,8 +572,19 @@ export class SupplierInvoiceStore {
 
         this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
             if (response <= ActionOnReload.SentToPaymentList) {
-                this.openJournaledAndPaidModal(response);
                 this.loadInvoice(this.invoice$.value.ID);
+                this.openJournaledAndPaidModal(response).subscribe((res) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.router.navigateByUrl('/accounting/bills/0');
+                    } else if (res === ConfirmActions.REJECT &&
+                        (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
+                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
+                    } else if (response > 0 && response < 3) {
+                        if (this.itCanBeAnAsset(this.invoice$.value)) {
+                            this.assetsService.openRegisterModal(this.invoice$.value);
+                        }
+                    }
+                });
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
                 this.loadInvoice(this.invoice$.value.ID);
@@ -812,14 +829,22 @@ export class SupplierInvoiceStore {
                 return;
         }
 
-        this.modalService.confirm(options).onClose.subscribe((response) => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.router.navigateByUrl('/accounting/bills/0');
-            } else if (response === ConfirmActions.REJECT &&
-                (action === ActionOnReload.SentToPaymentList || action === ActionOnReload.JournaledAndSentToPaymentList)) {
-                this.router.navigateByUrl('/bank/ticker?code=payment_list');
-            }
-        });
+        return this.modalService.confirm(options).onClose;
 
+    }
+
+    itCanBeAnAsset(current: SupplierInvoice) {
+        if (current?.JournalEntry?.DraftLines?.length > 0) {
+            const line = current?.JournalEntry?.DraftLines[0];
+            return this.accountService.Get(line.AccountID).pipe(
+                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                map((account) => {
+                    return account.AccountNumber.toString().startsWith('10')
+                        || account.AccountNumber.toString().startsWith('11')
+                        || account.AccountNumber.toString().startsWith('12');
+                })
+            );
+        }
+        return of(false);
     }
 }

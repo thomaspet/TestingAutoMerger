@@ -24,6 +24,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui.accounting.bill.delivery_date',
         'ui.accounting.vat-deduction-settings',
         'ui.accounting.budget',
+        'ui.accounting.payments',
         'ui.accounting.costallocation',
         'ui.accounting.advanced-account-settings',
 
@@ -65,14 +66,13 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.sales.customer.documents',
 
         'ui.sales.invoice.accrual',
-
         'ui.sales.invoice-list.my_invoices',
-
         'ui.sales.products.product_categories',
-
         'ui.sales.quotes',
         'ui.sales.orders',
         'ui.sales.reminders',
+
+        'ui.accounting.fixed-texts',
         'ui.bank.reconciliation.auto-match',
     ],
     routes: [
