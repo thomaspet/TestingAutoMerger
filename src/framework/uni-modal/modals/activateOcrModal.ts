@@ -2,15 +2,16 @@ import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions} from '../interfaces';
 import {
     CompanySettingsService,
-    AgreementService,
     ErrorService,
+    ElsaProductService
 } from '@app/services/services';
+import {parse} from 'marked';
 
 @Component({
     selector: 'activate-ocr-modal',
     template: `
         <section role="dialog" class="uni-modal">
-            <header>Aktiver Fakturatolk</header>
+            <header>{{header}}</header>
 
             <article [innerHtml]="terms" class="scrollable"></article>
 
@@ -29,17 +30,27 @@ export class ActivateOCRModal {
     options: IModalOptions = {};
     onClose: EventEmitter<any> = new EventEmitter();
 
+    header: string;
     terms: string;
     busy: boolean;
 
     constructor(
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private agreementService: AgreementService
+        private elsaProductService: ElsaProductService,
     ) {
-        this.agreementService.Current('OCR').subscribe(
-            terms => this.terms = terms,
-            err => this.errorService.handle(err)
+        this.busy = true;
+        this.elsaProductService.GetAll(`name eq 'OCR-SCAN'`).subscribe(product => {
+            this.header = product[0].ProductAgreement?.Name || 'Fakturatolk avtale';
+            this.terms = product[0].ProductAgreement?.AgreementText || '';
+            this.terms = decodeURI(this.terms);
+            this.terms = parse(this.terms);
+            this.busy = false;
+        },
+            err => {
+                this.errorService.handle(err);
+                this.busy = false;
+            }
         );
     }
 

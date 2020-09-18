@@ -5,7 +5,7 @@ import {Observable, forkJoin} from 'rxjs';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {SubscribeModal} from '@app/components/marketplace/subscribe-modal/subscribe-modal';
 import {AuthService} from '@app/authService';
-import {ElsaProduct, ElsaProductType, ElsaContractType} from '@app/models';
+import {ElsaProduct, ElsaProductType, ElsaContractType, ElsaAgreementStatus} from '@app/models';
 import {
     ElsaProductService,
     ElsaPurchaseService,
@@ -34,6 +34,11 @@ import {ActivationEnum, ElsaPurchase} from '@app/models';
 // import {IUniTab} from '@uni-framework/uni-tabs';
 import {theme, THEMES} from 'src/themes/theme';
 import {ChangeContractTypeModal} from './change-contract-type-modal/change-contract-type-modal';
+
+interface ActivationModal {
+    modal: any;
+    options?: any;
+}
 
 @Component({
     selector: 'uni-marketplace-modules',
@@ -82,10 +87,10 @@ export class MarketplaceModules implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        forkJoin(
+        forkJoin([
             this.elsaContractService.getCustomContractTypes(),
-            this.elsaContractService.getValidContractTypeUpgrades(),
-        ).subscribe(([contractTypes, validUpgrades]) => {
+            this.elsaContractService.getValidContractTypeUpgrades()
+        ]).subscribe(([contractTypes, validUpgrades]) => {
             this.currentContractType = this.authService.currentUser.License?.ContractType?.TypeID;
 
             this.contractTypes = contractTypes?.map(contractType => {
@@ -104,15 +109,15 @@ export class MarketplaceModules implements AfterViewInit {
     private loadData() {
         const userID = this.authService.currentUser.ID;
 
-        forkJoin(
+        forkJoin([
             this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()
                 .catch(() => Observable.of([])), // fail silently
 
             this.elsaProductService.getProductsOnContractTypes(this.currentContractType, `producttype ne 'Package'`),
             this.elsaPurchaseService.getAll(),
-            this.userRoleService.hasAdminRole(userID),
-        ).subscribe(
+            this.userRoleService.hasAdminRole(userID)
+        ]).subscribe(
             ([companySettings, autobankAgreeements, products, purchases, canPurchaseProducts]) => {
                 this.companySettings = companySettings;
 
@@ -186,25 +191,27 @@ export class MarketplaceModules implements AfterViewInit {
 
     private setActivationFunction(product: ElsaProduct) {
         const name = product && product.Name && product.Name.toLowerCase();
-        let activationModal;
+        let activationModal: ActivationModal;
 
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
-            activationModal = UniActivateInvoicePrintModal;
-        } else if (name === 'ehf' && !this.ehfService.isEHFActivated()) {
-            activationModal = UniActivateAPModal;
+            activationModal = {modal: UniActivateInvoicePrintModal};
+        } else if (name === 'ehf' && !this.ehfService.isEHFIncomingActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
+        } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
         } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
-            activationModal = ActivateOCRModal;
+            activationModal = {modal: ActivateOCRModal};
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
-            activationModal = UniAutobankAgreementModal;
+            activationModal = {modal: UniAutobankAgreementModal};
         } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
-            activationModal = UniActivateEInvoiceModal;
+            activationModal = {modal: UniActivateEInvoiceModal};
         }
 
         if (activationModal) {
             product['_activationFunction'] = {
                 label: 'Aktiver',
                 click: () => {
-                    this.modalService.open(activationModal, {}).onClose.subscribe(res => {
+                    this.modalService.open(activationModal.modal, activationModal.options).onClose.subscribe(res => {
                         if (res && res !== ActivationEnum.NOT_ACTIVATED) {
                             product['_activationFunction'] = undefined;
                         }
@@ -239,7 +246,31 @@ export class MarketplaceModules implements AfterViewInit {
 
     manageUserPurchases(product: ElsaProduct) {
         if (this.canPurchaseProducts) {
-            const purchaseModal = product.Name.trim().toLowerCase() === 'traveltext'
+            if (!product['_isBought'] && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
+                this.modalService.confirm({
+                    header: product.ProductAgreement.Name,
+                    message: product.ProductAgreement.AgreementText,
+                    isMarkdown: true,
+                    class: 'medium',
+                    buttonLabels: {
+                        accept: 'Aksepter',
+                        cancel: 'Tilbake'
+                    }
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.openUserPurchases(product);
+                    }
+                });
+            } else {
+                this.openUserPurchases(product);
+            }
+        } else {
+            this.modalService.open(MissingPurchasePermissionModal);
+        }
+    }
+
+    openUserPurchases(product: ElsaProduct) {
+        const purchaseModal = product.Name.trim().toLowerCase() === 'traveltext'
                 ? PurchaseTraveltextModal
                 : ProductPurchasesModal;
             this.modalService.open(purchaseModal, {
@@ -253,9 +284,6 @@ export class MarketplaceModules implements AfterViewInit {
                     });
                 }
             });
-        } else {
-            this.modalService.open(MissingPurchasePermissionModal);
-        }
     }
 
     purchaseExtension(product: ElsaProduct) {
@@ -264,15 +292,36 @@ export class MarketplaceModules implements AfterViewInit {
                 ID: null,
                 ProductID: product.ID
             };
-            this.elsaPurchaseService.massUpdate([purchase]).subscribe(
-                () => {
-                    product['_isBought'] = true;
-                    if (product['_activationFunction']) {
-                        product['_activationFunction'].click();
+            // if the extension has a special activationFunction, we show the agreement inside that function
+            if (!product['_isBought'] && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active && !product['_activationFunction']) {
+                this.modalService.confirm({
+                    header: product.ProductAgreement.Name,
+                    message: product.ProductAgreement.AgreementText,
+                    isMarkdown: true,
+                    class: 'medium',
+                    buttonLabels: {
+                        accept: 'Aksepter',
+                        cancel: 'Tilbake'
                     }
-                },
-                err => this.errorService.handle(err)
-            );
+                }).onClose.subscribe(response => {
+                    if (response === ConfirmActions.ACCEPT) {
+                        this.elsaPurchaseService.massUpdate([purchase]).subscribe(
+                            () => product['_isBought'] = true,
+                            err => this.errorService.handle(err)
+                        );
+                    }
+                });
+            } else {
+                this.elsaPurchaseService.massUpdate([purchase]).subscribe(
+                    () => {
+                        product['_isBought'] = true;
+                        if (product['_activationFunction']) {
+                            product['_activationFunction'].click();
+                        }
+                    },
+                    err => this.errorService.handle(err)
+                );
+            }
         } else {
             this.modalService.open(MissingPurchasePermissionModal);
         }

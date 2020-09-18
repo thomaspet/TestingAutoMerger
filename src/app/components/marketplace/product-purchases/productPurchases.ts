@@ -30,6 +30,11 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import {FormControl} from '@angular/forms';
 import {THEMES, theme} from 'src/themes/theme';
 
+interface ActivationModal {
+    modal: any;
+    options?: any;
+}
+
 @Component({
     selector: 'uni-product-purchases',
     templateUrl: './productPurchases.html',
@@ -95,13 +100,13 @@ export class ProductPurchases implements OnInit {
     }
 
     fetchPurchases() {
-        forkJoin(
+        forkJoin([
             this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID),
             this.elsaPurchaseService.getAll(),
             this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()
-                .catch(() => Observable.of([])), // fail silently
-        ).subscribe(
+                .catch(() => Observable.of([])) // fail silently
+        ]).subscribe(
             res => {
                 this.products = res[0] || [];
                 this.purchases = res[1] || [];
@@ -149,24 +154,26 @@ export class ProductPurchases implements OnInit {
 
     setActivationFunction(product: ElsaProduct) {
         const name = product && product.Name && product.Name.toLowerCase();
-        let activationModal;
+        let activationModal: ActivationModal;
 
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
-            activationModal = UniActivateInvoicePrintModal;
-        } else if (name === 'ehf' && !this.ehfService.isEHFActivated()) {
-            activationModal = UniActivateAPModal;
+            activationModal = {modal: UniActivateInvoicePrintModal};
+        } else if (name === 'ehf' && !this.ehfService.isEHFIncomingActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
+        } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
         } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
-            activationModal = ActivateOCRModal;
+            activationModal = {modal: ActivateOCRModal};
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
-            activationModal = UniAutobankAgreementModal;
+            activationModal = {modal: UniAutobankAgreementModal};
         } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
-            activationModal = UniActivateEInvoiceModal;
+            activationModal = {modal: UniActivateEInvoiceModal};
         }
 
         if (activationModal) {
             product['_activationFunction'] = {
                 click: () => {
-                    this.modalService.open(activationModal, {}).onClose.subscribe(res => {
+                    this.modalService.open(activationModal.modal, activationModal.options).onClose.subscribe(res => {
                         if (res && res !== ActivationEnum.NOT_ACTIVATED) {
                             product['_activationFunction'] = undefined;
                         }

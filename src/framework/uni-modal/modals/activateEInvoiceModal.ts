@@ -7,13 +7,14 @@ import {UniModalService} from '../modalService';
 import {
     UserService,
     CompanySettingsService,
-    AgreementService,
     ErrorService,
-    PaymentInfoTypeService
+    PaymentInfoTypeService,
+    ElsaProductService
 } from '../../../../src/app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {ElsaAgreement, ElsaAgreementStatus} from '@app/models';
 
 @Component({
     selector: 'uni-activate-einvoice-modal',
@@ -43,6 +44,14 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
                     [model]="formModel$">
                 </uni-form>
 
+                <section *ngIf="terms" class="termsCheckbox">
+                    <mat-checkbox [(ngModel)]="termsAgreed">
+                        <span class="checkboxLabel" (click)="$event.preventDefault()">
+                            Jeg har lest og forstått <a (click)="$event.preventDefault(); confirmTerms()">avtalen</a>
+                        </span>
+                    </mat-checkbox>
+                </section>
+
                 <p>
                    <strong>NB!</strong> Aktivering av Efaktura vil erstatte Efakturaavtaler du har etablert i andre systemer.
                    Ta kontakt med kundesenter hvis du har en eksisterende Efakturaavtale fra før!
@@ -54,21 +63,27 @@ import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal
             </article>
 
             <footer>
-                <button class="secondary bad pull-left" (click)="close()">
+                <button class="secondary pull-left" (click)="close()">
                     Avbryt
                 </button>
-                <button class="secondary c2a" (click)="confirmTerms()">
-                    Betingelser
-                </button>
 
-                <button class="good" (click)="activate()"
+                <button class="c2a" (click)="activate()"
                     title="Betingelser må aksepteres før du kan aktivere Efaktura"
-                    [disabled]="!termsAgreed || isMissingData">
+                    [disabled]="(!termsAgreed && terms) || isMissingData">
                     Aktiver Efaktura
                 </button>
             </footer>
         </section>
-    `
+    `,
+    styles: [`
+        .termsCheckbox {
+            margin-top: 1rem;
+            margin-left: 0.5rem;
+        }
+        .checkboxLabel {
+            cursor: default;
+        }
+    `]
 })
 export class UniActivateEInvoiceModal implements IUniModal {
     @Input()
@@ -84,20 +99,36 @@ export class UniActivateEInvoiceModal implements IUniModal {
     public formModel$: BehaviorSubject<any> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
+    terms: ElsaAgreement;
     termsAgreed: boolean;
     isMissingData: boolean;
     busy: boolean = false;
 
     constructor(
-        private agreementService: AgreementService,
         private companySettingsService: CompanySettingsService,
         private paymentInfoTypeService: PaymentInfoTypeService,
         private userService: UserService,
         private errorService: ErrorService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private elsaProductService: ElsaProductService,
     ) {}
 
     public ngOnInit() {
+        this.busy = true;
+        const filter = `name eq 'efakturab2c'`;
+        this.elsaProductService.GetAll(filter)
+            .finally(() => {
+                this.busy = false;
+                this.initialize();
+            })
+            .subscribe(product => {
+                if (product[0]?.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
+                    this.terms = product[0].ProductAgreement;
+                }
+            });
+    }
+
+    initialize() {
         this.formFields$.next(this.getFormFields());
         this.initActivationModel();
 
@@ -105,7 +136,7 @@ export class UniActivateEInvoiceModal implements IUniModal {
     }
 
     public initActivationModel() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.userService.getCurrentUser(),
             this.companySettingsService.Get(1, [
                 'DefaultEmail',
@@ -115,8 +146,7 @@ export class UniActivateEInvoiceModal implements IUniModal {
             this.paymentInfoTypeService.GetAll(
                 'paymentinfotype?filter=Type eq 1 and StatusCode eq 42400&orderby=ID,Type,PaymentInfoTypeParts.SortIndex asc',
                 ['PaymentInfoTypeParts'])
-        ).subscribe(
-            res => {
+            ]).subscribe(res => {
                 const model = <any>{};
 
                 const user: User = res[0];
@@ -177,20 +207,19 @@ export class UniActivateEInvoiceModal implements IUniModal {
     }
 
     public confirmTerms() {
-        this.agreementService.Current('eFakturab2c').subscribe(message => {
-            this.modalService.confirm({
-                header: 'Betingelser',
-                message: message,
-                class: 'medium',
-                buttonLabels: {
-                    accept: 'Aksepter',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.termsAgreed = true;
-                }
-            });
+        this.modalService.confirm({
+            header: this.terms.Name,
+            message: this.terms.AgreementText,
+            isMarkdown: true,
+            class: 'medium',
+            buttonLabels: {
+                accept: 'Aksepter',
+                cancel: 'Tilbake'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.termsAgreed = true;
+            }
         });
     }
 

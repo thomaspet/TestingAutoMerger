@@ -118,7 +118,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
 
         if (this.indexAndID?.length === 2) {
             const type = this.types.find(t => t.ID === this.indexAndID[1]);
-            this.onTypeChange(type, this.indexAndID[0])
+            this.onTypeChange(type, this.indexAndID[0]);
             this.indexAndID = [];
         }
 
@@ -132,17 +132,17 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 type.StatusCode = TypeStatusCode.Ready;
                 break;
             case 'EHF':
-                // EXT02 has EHF activated by default, will always be on!
+                // EXT02 has EHF_OUT activated by default, will always be on!
                 if (theme.theme === THEMES.EXT02) {
                     type.StatusCode = 30001;
                     break;
                 } else {
-                    item = this.purchases.find(p => p.ProductName.toLowerCase().includes('ehf'));
+                    item = this.purchases.find(p => p.ProductName.toLowerCase() === 'ehf_out');
                     if (item) {
-                        type.StatusCode = this.ehfService.isEHFActivated(this.companySettings)
+                        type.StatusCode = this.ehfService.isEHFOutActivated(this.companySettings)
                             ? TypeStatusCode.Ready : TypeStatusCode.NeedsActivation;
                     }
-                    type['ProductName'] = 'EHF';
+                    type['ProductName'] = 'EHF_OUT';
                     break;
                 }
             case 'Fakturaprint':
@@ -277,7 +277,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
     buyType(type: DistributionPlanElementType, index: number) {
         this.indexAndID = [index, type.ID];
         switch (type.ID) {
-            case 1:  // EHF
+            case 1:  // EHF_OUT
                 this.activateProduct(type, UniActivateAPModal);
                 break;
             case 3:  // FAKTURAPRINT
@@ -329,7 +329,11 @@ export class DistributionPlanModal implements OnInit, IUniModal {
     }
 
     openActivateModal(modal: any) {
-        this.modalService.open(modal).onClose.subscribe((status) => {
+        let options = {};
+        if (modal === UniActivateAPModal) {
+            options = {data: {isOutgoing: true}};
+        }
+        this.modalService.open(modal, options).onClose.subscribe((status) => {
             this.refreshDataAndTypes();
         }, err => this.errorService.handle(err));
     }

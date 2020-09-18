@@ -3,6 +3,7 @@ export interface ElsaAgreement {
     AgreementText: string;
     AgreementStatus: ElsaAgreementStatus;
     ProductID: number;
+    Name: string;
 }
 
 export enum ElsaAgreementStatus {

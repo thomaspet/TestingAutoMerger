@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
+import {parse} from 'marked';
 
 
 @Component({
@@ -44,6 +45,10 @@ export class UniConfirmModalV2 implements IUniModal {
                 accept: 'Ok',
                 cancel: 'Avbryt'
             };
+        }
+        if (this.options.message && this.options.isMarkdown) {
+            this.options.message = decodeURI(this.options.message);
+            this.options.message = parse(this.options.message);
         }
     }
 

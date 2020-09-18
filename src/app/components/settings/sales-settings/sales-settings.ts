@@ -74,7 +74,7 @@ export class UniSalesSettingsView {
 
     eInvoiceItems: any[] = [
         { name: 'Fakturaprint', isActivated: false, value: 0 },
-        { name: 'EHF', isActivated: false, value: 1 }
+        { name: 'EHF sending', isActivated: false, value: 1 }
     ];
 
     tabs: IUniTab[] = [
@@ -140,10 +140,10 @@ export class UniSalesSettingsView {
 
     reloadCompanySettingsData() {
         this.companySettingsService.invalidateCache();
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.companySettingsService.Get(1, this.expands),
-            this.termsService.GetAll(null),
-        ).subscribe((response) => {
+            this.termsService.GetAll(null)
+        ]).subscribe((response) => {
             const data = response[0];
             data['FactoringEmails'] = [data.FactoringEmail || {_createguid: this.companySettingsService.getNewGuid()}];
 
@@ -153,7 +153,7 @@ export class UniSalesSettingsView {
             this.terms = response[1];
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isInvoicePrintActivated(response[0]);
-            this.eInvoiceItems[1].isActivated = this.ehfService.isEHFActivated(response[0]);
+            this.eInvoiceItems[1].isActivated = this.ehfService.isEHFOutActivated(response[0]);
 
             this.setUpEHFField();
             this.setUpFactoringFields();
@@ -318,7 +318,7 @@ export class UniSalesSettingsView {
     }
 
     private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal).onClose.subscribe((status) => {
+        this.modalService.open(UniActivateAPModal, {data: {isOutgoing: true}}).onClose.subscribe((status) => {
             if (status !== 0) {
                 this.companySettingsService.Get(1).subscribe(settings => {
                     const company = this.companySettings$.getValue();
