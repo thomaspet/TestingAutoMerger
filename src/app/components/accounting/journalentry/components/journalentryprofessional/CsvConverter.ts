@@ -1,6 +1,6 @@
 import { parseDate, safeDec } from '@app/components/common/utils/utils';
 import { AccountService } from '@app/services/services';
-import { Account, VatType } from '@uni-entities';
+import { Account, VatType, LocalDate } from '@uni-entities';
 import { UniTable, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
@@ -65,7 +65,17 @@ export class CsvConverter {
             case UniTableColumnType.Money:
                 return value ? safeDec(value) : 0;
             case UniTableColumnType.LocalDate:
-                return value ? parseDate(value) : undefined;
+                if (!value) { return undefined; }
+                try {
+                    const converted = parseDate(value);
+                    if (converted) {
+                        value = new LocalDate(converted);
+                        const thisYear = new Date().getFullYear();
+                        if (value.year < thisYear - 10 || value.year > thisYear + 2 ) { return undefined; }
+                        return value;
+                    }
+                } catch {}
+                return undefined;
         }
         return value;
     }
