@@ -5,7 +5,7 @@
     (selectValueChanged)="numberSeriesChanged($event, true)">
 </uni-toolbar>
 
-<journal-entry-manual
+<journal-entry-manual [attr.aria-busy]="busy"
     [mode]="0"
     [journalEntryID]="currentJournalEntryID"
     [selectedNumberSeries]="selectedNumberSeries"

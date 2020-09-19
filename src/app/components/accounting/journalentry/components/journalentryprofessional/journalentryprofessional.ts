@@ -7,7 +7,6 @@ import {
     Input,
     Output,
     EventEmitter,
-    ChangeDetectorRef
 } from '@angular/core';
 import {Observable, forkJoin, from} from 'rxjs';
 import {
@@ -86,6 +85,7 @@ import {RequestMethod} from '@uni-framework/core/http';
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 import * as _ from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
+import { CsvConverter } from './CsvConverter';
 import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
@@ -185,7 +185,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private mandatoryDimensions = [];
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
         private uniHttpService: UniHttp,
         private accountService: AccountService,
         private journalEntryService: JournalEntryService,
@@ -270,6 +269,23 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (this.journalEntryLines[0]?.VatDate && this.journalEntryLines[0]?.JournalEntryNo) {
             this.currentSavedVatDate = this.journalEntryLines[0].VatDate;
         }
+    }
+
+    public getCsvData(divider = '\t'): string {
+        return CsvConverter.getCsvData(this.table, divider);
+    }
+
+    public setCsvData(value: string, divider = '\t'): Promise<any> {
+        const importer = new CsvConverter(this.uniHttpService, this.accountService, this.vattypes);
+        return new Promise( (resolve, reject) =>
+            importer.setCsvData(this.table, value, divider)
+                ?.then( data => {
+                    this.setJournalEntryData(data);
+                    this.setupJournalEntryNumbers(true);
+                    resolve(data);
+                })
+                ?.catch( err => reject(err))
+        );
     }
 
     public setJournalEntryData(data) {

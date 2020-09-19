@@ -53,6 +53,7 @@ export class JournalEntries {
         moduleID: UniModules.Accounting,
         active: true
     };
+    public busy = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -166,6 +167,16 @@ export class JournalEntries {
             {
                 label: 'Hent kladd',
                 action: () => this.getDrafts(),
+                disabled: () => false
+            },
+            {
+                label: 'Kopier tabell',
+                action: () => this.copyTable(),
+                disabled: () => false
+            },
+            {
+                label: 'Lim inn tabell',
+                action: () => this.pasteTable(),
                 disabled: () => false
             }
         ];
@@ -284,6 +295,22 @@ export class JournalEntries {
                 err => this.errorService.handle(err)
             );
         });
+    }
+
+    private copyTable() {
+        const value = this.journalEntryManual.getCsvData();
+        navigator.clipboard.writeText(value).then(
+            () => { },
+            () => alert('Tilgang til utklippstavlen ble avvist')
+        );
+    }
+
+    private pasteTable() {
+        this.busy = true;
+        navigator.clipboard.readText().then(
+            text => this.journalEntryManual.setCsvData(text).finally( () => this.busy = false),
+            () => { this.busy = false; alert('Tilgang til utklippstavlen ble avvist'); }
+        );
     }
 
     private getDrafts() {
