@@ -85,12 +85,12 @@ export class CsvConverter {
         const rows = value.split('\r');
         if (!(rows && rows.length >= 2)) { return Promise.resolve([]); }
 
-        // Detect which columns are used
+        // Detect column-names from first row
         const columns = table.config.columns.slice();
         const title = rows[0].split(divider);
         const targets: Array<{ index: number, column: UniTableColumn }> = [];
         for (let cellIndex = 0; cellIndex < title.length; cellIndex++) {
-            const match = columns.filter( x => x.header.toLocaleLowerCase() === title[cellIndex].toLocaleLowerCase() );
+            const match = columns.filter( x => x.header.toLocaleLowerCase() === this.mapAlternative(title[cellIndex].toLocaleLowerCase()) );
             if (match && match.length > 0) {
                 targets.push({ index: cellIndex, column: match[0] });
                 columns.splice(columns.indexOf(match[0]), 1);
@@ -209,6 +209,26 @@ export class CsvConverter {
             : finalHandler([], resolve)
         );
 
+    }
+
+    private mapAlternative(colName: string): string {
+        switch (colName) {
+            case 'tekst':
+            case 'text':
+                return 'beskrivelse';
+            case 'konto':
+                return 'debet';
+            case 'bilagsnr.':
+            case 'bilagsnummer':
+                return 'bilagsnr';
+            case 'mvakode':
+                return 'mva';
+            case 'faktura':
+            case 'fakturanummer':
+                return 'fakturanr';
+            default:
+                return colName;
+        }
     }
 
     private mapLookup(value: string, colName: string, list: Array<any>) {
