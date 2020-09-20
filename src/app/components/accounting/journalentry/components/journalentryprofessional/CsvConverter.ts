@@ -22,7 +22,7 @@ export class CsvConverter {
                 return this.toString(row[x.field], x, row);
             }).join(divider));
         });
-        return header + '\r' + rows.join('\r');
+        return header + '\n' + rows.join('\n');
     }
 
     private static toString(value: any, col: UniTableColumn, row: any) {
@@ -82,7 +82,7 @@ export class CsvConverter {
 
     public setCsvData(table: UniTable, value: string, divider = '\t'): Promise<any> {
 
-        const rows = value.split('\r');
+        const rows = value.split('\n');
         if (!(rows && rows.length >= 2)) { return Promise.resolve([]); }
 
         // Detect column-names from first row
