@@ -106,19 +106,19 @@ export class BankStatementSession {
             + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
             + `&orderby=statuscode,financialdate&distinct=false`;
 
-        const journalEntryCustomerQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate as Date,`
+        const journalEntryCustomerQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) as Date,`
         + `InvoiceNumber as InvoiceNumber,Description as Description,Amount as Amount,RestAmount as OpenAmount,JournalEntryID as JournalEntryID,`
         + `StatusCode as StatusCode,AccountID as AccountID,Info.Name as AccountName,SubAccount.ID as SubAccountID,SubAccount.AccountName as SubAccountName`
-        + `&filter=SubAccount.CustomerID gt 0 and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
-        + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
-        + `&expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&orderby=statuscode,financialdate&distinct=false`;
+        + `&filter=SubAccount.CustomerID gt 0 and ( casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) ge '${startYearString}' ))`
+        + ` and casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) le '${toDateString}' and isnull(statuscode,0) ne 31004`
+        + `&expand=SubAccount,SubAccount.Customer,SubAccount.Customer.Info&orderby=statuscode,casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate)&distinct=false`;
 
-        const journalEntrySupplierQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,FinancialDate as Date,`
+        const journalEntrySupplierQuery = `model=JournalEntryLine&select=ID as ID,JournalEntryNumber as JournalEntryNumber,casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) as Date,`
         + `InvoiceNumber as InvoiceNumber,Description as Description,Amount as Amount,RestAmount as OpenAmount,JournalEntryID as JournalEntryID,`
         + `StatusCode as StatusCode,AccountID as AccountID,Info.Name as AccountName,SubAccount.ID as SubAccountID,SubAccount.AccountName as SubAccountName`
-        + `&filter=SubAccount.SupplierID gt 0 and ( financialdate ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and financialdate ge '${startYearString}' ))`
-        + ` and financialdate le '${toDateString}' and isnull(statuscode,0) ne 31004`
-        + `&expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&orderby=statuscode,financialdate&distinct=false`;
+        + `&filter=SubAccount.SupplierID gt 0 and ( casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) ge '${fromDateString}' or ( isnull(statuscode,0) lt 31003 and casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) ge '${startYearString}' ))`
+        + ` and casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate) le '${toDateString}' and isnull(statuscode,0) ne 31004`
+        + `&expand=SubAccount,SubAccount.Supplier,SubAccount.Supplier.Info&orderby=statuscode,casewhen(isnull(duedate,'20991231') eq '20991231',financialdate,duedate)&distinct=false`;
 
         const journalEntries$ = this.statisticsService.GetAllUnwrapped(journalEntryQuery);
         const journalEntriesCustomer$ = this.statisticsService.GetAllUnwrapped(journalEntryCustomerQuery);

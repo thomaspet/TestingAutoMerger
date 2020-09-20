@@ -381,7 +381,6 @@ export class BankReconciliation {
             }, closeOnClickOutside: false })
         .onClose.subscribe(response => {
             if (response) {
-                this.toastService.showLoadIndicator({ title: 'Lagret', message: 'Endringer lagret vellykket, oppdaterer poster.' });
                 this.session.reload().subscribe(() => {
                     this.checkSuggest();
                     this.toastService.hideLoadIndicator();
