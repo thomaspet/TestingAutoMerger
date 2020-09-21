@@ -40,12 +40,12 @@ export class BankStatementRulesModal implements IUniModal {
     exampleRules: IExampleRule[] = [
         {
             Label: 'Gebyr',
-            BankStatementRule: <BankStatementRule>{ Name: 'Gebyr', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'gebyr') and Entry.Amount > 0` },
+            BankStatementRule: <BankStatementRule>{ Name: 'Gebyr', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'gebyr') and Entry.Amount < 0` },
             Active: true
         },
         {
             Label: 'Renter',
-            BankStatementRule: <BankStatementRule>{ Name: 'Renter', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'renter') and Entry.Amount > 0` },
+            BankStatementRule: <BankStatementRule>{ Name: 'Renter', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'rente') and Entry.Amount > 0` },
             Active: true
         },
     ]
@@ -66,7 +66,7 @@ export class BankStatementRulesModal implements IUniModal {
             this.errorService.handle(err);
             return of([]);
         })),
-        this.statisticsService.GetAllUnwrapped(`model=account&select=ID as ID&filter=contains(accountname,'gebyr') or contains(accountname,'renter')`),
+        this.statisticsService.GetAllUnwrapped(`model=account&select=ID as ID&filter=AccountNumber eq 7770 or AccountNumber eq 8050`),
         ).subscribe(([rules, accounts]) => {
             this.rules = (rules && rules.length) ? rules : [{ Name: 'Ny regel', IsActive: true}];
             this.onRuleSelected(this.rules[0]);
@@ -127,7 +127,12 @@ export class BankStatementRulesModal implements IUniModal {
 
     addExampleRule(rule: BankStatementRule) {
         rule['_dirty'] = true;
-        this.rules.push(rule);
+
+        if (!this.activeRule.ID && !this.activeRule['_dirty']) {
+            this.rules.splice(this.rules.length - 1, 1, rule);
+        } else {
+            this.rules.push(rule);
+        }
         this.onRuleSelected(rule);
     }
 
