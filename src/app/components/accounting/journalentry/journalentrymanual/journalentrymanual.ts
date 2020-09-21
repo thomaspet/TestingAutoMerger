@@ -1001,7 +1001,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     });
 
                     if (this.currentJournalEntryData.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                        this.journalEntryProfessional.showAgioDialogPostPost(this.currentJournalEntryData);
+                        this.journalEntryProfessional.showAgioDialog(this.currentJournalEntryData);
                     }
                 } else {
                     this.currentJournalEntryData.PostPostJournalEntryLineID = null;
