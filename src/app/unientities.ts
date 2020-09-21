@@ -1,5 +1,7 @@
 /* tslint:disable */
 
+import { FlowTemplate } from "./components/admin/flow/templates/template-data";
+
 export class LocalDate {
     private value: Date;
     public year: number;  // <-- For moment constructor
@@ -4111,6 +4113,12 @@ export class Eventplan extends UniEntity {
     public _createguid: string;
     public Subscribers: Array<EventSubscriber>;
     public CustomFields: any;
+    public SigningKey: string;
+
+    public _template?: FlowTemplate;
+    public _updatedAt?: string;
+    public _updatedBy?: string;
+    public _hidePrivateKey: boolean;
 }
 
 
