@@ -441,7 +441,7 @@ export class BankReconciliation {
                     action: () => { this.openJournalModal(); }
                 },
                 {
-                    label: 'Se alle åpne poster i bilagsføring',
+                    label: 'Bokføre bankdata',
                     action: () => { this.openJournalModal(true); }
                 },
                 {

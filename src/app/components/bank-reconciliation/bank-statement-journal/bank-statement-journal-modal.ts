@@ -41,6 +41,7 @@ export class BankStatementJournalModal implements IUniModal {
     numberOfActiveRules: number;
     activeItem: DebitCreditEntry;
     autorunRuleLines = [];
+    autoRunInfoText: string = '';
 
     config = {
         template: item => item.DisplayName,
@@ -121,16 +122,30 @@ export class BankStatementJournalModal implements IUniModal {
             lines => {
                 if (isAutorun) {
                     this.autorunRuleLines = lines || [];
+                    this.autoRunInfoText = this.groupUsedRuleNames(this.autorunRuleLines, this.bankStatementRules);
                 } else {
                     const alteredLines = this.session.addJournalingLines(this.autorunRuleLines);
 
                     setTimeout(() => {
-                        this.table.flashRows(alteredLines);
+                        this.table.flashRows(alteredLines || []);
                     });
                 }
             },
             err => console.error(err)
         );
+    }
+
+    groupUsedRuleNames(autorunRuleLines: any[], bankStatementRules: BankStatementRule[]): string {
+        const rules = [];
+        autorunRuleLines?.forEach( x => {
+            if (rules.indexOf(x.BankStatementRuleID) < 0) {
+                rules.push(x.BankStatementRuleID);
+            }
+        });
+        if (rules.length) {
+            return rules.map(id => bankStatementRules.find( r => r.ID === id).Name).join(', ');
+        }
+        return '';
     }
 
     useAutorunLines() {
