@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, EventEmitter, OnInit, ViewChild } from '@angular/core';
-import { FormRecord, FormRecordWithKey, NameKey, SchemaRF1167, TaxReport, TaxReportService } from '@app/services/common/taxReportService';
+import { FormRecordWithKey, NameKey, SchemaRF1167, TaxReport, TaxReportService } from '@app/services/common/taxReportService';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { IUniModal } from '@uni-framework/uni-modal';
-import { BehaviorSubject, Observable, ReplaySubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject } from 'rxjs';
 
 @Component({
     selector: 'taxreport-modal',
@@ -20,47 +20,32 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
     keys: string[] = [];
 
     taxReport$: BehaviorSubject<TaxReport> = new BehaviorSubject(null);
-    taxRecords$: BehaviorSubject<FormRecord[]> = new BehaviorSubject([]);
-    taxRecordsDict$: BehaviorSubject<FormRecordWithKey[]> = new BehaviorSubject([]);// BehaviorSubject<{ Key: string, record: FormRecord}[]> = new BehaviorSubject([]);
+    // what is best - Dictionary (as received from backend) or own class FormRecordWithKey?
+    taxRecords$: BehaviorSubject<FormRecordWithKey[]> = new BehaviorSubject([]);// BehaviorSubject<{ Key: string, record: FormRecord}[]> = new BehaviorSubject([]);
     taxReportCode: string;
-    taxRecords: FormRecord[] = [];
-    taxConfig$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
-    taxConfigDict$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
+    config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
 
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
 
     constructor(private taxReportService: TaxReportService) {}
 
     public ngOnInit() {
-        let taxRecordsDict: FormRecordWithKey[]; // { Key: string, record: FormRecord}[];
-        // const currentYear = new Date().getFullYear();
+        let taxRecords: FormRecordWithKey[];
         this.taxReportService.GetOrCreateTaxReport()
             .subscribe((report: TaxReport) => {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
-                // what is best - Dictionary (as received from backend) or own class FormRecordWithKey?
-                taxRecordsDict = this.taxReportService.getRecords(report);
+                taxRecords = this.taxReportService.getRecords(report);
                 const keys: string[] = [];
-                taxRecordsDict.forEach((rec) => {
+                taxRecords.forEach((rec) => {
                     keys.push(rec.Key);
                 });
                 this.keys = keys;
-                // this.taxRecords = this.taxReportService.getTaxReportRecords(report);
-                /* all records
-                const data = JSON.parse(report.Data);
-                Object.keys(data).forEach(key => {
-                    const value = data[key];
-                    this.taxRecords.push(value);
-                }); */
-                // this.taxRecords$.next(this.taxRecords);
-                this.taxRecordsDict$.next(taxRecordsDict);
+                this.taxRecords$.next(taxRecords);
 
-                // this.focus(this.taxRecords[0]);
-
-                this.setCurrent(taxRecordsDict);
+                this.setCurrent(taxRecords);
         });
-        // this.taxConfig$.next(this.getTaxConfig(false));
-        this.taxConfigDict$.next(this.getTaxConfig(false));
+        this.config$.next(this.getConfig(false));
 
         this.initForm();
     }
@@ -94,7 +79,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
            2: generic - fields in grid
         */
         const current = this.current.getValue();
-        const records: FormRecordWithKey[] = this.taxRecordsDict$.getValue();
+        const records: FormRecordWithKey[] = this.taxRecords$.getValue();
         const report = this.taxReport$.getValue();
         const data = JSON.parse(report.Data);
 
@@ -113,7 +98,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         this.taxReport$.next(report);
     }
 
-    private getTaxConfig(key: boolean): IUniTableConfig {
+    private getConfig(key: boolean): IUniTableConfig {
 
         const keyCol = new UniTableColumn('Key', 'Navn', UniTableColumnType.Text, false);
         const textCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text, false);
@@ -121,10 +106,10 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true);
 
         if (key) {
-        return new UniTableConfig('salary.altinn-overview')
+        return new UniTableConfig('altinn.tax-report')
             .setColumns([keyCol, textCol, valueCol, verifiedCol]);
         }
-        return new UniTableConfig('salary.altinn-overview')
+        return new UniTableConfig('altinn.tax-report')
             .setColumns([textCol, valueCol]);
     }
 
@@ -133,7 +118,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
             {
                 Property: 'Revisjonsplikt',
                 FieldType: FieldType.DROPDOWN,
-                Label: 'Revisjonsplikt',
+                Label: 'Er foretaket revisjonspliktig?',
                 Classes: 'bill-small-field right',
                 Section: 0
             }

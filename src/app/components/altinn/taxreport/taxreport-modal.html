@@ -9,14 +9,7 @@
             [fields]="fields$"
             [model]="current">
         </uni-form>
-        <!--
-            (readyEvent)="onFormReady()"
-            (changeEvent)="onFormChange($event)"
-            (inputEvent)="onFormInput($event)"
-            (focusEvent)="onFocusEvent($event)"
-        -->
-        <!--<ag-grid-wrapper [resource]="taxRecords$ | async" [config]="taxConfig$ | async"></ag-grid-wrapper>-->
-        <ag-grid-wrapper [resource]="taxRecordsDict$ | async" [config]="taxConfigDict$ | async"></ag-grid-wrapper>
+        <ag-grid-wrapper [resource]="taxRecords$ | async" [config]="config$ | async"></ag-grid-wrapper>
     </article>
 
     <footer class="center">

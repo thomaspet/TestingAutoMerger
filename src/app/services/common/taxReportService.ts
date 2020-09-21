@@ -85,18 +85,14 @@ export class NameKey {
 @Injectable()
 export class TaxReportService extends BizHttp<TaxReport> {
 
-    // records$: BehaviorSubject<{ Key: string, record: FormRecord}[]> = new BehaviorSubject([]);
-    records: { Key: string, record: FormRecord}[] = [];
-
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = TaxReport.RelativeUrl;
         this.entityType = TaxReport.EntityType;
-
-        this.records = this.getTaxRecords('RF-1167');
     }
 
     public GetOrCreateTaxReport(): Observable<TaxReport> {
+        // TODO year. Skal det velges av bruker, være likt året man jobber med, eller?
         return super.PostAction(null, 'get-or-create', 'year=2020&code=RF-1167');
     }
 
@@ -114,31 +110,10 @@ export class TaxReportService extends BizHttp<TaxReport> {
         });
     }
 
-    public getTaxRecords(code: string): { Key: string, record: FormRecord}[] {
-        const result: { Key: string, record: FormRecord}[] = [];
-        result['Sysselsattedatadef30'] = new FormRecord('Antall årsverk i regnskapsåret');
-        result['KontaktpersonNavndatadef2'] = new FormRecord('Kontaktpersonens navn');
-        return result;
-    }
-
-    // Dette er kun for visning. For oppdatering må vi også ha Key
-    public getTaxReportRecords(taxReport: TaxReport): FormRecord[] {
-        const taxRecords: FormRecord[] = [];
-        const data = JSON.parse(taxReport.Data);
-        // Object.entries(obj).map(([key, val]) => console.log(key, '=>', val));
-        Object.keys(data).forEach(key => {
-            // her kommer trolig en endring, Text hentes fra json fil i front e.l.
-            const value = data[key];
-            taxRecords.push(value);
-        });
-        return taxRecords;
-    }
-
     public getRecords(taxReport: TaxReport): FormRecordWithKey[] {
         const taxRecords: FormRecordWithKey[] = [];
         const data = JSON.parse(taxReport.Data);
 
-        // TODO kun key og value skal komme fra backend, resten her i front, json-fil e.l.
         const schema = new Schema('RF-1167');
         const records = schema.GetRecords();
         records.forEach((record) => {
@@ -147,51 +122,4 @@ export class TaxReportService extends BizHttp<TaxReport> {
         });
         return taxRecords;
     }
-
-    private getFormRecordWithKey(key: string, value: FormRecord) {
-        return new FormRecordWithKey(key, value.Text, value.Value, value.Verified);
-    }
-
-    public getTaxReportRecords_v1(taxReport: TaxReport): FormRecord[] {
-        const taxRecords: FormRecord[] = [];
-        const data = JSON.parse(taxReport.Data);
-        const records = Object.entries(data);
-        /*
-                Object.keys(data).forEach(key => {
-                    const value = data[key];
-                    this.taxRecords.push(value);
-                });
-                */
-        const item = Object.entries(data)['Sysselsatte-datadef-30'];
-        taxRecords.push(Object.entries(data)['Sysselsatte-datadef-30']);
-        return taxRecords;
-    }
-/*
-    public getRecords(code: string): FormRecord[] {
-        const taxRecords: FormRecord[] = [];
-        if (code === 'RF-1167') {
-            taxRecords.push(new FormRecord('Antall årsverk i regnskapsåret'));
-            taxRecords.push(new FormRecord('Kontaktpersonens navn'));
-        }
-        return taxRecords;
-    }
-*/
 }
-
-
-/* endre til å ha json fil i front, med alle felt utenom Value og Verified
-  "Sysselsattedatadef30": {
-    "Type": 1,
-    "Text": "Antall årsverk i regnskapsåret",
-    "Value": null,
-    "Verified": false,
-    "ReadOnly": false
-  },
-  "KontaktpersonNavndatadef2": {
-    "Type": 0,
-    "Text": "Kontaktpersonens navn",
-    "Value": null,
-    "Verified": false,
-    "ReadOnly": false
-  }
-*/
