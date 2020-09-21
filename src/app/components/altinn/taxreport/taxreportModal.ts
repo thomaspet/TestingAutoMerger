@@ -60,7 +60,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
                 this.setCurrent(taxRecordsDict);
         });
         // this.taxConfig$.next(this.getTaxConfig(false));
-        this.taxConfigDict$.next(this.getTaxConfig(true));
+        this.taxConfigDict$.next(this.getTaxConfig(false));
 
         this.initForm();
     }
@@ -115,17 +115,17 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     private getTaxConfig(key: boolean): IUniTableConfig {
 
-        const keyCol = new UniTableColumn('Key', 'Navn', UniTableColumnType.Text, false); // TODO hidden
+        const keyCol = new UniTableColumn('Key', 'Navn', UniTableColumnType.Text, false);
         const textCol = new UniTableColumn('Text', 'Tekst', UniTableColumnType.Text, false);
         const valueCol = new UniTableColumn('Value', 'Verdi', UniTableColumnType.Text, true);
-        const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true); // TODO checkbox
+        const verifiedCol = new UniTableColumn('Verified', 'Verifisert', UniTableColumnType.Boolean, true);
 
         if (key) {
         return new UniTableConfig('salary.altinn-overview')
             .setColumns([keyCol, textCol, valueCol, verifiedCol]);
         }
         return new UniTableConfig('salary.altinn-overview')
-            .setColumns([textCol, valueCol, verifiedCol]);
+            .setColumns([textCol, valueCol]);
     }
 
     private initForm() {
