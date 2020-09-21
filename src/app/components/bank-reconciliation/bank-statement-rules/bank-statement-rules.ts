@@ -9,9 +9,15 @@ import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {StatisticsService, BankStatementRuleService, ErrorService, AccountService} from '@app/services/services';
 import {map, catchError, tap} from 'rxjs/operators';
 import {QueryParser} from './query-parser';
-import {of, forkJoin, Subscription, throwError} from 'rxjs';
+import {of, forkJoin, Subscription, throwError, Observable} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
+
+interface IExampleRule {
+    Label: string;
+    BankStatementRule: BankStatementRule;
+    Active: boolean;
+}
 
 @Component({
     templateUrl: './bank-statement-rules.html',
@@ -31,6 +37,18 @@ export class BankStatementRulesModal implements IUniModal {
     busy = false;
     ruleDeleted = false;
     accountSubscription: Subscription;
+    exampleRules: IExampleRule[] = [
+        {
+            Label: 'Gebyr',
+            BankStatementRule: <BankStatementRule>{ Name: 'Gebyr', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'gebyr') and Entry.Amount > 0` },
+            Active: true
+        },
+        {
+            Label: 'Renter',
+            BankStatementRule: <BankStatementRule>{ Name: 'Renter', IsActive: true, AccountID: 0, Rule: `contains(Entry.Description,'renter') and Entry.Amount > 0` },
+            Active: true
+        },
+    ]
 
     constructor(
         private modalService: UniModalService,
@@ -43,14 +61,19 @@ export class BankStatementRulesModal implements IUniModal {
 
     ngOnInit() {
         this.busy = true;
-        this.ruleService.GetAll().pipe(
-            catchError(err => {
-                this.errorService.handle(err);
-                return of([]);
-            })
-        ).subscribe(rules => {
+        Observable.forkJoin(
+        this.ruleService.GetAll().pipe( catchError(err => {
+            this.errorService.handle(err);
+            return of([]);
+        })),
+        this.statisticsService.GetAllUnwrapped(`model=account&select=ID as ID&filter=contains(accountname,'gebyr') or contains(accountname,'renter')`),
+        ).subscribe(([rules, accounts]) => {
             this.rules = (rules && rules.length) ? rules : [{ Name: 'Ny regel', IsActive: true}];
             this.onRuleSelected(this.rules[0]);
+
+            this.exampleRules[0].BankStatementRule.AccountID = accounts[0]?.ID;
+            this.exampleRules[1].BankStatementRule.AccountID = accounts[1]?.ID;
+
             this.busy = false;
         });
     }
@@ -99,7 +122,13 @@ export class BankStatementRulesModal implements IUniModal {
     addRule() {
         this.rules.push(<BankStatementRule> { Name: 'Ny regel', IsActive: true });
         this.activeRule = this.rules[this.rules.length - 1];
-        this.queryItems = [];
+        this.queryItems = [{field: 'Entry.Description', operator: 'contains'}];
+    }
+
+    addExampleRule(rule: BankStatementRule) {
+        rule['_dirty'] = true;
+        this.rules.push(rule);
+        this.onRuleSelected(rule);
     }
 
     deleteRule(rule: BankStatementRule) {
@@ -116,13 +145,22 @@ export class BankStatementRulesModal implements IUniModal {
                     this.ruleService.Remove(rule.ID).subscribe(
                         () => {
                             this.rules = this.rules.filter(r => r !== rule);
-                            this.activeRule = this.rules[0];
                             this.ruleDeleted = true;
+                            if (this.rules.length) {
+                                this.onRuleSelected(this.rules[0]);
+                            } else {
+                                this.addRule();
+                            }
                         },
                         err => this.errorService.handle(err)
                     );
                 } else {
                     this.rules = this.rules.filter(r => r !== rule);
+                    if (this.rules.length) {
+                        this.onRuleSelected(this.rules[0]);
+                    } else {
+                        this.addRule();
+                    }
                 }
             }
         });

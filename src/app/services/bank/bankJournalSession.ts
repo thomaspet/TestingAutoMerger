@@ -109,8 +109,7 @@ export class BankJournalSession {
             apiRequests.push(this.getAccountByID(preloadAccountID));
         }
 
-        return forkJoin(...apiRequests
-        ).pipe(
+        return forkJoin(...apiRequests).pipe(
             tap(res => {
                 this.vatTypes = this.createVatSuperLabel(res[0]);
                 this.setupSeries(res[1], defaultSerieName);
@@ -360,6 +359,7 @@ export class BankJournalSession {
         if (!lines || !lines.length) {
             return;
         }
+        const alteredLines = [];
 
         lines.forEach(line => {
             if (line && line.Account) {
@@ -368,14 +368,17 @@ export class BankJournalSession {
                     const item = this.items[itemIndex];
                     if (item.DebetAccountID && !item.CreditAccountID) {
                         this.setValue('Credit', line.Account, itemIndex);
+                        alteredLines.push(itemIndex);
                     } else if (item.CreditAccountID && !item.DebetAccountID) {
                         this.setValue('Debet', line.Account, itemIndex);
+                        alteredLines.push(itemIndex);
                     }
                 }
             }
         });
 
         this.items = [...this.items];
+        return alteredLines;
     }
 
     public setValue(fieldName: string, newValue: any, rowIndex: number, row?: DebitCreditEntry) {
@@ -411,8 +414,12 @@ export class BankJournalSession {
             this.series = list;
             if (this.series.length > 1 && keyWord) {
                 this.selectedSerie = this.series.find( x => x.Name && x.Name.toLowerCase().indexOf(keyWord) >= 0);
+
+                if (this.selectedSerie) {
+                    return;
+                }
             }
-            this.selectedSerie = this.selectedSerie || this.series[0];
+            this.selectedSerie = this.series[0];
         }
     }
 
