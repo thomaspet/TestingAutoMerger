@@ -90,7 +90,14 @@ export class CsvConverter {
         const title = rows[0].split(divider);
         const targets: Array<{ index: number, column: UniTableColumn }> = [];
         for (let cellIndex = 0; cellIndex < title.length; cellIndex++) {
-            const match = columns.filter( x => x.header.toLocaleLowerCase() === this.mapAlternative(title[cellIndex].toLocaleLowerCase()) );
+            if (!title[cellIndex]) { continue; }
+            // Extract column-title
+            let colTitle = title[cellIndex].toLocaleLowerCase();
+            if (colTitle.length > 0 && colTitle.substr(colTitle.length - 1, 1) === '\r') {
+                colTitle = colTitle.substr(0, colTitle.length - 1);
+            }
+            // Locate matching column in layout
+            const match = columns.filter( x => x.header.toLocaleLowerCase() === this.mapAlternative(colTitle) );
             if (match && match.length > 0) {
                 targets.push({ index: cellIndex, column: match[0] });
                 columns.splice(columns.indexOf(match[0]), 1);

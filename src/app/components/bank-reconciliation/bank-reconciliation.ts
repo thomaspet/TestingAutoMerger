@@ -437,11 +437,7 @@ export class BankReconciliation {
                     action: () => { this.openImportModal(); }
                 },
                 {
-                    label: 'Før restsum av markerte linjer',
-                    action: () => { this.openJournalModal(); }
-                },
-                {
-                    label: 'Bokføre bankdata',
+                    label: 'Bokføre bankposter',
                     action: () => { this.openJournalModal(true); }
                 },
                 {
