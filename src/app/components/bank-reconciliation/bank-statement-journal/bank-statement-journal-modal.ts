@@ -124,7 +124,7 @@ export class BankStatementJournalModal implements IUniModal {
                     this.autorunRuleLines = lines || [];
                     this.autoRunInfoText = this.groupUsedRuleNames(this.autorunRuleLines, this.bankStatementRules);
                 } else {
-                    const alteredLines = this.session.addJournalingLines(this.autorunRuleLines);
+                    const alteredLines = this.session.addJournalingLines(lines);
 
                     setTimeout(() => {
                         this.table.flashRows(alteredLines || []);
