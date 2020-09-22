@@ -1,4 +1,4 @@
-import {Component, Input, OnChanges, EventEmitter, Output} from '@angular/core';
+import {Component, Input, OnChanges, EventEmitter, Output, SimpleChanges} from '@angular/core';
 import * as moment from 'moment';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { AMeldingService, IAmeldingPeriod } from '@app/components/salary/a-melding/shared/service/a-melding.service';
@@ -7,6 +7,7 @@ import { AmeldingData } from '@uni-entities';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { PensionSchemeModalComponent } from '@app/components/salary/a-melding/modals/pension-scheme-modal/pension-scheme-modal.component';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { FinancialYearService } from '@app/services/services';
 
 @Component({
     selector: 'amelding-summary-view',
@@ -18,6 +19,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
     @Input() public currentSumUp: any;
     @Input() public currentAMelding: AmeldingData;
     @Input() public errorMessage: string;
+    @Input() period: number;
     public employeeTableConfig: UniTableConfig;
     public leaveTableConfig: UniTableConfig;
     public transactionTableConfig: UniTableConfig;
@@ -39,6 +41,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
         private pensionSchemeService: PensionSchemeService,
         private modalService: UniModalService,
         private toastService: ToastService,
+        private yearService: FinancialYearService,
     ) {
         this.setupEmployees();
         this.setupLeaves();
@@ -49,7 +52,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
 
     }
 
-    public ngOnChanges() {
+    public ngOnChanges(changes: SimpleChanges) {
         if (this.currentSumUp) {
             if (this.currentSumUp.status === null) {
                 this.currentSumUp.status = 0;
@@ -67,15 +70,18 @@ export class AmeldingSummaryViewComponent implements OnChanges {
                 this.sentDate = moment(this.currentAMelding.sent)
                     .format('DD.MM.YYYY HH:mm');
             }
-            this.pensionSchemeService
-                .getNames(this.currentAMelding.year, this.currentAMelding.period)
-                .subscribe(names => this.pensionSchemeText = names);
         }
 
         if (this.currentSumUp && this.currentAMelding) {
             this.mapData();
         } else {
             this.entitiesWithData = [];
+        }
+
+        if (changes['period']) {
+            this.pensionSchemeService
+                .getNames(this.yearService.getActiveYear(), this.period)
+                .subscribe(names => this.pensionSchemeText = names);
         }
 
         this.validationErrorsInAmelding = '';
@@ -90,19 +96,19 @@ export class AmeldingSummaryViewComponent implements OnChanges {
     }
 
     openPensionSchemeModal() {
-        if (!this.currentAMelding) {
+        if (!this.period) {
             return;
         }
         const period: IAmeldingPeriod = {
-            year: this.currentAMelding.year,
-            month: this.currentAMelding.period,
+            year: this.yearService.getActiveYear(),
+            month: this.period,
         };
         this.modalService
             .open(PensionSchemeModalComponent, {data: period})
             .onClose
             .subscribe((schemes: IPensionSchemeDto[]) => {
                 const updatedPensionSchemeText = this.pensionSchemeService.toNames(schemes);
-                if (this.pensionSchemeText !== updatedPensionSchemeText) {
+                if ((this.pensionSchemeText || '') !== updatedPensionSchemeText) {
                     this.pensionSchemeText = updatedPensionSchemeText;
                     this.toastService
                         .addToast(

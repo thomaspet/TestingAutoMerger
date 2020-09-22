@@ -154,7 +154,7 @@ export const NO = {
         AMELDING: {
             SUMMARY: {
                 'PENSION_SCHEME_TOAST_HEADER': 'Endring lagret',
-                'PENSION_SCHEME_TOAST_MESSAGE': 'Endring av pensjonsinnretning er lagret og trer i kraft etter at a-meldingen er generert og sendt'
+                'PENSION_SCHEME_TOAST_MESSAGE': 'Pensjonsinnretning er lagret. Du må generere ny a-melding og sende inn for at pensjonsinnretningen skal komme inn til A-ordningen.'
             },
             PENSION_SCHEME: {
                 'EDIT': 'Rediger',
