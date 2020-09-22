@@ -9,21 +9,18 @@
         <section *ngIf="options.data.EntityType !== saft">
             <label class="uni-label label-left">
                 <span>Filetype</span>
-                <uni-select
-                    [config]="config"
-                    [value]="selectedFileType"
-                    [items]="operators"
+                <uni-select [config]="config" [value]="selectedFileType" [items]="operators"
                     (valueChange)="onSelectChange($event)">
                 </uni-select>
             </label>
 
-            <label class="uni-label label-left" *ngIf="options?.data?.Permisions?.hasTemplateDataAccess && 
-            options.data.EntityType !== payrollType && options.data.EntityType != voucher">
+            <label class="uni-label label-left"
+                *ngIf="options?.data?.Permisions?.hasTemplateDataAccess &&
+            options.data.EntityType !== payrollType && options.data.EntityType != voucher && options.data.EntityType !== order">
                 <span>{{options.message}}</span>
                 <mat-checkbox class="check-box" [(ngModel)]="isSelected"
-                    [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher"
-                    [ngModelOptions]="{standalone: true}"
-                    (click)="$event.stopPropagation()">
+                    [disabled]="options.data.EntityType == payrollType || options.data.EntityType == voucher|| options.data.EntityType == order"
+                    [ngModelOptions]="{standalone: true}" (click)="$event.stopPropagation()">
                 </mat-checkbox>
             </label>
         </section>
@@ -51,8 +48,7 @@
 
             <label class="uni-label label-left">
                 <span>Anonymiser data</span>
-                <mat-checkbox class="check-box" [(ngModel)]="isAnonymous"
-                    (click)="$event.stopPropagation()">
+                <mat-checkbox class="check-box" [(ngModel)]="isAnonymous" (click)="$event.stopPropagation()">
                 </mat-checkbox>
             </label>
 
