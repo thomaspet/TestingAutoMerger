@@ -31,6 +31,7 @@ export class UniBankListModal implements IUniModal, OnInit {
     public bankAgreements: BankIntegrationAgreement[];
     tableConfig: UniTableConfig = this.getTableConfig();
     currentAgreement: BankIntegrationAgreement;
+    loadedAgreement: BankIntegrationAgreement;
     isDirty: boolean;
     password: string;
     errorMessage: string;
@@ -60,6 +61,7 @@ export class UniBankListModal implements IUniModal, OnInit {
         }
         this.bankAgreements = this.options.list;
         this.currentAgreement = {...this.bankAgreements[0]};
+        this.loadedAgreement = {...this.bankAgreements[0]};
     }
 
     public onBankSelected(event: BankIntegrationAgreement) {
