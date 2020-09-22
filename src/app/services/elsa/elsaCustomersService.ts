@@ -88,10 +88,10 @@ export class ElsaCustomersService {
             .send();
     }
 
-    checkSupportUserExists(email: string) {
+    checkSupportUserExists(search: string) {
         return this.uniHttp.asGET()
             .usingElsaDomain()
-            .withEndPoint(`/api/supportwhitelist/isSupportUser?email=${email}`)
+            .withEndPoint(`/api/supportwhitelist/isSupportUser?search=${search}`)
             .send()
             .map(res => res.body);
     }
