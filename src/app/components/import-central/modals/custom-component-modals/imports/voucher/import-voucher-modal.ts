@@ -43,7 +43,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
     post: VoucherOptions = VoucherOptions.Post;
     dateformats;
     isVatEnabled = true;
-    keepExistingVoucherNumber = true;
+    keepExistingVoucherNumber = false;
     draftDescription: string = '';
     config: ISelectConfig;
     operators: any[] = [];
