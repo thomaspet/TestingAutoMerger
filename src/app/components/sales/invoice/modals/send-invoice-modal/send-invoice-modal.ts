@@ -222,6 +222,8 @@ export class SendInvoiceModal implements IUniModal {
                 return `Sendt på epost til ${sharing.SharingTo}`;
             case SharingType.AP:
                 return 'Sending via aksesspunkt/EHF';
+            case SharingType.Vipps:
+                return `Sending via Vipps faktura til ${sharing.sharingTo}`;
             case SharingType.Export:
                 return 'Eksportert';
             case SharingType.InvoicePrint:

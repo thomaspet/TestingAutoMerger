@@ -121,6 +121,4 @@ export class CustomerInvoiceReminderService extends BizHttp<CustomerInvoiceRemin
                 return '';
         }
     }
-
-
 }
