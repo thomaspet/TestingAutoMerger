@@ -106,7 +106,7 @@ export class FlowList {
             const updatedAt = moment(plan.UpdatedAt || plan.CreatedAt);
             const updatedBy = plan.UpdatedBy || plan.CreatedBy;
 
-            plan._hidePrivateKey = true;
+            plan['_hidePrivateKey'] = true;
 
             if (updatedAt.isValid()) {
                 plan['_updatedAt'] = updatedAt.format('DD. MMMM YYYY');
