@@ -42,27 +42,24 @@ export class CsvConverter {
                 }
                 break;
 
+            case UniTableColumnType.Select:
+                if (col.field === 'CurrencyCode') { return value?.Code; }
+                break;
+
             case UniTableColumnType.LocalDate:
                 return moment(value).format('DD.MM.YYYY');
 
             case UniTableColumnType.Money:
+            case UniTableColumnType.Number:
                 return value ? value.toFixed(2).replace('.', ',') : '0';
         }
         return value;
     }
 
-    private static fromString(value: any, col: UniTableColumn, accounts?: Array<Account>, vatCodes?: Array<VatType>) {
+    private static fromString(value: any, col: UniTableColumn) {
         switch (col.type) {
-            case UniTableColumnType.Lookup:
-                if (col.field === 'DebitAccount' || col.field === 'CreditAccount') {
-                    value = accounts.find( x => x.AccountNumber === parseInt(value, 10));
-                }
-                if (col.field === 'DebitVatType' || col.field === 'CreditVatType') {
-                    value = vatCodes?.find( x => x.VatCode === value);
-                }
-                if (col.field === 'SameOrNewDetails') { value = value?.Name; }
-                break;
             case UniTableColumnType.Money:
+            case UniTableColumnType.Number:
                 return value ? safeDec(value) : 0;
             case UniTableColumnType.LocalDate:
                 if (!value) { return undefined; }
@@ -105,39 +102,42 @@ export class CsvConverter {
         }
 
         // Detect which accounts are used (so that we can fetch them all)
-        const accountNumbers = []; const journalEntryData = []; let financialDateMapped = false;
-        const lookup = [{ route: 'projects', pk: 'ProjectNumber', keys: [] }, { route: 'departments', pk: 'DepartmentNumber', keys: [] }];
+        const journalEntryData = []; let financialDateMapped = false;
+
+        const lookup = [
+            { field: 'DebitAccount', route: 'accounts', key: 'AccountNumber', keys: [], map: undefined,
+                values: [], field2: 'CreditAccount', isNumeric: true },
+            { field: 'Dimensions.Project', route: 'projects', key: 'ProjectNumber', keys: [], map: undefined,
+                parent: 'Dimensions', child: 'Project', values: [] },
+            { field: 'Dimensions.Department', route: 'departments', key: 'DepartmentNumber', keys: [], map: undefined,
+                parent: 'Dimensions', child: 'Department', values: [] },
+            { field: 'CurrencyCode', route: 'currencycodes', key: 'Code', keys: [], map: undefined, values: [], idField: 'CurrencyID' },
+            { field: 'DebitVatType', route: 'vattypes', key: 'VatCode', keys: [], map: undefined,
+                values: this.vattypes, field2: 'CreditVatType' },
+        ];
+
         for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
             const row = rows[rowIndex]?.split(divider);
             const dataRow = <any>{ AmountCurrency: 0, Description: '', Amount: 0 };
             targets.forEach( map => {
+
                 let cellValue = row && row.length > map.index ? row[map.index] : undefined;
+                if (!cellValue) { return; }
+
+                lookup.forEach( dep => {
+                    if (!(map.column.field === dep.field || map.column.field === dep.field2)) { return; }
+                    cellValue = cellValue.replace(dep.isNumeric ? /[^0-9]/g : /[^A-Za-z0-9-+._]/g, '');
+                    if (dep.keys.indexOf(cellValue) < 0) { dep.keys.push(cellValue); }
+                    if (map.column.field === dep.field) { dataRow[dep.field] = cellValue; }
+                    if (map.column.field === dep.field2) { dataRow[dep.field2] = cellValue; }
+                });
+
                 switch (map.column.field) {
-                    case 'DebitAccount':
-                    case 'CreditAccount':
-                        if ((!cellValue) || (!(parseInt(cellValue, 10) > 0)) ) { return; }
-                        if (accountNumbers.indexOf(cellValue) < 0) { accountNumbers.push(cellValue); }
-                        dataRow[map.column.field] = cellValue; // temporarily insert accountnumber (update later..)
-                        break;
-                    case 'Dimensions.Project':
-                        if (!cellValue) { return; }
-                        cellValue = cellValue.replace(/[^A-Za-z0-9-+._]/g, '');
-                        const proj = lookup[0];
-                        if (proj.keys.indexOf(cellValue) < 0) { proj.keys.push(cellValue); }
-                        dataRow[map.column.field] = cellValue;
-                        break;
-                    case 'Dimensions.Department':
-                        if (!cellValue) { return; }
-                        cellValue = cellValue.replace(/[^A-Za-z0-9-+._]/g, '');
-                        const dep = lookup[1];
-                        if (dep.keys.indexOf(cellValue) < 0) { dep.keys.push(cellValue); }
-                        dataRow[map.column.field] = cellValue;
-                        break;
                     case 'SameOrNewDetails':
                         dataRow.JournalEntryNo = cellValue;
                         break;
                     default:
-                        const converted = CsvConverter.fromString(cellValue, map.column, undefined, this.vattypes);
+                        const converted = CsvConverter.fromString(cellValue, map.column);
                         if (converted) {
                             if (map.column.field === 'FinancialDate') { financialDateMapped = true; }
                             dataRow[map.column.field] = converted;
@@ -152,46 +152,26 @@ export class CsvConverter {
             }
         }
 
-        // Fetch all accounts from server
+        // Query server for accounts, projects, etc.
         const apiCalls = []; const chunkSize = 100;
-        while (accountNumbers.length > 0) {
-            const chunk = accountNumbers.splice(0, accountNumbers.length > chunkSize ? chunkSize : accountNumbers.length);
-            const query = `filter=${chunk.map( a => 'AccountNumber eq ' + a).join(' or ')}`;
-            apiCalls.push(this.accountService.GetAll(query));
-        }
-
-        // More lookups?
         lookup.forEach( x => {
+            if (x.values && x.values.length > 0) { return; }
             if (!x.keys.length) { return; }
-            const query = `${x.route}?filter=${x.keys.map( a => `${x.pk} eq '${a}'`).join(' or ')}`;
-            apiCalls.push(this.apiCall(query));
+            while (x.keys.length > 0) {
+                const chunk = x.keys.splice(0, x.keys.length > chunkSize ? chunkSize : x.keys.length);
+                const query = `${x.route}?filter=${chunk.map( a => `${x.key} eq '${a}'`).join(' or ')}`;
+                apiCalls.push(this.apiCall(query));
+            }
         });
 
         // Setup final handler that can be called (if needed) after we get the accounts, departments etc.
-        const finalHandler = (lookups, resolve) => {
-            const debitMap = targets.find( t => t.column.field === 'DebitAccount');
-            const creditMap = targets.find( t => t.column.field === 'CreditAccount');
-            const projectMap = targets.find( t => t.column.field === 'Dimensions.Project');
-            const departmentMap = targets.find( t => t.column.field === 'Dimensions.Department');
+        const finalHandler = (result, resolve) => {
             journalEntryData.forEach( x => {
-                if (x.DebitAccount && debitMap) {
-                    x.DebitAccount = CsvConverter.fromString(x.DebitAccount, debitMap.column, lookups.accounts );
-                    if (x.DebitAccount) { x.DebitAccountID = x.DebitAccount.ID; }
-                }
-                if (x.CreditAccount && creditMap) {
-                    x.CreditAccount = CsvConverter.fromString(x.CreditAccount, creditMap.column, lookups.accounts );
-                    if (x.CreditAccount) { x.CreditAccountID = x.CreditAccount.ID; }
-                }
-                if (x['Dimensions.Project'] && projectMap) {
-                    x.Dimensions = x.Dimensions || {};
-                    x.Dimensions.Project = this.mapLookup(x['Dimensions.Project'], 'ProjectNumber', lookups.projects);
-                    x.Dimensions.ProjectID = x.Dimensions.Project?.ID;
-                }
-                if (x['Dimensions.Department'] && departmentMap) {
-                    x.Dimensions = x.Dimensions || {};
-                    x.Dimensions.Department = this.mapLookup(x['Dimensions.Department'], 'DepartmentNumber', lookups.departments);
-                    x.Dimensions.DepartmentID = x.Dimensions.Department?.ID;
-                }
+                result.forEach( def => {
+                    if (!def.map) { def.map = targets.find( t => t.column.field === def.field); }
+                    if ((x[def.field]) && def.map) { this.mapLookupValue(def, def.field, x); }
+                    if ((x[def.field2]) && def.map) { this.mapLookupValue(def, def.field2, x); }
+                });
             });
             resolve(journalEntryData);
         };
@@ -200,22 +180,32 @@ export class CsvConverter {
             apiCalls.length
             ? Observable.forkJoin(apiCalls)
                 .subscribe( results => {
-                    const lookups = { accounts: [],  projects: [], departments: [] };
                     results.forEach( (x: any) => {
                         if (x.length <= 0) { return; }
-                        if (x[0].AccountNumber) {
-                            lookups.accounts = lookups.accounts.concat(x);
-                        } else if (x[0].ProjectNumber) {
-                            lookups.projects = x;
-                        } else if (x[0].DepartmentNumber) {
-                            lookups.departments = x;
-                        }
+                        lookup.forEach( lk => {
+                            if (x[0][lk.key]) {
+                                lk.values = lk.values.concat(x);
+                            }
+                        });
                     });
-                    finalHandler(lookups, resolve);
+                    finalHandler(lookup, resolve);
             }, err => reject(err))
-            : finalHandler([], resolve)
+            : finalHandler(lookup, resolve)
         );
 
+    }
+
+    mapLookupValue(lookupDefinition: any, fieldName: string, target: any) {
+        let newValue: any;
+        if (lookupDefinition.parent) {
+            target[lookupDefinition.parent] = target[lookupDefinition.parent] || {};
+            target = target[lookupDefinition.parent];
+        }
+        // Set value
+        target[fieldName] = this.mapLookup(target[fieldName], lookupDefinition.key, lookupDefinition.values, lookupDefinition.isNumeric);
+        newValue = target[fieldName];
+        // Set ID (if any)
+        if (newValue && newValue.ID) { target[(lookupDefinition.idField || (fieldName + 'ID'))] = newValue.ID; }
     }
 
     private mapAlternative(colName: string): string {
@@ -238,11 +228,16 @@ export class CsvConverter {
         }
     }
 
-    private mapLookup(value: string, colName: string, list: Array<any>) {
+    private mapLookup(value: string, colName: string, list: Array<any>, isNumeric = false) {
         if ((!value) || (!(list)) || list.length === 0) { return; }
-        if (!value.trim()) { return; }
-        const lcase = value.trim().toLocaleLowerCase();
-        return list.find( x => x[colName].toLocaleLowerCase() === lcase );
+        if (isNumeric) {
+            const iVal = parseInt(value, 10);
+            return list.find( x => x[colName] === iVal );
+        } else {
+            if (!value.trim()) { return; }
+            const lcase = value.trim().toLocaleLowerCase();
+            return list.find( x => isNumeric ? x[colName].toString() === lcase : x[colName].toLocaleLowerCase() === lcase );
+        }
     }
 
     private apiCall(route: string) {
