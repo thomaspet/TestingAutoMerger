@@ -280,6 +280,17 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return new Promise( (resolve, reject) =>
             importer.setCsvData(this.table, value, divider)
                 ?.then( data => {
+                    // Make sure currencies are calculated
+                    data.forEach( row => {
+                        if (row.CurrencyID) {
+                            if (row.CurrencyExchangeRate && (row.CurrencyExchangeRate !== 1)) {
+                                this.calculateAmount(row);
+                            }
+                            if (row.Amount !== row.AmountCurrency) {
+                                this.calculateCurrencyExchangeRate(row);
+                            }
+                        }
+                    });
                     this.setJournalEntryData(data);
                     this.setupJournalEntryNumbers(true);
                     resolve(data);
