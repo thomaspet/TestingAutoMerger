@@ -947,9 +947,15 @@ export class AMeldingViewComponent implements OnInit {
                 if (ameldingEntity.orgNumber === ameldingSumUp.LegalEntityNo) {
                     ameldingEntity.employees.forEach((employee) => {
                         employee.arbeidsforhold.forEach(employeement => {
+                            if (employeement.type === 'pensjonOgAndreTyperYtelserUtenAnsettelsesforhold') {
+                                return;
+                            }
                             employmentIDs.push(employeement.arbeidsforholdId);
                         });
                     });
+                    if (!employmentIDs.length) {
+                        return;
+                    }
                     errorMessages = `Arbeidsforhold ${employmentIDs.join(',')} `
                         + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
                         + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, forkJoin, of as observableOf, throwError, from as observableFrom } from 'rxjs';
-import { switchMap, map, take, tap, finalize, flatMap, catchError } from 'rxjs/operators';
+import {switchMap, map, take, tap, finalize, flatMap, catchError, filter} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -1446,16 +1446,37 @@ export class InvoiceDetails implements OnInit {
                 label: 'Skriv ut',
                 disabled: !this.isFormValid,
                 action: (done) => {
-                    this.modalService.open(TofReportModal, {
-                        header: 'Forhåndsvisning',
-                        data: {
-                            entityLabel: entityLabel,
-                            entityType: 'CustomerInvoice',
-                            entity: this.invoice,
-                            reportType: ReportTypeEnum.INVOICE,
-                            skipConfigurationGoStraightToAction: 'print'
-                        }
-                    }).onClose.subscribe(selectedAction => {
+                    let source: any;
+                    if (this.isDirty) {
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.save(this.invoice.StatusCode === StatusCode.Draft || !this.invoice.StatusCode)),
+                            switchMap(quote => {
+                                return this.modalService.open(TofReportModal, {
+                                    header: 'Forhåndsvisning',
+                                    data: {
+                                        entityLabel: entityLabel,
+                                        entityType: 'CustomerInvoice',
+                                        entity: this.invoice,
+                                        reportType: ReportTypeEnum.INVOICE,
+                                        skipConfigurationGoStraightToAction: 'print'
+                                    }
+                                }).onClose;
+                            })
+                        );
+                    } else {
+                        source = this.modalService.open(TofReportModal, {
+                            header: 'Forhåndsvisning',
+                            data: {
+                                entityLabel: entityLabel,
+                                entityType: 'CustomerInvoice',
+                                entity: this.invoice,
+                                reportType: ReportTypeEnum.INVOICE,
+                                skipConfigurationGoStraightToAction: 'print'
+                            }
+                        }).onClose;
+                    }
+                    source.subscribe(selectedAction => {
                         if (selectedAction) {
                             let printStatus;
 
@@ -1478,22 +1499,39 @@ export class InvoiceDetails implements OnInit {
                                 );
                             }
                         }
-
                         done();
-                    });
+                    }, done, done);
                 }
             });
 
             this.saveActions.push({
                 label: 'Send på epost',
                 action: (done) => {
-                    this.modalService.open(TofEmailModal, {
-                        data: {
-                            entity: this.invoice,
-                            entityType: 'CustomerInvoice',
-                            reportType: ReportTypeEnum.INVOICE
-                        }
-                    }).onClose.subscribe(emailSentTo => {
+                    let source: any;
+                    if (this.isDirty) {
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.save(this.invoice.StatusCode === StatusCode.Draft || !this.invoice.StatusCode)),
+                            switchMap(quote => {
+                                return this.modalService.open(TofEmailModal, {
+                                    data: {
+                                        entity: this.invoice,
+                                        entityType: 'CustomerInvoice',
+                                        reportType: ReportTypeEnum.INVOICE
+                                    }
+                                }).onClose;
+                            })
+                        );
+                    } else {
+                        source = this.modalService.open(TofEmailModal, {
+                            data: {
+                                entity: this.invoice,
+                                entityType: 'CustomerInvoice',
+                                reportType: ReportTypeEnum.INVOICE
+                            }
+                        }).onClose;
+                    }
+                    source.subscribe(emailSentTo => {
                         if (emailSentTo) {
                             this.customerInvoiceService.setPrintStatus(this.invoice.ID, '100').subscribe(
                                 () => {

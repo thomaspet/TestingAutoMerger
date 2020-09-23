@@ -1,7 +1,7 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable, throwError, of} from 'rxjs';
-import {tap, switchMap, catchError, map} from 'rxjs/operators';
+import {tap, switchMap, catchError, map, filter} from 'rxjs/operators';
 import * as moment from 'moment';
 
 import {
@@ -1135,29 +1135,65 @@ export class QuoteDetails implements OnInit {
             this.saveActions.push({
                 label: 'Skriv ut',
                 action: (done) => {
-                    this.modalService.open(TofReportModal, {
-                        header: 'Forhåndsvisning',
-                        data: {
-                            entityLabel: 'Quote',
-                            entityType: 'CustomerQuote',
-                            entity: this.quote,
-                            reportType: ReportTypeEnum.QUOTE,
-                            skipConfigurationGoStraightToAction: 'print'
-                        }
-                    }).onClose.subscribe(() => done());
+                    if (this.isDirty) {
+                        this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.saveQuote(false)),
+                            switchMap(quote => {
+                                return this.modalService.open(TofReportModal, {
+                                    header: 'Forhåndsvisning',
+                                    data: {
+                                        entityLabel: 'Quote',
+                                        entityType: 'CustomerQuote',
+                                        entity: this.quote,
+                                        reportType: ReportTypeEnum.QUOTE,
+                                        skipConfigurationGoStraightToAction: 'print'
+                                    }
+                                }).onClose;
+                            })
+                        ).subscribe(() => done(), done, done);
+                    } else {
+                        this.modalService.open(TofReportModal, {
+                            header: 'Forhåndsvisning',
+                            data: {
+                                entityLabel: 'Quote',
+                                entityType: 'CustomerQuote',
+                                entity: this.quote,
+                                reportType: ReportTypeEnum.QUOTE,
+                                skipConfigurationGoStraightToAction: 'print'
+                            }
+                        }).onClose.subscribe(() => done(), done, done);
+                    }
                 }
             });
-
             this.saveActions.push({
                 label: 'Send på epost',
                 action: (done) => {
-                    this.modalService.open(TofEmailModal, {
-                        data: {
-                            entity: this.quote,
-                            entityType: 'CustomerQuote',
-                            reportType: ReportTypeEnum.QUOTE
-                        }
-                    }).onClose.subscribe(emailSentTo => {
+                    let source: any;
+                    if (this.isDirty) {
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
+                            filter(action => action === ConfirmActions.ACCEPT),
+                            switchMap(x => this.saveQuote(false)),
+                            switchMap(quote => {
+                                return this.modalService.open(TofEmailModal, {
+                                    data: {
+                                        entity: this.quote,
+                                        entityType: 'CustomerQuote',
+                                        reportType: ReportTypeEnum.QUOTE
+                                    }
+                                }).onClose;
+                            })
+                        );
+                    } else {
+                        source = this.modalService.open(TofEmailModal, {
+                            data: {
+                                entity: this.quote,
+                                entityType: 'CustomerQuote',
+                                reportType: ReportTypeEnum.QUOTE
+                            }
+                        }).onClose;
+                    }
+                    source.subscribe(emailSentTo => {
                         if (emailSentTo) {
                             this.customerQuoteService.setPrintStatus(this.quote.ID, '100').subscribe(
                                 () => {
@@ -1170,9 +1206,8 @@ export class QuoteDetails implements OnInit {
                             this.quote.EmailAddress = emailSentTo;
                             this.refreshQuote(this.quote);
                         }
-
                         done();
-                    });
+                    }, done, done);
                 }
             });
 

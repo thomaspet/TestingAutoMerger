@@ -1199,16 +1199,7 @@ export class OrderDetails implements OnInit {
             this.saveActions.push({
                 label: 'Skriv ut',
                 action: (done) => {
-                    let source: any = this.modalService.open(TofReportModal, {
-                        header: 'Forhåndsvisning',
-                        data: {
-                            entityLabel: 'Ordre',
-                            entityType: 'CustomerOrder',
-                            entity: this.order,
-                            reportType: ReportTypeEnum.ORDER,
-                            skipConfigurationGoStraightToAction: 'print'
-                        }
-                    }).onClose;
+                    let source: any;
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
@@ -1226,6 +1217,17 @@ export class OrderDetails implements OnInit {
                                 }).onClose;
                             })
                         );
+                    } else {
+                        source = this.modalService.open(TofReportModal, {
+                            header: 'Forhåndsvisning',
+                            data: {
+                                entityLabel: 'Ordre',
+                                entityType: 'CustomerOrder',
+                                entity: this.order,
+                                reportType: ReportTypeEnum.ORDER,
+                                skipConfigurationGoStraightToAction: 'print'
+                            }
+                        }).onClose;
                     }
                     source.subscribe(() => done(), () => done(), () => done());
                 }
@@ -1234,13 +1236,7 @@ export class OrderDetails implements OnInit {
             this.saveActions.push({
                 label: 'Send på epost',
                 action: (done) => {
-                    let source: any = this.modalService.open(TofEmailModal, {
-                        data: {
-                            entity: this.order,
-                            entityType: 'CustomerOrder',
-                            reportType: ReportTypeEnum.ORDER
-                        }
-                    }).onClose;
+                    let source: any;
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
@@ -1255,6 +1251,14 @@ export class OrderDetails implements OnInit {
                                 }).onClose;
                             })
                         );
+                    } else {
+                        source = this.modalService.open(TofEmailModal, {
+                            data: {
+                                entity: this.order,
+                                entityType: 'CustomerOrder',
+                                reportType: ReportTypeEnum.ORDER
+                            }
+                        }).onClose;
                     }
                     source.subscribe(emailSentTo => {
                         if (emailSentTo) {

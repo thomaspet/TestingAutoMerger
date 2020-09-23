@@ -14,6 +14,7 @@ export class BrunoBankOnboardingModal {
 
     orderKID: boolean;
     agreement: BankIntegrationAgreement;
+    bankIntegrationUserName: string;
 
     constructor(private authService: AuthService) {}
 
@@ -21,12 +22,20 @@ export class BrunoBankOnboardingModal {
         this.agreement = this.options?.data;
     }
 
+    ngAfterViewInit() {
+        this.bankIntegrationUserName = this.authService.currentUser.BankIntegrationUserName || '';
+    }
+
     openExternalOnboarding() {
-        const url = this.orderKID
+        let url = this.orderKID
             ? 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&innbetalingerval=true&utbetalingerval=true'
             : 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&utbetalingerval=true';
 
-        window.open(url + `&userid=${this.authService.currentUser.BankIntegrationUserName}`, '_blank');
+        if (this.bankIntegrationUserName) {
+            url += `&userid=${this.bankIntegrationUserName}`
+        }
+
+        window.open(url, '_blank');
 
         this.onClose.emit(this.agreement);
     }

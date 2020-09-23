@@ -1041,6 +1041,7 @@ export class UniTickerService {
                     {ID: SharingType.AP,            Name: 'Aksesspunkt'},
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
+                    {ID: SharingType.Vipps,         Name: 'Vipps faktura'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
                     {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint (fra Nets)'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
