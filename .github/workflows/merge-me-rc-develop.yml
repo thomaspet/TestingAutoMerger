@@ -4,7 +4,7 @@ name: CI
 on:
   push:
     branches:
-      - 'RC/*'
+      - 'RC'
 jobs:
   merge-branch:
     runs-on: ubuntu-latest
