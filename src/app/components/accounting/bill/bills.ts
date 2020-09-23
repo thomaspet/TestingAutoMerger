@@ -791,7 +791,7 @@ export class BillsView implements OnInit {
                 .setFilterOperator('eq')
                 .setConditionalCls((item) => {
                     const paid = item.RestAmount === 0;
-                    return (paid || moment(item.PaymentDueDate).isBefore(moment()))
+                    return (!paid && moment(item.PaymentDueDate).isBefore(moment().subtract({days: 1})))
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro')
