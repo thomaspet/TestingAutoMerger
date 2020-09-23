@@ -1,0 +1,26 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ RC ]
+  pull_request:
+    branches: [ RC ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  sync-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Merge development -> staging
+        uses: devmasx/merge-branch@v1.3.0
+        with:
+          type: now
+          from_branch: RC
+          target_branch: develop
+          github_token: ${{ github.token }}
