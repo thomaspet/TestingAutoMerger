@@ -1,0 +1,19 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+on:
+  push:
+    branches:
+      - 'RC/*'
+jobs:
+  merge-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Merge RC -> develop
+        uses: devmasx/merge-branch@v1.3.0
+        with:
+          type: now
+          target_branch: develop
+          github_token: ${{ github.token }}
