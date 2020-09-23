@@ -95,4 +95,16 @@ export class ElsaCustomersService {
             .send()
             .map(res => res.body);
     }
+
+    getCustomerProspect(prospectID: number, customerID: number, select?: string) {
+        let endpoint = `/api/customerprospects/${prospectID}/customer/${customerID}`;
+        if (select) {
+            endpoint += `?$select=${select}`;
+        }
+        return this.uniHttp.asGET()
+            .usingElsaDomain()
+            .withEndPoint(endpoint)
+            .send()
+            .map(res => res.body);
+    }
 }

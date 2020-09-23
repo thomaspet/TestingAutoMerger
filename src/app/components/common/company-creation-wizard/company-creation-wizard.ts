@@ -3,7 +3,7 @@ import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {AuthService} from '@app/authService';
-import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService} from '@app/services/services';
+import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService, ElsaCustomersService} from '@app/services/services';
 import {map} from 'rxjs/operators';
 import {get} from 'lodash';
 import {forkJoin} from 'rxjs';
@@ -69,6 +69,7 @@ export class CompanyCreationWizard {
         private errorService: ErrorService,
         private companyService: CompanyService,
         private elsaContractService: ElsaContractService,
+        private elsaCustomerService: ElsaCustomersService,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -89,7 +90,6 @@ export class CompanyCreationWizard {
             if (this.createDemoCompany) {
                 this.currentStep = STEPS.COMPANY_STEP1;
             } else {
-                console.log('lookup');
                 forkJoin([
                     this.elsaContractService.getAll(),
                     this.elsaContractService.getCustomContractTypes()
@@ -157,7 +157,25 @@ export class CompanyCreationWizard {
         this.step1Form.markAllAsTouched();
         if (this.step1Form.valid) {
             this.currentStep = STEPS.COMPANY_STEP2;
+            if (this.step2Form.controls['AccountNumber'] && this.contract?.Customer?.ProspectID !== null) {
+                this.getAccountNumberFromProspect();
+            }
         }
+    }
+
+    getAccountNumberFromProspect() {
+        this.step2Form.disable();
+        this.elsaCustomerService.getCustomerProspect(
+            this.contract.Customer.ProspectID,
+            this.contract.Customer.ID,
+            'AccountNumber'
+        ).subscribe(
+            prospect => {
+                this.step2Form.controls.AccountNumber.setValue(prospect?.AccountNumber || '');
+                this.step2Form.enable();
+            },
+            err => this.step2Form.enable()
+        );
     }
 
     step2FormSubmit() {
