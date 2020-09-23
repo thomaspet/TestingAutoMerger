@@ -29,6 +29,7 @@ export class GiveSupportAccessModal implements IUniModal {
             return;
         }
         this.busy = true;
+        this.emailInput = this.emailInput.trim();
         this.elsaCustomerService.checkSupportUserExists(this.emailInput).subscribe(
             exists => {
                 if (exists) {

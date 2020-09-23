@@ -86,10 +86,6 @@ export class RegisterCompany {
             if (contract) {
                 this.contractID = contract.ID;
 
-                if (contract.Customer?.SignUpReferrer === 'CustomerProspect') {
-                    this.router.navigateByUrl('/init/register-company?type=company');
-                }
-
                 this.registrationOptions = theme.theme === THEMES.SR
                     ? this.getSrOptions()
                     : this.getUeOptions();
