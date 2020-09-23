@@ -68,7 +68,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
 
     private setCurrent(records: FormRecordWithKey[]) {
         const schema = new SchemaRF1167();
-        const item = records.find(x => x.Key === 'Revisjonsplikt-datadef-310');
+        const item = records.find(x => x.Key === 'Revisjonsplikt');
         schema.Revisjonsplikt = item.Value;
         this.current.next(schema);
     }
@@ -87,7 +87,7 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
         this.keys.forEach((key) => {
             const record = records.find(x => x.Key === key);
             const item = data[key];
-            if (key === 'Revisjonsplikt-datadef-310') {
+            if (key === 'Revisjonsplikt') {
                 item.Value = revisjonspliktValue;
             } else {
                 item.Value = record.Value;

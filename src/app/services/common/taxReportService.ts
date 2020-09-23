@@ -50,22 +50,22 @@ export class Schema {
         // TODO get from json-file or similar
         if (code === 'RF-1167') {
             // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
-            this._records.push(new FormRecordWithKey('Revisjonsplikt-datadef-310', 'Er foretaket revisjonspliktig?'));
-            this._records.push(new FormRecordWithKey('RevisorOrganisasjonsnummer-datadef-1938', 'Revisors organisasjonsnr.'));
-            this._records.push(new FormRecordWithKey('RevisjonsselskapNavn-datadef-13035', 'Revisorselskapets navn'));
-            this._records.push(new FormRecordWithKey('RevisorNavn-datadef-1937', 'Revisors navn'));
-            this._records.push(new FormRecordWithKey('RevisorAdresse-datadef-2247', 'Adresse'));
-            this._records.push(new FormRecordWithKey('RevisorPostnummer-datadef-11265', 'Postnr.'));
-            this._records.push(new FormRecordWithKey('RevisorPoststed-datadef-11266', 'Poststed'));
+            this._records.push(new FormRecordWithKey('Revisjonsplikt', 'Er foretaket revisjonspliktig?'));
+            this._records.push(new FormRecordWithKey('RevisorOrganisasjonsnummer', 'Revisors organisasjonsnr.'));
+            this._records.push(new FormRecordWithKey('RevisjonsselskapNavn', 'Revisorselskapets navn'));
+            this._records.push(new FormRecordWithKey('RevisorNavn', 'Revisors navn'));
+            this._records.push(new FormRecordWithKey('RevisorAdresse', 'Adresse'));
+            this._records.push(new FormRecordWithKey('RevisorPostnummer', 'Postnr.'));
+            this._records.push(new FormRecordWithKey('RevisorPoststed', 'Poststed'));
             // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
-            this._records.push(new FormRecordWithKey('RegnskapsforingEkstern-datadef-11262', 'Er den løpende bokføringen utført av ekstern regnskapsfører?'));
-            this._records.push(new FormRecordWithKey('RegnskapsforerNavn-datadef-280', 'Navn'));
-            this._records.push(new FormRecordWithKey('RegnskapsforerOrganisasjonsnummer-datadef-3651', 'Organisasjonsnr.'));
-            this._records.push(new FormRecordWithKey('RegnskapsforerAdresse-datadef-281', 'Forretningsadresse'));
-            this._records.push(new FormRecordWithKey('RegnskapsforerPostnummer-datadef-6678', 'Postnummer og poststed'));
-            this._records.push(new FormRecordWithKey('RegnskapsforerPoststed-datadef-6679', 'Poststed i adressen til regnskapsfører'));
+            this._records.push(new FormRecordWithKey('RegnskapsforingEkstern', 'Er den løpende bokføringen utført av ekstern regnskapsfører?'));
+            this._records.push(new FormRecordWithKey('RegnskapsforerNavn', 'Navn'));
+            this._records.push(new FormRecordWithKey('RegnskapsforerOrganisasjonsnummer', 'Organisasjonsnr.'));
+            this._records.push(new FormRecordWithKey('RegnskapsforerAdresse', 'Forretningsadresse'));
+            this._records.push(new FormRecordWithKey('RegnskapsforerPostnummer', 'Postnummer og poststed'));
+            this._records.push(new FormRecordWithKey('RegnskapsforerPoststed', 'Poststed i adressen til regnskapsfører'));
             this._records.push(new FormRecordWithKey('FremforbartUnderskudd', 'Fremførbart underskudd'));
-            this._records.push(new FormRecordWithKey('Sysselsatte-datadef-30', 'Antall årsverk i regnskapsåret'));
+            this._records.push(new FormRecordWithKey('Sysselsatte', 'Antall årsverk i regnskapsåret'));
         }
     }
 }
