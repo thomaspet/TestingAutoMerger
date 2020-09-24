@@ -1,7 +1,7 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions, UniModalService, UniEmailModal, UniPhoneModal, UniAddressModal} from '@uni-framework/uni-modal';
-import {Supplier, FieldType, Address, BusinessRelation, Phone, Email} from '@uni-entities';
-import {SupplierService, ErrorService, AddressService, IntegrationServerCaller} from '@app/services/services';
+import {Supplier, FieldType, Address, BusinessRelation, Phone, Email, NumberSeries} from '@uni-entities';
+import {SupplierService, ErrorService, AddressService, IntegrationServerCaller, NumberSeriesService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {UniForm} from '@uni-framework/ui/uniform';
@@ -25,6 +25,8 @@ export class SupplierEditModal implements IUniModal {
     fields$ = new BehaviorSubject([]);
     config$ = new BehaviorSubject({});
 
+    numberSeries: NumberSeries[];
+
     isDirty: boolean;
     externalLookupOptions: AutocompleteOptions;
 
@@ -33,7 +35,8 @@ export class SupplierEditModal implements IUniModal {
         private errorService: ErrorService,
         private supplierService: SupplierService,
         private addressService: AddressService,
-        private integrationServerCaller: IntegrationServerCaller
+        private integrationServerCaller: IntegrationServerCaller,
+        private numberSeriesService: NumberSeriesService,
     ) {}
 
     ngOnInit() {
@@ -42,12 +45,11 @@ export class SupplierEditModal implements IUniModal {
         if (supplier) {
             this.supplier$.next(supplier);
             this.config$.next({autofocus: true});
+            this.initNumberSeries();
         } else {
             this.value = this.options.listkey;
             this.initNewSupplier(this.options.listkey);
         }
-
-        this.fields$.next(this.getFormFields());
     }
 
     ngOnDestroy() {
@@ -92,13 +94,56 @@ export class SupplierEditModal implements IUniModal {
             res =>  {
                 res.Info.Name = searchValue || '';
                 this.supplier$.next(res);
-                this.busy = false;
+                this.initNumberSeries();
             },
             err => {
                 this.errorService.handle(err);
                 this.busy = false;
             }
         );
+    }
+
+    initNumberSeries() {
+        this.busy = true;
+        this.numberSeriesService.GetAll(
+            `filter=NumberSeriesType.Name eq 'Supplier Account number series'
+            and Empty eq false and Disabled eq false`,
+            ['NumberSeriesType']
+        ).subscribe(response => {
+            this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response);
+            const numberSerie = this.numberSeries.find(x => x.Name === 'Supplier number series');
+            if (numberSerie) {
+                this.numberSeriesChange(numberSerie);
+            }
+            
+            this.fields$.next(this.getFormFields());
+            if (this.numberSeries.length > 1) {
+                const fields = this.fields$.getValue();
+                fields.push({
+                    Property: 'SubAccountNumberSeriesID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Nummerserie',
+                    Options: {
+                        source: this.numberSeries,
+                        valueProperty: 'ID',
+                        displayProperty: 'DisplayName',
+                        debounceTime: 200
+                    }
+                });
+                this.fields$.next(fields);
+            }
+            this.busy = false;
+        },
+        err => {
+            this.errorService.handle(err);
+            this.busy = false;
+        });
+    }
+
+    numberSeriesChange(selectedSerie) {
+        const supplier = this.supplier$.getValue();
+        supplier.SubAccountNumberSeriesID = selectedSerie.ID;
+        this.supplier$.next(supplier);
     }
 
     onExternalSearchSelected(item) {
