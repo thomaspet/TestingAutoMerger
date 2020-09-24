@@ -1,12 +1,34 @@
 <assets-list-toolbar (actionEvent)="onActionEvent($event)"></assets-list-toolbar>
-<section class="application">
+<section class="assets-list application">
     <p *ngIf="hasNotStartedDepreciations" class="assets-list-warning">
         <i class="material-icons ng-star-inserted"> info_outline </i>
         Du har eiendeler som venter på start av automatisk avskrivning
     </p>
-    <assets-list-tab></assets-list-tab>
+    <assets-list-tab
+        (tabsReady)="onTabsReady($event)"
+        (activeTabChange)="onActiveTabChange($event)"
+    ></assets-list-tab>
     <ag-grid-wrapper class="borders" style="height: 60vh"
+        *ngIf="tabHasAssets; else emptyAssets"
         [resource]="lookupFunction"
         [config]="tableConfig"
     ></ag-grid-wrapper>
+    <ng-template #emptyAssets>
+        <section class="uni-container">
+            <article>
+                <h1>Du har ingen eiendeler registrert</h1>
+                <p>
+                    Før du registrerer en eiendel anbefaler vi at du bokfører {{supplirInvoiceWord}} først dersom det er en nylig innkjøpt eiendel.
+                </p>
+                <p>
+                    Har du eksisterende eiendeler som allerede er registrert i regnskapet ditt, kan du registrere ny eiendel her.
+                    Det er viktig å sette korrekt inngående regnskapsmessig verdi og periode for når eiendelen skal avskrives
+                    fra og med dersom eiendelen allerede er delvis avskrevet.
+                </p>
+            </article>
+            <article>
+                <img [src]="imageUrl" alt="empty assets"/>
+            </article>
+        </section>
+    </ng-template>
 </section>
