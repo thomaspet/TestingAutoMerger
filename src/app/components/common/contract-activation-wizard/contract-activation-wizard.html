@@ -24,8 +24,12 @@
             </label>
 
             <label *ngIf="customerDetailsForm.controls['BankUserID']" class="uni-label">
-                <!-- TODO: tooltip -->
-                <span>Bruker-identifikator i nettbank bedrift</span>
+                <span>
+                    Bruker-identifikator i nettbank bedrift
+                    <uni-tooltip 
+                        [text]="'Dette er brukerID som du har mottatt for å logge deg inn i bedriftsnettbanken. Har du ikke Nettbank Bedrift kan du la være å fylle ut dette feltet.'">
+                    </uni-tooltip>
+                </span>
                 <input type="text" formControlName="BankUserID">
             </label>
 
