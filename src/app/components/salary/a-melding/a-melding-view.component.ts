@@ -869,7 +869,7 @@ export class AMeldingViewComponent implements OnInit {
                 totalGarnishmentFeedbackStr: this.totalGarnishmentFeedbackStr,
                 showFinanceTax: this.showFinanceTax,
                 showGarnishment: this.showGarnishment,
-                payDate: getSafePayDate(this.currentAMelding)
+                payDate: getSafePayDate(<IAmelding>this.currentAMelding)
             }
         }).onClose
         .pipe(
