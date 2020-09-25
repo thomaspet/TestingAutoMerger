@@ -5,7 +5,9 @@ import {AmeldingData, PayrollRunInAmeldingPeriod} from '../../../unientities';
 import {Observable, of} from 'rxjs';
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {map} from 'rxjs/operators';
-
+export interface IAmelding extends AmeldingData {
+    feedBack: any;
+}
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
 
