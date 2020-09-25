@@ -182,6 +182,7 @@ export class AuthService {
 
     private getSettings(): any {
         const baseUrl = window.location.origin;
+        const responseType = environment.usePKCE ? 'code' : 'id_token token';
 
         const settings: any = {
             authority: environment.authority,
@@ -189,7 +190,7 @@ export class AuthService {
             redirect_uri: baseUrl + '/assets/auth.html',
             silent_redirect_uri: baseUrl + '/assets/silent-renew.html',
             post_logout_redirect_uri: baseUrl + environment.post_logout_redirect_uri,
-            response_type: 'id_token token',
+            response_type: responseType,
             scope: 'profile openid AppFramework',
             filterProtocolClaims: true,
             loadUserInfo: true,

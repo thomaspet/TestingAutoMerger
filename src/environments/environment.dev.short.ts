@@ -5,6 +5,7 @@
 
 export const environment = {
     useProdMode: false,
+    usePKCE: false,
 
     authority: 'https://dev-login.unieconomy.no',
     client_id: 'ac2fdc49-c4c1-4573-a64e-ee2fbafcc6f5',
