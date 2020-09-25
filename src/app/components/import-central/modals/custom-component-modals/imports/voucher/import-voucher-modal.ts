@@ -144,6 +144,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
                 case 'txt':
                     this.isVatEnabled = false;
                     this.fileType = ImportFileType.StandardUniFormat;
+                    this.selectedFormat = this.dateformats[0];
                     break;
                 case 'xlsx':
                     this.fileType = ImportFileType.StandardizedExcelFormat;

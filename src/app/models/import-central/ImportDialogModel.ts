@@ -40,6 +40,7 @@ export enum TemplateType {
     All
 }
 export const DateFormats = [
+    { name: 'ddMMyy',     type: "ddMMyy"},
     { name: 'dd.MM.yyyy', type: "dd.MM.yyyy" },
     { name: 'dd/MM/yyyy', type: "dd/MM/yyyy" },
     { name: 'MM.dd.yyyy', type: "MM.dd.yyyy" },

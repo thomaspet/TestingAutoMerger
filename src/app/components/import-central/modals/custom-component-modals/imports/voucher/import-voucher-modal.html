@@ -62,7 +62,7 @@
         <label class="uni-label label-left">
             <span>Dato format</span>
             <uni-select class="drop-down" [config]="config" [value]="selectedFormat" [items]="dateformats"
-                (valueChange)="onFormatSelectChange($event)">
+                (valueChange)="onFormatSelectChange($event)" [readonly]="fileType === txtType">
             </uni-select>
         </label>
         <label class="uni-label label-left">
