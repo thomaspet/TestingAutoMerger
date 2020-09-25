@@ -1203,7 +1203,7 @@ export class OrderDetails implements OnInit {
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveOrder(false)),
+                            switchMap(x => this.saveOrder()),
                             switchMap( order => {
                                 return this.modalService.open(TofReportModal, {
                                     header: 'Forhåndsvisning',
@@ -1240,7 +1240,7 @@ export class OrderDetails implements OnInit {
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveOrder(false)),
+                            switchMap(x => this.saveOrder()),
                             switchMap(order => {
                                 return this.modalService.open(TofEmailModal, {
                                     data: {

@@ -65,7 +65,15 @@
                 </section>
             </label>
 
-            <label class="uni-label">
+            <mat-checkbox
+                *ngIf="isUEEnv && templates"
+                class="ue-checkbox-label"
+                (change)="createFromMal = !createFromMal"
+                formControlName="CreateFromMal">
+                Opprett fra malklient
+            </mat-checkbox>
+
+            <label class="uni-label" *ngIf="!createFromMal">
                 <span>Skal selskapet betale moms?</span>
                 <mat-radio-group class="horizontal" formControlName="TemplateIncludeVat">
                     <mat-radio-button [value]="true">Ja</mat-radio-button>
@@ -73,12 +81,22 @@
                 </mat-radio-group>
             </label>
 
-            <label class="uni-label">
+            <label class="uni-label" *ngIf="!createFromMal">
                 <span>Skal selskapet ha ansatte?</span>
                 <mat-radio-group class="horizontal" formControlName="TemplateIncludeSalary">
                     <mat-radio-button [value]="true">Ja</mat-radio-button>
                     <mat-radio-button [value]="false">Nei</mat-radio-button>
                 </mat-radio-group>
+            </label>
+
+            <label class="uni-label" *ngIf="createFromMal">
+                <span>Malselskap</span>
+                <uni-select
+                    [config]="config"
+                    [items]="templates"
+                    [value]="template"
+                    (valueChange)="onTemplateChange($event)">
+                </uni-select>
             </label>
         </form>
     </article>

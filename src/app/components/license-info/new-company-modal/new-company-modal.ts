@@ -8,7 +8,7 @@ import {get} from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
-import {interval} from 'rxjs';
+import {interval, of} from 'rxjs';
 
 @Component({
     selector: 'new-company-modal',
@@ -22,10 +22,14 @@ export class NewCompanyModal implements IUniModal {
     onClose = new EventEmitter();
 
     isExt02Env = theme.theme === THEMES.EXT02;
+    isUEEnv = theme.theme === THEMES.UE;
     busyCreatingCompany: boolean;
     companyCreationFailed: boolean;
 
     isEnk: boolean;
+    createFromMal: boolean = false;
+    templates = [];
+    template;
 
     autocompleteOptions: AutocompleteOptions = {
         canClearValue: false,
@@ -49,8 +53,15 @@ export class NewCompanyModal implements IUniModal {
     step2Form = new FormGroup({
         AccountNumber: new FormControl('', this.isExt02Env ? Validators.required : undefined),
         TemplateIncludeVat: new FormControl(undefined, Validators.required),
+        CreateFromMal: new FormControl(false, undefined),
         TemplateIncludeSalary: new FormControl(undefined, Validators.required),
     });
+
+    config = {
+        template: (item) => item ? `${item.Name}` : '',
+        searchable: false,
+        hideDeleteButton: true
+    };
 
     currentStep = 1;
 
@@ -61,10 +72,21 @@ export class NewCompanyModal implements IUniModal {
         private initService: InitService,
         private errorService: ErrorService,
         private companyService: CompanyService,
-    ) {}
+    ) {
+        this.companyService.GetAll().subscribe(companies => {
+            this.templates = companies.filter(c => c.IsTemplate);
+            if (this.templates.length) {
+                this.templates.unshift({Name: 'Ikke valgt', Key: null});
+            }
+        });
+    }
 
     ngOnDestroy() {
 
+    }
+
+    onTemplateChange(template) {
+        this.template = template;
     }
 
     onStep1Submit() {
@@ -76,7 +98,7 @@ export class NewCompanyModal implements IUniModal {
 
     onStep2Submit() {
         this.step2Form.markAllAsTouched();
-        if (this.step2Form.valid) {
+        if (this.step2Form.valid || (this.createFromMal && this.template?.Key)) {
             this.createCompany();
         }
     }
@@ -88,11 +110,11 @@ export class NewCompanyModal implements IUniModal {
         this.busyCreatingCompany = true;
         this.companyCreationFailed = false;
 
-        this.initService.getCompanyTemplate(
-            this.isEnk,
-            step2FormValue?.TemplateIncludeVat,
-            step2FormValue?.TemplateIncludeSalary
-        ).subscribe(template => {
+        const obs = (this.createFromMal && this.template?.Key)
+            ? of(this.template)
+            : this.initService.getCompanyTemplate(this.isEnk, step2FormValue?.TemplateIncludeVat, step2FormValue?.TemplateIncludeSalary);
+
+        obs.subscribe(template => {
             if (step2FormValue.AccountNumber) {
                 companyDetails.CompanyBankAccount = {
                     AccountNumber: step2FormValue.AccountNumber
@@ -103,7 +125,7 @@ export class NewCompanyModal implements IUniModal {
                 CompanyName: companyDetails.CompanyName,
                 ContractID: this.options?.data?.contractID || this.authService.contractID,
                 CompanySettings: companyDetails,
-                TemplateCompanyKey: template && template.Key,
+                TemplateCompanyKey: template?.Key,
                 IsTest: false
             };
 
