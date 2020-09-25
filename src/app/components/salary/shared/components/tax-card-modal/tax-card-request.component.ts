@@ -64,7 +64,7 @@ export class TaxCardRequestComponent {
 
     ngOnInit() {
         this.model$.next(
-            { empChoice: !!this.employee ? 'ALL_EMPS' : 'SINGLE_EMP', empsAndChanged: true, categoryID: 0}
+            { empChoice: !this.employee ? 'ALL_EMPS_WITHOUT_ENDDATE' : 'SINGLE_EMP', empsAndChanged: true, categoryID: 0}
         );
         this.year = this.financialYearService.getActiveYear();
         if (!this.employee) {
