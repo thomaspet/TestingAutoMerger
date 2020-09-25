@@ -9,6 +9,9 @@ export interface IAmeldingPeriod {
     year: number;
     month: number;
 }
+export interface IAmelding extends AmeldingData {
+    feedBack: any;
+}
 @Injectable()
 export class AMeldingService extends BizHttp<AmeldingData> {
 
