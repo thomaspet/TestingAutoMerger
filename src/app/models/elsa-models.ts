@@ -244,3 +244,11 @@ export interface BillingData {
     RelatedOrders: BillingData[];
     SettledUntil?: Date;
 }
+
+export interface ElsaSupportUserDTO {
+    ID: number;
+    DisplayName: string;
+    Email: string;
+    SupportType: number;
+    GlobalIdentity: string;
+}

@@ -3,7 +3,7 @@
         <section class="user-info">
             <strong>{{user.DisplayName || user.Email}}</strong>
             <small *ngIf="user._isActive && !user._isSupport">{{user._isAdmin ? 'Administrator' : 'Standard bruker'}}</small>
-            <small *ngIf="user._isActive && user._isSupport">Support</small>
+            <small *ngIf="user._isActive && user._isSupport">{{user._supportType}}</small>
         </section>
 
         <section class="info-bar">

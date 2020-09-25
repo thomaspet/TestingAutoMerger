@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {UniHttp} from '../../../framework/core/http/http';
 import {Observable, of} from 'rxjs';
-import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory, BillingData} from '@app/models';
+import {ElsaCompanyLicense, ElsaContract, ContractType, ElsaUserLicense, ElsaContractType, ElsaCategory, BillingData, ElsaSupportUserDTO} from '@app/models';
 import {environment} from 'src/environments/environment';
 import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
@@ -156,7 +156,7 @@ export class ElsaContractService {
             .send();
     }
 
-    getSupportUsers(): Observable<User[]> {
+    getSupportUsers(): Observable<ElsaSupportUserDTO[]> {
         return this.uniHttp
             .asGET()
             .usingEmptyDomain()

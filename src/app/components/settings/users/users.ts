@@ -17,6 +17,7 @@ import {UniHttp} from '@uni-framework/core/http/http';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniRoleModal} from './role-modal/role-modal';
+import {ElsaSupportUserDTO} from '@app/models';
 
 @Component({
     selector: 'user-management',
@@ -93,11 +94,11 @@ export class UserManagement {
             this.userRoleService.invalidateCache();
         }
 
-        forkJoin(
+        forkJoin([
             this.userService.GetAll(),
             this.userRoleService.GetAll(),
             this.elsaContractService.getSupportUsers()
-        ).subscribe(
+        ]).subscribe(
             res => {
                 this.users = this.setStatusMetadata(res[0], res[1], res[2]);
                 this.filteredUsers = this.users;
@@ -113,7 +114,7 @@ export class UserManagement {
         );
     }
 
-    private setStatusMetadata(users: User[], userRoles: UserRole[], supportUsers: User[]): User[] {
+    private setStatusMetadata(users: User[], userRoles: UserRole[], supportUsers: ElsaSupportUserDTO[]): User[] {
         if (!users || !users.length) {
             return [];
         }
@@ -137,7 +138,10 @@ export class UserManagement {
                     });
 
                     user['_isAdmin'] = isAdmin;
-                    user['_isSupport'] = supportUsers.some(su => su.Email === user.Email);
+                    if (supportUsers.some(su => su.Email === user.Email)) {
+                        user['_isSupport'] = true;
+                        user['_supportType'] = this.translateSupportType(supportUsers.find(su => su.Email === user.Email).SupportType);
+                    }
                 break;
                 case 110002:
                     user['_statusText'] = 'Deaktivert';
@@ -148,6 +152,10 @@ export class UserManagement {
 
             return user;
         });
+    }
+
+    translateSupportType(supportType: number): string {
+        return supportType === 0 ? 'Support' : 'Regnskapsfører';
     }
 
     manageProductPurchases() {

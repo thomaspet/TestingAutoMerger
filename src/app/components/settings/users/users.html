@@ -35,7 +35,7 @@
                     </small>
 
                     <small *ngIf="user._isActive && user._isSupport">
-                        Support
+                        {{user._supportType}}
                     </small>
 
                     <small *ngIf="!user._isActive && user._statusText">

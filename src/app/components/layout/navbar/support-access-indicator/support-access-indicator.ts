@@ -5,6 +5,7 @@ import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastS
 import {AuthService} from '@app/authService';
 import {SignalRService} from '@app/services/common/signal-r.service';
 import {trigger, style, transition, animate, state, group} from '@angular/animations';
+import {ElsaSupportUserDTO} from '@app/models';
 
 @Component({
     selector: 'support-access-indicator',
@@ -34,7 +35,7 @@ import {trigger, style, transition, animate, state, group} from '@angular/animat
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SupportAccessIndicator {
-    supportUsers: User[] = [];
+    supportUsers: ElsaSupportUserDTO[] = [];
     showDialog = true;
 
     isAdmin = false;
@@ -90,7 +91,7 @@ export class SupportAccessIndicator {
                 'Support avsluttet',
                 ToastType.good,
                 ToastTime.medium,
-                `${userToBeDeactivatedEmail} har ikke lenger lesetilgang til selskapet ditt`
+                `${userToBeDeactivatedEmail} har ikke lenger tilgang til selskapet ditt`
             );
             this.showDialog = false;
             this.checkForSupportUsers();

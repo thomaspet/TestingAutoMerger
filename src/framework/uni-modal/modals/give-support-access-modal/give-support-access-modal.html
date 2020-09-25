@@ -1,12 +1,12 @@
 <section role="dialog" class="uni-modal giveSupportAccessModal">
-    <header>Inviter bruker med lesetilgang</header>
+    <header>Gi supportbruker tilgang</header>
 
     <article>
         <input type="text" [(ngModel)]="searchInput">
     
         <section *ngIf="!showError" class="alert good">
             <i class="material-icons">info_outline</i>
-            Oppgi navnet til den du ønsker å gi midlertidig lesetilgang
+            Oppgi navnet til den du ønsker å gi midlertidig tilgang
         </section>
 
         <section *ngIf="showError" class="alert bad">
@@ -16,7 +16,7 @@
 
         <label class="checkbox-label">
             <mat-checkbox [(ngModel)]="hasAgreedToTerms"></mat-checkbox>
-            Jeg aksepterer at denne brukeren gis midlertidig tilgang til å se mitt regnskap for å kunne yte support.
+            Jeg aksepterer at denne brukeren gis midlertidig tilgang til mitt regnskap for å kunne yte support.
         </label>
         
     </article>
