@@ -40,7 +40,7 @@ export const TRANSLATION_OVERRIDES = {
     ACCOUNTING: {
         SUPPLIER_INVOICE: {
             'REFUND_INFO': 'Tilbakebetalingen vil bli registrert som betalt i DNB Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
-            'NEW': 'Ny regning',
+            'NEW': 'Ny utgift',
             'SINGLE': 'Regning',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Regningen mangler enten fakturabeløp eller leverandør med orgnr.',
             'CREATE': 'Opprett regning',

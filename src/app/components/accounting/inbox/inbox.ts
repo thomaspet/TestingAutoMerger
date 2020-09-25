@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SupplierInvoiceService, FileService} from '@app/services/services';
 import {NewOutgoingWizardModal} from './new-outgoing-wizard-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -47,11 +47,17 @@ export class UniInbox {
         private fileService: FileService,
         private toast: ToastService,
         private tabService: TabService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {
         this.getDataAndLoadList();
+
+        const initOpenModal = this.route.snapshot.queryParamMap.get('openmodal');
+        if (initOpenModal === '1') {
+            this.uploadFile();
+        }
 
         this.tabService.addTab({
             name: 'NAVBAR.INBOX',
