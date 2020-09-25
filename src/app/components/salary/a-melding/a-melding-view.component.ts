@@ -14,7 +14,6 @@ import {
     FinancialYearService,
     NumberFormat,
     PageStateService,
-    SharedPayrollRunService,
     ReportDefinitionService,
     AltinnAuthenticationService,
 } from '@app/services/services';
