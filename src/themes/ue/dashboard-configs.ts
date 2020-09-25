@@ -7,7 +7,7 @@ export const DASHBOARD_CONFIGS = {
             'REMINDER_WIDGET',
 
             'UNPAID',
-            'UNPAID_BILLS',
+            'NEWSLETTER',
 
             'BANK_BALANCE',
             'NEW_ENTITIES',
