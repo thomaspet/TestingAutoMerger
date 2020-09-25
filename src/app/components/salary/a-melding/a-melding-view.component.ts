@@ -16,7 +16,7 @@ import {
     PageStateService,
     SharedPayrollRunService,
     ReportDefinitionService,
-    AltinnAuthenticationService
+    AltinnAuthenticationService,
 } from '@app/services/services';
 import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
 import { AMeldingTypePickerModalComponent, IAmeldingTypeEvent } from './modals/a-melding-type-picker-modal.component';
@@ -33,8 +33,9 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
 import { tap, filter, switchMap } from 'rxjs/operators';
 import { ITaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
-import { AMeldingService } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { AMeldingService, IAmelding } from '@app/components/salary/a-melding/shared/service/a-melding.service';
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
+import { isArray } from 'lodash';
 
 @Component({
     selector: 'amelding-view',
@@ -815,30 +816,25 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
     private openMakePaymentModal() {
-        const getSafePayDate = (currentAMelding) => {
-            return (
-                currentAMelding
-                && currentAMelding.feedBack
-                && currentAMelding.feedBack.melding
-                && currentAMelding.feedBack.melding.Mottak
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
-            )
-                ||
-                (
-                    currentAMelding
-                    && currentAMelding.feedBack
-                    && currentAMelding.feedBack.melding
-                    && currentAMelding.feedBack.melding.Mottak
-                    && currentAMelding.feedBack.melding.Mottak.length
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                        .innbetalingsinformasjon.forfallsdato
-                )
-                ||
-                null
-                ;
+        const getSafePayDate = (currentAMelding: IAmelding) => {
+            if (isArray(currentAMelding?.feedBack?.melding?.Mottak)) {
+                const mottak: any[] = currentAMelding
+                    ?.feedBack
+                    ?.melding
+                    ?.Mottak;
+                const filteredMottak = mottak?.filter(m => m.kalendermaaned === `${currentAMelding.year}-${currentAMelding.period.toLocaleString(undefined, {minimumIntegerDigits: 2})}`);
+                return filteredMottak
+                    .pop()
+                    ?.innbetalingsinformasjon
+                    ?.forfallsdato || null;
+            }
+            return currentAMelding
+                        ?.feedBack
+                        ?.melding
+                        ?.Mottak
+                        ?.innbetalingsinformasjon
+                        ?.forfallsdato
+                || null;
         };
         this.modalService.open(MakeAmeldingPaymentModalComponent, {
             data: {
@@ -851,7 +847,10 @@ export class AMeldingViewComponent implements OnInit {
                 showGarnishment: this.showGarnishment,
                 payDate: getSafePayDate(this.currentAMelding)
             }
-        }).onClose.subscribe((dto: any) => {
+        }).onClose
+        .pipe(
+            filter(dto => !!dto)
+        ).subscribe((dto: any) => {
             if (dto) {
                 this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
                     let toastText = '';
