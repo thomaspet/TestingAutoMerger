@@ -19,7 +19,7 @@ import {
     PayrollrunService,
     ReportDefinitionService,
     SalarySumsService,
-    AltinnAuthenticationService
+    AltinnAuthenticationService, IAmelding
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {AmeldingTypePickerModal, IAmeldingTypeEvent} from './modals/ameldingTypePickerModal';
@@ -33,6 +33,7 @@ import {MakeAmeldingPaymentModal} from '@app/components/salary/amelding/modals/m
 import {RequestMethod} from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
 import { tap, catchError, filter, switchMap } from 'rxjs/operators';
+import { isArray } from 'lodash';
 
 @Component({
     selector: 'amelding-view',
@@ -791,30 +792,25 @@ export class AMeldingView implements OnInit {
         });
     }
     private openMakePaymentModal() {
-        const getSafePayDate = (currentAMelding) => {
-            return (
-                    currentAMelding
-                    && currentAMelding.feedBack
-                    && currentAMelding.feedBack.melding
-                    && currentAMelding.feedBack.melding.Mottak
-                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                    && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
-                )
-                ||
-                (
-                    currentAMelding
-                    && currentAMelding.feedBack
-                    && currentAMelding.feedBack.melding
-                    && currentAMelding.feedBack.melding.Mottak
-                    && currentAMelding.feedBack.melding.Mottak.length
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                            .innbetalingsinformasjon.forfallsdato
-                )
-                ||
-                null
-                ;
+        const getSafePayDate = (currentAMelding: IAmelding) => {
+            if (isArray(currentAMelding?.feedBack?.melding?.Mottak)) {
+                const mottak: any[] = currentAMelding
+                    ?.feedBack
+                    ?.melding
+                    ?.Mottak;
+                const filteredMottak = mottak?.filter(m => m.kalendermaaned === `${currentAMelding.year}-${currentAMelding.period.toLocaleString(undefined, {minimumIntegerDigits: 2})}`);
+                return filteredMottak
+                    .pop()
+                    ?.innbetalingsinformasjon
+                    ?.forfallsdato || null;
+            }
+            return currentAMelding
+                        ?.feedBack
+                        ?.melding
+                        ?.Mottak
+                        ?.innbetalingsinformasjon
+                        ?.forfallsdato
+                || null;
         };
         this.modalService.open(MakeAmeldingPaymentModal, {
             data: {
@@ -825,11 +821,16 @@ export class AMeldingView implements OnInit {
                 showFinanceTax: this.showFinanceTax,
                 payDate: getSafePayDate(this.currentAMelding)
             }
-        }).onClose.subscribe(dto => {
-            this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
-                this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
-            }, (error) => this.errorService.handle(error));
-        });
+        })
+        .onClose
+        .pipe(
+            filter(dto => !!dto),
+            switchMap(dto => this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post)),
+        )
+        .subscribe(
+            () => this._toastService.addToast(`Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`),
+            error => this.errorService.handle(error)
+        );
     }
 
     private handleAltinnError(err, done: (message: string) => void = null) {
