@@ -918,11 +918,7 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        if (theme.theme === THEMES.SR) {
-            this.router.navigateByUrl('/accounting/inbox');
-        } else {
-            this.router.navigateByUrl('/accounting/bills/0');
-        }
+        this.router.navigate(['/accounting/inbox'], {queryParams: {openmodal: 1}});
     }
 
     public onFilterClick(filter: IFilter) {
