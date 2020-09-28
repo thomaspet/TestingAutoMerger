@@ -2,7 +2,6 @@
     <ag-grid-wrapper class="maintable salaryTransTable"
         [resource]="filteredTranses"
         [config]="salarytransEmployeeTableConfig"
-        (rowChange)="rowChanged($event)"
         (cellClick)="onCellClick($event)">
     </ag-grid-wrapper>
 </section>
