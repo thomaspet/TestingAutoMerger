@@ -551,7 +551,7 @@ export class QuoteDetails implements OnInit {
     }
 
     onDimensionChange(event: {field: string, value: any}) {
-        if (event.field && event.value) {
+        if (event.field) {
             const quote = this.quote;
             this.newQuoteItem = this.tradeItemHelper.getDefaultTradeItemData(quote);
 
