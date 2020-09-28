@@ -151,10 +151,13 @@
             flex: 0 0 auto
             padding: .75rem 1rem
             border-top: 1px solid var(--border-color)
+            display: flex
+            justify-content: center
             a
                 display: inline-block
                 font-size: 14px
                 color: #666
+                font-weight: 500
                 &:hover
                     color: var(--link-color)
                     text-decoration: none
@@ -164,6 +167,12 @@
                     border-radius: 50%
                     margin-right: 5px
                     font-size: 20px
+
+            &.empty-result
+                background-color: var(--dropdown-footer-color)
+
+                a
+                    color: var(--button-good-hover)
 
     .item-edit-icon
         margin-left: auto !important

@@ -18,6 +18,7 @@ import {BehaviorSubject} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal} from '../../interfaces';
 import {UniModalService} from '../../modalService';
 import {UniBankAccountModal} from '../bankAccountModal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-activate-ap-modal',
@@ -141,7 +142,7 @@ export class UniActivateAPModal implements IUniModal {
                                     'Aktivering på vent',
                                     ToastType.warn, 15,
                                     `Org.nr. ${model.orgnumber} er allerede aktivert for mottak av faktura hos ${serviceMetadata.ServiceName} og dermed kan kun sending aktiveres. For å kunne aktivere mottak må dere først få deaktivert mottak i ELMA hos tjenesten som bruker aksesspunktet ${serviceMetadata.ServiceName}. Deretter forsøk igjen eller ta kontakt med support.`
-                                );   
+                                );
                             },
                             err => this.errorService.handle(err)
                         );
@@ -261,12 +262,14 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'incommingInvoice',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Inngående faktura'
+                Label: 'Inngående faktura',
+                Hidden: theme.theme !== THEMES.UE
             },
             <any> {
                 Property: 'outgoingInvoice',
                 FieldType: FieldType.CHECKBOX,
-                Label: 'Utgående faktura'
+                Label: 'Utgående faktura',
+                Hidden: theme.theme !== THEMES.UE
             }
         ];
     }
