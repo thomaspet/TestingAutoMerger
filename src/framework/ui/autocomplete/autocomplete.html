@@ -74,7 +74,7 @@
                 </section>
             </section>
 
-            <section *ngIf="options?.createHandler" class="footer">
+            <section *ngIf="options?.createHandler" class="footer" [class.empty-result]="!lookupResults.length">
                 <a (click)="create()">
                     <i class="material-icons">add</i>
                     {{options.createLabel || 'Opprett ny'}} (F3)
