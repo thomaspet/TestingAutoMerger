@@ -44,6 +44,7 @@ import {
     CompanySettingsService,
     JobService,
     BrunoOnboardingService,
+    UserRoleService,
 } from '../../services/services';
 import { ToastService, ToastType, ToastTime } from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -110,6 +111,7 @@ export class BankComponent {
     private unfilteredAgreements: any[] = [];
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
+    private isAdmin: boolean;
     hasAccessToAutobank: boolean;
     hasActiveAgreement: boolean;
     filter: string = '';
@@ -284,7 +286,8 @@ export class BankComponent {
         private companySettingsService: CompanySettingsService,
         private statisticsService: StatisticsService,
         private authService: AuthService,
-        private brunoOnboardingService: BrunoOnboardingService
+        private brunoOnboardingService: BrunoOnboardingService,
+        private userRoleService: UserRoleService
     ) {
         if (this.featurePermissionService.canShowUiFeature('ui.bank.journaling-rules')) {
             this.actionOverrides.push({
@@ -308,8 +311,13 @@ export class BankComponent {
                 this.router.navigateByUrl('/contract-activation');
                 return;
             } else {
-                this.companySettingsService.getCompanySettings(['TaxBankAccount']).subscribe(companySettings => {
-                    this.companySettings = companySettings;
+                Observable.forkJoin([
+                    this.companySettingsService.getCompanySettings(['TaxBankAccount']),
+                    this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
+                ]).subscribe(settings => {
+                    this.companySettings = settings[0];
+                    this.isAdmin = settings[1];
+
                     if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
                         this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements) => {
                             if (theme.theme === THEMES.SR) {
@@ -340,10 +348,10 @@ export class BankComponent {
                             this.router.navigateByUrl('/');
                         });
                     } else {
-                        Observable.forkJoin(
+                        Observable.forkJoin([
                             this.fileService.GetAll('filter=StatusCode eq 20002&orderby=ID desc'),
                             this.elsaPurchasesService.getPurchaseByProductName('Autobank')
-                        ).subscribe(result => {
+                        ]).subscribe(result => {
                             this.failedFiles = result[0];
                             this.hasAccessToAutobank = !!result[1];
 
@@ -482,11 +490,11 @@ export class BankComponent {
             });
         }
 
-        if (this.hasAccessToAutobank && (this.isAutobankAdmin || !this.agreements?.length) &&
+        if (this.hasAccessToAutobank && (this.isAutobankAdmin || this.isAdmin || !this.agreements?.length) &&
             (this.selectedTicker.Code === 'bank_list' || this.selectedTicker.Code === 'payment_list')) {
 
             // Unavailable for both SR and Bruno
-            if (theme.theme === THEMES.UE) {
+            if (theme.theme === THEMES.UE && this.isAutobankAdmin) {
                 items.push({
                     label: 'Ny autobankavtale',
                     action: () => this.openAutobankAgreementModal(),
@@ -495,7 +503,7 @@ export class BankComponent {
             }
 
             // Bruno only has 1 agreement, should not be altered here
-            if (this.isAutobankAdmin && this.unfilteredAgreements?.length && theme.theme !== THEMES.EXT02) {
+            if ((this.isAutobankAdmin || this.isAdmin) && this.unfilteredAgreements?.length && theme.theme !== THEMES.EXT02) {
                 items.push({
                     label: 'Mine autobankavtaler',
                     action: () => this.openAgreementsModal(),
