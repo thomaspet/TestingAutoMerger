@@ -542,9 +542,8 @@ export class UniRecurringInvoice implements OnInit {
     }
 
     onDimensionChange(event: {field: string, value: any}) {
-        if (event.field && event.value) {
+        if (event.field) {
             const invoice = this.invoice;
-
             this.newInvoiceItem = this.tradeItemHelper.getDefaultTradeItemData(invoice);
 
             const fieldSplit = event.field.split('.');

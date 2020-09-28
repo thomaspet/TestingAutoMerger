@@ -689,7 +689,7 @@ export class InvoiceDetails implements OnInit {
     }
 
     onDimensionChange(event: {field: string, value: any}) {
-        if (event.field && event.value) {
+        if (event.field) {
             const invoice = this.invoice;
             this.newInvoiceItem = <any>this.tradeItemHelper.getDefaultTradeItemData(invoice);
 

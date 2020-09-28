@@ -179,6 +179,17 @@ export class TradeItemTable {
                     item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
                 });
             }
+
+            if (changes['defaultTradeItem'] && this.table) {
+                this.defaultTradeItem.Dimensions.Project = this.projects.find(project => project.ID === this.defaultTradeItem.Dimensions.ProjectID) || null;
+                this.defaultTradeItem.Dimensions.Department = this.departments.find(department => department.ID === this.defaultTradeItem.Dimensions.DepartmentID) || null;
+                this.dimensionTypes.forEach(dimType => {
+                    var dimID = this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}ID`];
+                    this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}`] = dimType.Data.find(dim => dim.ID === dimID) || null;
+                });
+    
+                this.setDefaultProjectAndRefreshItems(this.defaultTradeItem.Dimensions, false);
+            }    
         });
     }
 
@@ -312,11 +323,6 @@ export class TradeItemTable {
             ? this.projects.find(project => project.ID === id)
             : this.departments.find(dep => dep.ID === id);
 
-        // Change default trade item when dimension is changed
-        this.defaultTradeItem.Dimensions[entity] = id;
-        this.defaultTradeItem.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
-        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
-
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
@@ -335,7 +341,9 @@ export class TradeItemTable {
         if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
             this.modalService.confirm({
                 header: `Endre dimensjon på alle varelinjer?`,
-                message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,
+                message: id != null
+                    ? `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`
+                    : `Vil du fjerne denne dimensjonen på alle eksiterende varelinjer?`,
                 buttonLabels: {
                     accept: 'Ja',
                     reject: 'Nei'
@@ -353,11 +361,6 @@ export class TradeItemTable {
     public setDimensionOnTradeItems(dimension: number, dimensionID: number, alreadyAskedDimensionChange: boolean = false) {
         const dim = this.dimensionTypes.find(dimType => dimType.Dimension === dimension).Data.find(item => item.ID === dimensionID);
         let shouldAskBeforeChange: boolean = false;
-
-        // Change default trade item when dimension is changed
-        this.defaultTradeItem.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
-        this.defaultTradeItem.Dimensions['Dimension' + dimension] = dim;
-        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
         // Loop items to see if we need to ask before changing dimensions on line level
         this.items.forEach((item) => {

@@ -624,7 +624,7 @@ export class OrderDetails implements OnInit {
     }
 
     onDimensionChange(event: {field: string, value: any}) {
-        if (event.field && event.value) {
+        if (event.field) {
             const order = this.order;
             this.newOrderItem = this.tradeItemHelper.getDefaultTradeItemData(order);
 
