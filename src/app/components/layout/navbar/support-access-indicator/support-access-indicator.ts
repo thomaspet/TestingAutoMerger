@@ -1,6 +1,5 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {ElsaContractService, UserService, UserRoleService} from '@app/services/services';
-import {User} from '@uni-entities';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '@app/authService';
 import {SignalRService} from '@app/services/common/signal-r.service';
@@ -75,7 +74,7 @@ export class SupportAccessIndicator {
 
     checkForSupportUsers() {
         this.elsaContractService.getSupportUsers().subscribe(users => {
-            this.supportUsers = users;
+            this.supportUsers = users.filter(su => su.StatusCode === 110001); // Active
             this.cdr.markForCheck();
         });
     }

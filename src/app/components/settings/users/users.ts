@@ -120,6 +120,9 @@ export class UserManagement {
         }
 
         return users.filter(user => !user.Protected).map(user => {
+            if (supportUsers.some(su => su.Email === user.Email)) {
+                user['_isSupport'] = true;
+            }
             switch (user.StatusCode) {
                 case 110000:
                     user['_statusText'] = 'Invitert';
@@ -138,8 +141,7 @@ export class UserManagement {
                     });
 
                     user['_isAdmin'] = isAdmin;
-                    if (supportUsers.some(su => su.Email === user.Email)) {
-                        user['_isSupport'] = true;
+                    if (user['_isSupport']) {
                         user['_supportType'] = this.translateSupportType(supportUsers.find(su => su.Email === user.Email).SupportType);
                     }
                 break;
