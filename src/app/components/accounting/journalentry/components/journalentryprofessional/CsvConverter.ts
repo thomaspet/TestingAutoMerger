@@ -1,6 +1,5 @@
 import { getDeepValue, parseDate, safeDec } from '@app/components/common/utils/utils';
-import { AccountService } from '@app/services/services';
-import { Account, VatType, LocalDate } from '@uni-entities';
+import { VatType, LocalDate } from '@uni-entities';
 import { UniTable, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { Observable } from 'rxjs';
 import * as moment from 'moment';
@@ -8,7 +7,7 @@ import { UniHttp } from '@uni-framework/core/http';
 
 export class CsvConverter {
 
-    constructor(private http: UniHttp, private accountService: AccountService, private vattypes: VatType[]) {
+    constructor(private http: UniHttp, private vattypes: VatType[]) {
 
     }
 
@@ -175,11 +174,11 @@ export class CsvConverter {
 
         // Setup final handler that can be called (if needed) after we get the accounts, departments etc.
         const finalHandler = (result, resolve) => {
-            journalEntryData.forEach( x => {
+            journalEntryData.forEach( row => {
                 result.forEach( def => {
                     if (!def.map) { def.map = targets.find( t => t.column.field === def.field); }
-                    if ((x[def.field]) && def.map) { this.mapLookupValue(def, def.field, x); }
-                    if ((x[def.field2]) && def.map) { this.mapLookupValue(def, def.field2, x); }
+                    if ((row[def.field]) && def.map) { this.setLookupValue(def, def.field, row); }
+                    if ((row[def.field2]) && def.map) { this.setLookupValue(def, def.field2, row); }
                 });
             });
             resolve(journalEntryData);
@@ -204,7 +203,7 @@ export class CsvConverter {
 
     }
 
-    mapLookupValue(lookup: any, fieldName: string, target: any) {
+    setLookupValue(lookup: any, fieldName: string, target: any) {
         let value = target[fieldName];
         if (lookup.parent && lookup.child) {
             target[lookup.parent] = target[lookup.parent] || {};
@@ -212,7 +211,7 @@ export class CsvConverter {
             fieldName = lookup.child;
         }
         // Set value
-        target[fieldName] = this.mapLookup(value, lookup.key, lookup.values, lookup.isNumeric);
+        target[fieldName] = this.findObject(value, lookup.key, lookup.values, lookup.isNumeric);
         value = target[fieldName];
         // Set ID (if any)
         if (value && value.ID) { target[(lookup.idField || (fieldName + 'ID'))] = value.ID; }
@@ -238,7 +237,7 @@ export class CsvConverter {
         }
     }
 
-    private mapLookup(value: string, colName: string, list: Array<any>, isNumeric = false) {
+    private findObject(value: string, colName: string, list: Array<any>, isNumeric = false) {
         if ((!value) || (!(list)) || list.length === 0) { return; }
         if (isNumeric) {
             const iVal = parseInt(value, 10);

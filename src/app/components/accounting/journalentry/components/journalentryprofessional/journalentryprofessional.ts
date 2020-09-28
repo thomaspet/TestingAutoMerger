@@ -276,7 +276,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     }
 
     public setCsvData(value: string, divider = '\t'): Promise<any> {
-        const importer = new CsvConverter(this.uniHttpService, this.accountService, this.vattypes);
+        const importer = new CsvConverter(this.uniHttpService, this.vattypes);
         return new Promise( (resolve, reject) =>
             importer.setCsvData(this.table, value, divider)
                 ?.then( data => {
