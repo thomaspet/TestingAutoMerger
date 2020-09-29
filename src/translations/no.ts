@@ -151,10 +151,12 @@ export const NO = {
             'IDENTIFICATOR': 'Organisasjonsnummer',
             'NAME': 'Navn',
         },
-        AMELDING: {
+        AMELDING: {            
             SUMMARY: {
                 'PENSION_SCHEME_TOAST_HEADER': 'Endring lagret',
-                'PENSION_SCHEME_TOAST_MESSAGE': 'Pensjonsinnretning er lagret. Du må generere ny a-melding og sende inn for at pensjonsinnretningen skal komme inn til A-ordningen.'
+                'PENSION_SCHEME_TOAST_MESSAGE': 'Pensjonsinnretning er lagret. Du må generere ny a-melding og sende inn for at pensjonsinnretningen skal komme inn til A-ordningen.',
+                'ONLEAVE_VALIDATION_HEADER': 'Ansatte i permisjon - Husk å sjekke disse',
+                'ONLEAVE_EMPLOYEES': 'Ansattnr. {empNr}: {leaveStart} - {leaveEnd} - {leaveDesc}',
             },
             PENSION_SCHEME: {
                 'EDIT': 'Rediger',

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable, of } from 'rxjs';
 import { ToastService, ToastTime, ToastType, IToastAction } from '@uni-framework/uniToast/toastService';
-import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity } from '@uni-entities';
+import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity, LocalDate } from '@uni-entities';
 import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig, IToolbarSearchConfig } from '../../common/toolbar/toolbar';
@@ -15,7 +15,7 @@ import {
     NumberFormat,
     PageStateService,
     ReportDefinitionService,
-    AltinnAuthenticationService,
+    AltinnAuthenticationService, UniTranslationService
 } from '@app/services/services';
 import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
 import { AMeldingTypePickerModalComponent, IAmeldingTypeEvent } from './modals/a-melding-type-picker-modal.component';
@@ -55,6 +55,7 @@ export class AMeldingViewComponent implements OnInit {
     public submittedDate: string = '';
     public feedbackObtained: boolean = false;
     public validationErrorMessage: string;
+    public validationOnLeaveMessage: string[];
 
     public totalAGAFeedback: number = 0;
     public totalAGAFeedBackStr: string;
@@ -156,6 +157,7 @@ export class AMeldingViewComponent implements OnInit {
         private pageStateService: PageStateService,
         private altinnAuthService: AltinnAuthenticationService,
         private payrollRunService: PayrollRunService,
+        private translationService: UniTranslationService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
@@ -570,6 +572,7 @@ export class AMeldingViewComponent implements OnInit {
             .getAmeldingSumUp(this.currentAMelding.ID)
             .subscribe((response) => {
                 this.validationErrorMessage = this.validateAMelding(response);
+                this.validationOnLeaveMessage = this.validateOnLeaveAMelding(response);
                 this.updateSaveActions();
                 this.currentSumUp = response;
                 if (this.currentSumUp.status === 3) {
@@ -930,6 +933,47 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
 
+    private validateOnLeaveAMelding(ameldingSumUp: AmeldingSumUp): string [] {
+        if (!ameldingSumUp) {
+            return;
+        }
+        const firstOfMonth = new Date(moment(`${ameldingSumUp.year}-${ameldingSumUp.period}-15`).startOf('month').toDate());
+        const lastOfMonth = new Date(moment(`${ameldingSumUp.year}-${ameldingSumUp.period}-15`).endOf('month').toDate());
+        const onleave: string[] = [];
+        let empNr;
+        ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
+            // Sjekker permisjon
+            ameldingEntity.employees.forEach(employee => {
+                empNr = employee.employeeNumber;
+                if (employee.arbeidsforhold) {
+                    employee.arbeidsforhold.forEach(employment => {
+                        if (employment.permisjon) {
+                            employment.permisjon.forEach(permisjon => {
+                                const permStart = new Date(permisjon.startdato);
+                                const permEnd = permisjon.sluttdato ? new Date(permisjon.sluttdato) : new Date(2199, 1, 1);
+                                const permEndFormat = permisjon.sluttdato ? moment(permisjon.sluttdato).format('DD.MM.YYYY') : '';
+                                if ((permStart <= firstOfMonth && permEnd >= firstOfMonth) ||
+                                    (permStart <= firstOfMonth && permEnd >= lastOfMonth) ||
+                                    (permStart >= firstOfMonth && permEnd <= lastOfMonth) ||
+                                    (permStart <= lastOfMonth && permEnd >= lastOfMonth )) {
+                                        const trans = this.translationService.translate('SALARY.AMELDING.SUMMARY.ONLEAVE_EMPLOYEES~'
+                                            + empNr + '~'
+                                            + moment(permisjon.startdato).format('DD.MM.YYYY')
+                                            + '~' +  permEndFormat
+                                            + '~' + permisjon.beskrivelse);
+                                onleave.push(trans);
+                            }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        return onleave;
+    }
+
+
     private validateAMelding(ameldingSumUp: AmeldingSumUp): string {
         if (!ameldingSumUp) {
             return;
@@ -1015,6 +1059,7 @@ export class AMeldingViewComponent implements OnInit {
         this.currentSumsInPeriod = undefined;
         this.currentSumUp = undefined;
         this.validationErrorMessage = null;
+        this.validationOnLeaveMessage = null;
         this.totalGarnishmentSystem = 0;
         this.totalGarnishmentSystemStr = this.numberformat.asMoney(this.totalGarnishmentSystem, { decimalLength: 0 });
     }

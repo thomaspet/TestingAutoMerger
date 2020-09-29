@@ -19,6 +19,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
     @Input() public currentSumUp: any;
     @Input() public currentAMelding: AmeldingData;
     @Input() public errorMessage: string;
+    @Input() public onLeaveMessage: string[];
     @Input() period: number;
     public employeeTableConfig: UniTableConfig;
     public leaveTableConfig: UniTableConfig;
@@ -78,7 +79,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
             this.entitiesWithData = [];
         }
 
-        if (changes['period']) {
+        if (changes['period'] && !isNaN(this.period)) {
             this.pensionSchemeService
                 .getNames(this.yearService.getActiveYear(), this.period)
                 .subscribe(names => this.pensionSchemeText = names);

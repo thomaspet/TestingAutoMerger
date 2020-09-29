@@ -30,12 +30,16 @@
 
     </dl>
     <dl class="amelding_summary_overview" *ngIf="showXMLValidationError && currentAMelding">
-        <dt style="color: red">Validering av xml feilet</dt>
+        <dt class="amelding_errorheader">Validering av xml feilet</dt>
         <dd id="amelding_mainfile_validation_error_text">{{validationErrorsInAmelding}}</dd>
     </dl>
     <dl class="amelding_summary_overview" *ngIf="!!errorMessage && currentAMelding">
-        <dt style="color: red">Ugyldig virksomhet</dt>
+        <dt class="amelding_errorheader">Ugyldig virksomhet</dt>
         <dd id="amelding_mainfile_validation_error_text">{{errorMessage}}</dd>
+    </dl>
+    <dl class="amelding_summary_overview" *ngIf="!!onLeaveMessage && currentAMelding">
+        <dt class="amelding_errorheader">{{'SALARY.AMELDING.SUMMARY.ONLEAVE_VALIDATION_HEADER' | translate}}</dt>
+        <dd id="amelding_mainfile_validation_error_text">{{onLeaveMessage.join(', ')}}</dd>
     </dl>
 </section>
 
