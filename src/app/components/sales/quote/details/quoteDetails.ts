@@ -1135,10 +1135,11 @@ export class QuoteDetails implements OnInit {
             this.saveActions.push({
                 label: 'Skriv ut',
                 action: (done) => {
+                    let source: any;
                     if (this.isDirty) {
-                        this.modalService.openUnsavedChangesModal().onClose.pipe(
+                        source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveQuote(false)),
+                            switchMap(x => this.saveQuote()),
                             switchMap(quote => {
                                 return this.modalService.open(TofReportModal, {
                                     header: 'Forhåndsvisning',
@@ -1151,9 +1152,9 @@ export class QuoteDetails implements OnInit {
                                     }
                                 }).onClose;
                             })
-                        ).subscribe(() => done(), done, done);
+                        );
                     } else {
-                        this.modalService.open(TofReportModal, {
+                        source = this.modalService.open(TofReportModal, {
                             header: 'Forhåndsvisning',
                             data: {
                                 entityLabel: 'Quote',
@@ -1162,8 +1163,9 @@ export class QuoteDetails implements OnInit {
                                 reportType: ReportTypeEnum.QUOTE,
                                 skipConfigurationGoStraightToAction: 'print'
                             }
-                        }).onClose.subscribe(() => done(), done, done);
+                        }).onClose;
                     }
+                    source.subscribe(done, done, done);
                 }
             });
             this.saveActions.push({
@@ -1173,7 +1175,7 @@ export class QuoteDetails implements OnInit {
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveQuote(false)),
+                            switchMap(x => this.saveQuote()),
                             switchMap(quote => {
                                 return this.modalService.open(TofEmailModal, {
                                     data: {
@@ -1202,7 +1204,6 @@ export class QuoteDetails implements OnInit {
                                 },
                                 err => console.error(err)
                             );
-
                             this.quote.EmailAddress = emailSentTo;
                             this.refreshQuote(this.quote);
                         }
