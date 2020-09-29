@@ -66,6 +66,15 @@ export class Schema {
             this._records.push(new FormRecordWithKey('RegnskapsforerPoststed', 'Poststed i adressen til regnskapsfører'));
             this._records.push(new FormRecordWithKey('FremforbartUnderskudd', 'Fremførbart underskudd'));
             this._records.push(new FormRecordWithKey('Sysselsatte', 'Antall årsverk i regnskapsåret'));
+            // Side 4 - beløp
+            this._records.push(new FormRecordWithKey('AndelDeltakerlignetSelskapTap', 'Regnskapsmessig tap ved realisasjon av andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('GjeldsrenterTilbakefortEtter2392Og691', 'Tilbakeførte gjeldsrenter etter sktl §§ 2-39 (2) og 6-91'));
+            this._records.push(new FormRecordWithKey('OverskuddAndelDeltakerlignetSelskapSkattemessig', 'Skattemessig overskudd på andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('AndelDeltakerlignetSelskapGevinstSkattemessig', 'Skattepliktig gevinst ved realisasjon av andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('Rentekostnader', 'Rentekostnader ført i resultatregnskapet'));
+            this._records.push(new FormRecordWithKey('UtbytteEgenkapitalmetoden', 'Korreksjon for foreslått utbytte fra DS og TS ved bruk av egenkapitalmetoden. (kun skattepliktig utbytte)'));
+            this._records.push(new FormRecordWithKey('GevinstUttakEiendelerSkattepliktig', 'Skattepliktig gevinst fra RF-1109'));
+            this._records.push(new FormRecordWithKey('InntektAnnen', 'Andre inntekter'));
         }
     }
 }
