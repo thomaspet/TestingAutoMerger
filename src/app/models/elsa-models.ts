@@ -251,4 +251,5 @@ export interface ElsaSupportUserDTO {
     Email: string;
     SupportType: number;
     GlobalIdentity: string;
+    StatusCode: number;
 }
