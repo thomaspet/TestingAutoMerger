@@ -6,7 +6,7 @@ import {RequestMethod} from '@uni-framework/core/http';
 import {CompanySettingsService} from '../common/companySettingsService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 
-export const AP_NAME_EHF = 'EHF INVOICE 2.0';
+export const AP_NAME_EHF = 'EHF INVOICE';
 export const AP_NAME_INVOICEPRINT = 'NETSPRINT';
 
 @Injectable()
@@ -78,11 +78,11 @@ export class EHFService extends BizHttp<EHFLog> {
     }
 
     activatedOutgoingOrIncomming(settings: CompanySettings, AccessPointName: string): boolean {
-        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name === AccessPointName)) {
+        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name.startsWith(AccessPointName))) {
             return true;
         }
 
-        if (settings.APIncomming && settings.APIncomming.some(format => format.Name === AccessPointName)) {
+        if (settings.APIncomming && settings.APIncomming.some(format => format.Name.startsWith(AccessPointName))) {
             return true;
         }
         return false;

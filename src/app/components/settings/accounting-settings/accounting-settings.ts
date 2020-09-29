@@ -50,7 +50,9 @@ export class UniCompanyAccountingView {
         'AgioLossAccount',
         'SupplierAccount',
         'CustomerAccount',
-        'AcceptableDelta4CustomerPaymentAccount'
+        'AcceptableDelta4CustomerPaymentAccount',
+        'APOutgoing',
+        'APIncomming'
     ];
     isDirty: boolean = false;
     periods: any[] = [];
@@ -135,14 +137,14 @@ export class UniCompanyAccountingView {
     }
 
     reloadCompanySettingsData() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.companySettingsService.Get(1, this.expands),
             this.periodeSeriesService.GetAll(null),
             this.vatReportFormService.GetAll(null),
             this.currencyCodeService.GetAll(null),
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
             this.companyAccountingSettingsService.Get(1)
-        ).subscribe((response) => {
+        ]).subscribe((response) => {
             this.companySettings$.next(response[0]);
             this.periods = response[1];
 
