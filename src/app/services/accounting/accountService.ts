@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
-import {Account, VatType, AccountGroup} from '../../unientities';
+import {Account, VatType, AccountGroup, JournalEntryLine} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {StatisticsService} from '../common/statisticsService';
-import { map, switchMap } from 'rxjs/operators';
+import {map, switchMap, tap} from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import {StatusCode} from '@app/components/sales/salesHelper/salesEnums';
 
@@ -147,5 +147,28 @@ export class AccountService extends BizHttp<Account> {
                         return (usePostPost || data.Data.length > 0);
                     })
         );
+    }
+
+    public getSaldoInfo(accountID: number) {
+        const reducer = (accumulator, currentValue) => accumulator + (currentValue?.Amount || 0);
+        let accountNumber = null;
+        return this.Get(accountID).pipe(
+            tap(account => accountNumber = account.AccountNumber),
+            switchMap(() => this.getAccountJournalEntryLines(accountID)),
+            map(data => data.Data),
+            map((data: any[]) => {
+                const saldo = data.reduce(reducer, 0);
+                return {
+                    AccountNumber: accountNumber,
+                    Saldo: saldo
+                };
+            })
+        );
+    }
+
+    public getAccountJournalEntryLines(accountID) {
+        return this.statisticsService.GetAll(
+            `select=Amount,Account.AccountNumber as AccountNumber` +
+            `&expand=Account&model=JournalEntryLine&filter=AccountID eq ${accountID}`);
     }
 }
