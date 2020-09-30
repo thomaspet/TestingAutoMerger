@@ -75,6 +75,15 @@ export class Schema {
             this._records.push(new FormRecordWithKey('UtbytteEgenkapitalmetoden', 'Korreksjon for foreslått utbytte fra DS og TS ved bruk av egenkapitalmetoden. (kun skattepliktig utbytte)'));
             this._records.push(new FormRecordWithKey('GevinstUttakEiendelerSkattepliktig', 'Skattepliktig gevinst fra RF-1109'));
             this._records.push(new FormRecordWithKey('InntektAnnen', 'Andre inntekter'));
+            this._records.push(new FormRecordWithKey('AnleggsmidlerNedskrivningReversering', 'Reversering av tidligere nedskrivning på aksjer og andre verdipapir inntektsført i året'));
+            this._records.push(new FormRecordWithKey('OverskuddAndelDeltakerlignetSelskap', 'Andel av regnskapsmessig overskudd i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('AndelDeltakerlignetSelskapGevinst', 'Regnskapsmessig gevinst ved realisasjon av andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('InntekterSkattefrieFradrag', 'Andre skattefrie inntekter'));
+            this._records.push(new FormRecordWithKey('UnderskuddAndelDeltakerlignetSelskapSkattemessig', 'Skattemessig underskudd på andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('AndelDeltakerlignetSelskapTapSkattemessig', 'Fradragsberettiget tap ved realisasjon av andel i selskap med deltakerfastsetting'));
+            this._records.push(new FormRecordWithKey('TapUttakEiendelerFradragsberettiget', 'Fradragsberettiget tap fra RF-1109'));
+            this._records.push(new FormRecordWithKey('KostnaderEmisjonStiftelse', 'Emisjons- og stiftelseskostnader'));
+            this._records.push(new FormRecordWithKey('NaringsinntektFradragAnnet', 'Andre fradrag'));
         }
     }
 }
