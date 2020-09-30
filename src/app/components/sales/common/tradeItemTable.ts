@@ -142,7 +142,7 @@ export class TradeItemTable {
         source.subscribe(settings => {
             this.settings = settings;
             // do ngOnChanges stuff
-            
+
             if (changes['readonly'] && this.table) {
                 this.showTable = false;
                 setTimeout(() => {
@@ -150,7 +150,7 @@ export class TradeItemTable {
                     this.showTable = true;
                 });
             }
-           
+
             if (changes['vatDate'] && !settings.UseFinancialDateToCalculateVatPercent) {
                 const prev = changes['vatDate'].previousValue;
                 const curr = changes['vatDate'].currentValue;
@@ -164,7 +164,7 @@ export class TradeItemTable {
                 const prev = changes['deliveryDate'].previousValue;
                 const curr = changes['deliveryDate'].currentValue;
 
-                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) { 
+                if (!prev || moment(prev).diff(moment(curr), 'days') !== 0) {
                     this.updateVatPercentsAndItems();
                 }
             }
@@ -180,20 +180,25 @@ export class TradeItemTable {
                 });
             }
 
+            if (changes['items'] && this.items) {
+                this.items.forEach(item => {
+                    item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
+                });
+            }
+
             if (changes['defaultTradeItem'] && this.table) {
-                this.defaultTradeItem.Dimensions.Project = this.projects.find(project => project.ID === this.defaultTradeItem.Dimensions.ProjectID) || null;
-                this.defaultTradeItem.Dimensions.Department = this.departments.find(department => department.ID === this.defaultTradeItem.Dimensions.DepartmentID) || null;
+                this.defaultTradeItem.Dimensions.Project =
+                    this.projects.find(project => project.ID === this.defaultTradeItem.Dimensions.ProjectID) || null;
+                this.defaultTradeItem.Dimensions.Department =
+                    this.departments.find(department => department.ID === this.defaultTradeItem.Dimensions.DepartmentID) || null;
                 this.dimensionTypes.forEach(dimType => {
-                    var dimID = this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}ID`];
+                    const dimID = this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}ID`];
                     this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}`] = dimType.Data.find(dim => dim.ID === dimID) || null;
                 });
-    
-                this.setDefaultProjectAndRefreshItems(this.defaultTradeItem.Dimensions, false);
-            }    
-        });
-    }
 
-    public ngOnDestroy() {
+                this.setDefaultProjectAndRefreshItems(this.defaultTradeItem.Dimensions, false);
+            }
+        });
     }
 
     public blurTable() {
@@ -213,7 +218,7 @@ export class TradeItemTable {
             // the date changes
 
             let vdate = this.vatDate;
-            if (this.settings.UseFinancialDateToCalculateVatPercent && this.deliveryDate) {                
+            if (this.settings.UseFinancialDateToCalculateVatPercent && this.deliveryDate) {
                 vdate = this.deliveryDate;
             }
             const changedVatTypeIDs: Array<number> = [];
@@ -235,7 +240,7 @@ export class TradeItemTable {
             });
 
             if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
-                
+
                 this.vatTypes = vatTypes;
                 this.items = this.items.map(item => {
                     if (item.VatType) {
