@@ -253,6 +253,7 @@ export class RecurringPostComponent extends UniView {
                 const row = event.rowModel;
 
                 if (event.field === '_Wagetype' && row['_Wagetype']) {
+                    row.Text = event.newValue.WageTypeName;
                     this.mapWagetypeToRecurringpost(row);
                 }
 
