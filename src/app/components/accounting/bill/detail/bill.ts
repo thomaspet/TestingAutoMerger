@@ -599,9 +599,12 @@ export class BillView implements OnInit, AfterViewInit {
             {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
-                Label: 'KID',
+                Label: 'KID/Melding',
                 Classes: 'bill-small-field right',
-                Section: 0
+                Section: 0,
+                Tooltip: {
+                    Text: 'Skriv inn KID-nummer eller melding til mottaker. Dersom feltet inneholder tekst vil det tolkes som en melding.',
+                }
             },
             {
                 Property: 'TaxInclusiveAmountCurrency',

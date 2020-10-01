@@ -278,8 +278,11 @@ export class DetailsForm {
             {
                 EntityType: 'SupplierInvoice',
                 Property: 'PaymentID',
-                Label: 'KID',
-                FieldType: FieldType.TEXT
+                Label: 'KID/Melding',
+                FieldType: FieldType.TEXT,
+                Tooltip: {
+                    Text: 'Skriv inn KID-nummer eller melding til mottaker. Dersom feltet inneholder tekst vil det tolkes som en melding.',
+                }
             }
         ];
     }
