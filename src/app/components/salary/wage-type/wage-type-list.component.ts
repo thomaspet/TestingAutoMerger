@@ -8,6 +8,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {HttpParams} from '@angular/common/http';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { finalize, tap } from 'rxjs/operators';
 
 @Component({
     selector: 'wagetypes',
@@ -15,13 +16,14 @@ import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 })
 export class WageTypeListComponent implements OnInit {
 
-    public tableConfig: UniTableConfig;
-    public lookupFunction: (urlParams: HttpParams) => any;
-    public contextMenuItems: IContextMenuItem[] = [];
+    tableConfig: UniTableConfig;
+    lookupFunction: (urlParams: HttpParams) => any;
+    contextMenuItems: IContextMenuItem[] = [];
     @ViewChild(AgGridWrapper, { static: true }) table: AgGridWrapper;
-    public busy: boolean;
+    busy: boolean;
+    showEmptyState: boolean;
 
-    public toolbarActions = [{
+    toolbarActions = [{
         label: 'Ny lønnsart',
         action: this.createWageType.bind(this),
         main: true,
@@ -56,6 +58,13 @@ export class WageTypeListComponent implements OnInit {
     }
 
     public ngOnInit() {
+        this.busy = true;
+        this._wageTypeService
+            .needSync()
+            .pipe(
+                finalize(() => this.busy = false),
+            )
+            .subscribe(needSync => this.showEmptyState = needSync);
         this._wageTypeService.invalidateCache();
         this.lookupFunction = (urlParams) => this.lookup(urlParams);
 
@@ -83,7 +92,8 @@ export class WageTypeListComponent implements OnInit {
 
     public lookup(urlParams: HttpParams) {
         const params = urlParams || new HttpParams();
-        return this._wageTypeService.GetAllByHttpParams(params);
+        return this._wageTypeService
+            .GetAllByHttpParams(params);
     }
 
     public rowSelected(event) {
@@ -105,9 +115,12 @@ export class WageTypeListComponent implements OnInit {
         this.busy = true;
         this._wageTypeService
             .syncWagetypes()
-            .do(() => this.table.refreshTableData())
-            .finally(() => this.busy = false)
+            .pipe(
+                tap(() => this.table.refreshTableData()),
+                finalize(() =>  this.busy = false),
+            )
             .subscribe((response) => {
+                this.showEmptyState = false;
                 this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
             }
         , err => this.errorService.handle(err));

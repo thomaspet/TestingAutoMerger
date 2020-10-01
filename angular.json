@@ -385,6 +385,10 @@
                   "with": "src/themes/ext01/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext01/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -438,6 +442,10 @@
                   "with": "src/themes/ext01/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext01/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -475,6 +483,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -527,6 +539,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext01/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -646,7 +662,8 @@
                   "src/themes/ext03-poc02"
                 ]
               }
-            },"softrig-dev": {
+            },
+            "softrig-dev": {
               "aot": true,
               "optimization": true,
               "buildOptimizer": true,
@@ -673,6 +690,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -804,6 +825,10 @@
                   "with": "src/themes/softrig/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/softrig/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.softrig.ts"
                 },
@@ -854,6 +879,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/softrig/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/softrig/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -908,6 +937,10 @@
                   "with": "src/themes/softrig/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/softrig/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.softrig.ts"
                 },
@@ -949,6 +982,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext02/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -997,6 +1034,10 @@
                   "with": "src/themes/ext02/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext02/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
                 },
@@ -1037,6 +1078,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext02/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -1085,6 +1130,10 @@
                   "with": "src/themes/ext02/logo.svg"
                 },
                 {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext02/wagetype.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
                 },
@@ -1129,6 +1178,10 @@
                 {
                   "replace": "src/themes/navbar_logo.svg",
                   "with": "src/themes/ext02/logo.svg"
+                },
+                {
+                  "replace": "src/themes/wagetype.svg",
+                  "with": "src/themes/ext02/wagetype.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",

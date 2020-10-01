@@ -1,0 +1,16 @@
+<section class="uni-container">
+    <aside>
+        <header>
+            <h1>{{'SALARY.WAGE_TYPE.EMPTY_STATE.HEADER' | translate}}</h1>
+        </header>
+        <article>
+            <p>{{'SALARY.WAGE_TYPE.EMPTY_STATE.MESSAGE' | translate}}</p>
+        </article>
+        <footer>
+            <button (click)="updateWageTypes()" [attr.aria-busy]="busy">{{'SALARY.WAGE_TYPE.EMPTY_STATE.SYNC_LABEL' | translate}}</button>
+        </footer>
+    </aside>
+    <aside>
+        <img [src]="'themes/wagetype.svg'"/>
+    </aside>
+</section>

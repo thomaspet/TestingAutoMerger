@@ -163,6 +163,13 @@ export const NO = {
                 'ADD': 'Legg til'
             }
         },
+        WAGE_TYPE: {
+            EMPTY_STATE: {
+                'HEADER': 'Du har ingen lønnsarter registrert',
+                'MESSAGE': 'Du har ikke lønnsarter registrert på firmaet for året du står på. Synkroniser lønnsarter for å kopiere lønnsarter fra fjoråret inn til dette året.',
+                'SYNC_LABEL': 'Synkroniser'
+            }
+        },
         EMPLOYMENT_HISTORY_MODAL: {
             'HEADER': 'Historikk',
             'CHANGED_AT_LABEL': 'Endret',
