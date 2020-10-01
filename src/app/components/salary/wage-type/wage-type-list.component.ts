@@ -116,7 +116,7 @@ export class WageTypeListComponent implements OnInit {
         this._wageTypeService
             .syncWagetypes()
             .pipe(
-                tap(() => this.table.refreshTableData()),
+                tap(() => this.table?.refreshTableData()),
                 finalize(() =>  this.busy = false),
             )
             .subscribe((response) => {
