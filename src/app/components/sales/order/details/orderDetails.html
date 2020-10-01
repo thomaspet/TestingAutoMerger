@@ -46,6 +46,7 @@
                 [configStoreKey]="'sales.order.tradeitemTable'"
                 [defaultTradeItem]="newOrderItem"
                 [vatDate]="order.OrderDate"
+                [deliveryDate]="order.DeliveryDate || order.OrderDate"
                 [vatTypes]="vatTypes"
                 [projects]="projects"
                 [departments]="departments"
