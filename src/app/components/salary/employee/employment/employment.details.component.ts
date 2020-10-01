@@ -19,6 +19,7 @@ import {
     ErrorService, CompanySalaryService, SubEntityService
 } from '@app/services/services';
 import { RegulativeGroupService } from '@app/components/salary/regulative/shared/service/regulative-group.service';
+import { EmploymentHistoryModalComponent } from '@app/components/salary/employee/shared/components/employment-history-modal/employment-history-modal.component';
 
 declare var _;
 const UPDATE_RECURRING = '_updateRecurringTranses';
@@ -177,6 +178,13 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
                         valueProperty: 'AccountNumber',
                         template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
                     };
+
+                    const historyButton = layout.Fields.find(field => field.Property === '_History');
+                    if (historyButton) {
+                        historyButton.Options = {
+                            click: () => this.modalService.open(EmploymentHistoryModalComponent, {data: this.employment.ID})
+                        };
+                    }
 
                     return layout.Fields;
                 })

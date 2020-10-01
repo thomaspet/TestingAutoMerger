@@ -1,0 +1,7 @@
+<section role="dialog" class="uni-modal medium">
+    <header>{{'SALARY.EMPLOYMENT_HISTORY_MODAL.HEADER' | translate}}</header>
+    <article>
+        <ag-grid-wrapper [config]="config" [resource]="employmentHistoryService.history$ | async"></ag-grid-wrapper>
+    </article>
+    <footer></footer>
+</section>

@@ -17,6 +17,8 @@ import { EmployeeGuard } from './employee.guard';
 import { EmployeeRoutingModule } from './employee-routing.module';
 import { NewEmployeeGuard } from './new-employee.guard';
 import { FirstEmployeeGuard } from './first-employee.guard';
+import { EmploymentHistoryModalComponent } from './shared/components/employment-history-modal/employment-history-modal.component';
+import { EmploymentHistoryService } from './shared/services/employment-history.service';
 
 @NgModule({
     imports: [
@@ -35,6 +37,7 @@ import { FirstEmployeeGuard } from './first-employee.guard';
         PersonalDetailsComponent,
         RecurringPostComponent,
         SalaryBalanceComponent,
+        EmploymentHistoryModalComponent,
     ],
     providers: [
         EmployeeDetailsService,
@@ -42,6 +45,7 @@ import { FirstEmployeeGuard } from './first-employee.guard';
         EmployeeGuard,
         NewEmployeeGuard,
         FirstEmployeeGuard,
+        EmploymentHistoryService,
     ]
   })
   export class EmployeeModule { }

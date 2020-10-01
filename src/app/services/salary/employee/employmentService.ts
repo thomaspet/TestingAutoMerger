@@ -4,8 +4,9 @@ import {UniHttp} from '../../../../framework/core/http/http';
 import {
     Employment, TypeOfEmployment, RemunerationType,
     WorkingHoursScheme, Department, Project, CompanySalary,
-    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity, SalaryTransaction, NumberSeries, RegulativeGroup, RegulativeStep, Regulative,
-} from '../../../unientities';
+    ShipTypeOfShip, ShipRegistry, ShipTradeArea, SubEntity,
+    RegulativeGroup, RegulativeStep, Regulative, EmploymentHistoryRecord
+} from '@uni-entities';
 import {Observable, ReplaySubject, forkJoin, of} from 'rxjs';
 import {FieldType, UniFieldLayout, UniFormError, UniField} from '../../../../framework/ui/uniform/index';
 import {CompanySalaryService} from '../companySalary/companySalaryService';
@@ -75,7 +76,7 @@ export class EmploymentService extends BizHttp<Employment> {
         private companySalaryService: CompanySalaryService,
         private toastService: ToastService,
         private statisticsService: StatisticsService,
-        private subEntityService: SubEntityService
+        private subEntityService: SubEntityService,
         ) {
         super(http);
         this.relativeURL = Employment.RelativeUrl;
@@ -186,6 +187,10 @@ export class EmploymentService extends BizHttp<Employment> {
     public updateDefaults(employment: Employment) {
         employment['_yearlyRate'] = employment.MonthRate * 12;
         this.employment$.next(employment);
+    }
+
+    public getHistory(employmentID: number): Observable<EmploymentHistoryRecord[]> {
+        return super.GetAction(employmentID, 'history');
     }
 
     public layout(layoutID: string, hasEndDate: boolean) {
@@ -574,6 +579,13 @@ export class EmploymentService extends BizHttp<Employment> {
                                 search: (query: string) => this.getRegulativeStepsOnEmployment()
                                     .map(steps => steps.filter(step => step.Step.toString().startsWith(query)))
                             }
+                        },
+                        {
+                            Property: '_History',
+                            Label: 'Historikk',
+                            FieldSet: 5,
+                            Section: 0,
+                            FieldType: FieldType.BUTTON,
                         }
                     ];
                 }),

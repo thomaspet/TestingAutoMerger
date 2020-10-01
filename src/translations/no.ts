@@ -151,7 +151,7 @@ export const NO = {
             'IDENTIFICATOR': 'Organisasjonsnummer',
             'NAME': 'Navn',
         },
-        AMELDING: {            
+        AMELDING: {
             SUMMARY: {
                 'PENSION_SCHEME_TOAST_HEADER': 'Endring lagret',
                 'PENSION_SCHEME_TOAST_MESSAGE': 'Pensjonsinnretning er lagret. Du må generere ny a-melding og sende inn for at pensjonsinnretningen skal komme inn til A-ordningen.',
@@ -163,6 +163,15 @@ export const NO = {
                 'ADD': 'Legg til'
             }
         },
+        EMPLOYMENT_HISTORY_MODAL: {
+            'HEADER': 'Historikk',
+            'CHANGED_AT_LABEL': 'Endret',
+            'STEP_LABEL': 'Lønnstrinn',
+            'WORK_PERCENT_LABEL': 'Prosent',
+            'HOUR_RATE_LABEL': 'Timesats',
+            'MONTH_RATE_LABEL': 'Månedssats',
+            'YEAR_RATE_LABEL': 'Årssats',
+        }
     },
 
     TIMETRACKING: {
