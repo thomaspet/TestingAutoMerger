@@ -203,7 +203,7 @@ export class AssetsService extends BizHttp<Asset>{
                 if (!isBalanceOk) {
                     return this.accountService.getSaldoInfo(asset.BalanceAccountID).pipe(
                         tap(info => {
-                            const message = `Saldo på balansekontoen, konto ${info.AccountNumber} er kr ${info.Saldo},-, og dekker ikke verdien på eiendelen.` +
+                            const message = `Saldo på balansekontoen, konto ${info.AccountNumber} er kr ${info.Saldo},- og dekker ikke verdien på eiendelen. ` +
                                 `Husk at før man oppretter en ny eiendel, må kjøpet bokføres i regnskapet.`;
                             this.toast.addToast(
                                 'Saldo på balansekontoen dekker ikke verdien på eiendelen.', ToastType.warn, 5, message
