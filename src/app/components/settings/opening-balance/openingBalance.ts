@@ -9,6 +9,8 @@ import {forkJoin} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 import {GoToPostModal} from '@app/components/settings/opening-balance/goToPostModal';
 import {Router} from '@angular/router';
+import { JournalEntryLineDraft } from '@uni-entities';
+import { JournalEntryTypes } from '@app/services/services';
 
 @Component({
     selector: 'opening-balance-component',
@@ -237,7 +239,7 @@ export class OpeningBalanceComponent {
         };
     }
 
-    private createJournalEntryLines() {
+    private createJournalEntryLines(): JournalEntryLineDraft[] {
         const financialYear = this.openingBalanceService.getActiveFinancialYear().Year;
         const journalEntryLines = [];
         this.draftlines.forEach(line => {
@@ -250,12 +252,12 @@ export class OpeningBalanceComponent {
                 CurrencyExchangeRate: 1,
                 Description: line.Description,
                 FinancialDate: `01-01-${financialYear}`,
-                JournalEntryTypeID: null,
+                JournalEntryTypeID: JournalEntryTypes.OpeningBalance,
                 RegisteredDate: line._date,
                 VatDate: `01-01-${financialYear}`,
                 VatDeductionPercent: 0,
                 VatType: null,
-                VatTypeID: null
+                VatTypeID: null,
             };
             const draftline2 = {
                 AccountID: line.ToAccountID,
@@ -265,7 +267,7 @@ export class OpeningBalanceComponent {
                 CurrencyExchangeRate: 1,
                 Description: line.Description,
                 FinancialDate: `01-01-${financialYear}`,
-                JournalEntryTypeID: null,
+                JournalEntryTypeID: JournalEntryTypes.OpeningBalance,
                 RegisteredDate: line._date,
                 VatDate: `01-01-${financialYear}`,
                 VatDeductionPercent: 0,
