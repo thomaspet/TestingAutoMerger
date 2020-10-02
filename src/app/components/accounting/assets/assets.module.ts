@@ -9,7 +9,7 @@ import {AssetsListComponent} from '@app/components/accounting/assets/assets-list
 import {AssetsDetailComponent} from '@app/components/accounting/assets/asset-detail/asset-detail';
 import {AssetFormComponent} from '@app/components/accounting/assets/asset-detail/forms/asset-form/asset-form';
 import {DepreciationFormComponent} from '@app/components/accounting/assets/asset-detail/forms/depreciation-form/depreciation-form';
-import {AccountingDepreciationFormComponent} from '@app/components/accounting/assets/asset-detail/forms/accounting-Depreciation-form/accounting-depreciation-form';
+import {AccountingDepreciationFormComponent} from '@app/components/accounting/assets/asset-detail/forms/accounting-depreciation-form/accounting-depreciation-form';
 import {TaxDepreciationFormComponent} from '@app/components/accounting/assets/asset-detail/forms/tax-depreciation-form/tax-depreciation-form';
 import {AssetsHistoryComponent} from '@app/components/accounting/assets/assets-history/assets-history';
 import {RegisterAssetAsSoldModal} from '@app/components/accounting/assets/register-asset-as-sold-modal/register-asset-as-sold-modal';

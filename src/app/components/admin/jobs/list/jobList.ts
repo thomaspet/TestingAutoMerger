@@ -9,7 +9,7 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 
 @Component({
     selector: 'recently-executed-jobs',
-    templateUrl: './JobList.html'
+    templateUrl: './jobList.html'
 })
 export class JobList implements OnInit {
     tabs: IUniTab[] = [

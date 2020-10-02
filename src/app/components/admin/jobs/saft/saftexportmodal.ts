@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import { IUniModal } from '@uni-framework/uni-modal/interfaces';
+import {IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
 import { BehaviorSubject, Observable, timer as observableTimer } from 'rxjs';
@@ -17,6 +17,9 @@ const JOBNAME: string = 'ExportSaft';
 export class SaftExportModal implements IUniModal {
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
+
+    @Input()
+    public options: IModalOptions = {};
 
     @ViewChild(MatStepper, { static: true }) stepper: MatStepper;
     public currentStep = 1;

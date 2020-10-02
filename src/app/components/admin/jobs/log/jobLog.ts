@@ -8,7 +8,7 @@ import { BehaviorSubject } from 'rxjs';
 
 @Component({
     selector: 'job-log',
-    templateUrl: './JobLog.html'
+    templateUrl: './jobLog.html'
 })
 export class JobLog {
     public toolbarconfig: IToolbarConfig;

@@ -9,7 +9,7 @@ import {FreeAmountSummary, AGASums} from './../../../../unientities';
 
 @Component({
     selector: 'free-amount-modal',
-    templateUrl: './freeAmountModal.html'
+    templateUrl: './freeamountModal.html'
 })
 
 export class FreeAmountModal implements OnInit, IUniModal {
