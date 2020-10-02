@@ -1,10 +1,12 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import { IUniModal } from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
-import { BehaviorSubject, timer as observableTimer } from 'rxjs';
-import { JobService, AccountService, ErrorService } from '@app/services/services';
+import { BehaviorSubject, Observable, timer as observableTimer } from 'rxjs';
+import { JobService, AccountService, ErrorService, UserService } from '@app/services/services';
 import { MatStepper } from '@angular/material/stepper';
+import { User } from '@uni-entities';
+import { map } from 'rxjs/operators';
 
 const JOBNAME: string = 'ExportSaft';
 
@@ -13,9 +15,6 @@ const JOBNAME: string = 'ExportSaft';
     templateUrl: './saftexportmodal.html'
 })
 export class SaftExportModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
 
@@ -38,11 +37,14 @@ export class SaftExportModal implements IUniModal {
 
     constructor(private jobService: JobService,
         private accountService: AccountService,
-        private errorService: ErrorService) {}
+        private errorService: ErrorService,
+        private userService: UserService,
+        ) {}
 
     public ngOnInit() {
-        const value = this.options.data || {};
-        this.formModel$.next(value);
+        this.getFormModel().subscribe(form => {
+            this.formModel$.next(form);
+        });
         this.formFields$.next(this.getSaftExportFormFields());
         this.emailField$.next(this.getEmailField());
 
@@ -90,8 +92,31 @@ export class SaftExportModal implements IUniModal {
         }
     }
 
+    private getFormModel(): Observable<any> {
+        return this.userService.getCurrentUser().pipe(
+            map((user: User) => {
+                return {
+                    Name: user.DisplayName,
+                    FromYear: new Date().getFullYear(),
+                    ToYear: new Date().getFullYear(),
+                    FromPeriod: 1,
+                    ToPeriod: 12,
+                    Anonymous: false,
+                    SendEmail: true,
+                    Validate: true
+                };
+            })
+        );
+    }
+
     private getSaftExportFormFields(): UniFieldLayout[] {
         return [
+            <any> {
+                EntityType: 'JobDetails',
+                Property: 'Name',
+                FieldType: FieldType.TEXT,
+                Label: 'Kontaktperson'
+            },
             <any> {
                 EntityType: 'JobDetails',
                 Property: 'FromYear',
