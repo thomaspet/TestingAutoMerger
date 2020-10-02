@@ -2,11 +2,13 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
-import { BehaviorSubject, Observable, timer as observableTimer } from 'rxjs';
-import { JobService, AccountService, ErrorService, UserService } from '@app/services/services';
+import { BehaviorSubject, Observable, of, timer as observableTimer } from 'rxjs';
+import { JobService, AccountService, ErrorService, UserService, CompanySettingsService } from '@app/services/services';
 import { MatStepper } from '@angular/material/stepper';
-import { User } from '@uni-entities';
-import { map } from 'rxjs/operators';
+import { CompanySettings, User } from '@uni-entities';
+import { map, switchMap } from 'rxjs/operators';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { Router } from '@angular/router';
 
 const JOBNAME: string = 'ExportSaft';
 
@@ -42,6 +44,9 @@ export class SaftExportModal implements IUniModal {
         private accountService: AccountService,
         private errorService: ErrorService,
         private userService: UserService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private router: Router
         ) {}
 
     public ngOnInit() {
@@ -68,13 +73,36 @@ export class SaftExportModal implements IUniModal {
         this.onClose.emit(params);
     }
 
-    public validate() {
+    public startExportSaftJob(): void {
         this.busy = true;
         const params = this.formModel$.getValue();
-        this.jobService.startJob(JOBNAME, undefined, params)
-        .subscribe((jobID: number) => {
+        this.validateCompanySettings().pipe(
+            switchMap((validation: boolean) => validation ? this.jobService.startJob(JOBNAME, undefined, params) : of(0))
+        ).subscribe((jobID: number) => {
+            if (!jobID) {
+                this.close(false);
+                return;
+            }
             this.jobID = jobID;
         });
+    }
+
+    private validateCompanySettings(): Observable<boolean> {
+        return this.companySettingsService.getCompanySettings().pipe(
+            map((settings: CompanySettings) => {
+                const hasAdress = !!settings.DefaultAddress.City && !!settings.DefaultAddress.PostalCode;
+                if (!hasAdress) {
+                    this.toastService.addToast('Mangler adresse', ToastType.warn, 5,
+                    'Du mangler adresse på selskapet. Gå til systeminnstillinger og legg inn adresse der før du kan fortsette eksporten',
+                    {
+                        label: 'Firmaoppsett',
+                        click: () => this.router.navigate(['/settings/company'])
+                    }
+                    );
+                }
+                return hasAdress;
+            })
+        );
     }
 
     public fix() {
