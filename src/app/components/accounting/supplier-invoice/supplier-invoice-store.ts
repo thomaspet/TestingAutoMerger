@@ -571,6 +571,10 @@ export class SupplierInvoiceStore {
         };
 
         this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
+            if (!response) {
+                done('');
+            }
+
             if (response <= ActionOnReload.SentToPaymentList) {
                 this.loadInvoice(this.invoice$.value.ID);
                 this.openJournaledAndPaidModal(response).subscribe((res) => {
