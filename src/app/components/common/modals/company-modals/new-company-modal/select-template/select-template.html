@@ -1,0 +1,25 @@
+<small>
+    Ved oppretting fra mal vil innstillinger og data i malklienten kopieres over til
+    den nye klienten.
+</small>
+
+<ul class="uni-company-modal-selection-list">
+    <li (click)="selectedTemplateCompanyChange.emit(undefined)"
+        [ngClass]="{'selected': !selectedTemplateCompany?.ID}">
+
+        <i class="material-icons">
+            {{!selectedTemplateCompany?.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
+        </i>
+        Ikke valgt
+    </li>
+
+    <li *ngFor="let company of templateCompanies"
+        (click)="selectedTemplateCompanyChange.emit(company)"
+        [ngClass]="{'selected': selectedTemplateCompany?.ID === company.ID}">
+
+        <i class="material-icons">
+            {{selectedTemplateCompany?.ID === company.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
+        </i>
+        {{company.Name}}
+    </li>
+</ul>

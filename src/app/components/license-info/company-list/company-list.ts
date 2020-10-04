@@ -4,17 +4,21 @@ import * as moment from 'moment';
 
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
-import {ElsaContractService, ErrorService} from '@app/services/services';
+import {ElsaContractService, ErrorService, SubEntityService, CompanySettingsService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
-import {UniModalService} from '@uni-framework/uni-modal';
-import {GrantAccessModal, GrantSelfAccessModal} from '@app/components/common/modals/company-modals';
+import {UniModalService, WizardSettingsModal} from '@uni-framework/uni-modal';
+import {GrantAccessModal, GrantSelfAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 import {LicenseInfo} from '../license-info';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {NewCompanyModal} from '../new-company-modal/new-company-modal';
+import {theme, THEMES} from 'src/themes/theme';
+import { Company } from '@uni-entities';
+import { tap } from 'rxjs/internal/operators/tap';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'license-info-company-list',
@@ -74,6 +78,8 @@ export class CompanyList {
         private licenseInfo: LicenseInfo,
         private toastService: ToastService,
         private errorService: ErrorService,
+        private subEntityService: SubEntityService,
+        private companySettingsService: CompanySettingsService,
     ) {
         try {
             this.currentContractID = this.authService.currentUser.License.Company.ContractID;
@@ -146,9 +152,31 @@ export class CompanyList {
     }
 
     createCompany() {
-        this.modalService.open(NewCompanyModal, {
-            data: { contractID: this.contractID }
-        });
+        if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
+            this.modalService.open(UniNewCompanyModal, {
+                data: { contractID: this.contractID }
+            }).onClose.subscribe((company: Company) => {
+                if (company && company.ID) {
+                    this.authService.setActiveCompany(company);
+                    this.modalService.open(WizardSettingsModal).onClose.pipe(
+                        tap(() => this.handleSubEntityImport()),
+                    ).subscribe(() => {
+                        this.loadData();
+                    }, err => this.errorService.handle(err));
+                }
+            });
+        } else {
+            this.modalService.open(NewCompanyModal, {
+                data: { contractID: this.contractID }
+            });
+        }
+    }
+
+    handleSubEntityImport() {
+        this.companySettingsService.getCompanySettings()
+            .pipe(switchMap(companySettings =>
+                this.subEntityService.checkZonesAndSaveFromEnhetsregisteret(companySettings.OrganizationNumber)
+            )).take(1).subscribe();
     }
 
     deleteCompanyModal(company: ElsaCompanyLicense) {
