@@ -74,6 +74,7 @@ export interface IToolbarConfig {
     hideDisabledActions?: boolean;
     period?: Date;
     infoBannerConfig?: IInfoBannerConfig;
+    payments?: any[];
 }
 
 export interface ICommentsConfig {

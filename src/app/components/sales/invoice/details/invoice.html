@@ -24,11 +24,12 @@
         [paymentInfoTypes]="paymentInfoTypes"
         [currentUser]="currentUser"
         [canSendEHF]="canSendEHF"
+        [distributions]="customerDistributions"
         (errorEvent)="onErrorEvent($event)"
         (dataChange)="onInvoiceChange($event)"
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
- 
+
     <section class="tradeitem-container">
         <uni-tradeitem-table
             *ngIf="invoice"

@@ -130,6 +130,7 @@ export class InvoiceDetails implements OnInit {
 
     projects: Project[];
     departments: Department[];
+    payments: any[] = [];
 
     currencyInfo: string;
     summaryLines: ISummaryLine[];
@@ -148,6 +149,7 @@ export class InvoiceDetails implements OnInit {
     currentUser: User;
     selectConfig: any;
     canSendEHF: boolean = false;
+    customerDistributions: any;
 
     sellers: Seller[];
     private currentInvoiceDate: LocalDate;
@@ -287,7 +289,7 @@ export class InvoiceDetails implements OnInit {
 
             if (this.invoiceID === 0) {
                 Observable.forkJoin(
-                    this.customerInvoiceService.GetNewEntity(['DefaultDimensions'], CustomerInvoice.EntityType),
+                    [this.customerInvoiceService.GetNewEntity(['DefaultDimensions'], CustomerInvoice.EntityType),
                     this.userService.getCurrentUser(),
                     customerID
                         ? this.customerService.Get(customerID, this.customerExpands)
@@ -308,7 +310,7 @@ export class InvoiceDetails implements OnInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))]
                 ).subscribe((res) => {
                     let invoice = <CustomerInvoice>res[0];
                     this.currentUser = res[1];
@@ -384,7 +386,7 @@ export class InvoiceDetails implements OnInit {
                 }, err => this.errorService.handle(err));
             } else {
                 Observable.forkJoin(
-                    this.getInvoice(this.invoiceID),
+                    [this.getInvoice(this.invoiceID),
                     this.companySettingsService.Get(1, ['APOutgoing']),
                     this.currencyCodeService.GetAll(null),
                     this.projectService.GetAll(null),
@@ -395,7 +397,8 @@ export class InvoiceDetails implements OnInit {
                     this.paymentTypeService.GetAll(null),
                     this.reportService.getDistributions(this.distributeEntityType),
                     this.reportDefinitionService.GetAll('filter=ReportType eq 1'),
-                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null)))
+                    this.elsaPurchaseService.getPurchaseByProductName('Aprila fakturasalg').pipe(catchError(() => observableOf(null))),
+                    this.customerInvoiceService.getPaymentsForInvoice(this.invoiceID)]
                 ).subscribe((res) => {
                     const invoice = res[0];
 
@@ -410,6 +413,7 @@ export class InvoiceDetails implements OnInit {
                     this.distributionPlans = res[9];
                     this.reports = res[10];
                     this.aprilaOption.hasPermission = !!res[11];
+                    this.payments = res[12];
                     if (!invoice.CurrencyCodeID) {
                         invoice.CurrencyCodeID = this.companySettings.BaseCurrencyCodeID;
                         invoice.CurrencyExchangeRate = 1;
@@ -512,9 +516,13 @@ export class InvoiceDetails implements OnInit {
                     return observableOf(invoice);
                 }
 
-                return this.customerService.Get(invoice.CustomerID, this.customerExpands).pipe(
-                    map(customer => {
+                return Observable.forkJoin([
+                    this.customerService.Get(invoice.CustomerID, this.customerExpands),
+                    this.customerService.getCustomerDistributions(invoice.CustomerID)
+                ]).pipe(
+                    map(([customer, distributions]) => {
                         invoice.Customer = customer;
+                        this.customerDistributions = distributions;
                         return invoice;
                     })
                 );
@@ -1170,6 +1178,7 @@ export class InvoiceDetails implements OnInit {
             entityType: 'CustomerInvoice',
             showSharingStatus: true,
             hideDisabledActions: true,
+            payments: this.payments,
             navigation: {
                 prev: this.previousInvoice.bind(this),
                 next: this.nextInvoice.bind(this)
@@ -2252,7 +2261,11 @@ export class InvoiceDetails implements OnInit {
                             5
                         );
 
-                        this.getInvoice(this.invoice.ID).subscribe(invoice => {
+                        Observable.forkJoin([
+                            this.getInvoice(this.invoice.ID),
+                            this.customerInvoiceService.getPaymentsForInvoice(this.invoiceID)
+                        ]).subscribe(([invoice, payments]) => {
+                            this.payments = payments;
                             this.refreshInvoice(invoice);
                         });
                     },

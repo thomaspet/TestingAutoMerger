@@ -36,6 +36,7 @@ export class StatusTrack {
     @Input() entityType: string;
     @Input() entityID: number;
     @Input() showFullStatustrack: boolean;
+    @Input() payments = [];
 
     @Output() statusSelectEvent = new EventEmitter();
 

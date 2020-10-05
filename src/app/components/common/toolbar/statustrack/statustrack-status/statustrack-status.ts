@@ -1,4 +1,6 @@
+// tslint:disable
 import {Component, Input, Output, EventEmitter, HostBinding} from '@angular/core';
+import {Router} from '@angular/router';
 import {IStatus, STATUSTRACK_STATES} from '../statustrack';
 import * as moment from 'moment';
 import {StatusService, ErrorService} from '@app/services/services';
@@ -13,6 +15,7 @@ export class StatustrackStatus {
     @Input() singleStatus: boolean;
     @Input() entityType: string;
     @Input() entityID: number;
+    @Input() payments: any[] = [];
     @Output() subStatusClick = new EventEmitter();
 
     @HostBinding('class') get hostClass() {
@@ -34,7 +37,8 @@ export class StatustrackStatus {
 
     constructor(
         private statusService: StatusService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private router: Router
     ) {}
 
     ngOnChanges(changes) {
@@ -79,6 +83,16 @@ export class StatustrackStatus {
                 },
                 err => this.errorService.handle(err)
             );
+        }
+    }
+
+    goTojournalEntry(payment) {
+        const journalEntryData = payment.JournalEntryNumber.split('-');
+
+        if (journalEntryData.length === 2) {
+            this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${journalEntryData[0]}&AccountYear=${journalEntryData[1]}`);
+        } else {
+            this.router.navigateByUrl(`/accounting/transquery?JournalEntryNumber=${journalEntryData[0]}`);
         }
     }
 }

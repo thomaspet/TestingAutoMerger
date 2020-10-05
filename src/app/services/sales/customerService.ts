@@ -35,6 +35,15 @@ export class CustomerService extends BizHttp<Customer> {
             .send();
     }
 
+    getCustomerDistributions(customerID: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`distributions?action=get-valid-distributions-for-customer&customerId=${customerID}`)
+            .send()
+            .map(res => res.body);
+    }
+
     public activateCustomer(id: any): any {
         return this.http
             .asPUT()

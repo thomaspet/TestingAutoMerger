@@ -73,6 +73,13 @@
             "DefaultHidden": true
         },
         {
+            "Header": "Dato for siste betaling",
+            "Field": "LastPaymentDate",
+            "FilterOperator": "gt",
+            "Width": 100,
+            "DefaultHidden": true
+        },
+        {
             "Header": "Kommentar",
             "Field": "Comment",
             "DefaultHidden": true

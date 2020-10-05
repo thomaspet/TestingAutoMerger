@@ -167,6 +167,15 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         });
     }
 
+    getPaymentsForInvoice(id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`invoices/${id}?action=get-payments`)
+            .send()
+            .map(res => res.body);
+    }
+
     public getFileList(id: number) {
         return this.http
             .asGET()

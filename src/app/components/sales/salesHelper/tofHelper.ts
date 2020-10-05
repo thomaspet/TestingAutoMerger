@@ -46,7 +46,7 @@ export class TofHelper {
     // will not bring along all the attributes that are needed in the TOF
     public mapCustomerToEntity(customer: Customer, entity: any, isNew: boolean = true): any {
         entity.Customer = customer;
-        entity.CustomerID = customer.ID;
+        entity.CustomerID = customer?.ID;
 
         if (customer.Info) {
             entity.CustomerName = customer.Info.Name;

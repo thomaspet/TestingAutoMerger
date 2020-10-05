@@ -12,6 +12,7 @@ import {UniModalService} from '@uni-framework/uni-modal';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
 import {cloneDeep} from 'lodash';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'tof-customer-card',
@@ -48,8 +49,7 @@ import {cloneDeep} from 'lodash';
         </section>
 
         <section class="sharing-badges">
-            <span *ngIf="canSendEHF" matTooltip="Kunden kan motta EHF">EHF</span>
-            <span *ngIf="canSendEfaktura" matTooltip="Kunden kan motta eFaktura">eFaktura</span>
+            <span *ngFor="let dist of distributionChanels" matTooltip="Kunden kan motta {{ dist.ElementTypeName }}"> {{ dist.ElementTypeName }}</span>
         </section>
     `
 })
@@ -59,6 +59,7 @@ export class TofCustomerCard {
     @Input() readonly: boolean;
     @Input() entity: any;
     @Input() entityType: string;
+    @Input() distributions: any[];
 
     @Output() entityChange: EventEmitter<any> = new EventEmitter();
 
@@ -94,6 +95,7 @@ export class TofCustomerCard {
     lastPeppolAddressChecked: string;
     canSendEHF: boolean;
     canSendEfaktura: boolean;
+    distributionChanels = [];
 
     constructor(
         private customerService: CustomerService,
@@ -138,38 +140,10 @@ export class TofCustomerCard {
     }
 
     ngOnChanges(changes) {
-        if (changes['entity'] && this.entity) {
-            this.canSendEfaktura = false;
-            this.canSendEHF = false;
-
-            const customer: Customer = this.entity.Customer;
-            if (customer) {
-                if (customer.PeppolAddress || customer.OrgNumber) {
-                    const peppoladdress = customer.PeppolAddress
-                        ? customer.PeppolAddress
-                        : `9908:${customer.OrgNumber}`;
-
-                    if (peppoladdress !== this.lastPeppolAddressChecked) {
-                        this.ehfService.GetAction(
-                            null,
-                            'is-ehf-receiver',
-                            'peppoladdress=' + peppoladdress + '&entitytype=' + this.entityType
-                        ).subscribe(
-                            isEnabled => {
-                                this.canSendEHF = isEnabled;
-                                this.lastPeppolAddressChecked = peppoladdress;
-                                console.log(this.canSendEHF);
-                            },
-                            err => console.error(err)
-                        );
-                    }
-                }
-
-                if (customer.EInvoiceAgreementReference || customer.EfakturaIdentifier) {
-                    this.canSendEfaktura = true;
-                }
-            }
+        if (changes['distributions'] && changes['distributions'].currentValue) {
+            this.distributionChanels = changes['distributions'].currentValue.filter(d => d.IsValid);
         }
+
     }
 
     focus() {
@@ -186,9 +160,14 @@ export class TofCustomerCard {
         };
 
         if (customer && customer.ID) {
-            this.customerService.Get(customer.ID, this.customerExpands).subscribe(
-                res => setCustomer(res),
-                err => {
+            Observable.forkJoin([
+                this.customerService.Get(customer.ID, this.customerExpands),
+                this.customerService.getCustomerDistributions(customer.ID)
+            ]).subscribe(
+                res => {
+                    this.distributionChanels = res[1].filter(d => d.IsValid);
+                    setCustomer(res[0]);
+                }, err => {
                     this.errorService.handle(err);
                     setCustomer(null);
                 }
