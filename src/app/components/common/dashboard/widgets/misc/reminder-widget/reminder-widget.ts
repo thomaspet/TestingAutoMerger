@@ -89,11 +89,11 @@ export class ReminderWidget {
 
     private getCounters() {
         return forkJoin(
-            this.dataService.get('/api/kpi/companies'),
+            [this.dataService.get('/api/kpi/companies'),
             this.dataService.get(`/api/statistics?model=Payment&select=sum(casewhen((Payment.IsCustomerPayment eq 'true' ` +
             `and Payment.StatusCode eq '44018' )\,1\,0)) as payments`),
             this.dataService.get(`/api/biz/filetags/IncomingMail|IncomingEHF|IncomingTravel|IncomingExpense|Upload/` +
-            `0?action=get-supplierInvoice-inbox`)
+            `0?action=get-supplierInvoice-inbox`)]
         ).pipe(
             map(([kpi, paymentsWithoutMatch, inbox]) => {
                 const counters: any = {};

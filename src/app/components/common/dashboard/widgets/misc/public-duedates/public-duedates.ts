@@ -28,11 +28,11 @@ export class PublicDueDatesWidget {
 
     ngOnInit() {
         this.loadPublicDueDates();
-        this.dataSubscription?.unsubscribe();
     }
 
     ngOnDestroy() {
         this.scrollbar?.destroy();
+        this.dataSubscription?.unsubscribe();
     }
 
     updateNumberOfDays(numberOfDays) {
@@ -54,24 +54,9 @@ export class PublicDueDatesWidget {
                     .map(dueDate => {
                         const text = dueDate.AdditionalInfo.replace('Frist for ', '');
                         dueDate['_text'] = text.charAt(0).toUpperCase() + text.slice(1);
-
                         const daysRemaining = moment(dueDate.Deadline).diff(moment(), 'days');
-                        let cssClass;
-                        let daysLabel;
-
-                        if (daysRemaining < 7) {
-                            cssClass = daysRemaining <= 1 ? 'bad' : 'warn';
-                            if (daysRemaining <= 0) {
-                                daysLabel = 'I dag';
-                            } else {
-                                daysLabel = daysRemaining + (daysRemaining === 1 ? ' dag' : ' dager');
-                            }
-                        } else {
-                            daysLabel = moment(dueDate.Deadline).format('DD. MMM');
-                        }
-
-                        dueDate['_class'] = cssClass;
-                        dueDate['_daysLabel'] = daysLabel;
+                        dueDate['_class'] = daysRemaining <= 1 ? 'bad' : daysRemaining < 7 ? 'warn' : '';;
+                        dueDate['_daysLabel'] = moment(dueDate.Deadline).format('DD. MMM');
                         return dueDate;
                     });
             })

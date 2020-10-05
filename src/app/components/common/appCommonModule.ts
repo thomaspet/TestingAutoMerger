@@ -57,6 +57,7 @@ import {JournalingRulesModal} from './modals/journaling-rules-modal/journaling-r
 import {BankInitModal} from './modals/bank-init-modal/bank-init-modal';
 import {VacationPayModal} from './modals/vacationpay/vacationPayModal';
 
+import {UniNewCompanyModal, NEW_COMPANY_VIEWS} from './modals/company-modals/new-company-modal';
 import {TaskModal} from '../common/modals/task-modal/task-modal';
 import {GrantAccessModal, GRANT_ACCESS_VIEWS} from './modals/company-modals/grant-access-modal';
 import {GrantSelfAccessModal} from './modals/company-modals/grant-self-access-modal/grant-self-access-modal';
@@ -149,11 +150,13 @@ import {DashboardModule} from './dashboard/dashboard.module';
         WorkitemTransferWizardProducts,
         InvoiceHours,
 
+        UniNewCompanyModal,
         TaskModal,
         JournalingRulesModal,
         SelectDistributionPlanModal,
         GrantAccessModal,
         ...GRANT_ACCESS_VIEWS,
+        ...NEW_COMPANY_VIEWS,
         GrantSelfAccessModal,
         EditSubEntityAgaZoneModal,
         ContractTypeCard,

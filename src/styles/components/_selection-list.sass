@@ -1,5 +1,6 @@
 .uni-selection-list
     margin-top: 1rem
+    list-style: none
     .selection-list-item
         display: flex
         height: 55px
@@ -13,3 +14,36 @@
             margin-top: .5rem
         > *
             margin-right: 8px
+
+        i.material-icons
+            margin-right: .5rem
+            color: #8C97AB
+            user-select: none
+
+        &.selected
+            i.material-icons
+                color: #1565c0
+
+ul.uni-company-modal-selection-list
+    list-style: none
+    li
+        display: flex
+        height: 55px
+        align-items: center
+        cursor: pointer
+        background: #f7f7f7
+        padding: 0 1rem
+        font-size: 14px
+        border-radius: 2px
+
+        + li
+            margin-top: .5rem
+
+        i.material-icons
+            margin-right: .5rem
+            color: #8C97AB
+            user-select: none
+
+        &.selected
+            i.material-icons
+                color: #1565c0
