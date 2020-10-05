@@ -41,7 +41,6 @@ export class InvoicedWidget {
             this.getOverdueSum()
         ).subscribe(([invoiced, restAmounts, sumOverdue]) => {
             this.hasData = invoiced?.length && invoiced.some(item => !!item);
-
             if (this.hasData) {
                 // Since we're showing last 12 months we need to reorganize the items.
                 // E.g if current month is July then the first bar of the chart will be July last year
@@ -68,6 +67,10 @@ export class InvoicedWidget {
             this.loading = false;
             this.cdr.markForCheck();
         });
+    }
+
+    sortList(a, b) {
+        return a.Periode > b.Periode ? 1 : -1;
     }
 
     ngOnDestroy() {
@@ -197,7 +200,7 @@ export class InvoicedWidget {
                 console.error(err);
                 return of([]);
             }),
-            map(res => (res || []).map(item => item.Sum || 0))
+            map(res => (res || []).sort(this.sortList).map(item => item.Sum || 0))
         );
     }
 }
