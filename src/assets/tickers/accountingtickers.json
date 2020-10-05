@@ -404,7 +404,8 @@
                 "Header": "Fakturanr.",
                 "Field": "InvoiceNumber",
                 "DefaultHidden": true
-            },
+            }
+            ,
             {
                 "Header": "Forfall",
                 "Field": "DueDate",
@@ -471,6 +472,7 @@
         "Model": "SupplierInvoice",
         "Expand": "",
         "Distinct": true,
+        "OrderBy": "ID desc",
         "Joins": "SupplierInvoice.ID eq Task.EntityID and Task.ID eq Approval.TaskID and Approval.UserID eq User.ID",
         "Columns": [
             {
@@ -705,6 +707,7 @@
                 "Name": "Tildelt",
                 "Code": "forapproval_supplierinvoices",
                 "UseAllCriterias": true,
+                "featurePermission": "ui.assigning",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -720,6 +723,7 @@
                 "Name": "Godkjent",
                 "Code": "approved_supplierinvoices",
                 "UseAllCriterias": true,
+                "featurePermission": "ui.assigning",
                 "FilterGroups": [{
                     "UseAllCriterias": true,
                     "FieldFilters": [
@@ -1520,6 +1524,335 @@
                 "Header": "Valuta",
                 "Field": "CurrencyCode.Code",
                 "Type": "text"
+            }
+        ]
+    },
+    {
+        "Name": "NAVBAR.SUPPLIER_INVOICE",
+        "Code": "new_supplierinvoice_list",
+        "RequiredUIPermissions": ["ui_accounting_bills"],
+        "Type": "Table",
+        "IsTopLevelTicker": true,
+        "Group": "Regnskap",
+        "Model": "SupplierInvoice",
+        "Expand": "",
+        "Distinct": true,
+        "OrderBy": "ID desc",
+        "Joins": "SupplierInvoice.ID eq Task.EntityID and Task.ID eq Approval.TaskID and Approval.UserID eq User.ID",
+        "Columns": [
+            {
+                "Header": "Nr.",
+                "Field": "ID",
+                "Width": "100px",
+                "Type": "Link",
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Fakturanr.",
+                "Field": "InvoiceNumber",
+                "DefaultHidden": true,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Lev.nr.",
+                "Field": "Supplier.SupplierNumber",
+                "Type": "link",
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID",
+                "DefaultHidden": true,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Leverandør",
+                "Field": "Supplier.Info.Name",
+                "Type": "link",
+                "Width": "200px",
+                "ExternalModel": "Supplier",
+                "LinkNavigationProperty": "Supplier.ID",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Fakturadato",
+                "Field": "InvoiceDate",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Forfall",
+                "Field": "PaymentDueDate",
+                "Format": "DatePassed"
+            },
+            {
+                "Header": "Type",
+                "Field": "InvoiceOriginType",
+                "FilterSelectConfigKey": "InvoiceOriginType",
+                "ExcludeFromEnvironment": "UE"
+            },
+            {
+                "Header": "Bankgiro",
+                "Field": "BankAccount.AccountNumber"
+            },
+            {
+                "Header": "KID/Melding",
+                "Field": "PaymentID",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Fritekst",
+                "Field": "FreeTxt",
+                "FilterOperator": "contains"
+            },
+            {
+                "Header": "Bilagsnr.",
+                "Field": "JournalEntry.JournalEntryNumber",
+                "Type": "link",
+                "ExternalModel": "JournalEntry",
+                "LinkNavigationProperty": "JournalEntryID"
+            },
+            {
+                "Header": "Valuta",
+                "Field": "CurrencyCode.Code",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Beløp",
+                "Field": "TaxInclusiveAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "SumColumn": true,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Restbeløp",
+                "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "SumColumn": true,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Tildelt/godkjent av",
+                "Field": "stuff(user.displayname)",
+                "Alias": "Assignees",
+                "Expand": "",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            },
+            {
+                "Header": "Prosjektnavn",
+                "Field": "Dimensions.Project.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Prosjektnr.",
+                "Field": "Dimensions.Project.ProjectNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avdelingsnavn",
+                "Field": "Dimensions.Department.Name",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Avd.nr.",
+                "Field": "Dimensions.Department.DepartmentNumber",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Status",
+                "Field": "StatusCode"
+            },
+            {
+                "Header": "Betalingsstatus",
+                "Field": "PaymentStatus",
+                "FilterSelectConfigKey": "PaymentStatus"
+            },
+            {
+                "Header": "Viderefakturering",
+                "Field": "ReInvoiced",
+                "DefaultHidden": true,
+                "SelectRequired": true
+            }
+        ],
+        "ParentFilter": {
+            "Field": "SupplierID",
+            "Operator": "eq",
+            "Value": "ID"
+        },
+        "Actions": [
+            {
+                "Name": "Åpne faktura",
+                "Code": "open_supplierinvoice",
+                "Type": "details",
+                "DisplayInContextMenu": true,
+                "ExecuteWithoutSelection": false,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Bokfør",
+                "Code": "supplier_invoice_journal",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Bokfør og registrer betaling",
+                "Code": "supplier_invoice_journal_and_pay",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Bokfør og betal",
+                "Code": "supplier_invoice_journal_and_pay_no_autobank",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Godkjenn",
+                "Code": "supplier_invoice_approve",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Avvis",
+                "Code": "supplier_invoice_reject",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Registerer betaling",
+                "Code": "supplier_invoice_pay",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Registerer betaling",
+                "Code": "supplier_invoice_pay_no_autobank",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Krediter",
+                "Code": "supplier_invoice_credit",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            },
+            {
+                "Name": "Slett",
+                "Code": "supplier_invoice_delete",
+                "Type": "action",
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false
+            }
+        ],
+        "SubTickersCodes": ["supplierinvoice_details", "journalentryline_list"],
+        "Filters": [
+            {
+                "Name": "Alle",
+                "Code": "all_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": []
+                }]
+            },
+            {
+                "Name": "Opprettet",
+                "Code": "draft_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30101"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Bokført",
+                "Code": "journaled_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30104"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Tildelt",
+                "Code": "forapproval_supplierinvoices",
+                "UseAllCriterias": true,
+                "featurePermission": "ui.assigning",
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30102"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Godkjent",
+                "Code": "approved_supplierinvoices",
+                "UseAllCriterias": true,
+                "featurePermission": "ui.assigning",
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "StatusCode",
+                            "Operator": "eq",
+                            "Value": "30103"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Ubetalt",
+                "Code": "paymentlist_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "PaymentStatus",
+                            "Operator": "eq",
+                            "Value": "30109"
+                        }
+                    ]
+                }]
+            },
+            {
+                "Name": "Betalt",
+                "Code": "paid_supplierinvoices",
+                "UseAllCriterias": true,
+                "FilterGroups": [{
+                    "UseAllCriterias": true,
+                    "FieldFilters": [
+                        {
+                            "Field": "PaymentStatus",
+                            "Operator": "eq",
+                            "Value": "30112"
+                        }
+                    ]
+                }]
             }
         ]
     }

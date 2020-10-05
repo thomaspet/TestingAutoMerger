@@ -203,7 +203,6 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             }
         ]
     },
-
     // REGNSKAP
     {
         name: 'NAVBAR.ACCOUNTING',

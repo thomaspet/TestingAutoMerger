@@ -177,7 +177,7 @@ export class SupplierInvoiceView {
                     this.store.sendToPayment(false, done);
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
-                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && hasAutobank,
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
                     && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || !hasAutobank
             },
@@ -187,7 +187,7 @@ export class SupplierInvoiceView {
                     this.store.registerPayment(done, true);
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
-                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank,
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
                     && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || hasAutobank
             },
@@ -195,7 +195,7 @@ export class SupplierInvoiceView {
                 label: 'Bokfør',
                 action: (done) => { this.store.journal(done); },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
-                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved),
+                    || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && invoice.PaymentStatus === 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
                     && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes
             },
@@ -236,8 +236,19 @@ export class SupplierInvoiceView {
                     );
                 },
                 main: false,
-                disabled: !invoice?.ID || invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled
-            }
+                disabled: !invoice?.ID || invoice?.StatusCode === StatusCodeSupplierInvoice.Journaled || invoice.PaymentStatus === 30112
+            },
+            {
+                label: 'Krediter',
+                action: (done) => {
+                    this.store.creditSupplierInvoice().subscribe(res => {
+                        done();
+                        this.store.loadInvoice(invoice.ID);
+                    }, err => this.errorService.handle(err))
+                },
+                main: true,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled
+            },
         ];
     }
 
@@ -251,7 +262,7 @@ export class SupplierInvoiceView {
         this.toolbarStatus = invoice.ID ? [status] : undefined;
 
         this.toolbarconfig = {
-            title: 'Regninger',
+            title:  invoice.ID ? 'Regninger' : 'Ny utgift',
             subheads: [],
             entityID: invoice.ID,
             entityType: SupplierInvoice.EntityType,
@@ -296,7 +307,7 @@ export class SupplierInvoiceView {
         if (invoice.ID) {
             this.toolbarconfig.buttons.push({
                 label: 'Opprett ny',
-                action: () => this.router.navigateByUrl('/accounting/bills/0')
+                action: () => this.router.navigateByUrl('/accounting/supplier-invoice/0')
             });
         }
 

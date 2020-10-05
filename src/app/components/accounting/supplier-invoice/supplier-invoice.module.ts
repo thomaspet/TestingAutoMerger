@@ -15,6 +15,7 @@ import {SmartBookingHelperClass} from './smart-booking-helper';
 import {JournalAndPaymentHelper} from './journal-and-pay-helper';
 import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 
+
 @NgModule({
     imports: [
         CommonModule,

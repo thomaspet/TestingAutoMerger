@@ -51,7 +51,7 @@ export class ToPaymentModal implements IUniModal {
         this.VALUE_ITEMS = this.getValueItems();
 
         this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
-            this.supplierInvoice?.JournalEntry.DraftLines.filter(line => line.AmountCurrency > 0).forEach(line => {
+            this.supplierInvoice?.JournalEntry?.DraftLines.filter(line => line.AmountCurrency > 0).forEach(line => {
                 line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
                 const net = !line.VatType ? line.AmountCurrency : line.AmountCurrency / (1 + (line.VatType.VatPercent / 100));
                 this.total.vat += line.AmountCurrency - net;
