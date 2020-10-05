@@ -180,12 +180,6 @@ export class TradeItemTable {
                 });
             }
 
-            if (changes['items'] && this.items) {
-                this.items.forEach(item => {
-                    item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
-                });
-            }
-
             if (changes['defaultTradeItem'] && this.table) {
                 this.defaultTradeItem.Dimensions.Project =
                     this.projects.find(project => project.ID === this.defaultTradeItem.Dimensions.ProjectID) || null;
