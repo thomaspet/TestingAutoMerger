@@ -14,6 +14,7 @@ import {
     IModalOptions
 } from '@uni-framework/uni-modal';
 import { File } from '@uni-entities';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-inbox',
@@ -108,11 +109,15 @@ export class UniInbox {
 
     registerBuy(item, event) {
         event.stopPropagation();
-        this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {
-            if (res) {
-                this.router.navigateByUrl(res.route + item.ID);
-            }
-        });
+        if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
+            this.router.navigateByUrl(`/accounting/bills/0?fileid=${item.ID}`);
+        } else {
+            this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {
+                if (res) {
+                    this.router.navigateByUrl(res.route + item.ID);
+                }
+            });
+        }
     }
 
     deleteDocument(item: File, event: MouseEvent) {
