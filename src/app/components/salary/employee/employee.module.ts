@@ -8,11 +8,6 @@ import { EmploymentComponent } from './employment/employment.component';
 import { EmployeeListComponent } from './employee-list.component';
 import { EmployeeDetailsComponent } from './employee-details.component';
 import { EmploymentDetailsComponent } from './employment/employment.details.component';
-import { TaxCardModal } from './modals/tax-card-modal.component';
-import { ReadTaxCardComponent } from './modals/read-tax-card.component';
-import { TaxCardRequestComponent } from './modals/tax-card-request.component';
-import { TaxResponseModalComponent } from './modals/tax-response-modal.component';
-import { TaxCardReadStatusComponent } from './modals/tax-card-read-status.component';
 import { PersonalDetailsComponent } from './personal-details/personal-details.component';
 import { RecurringPostComponent } from './recurring-post/recurring-post.component';
 import { EmployeeDetailsService } from './shared/services/employee-details.service';
@@ -37,11 +32,6 @@ import { FirstEmployeeGuard } from './first-employee.guard';
         EmployeeListComponent,
         EmployeeDetailsComponent,
         EmploymentDetailsComponent,
-        TaxCardModal,
-        ReadTaxCardComponent,
-        TaxCardRequestComponent,
-        TaxResponseModalComponent,
-        TaxCardReadStatusComponent,
         PersonalDetailsComponent,
         RecurringPostComponent,
         SalaryBalanceComponent,

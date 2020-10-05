@@ -110,6 +110,7 @@ export class EmployeeService extends BizHttp<Employee> {
         this.relativeURL = Employee.RelativeUrl;
         this.entityType = Employee.EntityType;
         this.defaultExpand = ['BusinessRelationInfo'];
+        this.DefaultOrderBy = 'EmployeeNumber';
     }
 
     private getHelpText(colname: string) {

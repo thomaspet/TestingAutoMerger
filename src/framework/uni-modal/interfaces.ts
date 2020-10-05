@@ -35,6 +35,9 @@ export interface IModalOptions {
     closeOnClickOutside?: boolean;
     closeOnEscape?: boolean;
     hideCloseButton?: boolean;
+    fieldType?: number;
+    fieldLabel?: string;
+    isMarkdown?: boolean;
 }
 
 export interface IUniModal {

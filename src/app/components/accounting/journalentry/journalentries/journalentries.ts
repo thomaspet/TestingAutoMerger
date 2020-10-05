@@ -53,6 +53,7 @@ export class JournalEntries {
         moduleID: UniModules.Accounting,
         active: true
     };
+    public busy = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -166,6 +167,16 @@ export class JournalEntries {
             {
                 label: 'Hent kladd',
                 action: () => this.getDrafts(),
+                disabled: () => false
+            },
+            {
+                label: 'Kopier tabell',
+                action: () => this.copyTable(),
+                disabled: () => false
+            },
+            {
+                label: 'Lim inn tabell',
+                action: () => this.pasteTable(),
                 disabled: () => false
             }
         ];
@@ -284,6 +295,37 @@ export class JournalEntries {
                 err => this.errorService.handle(err)
             );
         });
+    }
+
+    private copyTable() {
+        const value = this.journalEntryManual.getCsvData();
+        let promise: Promise<any>;
+        try {
+            promise = navigator.clipboard.writeText(value);
+        } catch (err) {
+            alert('Din nettleser støtter ikke skriving til utklippstavlen. Prøv eventuelt Chrome eller Edge');
+            // todo: check out document.execCommand('copy');
+        }
+        promise?.then(
+            () => { },
+            () => alert('Tilgang til utklippstavlen ble avvist')
+        );
+    }
+
+    private pasteTable() {
+        let promise: Promise<any>;
+        try {
+            promise = navigator.clipboard.readText();
+        } catch (err) {
+            alert('Din nettleser støtter ikke lesing fra utklippstavlen. Prøv eventuelt Chrome eller Edge');
+            // todo: check out document.execCommand('paste');
+        }
+        promise?.then((text) => {
+                this.busy = true;
+                this.journalEntryManual.setCsvData(text).finally( () => this.busy = false);
+            },
+            () => { this.busy = false; alert('Tilgang til utklippstavlen ble avvist'); }
+        );
     }
 
     private getDrafts() {

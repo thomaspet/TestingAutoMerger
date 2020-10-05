@@ -871,7 +871,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                         ? `${employment.ID} - ${employment.JobName}`
                         : '',
                     getDefaultData: () => {
-                        if (!salaryBalance.EmployeeID) {
+                        if ((!salaryBalance.EmploymentID && salaryBalance.ID > 0) || !salaryBalance.EmployeeID) {
                             return of([]);
                         }
                         return salaryBalance.EmploymentID

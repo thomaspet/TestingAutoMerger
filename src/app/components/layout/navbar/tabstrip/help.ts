@@ -24,7 +24,7 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
                 </a>
 
                 <a class="dropdown-menu-item" (click)="openGiveSupportAccessModal()">
-                    Gi lesetilgang
+                    Gi support tilgang
                 </a>
 
                 <a class="dropdown-menu-item" routerLink="/about/versions">

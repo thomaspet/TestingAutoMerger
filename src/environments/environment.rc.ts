@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: false,
+    usePKCE: false,
 
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',

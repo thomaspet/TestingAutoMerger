@@ -30,6 +30,19 @@
                     </mat-option>
                 </mat-autocomplete>
             </label>
+
+            <label>
+                <span>
+                    Privat nøkkel 
+                    <uni-tooltip
+                        [text]="'Her kan du sette en egendefinert privat nøkkel for signering av events som blir sendt. Hvis dette feltet ikke er fylt ut vil systemet generere en tilfeldig nøkkel'">
+                    </uni-tooltip>
+                </span>
+
+                <input type="text" spellcheck="false"
+                    [(ngModel)]="eventPlan.SigningKey"
+                />
+            </label>
         </section>
 
         <section class="setup-step">

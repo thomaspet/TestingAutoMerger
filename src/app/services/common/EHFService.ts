@@ -5,6 +5,7 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@uni-framework/core/http';
 import {CompanySettingsService} from '../common/companySettingsService';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {ActivateAP} from '@app/models/activateAP';
 
 export const AP_NAME_EHF = 'EHF INVOICE';
 export const AP_NAME_INVOICEPRINT = 'NETSPRINT';
@@ -30,16 +31,7 @@ export class EHFService extends BizHttp<EHFLog> {
         });
     }
 
-    public activate(service, activate) {
-        let direction;
-        if (service === 'invoiceprint') { direction = 'out'; }
-        else if (service === 'billing')
-        {
-            if (activate.incommingInvoice && activate.outgoingInvoice) { direction = 'both'; }
-            if (activate.incommingInvoice && !activate.outgoingInvoice) { direction = 'in'; }
-            if (!activate.incommingInvoice && activate.outgoingInvoice) { direction = 'out'; }
-        }
-
+    public activate(service: string, activate: ActivateAP, direction: string) {
         super.invalidateCache();
         return this.ActionWithBody(null, {
             orgno: activate.orgnumber,
@@ -57,7 +49,7 @@ export class EHFService extends BizHttp<EHFLog> {
     }
 
     serviceMetadata(peppoladdress: string, entitytype: string) {
-        let params = `peppoladdress=${peppoladdress}&entitytype=${entitytype}`;
+        const params = `peppoladdress=${peppoladdress}&entitytype=${entitytype}`;
         return this.GetAction(null, 'servicemetadata', params);
     }
 
@@ -70,19 +62,29 @@ export class EHFService extends BizHttp<EHFLog> {
         }
     }
 
-    isEHFActivated(companySettings?: CompanySettings): boolean {
+    isEHFOutActivated(companySettings?: CompanySettings): boolean {
         const settings = companySettings || this.companySettings$.getValue();
         if (settings) {
-            return settings.APActivated && this.activatedOutgoingOrIncomming(settings, AP_NAME_EHF);
+            return settings.APActivated && this.activatedOutgoing(settings, AP_NAME_EHF);
         }
     }
 
-    activatedOutgoingOrIncomming(settings: CompanySettings, AccessPointName: string): boolean {
-        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name.startsWith(AccessPointName))) {
+    isEHFIncomingActivated(companySettings?: CompanySettings): boolean {
+        const settings = companySettings || this.companySettings$.getValue();
+        if (settings) {
+            return settings.APActivated && this.activatedIncomming(settings, AP_NAME_EHF);
+        }
+    }
+
+    activatedOutgoing(settings: CompanySettings, AccessPointName: string): boolean {
+        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name === AccessPointName)) {
             return true;
         }
+        return false;
+    }
 
-        if (settings.APIncomming && settings.APIncomming.some(format => format.Name.startsWith(AccessPointName))) {
+    activatedIncomming(settings: CompanySettings, AccessPointName: string): boolean {
+        if (settings.APIncomming && settings.APIncomming.some(format => format.Name === AccessPointName)) {
             return true;
         }
         return false;

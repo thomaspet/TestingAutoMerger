@@ -118,6 +118,7 @@ enum actionBar {
 interface ILocalValidation {
     success: boolean;
     errorMessage?: string;
+    cancelled?: boolean;
 }
 
 @Component({
@@ -2550,8 +2551,8 @@ export class BillView implements OnInit, AfterViewInit {
                 done();
             break;
             case 'journal':
-                this.journal(true, href).subscribe(result => {
-                    if (result) {
+                this.journal(true, href).subscribe((result: ILocalValidation) => {
+                    if (result.success) {
                         this.itCanBeAnAsset(current).pipe(
                             finalize(() => done('Bokført'))
                         ).subscribe(canBeAnAsset => {
@@ -2560,7 +2561,7 @@ export class BillView implements OnInit, AfterViewInit {
                             }
                         });
                     } else {
-                        done('Bokføring feilet');
+                        done(!result.cancelled ? 'Bokføring feilet' : '');
                     }
                 });
 
@@ -2624,18 +2625,22 @@ export class BillView implements OnInit, AfterViewInit {
                             .switchMap(approved => {
                                 return approved
                                     ? this.journal(false, href)
-                                    : Observable.of(false);
+                                    : Observable.of({ success: false });
                             })
-                            .subscribe(result => {
-                                this.fetchInvoice(current.ID, false);
-                                this.itCanBeAnAsset(current)
-                                    .pipe(finalize(() => done('ok')))
-                                    .subscribe(canBeAnAsset => {
-                                        if (canBeAnAsset) {
-                                            this.assetsService.openRegisterModal(current);
-                                        }
-                                    });
-                                done(result ? 'Godkjent og bokført' : '');
+                            .subscribe((result: ILocalValidation) => {
+                                if (result.success) {
+                                    this.fetchInvoice(current.ID, false);
+                                    this.itCanBeAnAsset(current)
+                                        .pipe(finalize(() => done('ok')))
+                                        .subscribe(canBeAnAsset => {
+                                            if (canBeAnAsset) {
+                                                this.assetsService.openRegisterModal(current);
+                                            }
+                                        });
+                                }
+                                else {
+                                    done(!result.cancelled ? 'Godkjent og bokført' : '');
+                                }
                             });
                     } else {
                         done('Ikke mulig å godkjenne');
@@ -2656,10 +2661,10 @@ export class BillView implements OnInit, AfterViewInit {
                             .switchMap(approved => {
                                 return approved
                                     ? this.journal(false, href)
-                                    : Observable.of(false);
+                                    : Observable.of({ success: false });
                             })
-                            .switchMap(journaled => {
-                                return journaled
+                            .switchMap((journaled: ILocalValidation) => {
+                                return journaled.success
                                     ? this.sendForPayment()
                                     : Observable.of(false);
                             })
@@ -2687,10 +2692,10 @@ export class BillView implements OnInit, AfterViewInit {
                     .switchMap(response => {
                         return response === ConfirmActions.ACCEPT
                             ? this.journal(false, href)
-                            : Observable.of(false);
+                            : Observable.of({ success: false });
                     })
-                    .switchMap(journaled => {
-                        return journaled
+                    .switchMap((journaled: ILocalValidation) => {
+                        return journaled.success
                             ? this.sendForPayment()
                             : Observable.of(false);
                     })
@@ -2785,7 +2790,7 @@ export class BillView implements OnInit, AfterViewInit {
         });
     }
 
-    private journal(ask: boolean, href: string): Observable<boolean> {
+    private journal(ask: boolean, href: string): Observable<ILocalValidation> {
 
         // Call update summary to make sure sums and remainders are up to date
         this.updateSummary(this.journalEntryManual.getJournalEntryData());
@@ -2793,13 +2798,13 @@ export class BillView implements OnInit, AfterViewInit {
 
         if (this.sumRemainder !== 0) {
             this.toast.addToast('Beløp i bilag går ikke i balanse med fakturabeløp', ToastType.bad, 7);
-            return Observable.of(false);
+            return Observable.of({ success: false });
         }
 
         if (current.ReInvoice && current.ReInvoice.ReInvoicingType === 0
             && (current.ReInvoice.StatusCode === 30201 || current.ReInvoice.StatusCode === null)) {
             this.toast.addToast('Kostnadsdelingen må settes opp før fakturaen kan bokføres.', ToastType.bad, 7);
-            return Observable.of(false);
+            return Observable.of({ success: false });
         }
 
         const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
@@ -2810,7 +2815,7 @@ export class BillView implements OnInit, AfterViewInit {
         // Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, this.validationMessage.Message);
-            return Observable.of(false);
+            return Observable.of({ success: false });
         }
         if (this.journalEntryManual.validationResult
             && this.journalEntryManual.validationResult.Messages
@@ -2821,7 +2826,7 @@ export class BillView implements OnInit, AfterViewInit {
                 validationMessage += msg.Message + '<br>';
             });
             this.toast.addToast('Fakturaen kan ikke bokføres', ToastType.bad, 7, validationMessage);
-            return Observable.of(false);
+            return Observable.of({ success: false });
         }
 
         const obs = ask
@@ -2836,20 +2841,24 @@ export class BillView implements OnInit, AfterViewInit {
             : Observable.of(true);
 
         return obs.switchMap(response => {
-            if (!response) { return Observable.of(false); }
+            if (!response) {
+                return Observable.of({ success: false, cancelled: true });
+            }
 
             this.busy = true;
             return Observable.fromPromise(
                 this.tryJournal(href).then((status: ILocalValidation) => {
+                    if (!status.success) return status;
+
                     this.busy = false;
                     this.hasUnsavedChanges = false;
                     this.journalEntryManual.clearJournalEntryInfo();
                     this.fetchInvoice(current.ID, false);
-                    return true;
+                    return { success: true };
                 }).catch((err: ILocalValidation) => {
                     this.busy = false;
                     this.userMsg(err.errorMessage, 'Advarsel', 10);
-                    return false;
+                    return { success: false };
                 })
             );
         });
@@ -2953,6 +2962,11 @@ export class BillView implements OnInit, AfterViewInit {
         return new Promise((resolve, reject) => {
             let current = this.current.value;
             this.UpdateSuppliersJournalEntry().then(result => {
+                if (!result.success) {
+                    resolve(result);
+                    return;
+                }
+
                 current = this.current.value;
 
                 this.supplierInvoiceService.journal(current.ID).subscribe(
@@ -3549,7 +3563,7 @@ export class BillView implements OnInit, AfterViewInit {
                         if (res === ConfirmActions.ACCEPT) {
                             saveFunc();
                         } else {
-                            resolve({ success: false });
+                            resolve({ success: false, cancelled: true });
                             if (done) {
                                 done('Lagring avbrutt');
                             }

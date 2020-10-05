@@ -39,6 +39,7 @@ export interface IAccount {
     BusinessRelationID?: number;
     superLabel?: string;
     SupplierID?: number;
+    Locked?: boolean;
 }
 
 export interface IVatType {

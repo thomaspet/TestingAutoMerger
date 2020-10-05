@@ -17,17 +17,26 @@
 
                     <span>{{rule.Name}}</span>
                     <i *ngIf="rule['_error']" [matTooltip]="rule['_error']" class="material-icons error">error</i>
-                    <i role="button" (click)="deleteRule(rule)" class="material-icons delete">close</i>
+                    <i role="button" (click)="$event.stopPropagation(); deleteRule(rule)" class="material-icons delete">close</i>
                 </section>
             </section>
 
-            <button (click)="addRule()" class="new-rule tertiary c2a">Legg til regel</button>
+            <button (click)="addRule()" class="new-rule c2a">Legg til regel</button>
 
             <section class="info-section">
                 Avkrysningboksen ved hver regel bestemmer om den skal kjøres når man velger "Kjør alle aktive regler".
                 <br>Regler som ikke er avkrysset vil likevel kunne kjøres manuelt dersom man ønsker det.
                 <br><br>
                 Du kan endre prioriteringsrekkefølge på reglene ved å dra elementene i listen opp eller ned.
+            </section>
+
+            <section class="example-rules">
+                <span class="example-rule-header">Eksempel på regel:</span> <br/>
+                <section class="example-rule-buttons">
+                    <ng-container *ngFor="let rule of exampleRules">
+                        <button class="secondary c2a" (click)="addExampleRule(rule.BankStatementRule)" *ngIf="rule.Active" title="Trykk for å legge til denne regel"> {{ rule.Label }} </button>
+                    </ng-container>
+                </section>
             </section>
         </section>
 

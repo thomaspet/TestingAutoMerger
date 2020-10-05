@@ -1,0 +1,10 @@
+<section>
+    <p>{{'SALARY.READ_TAX_CARD.INFO' | translate}}</p>
+    <ag-grid-wrapper
+        [resource]="altinnReceipts"
+        [config]="receiptTable">
+    </ag-grid-wrapper>
+</section>
+<footer>
+    <button class="secondary" (click)="close.next()"> {{'SALARY.READ_TAX_CARD.CLOSE' | translate}} </button>
+</footer>

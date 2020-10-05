@@ -29,7 +29,7 @@ import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toas
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { UniHttp } from '@uni-framework/core/http';
 import { EmployeeDetailsService } from '@app/components/salary/employee/shared/services/employee-details.service';
-import { TaxCardModal } from '@app/components/salary/employee/modals/tax-card-modal.component';
+import { TaxCardModal } from '@app/components/salary/shared/components/tax-card-modal/tax-card-modal.component';
 
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 const EMPLOYMENTS_KEY = 'employments';

@@ -12,6 +12,8 @@
         mode="indeterminate">
     </mat-progress-bar>
 
+    <section style="height: 4px; width: 100%;" *ngIf="!(session.loading$ | async)"></section>
+
     <section class="uni-container view-wrapper">
 
         <section class="reconciliation-view">

@@ -24,6 +24,7 @@ export class DownloadTemplateModal implements OnInit, IUniModal {
 
     payrollType: TemplateType = TemplateType.Payroll;
     voucher: TemplateType = TemplateType.Voucher;
+    order: TemplateType = TemplateType.Order;
     saft: TemplateType = TemplateType.Saft;
     isAnonymous: boolean = false;
     sendEmail: boolean = true;
@@ -81,7 +82,7 @@ export class DownloadTemplateModal implements OnInit, IUniModal {
                     this.loading$.next(false);
                     this.toastService.addToast('', ToastType.good, ToastTime.medium, 'Du vil få epost med filen når eksporten er ferdig.');
                     this.close();
-                },  err => {
+                }, err => {
                     this.errorService.handle('En feil oppstod, vennligst prøv igjen senere'); this.loading$.next(false);
                 });
         } else {

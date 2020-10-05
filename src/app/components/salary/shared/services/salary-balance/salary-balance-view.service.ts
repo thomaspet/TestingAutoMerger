@@ -4,8 +4,8 @@ import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/u
 import * as _ from 'lodash';
 import {Observable} from 'rxjs';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
-import { SalarybalanceService, ErrorService, ReportDefinitionService, FileService } from '@app/services/services';
-import { SalaryBalance, SalBalType } from '@uni-entities';
+import { SalarybalanceService, ErrorService, ReportDefinitionService, FileService, FinancialYearService, WageTypeService } from '@app/services/services';
+import { SalaryBalance, SalBalType, WageType } from '@uni-entities';
 import { IToolbarSearchConfig } from '@app/components/common/toolbar/toolbar';
 
 @Injectable()
@@ -15,12 +15,14 @@ export class SalaryBalanceViewService {
 
     constructor(
         private salaryBalanceService: SalarybalanceService,
+        private wageTypeService: WageTypeService,
         private errorService: ErrorService,
         private router: Router,
         private reportDefinitionService: ReportDefinitionService,
         private modalService: UniModalService,
         private fileService: FileService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private financialYearService: FinancialYearService
     ) {}
 
     public setupSearchConfig(salaryBalance: SalaryBalance): IToolbarSearchConfig {
@@ -81,6 +83,14 @@ export class SalaryBalanceViewService {
 
                 if (!salaryBalance['CreatePayment'] && currentSalBal.InstalmentType === SalBalType.Advance && !currentSalBal.ID) {
                     this.showAdvanceReport(salaryBalance.ID);
+                }
+                if (salaryBalance.InstalmentType === SalBalType.Garnishment && this.financialYearService.getActiveYear() >= 2021) {
+                    this.wageTypeService.getOrderByWageTypeNumber(`filter=WageTypeNumber eq ${salaryBalance.WageTypeNumber}`)
+                    .subscribe((wageType: WageType) =>  {
+                        if (wageType[0]?.IncomeType !== 'Utleggstrekk' || wageType[0].Description !== 'utleggstrekkSkatt') {
+                            this.toastService.addToast('Sjekk oppsett', ToastType.warn, 15, 'Utleggstrekk skatt ikke satt opp korrekt på lønnsart for innrapportering på a-melding');
+                        }
+                    });
                 }
             });
     }

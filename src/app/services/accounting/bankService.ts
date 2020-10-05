@@ -159,14 +159,12 @@ export class BankService extends BizHttp<Bank> {
     }
 
     public getRegisteredPayments(id: number): Observable<any> {
-        return this.statisticsService.GetAllUnwrapped(`model=JournalEntryLine`
-        + `&select=id,postpost.amount as Amount,postpost.amountCurrency as AmountCurrency,postpost.date as PaymentDate,`
-        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode,JournalEntryNumber as JournalEntryNumber`
-        + `&filter=JournalEntryLine.SupplierInvoiceID eq ${id} and `
-        + `Account.UsePostPost eq 1 and PostPost.Amount gt 0`
-        + `&join= JournalEntryline.AccountID eq Account.ID and `
-        + `JournalEntryLine.ID eq PostPost.JournalEntryLine1ID and `
-        + `PostPost.CurrencyCodeID eq CurrencyCode.ID`
+        return this.statisticsService.GetAllUnwrapped(`model=Payment`
+        + `&select=id,amount as Amount,amountCurrency as AmountCurrency,paymentDate as PaymentDate,`
+        + `CurrencyCode.Code as CurrencyCode,statuscode as StatusCode,`
+        + `JournalEntry.JournalEntryNumber as JournalEntryNumber`
+        + `&filter=SupplierInvoiceID eq ${id}`
+        + `&join=Payment.JournalEntryID eq JournalEntry.ID and Payment.CurrencyCodeID eq CurrencyCode.ID`
         );
     }
 

@@ -60,6 +60,8 @@ export function safeDec(value: any) {
     if (typeof(value) === 'string') {
         const ixDot = value.indexOf('.');
         const ixComma = value.indexOf(',');
+        const ixSpace = value.indexOf(' ');
+        if (ixSpace >= 0) { value = value.replace(new RegExp('[ ]', 'g'), ''); }
         if (ixDot && ixComma && ixComma > ixDot) {
             value = value.replace(new RegExp('[.]', 'g'), '');
             value = value.replace(new RegExp('[,]', 'g'), '.');

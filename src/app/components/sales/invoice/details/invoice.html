@@ -28,7 +28,7 @@
         (dataChange)="onInvoiceChange($event)"
         (dimensionChange)="onDimensionChange($event)">
     </uni-tof-head>
-
+ 
     <section class="tradeitem-container">
         <uni-tradeitem-table
             *ngIf="invoice"
@@ -38,6 +38,7 @@
             [departments]="departments"
             [vatTypes]="vatTypes"
             [vatDate]="invoice.InvoiceDate"
+            [deliveryDate]="invoice.DeliveryDate || invoice.InvoiceDate"
             [(items)]="invoiceItems"
             [dimensionTypes]="dimensionTypes"
             [currencyCodeID]="currencyCodeID"

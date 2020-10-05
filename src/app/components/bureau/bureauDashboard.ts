@@ -17,8 +17,9 @@ import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {CompanyGroupModal, ICompanyGroup} from './company-group-modal/company-group-modal';
-import {UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService, IModalOptions} from '@uni-framework/uni-modal';
 import {theme, THEMES} from 'src/themes/theme';
+import {FieldType} from '@uni-entities';
 
 enum KPI_STATUS {
     StatusUnknown = 0,
@@ -426,14 +427,16 @@ export class BureauDashboard {
     }
 
     public editClientNumber(company) {
-        const options = {
+        const options: IModalOptions = {
             buttonLabels: {
                 accept: 'Oppdater klientnr',
                 cancel: 'Avbryt'
             },
             header: 'Rediger klientnr for: ' + company.Name,
+            fieldLabel: 'Klientnr',
+            fieldType: FieldType.NUMERIC,
             data: {
-                ClientNumber: company.ClientNumber || 0
+                Value: company.ClientNumber || 0
             }
         };
 

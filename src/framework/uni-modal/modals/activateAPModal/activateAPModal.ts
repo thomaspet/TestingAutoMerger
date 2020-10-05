@@ -8,10 +8,9 @@ import {
     EHFService,
     UserService,
     CompanySettingsService,
-    AgreementService,
     ErrorService,
     BankAccountService,
-    ElsaPurchaseService
+    ElsaProductService
 } from '../../../../app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -19,6 +18,7 @@ import {ConfirmActions, IModalOptions, IUniModal} from '../../interfaces';
 import {UniModalService} from '../../modalService';
 import {UniBankAccountModal} from '../bankAccountModal';
 import {theme, THEMES} from 'src/themes/theme';
+import {ElsaAgreement, ElsaAgreementStatus} from '@app/models';
 
 @Component({
     selector: 'uni-activate-ap-modal',
@@ -39,20 +39,39 @@ export class UniActivateAPModal implements IUniModal {
     public formModel$: BehaviorSubject<ActivateAP> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    public termsAgreed: boolean;
+    terms: ElsaAgreement;
+    termsAgreed: boolean;
+    // if false it's incoming
+    isOutgoing: boolean;
+    busy: boolean = false;
 
     constructor(
         private ehfService: EHFService,
-        private agreementService: AgreementService,
         private companySettingsService: CompanySettingsService,
         private userService: UserService,
         private errorService: ErrorService,
         private toastService: ToastService,
         private bankaccountService: BankAccountService,
-        private elsaPurchaseService: ElsaPurchaseService
+        private elsaProductService: ElsaProductService,
     ) {}
 
     public ngOnInit() {
+        this.isOutgoing = this.options.data.isOutgoing;
+        this.busy = true;
+        const filter = `name eq ${this.isOutgoing ? `'EHF_OUT'` : `'EHF'`}`;
+        this.elsaProductService.GetAll(filter)
+            .finally(() => {
+                this.busy = false;
+                this.initialize();
+            })
+            .subscribe(product => {
+                if (product[0]?.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
+                    this.terms = product[0].ProductAgreement;
+                }
+            });
+    }
+
+    initialize() {
         this.formFields$.next(this.getFormFields());
         this.extendFormConfig();
         this.initActivationModel();
@@ -61,24 +80,23 @@ export class UniActivateAPModal implements IUniModal {
     }
 
     public initActivationModel() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.userService.getCurrentUser(),
             this.companySettingsService.Get(1, [
                 'DefaultPhone',
                 'DefaultEmail',
                 'APContact.Info.DefaultPhone',
                 'APContact.Info.DefaultEmail',
-                'APIncomming',
-                'APOutgoing',
                 'BankAccounts',
                 'CompanyBankAccount'
-        ])).subscribe(
+            ])
+        ]).subscribe(
             res => {
-                let model = new ActivateAP();
+                const model = new ActivateAP();
 
-                let user: User = res[0];
-                let settings: CompanySettings = res[1];
-                let apContactInfo = settings && settings.APContact && settings.APContact.Info;
+                const user: User = res[0];
+                const settings: CompanySettings = res[1];
+                const apContactInfo = settings && settings.APContact && settings.APContact.Info;
 
                 model.orgnumber = settings.OrganizationNumber;
                 model.orgname = settings.CompanyName;
@@ -94,9 +112,6 @@ export class UniActivateAPModal implements IUniModal {
                     ? settings.APContact.Info.DefaultPhone.Number
                     : user.PhoneNumber;
 
-                model.incommingInvoice = settings.APIncomming.find(f => f.Name === 'EHF INVOICE 2.0') != null;
-                model.outgoingInvoice = settings.APOutgoing.find(f => f.Name === 'EHF INVOICE 2.0') != null;
-
                 model.settings = settings;
 
                 this.formModel$.next(model);
@@ -108,33 +123,39 @@ export class UniActivateAPModal implements IUniModal {
     }
 
     public confirmTerms() {
-        this.agreementService.Current('EHF').subscribe(message => {
-            this.modalService.confirm({
-                header: 'Betingelser',
-                message: message,
-                class: 'medium',
-                buttonLabels: {
-                    accept: 'Aksepter',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.termsAgreed = true;
-                }
-            });
+        this.modalService.confirm({
+            header: this.terms.Name,
+            message: this.terms.AgreementText,
+            class: 'medium',
+            isMarkdown: true,
+            buttonLabels: {
+                accept: 'Aksepter',
+                cancel: 'Tilbake'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.termsAgreed = true;
+            }
         });
     }
 
     public activate() {
         const model = this.formModel$.getValue();
+        this.busy = true;
+        const direction = this.isOutgoing ? 'out' : 'in';
 
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate EHF
-            this.ehfService.activate('billing', model).subscribe(
+            this.ehfService.activate('billing', model, direction).subscribe(
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
-                        this.toastService.addToast('Aktivering', ToastType.good, 3, 'EHF aktivert');
+                        this.toastService.addToast(
+                            'Aktivering',
+                            ToastType.good,
+                            3,
+                            this.isOutgoing ? 'EHF sending aktivert' : 'EHF mottak aktivert'
+                        );
                         this.ehfService.updateActivated();
                     } else if (status === ActivationEnum.EXISTING) {
                         this.ehfService.serviceMetadata(`0192:${model.orgnumber}`, 'CustomerInvoice').subscribe(serviceMetadata => {
@@ -154,35 +175,18 @@ export class UniActivateAPModal implements IUniModal {
                         );
                     }
 
+                    this.busy = false;
                     this.close(<any> status);
                 },
-                err => this.errorService.handle(err)
+                err => {
+                    this.busy = false;
+                    this.errorService.handle(err);
+                }
             );
         },
-        err => this.errorService.handle(err));
-    }
-
-    public cancelPurchase() {
-        this.modalService.confirm({
-            header: 'Bekreft avbestilling',
-            message: 'Er du sikker på at du vil oppheve kjøpet av EHF?'
-        }).onClose.subscribe(modalResponse => {
-            if (modalResponse === ConfirmActions.ACCEPT) {
-                this.elsaPurchaseService.getPurchaseByProductName('EHF').subscribe(purchase => {
-                    if (purchase) {
-                        this.elsaPurchaseService.cancelPurchase(purchase.ProductID).subscribe(ok => {
-                            if (ok) {
-                                this.toastService.addToast('Kjøp opphevet', ToastType.good, ToastTime.medium);
-                                this.close();
-                            } else {
-                                this.toastService.addToast('Oppheving av kjøp feilet', ToastType.bad, ToastTime.medium);
-                            }
-                        }, err => this.errorService.handle(err));
-                    } else {
-                        this.toastService.addToast('Ingen eksisterende kjøp å finne for EHF', ToastType.warn, ToastTime.medium);
-                    }
-                });
-            }
+        err => {
+            this.busy = false;
+            this.errorService.handle(err);
         });
     }
 
@@ -191,9 +195,9 @@ export class UniActivateAPModal implements IUniModal {
     }
 
     private extendFormConfig() {
-        let fields = this.formFields$.getValue();
+        const fields = this.formFields$.getValue();
 
-        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'settings.CompanyBankAccount');
+        const companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'settings.CompanyBankAccount');
         companyBankAccount.Options = this.getBankAccountOptions('settings.CompanyBankAccount', 'company');
     }
 

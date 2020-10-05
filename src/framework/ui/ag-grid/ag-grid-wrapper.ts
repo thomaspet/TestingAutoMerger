@@ -753,6 +753,14 @@ export class AgGridWrapper {
         });
     }
 
+    public flashRows(indexes: number[]) {
+        const rows = indexes.map( i => this.agGridApi.getDisplayedRowAtIndex(i));
+
+        this.agGridApi.flashCells({
+            rowNodes: rows
+        });
+    }
+
     public onDeleteRow(row) {
         if (this.editor) {
             this.editor.emitAndClose();

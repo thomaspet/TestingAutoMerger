@@ -8,7 +8,7 @@
 
         <section class="rules-and-series-container">
 
-            <section class="quick-rules">
+            <section class="quick-rules" [class.take-all-length]="!autorunRuleLines.length">
                 <button #toggle class="secondary c2a">
                     Bokføringsregler
                     <i class="material-icons">expand_more</i>
@@ -36,6 +36,13 @@
                 </dropdown-menu>
             </section>
 
+            <section class="autorun-rules-info" title="Klikk her for å fylle inn basert på regler" *ngIf="autorunRuleLines.length" (click)="useAutorunLines()">
+                <span>
+                    <i class="material-icons">content_paste</i>
+                    <span>Forslag {{ autoRunInfoText }} for {{ autorunRuleLines.length }} poster </span>
+                </span>
+            </section>
+
             <label class="uni-label label-above">
                 <span> Nummerserie </span>
                 <uni-select
@@ -47,7 +54,7 @@
             </label>
         </section>
 
-        <ag-grid-wrapper class="compactcells"
+        <ag-grid-wrapper #table class="compactcells"
             [resource]="session?.items"
             [config]="tableConfig"
             (rowDelete)="onRowDeleted($event)">
@@ -61,6 +68,15 @@
             </span>
         </secttion>
 
+        <div class="validation_messages_container" *ngIf="errorMessages?.length">
+            <section *ngFor="let message of errorMessages">
+                <i class="material-icons" [ngClass]="getValidationLevelCss(message.Level)">
+                    {{getValidationIcon(message.Level)}}
+                </i>
+                {{message.Message}}
+            </section>
+        </div>
+
     </article>
 
     <footer>
@@ -68,7 +84,7 @@
 
         <mat-checkbox [(ngModel)]="settings.journalAsDraft" style="margin-right: 1rem;">Lagre som kladd</mat-checkbox>
 
-        <button [disabled]="session?.balance && !settings.journalAsDraft" class="c2a"
+        <button [disabled]="(session?.balance && !settings.journalAsDraft) || errorMessages?.length" class="c2a"
             (click)="save()">
             {{(settings.journalAsDraft ? 'Opprett kladd' : 'Bokfør')}}
         </button>

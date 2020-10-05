@@ -1,22 +1,22 @@
 <section role="dialog" class="uni-modal giveSupportAccessModal">
-    <header>Inviter bruker med lesetilgang</header>
+    <header>Gi supportbruker tilgang</header>
 
     <article>
-        <input type="text" [(ngModel)]="emailInput">
+        <input type="text" [(ngModel)]="searchInput">
     
         <section *ngIf="!showError" class="alert good">
             <i class="material-icons">info_outline</i>
-            Oppgi e-postadresse til den du ønsker å gi midlertidig lesetilgang
+            Oppgi navnet til den du ønsker å gi midlertidig tilgang
         </section>
 
         <section *ngIf="showError" class="alert bad">
             <i class="material-icons">error_outline</i>
-            E-post adressen tilhører ikke en supportbruker
+            Fant ingen supportbrukere med dette navnet
         </section>
 
         <label class="checkbox-label">
             <mat-checkbox [(ngModel)]="hasAgreedToTerms"></mat-checkbox>
-            Jeg aksepterer at denne brukeren gis midlertidig tilgang til å se mitt regnskap for å kunne yte support.
+            Jeg aksepterer at denne brukeren gis midlertidig tilgang til mitt regnskap for å kunne yte support.
         </label>
         
     </article>
@@ -29,7 +29,7 @@
             class="c2a" 
             id="good_button_ok" 
             (click)="giveAccess()" 
-            [disabled]="busy || !hasAgreedToTerms || !emailInput.length"
+            [disabled]="busy || !hasAgreedToTerms || !searchInput.length"
         >
             Gi tilgang
         </button>

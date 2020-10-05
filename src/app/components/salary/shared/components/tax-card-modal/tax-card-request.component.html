@@ -1,0 +1,41 @@
+<section [attr.aria-busy]="busy">
+    <h2>{{title}}</h2>
+
+    <p *ngIf="!error"> {{'SALARY.TAX_CARD_REQUEST.INFO' | translate}} </p>
+
+    <h3>{{'SALARY.TAX_CARD_REQUEST.EMPLOYEE_SELECTION_HEADER' | translate}}</h3>
+    <section class="info">
+        <section *ngIf="!employee" class="radio-buttons">
+            <mat-radio-group (change)="multipleEmpChoiceChange($event)">
+                <mat-radio-button value="ALL_EMPS_WITHOUT_ENDDATE" checked>{{'SALARY.TAX_CARD_REQUEST.RADIO_0_NO_END_DATE' | translate}}</mat-radio-button>
+                <mat-radio-button value="ALL_EMPS">{{'SALARY.TAX_CARD_REQUEST.RADIO_1_ALL_EMPLOYEES' | translate}}</mat-radio-button>
+                <mat-radio-button value="EMPS_WITHOUT_TAXINFO">{{'SALARY.TAX_CARD_REQUEST.RADIO_2_NO_TAX~' + year | translate}}</mat-radio-button>
+                <mat-radio-button value="EMPS_IN_CATEGORY">{{'SALARY.TAX_CARD_REQUEST.RADIO_3_EMPLOYEES_IN_CATEGORY' | translate}}</mat-radio-button>
+                <autocomplete [options]="autocompleteOptions" *ngIf="(model$ | async).empChoice === 'EMPS_IN_CATEGORY'" (valueChange)="change($event)"></autocomplete>
+                <mat-radio-button value="CHANGED_ONLY">{{'SALARY.TAX_CARD_REQUEST.RADIO_4_ONLY_CHANGED' | translate}}</mat-radio-button>
+            </mat-radio-group>
+        </section>
+        <p *ngIf="employee">
+            {{'SALARY.TAX_CARD_REQUEST.EMPLOYEE_INFO~ ' + employee.EmployeeNumber + '~' + employee.BusinessRelationInfo?.Name | translate}}
+        </p>
+    </section>
+
+    <section class="alert employee-alert" *ngIf="employee">
+        <i class="material-icons">info</i>
+        <p>{{'SALARY.TAX_CARD_REQUEST.CHANGED_EMPS_INFO' | translate}}</p>
+    </section>
+
+    <mat-checkbox *ngIf="(model$ | async).empChoice !== 'CHANGED_ONLY'" [checked]="model$.value.empsAndChanged" (change)="checkboxChange($event)">{{'SALARY.TAX_CARD_REQUEST.CHANGED_EMPS_LABEL' | translate}}</mat-checkbox>
+
+    <section class="alert employee-alert" *ngIf="empCount && !employee">
+        <i class="material-icons">info</i>
+        <p>{{'SALARY.TAX_CARD_REQUEST.EMP_COUNT_MESSAGE~ ' + empCount | translate}}</p>
+    </section>
+
+    <section *ngIf="error" class="alert bad">{{error}}</section>
+
+    <footer>
+        <button class="secondary" (click)="cancel.next()">{{'COMMON.CANCEL' | translate}}</button>
+        <button class="c2a" (click)="submit()">{{'SALARY.TAX_CARD_REQUEST.SEND_REQUEST_LABEL' | translate}}</button>
+    </footer>
+</section>

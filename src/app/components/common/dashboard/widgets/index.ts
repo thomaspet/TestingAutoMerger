@@ -8,6 +8,7 @@ import {PublicDueDatesWidget} from './misc/public-duedates/public-duedates';
 import {BankBalanceWidget, Ext02BankBalanceWidget, BankBalanceWidgetContent} from './misc/bank-balance';
 import {UnpaidBillsWidget} from './charts/unpaid-bills/unpaid-bills';
 import {InvoicedWidget} from './charts/invoiced/invoiced';
+import {OrderReserveWidget} from './charts/order-reserve/order-reserve';
 import {BrunoAccountingServicesWidget} from './misc/bruno-accounting-services/bruno-accounting-services';
 import {THEMES, theme} from 'src/themes/theme';
 import {LiquidityWidget} from './charts/liquidity/liquidity';
@@ -25,6 +26,7 @@ import {NewEntitiesWidget} from './misc/new-entities/new-entities';
 import {ReportShortcutsWidget, SelectReportsModal} from './misc/report-shortcuts/report-shortcuts';
 import {WorkItemPieChart} from './charts/workitem-pie-chart/workitem-pie-chart';
 import {BankStatusWidget} from './misc/bank-status/bank-status';
+import {NewsletterWidget} from './misc/newsletter/newsletter-widget';
 
 export * from './widget';
 
@@ -41,6 +43,7 @@ export const WIDGET_COMPONENTS = [
     Ext02BankBalanceWidget,
     BankBalanceWidgetContent,
     InvoicedWidget,
+    OrderReserveWidget,
     BrunoAccountingServicesWidget,
     LiquidityWidget,
     EmployeesWidget,
@@ -57,6 +60,7 @@ export const WIDGET_COMPONENTS = [
     ReportShortcutsWidget,
     SelectReportsModal,
     BankStatusWidget,
+    NewsletterWidget
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -160,6 +164,24 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.SALES,
         component: InvoicedWidget,
         routePermissions: ['ui_sales_invoices'],
+    },
+    {
+        name: 'ORERESERVE',
+        label: 'Ordrereserve',
+        size: 'large',
+        category: WidgetCategory.CHART,
+        module: WidgetModule.SALES,
+        component: OrderReserveWidget,
+        routePermissions: ['ui_sales_invoices'],
+    },
+    {
+        name: 'NEWSLETTER',
+        label: 'Nyhetsbrev',
+        size: 'small',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.MISC,
+        onlyForTheme: THEMES.UE,
+        component: NewsletterWidget
     },
     {
         name: 'BRUNO_ACCOUNTING_SERVICES',

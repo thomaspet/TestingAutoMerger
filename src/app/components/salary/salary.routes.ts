@@ -39,7 +39,8 @@ export const salaryRoutes: Routes = [
     },
     {
         path: 'wagetypes',
-        component: WageTypeListComponent
+        component: WageTypeListComponent,
+        canActivate: [WagetypeSyncGuard]
     },
     {
         path: 'employees',

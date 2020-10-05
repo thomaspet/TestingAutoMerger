@@ -7,9 +7,10 @@ export const environment = {
     useProdMode: true,
     isSrEnvironment: true,
     appTitle: 'Poc 01',
+    usePKCE: true,
 
     authority: 'https://test-login.softrig.com',
-    client_id: '4e45504f-9273-32bc-36e9-827b8561c721',
+    client_id: 'c1fb43eb-4b42-bbae-d81a-2989b6dd8dff',
     post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',

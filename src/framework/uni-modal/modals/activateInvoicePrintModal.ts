@@ -9,42 +9,60 @@ import {
     EHFService,
     UserService,
     CompanySettingsService,
-    AgreementService,
     ErrorService,
-    BankAccountService
+    BankAccountService,
+    ElsaProductService
 } from '../../../../src/app/services/services';
 import {Observable} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {UniBankAccountModal} from '@uni-framework/uni-modal/modals/bankAccountModal';
+import {ElsaAgreement, ElsaAgreementStatus} from '@app/models';
 
 @Component({
     selector: 'uni-activate-invoiceprint-modal',
     template: `
         <section role="dialog" class="uni-modal">
             <header>{{options.header || 'Aktiver Fakturaprint'}}</header>
+            <section *ngIf="busy" class="modal-spinner">
+                <mat-spinner class="c2a"></mat-spinner>
+            </section>
             <article>
                 <uni-form
                     [config]="formConfig$"
                     [fields]="formFields$"
                     [model]="formModel$">
                 </uni-form>
+
+                <section *ngIf="terms" class="termsCheckbox">
+                    <mat-checkbox [(ngModel)]="termsAgreed">
+                        <span class="checkboxLabel" (click)="$event.preventDefault()">
+                            Jeg har lest og forstått <a (click)="$event.preventDefault(); viewTerms()">avtalen</a>
+                        </span>
+                    </mat-checkbox>
+                </section>
             </article>
 
             <footer>
                 <button class="secondary pull-left" (click)="close()">
                     Avbryt
                 </button>
-                <button class="secondary" (click)="viewTerms()">
-                    Betingelser
-                </button>
 
-                <button class="c2a" (click)="activate()" [disabled]="!termsAgreed">
+                <button class="c2a" (click)="activate()" [disabled]="!termsAgreed && terms">
                     Aktiver
                 </button>
             </footer>
         </section>
-    `
+    `,
+    styles: [`
+        .termsCheckbox {
+            margin-top: 1rem;
+            margin-left: 0.5rem;
+        }
+        .checkboxLabel {
+            cursor: default;
+        }
+    `]
 })
 export class UniActivateInvoicePrintModal implements IUniModal {
     @Input()
@@ -60,19 +78,36 @@ export class UniActivateInvoicePrintModal implements IUniModal {
     public formModel$: BehaviorSubject<ActivateAP> = new BehaviorSubject(null);
     public formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
 
-    public termsAgreed: boolean;
+    terms: ElsaAgreement;
+    termsAgreed: boolean;
+    busy = false;
 
     constructor(
         private ehfService: EHFService,
-        private agreementService: AgreementService,
         private companySettingsService: CompanySettingsService,
         private userService: UserService,
         private errorService: ErrorService,
         private toastService: ToastService,
-        private bankaccountService: BankAccountService
+        private bankaccountService: BankAccountService,
+        private elsaProductService: ElsaProductService,
     ) {}
 
     public ngOnInit() {
+        this.busy = true;
+        const filter = `name eq 'invoiceprint'`;
+        this.elsaProductService.GetAll(filter)
+            .finally(() => {
+                this.busy = false;
+                this.initialize();
+            })
+            .subscribe(product => {
+                if (product[0]?.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
+                    this.terms = product[0].ProductAgreement;
+                }
+            });
+    }
+
+    initialize() {
         this.formFields$.next(this.getFormFields());
         this.extendFormConfig();
         this.initActivationModel();
@@ -81,7 +116,7 @@ export class UniActivateInvoicePrintModal implements IUniModal {
     }
 
     public initActivationModel() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.userService.getCurrentUser(),
             this.companySettingsService.Get(1, [
                 'DefaultPhone',
@@ -90,13 +125,14 @@ export class UniActivateInvoicePrintModal implements IUniModal {
                 'APContact.Info.DefaultEmail',
                 'BankAccounts',
                 'CompanyBankAccount'
-        ])).subscribe(
+            ])
+        ]).subscribe(
             res => {
-                let model = new ActivateAP();
+                const model = new ActivateAP();
 
-                let user: User = res[0];
-                let settings: CompanySettings = res[1];
-                let apContactInfo = settings && settings.APContact && settings.APContact.Info;
+                const user: User = res[0];
+                const settings: CompanySettings = res[1];
+                const apContactInfo = settings && settings.APContact && settings.APContact.Info;
 
                 model.orgnumber = settings.OrganizationNumber;
                 model.orgname = settings.CompanyName;
@@ -125,20 +161,19 @@ export class UniActivateInvoicePrintModal implements IUniModal {
     }
 
     public viewTerms() {
-        this.agreementService.Current('INVOICEPRINT').subscribe(message => {
-            this.modalService.confirm({
-                header: 'Betingelser',
-                message: message,
-                class: 'medium',
-                buttonLabels: {
-                    accept: 'Aksepter',
-                    cancel: 'Avbryt'
-                }
-            }).onClose.subscribe(response => {
-                if (response === ConfirmActions.ACCEPT) {
-                    this.termsAgreed = true;
-                }
-            });
+        this.modalService.confirm({
+            header: this.terms.Name,
+            message: this.terms.AgreementText,
+            isMarkdown: true,
+            class: 'medium',
+            buttonLabels: {
+                accept: 'Aksepter',
+                cancel: 'Tilbake'
+            }
+        }).onClose.subscribe(response => {
+            if (response === ConfirmActions.ACCEPT) {
+                this.termsAgreed = true;
+            }
         });
     }
 
@@ -147,7 +182,7 @@ export class UniActivateInvoicePrintModal implements IUniModal {
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate InvoicePrint
-            this.ehfService.activate('invoiceprint', model).subscribe(
+            this.ehfService.activate('invoiceprint', model, 'out').subscribe(
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
                         this.toastService.addToast('Aktivering', ToastType.good, 3, 'Fakturaprint aktivert');
@@ -179,9 +214,9 @@ export class UniActivateInvoicePrintModal implements IUniModal {
     }
 
     private extendFormConfig() {
-        let fields = this.formFields$.getValue();
+        const fields = this.formFields$.getValue();
 
-        let companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'settings.CompanyBankAccount');
+        const companyBankAccount: UniFieldLayout = fields.find(x => x.Property === 'settings.CompanyBankAccount');
         companyBankAccount.Options = this.getBankAccountOptions('settings.CompanyBankAccount', 'company');
     }
 

@@ -1,0 +1,59 @@
+<section class="header">
+    <h1>Ordrereserve siste 12 måneder</h1>
+</section>
+
+<section *ngIf="!loading" class="content flex-row">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som du har opprettet noen ordre de siste 12 månedene.
+    </widget-empty-state>
+
+    <ng-container *ngIf="hasData">
+        <section class="chart-section">
+            <!-- Chart -->
+            <widget-chart class="chart" [chartConfig]="chartConfig"></widget-chart>
+
+            <!-- Legend -->
+            <section class="chart-legend horizontal">
+                <section class="chart-legend-item">
+                    <span class="indicator" [style.background]="colors[0]"></span>
+                    <span class="label">Overført til faktura: {{sumInvoiced | uninumberformat: 'money'}}</span>
+                </section>
+
+                <section class="chart-legend-item">
+                    <span class="indicator bordered" [style.background]="colors[1]"></span>
+                    <span class="label">Totalsum ordre: {{orderTotal | uninumberformat: 'money'}}</span>
+                </section>
+            </section>
+
+            <!-- Tooltip (visible on bar hover) -->
+            <section class="chart-tooltip" *ngIf="tooltip" [ngStyle]="tooltip.style">
+                <section class="data-row">
+                    <span>Ordresum</span>
+                    <span>{{tooltip.orderTotal | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Overført til faktura</span>
+                    <span>{{tooltip.invoiced | uninumberformat:'money'}}</span>
+                </section>
+
+                <section class="data-row">
+                    <span>Ordrereserve</span>
+                    <span>{{tooltip.reserve | uninumberformat:'money'}}</span>
+                </section>
+            </section>
+        </section>
+
+        <section class="overdue-section">
+            <section class="sum">{{totalReserve | uninumberformat: 'money'}}</section>
+
+            <section>
+                Total ordrereserve
+            </section>
+
+            <button routerLink="/sales/orders" [queryParams]="{filter: 'order_reserves'}" class="c2a">
+                Se ordrereserve
+            </button>
+        </section>
+    </ng-container>
+</section>

@@ -6,7 +6,7 @@
     </section>
 
     <section class="login-container">
-        <button class="c2a login-button" *ngIf="!isAuthenticated" (click)="authService.authenticate()">
+        <button class="c2a login-button" *ngIf="!isAuthenticated" (click)="authService.authenticate()" [disabled]="isLoading">
             Logg inn
         </button>
 

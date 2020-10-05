@@ -1,0 +1,10 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        {{'SALARY.TAX_CARD_MODAL.HEADER' | translate}}
+    </header>
+    <article>
+        <uni-tabs [activeIndex]="0" [tabs]="tabs"></uni-tabs>
+        <tax-card-request (cancel)="close()" *ngIf="!activeTab" [employee]="employee"></tax-card-request>
+        <read-tax-card *ngIf="activeTab === 1"(taxCardsUpdated)="needsUpdate = $event" (close)="close()"></read-tax-card>
+    </article>
+</section>

@@ -29,7 +29,6 @@ import { VacationPayModal } from '@app/components/common/modals/vacationpay/vaca
 import { TimeTransferComponent } from '@app/components/salary/payroll-run/modals/time-transfer/time-transfer.component';
 import { ControlModalComponent } from '@app/components/salary/payroll-run/modals/control-modal.component';
 import { SalaryTransactionSelectionListComponent } from '@app/components/salary/payroll-run/salary-transaction/salary-transaction-selection-list.component';
-import { TaxCardModal } from '@app/components/salary/employee/modals/tax-card-modal.component';
 import { PayrollRunDetailsService } from '@app/components/salary/payroll-run/services/payroll-run-details.service';
 import { PostingSummaryModalComponent } from '@app/components/salary/payroll-run/modals/posting-summary-modal.component';
 import { PaycheckSenderModalComponent } from '@app/components/salary/payroll-run/sending/paycheck-sender-modal.component';
@@ -40,6 +39,7 @@ import { EmployeeCategoryService } from '@app/components/salary/shared/services/
 import { SalaryTransactionSupplementService } from '@app/components/salary/shared/services/salary-transaction/salary-transaction-supplement.service';
 import { PayrollRunLayoutService } from '@app/components/salary/payroll-run/services/payroll-run-layout.service';
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
+import { TaxCardModal } from '@app/components/salary/shared/components/tax-card-modal/tax-card-modal.component';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -429,8 +429,6 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
 
     openTaxCardModal() {
         this.modalService.open(TaxCardModal, {
-            data: this.employeeService.convertToEmployee(this.selectedEmp),
-            modalConfig: { },
             closeOnClickOutside: false
         }).onClose.subscribe(res => {
                 if (!res) { return; }

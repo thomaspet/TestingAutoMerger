@@ -159,7 +159,7 @@ export class UniCompanyAccountingView {
             this.reinitFormFields();
             this.updateTabAndUrl();
 
-            this.eInvoiceItems[0].isActivated = this.ehfService.isEHFActivated(response[0]);
+            this.eInvoiceItems[0].isActivated = this.ehfService.isEHFIncomingActivated(response[0]);
             this.eInvoiceItems[1].isActivated = response[0].UseOcrInterpretation;
             this.companyAccountingSettings = response[5];
         }, err => {
@@ -240,7 +240,7 @@ export class UniCompanyAccountingView {
     }
 
     private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal).onClose.subscribe((status) => {
+        this.modalService.open(UniActivateAPModal, {data: {isOutgoing: false}}).onClose.subscribe((status) => {
             if (status !== 0) {
                 this.companySettingsService.Get(1).subscribe(settings => {
                     const company = this.companySettings$.getValue();

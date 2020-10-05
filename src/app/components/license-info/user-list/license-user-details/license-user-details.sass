@@ -11,7 +11,8 @@
 
 .list-container
     height: 100%
-    width: 30rem
+    max-width: 60vw
+    min-width: 30rem
     background: #fff
     box-shadow: -1px 0px 1px 0 rgba(0, 0, 0, 0.14)
     margin-left: auto
@@ -19,5 +20,59 @@
 
     .header
         margin: 2rem 1.5rem
-        h1
-            font-size: 25px
+        display: flex
+        font-size: 14px
+        .name-and-type
+            display: flex
+            flex-direction: column
+            .name
+                font-size: 22px
+            .type
+                color: var(--scale1)
+                margin-top: 4px
+
+        .email
+            margin-left: auto
+            i.material-icons-outlined
+                margin-right: 4px
+
+    mat-spinner
+        margin: 8rem auto 0
+
+    .grid-wrapper
+        height: 100%
+        overflow: auto
+
+    .grid
+        display: grid
+        font-size: 14px
+
+        .header-cell, .cell
+            white-space: nowrap
+            height: fit-content
+            padding: 0 1rem
+            height: 3.5rem
+            line-height: 3.5rem
+            min-width: 5rem
+
+            &.company
+                max-width: 20rem
+                overflow: hidden
+                text-overflow: ellipsis
+                padding-left: 1.5rem
+
+        .header-cell
+            position: sticky
+            top: 0
+            background: var(--alt-table-header-background)
+            border-bottom: var(--alt-table-header-border)
+            font-weight: 500
+            color: var(--alt-table-header-color)
+
+        .cell
+            border-bottom: var(--alt-table-body-border)
+
+        i
+            color: var(--scale1)
+            &.active
+                color: var(--color-c2a)

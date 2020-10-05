@@ -1,5 +1,5 @@
-import {Component, OnInit, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {PaycheckSendingComponent, PaycheckFormat} from './paycheck-sending.component';
+import {Component, OnInit, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import {PaycheckSendingComponent, PaycheckFormat} from './paycheck-sending/paycheck-sending.component';
 import {IUniModal, IModalOptions, UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {Observable} from 'rxjs';
 import {ErrorService} from '@app/services/services';
@@ -20,8 +20,9 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
     @Output() public onClose: EventEmitter<any> = new EventEmitter<any>();
     public saveActions: ComboButtonAction[] = [];
     public checkedEmps: Employee[];
-    public busy: boolean = true;
+    public busy: boolean;
     public mailOptions: IPaycheckEmailInfo;
+    public employees: Employee[];
     report: ReportDefinition;
 
     constructor(
@@ -32,7 +33,18 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
     ) { }
 
     public ngOnInit() {
+        this.getEmployeesOnPayroll();
         this.updateSaveActions();
+    }
+
+    getEmployeesOnPayroll(): void {
+        this.busy = true;
+        this.payrollRunService.getEmployeesOnPayroll(
+            this.options.data, ['BusinessRelationInfo', 'BusinessRelationInfo.DefaultEmail']
+        ).subscribe((employees: Employee[]) => {
+            this.employees = employees;
+            this.busy = false;
+        });
     }
 
     public handlePaychecks(printAll: boolean = false) {
@@ -70,7 +82,6 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
                 filter((action: ConfirmActions) => action === ConfirmActions.ACCEPT),
                 map(() => employees),
                 filter(emps => !!emps.length),
-                tap(() => this.busy = true),
                 switchMap(emps => this.payrollRunService.emailPaychecks(
                     this.options.data,
                     {
@@ -78,7 +89,6 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
                         Mail: this.mailOptions,
                     })),
                 catchError((err, obs) => this.errorService.handleRxCatch(err, obs)),
-                finalize(() => this.busy = false),
                 tap((response: boolean) => {
                     response
                         ? this.toastService
@@ -149,9 +159,5 @@ export class PaycheckSenderModalComponent implements OnInit, IUniModal {
 
     public onPrintReport(event: ReportDefinition) {
         this.report = event;
-    }
-
-    public setBusy(event: boolean) {
-        this.busy = event;
     }
 }

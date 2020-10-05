@@ -1,0 +1,24 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        {{'SALARY.CUSTOM_PENSION_SCHEME.HEADER' | translate}}
+    </header>
+    <article>
+        <p>
+            {{'SALARY.CUSTOM_PENSION_SCHEME.MESSAGE' | translate}}
+        </p>
+        <uni-form
+            [fields]="fields$"
+            [config]="config$"
+            [model]="model$"
+            (changeEvent)="onFormChange()">
+        </uni-form>
+    </article>
+    <footer>
+        <button class="secondary" (click)="close()" [disabled]="busy">
+            {{'COMMON.CANCEL' | translate}}
+        </button>
+        <button class="good" [disabled]="!needSave" (click)="saveAndClose()" [attr.aria-busy]="busy">
+            {{'COMMON.SAVE' | translate}}
+        </button>
+    </footer>
+</section>

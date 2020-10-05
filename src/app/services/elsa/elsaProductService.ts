@@ -57,7 +57,7 @@ export class ElsaProductService {
 
     public FindProductByName(name: string): Observable<ElsaProduct> {
         return this.requestData('/api/products').map(products => {
-            return products.find(product => product.name === name);
+            return products.find(product => product.Name === name);
         });
     }
 

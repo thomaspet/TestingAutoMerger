@@ -14,7 +14,7 @@ export class GiveSupportAccessModal implements IUniModal {
     onClose = new EventEmitter<any>();
 
     busy = false;
-    emailInput = '';
+    searchInput = '';
     hasAgreedToTerms = false;
     showError = false;
 
@@ -25,12 +25,12 @@ export class GiveSupportAccessModal implements IUniModal {
     ) {}
 
     giveAccess() {
-        if (!this.hasAgreedToTerms || !this.emailInput.length) {
+        if (!this.hasAgreedToTerms || !this.searchInput.length) {
             return;
         }
         this.busy = true;
-        this.emailInput = this.emailInput.trim();
-        this.elsaCustomerService.checkSupportUserExists(this.emailInput).subscribe(
+        this.searchInput = this.searchInput.trim();
+        this.elsaCustomerService.checkSupportUserExists(this.searchInput).subscribe(
             exists => {
                 if (exists) {
                     // get companylicenseID from authservice
@@ -40,7 +40,7 @@ export class GiveSupportAccessModal implements IUniModal {
                         const user = auth && auth.user;
                         if (user) {
                             // add support user to company
-                            this.elsaCustomerService.addSupportUserToCompany(user.License.Company.ID, this.emailInput)
+                            this.elsaCustomerService.addSupportUserToCompany(user.License.Company.ID, this.searchInput)
                                 .subscribe(() => {
                                     this.busy = false;
                                     this.onClose.emit(true);

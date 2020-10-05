@@ -1,11 +1,23 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>{{options.header || 'EHF aktivering'}}</header>
+    <header>Aktiver EHF {{isOutgoing ? 'sending' : 'mottak'}}</header>
     <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
         <uni-form
             [config]="formConfig$"
             [fields]="formFields$"
             [model]="formModel$">
         </uni-form>
+
+        <section *ngIf="terms" class="terms-checkbox">
+            <mat-checkbox [(ngModel)]="termsAgreed">
+                <span class="checkbox-label" (click)="$event.preventDefault()">
+                    Jeg har lest og forstått <a (click)="$event.preventDefault(); confirmTerms()">avtalen</a>
+                </span>
+            </mat-checkbox>
+        </section>
     </article>
 
     <footer>
@@ -13,15 +25,7 @@
             Avbryt
         </button>
 
-        <button class="secondary" (click)="confirmTerms()">
-            Betingelser
-        </button>
-
-        <button class="secondary bad" (click)="cancelPurchase()">
-            Avbestill
-        </button>
-
-        <button class="c2a" (click)="activate()" [disabled]="!termsAgreed">
+        <button class="c2a" (click)="activate()" [disabled]="!termsAgreed && terms">
             Aktiver
         </button>
     </footer>

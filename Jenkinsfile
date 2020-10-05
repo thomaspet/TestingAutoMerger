@@ -33,8 +33,8 @@ pipeline {
                   YARN_BUILD = "build.dev"
                   ENV_TYPE = "development"
                   //Nightly build runs from branch develop, but should be considered "test"
-                  if(env.JOB_BASE_NAME.toLowerCase().reverse().substring(0,7).reverse() == "nightly") {
-                    echo "Branch is 'develop' but Jenkins-project name ends with 'nightly' so using test-parameters instead of dev..."
+                  if(env.JOB_BASE_NAME.toLowerCase().endsWith("nightly") || env.JOB_BASE_NAME.toLowerCase().endsWith("softrig")) {
+                    echo "Branch is 'develop' but Jenkins-project name ends with 'nightly'/softrig so using test-parameters instead of dev..."
                     PUBLISH_NAME = "test-unieconomy"
                     YARN_BUILD = "build.softrig"
                     ENV_TYPE = "testing"

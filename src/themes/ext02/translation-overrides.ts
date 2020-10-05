@@ -65,8 +65,8 @@ export const TRANSLATION_OVERRIDES = {
     },
 
     BANK: {
-        'NEEDS_ACTION_TOOLTIP': 'Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i DnB Regnskap. Vi har derfor ikke funnet en sammenfallende post i vårt system, og disse må behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere "Bokfør kun utbetalinger fra DnB Regnskap" i bankinnstillingene. Da vil disse ikke bli bokført heretter.',
-        'TRANSFERED_BANK_TOOLTIP': 'Inntil BankID er på plass må du huske å godkjenne alle betalinger i nettbanken.'
+        'TRANSFERED_BANK_TOOLTIP': 'Inntil BankID er på plass må du huske å godkjenne alle betalinger i nettbanken.',
+        'NEEDS_ACTION_TOOLTIP': 'Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i DnB Regnskap. Vi har derfor ikke funnet en sammenfallende post i vårt system, og disse må behandles manuelt.'
     },
 
     TASKS: {
