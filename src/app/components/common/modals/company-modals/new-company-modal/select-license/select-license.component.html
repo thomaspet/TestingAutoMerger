@@ -1,0 +1,18 @@
+<ul class="uni-company-modal-selection-list">
+    <ng-container *ngFor="let customer of customers">
+        <li *ngFor="let contract of customer.Contracts"
+            (click)="selectedContractChange.emit(contract)"
+            [ngClass]="{'selected': selectedContract?.ID === contract.ID}">
+
+            <i class="material-icons">
+                {{selectedContract?.ID === contract.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
+            </i>
+
+            <span>{{customer.Name}}</span>
+            <span class="contract-type">
+                <span class="license-type-label">Lisenstype:</span>
+                {{contract.ContractType | elsaContractType}}
+            </span>
+        </li>
+    </ng-container>
+</ul>
