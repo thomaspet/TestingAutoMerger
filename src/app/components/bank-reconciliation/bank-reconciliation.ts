@@ -127,7 +127,7 @@ export class BankReconciliation {
 
     initData() {
         this.session.clear();
-        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0 and Account.Locked eq false')
+        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0')
             .subscribe(
                 accounts => {
                     this.bankAccounts = accounts || [];
