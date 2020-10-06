@@ -254,7 +254,7 @@ export class BillsView implements OnInit {
         let showToPaymentMenu = true;
         if (this.selectedItems && Array.isArray(this.selectedItems)) {
             this.selectedItems.forEach(invoice => {
-                if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112) {
+                if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113) {
                     showToPaymentMenu = false;
                 }
             });
@@ -1102,7 +1102,8 @@ export class BillsView implements OnInit {
                 {
                     label: 'Betalingsliste',
                     name: 'issenttopayment',
-                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
+                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111 OR PaymentStatus eq 30113)  and StatusCode ne '
+                        + StatusCode.Completed,
                     passiveCounter: true
                 },
                 {

@@ -15,7 +15,8 @@ export const PaymentStatus = [
     { Code: 30109, Text: 'Ubetalt'},
     { Code: 30110, Text: 'Overført til bank'},
     { Code: 30111, Text: 'Delbetalt'},
-    { Code: 30112, Text: 'Betalt'}
+    { Code: 30112, Text: 'Betalt'},
+    { Code: 30113, Text: 'I betalingsliste'}
 ];
 
 export function GetPaymentStatusText(code: number): string {
