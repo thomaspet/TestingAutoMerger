@@ -1,6 +1,13 @@
 import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
-import {CustomerInvoice, DistributionPlan, CompanySettings, SharingType, StatusCodeSharing, DistributionPlanElement} from '@app/unientities';
+import {
+    CustomerInvoice,
+    DistributionPlan,
+    CompanySettings,
+    SharingType,
+    StatusCodeSharing,
+    DistributionPlanElement
+} from '@app/unientities';
 import {map, catchError, finalize, filter, tap, concatMap} from 'rxjs/operators';
 import {forkJoin, of as observableOf, Observable, combineLatest} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
@@ -119,14 +126,14 @@ export class SendInvoiceModal implements IUniModal {
             + `&filter=EntityType eq 'CustomerInvoice' and EntityID eq ${this.invoice.ID}`
             + `&select=ID,Type,StatusCode,ExternalMessage,UpdatedAt,CreatedAt,To`;
 
-        forkJoin(
+        forkJoin([
             this.statisticsService.GetAllUnwrapped(previousSharingsQuery),
             this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing', 'CompanyBankAccount']),
             this.elsaPurchaseService.getPurchaseByProductName('EHF_OUT'),
             this.invoice.DistributionPlanID
                 ? this.distributionPlanService.Get(this.invoice.DistributionPlanID, ['Elements.ElementType'])
                 : Observable.of(null)
-        ).subscribe(
+        ]).subscribe(
             res => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
@@ -145,15 +152,15 @@ export class SendInvoiceModal implements IUniModal {
                     }
                 });
 
-                var plan = res[3];
+                const plan = res[3];
 
                 if (plan) {
                     this.sendingOptions = [];
 
                     Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
                         concatMap((el: DistributionPlanElement) => { // combine flag if allowed and element
-                            let allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);                          
-                            return combineLatest(allowed, Observable.of(el));
+                            const allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);
+                            return combineLatest([allowed, Observable.of(el)]);
                         }),
                         filter(([allow, _]: [boolean, DistributionPlanElement]) => allow), // only keep allowed
                         tap(([_, el]) => { // add element to options
@@ -162,12 +169,10 @@ export class SendInvoiceModal implements IUniModal {
                         finalize(() => { // add default alternatives if missing
                             this.addDefaultSendingOptionsIfMissing();
                             this.selectedOption = this.sendingOptions[0];
-                            this.busy = false;    
+                            this.busy = false;
                         })
                     ).subscribe();
-                }
-                else
-                {
+                } else {
                     this.busy = false;
                 }
             },
@@ -185,8 +190,7 @@ export class SendInvoiceModal implements IUniModal {
         }
     }
 
-    addSendingOptionForElementType(elementType: ElementType)
-    {
+    addSendingOptionForElementType(elementType: ElementType) {
         this.sendingOptions.push(
             {
                 label: `${this.distributionPlanService.getElementTypeText(elementType)}`,
@@ -198,8 +202,8 @@ export class SendInvoiceModal implements IUniModal {
 
     createActionForElementType(elementType: ElementType) {
         let action = null;
-        let label = this.distributionPlanService.getElementTypeText(elementType);
-        let name = this.distributionPlanService.getElementName(elementType);
+        const label = this.distributionPlanService.getElementTypeText(elementType);
+        const name = this.distributionPlanService.getElementName(elementType);
 
         switch (elementType) {
             case ElementType.Print:
@@ -298,7 +302,7 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     private canSendAvtaleGiro() {
-        return Observable.of(this.invoice.Customer.AvtaleGiro 
+        return Observable.of(this.invoice.Customer.AvtaleGiro
             && this.invoice.PaymentID
             && (this.invoice.EmailAddress || !this.invoice.Customer.AvtaleGiroNotification));
     }
@@ -311,24 +315,24 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     private canSendAvtaleGiroEfaktura() {
-        return combineLatest(this.canSendAvtaleGiro(), this.canSendEfaktura())
+        return combineLatest([this.canSendAvtaleGiro(), this.canSendEfaktura()])
             .mergeMap(([avtaleGiro, eFaktura]) => Observable.of(avtaleGiro && eFaktura));
     }
 
     private canSendVippsinvoice() {
-        let then = this.invoice.PaymentDueDate != null
+        const then = this.invoice.PaymentDueDate != null
             ? moment(this.invoice.PaymentDueDate)
             : moment().add(72, 'hours');
 
-        var diffHours = then.diff(moment(), 'hours');
-        var diffDays = then.diff(moment(), 'days');
+        const diffHours = then.diff(moment(), 'hours');
+        const diffDays = then.diff(moment(), 'days');
 
         if (diffHours <= 72 || diffDays >= 365
             || !this.companySettings.CompanyBankAccount?.AccountNumber
             || (!this.invoice.Customer?.Info?.DefaultPhone && !((this.invoice.Customer?.Info?.Phones || []).length > 0))) {
             return Observable.of(false);
         }
-   
+
         return Observable.of(true);
     }
 
