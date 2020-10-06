@@ -131,6 +131,20 @@ export class SendInvoiceModal implements IUniModal {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
                 const hasPurchasedEhfOut = !!res[2];
+                this.canSendEHF(hasPurchasedEhfOut).subscribe(canSendEHF => {
+                    if (canSendEHF) {
+                        this.sendingOptions.push({
+                            label: 'Send EHF',
+                            action: () => this.sendEHF(),
+                            type: ElementType.EHF
+                        });
+
+                        if (!this.invoice.DistributionPlanID) {
+                            this.selectedOption = this.sendingOptions[this.sendingOptions.length - 1];
+                        }
+                    }
+                });
+
                 var plan = res[3];
 
                 if (plan) {
@@ -324,7 +338,7 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     private canSendEHF(hasPurchasedEhfOut: boolean) {
-        const ehfActive = this.ehfService.isEHFActivated(this.companySettings);
+        const ehfActive = this.ehfService.isEHFOutActivated(this.companySettings);
         const peppoladdress = this.invoice.Customer.PeppolAddress
             || '0192:' + this.invoice.Customer.OrgNumber;
 

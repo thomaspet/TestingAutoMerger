@@ -87,4 +87,33 @@ export class EHFService extends BizHttp<EHFLog> {
         }
         return false;
     }
+
+    // temp fix in prod, the same code is already in RC
+    isEHFOutActivated(companySettings?: CompanySettings): boolean {
+        const settings = companySettings || this.companySettings$.getValue();
+        if (settings) {
+            return settings.APActivated && this.activatedOutgoing(settings, AP_NAME_EHF);
+        }
+    }
+
+    isEHFIncomingActivated(companySettings?: CompanySettings): boolean {
+        const settings = companySettings || this.companySettings$.getValue();
+        if (settings) {
+            return settings.APActivated && this.activatedIncomming(settings, AP_NAME_EHF);
+        }
+    }
+
+    activatedOutgoing(settings: CompanySettings, AccessPointName: string): boolean {
+        if (settings.APOutgoing && settings.APOutgoing.some(format => format.Name.startsWith(AccessPointName))) {
+            return true;
+        }
+        return false;
+    }
+
+    activatedIncomming(settings: CompanySettings, AccessPointName: string): boolean {
+        if (settings.APIncomming && settings.APIncomming.some(format => format.Name.startsWith(AccessPointName))) {
+            return true;
+        }
+        return false;
+    }
 }
