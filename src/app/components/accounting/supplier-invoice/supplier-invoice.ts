@@ -208,7 +208,7 @@ export class SupplierInvoiceView {
                     && invoice.PaymentStatus <= 30109 ) && hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
-                    || invoice.PaymentStatus === 30112 || !hasAutobank
+                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || !hasAutobank
             },
             {
                 label: 'Registrer betaling',
@@ -219,7 +219,7 @@ export class SupplierInvoiceView {
                     && invoice.PaymentStatus <= 30109 ) && !hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
-                    || invoice.PaymentStatus === 30112 || hasAutobank
+                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || hasAutobank
             },
             {
                 label: 'Slett',

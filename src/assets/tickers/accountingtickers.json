@@ -762,6 +762,11 @@
                             "Field": "PaymentStatus",
                             "Operator": "eq",
                             "Value": "30111"
+                        },
+                        {
+                            "Field": "PaymentStatus",
+                            "Operator": "eq",
+                            "Value": "30113"
                         }
                     ]
                 }]

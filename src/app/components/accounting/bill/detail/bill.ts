@@ -2291,7 +2291,7 @@ export class BillView implements OnInit, AfterViewInit {
                 || it.StatusCode === StatusCodeSupplierInvoice.Approved
             ) {
                 if (it.PaymentStatus !== 30112) {
-                    if (it.PaymentStatus !== 30110) {
+                    if (it.PaymentStatus !== 30110 && it.PaymentStatus !== 30113) {
                         if (hasJournalEntry) {
                             list.forEach(action => action.main = false);
                         }
