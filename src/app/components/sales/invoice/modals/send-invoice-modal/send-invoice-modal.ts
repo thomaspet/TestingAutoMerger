@@ -138,6 +138,20 @@ export class SendInvoiceModal implements IUniModal {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
                 const hasPurchasedEhfOut = !!res[2];
+                this.canSendEHF(hasPurchasedEhfOut).subscribe(canSendEHF => {
+                    if (canSendEHF) {
+                        this.sendingOptions.push({
+                            label: 'Send EHF',
+                            action: () => this.sendEHF(),
+                            type: ElementType.EHF
+                        });
+
+                        if (!this.invoice.DistributionPlanID) {
+                            this.selectedOption = this.sendingOptions[this.sendingOptions.length - 1];
+                        }
+                    }
+                });
+
                 const plan = res[3];
 
                 if (plan) {
@@ -146,7 +160,7 @@ export class SendInvoiceModal implements IUniModal {
                     Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
                         concatMap((el: DistributionPlanElement) => { // combine flag if allowed and element
                             const allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);
-                            return combineLatest(allowed, Observable.of(el));
+                            return combineLatest([allowed, Observable.of(el)]);
                         }),
                         filter(([allow, _]: [boolean, DistributionPlanElement]) => allow), // only keep allowed
                         tap(([_, el]) => { // add element to options
@@ -301,7 +315,7 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     private canSendAvtaleGiroEfaktura() {
-        return combineLatest(this.canSendAvtaleGiro(), this.canSendEfaktura())
+        return combineLatest([this.canSendAvtaleGiro(), this.canSendEfaktura()])
             .mergeMap(([avtaleGiro, eFaktura]) => Observable.of(avtaleGiro && eFaktura));
     }
 

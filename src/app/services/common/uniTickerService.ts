@@ -1180,7 +1180,8 @@ export class UniTickerService {
                     { ID: 30112, Name: 'Betalt' },
                     { ID: 30111, Name: 'Delbetalt' },
                     { ID: 30110, Name: 'Overført til bank' },
-                    { ID: 30009, Name: 'Ubetalt' }
+                    { ID: 30009, Name: 'Ubetalt' },
+                    { ID: 30113, Name: 'I betalingsliste'}
                 ];
             case 'InvoiceOriginType':
                 return [

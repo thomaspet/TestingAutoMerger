@@ -26,7 +26,8 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         { Code: 30109, Text: 'Ubetalt'},
         { Code: 30110, Text: 'Overført til bank'},
         { Code: 30111, Text: 'Delbetalt'},
-        { Code: 30112, Text: 'Betalt'}
+        { Code: 30112, Text: 'Betalt'},
+        { Code: 30113, Text: 'I betalingsliste'}
     ];
 
     constructor(http: UniHttp, private errorService: ErrorService) {
@@ -234,7 +235,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
         if (status === 'betalt') {
             route = '?model=supplierinvoice&select=count(id)&filter=PaymentStatus eq 30112 and (statuscode ne 40001 and statuscode ne 40000)';
         } else if (status === 'betalingsliste') {
-            route = '?model=supplierinvoice&select=count(id)&filter=(PaymentStatus eq 30110 OR PaymentStatus eq 30111) and (statuscode ne 40001 and statuscode ne 40000)';
+            route = '?model=supplierinvoice&select=count(id)&filter=(PaymentStatus eq 30110 OR PaymentStatus eq 30111 OR PaymentStatus eq 30113) and (statuscode ne 40001 and statuscode ne 40000)';
         }
         return this.http
             .asGET()
