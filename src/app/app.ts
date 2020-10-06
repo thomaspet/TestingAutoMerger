@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
 import {AuthService} from './authService';
 import {UniHttp} from '../framework/core/http/http';
-import {ErrorService, StatisticsService, BrunoOnboardingService, ElsaCustomersService} from './services/services';
+import {ErrorService, StatisticsService, BrunoOnboardingService, ElsaCustomersService, CelebrusService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
 import {UserDto, BankIntegrationAgreement, LicenseEntityStatus} from '@app/unientities';
 import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
@@ -58,6 +58,7 @@ export class App {
         public chatBoxService: ChatBoxService,
         private brunoOnboardingService: BrunoOnboardingService,
         private elsaCustomerService: ElsaCustomersService,
+        private celebrusService: CelebrusService,
         private logger: Logger // used for logging in Azure Application Insights
     ) {
         if (!this.titleService.getTitle()) {
