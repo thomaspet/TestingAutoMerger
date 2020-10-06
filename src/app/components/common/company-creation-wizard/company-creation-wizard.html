@@ -1,5 +1,9 @@
 <ng-container *ngIf="!busyCreatingCompany">
     <section class="contract-types" *ngIf="currentStep === 0 && includeContractActivation && contractTypes?.length">
+        <a *ngIf="priceListLink" class="price-list-link" [href]="priceListLink" target="_blank">
+            <i class="material-icons">launch</i>
+            Se flere priser
+        </a>
         <section class="contract-type-grid">
             <contract-type-card
                 *ngFor="let contractType of contractTypes"

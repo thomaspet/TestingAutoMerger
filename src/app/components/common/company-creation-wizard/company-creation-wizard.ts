@@ -60,6 +60,8 @@ export class CompanyCreationWizard {
     isTest: boolean;
     headerText: string;
 
+    priceListLink: string;
+
     constructor(
         private authService: AuthService,
         private http: HttpClient,
@@ -82,6 +84,14 @@ export class CompanyCreationWizard {
 
         if (this.isBrunoEnv) {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
+        }
+
+        if (theme.theme === THEMES.UE) {
+            this.priceListLink = 'https://info.unieconomy.no/priser';
+        } else if (theme.theme === THEMES.SR) {
+            this.priceListLink = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html';
+        } else if (theme.theme === THEMES.EXT02) {
+            this.priceListLink = 'https://www.dnb.no/bedrift/priser/dnbregnskap.html';
         }
 
         this.routeSubscription = this.route.queryParamMap.subscribe(params => {
