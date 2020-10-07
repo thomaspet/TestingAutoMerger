@@ -534,7 +534,8 @@ export class BankStatementSession {
         const checkedBE = this.bankEntries.filter(je => je.Checked).length;
 
         // Dont allow match many to many ?
-        if ((item.IsBankEntry && checkedBE >= 1 && checkedJE > 1) || (!item.IsBankEntry && checkedBE > 1 && checkedJE >= 1)) {
+        if (this.journalEntryMode !== JournalEntryListMode.Original &&
+            ((item.IsBankEntry && checkedBE >= 1 && checkedJE > 1) || (!item.IsBankEntry && checkedBE > 1 && checkedJE >= 1))) {
             this.cantAddEntry.next('Kan ikke matche mange mot mange på begge sider. Du må avstemme imellom hver match eller bruke automatisk avstemming.');
             return this.stageTotal;
         }
