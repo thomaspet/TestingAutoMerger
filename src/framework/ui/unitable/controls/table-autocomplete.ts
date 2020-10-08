@@ -79,6 +79,7 @@ export class UnitableAutocomplete implements OnInit {
     public options: IAutoCompleteOptions;
     public busy: boolean = false;
     public expanded: boolean;
+    public placeholder = '';
 
     public showDropdownAbove: boolean = false;
     public lookupResults: any[] = [];
@@ -91,6 +92,7 @@ export class UnitableAutocomplete implements OnInit {
     public ngOnInit() {
         if (this.column) {
             this.options = this.column.get('options');
+            this.placeholder = this.column.get('placeholder') || '';
             if (this.options['groupConfig']) {
                 this.groupConfig = this.options['groupConfig'];
             }
