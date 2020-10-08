@@ -1225,6 +1225,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         const sameOrNewCol = new UniTableColumn(
             'SameOrNewDetails', 'Bilagsnr', UniTableColumnType.Lookup
         )
+            .setPlaceholder('Neste ledige hvis tom')
             .setWidth('100px')
             .setOptions({
                 displayField: 'Name',
