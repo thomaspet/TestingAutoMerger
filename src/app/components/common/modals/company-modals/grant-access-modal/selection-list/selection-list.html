@@ -9,8 +9,12 @@
 
     <section class="uni-selection-list">
         <cdk-virtual-scroll-viewport itemSize="55" class="scrolling-viewport">
-            <label *cdkVirtualFor="let item of filteredItems" class="selection-list-item">
-                <mat-checkbox [(ngModel)]="item['_selected']" (ngModelChange)="onItemSelectionChange(item)"></mat-checkbox>
+            <label *cdkVirtualFor="let item of filteredItems" class="selection-list-item" [ngClass]="{disabled: item['_isMandatory']}">
+                <mat-checkbox 
+                    [(ngModel)]="item['_selected']" 
+                    (ngModelChange)="onItemSelectionChange(item)" 
+                    [disabled]="item['_isMandatory']"
+                ></mat-checkbox>
                 {{item[labelProperty]}}
                 <span *ngIf="item[secondLabelProperty]" class="pull-right">
                     {{item[secondLabelProperty]}}

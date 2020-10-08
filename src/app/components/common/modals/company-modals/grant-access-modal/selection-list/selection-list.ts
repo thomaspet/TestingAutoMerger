@@ -43,7 +43,11 @@ export class GrantAccessSelectionList {
 
     onCheckAllChange() {
         this.checkAll = !this.checkAll;
-        this.items.forEach(item => item['_selected'] = this.checkAll);
+        this.items.forEach(item => {
+            if (!item['_isMandatory']) {
+                item['_selected'] = this.checkAll;
+            }
+        });
         this.itemsChange.emit(this.items);
     }
 

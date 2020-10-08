@@ -28,6 +28,7 @@ import { switchMap } from 'rxjs/operators';
 })
 export class CompanyList {
     contractID: number;
+    contractType: number;
     currentContractID: number;
     companies: ElsaCompanyLicense[];
     companyLimitReached = false;
@@ -105,11 +106,11 @@ export class CompanyList {
 
     loadData() {
         if (this.contractID) {
-            forkJoin(
+            forkJoin([
                 this.elsaContractService.getCompanyLicenses(this.contractID),
                 this.companyService.GetAll(),
                 this.elsaContractService.get(this.contractID, 'contracttypes', 'contracttypes')
-            ).subscribe(
+            ]).subscribe(
                 res => {
                     const ueCompanies = res[1] || [];
                     this.companies = (res[0] || [])
@@ -129,6 +130,7 @@ export class CompanyList {
                             return license;
                         });
                     this.filteredCompanies = this.companies;
+                    this.contractType = res[2].ContractTypes.ContractType;
                     this.companyLimitReached =
                         res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
                 },
@@ -155,6 +157,7 @@ export class CompanyList {
         this.modalService.open(GrantSelfAccessModal, {
             data: {
                 contractID: this.contractID,
+                contractType: this.contractType,
                 currentContractID: this.currentContractID,
                 companyLicense: company,
                 userIdentity: this.authService.currentUser.License.GlobalIdentity

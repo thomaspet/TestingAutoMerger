@@ -71,10 +71,10 @@ export class UniNewCompanyModal implements IUniModal, OnInit {
 
     ngOnInit() {
         this.busy = true;
-        forkJoin(
+        forkJoin([
             this.elsaCustomerService.getAll('Contracts'),
             this.companyService.GetAll()
-        ).subscribe(
+        ]).subscribe(
             res => {
                 this.customers = res[0] || [];
 

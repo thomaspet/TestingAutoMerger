@@ -29,24 +29,30 @@ export class SelectProductsForBulkAccess {
     initData() {
         this.busy = true;
         this.elsaProductService.invalidateCache();
-        this.elsaProductService.GetAll().subscribe(
+        this.elsaProductService.getProductsOnContractTypes(this.data.contract.ContractType).subscribe(
             products => {
                 products = products.filter(product => {
-                    return product.ProductType === ElsaProductType.Module
-                        && product.IsPerUser
-                        && product.Name !== 'Complete';
+                    return (product.ProductType === ElsaProductType.Module
+                        || product.ProductType === ElsaProductType.Package)
+                        && product.IsPerUser;
+                });
+
+                products.forEach(product => {
+                    product['_selected'] = product.IsDefaultProduct || product.IsMandatoryProduct;
+                    product['_isMandatory'] = product.IsMandatoryProduct;
                 });
 
                 if (this.data.products && this.data.products.length) {
                     products.forEach(product => {
                         if (this.data.products.some(p => p.ID === product.ID)) {
                             product['_selected'] = true;
-                            this.stepComplete.emit(true);
                         }
                     });
                 }
                 this.busy = false;
                 this.data.StoredData.products = products;
+
+                this.onSelectionChange();
             },
             err => {
                 this.errorService.handle(err);

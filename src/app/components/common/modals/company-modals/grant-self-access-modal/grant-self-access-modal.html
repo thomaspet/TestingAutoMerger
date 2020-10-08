@@ -13,6 +13,7 @@
                             <mat-list-option *ngFor="let product of products"
                                 [checkboxPosition]="'before'"
                                 [selected]="product['_selected']"
+                                [disabled]="product['_isMandatory']"
                                 (click)="onSelectProduct(product)">
                                 {{product.Label}}
                             </mat-list-option>
