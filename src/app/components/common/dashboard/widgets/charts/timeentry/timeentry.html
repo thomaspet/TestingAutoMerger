@@ -47,12 +47,12 @@
 
         <section class="flex-section">
             <span>Timesaldo</span>
-            <span class="sum">{{flexBalance}}</span>
+            <span class="sum" [ngClass]="flexBalance >= 0 ? 'good' : 'bad' ">{{flexBalance}}</span>
 
             <section class="flex-balance-change">
                 <i *ngIf="flexBalanceChangeInPeriod === 0" class="material-icons">trending_flat</i>
-                <i *ngIf="flexBalanceChangeInPeriod > 0" class="material-icons">trending_up</i>
-                <i *ngIf="flexBalanceChangeInPeriod < 0" class="material-icons">trending_down</i>
+                <i *ngIf="flexBalanceChangeInPeriod > 0" class="material-icons good">trending_up</i>
+                <i *ngIf="flexBalanceChangeInPeriod < 0" class="material-icons bad">trending_down</i>
 
                 <span>
                     {{flexBalanceChangeInPeriod >= 0 ? '+' : ''}}

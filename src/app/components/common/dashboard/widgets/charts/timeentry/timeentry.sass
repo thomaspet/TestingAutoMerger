@@ -51,9 +51,10 @@ table
             display: flex
             justify-content: center
             align-items: center
-            height: 100%
-            width: 100%
+            height: 2.4rem
+            width: 2.4rem
             font-size: 14px
+            border-radius: 1.2rem
 
             &.today
                 font-weight: 500
@@ -91,10 +92,18 @@ widget-empty-state
     border-radius: var(--section-radius)
     text-align: center
 
+    span:first-of-type
+        margin-bottom: .5rem
+
     .sum
-        font-size: 22px
+        font-size: 40px
         font-weight: 500
         margin: .5rem 0 0
+
+        &.good
+            color: var(--alert-good-icon-color)
+        &.bad
+            color: var(--alert-bad-icon-color)
 
     .flex-balance-change
         display: flex
@@ -104,4 +113,9 @@ widget-empty-state
         font-size: 14px
         i
             margin-bottom: .5rem
+
+            &.good
+                color: var(--alert-good-icon-color)
+            &.bad
+                color: var(--alert-bad-icon-color)
 
