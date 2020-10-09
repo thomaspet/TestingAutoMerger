@@ -321,7 +321,7 @@ export class AssetsActions {
             });
         }
         if (changes['PurchaseAmount']) {
-            if (isNullOrUndefined(currentAsset.NetFinancialValue)) {
+            if (currentAsset.NetFinancialValue === null || currentAsset.NetFinancialValue === undefined) {
                 const asset = this.store.currentAsset;
                 asset.NetFinancialValue = currentAsset.PurchaseAmount;
                 this.store.currentAsset = {...asset};
