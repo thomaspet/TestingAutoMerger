@@ -98,7 +98,9 @@ export class CurrencyWidget {
                     label: this.data[0].Name + ` (${this.data[0].Code})`,
                     data: this.chartData,
                     borderColor: '#3e95cd',
-                    fill: false
+                    backgroundColor: '#E8F1F9',
+                    fill: true,
+                    borderWidth: 1
                 }]
             },
             options: {
@@ -117,6 +119,11 @@ export class CurrencyWidget {
                     'Nyeste kurs (' + moment(this.data[this.data.length - 1].CurrencyDate).format('DD MMMM') + ') - '
                     + this.chartData[this.chartData.length - 1]
                 ]
+                },
+                elements: {
+                    point: {
+                        radius: 1
+                    }
                 },
                 scales: {
                     xAxes: [{
