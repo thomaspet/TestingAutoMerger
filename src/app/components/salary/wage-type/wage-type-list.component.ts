@@ -8,6 +8,7 @@ import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {HttpParams} from '@angular/common/http';
 import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { SalaryYearService } from '@app/components/salary/shared/services/salary-year/salary-year.service';
 import { finalize, tap } from 'rxjs/operators';
 
 @Component({
@@ -36,21 +37,10 @@ export class WageTypeListComponent implements OnInit {
         private _wageTypeService: WageTypeService,
         private errorService: ErrorService,
         private _toastService: ToastService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private salaryYearService: SalaryYearService,
     ) {
-        this.tabSer.addTab(
-            { name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true }
-        );
 
-        this.contextMenuItems = [
-            {
-                label: 'Synkroniser lønnsarter',
-                action: () => {
-                    this.syncWagetypes();
-                },
-                disabled: () => false
-            }
-        ];
     }
 
     public onCustomClick() {
@@ -58,13 +48,21 @@ export class WageTypeListComponent implements OnInit {
     }
 
     public ngOnInit() {
+        this.tabSer.addTab(
+            { name: 'Lønnsarter', url: 'salary/wagetypes', moduleID: UniModules.Wagetypes, active: true }
+        );
+
         this.busy = true;
-        this._wageTypeService
-            .needSync()
+        this.salaryYearService
+            .hasYear()
             .pipe(
                 finalize(() => this.busy = false),
             )
-            .subscribe(needSync => this.showEmptyState = needSync);
+            .subscribe(hasYear => {
+                this.setContextMenu(hasYear);
+                this.showEmptyState = !hasYear;
+            });
+
         this._wageTypeService.invalidateCache();
         this.lookupFunction = (urlParams) => this.lookup(urlParams);
 
@@ -114,15 +112,26 @@ export class WageTypeListComponent implements OnInit {
         this.statisticsService.invalidateCache();
         this.busy = true;
         this._wageTypeService
-            .syncWagetypes()
+            .createAndUpdateStandardWagetypes()
             .pipe(
                 tap(() => this.table?.refreshTableData()),
                 finalize(() =>  this.busy = false),
             )
             .subscribe((response) => {
                 this.showEmptyState = false;
+                this.setContextMenu(true);
                 this._toastService.addToast('Lønnsarter synkronisert', ToastType.good, 4);
             }
         , err => this.errorService.handle(err));
+    }
+
+    private setContextMenu(hasYear) {
+        this.contextMenuItems = [
+            {
+                label: 'Synkroniser lønnsarter',
+                action: () => this.syncWagetypes(),
+                disabled: () => !hasYear,
+            }
+        ];
     }
 }

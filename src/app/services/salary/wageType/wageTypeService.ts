@@ -88,21 +88,16 @@ export class WageTypeService extends BizHttp<WageType> {
             .map(response => response.body);
     }
 
-    public needSync(year = this.yearService.getActiveYear()) {
-        return this.statisticsService
-            .GetAllUnwrapped(`model=SalaryYear&Select=CurrentYear&filter=CurrentYear eq ${year}&top=1`)
-            .pipe(
-                map(years => !years?.length),
-            );
+    public syncWagetypes() {
+        return super.PutAction(null, 'synchronize');
     }
 
-    public syncWagetypes() {
-        return this.http
-            .usingBusinessDomain()
-            .asPUT()
-            .withEndPoint(this.relativeURL + '/?action=synchronize')
-            .send()
-            .map(response => response.body);
+    public createWagetypesForCurrentYear() {
+        return super.PutAction(null, 'create-wagetypes-for-year');
+    }
+
+    public createAndUpdateStandardWagetypes() {
+        return super.PutAction(null, 'create-and-update-standard-wagetypes');
     }
 
     public save(wt: WageType): Observable<WageType> {
