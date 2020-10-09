@@ -631,7 +631,8 @@ export class BankComponent {
             this.actions.push({
                 label: 'Hent og bokfør innbetalingsfil',
                 action: (done) => {
-                    this.fileUploaded(done);
+                    done();
+                    this.fileUploaded();
                 },
                 disabled: this.rows.length > 0 && (this.filter === 'incomming_without_match'),
                 main: this.rows.length === 0 || this.filter !== 'incomming_without_match'
@@ -1176,7 +1177,7 @@ export class BankComponent {
         });
     }
 
-    public fileUploaded(done) {
+    public fileUploaded() {
         this.modalService.open(
             UniFileUploadModal,
             {
@@ -1187,65 +1188,37 @@ export class BankComponent {
 
                 if (fileIDs && fileIDs.length) {
                     const queries = fileIDs.map(id => {
-                        return this.paymentBatchService.registerAndCompleteCustomerPayment(id);
+                        return this.paymentBatchService.registerBankFile(id);
                     });
 
                     Observable.forkJoin(queries)
                         .subscribe((result: any) => {
-                            if (result?.length) {
-                                let collectionOfBatchIds = [];
-                                result.forEach((res) => {
-                                    if (res?.Value?.ProgressUrl) {
-                                        this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
-                                            'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
-                                        done();
-                                        this.paymentBatchService.waitUntilJobCompleted(res.Value.ID).subscribe(jobResponse => {
-                                            if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
-                                                this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                                                    `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
-                                            } else if (jobResponse && !jobResponse.HasError && jobResponse.Result) {
-                                                const paymentBatchIds = jobResponse.Result.map(paymentBatch => paymentBatch.ID);
-                                                collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
-                                                this.createToastWithStatus(collectionOfBatchIds);
-                                            } else {
-                                                this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
-                                            }
-                                        });
-                                    } else if (res) {
-                                        const paymentBatchIds = res.map(paymentBatch => paymentBatch.ID);
-                                        collectionOfBatchIds = collectionOfBatchIds.concat(paymentBatchIds);
-                                    }
-                                    this.tickerContainer.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                    done();
-                                });
-                                if (collectionOfBatchIds.length) {
-                                    this.createToastWithStatus(collectionOfBatchIds);
-                                }
-                            } else {
-                                done();
-                            }
-                        },
-                            err => {
-                                this.errorService.handle(err);
-                                done();
-                            });
-                } else {
-                    done();
-                }
+                            result.forEach(job => this.handlePaymentJob(job.ID));
+                        }, err => {
+                            this.errorService.handle(err);
+                        });
+                    }
             });
     }
 
-    private createToastWithStatus(batchIds) {
-        this.getSumOfPayments(batchIds).subscribe(status => {
-            this.toastService.addToast(
-                'Status:',
-                ToastType.good, ToastTime.long,
-                `Ignorerte betalinger pga. bankregler: ${status[0].IgnoredPayments} <br>
-                Bokførte betalinger: ${ status[0].JournaledPayments} <br>
-                Betalinger som ikke ble bokført: ${ status[0].NonJournaledPayments}`);
-        },
-            err => this.errorService.handle(err));
+    private handlePaymentJob(jobID: number) {
+
+        this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
+            'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
+        this.paymentBatchService.waitUntilJobCompleted(jobID).subscribe(jobResponse => {
+            if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
+                this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
+                    `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+            } else {
+                this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+            }
+        });
+
+        this.tickerContainer.getFilterCounts();
+        this.tickerContainer.mainTicker.reloadData();
     }
 
     public recieptUploaded() {
@@ -1255,15 +1228,11 @@ export class BankComponent {
             .onClose.subscribe((fileIDs) => {
                 if (fileIDs && fileIDs.length) {
                     const queries = fileIDs.map(id => {
-                        return this.paymentBatchService.registerReceiptFile(id);
+                        return this.paymentBatchService.registerBankFile(id);
                     });
 
-                    Observable.forkJoin(queries).subscribe(result => {
-                        this.toastService.addToast('Kvitteringsfil tolket og behandlet', ToastType.good, 10,
-                            'Betalinger og bilag er oppdatert');
-
-                        this.tickerContainer.getFilterCounts();
-                        this.tickerContainer.mainTicker.reloadData();
+                    Observable.forkJoin(queries).subscribe((result: any) => {
+                        result.forEach(job => this.handlePaymentJob(job.ID));
                     }, err => {
                         this.errorService.handle(err);
                     });
