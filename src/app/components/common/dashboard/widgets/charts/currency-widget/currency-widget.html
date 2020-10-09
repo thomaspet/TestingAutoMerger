@@ -1,0 +1,55 @@
+<section class="header">
+	<h1>Valutakurser</h1>
+
+	<mat-radio-group [(ngModel)]="showChart" class="horizontal" aria-label="Visning" *ngIf="hasData">
+		<mat-radio-button [value]="true" (click)="reloadChart()">Graf</mat-radio-button>
+		<mat-radio-button [value]="false">Alle valuta</mat-radio-button>
+	</mat-radio-group>
+
+</section>
+
+<section *ngIf="!loading" class="content flex-row">
+    <widget-empty-state *ngIf="!hasData">
+        Det ser ikke ut som noe gikk galt da vi prøvde å hente valutakurser
+    </widget-empty-state>
+
+    <ng-container *ngIf="hasData && showChart">
+        <section class="curreny-content-container">
+			<section class="button-section">
+				<ul>
+					<li *ngFor="let code of selectedCodes" (click)="showCode(code)" [class.marked]="code.ID === currentCurrencyID">
+						{{ code.Name }}
+					</li>
+				</ul>
+			</section>
+
+			<section class="canvas-section">
+				<canvas #canvas></canvas>
+			</section>
+
+        </section>
+	</ng-container>
+
+	<ng-container *ngIf="hasData && !showChart">
+        <section class="curreny-content-container">
+			<simple-table class="currency-widget-table">
+                <thead>
+                    <tr>
+						<th>Valuta</th>
+						<th>Kode</th>
+                        <th class="date-col align-right"> {{ dateLabel }} </th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    <tr *ngFor="let currency of currencyCodes" (click)="showChart = true; showCode(currency.FromCurrencyCode)" title="Se utvikling av valuta i graf">
+						<td>{{currency.FromCurrencyCode.Name}}</td>
+						<td>{{currency.FromCurrencyCode.Code}}</td>
+                        <td class="align-right"> {{ currency.ExchangeRate }} </td>
+                    </tr>
+                </tbody>
+            </simple-table>
+
+        </section>
+    </ng-container>
+</section>

@@ -27,6 +27,7 @@ import {ReportShortcutsWidget, SelectReportsModal} from './misc/report-shortcuts
 import {WorkItemPieChart} from './charts/workitem-pie-chart/workitem-pie-chart';
 import {BankStatusWidget} from './misc/bank-status/bank-status';
 import {NewsletterWidget} from './misc/newsletter/newsletter-widget';
+import {CurrencyWidget} from './charts/currency-widget/currency-widget';
 
 export * from './widget';
 
@@ -60,7 +61,8 @@ export const WIDGET_COMPONENTS = [
     ReportShortcutsWidget,
     SelectReportsModal,
     BankStatusWidget,
-    NewsletterWidget
+    NewsletterWidget,
+    CurrencyWidget
 ];
 
 export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
@@ -182,6 +184,14 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
         module: WidgetModule.MISC,
         onlyForTheme: THEMES.UE,
         component: NewsletterWidget
+    },
+    {
+        name: 'CURRENCY',
+        label: 'Valutakurser',
+        size: 'large',
+        category: WidgetCategory.MISC,
+        module: WidgetModule.MISC,
+        component: CurrencyWidget
     },
     {
         name: 'BRUNO_ACCOUNTING_SERVICES',
