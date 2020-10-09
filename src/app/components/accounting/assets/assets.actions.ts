@@ -227,6 +227,9 @@ export class AssetsActions {
         if (currentAsset.Dimensions && !currentAsset.Dimensions.ID) {
             currentAsset.Dimensions['_createguid'] = this.assetsService.getNewGuid();
         }
+        if (currentAsset.DepreciationAccountID !== currentAsset.DepreciationAccount.ID) {
+            currentAsset.DepreciationAccount = undefined;
+        }
         this.store.currentAsset = lodash.merge(currentAsset, partialAsset);
         if (changes['AssetGroupCode']) {
             if (this.store.currentAsset.AssetGroupCode === 'X') {
@@ -257,6 +260,9 @@ export class AssetsActions {
             }
         }
         if (changes['BalanceAccountID'] && changes['BalanceAccountID'].currentValue) {
+            if (changes['BalanceAccountID'].currentValue !== currentAsset.BalanceAccount.ID) {
+                currentAsset.BalanceAccount = undefined;
+            }
             const options: IModalOptions = {
                 header: 'Oppdatere balansekonto',
                 message: 'Vil du oppdatere saldogruppe, avskrivningskonto og levetid også? Noen felt blir beregnet på nytt.'
@@ -265,6 +271,9 @@ export class AssetsActions {
                 filter(response => response === ConfirmActions.ACCEPT),
                 switchMap(response => this.createAssetFromAccountID(changes.BalanceAccountID.currentValue))
             ).subscribe((asset: Asset) => {
+                if (currentAsset.DepreciationAccountID !== asset.DepreciationAccountID) {
+                    currentAsset.DepreciationAccount = undefined;
+                }
                 this.store.currentAsset = {
                     ...currentAsset,
                     ...{
@@ -321,7 +330,7 @@ export class AssetsActions {
             });
         }
         if (changes['PurchaseAmount']) {
-            if (isNullOrUndefined(currentAsset.NetFinancialValue)) {
+            if (currentAsset.NetFinancialValue === null || currentAsset.NetFinancialValue === undefined) {
                 const asset = this.store.currentAsset;
                 asset.NetFinancialValue = currentAsset.PurchaseAmount;
                 this.store.currentAsset = {...asset};

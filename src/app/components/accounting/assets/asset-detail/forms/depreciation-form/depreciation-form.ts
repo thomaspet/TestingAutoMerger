@@ -47,18 +47,18 @@ export class DepreciationFormComponent {
     buildFieldsConfig(projects, departments, asset) {
         return [
             {
-                Property: 'DepreciationAccount',
+                Property: 'DepreciationAccountID',
                 Label: 'Avskrivningskonto',
                 FieldType: FieldType.AUTOCOMPLETE,
                 Options: {
                     search: (args) => this.assetsFormService.accountSearch(args),
                     template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : '',
-                    valueProperty: 'AccountNumber',
+                    valueProperty: 'ID',
                     getDefaultData: (() => {
                         if (!this.asset?.DepreciationAccountID) {
                             return of([]);
                         }
-                        return this.assetsFormService.getAccount(this.asset?.DepreciationAccountID)
+                        return this.assetsFormService.getAccount(this.asset?.DepreciationAccountID);
                     })
                 }
             },
@@ -71,7 +71,7 @@ export class DepreciationFormComponent {
                             ' fra et annet regnskapsprogram, er det verdi på eiendelen i balansen som skal legges inn ' +
                             '(Kjøpspris fratrukket tidligere avskrivninger og evt nedskrivninger)'
                 },
-                ReadOnly: this.asset.ID || this.supplierInvoiceID,
+                ReadOnly: (this.asset.ID || this.supplierInvoiceID) && this.asset.StatusCode,
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','
