@@ -143,7 +143,7 @@ export class CurrencyWidget {
 
 
     getEndpoint() {
-        const date = moment(new Date()).add('d', -60).format('DD.MM.YYYY');
+        const date = moment(new Date()).add('d', -60).toISOString();
         return `/api/statistics?model=Currency&select=CurrencyDate as CurrencyDate,ExchangeRate as ExchangeRate,FromCurrencyCodeID as FromCurrencyCodeID,FromCurrencyCode.Name as Name,`
         + `FromCurrencyCode.Code as Code,Factor as Factor`
         + `&expand=FromCurrencyCode`
