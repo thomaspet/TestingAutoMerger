@@ -67,7 +67,7 @@ export class NewSupplierInvoiceList implements OnInit {
             },
             {
                 Code: 'supplier_invoice_journal_and_pay',
-                ExecuteActionHandler: (selectedRows) => this.store.toPaymentFromList(selectedRows[0], false).toPromise(),
+                ExecuteActionHandler: (selectedRows) => this.store.toPaymentFromList(selectedRows[0].SupplierInvoiceID, false).toPromise(),
                 CheckActionIsDisabled: (selectedRow) =>
                     (selectedRow.SupplierInvoiceStatusCode !== StatusCodeSupplierInvoice.Draft
                     && selectedRow.SupplierInvoiceStatusCode !== StatusCodeSupplierInvoice.Approved)
