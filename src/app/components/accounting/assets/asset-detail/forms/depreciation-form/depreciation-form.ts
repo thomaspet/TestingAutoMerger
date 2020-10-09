@@ -47,13 +47,13 @@ export class DepreciationFormComponent {
     buildFieldsConfig(projects, departments, asset) {
         return [
             {
-                Property: 'DepreciationAccount',
+                Property: 'DepreciationAccountID',
                 Label: 'Avskrivningskonto',
                 FieldType: FieldType.AUTOCOMPLETE,
                 Options: {
                     search: (args) => this.assetsFormService.accountSearch(args),
                     template: (account: Account) => account ? `${account.AccountNumber} ${account.AccountName }` : '',
-                    valueProperty: 'AccountNumber',
+                    valueProperty: 'ID',
                     getDefaultData: (() => {
                         if (!this.asset?.DepreciationAccountID) {
                             return of([]);
