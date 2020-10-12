@@ -3532,7 +3532,7 @@ export class BillView implements OnInit, AfterViewInit {
                 });
             };
 
-            const paymentIdContainsCharacters = current.PaymentID.match(/[a-å]/gi)?.length > 0 ?? false;
+            const paymentIdContainsCharacters = current.PaymentID?.match(/[a-å]/gi)?.length > 0 ?? false;
             if (!paymentIdContainsCharacters && !this.modulusService.isValidKID(current.PaymentID)) {
                 this.toast.toast({
                     title: 'KID er ikke gyldig',
