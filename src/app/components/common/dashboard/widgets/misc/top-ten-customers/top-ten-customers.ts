@@ -53,6 +53,7 @@ export class TopTenCustomersWidget {
         const endpoint = `/api/statistics?model=Customer`
             + `&select=${selects.join(',')}`
             + `&filter=CustomerInvoice.StatusCode gt 42001`
+            + `&orderby=sum(casewhen(CustomerInvoice.InvoiceDate gt ${this.year}0101,CustomerInvoice.TaxInclusiveAmount,0)) desc`
             + `&join=Customer.ID eq CustomerInvoice.CustomerID`
             + `&expand=Info&top=10&wrap=false&distinct=false`;
 
