@@ -179,7 +179,8 @@ export class SupplierInvoiceView {
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
                     || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
-                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || !hasAutobank
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes
+                    || !hasAutobank || invoice.PaymentStatus === 30112
             },
             {
                 label: 'Bokfør og registrer betaling',
@@ -189,7 +190,8 @@ export class SupplierInvoiceView {
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
                     || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
-                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || hasAutobank
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes
+                    || hasAutobank || invoice.PaymentStatus === 30112
             },
             {
                 label: 'Bokfør',

@@ -4,7 +4,7 @@ import {Component, Input} from '@angular/core';
     selector: 'uni-tooltip',
     template: `
         <i class="material-icons" [ngClass]="type" [matTooltip]="text">
-            {{!type || type === 'info' ? 'info' : 'warning'}}
+            {{!type || type === 'info' ? 'info_outline' : 'warning'}}
         </i>
     `,
     styleUrls: ['./tooltip.sass']
