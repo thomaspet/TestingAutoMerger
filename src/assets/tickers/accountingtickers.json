@@ -1537,7 +1537,7 @@
         "Code": "new_supplierinvoice_list",
         "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
-        "IsTopLevelTicker": true,
+        "IsTopLevelTicker": false,
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
         "Expand": "",
@@ -1685,7 +1685,7 @@
         },
         "Actions": [
             {
-                "Name": "Åpne faktura",
+                "Name": "Åpne regning",
                 "Code": "open_supplierinvoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,

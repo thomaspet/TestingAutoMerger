@@ -131,7 +131,7 @@ export class UniCompanySettingsView {
             {
                 EntityType: 'CompanySettings',
                 Property: 'WebAddress',
-                FieldType: FieldType.EMAIL,
+                FieldType: FieldType.URL,
                 Classes: 'bill-small-field',
                 Label: 'Web'
             },
