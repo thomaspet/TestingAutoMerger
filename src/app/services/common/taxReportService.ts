@@ -49,21 +49,30 @@ export class Schema {
     constructor(code: string) {
         // TODO get from json-file or similar
         if (code === 'RF-1167') {
-            // Er firmaet revisjonspliktig? - Ja/Nei/Valgt bort
-            this._records.push(new FormRecordWithKey('Revisjonsplikt', 'Er foretaket revisjonspliktig?'));
+            // Side 1
+            this._records.push(new FormRecordWithKey('Revisjonsplikt', 'Er foretaket revisjonspliktig?')); // Ja/Nei/Valgt bort
+            this._records.push(new FormRecordWithKey('ArsregnskapRegnskapsregler', 'Hvilke regler er benyttet ved utarbeidelse av årsregnskapet?'));
+              // fem valg: IFRS; Regnskapslovens regler for små foretak; Forenklet IFRS; God regnskapsskikk for ideelle organisasjoner; Regnskapslovens alminnelige regler.
+            this._records.push(new FormRecordWithKey('ValutaUtenlandsk', 'Er bokføringsvalutaen en annen enn norske kroner, jf.  bokføringsforskriften § 4-2?')); // Ja/Nei
+            this._records.push(new FormRecordWithKey('ValutaTypeSpesifisertValuta', 'Type valuta'));
+            this._records.push(new FormRecordWithKey('Regnskapsplikt', 'Har foretaket årsregnskapsplikt etter regnskapsloven?'));
             this._records.push(new FormRecordWithKey('RevisorOrganisasjonsnummer', 'Revisors organisasjonsnr.'));
             this._records.push(new FormRecordWithKey('RevisjonsselskapNavn', 'Revisorselskapets navn'));
             this._records.push(new FormRecordWithKey('RevisorNavn', 'Revisors navn'));
             this._records.push(new FormRecordWithKey('RevisorAdresse', 'Adresse'));
             this._records.push(new FormRecordWithKey('RevisorPostnummer', 'Postnr.'));
             this._records.push(new FormRecordWithKey('RevisorPoststed', 'Poststed'));
-            // Er den løpende bokføringen utført av ekstern regnskapsfører? Ja/Nei
-            this._records.push(new FormRecordWithKey('RegnskapsforingEkstern', 'Er den løpende bokføringen utført av ekstern regnskapsfører?'));
+            this._records.push(new FormRecordWithKey('RegnskapsforingEkstern', 'Er den løpende bokføringen utført av ekstern regnskapsfører?')); // Ja/Nei
             this._records.push(new FormRecordWithKey('RegnskapsforerNavn', 'Navn'));
             this._records.push(new FormRecordWithKey('RegnskapsforerOrganisasjonsnummer', 'Organisasjonsnr.'));
             this._records.push(new FormRecordWithKey('RegnskapsforerAdresse', 'Forretningsadresse'));
             this._records.push(new FormRecordWithKey('RegnskapsforerPostnummer', 'Postnummer og poststed'));
             this._records.push(new FormRecordWithKey('RegnskapsforerPoststed', 'Poststed i adressen til regnskapsfører'));
+            this._records.push(new FormRecordWithKey('UtfyllerNaringsoppgave', 'Hvem har fylt ut næringsoppgaven?')); // Valgt revisor/ekstern regnskapsfører; foretaket selv; annen - oppgi hvem.
+            this._records.push(new FormRecordWithKey('UtfyllerOrganisasjonsnummer', 'Organisasjonsnummer'));
+            this._records.push(new FormRecordWithKey('UtfyllerNavn', 'Navn'));
+            this._records.push(new FormRecordWithKey('UtfyllerPostnummer', 'Postnummer'));
+            this._records.push(new FormRecordWithKey('UtfyllerPoststed', 'Poststed'));
             this._records.push(new FormRecordWithKey('FremforbartUnderskudd', 'Fremførbart underskudd'));
             this._records.push(new FormRecordWithKey('Sysselsatte', 'Antall årsverk i regnskapsåret'));
             // Side 4 - beløp
