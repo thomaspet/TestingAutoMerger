@@ -18,7 +18,6 @@ import {ConfirmActions, IModalOptions, IUniModal} from '../../interfaces';
 import {UniModalService} from '../../modalService';
 import {UniBankAccountModal} from '../bankAccountModal';
 import {ElsaAgreement, ElsaAgreementStatus} from '@app/models';
-import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-activate-ap-modal',
@@ -263,18 +262,6 @@ export class UniActivateAPModal implements IUniModal {
                 FieldType: FieldType.MULTIVALUE,
                 Label: 'Driftskonto'
             },
-            <any> {
-                Property: 'incommingInvoice',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Inngående faktura',
-                Hidden: theme.theme !== THEMES.UE
-            },
-            <any> {
-                Property: 'outgoingInvoice',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Utgående faktura',
-                Hidden: theme.theme !== THEMES.UE
-            }
         ];
     }
 }
