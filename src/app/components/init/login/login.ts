@@ -19,6 +19,7 @@ export class Login {
 
     isAuthenticated: boolean;
     availableCompanies: any[];
+    companyErrorMessage = '';
 
     background = theme.init.login_background || theme.init.background;
     backgroundHeight = theme.init.login_background_height;
@@ -31,6 +32,7 @@ export class Login {
     };
 
     tokenSubscription: Subscription;
+    errorMessageSubscription: Subscription;
 
     constructor(
         private router: Router,
@@ -44,11 +46,19 @@ export class Login {
                 this.loadCompanies();
             }
         });
+
+        this.errorMessageSubscription = this.authService.errorMessage$.subscribe(msg => {
+            this.companyErrorMessage = msg;
+        });
     }
 
     ngOnDestroy() {
         if (this.tokenSubscription) {
             this.tokenSubscription.unsubscribe();
+        }
+
+        if (this.errorMessageSubscription) {
+            this.errorMessageSubscription.unsubscribe();
         }
     }
 
@@ -94,6 +104,7 @@ export class Login {
     }
 
     onCompanySelected(company) {
+        this.companyErrorMessage = '';
         if (company) {
             const url = this.browserStorage.getItem('lastNavigationAttempt') || '/';
             this.browserStorage.removeItem('lastNavigationAttempt');

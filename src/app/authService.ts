@@ -47,6 +47,7 @@ export class AuthService {
 
     authentication$ = new ReplaySubject<IAuthDetails>(1);
     token$ = new ReplaySubject<string>(1);
+    errorMessage$ = new ReplaySubject<string>(1);
 
     jwt: string;
     id_token: string;
@@ -273,9 +274,18 @@ export class AuthService {
                                 this.setLoadIndicatorVisibility(false);
                             });
                         },
-                        () => {
-                            this.storage.removeOnUser('lastActiveCompanyKey');
-                            this.idsLogout();
+                        (err) => {
+                            this.isAuthenticated().then(isAuthenticated => {
+                                if (!isAuthenticated) {
+                                    this.storage.removeOnUser('lastActiveCompanyKey');
+                                    this.idsLogout();
+                                } else {
+                                    this.setLoadIndicatorVisibility(false);
+                                    this.storage.removeOnUser('lastActiveCompanyKey');
+                                    this.errorMessage$.next('Klarte ikke hente selskapsdata for dette firma. Prøv igjen senere');
+                                    this.router.navigateByUrl('/init/login');
+                                }
+                            });
                         }
                     );
                 }
