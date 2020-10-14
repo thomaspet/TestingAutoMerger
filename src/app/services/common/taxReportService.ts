@@ -75,6 +75,17 @@ export class Schema {
             this._records.push(new FormRecordWithKey('UtfyllerPoststed', 'Poststed'));
             this._records.push(new FormRecordWithKey('FremforbartUnderskudd', 'Fremførbart underskudd'));
             this._records.push(new FormRecordWithKey('Sysselsatte', 'Antall årsverk i regnskapsåret'));
+            // Varelager
+            this._records.push(new FormRecordWithKey('LagerbeholdningRavarerHalvfabrikata', 'Råvarer og innkjøpte halvfabrikata'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningRavarerHalvfabrikataFjoraret', 'Råvarer og innkjøpte halvfabrikata i fjor'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningVarerIArbeid', 'Varer under tilvirkning'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningVarerIArbeidFjoraret', 'Varer under tilvirkning i fjor'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningFerdigEgentilvirkedeVarer', 'Ferdige egentilvirkede varer'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningFerdigEgentilvirkedeVarerFjoraret', 'Ferdige egentilvirkede varer i fjor'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningInnkjopteVarerVideresalg', 'Innkjøpte varer for videresalg'));
+            this._records.push(new FormRecordWithKey('LagerbeholdningInnkjopteVarerVideresalgFjoraret', 'Innkjøpte varer for videresalg i fjor'));
+            this._records.push(new FormRecordWithKey('SalgKreditt', 'Kredittsalg'));
+            this._records.push(new FormRecordWithKey('SalgKredittFjoraret', 'Kredittsalg i fjor'));
             // Side 4 - beløp
             this._records.push(new FormRecordWithKey('AndelDeltakerlignetSelskapTap', 'Regnskapsmessig tap ved realisasjon av andel i selskap med deltakerfastsetting'));
             this._records.push(new FormRecordWithKey('GjeldsrenterTilbakefortEtter2392Og691', 'Tilbakeførte gjeldsrenter etter sktl §§ 2-39 (2) og 6-91'));
