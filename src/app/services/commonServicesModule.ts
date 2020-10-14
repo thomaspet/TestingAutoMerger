@@ -1,4 +1,5 @@
 import {NgModule, ModuleWithProviders} from '@angular/core';
+import {IDPortenAuthenticationService} from './common/idPortenAuthService';
 import {AltinnAuthenticationService} from './common/altinnAuthenticationService';
 import {AltinnIntegrationService} from './common/altinnIntegrationService';
 import {AltinnReceiptService} from './common/altinnReceiptService';
@@ -70,6 +71,7 @@ import {UniTranslationService} from './common/translationService';
 import {InitService} from './common/initService';
 import {AssetsService} from './common/assetsService';
 
+export * from './common/idPortenAuthService';
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
 export * from './common/altinnReceiptService';
@@ -149,6 +151,7 @@ export class CommonServicesModule {
                 ErrorService,
                 ApprovalRuleService,
                 ApprovalSubstituteService,
+                IDPortenAuthenticationService,
                 AltinnAuthenticationService,
                 AltinnIntegrationService,
                 AltinnReceiptService,

@@ -37,7 +37,9 @@ const PUBLIC_ROOT_ROUTES = [
     'dashboard-new'
 ];
 
-const PUBLIC_ROUTES = [];
+const PUBLIC_ROUTES = [
+    '/altinn/skattemelding'
+];
 
 @Injectable()
 export class AuthService {

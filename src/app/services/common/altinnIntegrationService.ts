@@ -144,6 +144,10 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
         return this.GetAction(null, 'get-a07-response', `receiptID=${receiptID}`).do(response => console.log(response));
     }
 
+    public pingAltinn(token: string) {
+        return super.PutAction(null, 'ping-altinn', `token=${token}`);
+    }
+
     private getHeaders(authData: AltinnAuthenticationData): any {
         return {
             'x-altinn-userid': authData.userID,

@@ -16,6 +16,7 @@ import {AltinnSettings} from './settings/altinnSettings';
 
 import {SelfEmployedView} from './overview/selfemployed/selfemployedview';
 import {SelfEmployedDetailsModal} from '@app/components/altinn/overview/selfemployed/selfemployed-details-modal/selfemployed-details-modal';
+import {SkattemeldingViewComponent} from './overview/skattemelding/skattemelding-view.component';
 
 @NgModule({
     imports: [
@@ -33,6 +34,7 @@ import {SelfEmployedDetailsModal} from '@app/components/altinn/overview/selfempl
         AltinnOverviewDetailsComponent,
         AltinnSettings,
         BarnepassView,
+        SkattemeldingViewComponent,
         SelfEmployedView,
         SelfEmployedDetailsModal
     ],
