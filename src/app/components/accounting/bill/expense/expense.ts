@@ -69,6 +69,7 @@ export class Expense implements OnInit {
 
         this.companySettingsService.Get(1, null).subscribe((companySettings) => {
             this.companySettings = companySettings;
+            this.session.companySettings = companySettings;
             this.route.queryParams.subscribe(params => {
                 this.dataLoaded = false;
                 if (params && params.fileid) {
