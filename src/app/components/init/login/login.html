@@ -17,6 +17,14 @@
                 [items]="availableCompanies"
                 (valueChange)="onCompanySelected($event)">
             </uni-select>
+            <small class="cmp-error-msg"> {{ companyErrorMessage }} </small>
+        </section>
+
+        <section class="operating-error-message">
+            <i class="material-icons">info_outline</i>
+            <span>
+                Vi opplever for tiden driftsproblemer relatert til databaser hos Microsoft Azure. Det rammer ikke alle, men enkelte av dere vil oppleve at ett eller flere selskap/klienter er utilgjengelig for pålogging. Vi jobber for å løse problemet, og vil sende ut en oppdatering når problemet er løst.
+            </span>
         </section>
     </section>
 </section>
