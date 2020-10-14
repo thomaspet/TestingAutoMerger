@@ -7,6 +7,7 @@ import {safeDec, toIso} from '@app/components/common/utils/utils';
 import {Observable} from 'rxjs';
 import {FinancialYearService} from '../accounting/financialYearService';
 import {DebitCreditEntry, IAccount, IVatType, INumberSerie, PaymentInfo, IJournal, PaymentMode} from './bankjournalmodels';
+import { CompanySettings } from '@uni-entities';
 export * from './bankjournalmodels';
 
 @Injectable()
@@ -22,6 +23,7 @@ export class BankJournalSession {
     public selectedSerie: INumberSerie;
     public payment: PaymentInfo = new PaymentInfo();
     public bankAccounts: Array<{}>;
+    public companySettings: CompanySettings;
 
     public get vatTypesCost(): Array<IVatType> {
         return this.vatTypes.filter( x => !x.OutputVat );
@@ -473,6 +475,12 @@ export class BankJournalSession {
 
     private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
         let setVatType;
+
+        if (this.companySettings.TaxMandatoryType !== 3) {
+            item.DebetVatTypeID = undefined;
+            return;
+        }
+
         if (!vatTypeID) {
             if ((item['_setbydebet'] !== isDebet)) {
                 return;
