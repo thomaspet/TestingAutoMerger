@@ -1412,13 +1412,12 @@ export class OrderDetails implements OnInit {
     private saveOrder(reloadAfterSave = true): Observable<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
         this.order = this.tofHelper.beforeSave(this.order);
-
         return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
             if (!canSave) {
                 return throwError('Lagring avbrutt');
             }
 
-            const navigateAfterSave = !this.order.ID;
+            const navigateAfterSave = true; 
             const saveRequest = this.order.ID > 0
                 ? this.customerOrderService.Put(this.order.ID, this.order)
                 : this.customerOrderService.Post(this.order);
