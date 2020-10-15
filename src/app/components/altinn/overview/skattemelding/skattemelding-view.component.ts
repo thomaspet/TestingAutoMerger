@@ -71,8 +71,6 @@ export class SkattemeldingViewComponent implements OnInit {
 
     public CheckLoginStatus(done) {
         if (this.idportenService.isLoggedIn()) {
-            // console.log(this.idportenService.currentUser);
-            // console.log(this.idportenService.getAuthorizationHeaderValue());
             this.altinnIntegrationService.pingAltinn(this.idportenService.getAuthorizationHeaderValue())
                 .subscribe(response => {
                     if (response) {
