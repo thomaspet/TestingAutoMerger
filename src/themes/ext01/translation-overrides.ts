@@ -7,7 +7,7 @@ export const TRANSLATION_OVERRIDES = {
     },
     SALES: {
         INVOICE: {
-            'PAYMENT_INFO_TEXT': 'Betalingen fra kunde vil bli registrert i SR-Bank Regnskap. Husk at betalingen fra kunde må ha kommet inn i banken før du registrerer betalingen i SR-Bank Regnskap.'
+            'PAYMENT_INFO_TEXT': 'Betalingen fra kunde vil bli registrert i SpareBank 1 Regnskap. Husk at betalingen fra kunde må ha kommet inn i banken før du registrerer betalingen i SpareBank 1 Regnskap.'
         },
         RECURRING_INVOICE: {
             'RECURRING_INVOICE_NEW': 'Ny gjentakende faktura',
@@ -30,8 +30,8 @@ export const TRANSLATION_OVERRIDES = {
     },
 
     SETTINGS: {
-        'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra SR-Bank Regnskap',
-        'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra SR-Bank Regnskap" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
+        'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra SpareBank 1 Regnskap',
+        'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra SpareBank 1 Regnskap" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
     },
 
     TIMETRACKING: {
@@ -40,7 +40,7 @@ export const TRANSLATION_OVERRIDES = {
 
     ACCOUNTING: {
         SUPPLIER_INVOICE: {
-            'REFUND_INFO': 'Tilbakebetalingen vil bli registrert som betalt i SR-Bank Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
+            'REFUND_INFO': 'Tilbakebetalingen vil bli registrert som betalt i SpareBank 1 Regnskap. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
             'NEW': 'Ny regning',
             'SINGLE': 'Regning',
             'SMART_BOOKING_ERROR_MSG': 'Kan ikke kjøre smart bokføring. Regningen mangler enten fakturabeløp eller leverandør med orgnr.',
@@ -53,8 +53,8 @@ export const TRANSLATION_OVERRIDES = {
             'FILE_IN_USE_MSG': 'Filen er allerede brukt til å føre bilag eller på en regning og kan derfor ikke slettes. Ønsker du å markere som brukt slik at den forsvinner fra innboks?',
             'MULTIPLE_USE_MSG1': 'Flere regninger knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.',
-            'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i SR-Bank Regnskap',
-            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i SR-Bank Regnskap på levernadører i samme bransje som valgt leverandør på din faktura.',
+            'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i SpareBank 1 Regnskap',
+            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i SpareBank 1 Regnskap på levernadører i samme bransje som valgt leverandør på din faktura.',
         },
         POSTPOST: {
             'ALL_WITH_OPEN': 'Alle med utestående',
@@ -65,7 +65,7 @@ export const TRANSLATION_OVERRIDES = {
     },
 
     BANK: {
-        'NEEDS_ACTION_TOOLTIP': 'Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i SR-Bank Regnskap. Vi har derfor ikke funnet en sammenfallende post i vårt system, og disse må behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere "Bokfør kun utbetalinger fra SR-Bank Regnskap" i bankinnstillingene. Da vil disse ikke bli bokført heretter.'
+        'NEEDS_ACTION_TOOLTIP': 'Utbetalingsposter som kommer i denne listen, skyldes at banken har returnert kvitteringer på betalinger som ikke er laget i SpareBank 1 Regnskap. Vi har derfor ikke funnet en sammenfallende post i vårt system, og disse må behandles manuelt. Klikk på de 3 prikkene til høyre i listen for å se behandlingsmuligheter. Du kan unngå at poster kommer i denne listen ved å aktivere "Bokfør kun utbetalinger fra SpareBank 1 Regnskap" i bankinnstillingene. Da vil disse ikke bli bokført heretter.'
     },
 
     TASKS: {

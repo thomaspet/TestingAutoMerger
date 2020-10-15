@@ -24,7 +24,7 @@
 
                         <section class="content">
                             <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
-                            <section *ngFor="let text of option.textSections">{{text}}</section>
+                            <section *ngFor="let text of option.textSections" [innerHTML]="text"></section>
                         </section>
 
                         <section class="footer">

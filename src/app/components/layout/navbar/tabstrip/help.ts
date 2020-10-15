@@ -2,6 +2,7 @@ import {Component, ChangeDetectionStrategy, ViewChild} from '@angular/core';
 import {BoostChat} from '@app/components/layout/boostChat/boostChat';
 import {theme, THEMES} from 'src/themes/theme';
 import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'uni-tabstrip-help',
@@ -62,8 +63,11 @@ export class UniTabstripHelp {
 
     helpdeskUrl;
 
-    constructor(private modalService: UniModalService) {
-        if (this.isUeEnvironment) {
+    constructor(private modalService: UniModalService, private authService: AuthService) {
+        // every else-if can be removed when we're sure every environment has set HelpDeskUrl in Elsa
+        if (this.authService.publicSettings?.HelpDeskUrl) {
+            this.helpdeskUrl = this.authService.publicSettings.HelpDeskUrl;
+        } else if (this.isUeEnvironment) {
             this.helpdeskUrl = 'https://help.unieconomy.no';
         } else if (this.isSrEnvironment) {
             this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';

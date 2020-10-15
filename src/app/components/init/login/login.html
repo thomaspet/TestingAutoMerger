@@ -5,12 +5,20 @@
         <img *ngIf="illustration" [src]="illustration">
     </section>
 
-    <section class="login-container">
-        <button class="c2a login-button" *ngIf="!isAuthenticated" (click)="authService.authenticate()" [disabled]="isLoading">
+    <section class="login-container" *ngIf="!isAuthenticated">
+        <section class="login-card" *ngIf="isSb1">
+            <p>SpareBank 1 Regnskap</p>
+            <button class="c2a login-button" (click)="authService.authenticate()" [disabled]="isLoading">
+                Logg inn
+            </button>
+        </section>
+        <button class="c2a login-button" *ngIf="!isSb1" (click)="authService.authenticate()" [disabled]="isLoading">
             Logg inn
         </button>
+    </section>
 
-        <section *ngIf="isAuthenticated && availableCompanies?.length" class="authentication-component">
+    <section class="select-company-container" *ngIf="isAuthenticated && availableCompanies?.length">
+        <section class="authentication-component">
             <h1>Velg selskap</h1>
             <uni-select
                 [config]="selectConfig"

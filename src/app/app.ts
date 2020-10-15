@@ -43,6 +43,7 @@ export class App {
     isOnInitRoute: boolean;
     isPendingApproval: boolean;
     isBankCustomer: boolean;
+    bankName: string;
 
     constructor(
         private titleService: Title,
@@ -81,6 +82,8 @@ export class App {
             event.preventDefault();
         }, false);
 
+        authService.getPublicSettings();
+
         authService.authentication$.subscribe((authDetails) => {
             this.isAuthenticated = !!authDetails.user;
             if (this.isAuthenticated) {
@@ -91,6 +94,9 @@ export class App {
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
                     this.elsaCustomerService.get(authDetails.user.License.Company.ContractID)
                     .subscribe(customer => {
+                        if (!customer.IsBankCustomer) {
+                            this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1';
+                        }
                         this.isBankCustomer = customer.IsBankCustomer;
                     }, err => console.error(err));
                     this.isPendingApproval = true;
@@ -176,8 +182,8 @@ export class App {
     }
 
     goToExternalSignup() {
-        if (theme.theme === THEMES.SR) {
-            let url = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/kjop/bli-kunde-bankregnskap.html';
+        if (theme.theme === THEMES.SR && this.authService.publicSettings?.BankCustomerUrl) {
+            let url = this.authService.publicSettings.BankCustomerUrl;
             this.statisticsService.GetAllUnwrapped(
                 'model=CompanySettings&select=OrganizationNumber as OrganizationNumber'
             ).subscribe(

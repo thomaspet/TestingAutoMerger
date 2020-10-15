@@ -5,6 +5,7 @@ import {ElsaContractService, ErrorService} from '@app/services/services';
 
 import {environment} from 'src/environments/environment';
 import {ElsaCustomer} from '@app/models';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'contract-activation-wizard',
@@ -24,6 +25,7 @@ export class ContractActivationWizard {
 
     termsAgreed = false;
 
+    bankName: string;
     headerText = theme.theme === THEMES.SR ? 'Bestill Bank+Regnskap' : 'Kontaktinformasjon';
     submitButtonText = theme.theme === THEMES.SR ? 'Bestill' : 'Aktiver kundeforhold';
     lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
@@ -38,10 +40,12 @@ export class ContractActivationWizard {
     constructor(
         private errorService: ErrorService,
         private elsaContractService: ElsaContractService,
+        private authService: AuthService,
     ) {
         if (theme.theme === THEMES.SR) {
             this.customerDetailsForm.addControl('PersonalNumber', new FormControl('', Validators.required));
             this.customerDetailsForm.addControl('IsBankCustomer', new FormControl(false));
+            this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1';
         } else if (theme.theme === THEMES.EXT02) {
             this.customerDetailsForm.addControl('BankUserID', new FormControl(''));
         }

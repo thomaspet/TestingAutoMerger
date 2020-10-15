@@ -25,6 +25,7 @@ export class Login {
     background = theme.init.login_background || theme.init.background;
     backgroundHeight = theme.init.login_background_height;
     illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
+    isSb1 = theme.theme === THEMES.SR;
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',

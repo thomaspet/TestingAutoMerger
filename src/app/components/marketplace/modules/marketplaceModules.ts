@@ -79,7 +79,10 @@ export class MarketplaceModules implements AfterViewInit {
             name: 'Markedsplass', url: '/marketplace/modules', moduleID: UniModules.Marketplace, active: true
         });
 
-        if (theme.theme === THEMES.UE) {
+        // every else-if can be removed when we're sure every environment has set PriceListUrl in Elsa
+        if (this.authService.publicSettings?.PriceListUrl) {
+            this.priceListLink = this.authService.publicSettings.PriceListUrl;
+        } else if (theme.theme === THEMES.UE) {
             this.priceListLink = 'https://info.unieconomy.no/priser';
         } else if (theme.theme === THEMES.SR) {
             this.priceListLink = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html';
