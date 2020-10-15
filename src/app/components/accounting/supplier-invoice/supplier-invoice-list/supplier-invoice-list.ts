@@ -54,7 +54,7 @@ export class NewSupplierInvoiceList implements OnInit {
     }
 
     private newInvoice() {
-        this.router.navigateByUrl('/accounting/bills/' + 0);
+        this.router.navigateByUrl('/accounting/inbox');
     }
 
     getActionOverrides() {
