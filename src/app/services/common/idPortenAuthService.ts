@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { UserManager, WebStorageStateStore, User, Log} from 'oidc-client';
+import { UserManager, WebStorageStateStore, User} from 'oidc-client';
 import { Observable } from 'rxjs';
 
 // Log.logger = console;
@@ -55,7 +55,7 @@ export class IDPortenAuthenticationService {
      return this.userManager.signinRedirect();
   }
 
-  public popupSignin() {
+  public popupSignin(): Promise<User>  {
     return this.userManager.signinPopup();
   }
 
@@ -70,12 +70,22 @@ export class IDPortenAuthenticationService {
     return false;
   }
 
-  getAuthorizationHeaderValue(): string {
-    return `${this.currentUser.access_token}`;
+  public isLoggedIn$(): Observable<boolean> {
+    return Observable.fromPromise(this.userManager.getUser()).map<User, boolean>((user) => {
+      if (user && !user.expired) {
+        return true;
+      } else {
+        this.popupSignin().then(res => {
+          if (res.expired) {
+          return false;
+          }
+        });
+        return true;
+      }
+    });
   }
 
-  async completeAuthentication(): Promise<void> {
-    const user = await this.userManager.signinRedirectCallback();
-    this.currentUser = user;
+  getAuthorizationHeaderValue(): string {
+    return `${this.currentUser.access_token}`;
   }
 }
