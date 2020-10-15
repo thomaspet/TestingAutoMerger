@@ -229,7 +229,7 @@ export class SupplierInvoiceView {
                     this.supplierInvoiceService.Remove(invoice.ID).subscribe(
                         () => {
                             done();
-                            this.router.navigateByUrl('/accounting/bills/0');
+                            this.router.navigateByUrl('/accounting/inbox');
                         },
                         err => {
                             done();
@@ -309,7 +309,7 @@ export class SupplierInvoiceView {
         if (invoice.ID) {
             this.toolbarconfig.buttons.push({
                 label: 'Opprett ny',
-                action: () => this.router.navigateByUrl('/accounting/supplier-invoice/0')
+                action: () => this.router.navigateByUrl('/accounting/inbox')
             });
         }
 
