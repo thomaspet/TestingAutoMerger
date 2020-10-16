@@ -150,14 +150,14 @@ export class JournalEntryFromAccountModal implements IUniModal {
             const journalEntry = {
                 DraftLines: [
                     {
-                        FinancialDate: moment(line.Date).format('YYYY-MM-DD'),
+                        FinancialDate: moment(line.PaymentDate).format('YYYY-MM-DD'),
                         Description: line.Description,
                         Amount: line.Amount * -1,
                         AccountID: line.SubAccountID,
                         Account: line.SubAccountName
                     },
                     {
-                        FinancialDate: moment(line.Date).format('YYYY-MM-DD'),
+                        FinancialDate: moment(line.PaymentDate).format('YYYY-MM-DD'),
                         Description: line.Description,
                         Amount: line.Amount,
                         AccountID: bankAccount.AccountID,
