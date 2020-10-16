@@ -15,8 +15,8 @@
 
 		<label class="uni-label">
 			<span>Betalt fra</span>
-			<select [ngModel]="selectedBankAccount" (ngModelChange)="onChange($event)">
-				<option [ngValue]="acc" *ngFor="let acc of bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
+			<select [ngModel]="store.selectedBankAccount" (ngModelChange)="onChange($event)">
+				<option [ngValue]="acc" *ngFor="let acc of store?.bankAccounts" >{{acc.AccountNumber}} {{acc.AccountName}} - {{acc.BankName}}</option>
 			</select>
 		</label>
 

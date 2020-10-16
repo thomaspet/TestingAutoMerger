@@ -825,6 +825,14 @@ export class BillsView implements OnInit {
                         ? 'supplier-invoice-table-plus'
                         : 'supplier-invoice-table-minus'
                 ),
+
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                .setFilterOperator('contains')
+                .setConditionalCls(item =>
+                    item.RestAmount >= 0
+                        ? 'supplier-invoice-table-plus'
+                        : 'supplier-invoice-table-minus'
+                ),
             new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(theme.theme !== THEMES.EXT02),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),

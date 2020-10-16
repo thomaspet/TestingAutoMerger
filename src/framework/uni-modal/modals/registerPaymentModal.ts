@@ -72,7 +72,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
     accounts: any[] = [];
- 
+
     constructor(
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
@@ -191,8 +191,8 @@ export class UniRegisterPaymentModal implements IUniModal {
 
             const payment: Payment = this.formModel$.getValue();
             payment.CurrencyExchangeRate = this.paymentCurrencyExchangeRate;
-            
-           
+
+
 
             const diffCurrencyExchangeRate = Math.abs(
                 (this.config.currencyExchangeRate || 1) - (payment.CurrencyExchangeRate || 1)
@@ -411,9 +411,10 @@ export class UniRegisterPaymentModal implements IUniModal {
                     source: this.accounts,
                     valueProperty: 'ID',
                     template: (item) => {
-                        return item && item.Label
+                        return item?.Label
                         ? (item.AccountNumber + ' - ' + item.Label)
-                        : item && item.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name) : '';
+                        : item?.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name)
+                        : item?.BankName ? (item.AccountNumber + ' - ' + item.BankName)  : '';
                     },
                     debounceTime: 200,
                     hideDeleteButton: true,

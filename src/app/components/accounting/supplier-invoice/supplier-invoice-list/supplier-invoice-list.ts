@@ -36,6 +36,7 @@ export class NewSupplierInvoiceList implements OnInit {
     ) {
         this.companySettingsService.Get(1).subscribe((cs: CompanySettings) => {
             this.hasAutoBank = cs.HasAutobank;
+            this.store.listInit(cs);
             this.actionOverrides = this.getActionOverrides();
         }, err => this.actionOverrides = this.getActionOverrides());
     }
@@ -43,7 +44,7 @@ export class NewSupplierInvoiceList implements OnInit {
     public ngOnInit() {
         this.tabService.addTab({
             url: '/accounting/bills',
-            name: 'Utgifter',
+            name: 'Regninger',
             active: true,
             moduleID: UniModules.Bills
         });

@@ -106,7 +106,7 @@ export class ReminderRules implements OnInit, OnChanges {
                 Label: 'Dager fra forfall',
                 FieldType: FieldType.NUMERIC,
                 Tooltip: {
-                    Text: 'Her angir du antall dager etter forfallsdato på faktura før purringen skal sendes'
+                    Text: 'Her angir du hvor mange forfallsdager du skal ha ved sending av purring/inkassovarsel'
                 }
             },
             <any> {
@@ -114,7 +114,7 @@ export class ReminderRules implements OnInit, OnChanges {
                 Label: 'Dager til forfall',
                 FieldType: FieldType.NUMERIC,
                 Tooltip: {
-                    Text: 'Her angir du hvor mange dagers frist du skal ha på purring'
+                    Text: 'Her angir du antall dager etter forfallsdato på faktura/forrige varsel før du kan sende ny purring/inkassovarsel'
                 }
             },
             <any> {

@@ -654,7 +654,8 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'Unit',
                     FieldType: FieldType.TEXT,
-                    Label: 'Enhet'
+                    Label: 'Enhet',
+                    Placeholder: '(Valgfri)'
                 },
                 {
                     FieldSet: 1,
