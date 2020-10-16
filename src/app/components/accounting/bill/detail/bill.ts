@@ -520,12 +520,16 @@ export class BillView implements OnInit, AfterViewInit {
     }
 
     private updateInvoicePayments() {
-        return Observable.forkJoin(
+        return Observable.forkJoin([
             this.bankService.getBankPayments(this.currentID),
             this.bankService.getRegisteredPayments(this.currentID),
             this.bankService.getSumOfPayments(this.currentID)
-        ).subscribe(res => {
-            this.invoicePayments = res[0].concat(res[1]);
+        ]).subscribe(res => {
+            let bankPayments = res[0];
+            let registeredPayments = res[1];
+            this.invoicePayments = bankPayments.concat(registeredPayments.filter(
+                payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+            ));
             this.sumOfPayments = res[2][0];
             this.fetchInvoice(this.currentID, false);
         });
@@ -3052,7 +3056,11 @@ export class BillView implements OnInit, AfterViewInit {
                     }
 
                     const setupInvoice = () => {
-                        this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
+                        this.invoicePayments = (bankPayments || []).concat(
+                            (registeredPayments || []).filter(
+                                payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+                            )
+                        );
                         this.sumOfPayments = sumOfPayments[0];
 
                         this.current.next(invoice);
