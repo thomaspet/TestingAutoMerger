@@ -22,6 +22,7 @@ import {routes as JournalEntryRoutes} from './journalentry/journalentryRoutes';
 import {routes as AccountintReportsRoutes} from './accountingreports/accountingreportsRoutes';
 import { CanDeactivateGuard } from '@app/canDeactivateGuard';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
+import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
 import {UniInbox} from './inbox/inbox';
 import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
 import {theme, THEMES} from 'src/themes/theme';
@@ -75,13 +76,23 @@ export const accountingRoutes: Routes = [
         component: NewSupplierInvoiceList,
         canDeactivate: [CanDeactivateGuard]
     },
-    theme.theme === THEMES.UE ? {
+    theme.theme === THEMES.UE || theme.theme === THEMES.SR ? {
         path: 'bills/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]
     } :
     {
         path: 'bills/:id',
+        component: SupplierInvoiceView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'supplier-invoice',
+        component: SRSupplierInvoiceList,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'supplier-invoice/:id',
         component: SupplierInvoiceView,
         canDeactivate: [CanDeactivateGuard]
     },

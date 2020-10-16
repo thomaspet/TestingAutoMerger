@@ -75,6 +75,7 @@ import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirec
 import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
 import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module';
 import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
+import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
 
 @NgModule({
     imports: [
@@ -107,6 +108,7 @@ import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/s
         NewOutgoingWizardModal,
         DoneRedirectModal,
         SupplierEditModal,
+        SRSupplierInvoiceList,
 
         // journalentry
         JournalEntryProfessional,
