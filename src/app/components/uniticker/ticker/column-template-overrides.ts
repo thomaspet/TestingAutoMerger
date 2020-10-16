@@ -25,6 +25,21 @@ export const ColumnTemplateOverrides: ColumnTemplateOverrides = {
         }
     },
 
+    new_supplierinvoice_list: {
+        'InvoiceOriginType': (row, column) => {
+            switch (row[column.Alias]) {
+                case SupplierInvoiceOriginType.SupplierInvoice:
+                    return 'Regning';
+                case SupplierInvoiceOriginType.Receipt:
+                    return 'Kvittering';
+                case SupplierInvoiceOriginType.Refund:
+                    return 'Tilbakebetaling';
+                default:
+                    return '';
+            }
+        }
+    },
+
     // Sales
 
     // Bank

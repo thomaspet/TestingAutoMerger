@@ -20,7 +20,6 @@ export class DetailsFormExpense {
     @Input()
     currentMode: number = 1;
 
-    bankAccounts: any[] = [];
     selectedBankAccount;
     autocompleteOptions: any;
     date: Date = new Date();
@@ -57,6 +56,7 @@ export class DetailsFormExpense {
                 this.date = new Date(invoice?.InvoiceDate.toDate() || new Date());
             }
             this.supplierInvoice = invoice;
+            this.selectedBankAccount = this.store.bankAccounts[0];
         });
 
         this.autocompleteOptions = {
@@ -91,15 +91,6 @@ export class DetailsFormExpense {
                 return this.modalService.open(SupplierEditModal, {listkey: !!value.trim() ? value : '' }).onClose;
             }
         };
-
-        this.init();
-    }
-
-    init() {
-        this.getSystemBankAccounts().subscribe(accounts => {
-            this.bankAccounts = accounts;
-            this.selectedBankAccount = accounts[0];
-        });
     }
 
     newSupplierSelected(supplier) {
@@ -119,7 +110,7 @@ export class DetailsFormExpense {
     }
 
     onChange(account) {
-        this.selectedBankAccount = account;
+        this.store.selectedBankAccount = account;
     }
 
     editSelectedAccount(item) {
@@ -131,18 +122,6 @@ export class DetailsFormExpense {
                 this.setAccount(reciever);
             }
         });
-    }
-
-    getSystemBankAccounts() {
-        return this.statisticsService.GetAll('model=bankaccount&select=ID as ID,AccountID as AccountID'
-        + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
-        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
-        + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
-        + '&filter=companysettingsid gt 0&expand=bank,account'
-        + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
-        + '&top=50&distinct=false'
-        + '&orderby=casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,0,1)')
-            .map( x => x.Data );
     }
 
     supplierLookup(query: string) {
