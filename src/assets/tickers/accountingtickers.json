@@ -517,12 +517,6 @@
                 "Format": "DatePassed"
             },
             {
-                "Header": "Type",
-                "Field": "InvoiceOriginType",
-                "FilterSelectConfigKey": "InvoiceOriginType",
-                "ExcludeFromEnvironment": "UE"
-            },
-            {
                 "Header": "Bankgiro",
                 "Field": "BankAccount.AccountNumber"
             },

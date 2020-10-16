@@ -195,7 +195,7 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             'Project.Name', 'Project.Projectnumber', 'Department.Name',
             'Department.DepartmentNumber', 'CurrencyCodeID',
             'CurrencyCode.Code', 'CreatedAt', 'ReInvoice.StatusCode',
-            'ReInvoice.ID', 'PaymentStatus', 'InvoiceOriginType'
+            'ReInvoice.ID', 'PaymentStatus' // , 'InvoiceOriginType'
         );
 
         let route = '?model=SupplierInvoice' +
