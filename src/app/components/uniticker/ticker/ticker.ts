@@ -896,7 +896,8 @@ export class UniTicker {
         const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
         this.headers = '';
 
-        this.ticker.Columns = this.ticker.Columns.filter(col => col.ExcludeFromEnvironment !== theme.theme);
+        this.ticker.Columns = this.ticker.Columns.filter(col => !col.ExcludeFromEnvironments
+            || col.ExcludeFromEnvironments.findIndex(t => t !== theme.theme) !== -1);
 
         for (let i = 0; i < this.ticker.Columns.length; i++) {
             const column = this.ticker.Columns[i];

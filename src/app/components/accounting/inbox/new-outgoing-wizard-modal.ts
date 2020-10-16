@@ -19,7 +19,7 @@ export class NewOutgoingWizardModal implements IUniModal {
             label: 'Regning',
             infoText: 'Faktura som skal betales av selskapet',
             value: '1',
-            route: '/accounting/bills/0?fileid='
+            route: '/accounting/supplier-invoice/0?fileid='
         },
         {
             selected: false,

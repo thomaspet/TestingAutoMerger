@@ -74,6 +74,7 @@ import { UniDateAdapter } from '@app/date-adapter';
 import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
 import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
 import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module';
+import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
 
 @NgModule({
     imports: [
@@ -105,6 +106,7 @@ import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module'
         NewOutgoingWizardModal,
         DoneRedirectModal,
         SupplierEditModal,
+        SRSupplierInvoiceList,
 
         // journalentry
         JournalEntryProfessional,

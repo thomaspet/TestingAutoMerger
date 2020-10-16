@@ -471,6 +471,7 @@
         "Model": "SupplierInvoice",
         "Expand": "",
         "Distinct": true,
+        "OrderBy": "ID desc",
         "Joins": "SupplierInvoice.ID eq Task.EntityID and Task.ID eq Approval.TaskID and Approval.UserID eq User.ID",
         "Columns": [
             {
@@ -513,12 +514,6 @@
                 "Header": "Forfall",
                 "Field": "PaymentDueDate",
                 "Format": "DatePassed"
-            },
-            {
-                "Header": "Type",
-                "Field": "InvoiceOriginType",
-                "FilterSelectConfigKey": "InvoiceOriginType",
-                "ExcludeFromEnvironment": "UE"
             },
             {
                 "Header": "Bankgiro",

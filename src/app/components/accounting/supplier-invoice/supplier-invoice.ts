@@ -296,7 +296,7 @@ export class SupplierInvoiceView {
         if (invoice.ID) {
             this.toolbarconfig.buttons.push({
                 label: 'Opprett ny',
-                action: () => this.router.navigateByUrl('/accounting/bills/0')
+                action: () => this.router.navigateByUrl('/accounting/inbox')
             });
         }
 

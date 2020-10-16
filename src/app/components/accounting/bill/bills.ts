@@ -846,14 +846,14 @@ export class BillsView implements OnInit {
                     displayField: 'Text',
                     valueField: 'Code'
                 }),
-            new UniTableColumn('InvoiceOriginType', 'Type')
-                .setWidth('10rem', true, false)
-                .setTemplate(row => this.getOriginTypeText(row))
-                .setFilterSelectConfig({
-                    options: this.originTypes,
-                    displayField: 'name',
-                    valueField: 'value'
-                }),
+            // new UniTableColumn('InvoiceOriginType', 'Type')
+            //     .setWidth('10rem', true, false)
+            //     .setTemplate(row => this.getOriginTypeText(row))
+            //     .setFilterSelectConfig({
+            //         options: this.originTypes,
+            //         displayField: 'name',
+            //         valueField: 'value'
+            //     }),
             new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
             new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)
                 .setVisible(!!filter.showStatus)
@@ -918,7 +918,7 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
+        if (theme.theme === THEMES.EXT02) {
             this.router.navigate(['/accounting/inbox'], {queryParams: {openmodal: 1}});
         } else {
             this.router.navigateByUrl('/accounting/bills/0');
@@ -1125,11 +1125,11 @@ export class BillsView implements OnInit {
         }
     }
 
-    private getOriginTypeText(row): string {
-        if (row.InvoiceOriginType > 1) {
-            return row.InvoiceOriginType === 2 ? 'Kvittering' : 'Tilbakebetaling';
-        } else {
-            return theme.theme === THEMES.UE ? 'Leverandørfaktura' : 'Regning';
-        }
-    }
+    // private getOriginTypeText(row): string {
+    //     if (row.InvoiceOriginType > 1) {
+    //         return row.InvoiceOriginType === 2 ? 'Kvittering' : 'Tilbakebetaling';
+    //     } else {
+    //         return theme.theme === THEMES.UE ? 'Leverandørfaktura' : 'Regning';
+    //     }
+    // }
 }
