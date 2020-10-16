@@ -483,7 +483,7 @@ export class BankJournalSession {
     private setVatType(item: DebitCreditEntry, vatTypeID: number, isDebet = true) {
         let setVatType;
 
-        if (this.companySettings.TaxMandatoryType !== 3) {
+        if (this.companySettings?.TaxMandatoryType !== 3) {
             item.DebetVatTypeID = undefined;
             return;
         }
