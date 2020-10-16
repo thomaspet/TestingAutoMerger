@@ -48,7 +48,12 @@ export class Schema {
     }
     constructor(code: string) {
         // TODO get from json-file or similar
-        if (code === 'RF-1167') {
+        if (code === 'RF-1028') {
+            this._records.push(new FormRecordWithKey('FinansiellAktivitetNaringshovedomradeFinansieringForsikring', 'Driver selskapet med finansiell aktivitet?'));
+            this._records.push(new FormRecordWithKey('ForhandsligningOnske', 'Gjelder meldingen forhåndsfastsetting?'));
+            this._records.push(new FormRecordWithKey('SkattInnbetaltTilbakebetalingKontonummer', 'Kontonummer for ev. tilbakebetaling skatt'));
+            this._records.push(new FormRecordWithKey('EnhetKommunenummer', 'Kontorkommune pr 31.12'));
+        } else if (code === 'RF-1167') {
             // Side 1
             this._records.push(new FormRecordWithKey('Revisjonsplikt', 'Er foretaket revisjonspliktig?')); // Ja/Nei/Valgt bort
             this._records.push(new FormRecordWithKey('ArsregnskapRegnskapsregler', 'Hvilke regler er benyttet ved utarbeidelse av årsregnskapet?'));
