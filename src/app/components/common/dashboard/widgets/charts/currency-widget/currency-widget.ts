@@ -26,7 +26,8 @@ export class CurrencyWidget {
     currencyCodes = [];
 
     chartRef: Chart;
-    dateLabel = moment(new Date()).format('DD MMM');
+    dateLabel = '';
+    dateLabelOld = '';
 
     selectedCodes = [
         { ID: 2, Name: 'USD' },
@@ -49,6 +50,9 @@ export class CurrencyWidget {
         this.currencyService.getAllExchangeRates(1, new Date()).subscribe((currencyCodes) => {
             this.hasData = true;
             this.currencyCodes = currencyCodes.sort((a, b) => a.FromCurrencyCode.ID > b.FromCurrencyCode.ID ? 1 : -1);
+            const referenceObject = currencyCodes[0];
+            this.dateLabel = moment(referenceObject.RateDate).format('DD MMM');
+            this.dateLabelOld = moment(referenceObject.RateDateOld).format('DD MMM');
             this.getData();
         }, err => {
             this.hasData = false;
