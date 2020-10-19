@@ -2,6 +2,7 @@ import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
 import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
 
 import {THEMES} from './themes-enum';
+import {MINI_PACKAGE_BLACKLIST, PLUS_PACKAGE_BLACKLIST} from './ext01/feature-blacklists';
 export * from './themes-enum';
 
 export const theme = {
@@ -14,7 +15,12 @@ export const theme = {
 
     dashboardConfigs: DASHBOARD_CONFIGS,
     tableColumnOverrides: undefined,
-    featureBlacklists: undefined,
+    featureBlacklists: {
+        Demo: MINI_PACKAGE_BLACKLIST,
+        Mini: MINI_PACKAGE_BLACKLIST,
+        Plus: PLUS_PACKAGE_BLACKLIST,
+        Complete: undefined
+    },
 
     init: {
         illustration: 'themes/ext01/login_background.jpg',
