@@ -66,7 +66,7 @@ export const accountingRoutes: Routes = [
         children: AccountintReportsRoutes,
         canDeactivate: [CanDeactivateGuard]
     },
-    theme.theme === THEMES.UE ? {
+    theme.theme !== THEMES.EXT02 ? {
         path: 'bills',
         component: BillsView,
         canDeactivate: [CanDeactivateGuard]
@@ -76,7 +76,7 @@ export const accountingRoutes: Routes = [
         component: NewSupplierInvoiceList,
         canDeactivate: [CanDeactivateGuard]
     },
-    theme.theme === THEMES.UE || theme.theme === THEMES.SR ? {
+    theme.theme !== THEMES.EXT02 ? {
         path: 'bills/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]
