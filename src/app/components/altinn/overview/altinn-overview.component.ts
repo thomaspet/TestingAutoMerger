@@ -39,16 +39,17 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             main: false
         },
         {
-            label: 'Test årsoppgjør',
-            action: () => this.modalService.open(TaxReportModal)/*.onClose.subscribe(() => { })*/,
-            disabled: false,
-            main: false
-        },
             label: 'Skattemelding',
             action: () => this.router.navigateByUrl('/altinn/skattemelding'),
             disabled: false,
             main: false
         },
+        {
+            label: 'Test årsoppgjør',
+            action: () => this.modalService.open(TaxReportModal)/*.onClose.subscribe(() => { })*/,
+            disabled: false,
+            main: false
+        }
     ];
 
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
