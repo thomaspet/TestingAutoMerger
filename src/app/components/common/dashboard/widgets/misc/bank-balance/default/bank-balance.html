@@ -3,10 +3,10 @@
 </section>
 
 <section class="content">
-    <widget-empty-state *ngIf="onboardingState === 'none'" class="horizontal align-left">
+    <widget-empty-state *ngIf="onboardingState === 'none' || onboardingState === 'pending'" class="horizontal align-left">
         For å se saldo på bankkonto trenger du en autobankavtale med banken. <br>
-        <button routerLink="/bank/ticker" class="c2a">
-            Koble sammen bank og regnskap
+        <button (click)="connectBank()" class="c2a">
+            {{ onboardingState === 'pending' ? 'Koble sammen bank og regnskap' : 'Aktiver autobank på markedsplass' }}
         </button>
     </widget-empty-state>
 
