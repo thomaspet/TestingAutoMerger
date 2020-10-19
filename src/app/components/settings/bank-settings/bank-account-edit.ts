@@ -23,7 +23,7 @@ import {theme, THEMES} from 'src/themes/theme';
 
         <footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">
             <button class="c2a secondary" style="min-width: 8rem" (click)="saved.emit(false);">Lukk</button>
-            <button class="c2a" style="min-width: 8rem"  (click)="save()">Lagre konto</button>
+            <button class="c2a" style="min-width: 8rem"  (click)="save()" [disabled]="!validAccount">Lagre konto</button>
         </footer>
     `,
     styleUrls: ['./bank-accounts.sass']
@@ -118,7 +118,7 @@ export class CompanyBankAccountEdit {
 
     getBankAccountsConnectedToAccount(accountID: number) {
         this.setBusy.emit(true);
-        this.errorMsg = '';
+        this.errorMsg = this.errorMsg ?? '';
         const accounts = [];
         this.bankAccountService.getConnectedBankAccounts(accountID, this.formModel$.value.ID).subscribe((res) => {
             res.forEach(ba => {
@@ -256,9 +256,17 @@ export class CompanyBankAccountEdit {
     private checkIsAccountNumberAlreadyRegistered(account: BankAccount, currentValue: string) {
         this.setBusy.emit(true);
         const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
-        this.accountAndIBANSearch(currentValue).subscribe((res) => {
+        this.accountAndIBANSearch(currentValue).subscribe((error) => {
             this.setBusy.emit(false);
             this.toastService.removeToast(toastSearchBankAccount);
+
+            if (error !== null) {
+                this.errorMsg = error;
+                return;
+            }
+
+            this.errorMsg = '';
+
             this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
                 if (res2.Data.length > 0) {
                     let bankAccountUsesMessages = 'Bankkonto er allerede i bruk: <br><br>';
@@ -298,24 +306,39 @@ export class CompanyBankAccountEdit {
         return request.catch(res => {
             this.validAccount = false;
             this.toastService.clear();
-            this.toastService.addToast('Ugyldig IBAN/Kontonummer', ToastType.bad, 5, 'Sjekk kontonummer og prøv igjen.') ;
+            this.toastService.addToast('Ugyldig IBAN/Kontonummer', ToastType.bad, 5, 'Sjekk kontonummer og prøv igjen.');
             return Observable.of(null);
         })
-        .switchMap((res: any) => {
-            if (res) {
-                const account = this.formModel$.getValue();
-                account.AccountNumber = res.AccountNumber;
-                account.IBAN = res.IBAN;
-                account.Bank = res.Bank;
-                account.BankID = res.Bank.ID;
-                if (!account['BankList'].find(x => x.ID === res.Bank.ID)) {
-                    account['BankList'].push(res.Bank);
+            .switchMap((res: any) => {
+                if (res) {
+                    const account = this.formModel$.getValue();
+
+                    // Only allow DnB accounts when in ext02 theme
+                    if (theme.theme === THEMES.EXT02 && !res.ID && res.Bank.BIC !== 'DNBANOKK') {
+
+                        account.AccountNumber = res.AccountNumber;
+                        account.IBAN = null;
+                        account.Bank = null;
+                        account.BankID = null;
+                        account['BankList'] = [];
+
+                        this.formModel$.next(account);
+                        this.validAccount = false;
+                        return Observable.of('DNB-Regnskap tillatter kun gyldige kontoer fra DNB');
+                    }
+
+                    account.AccountNumber = res.AccountNumber;
+                    account.IBAN = res.IBAN;
+                    account.Bank = res.Bank;
+                    account.BankID = res.Bank.ID;
+                    if (!account['BankList'].find(x => x.ID === res.Bank.ID)) {
+                        account['BankList'].push(res.Bank);
+                    }
+                    this.formModel$.next(account);
+                    this.validAccount = true;
                 }
-                this.formModel$.next(account);
-                this.validAccount = true;
-            }
-            return Observable.of([]);
-        });
+                return Observable.of(null);
+            });
     }
 
     private getFormFields(hideStandard: boolean = false): Partial<UniFieldLayout>[] {
@@ -369,7 +392,16 @@ export class CompanyBankAccountEdit {
                     valueProperty: 'ID',
                     template: (item) => item?.Name,
                     debounceTime: 200
-                }
+                },
+                Hidden: theme.theme === THEMES.EXT02
+            },
+            {
+                EntityType: 'Bank',
+                Property: 'Bank.Name',
+                FieldType: FieldType.TEXT,
+                ReadOnly: true,
+                Label: 'Navn på bank',
+                Hidden: theme.theme !== THEMES.EXT02
             },
             {
                 EntityType: 'BankAccount',

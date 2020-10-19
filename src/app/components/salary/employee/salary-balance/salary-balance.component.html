@@ -10,7 +10,6 @@
     <main class="splitview_detail">
         <uni-salary-balance-details
             [salarybalance]="selectedSalaryBalance$ | async"
-            [useExternalChangeDetection]="true"
             [ignoreFields]="['EmployeeID', 'SalarytransactionDescription']"
             (salarybalanceChange)="onSalarybalanceChange($event)">
         </uni-salary-balance-details>

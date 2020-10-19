@@ -11,12 +11,14 @@ import { AccountService } from '@app/services/accounting/accountService';
 import { CompanySalaryService } from '@app/services/salary/companySalary/companySalaryService';
 import { UniFieldLayout, FieldType } from '@uni-framework/ui/uniform';
 import { ErrorService } from '@app/services/common/errorService';
+import { StatisticsService } from '@app/services/common/statisticsService';
+import { FinancialYearService } from '@app/services/accounting/financialYearService';
 
 export enum WageTypeBaseOptions {
     VacationPay = 0,
     AGA = 1
 }
-const WAGETYPE_TRANSLATION_KEY = '_Translation'
+const WAGETYPE_TRANSLATION_KEY = '_Translation';
 
 @Injectable()
 export class WageTypeService extends BizHttp<WageType> {
@@ -56,6 +58,8 @@ export class WageTypeService extends BizHttp<WageType> {
         private toastService: ToastService,
         private companySalaryService: CompanySalaryService,
         private elsaPurchaseService: ElsaPurchaseService,
+        private statisticsService: StatisticsService,
+        private yearService: FinancialYearService,
     ) {
         super(http);
         this.relativeURL = WageType.RelativeUrl;
@@ -85,12 +89,15 @@ export class WageTypeService extends BizHttp<WageType> {
     }
 
     public syncWagetypes() {
-        return this.http
-            .usingBusinessDomain()
-            .asPUT()
-            .withEndPoint(this.relativeURL + '/?action=synchronize')
-            .send()
-            .map(response => response.body);
+        return super.PutAction(null, 'synchronize');
+    }
+
+    public createWagetypesForCurrentYear() {
+        return super.PutAction(null, 'create-wagetypes-for-year');
+    }
+
+    public createAndUpdateStandardWagetypes() {
+        return super.PutAction(null, 'create-and-update-standard-wagetypes');
     }
 
     public save(wt: WageType): Observable<WageType> {

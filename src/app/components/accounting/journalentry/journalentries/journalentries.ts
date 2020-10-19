@@ -20,6 +20,7 @@ import {
 import {Observable} from 'rxjs';
 import {SelectDraftLineModal} from './selectDraftLineModal';
 import {ConfirmCreditedJournalEntryWithDate} from '../../../common/modals/confirmCreditedJournalEntryWithDate';
+import { FeaturePermissionService } from '@app/featurePermissionService';
 
 @Component({
     selector: 'journalentries',
@@ -52,6 +53,7 @@ export class JournalEntries {
         moduleID: UniModules.Accounting,
         active: true
     };
+    public busy = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -62,7 +64,8 @@ export class JournalEntries {
         private journalEntryService: JournalEntryService,
         private modalService: UniModalService,
         private numberSeriesService: NumberSeriesService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private featurePermissionService: FeaturePermissionService
     ) {
         this.route.params.subscribe(params => {
             const journalEntryID = +params['journalEntryID'];
@@ -162,16 +165,29 @@ export class JournalEntries {
                 disabled: () => false
             },
             {
-                action: (item) => this.openPredefinedDescriptions(),
-                disabled: (item) => false,
-                label: 'Faste tekster'
-            },
-            {
                 label: 'Hent kladd',
                 action: () => this.getDrafts(),
                 disabled: () => false
+            },
+            {
+                label: 'Kopier tabell',
+                action: () => this.copyTable(),
+                disabled: () => false
+            },
+            {
+                label: 'Lim inn tabell',
+                action: () => this.pasteTable(),
+                disabled: () => false
             }
         ];
+
+        if (this.featurePermissionService.canShowUiFeature('ui.accounting.fixed-texts')) {
+            this.contextMenuItems.push({
+                action: (item) => this.openPredefinedDescriptions(),
+                disabled: (item) => false,
+                label: 'Faste tekster'
+            });
+        }
 
         const toolbarConfig: IToolbarConfig = {
             title: 'Bilagsføring',
@@ -279,6 +295,37 @@ export class JournalEntries {
                 err => this.errorService.handle(err)
             );
         });
+    }
+
+    private copyTable() {
+        const value = this.journalEntryManual.getCsvData();
+        let promise: Promise<any>;
+        try {
+            promise = navigator.clipboard.writeText(value);
+        } catch (err) {
+            alert('Din nettleser støtter ikke skriving til utklippstavlen. Prøv eventuelt Chrome eller Edge');
+            // todo: check out document.execCommand('copy');
+        }
+        promise?.then(
+            () => { },
+            () => alert('Tilgang til utklippstavlen ble avvist')
+        );
+    }
+
+    private pasteTable() {
+        let promise: Promise<any>;
+        try {
+            promise = navigator.clipboard.readText();
+        } catch (err) {
+            alert('Din nettleser støtter ikke lesing fra utklippstavlen. Prøv eventuelt Chrome eller Edge');
+            // todo: check out document.execCommand('paste');
+        }
+        promise?.then((text) => {
+                this.busy = true;
+                this.journalEntryManual.setCsvData(text).finally( () => this.busy = false);
+            },
+            () => { this.busy = false; alert('Tilgang til utklippstavlen ble avvist'); }
+        );
     }
 
     private getDrafts() {

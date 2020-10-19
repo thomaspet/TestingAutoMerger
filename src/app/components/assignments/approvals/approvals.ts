@@ -112,7 +112,9 @@ export class UniApprovals {
 
         this.approvalService.GetAll(filterString, ['Task.Model', 'Task.Approvals', 'Task.ApprovalPlan']).subscribe(
             approvals => {
-                this.approvals = approvals.map(a => this.addApprovalMetadata(a));
+                this.approvals = approvals
+                    .filter(approval => approval.Task != null)
+                    .map(a => this.addApprovalMetadata(a));
 
                 let selectedIndex = this.approvals.findIndex(a => a.ID === this.routeParam);
                 if (selectedIndex < 0) {

@@ -22,15 +22,15 @@
             <section class="bank-list-details" *ngIf="options.listkey !== 'FILE'">
                 <label for="Inbound">
                     <span>Innbetaling</span>
-                    <mat-checkbox [(ngModel)]="currentAgreement.IsInbound" (ngModelChange)="isDirty = true" name="Inbound"></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="currentAgreement.IsInbound" [disabled]="loadedAgreement.IsInbound" (ngModelChange)="isDirty = true" name="Inbound"></mat-checkbox>
                 </label>
                 <label for="Outgoing">
                     <span>Utbetaling</span>
-                    <mat-checkbox [(ngModel)]="currentAgreement.IsOutgoing" (ngModelChange)="isDirty = true" name="Outgoing"></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="currentAgreement.IsOutgoing" [disabled]="loadedAgreement.IsOutgoing" (ngModelChange)="isDirty = true" name="Outgoing"></mat-checkbox>
                 </label>
                 <label for="BankBalance">
                     <span>Bankavstemming og saldo</span>
-                    <mat-checkbox [(ngModel)]="currentAgreement.IsBankBalance" (ngModelChange)="isDirty = true" name="BankBalance"></mat-checkbox>
+                    <mat-checkbox [(ngModel)]="currentAgreement.IsBankBalance" [disabled]="loadedAgreement.IsBankBalance" (ngModelChange)="isDirty = true" name="BankBalance"></mat-checkbox>
                 </label>
                 <label>
                     <span>ServiceID</span>

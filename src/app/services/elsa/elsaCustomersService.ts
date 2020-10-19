@@ -88,10 +88,22 @@ export class ElsaCustomersService {
             .send();
     }
 
-    checkSupportUserExists(email: string) {
+    checkSupportUserExists(search: string) {
         return this.uniHttp.asGET()
             .usingElsaDomain()
-            .withEndPoint(`/api/supportwhitelist/isSupportUser?email=${email}`)
+            .withEndPoint(`/api/supportwhitelist/isSupportUser?search=${search}`)
+            .send()
+            .map(res => res.body);
+    }
+
+    getCustomerProspect(prospectID: number, customerID: number, select?: string) {
+        let endpoint = `/api/customerprospects/${prospectID}/customer/${customerID}`;
+        if (select) {
+            endpoint += `?$select=${select}`;
+        }
+        return this.uniHttp.asGET()
+            .usingElsaDomain()
+            .withEndPoint(endpoint)
             .send()
             .map(res => res.body);
     }

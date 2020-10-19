@@ -3,7 +3,7 @@ import {AuthService} from '@app/authService';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {ISelectConfig, UniSelect} from '@uni-framework/ui/uniform';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Router} from '@angular/router';
+import {Router, ActivatedRoute} from '@angular/router';
 import {Company} from '@uni-entities';
 import {Subscription} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
@@ -19,6 +19,7 @@ export class Login {
 
     isAuthenticated: boolean;
     availableCompanies: any[];
+    isLoading: boolean;
 
     background = theme.init.login_background || theme.init.background;
     backgroundHeight = theme.init.login_background_height;
@@ -36,7 +37,8 @@ export class Login {
         private router: Router,
         public authService: AuthService,
         private http: UniHttp,
-        private browserStorage: BrowserStorageService
+        private browserStorage: BrowserStorageService,
+        private _route: ActivatedRoute
     ) {
         this.tokenSubscription = this.authService.token$.subscribe(token => {
             this.isAuthenticated = !!token;

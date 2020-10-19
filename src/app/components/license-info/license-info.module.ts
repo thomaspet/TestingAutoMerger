@@ -24,6 +24,7 @@ import {DeactivateUserModal} from './user-list/deactivate-user-modal/deactivate-
 import {BillingHistory} from './billing-history/billing-history';
 import {SettlementsModal} from './settlements-modal/settlements-modal';
 import {NewCompanyModal} from './new-company-modal/new-company-modal';
+import {ExportBillingModal} from './export-billing-modal/export-billing-modal';
 
 @NgModule({
     imports: [
@@ -64,6 +65,7 @@ import {NewCompanyModal} from './new-company-modal/new-company-modal';
         DeactivateUserModal,
         BillingHistory,
         SettlementsModal,
+        ExportBillingModal,
     ]
 })
 export class LicenseInfoModule {}

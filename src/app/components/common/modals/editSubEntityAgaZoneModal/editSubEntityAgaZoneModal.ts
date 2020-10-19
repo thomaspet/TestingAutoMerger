@@ -7,8 +7,8 @@ import { IMuniAGAZone } from '@app/services/common/subEntityService';
 
 @Component({
     selector: 'uni-edit-aga-zone-modal',
-    templateUrl: './editSubentityAgaZoneModal.html',
-    styleUrls: ['./editSubentityAgaZoneModal.sass']
+    templateUrl: './editSubEntityAgaZoneModal.html',
+    styleUrls: ['./editSubEntityAgaZoneModal.sass']
 })
 export class EditSubEntityAgaZoneModal implements OnInit, IUniModal {
     @Output() onClose: EventEmitter<SubEntity[]> = new EventEmitter();

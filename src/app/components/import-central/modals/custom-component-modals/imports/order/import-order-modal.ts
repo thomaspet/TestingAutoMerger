@@ -5,7 +5,7 @@ import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
 import { JobService, ErrorService, SharedPayrollRunService, UserService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
-import { ImportFileType, TemplateType, OrderOptions, ImportOption } from '@app/models/import-central/ImportDialogModel';
+import { ImportFileType, TemplateType, OrderOptions, ImportOption, DateFormats } from '@app/models/import-central/ImportDialogModel';
 import { Subject } from 'rxjs';
 import { DisclaimerModal } from '../../../disclaimer/disclaimer-modal';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
@@ -42,6 +42,7 @@ export class ImportOrderModal implements OnInit, IUniModal {
     post: OrderOptions = OrderOptions.Post;
     config: ISelectConfig;
     operators: any[] = [];
+    dateformats;
     selectedOption = {
         name: 'Kladd',
         type: OrderOptions.Draft
@@ -49,7 +50,7 @@ export class ImportOrderModal implements OnInit, IUniModal {
 
     attachedFile: File;
     baseUrl: string = environment.BASE_URL_FILES;
-
+    selectedFormat;
     constructor(
         public authService: AuthService,
         private http: HttpClient,
@@ -62,6 +63,8 @@ export class ImportOrderModal implements OnInit, IUniModal {
         this.userService.getCurrentUser().subscribe(res => {
             this.user = res;
         });
+        this.dateformats = DateFormats;
+        this.selectedFormat = this.dateformats[0]
     }
 
     ngOnInit(): void {
@@ -87,7 +90,9 @@ export class ImportOrderModal implements OnInit, IUniModal {
     public onSelectChange(selectedItem) {
         this.selectedOption = selectedItem;
     }
-
+    public onFormatSelectChange(selectedItem) {
+        this.selectedFormat = selectedItem;
+    }
     // Trigger click event of input file
     public selectFile() {
         if (!this.isFileDetached) {
@@ -173,6 +178,7 @@ export class ImportOrderModal implements OnInit, IUniModal {
                 const importModel = {
                     CompanyKey: company.Key,
                     CompanyName: company.Name,
+                    DateFormat: this.selectedFormat.type,
                     Url: fileURL,
                     ImportFileType: this.fileType,
                     ImportOption: ImportOption.Duplicate,

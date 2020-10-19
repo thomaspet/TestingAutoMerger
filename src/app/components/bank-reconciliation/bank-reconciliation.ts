@@ -127,7 +127,7 @@ export class BankReconciliation {
 
     initData() {
         this.session.clear();
-        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0 and Account.Locked eq false')
+        this.bankAccountService.GetAll('expand=Account,Bank&filter=CompanySettingsID gt 0 and AccountID gt 0')
             .subscribe(
                 accounts => {
                     this.bankAccounts = accounts || [];
@@ -381,7 +381,6 @@ export class BankReconciliation {
             }, closeOnClickOutside: false })
         .onClose.subscribe(response => {
             if (response) {
-                this.toastService.showLoadIndicator({ title: 'Lagret', message: 'Endringer lagret vellykket, oppdaterer poster.' });
                 this.session.reload().subscribe(() => {
                     this.checkSuggest();
                     this.toastService.hideLoadIndicator();
@@ -438,11 +437,7 @@ export class BankReconciliation {
                     action: () => { this.openImportModal(); }
                 },
                 {
-                    label: 'Før restsum av markerte linjer',
-                    action: () => { this.openJournalModal(); }
-                },
-                {
-                    label: 'Se alle åpne poster i bilagsføring',
+                    label: 'Bokføre bankposter',
                     action: () => { this.openJournalModal(true); }
                 },
                 {

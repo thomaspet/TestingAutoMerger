@@ -52,10 +52,12 @@ export class UniSearchAccountConfig {
         placeholder: string = ''
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
-            lookupFn: searchTerm => this
+            lookupFn: searchTerm => {
+                return this
                 .statisticsService
                 .GetAllUnwrapped(this.generateAccountsStatisticsQuery(searchTerm, all))
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+            },
             onSelect: (selectedItem: CustomStatisticsResultItem) => {
                 if (selectedItem.ID) {
                     return this.accountService.Get(selectedItem.ID, expands)

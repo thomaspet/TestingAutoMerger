@@ -23,7 +23,7 @@ export class LicenseInfo implements OnDestroy {
         {name: 'Selskaper', path: 'companies'},
         {name: 'Brukere', path: 'users'},
         {name: 'Estimert forbruk', path: 'billing'},
-        {name: 'Fakturahistorikk', path: 'history'},
+        {name: 'Forbrukshistorikk', path: 'history'},
     ];
 
     constructor(

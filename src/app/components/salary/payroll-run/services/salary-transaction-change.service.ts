@@ -24,6 +24,7 @@ export class SalaryTransactionChangeService {
         rowModel['FromDate'] = payrollRun.FromDate;
         rowModel['ToDate'] = payrollRun.ToDate;
         rowModel['_BasePayment'] = wagetype.Base_Payment;
+        rowModel['Text'] = wagetype.WageTypeName;
 
         if (!rowModel.Amount) {
             rowModel['Amount'] = 1;

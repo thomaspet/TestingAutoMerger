@@ -23,6 +23,7 @@ import {routes as AccountintReportsRoutes} from './accountingreports/accountingr
 import { CanDeactivateGuard } from '@app/canDeactivateGuard';
 import {UniCostAllocation} from '@app/components/accounting/cost-allocation/cost-allocation';
 import {UniInbox} from './inbox/inbox';
+import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
 import {theme, THEMES} from 'src/themes/theme';
 
 export const accountingRoutes: Routes = [
@@ -64,12 +65,17 @@ export const accountingRoutes: Routes = [
         children: AccountintReportsRoutes,
         canDeactivate: [CanDeactivateGuard]
     },
-    {
+    theme.theme === THEMES.UE ? {
         path: 'bills',
         component: BillsView,
         canDeactivate: [CanDeactivateGuard]
+    } :
+    {
+        path: 'bills',
+        component: NewSupplierInvoiceList,
+        canDeactivate: [CanDeactivateGuard]
     },
-    theme.theme !== THEMES.EXT02 ? {
+    theme.theme === THEMES.UE ? {
         path: 'bills/:id',
         component: BillView,
         canDeactivate: [CanDeactivateGuard]

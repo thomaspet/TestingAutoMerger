@@ -1,16 +1,12 @@
 <section role="dialog" class="uni-modal">
-    <header>Registrere manual avskrivning av eiendel</header>
+    <header>Avskrivning av eiendeler</header>
 
     <article>
-        <uni-form
-            [fields]="mainForm"
-            [config]="config"
-            [model]="model"
-        ></uni-form>
+        <label>Denne rutinen vil avskrive alle eiendeler hvor automatisk avskrivning er satt på men avskrivningen ikke er utført.</label>
     </article>
 
     <footer class="center">
         <button class="secondary" (click)="onClose.emit(null)">Avbryt</button>
-        <button class="good" (click)="emit()">Registrere avskrivning</button>
+        <button class="good" (click)="emit()">Avskriv eiendeler</button>
     </footer>
 </section>

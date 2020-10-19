@@ -1,15 +1,15 @@
 <!-- Check specifically for false so the message doesn't show while loading -->
 <section class="missing-permissions" *ngIf="hasPermission === false">
-    Det er kun lisensadministratorer som har tilgang til å se fakturahistorikk på en lisens.
+    Det er kun lisensadministratorer som har tilgang til å se forbrukshistorikk på en lisens.
 </section>
 
 <section *ngIf="hasPermission && !billingHistory">
-    Fant ingen fakturahistorikk på denne lisensen.
+    Fant ingen forbrukshistorikk på denne lisensen.
 </section>
 
 <section class="list-container" *ngIf="hasPermission && billingHistory">
     <section class="header">
-        <h1>Fakturahistorikk</h1>
+        <h1>Forbrukshistorikk</h1>
 
         <section class="pull-right">
             <input

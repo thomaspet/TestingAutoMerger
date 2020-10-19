@@ -8,7 +8,7 @@
         </uni-paycheck-mail-options>
         <paycheck-sending
             [runID]="options.data"
-            (busy)="setBusy($event)"
+            [employees]="employees"
             (selectedEmps)="onSelectedEmps($event)">
         </paycheck-sending>
     </article>

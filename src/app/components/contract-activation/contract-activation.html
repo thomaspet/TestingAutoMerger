@@ -1,11 +1,16 @@
 <section *ngIf="!canActivateContract" class="alert warn">
     Du har ikke tilgang til å aktivere kundeforhold.
-    <br>Dette må gjøres av lisensadministrator.
+    Dette må gjøres av lisensadministrator.
 </section>
 
 <ng-container *ngIf="canActivateContract">
+    <section *ngIf="hasActiveContract" class="alert info">
+        Kontrakt er allerede aktivert for dette selskapet.
+    </section>
+
     <company-creation-wizard
+        *ngIf="!hasActiveContract"
         [contractID]="contractID"
-        [includeContractActivation]="!hasActiveContract">
+        [includeContractActivation]="true">
     </company-creation-wizard>
 </ng-container>

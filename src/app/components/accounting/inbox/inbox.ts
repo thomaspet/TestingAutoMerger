@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Router} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {SupplierInvoiceService, FileService} from '@app/services/services';
 import {NewOutgoingWizardModal} from './new-outgoing-wizard-modal';
 import {ToastService, ToastType} from '../../../../framework/uniToast/toastService';
@@ -14,6 +14,7 @@ import {
     IModalOptions
 } from '@uni-framework/uni-modal';
 import { File } from '@uni-entities';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'uni-inbox',
@@ -47,11 +48,17 @@ export class UniInbox {
         private fileService: FileService,
         private toast: ToastService,
         private tabService: TabService,
-        private router: Router
+        private router: Router,
+        private route: ActivatedRoute,
     ) { }
 
     ngOnInit() {
         this.getDataAndLoadList();
+
+        const initOpenModal = this.route.snapshot.queryParamMap.get('openmodal');
+        if (initOpenModal === '1') {
+            this.uploadFile();
+        }
 
         this.tabService.addTab({
             name: 'NAVBAR.INBOX',
@@ -102,11 +109,15 @@ export class UniInbox {
 
     registerBuy(item, event) {
         event.stopPropagation();
-        this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {
-            if (res) {
-                this.router.navigateByUrl(res.route + item.ID);
-            }
-        });
+        if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
+            this.router.navigateByUrl(`/accounting/bills/0?fileid=${item.ID}`);
+        } else {
+            this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {
+                if (res) {
+                    this.router.navigateByUrl(res.route + item.ID);
+                }
+            });
+        }
     }
 
     deleteDocument(item: File, event: MouseEvent) {

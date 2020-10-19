@@ -909,9 +909,8 @@ export class CompanySettingsComponent implements OnInit {
 
         const settings = this.companySettings$.getValue();
         const apActivated: UniFieldLayout = fields.find(x => x.Property === 'APActivated');
-        apActivated.Label = this.ehfService.isEHFActivated()
-            ? 'Reaktiver EHF' : 'Aktiver EHF';
-        apActivated.Options.class = this.ehfService.isEHFActivated() ? 'good' : '';
+        apActivated.Label = 'Aktiver EHF';
+        apActivated.Options.class = 'good';
 
         const invoicePrint: UniFieldLayout = fields.find(x => x.Property === 'InvoicePrint');
         invoicePrint.Label = this.ehfService.isInvoicePrintActivated()

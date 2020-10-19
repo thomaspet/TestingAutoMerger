@@ -3,18 +3,17 @@ export const DASHBOARD_CONFIGS = {
         header: 'Hjem',
         storageKey: 'main_dashboard',
         layout: [
-            'BANK_BALANCE',
+            'OPERATING_PROFITS',
             'REMINDER_WIDGET',
 
-            'INVOICED',
-            'PUBLIC_DUEDATES',
-
-            'OPERATING_PROFITS',
-
             'UNPAID',
-            'UNPAID_BILLS',
+            'NEWSLETTER',
 
-            'EXPENSES',
+            'BANK_BALANCE',
+            'NEW_ENTITIES',
+
+            'LIQUIDITY',
+            'REPORT_SHORTCUTS',
         ]
     },
     sales: {
@@ -53,6 +52,8 @@ export const DASHBOARD_CONFIGS = {
         storageKey: 'timetracking_dashboard',
         layout: [
             'TIME_ENTRY',
+            'HOURS_PER_WORKTYPE',
+            'HOURS_PER_PROJECT',
         ]
     },
     bank: {
@@ -61,6 +62,7 @@ export const DASHBOARD_CONFIGS = {
         layout: [
             'BANK_BALANCE',
             'PAYMENTS',
+            'BANK_STATUS'
         ]
     }
 };

@@ -1,5 +1,6 @@
 import {Component, ChangeDetectorRef} from '@angular/core';
 import {AuthService} from '@app/authService';
+import { theme, THEMES } from 'src/themes/theme';
 
 @Component({
     selector: 'navbar-create-new',
@@ -10,7 +11,7 @@ import {AuthService} from '@app/authService';
             <dropdown-menu [trigger]="toggle" minWidth="12rem">
                 <ng-template>
                     <span class="dropdown-menu-header">Opprett ny</span>
-                    <a class="dropdown-menu-item" *ngFor="let link of links" [routerLink]="link.url">
+                    <a class="dropdown-menu-item" *ngFor="let link of links" [routerLink]="link.url" [queryParams]="link?.query">
                         {{link.name | translate}}
                     </a>
                 </ng-template>
@@ -43,7 +44,7 @@ export class NavbarCreateNew {
     }
 
     private getLinks() {
-        return [
+        const links: any = [
             { name: 'Faktura', url: '/sales/invoices/0' },
             { name: 'Ordre', url: '/sales/orders/0' },
             { name: 'Tilbud', url: '/sales/quotes/0' },
@@ -51,9 +52,16 @@ export class NavbarCreateNew {
             { name: 'Kunde', url: '/sales/customer/0' },
             { name: 'Produkt', url: '/sales/products/0' },
             { name: 'Ansatt', url: '/salary/employees/0/personal-details' },
-            { name: 'Timeføring', url: '/timetracking/timeentry?mode=Registrering' },
+            { name: 'Timeføring', url: '/timetracking/timeentry', query: {mode: 'Registrering'} },
             { name: 'Leverandør', url: '/accounting/suppliers/0' },
-            { name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/bills/0' },
         ];
+
+        if (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR) {
+            links.push({ name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/inbox', query: {openmodal: 1} });
+        } else {
+            links.push({ name: 'ACCOUNTING.SUPPLIER_INVOICE.SINGLE', url: '/accounting/bills/0' })
+        }
+
+        return links;
     }
 }

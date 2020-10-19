@@ -45,7 +45,7 @@
                 <span>
                     Dra og slipp eller <span class="browse-link">bla i</span> dine filer
                 </span>
-                <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt .csv">
+                <input #file type='file' (change)="openFile($event)" accept=".xlsx, .txt, .csv">
             </div>
         </div>
 
@@ -59,7 +59,12 @@
                 (valueChange)="onSelectChange($event)">
             </uni-select>
         </label>
-
+        <label class="uni-label label-left">
+            <span>Dato format</span>
+            <uni-select class="drop-down" [config]="config" [value]="selectedFormat" [items]="dateformats"
+                (valueChange)="onFormatSelectChange($event)" [readonly]="fileType === txtType">
+            </uni-select>
+        </label>
         <label class="uni-label label-left">
             <span>Med MVA-kode</span>
             <mat-checkbox [(ngModel)]="isVatEnabled" [disabled]="fileType === txtType"

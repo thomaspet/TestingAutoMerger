@@ -1,7 +1,7 @@
-import {UniForm, UniFieldLayout} from '@uni-framework/ui/uniform';
+import {UniForm, UniFieldLayout, UniComponentLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {filter, take, switchMap, map, tap} from 'rxjs/operators';
+import {filter, take, switchMap, map, tap, finalize} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
@@ -19,6 +19,7 @@ import {
     ErrorService, CompanySalaryService, SubEntityService
 } from '@app/services/services';
 import { RegulativeGroupService } from '@app/components/salary/regulative/shared/service/regulative-group.service';
+import { EmploymentHistoryModalComponent } from '@app/components/salary/employee/shared/components/employment-history-modal/employment-history-modal.component';
 
 declare var _;
 const UPDATE_RECURRING = '_updateRecurringTranses';
@@ -84,7 +85,6 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
             this.employment = null;
             this.formReady = false;
         }
-
         if (!this.formReady) {
             this.buildForm();
         }
@@ -118,15 +118,13 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
                 this.jobCodeDefaultData = Observable.of([{ styrk: '', tittel: '' }]);
             }
 
-            this.employment$.next(change['employment'].currentValue);
-            this.employmentService.updateDefaults(change['employment'].currentValue);
-            this.fields$
+            this.employment$.next(currEmployment);
+            this.employmentService.updateDefaults(currEmployment);
+            this.generateFields(currEmployment)
                 .pipe(
-                    filter(fields => !!fields && !!fields.length),
-                    take(1),
-                    map(fields => this.checkReadOnlyOnForm(change['employment'].currentValue, fields)),
+                    map(fields => this.checkReadOnlyOnForm(currEmployment, fields)),
                 )
-                .subscribe(fields => this.updateAmeldingTooltips(change['employment'].currentValue, fields));
+                .subscribe(fields => this.updateAmeldingTooltips(currEmployment, fields));
         }
     }
 
@@ -134,52 +132,74 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         this.employmentService.clearRegulativeCache();
     }
 
-    private buildForm() {
-        this.employmentService.layout('EmploymentDetails').subscribe((layout: any) => {
-            // Expand A-meldings section by default
-            this.config$.next({
-                sections: {
-                    '1': { isOpen: true }
-                }
-            });
+    private generateFields(employment: Employment = this.employment) {
+        return this.employmentService
+            .layout('EmploymentDetails', !!employment?.EndDate)
+            .pipe(
+                map((layout: UniComponentLayout) => {
+                    // Expand A-meldings section by default
+                    this.config$.next({
+                        sections: {
+                            '1': { isOpen: true }
+                        }
+                    });
 
-            const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
-            jobCodeField.Options = {
-                getDefaultData: () => this.jobCodeDefaultData,
-                template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
-                search: (query: string) => {
-                    if (this.searchCache[query]) {
-                        return this.searchCache[query];
+                    const jobCodeField = layout.Fields.find(field => field.Property === 'JobCode');
+                    jobCodeField.Options = {
+                        getDefaultData: () => this.jobCodeDefaultData,
+                        template: (obj) => obj && obj.styrk ? `${obj.styrk} - ${obj.tittel}` : '',
+                        search: (query: string) => {
+                            if (this.searchCache[query]) {
+                                return this.searchCache[query];
+                            }
+                            return this.statisticsService
+                                .GetAll(
+                                    `top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel`
+                                    + `&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`
+                                )
+                                .do(x => this.searchCache[query] = Observable.of(x.Data))
+                                .map(x => x.Data);
+                        },
+                        displayProperty: 'styrk',
+                        valueProperty: 'styrk',
+                        debounceTime: 200,
+                    };
+                    const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
+                    const accountObs: Observable<Account> = employment && employment.LedgerAccount
+                        ? this.accountService.GetAll(`filter=AccountNumber eq ${employment.LedgerAccount}` + '&top=1')
+                        : Observable.of([undefined]);
+                    ledgerAccountField.Options = {
+                        getDefaultData: () => accountObs,
+                        search: (query: string) => {
+                            const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
+                            return this.accountService.GetAll(filtr);
+                        },
+                        displayProperty: 'AccountName',
+                        valueProperty: 'AccountNumber',
+                        template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
+                    };
+
+                    const historyButton = layout.Fields.find(field => field.Property === '_History');
+                    if (historyButton) {
+                        historyButton.Options = {
+                            click: () => this.modalService.open(EmploymentHistoryModalComponent, {data: this.employment.ID})
+                        };
                     }
-                    return this.statisticsService
-                        .GetAll(
-                            `top=50&model=STYRKCode&select=styrk as styrk,tittel as tittel`
-                            + `&filter=startswith(styrk,'${query}') or contains(tittel,'${query}')`
-                        )
-                        .do(x => this.searchCache[query] = Observable.of(x.Data))
-                        .map(x => x.Data);
-                },
-                displayProperty: 'styrk',
-                valueProperty: 'styrk',
-                debounceTime: 200,
-            };
-            const ledgerAccountField = layout.Fields.find(field => field.Property === 'LedgerAccount');
-            const accountObs: Observable<Account> = this.employment && this.employment.LedgerAccount
-                ? this.accountService.GetAll(`filter=AccountNumber eq ${this.employment.LedgerAccount}` + '&top=1')
-                : Observable.of([undefined]);
-            ledgerAccountField.Options = {
-                getDefaultData: () => accountObs,
-                search: (query: string) => {
-                    const filtr = `filter=startswith(AccountNumber,'${query}') or contains(AccountName,'${query}')`;
-                    return this.accountService.GetAll(filtr);
-                },
-                displayProperty: 'AccountName',
-                valueProperty: 'AccountNumber',
-                template: (account: Account) => account ? `${account.AccountNumber} - ${account.AccountName}` : '',
-            };
-            this.fields$.next(layout.Fields);
-        }, err => this.errorService.handle(err));
-        this.formReady = true;
+
+                    return layout.Fields;
+                })
+            );
+    }
+
+    private buildForm(employment: Employment = this.employment) {
+        this.generateFields(employment)
+            .pipe(
+                finalize(() => this.formReady = true),
+            )
+            .subscribe(
+                fields => this.fields$.next(fields),
+                err => this.errorService.handle(err),
+            );
     }
 
     private checkReadOnlyOnForm(employment: Employment, fields: UniFieldLayout[]) {
@@ -201,8 +221,9 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
             }
         });
 
-        // TypeOfEmployment is always required
+        // Always required
         this.setRequiredTooltip(fields, employment, 'TypeOfEmployment');
+        this.setRequiredTooltip(fields, employment, 'EndDateReason');
 
         // "Not set" and Pension has no more required fields
         if (employment.TypeOfEmployment === TypeOfEmployment.notSet
@@ -438,6 +459,11 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
         }
 
         if (changes['EndDate']) {
+            this.generateFields(employment)
+                .subscribe(
+                    flds => this.updateAmeldingTooltips(employment, flds),
+                    err => this.errorService.handle(err),
+                );
             const enddate: LocalDate = changes['EndDate'].currentValue;
             if (!!enddate) {
                 if (this.companySalarySettings.OtpExportActive) {

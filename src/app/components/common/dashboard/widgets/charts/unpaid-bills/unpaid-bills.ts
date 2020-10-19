@@ -57,7 +57,7 @@ export class UnpaidBillsWidget {
     private loadData(): Observable<{overdue: number, notOverdue: number}> {
         const today = moment().format('YYYYMMDD');
         const endpoint = `/api/statistics?model=SupplierInvoice&wrap=false`
-            + `&filter=RestAmount gt 0 and StatusCode ne 30107 and StatusCode ne 42001 and StatusCode ne 30101`
+            + `&filter=RestAmount gt 0 and StatusCode ne 30108 and StatusCode ne 40001 and StatusCode ne 30101`
             + `&select=sum(casewhen(PaymentDueDate ge '${today}',RestAmount,0) ) as notOverdue,sum(casewhen(PaymentDueDate lt '${today}',RestAmount,0) ) as overdue`
 
         return this.dataService.get(endpoint).pipe(

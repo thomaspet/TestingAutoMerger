@@ -14,7 +14,7 @@ export var ElementTypes = [
     { type: ElementType.Print, label: 'Skriv ut', name: 'Print' },
     { type: ElementType.EHF, label: 'EHF', name: 'EHF' },
     { type: ElementType.Email, label: 'Send på epost', name: 'Email' },
-    { type: ElementType.Invoiceprint, label: 'Fakturaprint (fra Nets)', name: 'Invoiceprint' },
+    { type: ElementType.Invoiceprint, label: 'Fakturaprint (fra Nets)', name: 'Fakturaprint' },
     { type: ElementType.Efaktura, label: 'Efaktura', name: 'Efaktura' },
     { type: ElementType.Factoring, label: 'Factoring', name: 'Factoring' },
     { type: ElementType.Vipps, label: 'Vipps', name: 'Vippsinvoice' },

@@ -9,3 +9,4 @@ export * from './assignmentServicesModule';
 export * from './elsaServicesModule';
 export * from './importCentralServiceModule';
 export * from './bankServicesModule';
+export * from './tracking-services/tracking-service-module';

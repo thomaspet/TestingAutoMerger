@@ -3,6 +3,7 @@ export interface ElsaAgreement {
     AgreementText: string;
     AgreementStatus: ElsaAgreementStatus;
     ProductID: number;
+    Name: string;
 }
 
 export enum ElsaAgreementStatus {
@@ -25,6 +26,7 @@ export interface ElsaCustomer {
     PersonalNumber?: string;
     IsBankCustomer: boolean;
     SignUpReferrer: string;
+    ProspectID?: number;
 }
 
 export interface ElsaCompanyLicense {
@@ -240,4 +242,14 @@ export interface BillingData {
     OrderDays: number;
     Items: BillingDataItem[];
     RelatedOrders: BillingData[];
+    SettledUntil?: Date;
+}
+
+export interface ElsaSupportUserDTO {
+    ID: number;
+    DisplayName: string;
+    Email: string;
+    SupportType: number;
+    GlobalIdentity: string;
+    StatusCode: number;
 }

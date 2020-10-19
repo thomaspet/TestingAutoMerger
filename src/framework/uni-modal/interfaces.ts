@@ -37,6 +37,7 @@ export interface IModalOptions {
     hideCloseButton?: boolean;
     fieldType?: number;
     fieldLabel?: string;
+    isMarkdown?: boolean;
 }
 
 export interface IUniModal {

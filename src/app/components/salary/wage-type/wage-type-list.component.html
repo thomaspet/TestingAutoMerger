@@ -5,10 +5,12 @@
 </uni-toolbar>
 <input type="hidden" value="Sync" style="background-color:red" (click)='onCustomClick()' id="letmesync">
 <article class="application wagetype-list" [attr.aria-busy] = "busy">
+    <uni-wage-type-empty-state *ngIf="showEmptyState" (wagetypeUpdated)="showEmptyState = false"></uni-wage-type-empty-state>
     <ag-grid-wrapper
+        *ngIf="!showEmptyState"
         class="borders"
         [resource]="lookupFunction"
         [config]="tableConfig"
         (rowClick)="rowSelected($event)">
-</ag-grid-wrapper>
+    </ag-grid-wrapper>
 </article>

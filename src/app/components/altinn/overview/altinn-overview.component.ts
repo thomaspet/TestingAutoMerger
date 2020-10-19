@@ -1,12 +1,12 @@
-import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
-import {AltinnReceiptService} from '@app/services/services';
-import {BehaviorSubject} from 'rxjs';
-import {AltinnReceipt} from '@uni-entities';
-import {IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
-import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
-import {ReplaySubject} from 'rxjs';
-import {AgGridWrapper} from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {Observable} from 'rxjs';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { AltinnReceiptService } from '@app/services/services';
+import { BehaviorSubject } from 'rxjs';
+import { AltinnReceipt } from '@uni-entities';
+import { IUniTableConfig, UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { ReplaySubject } from 'rxjs';
+import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
+import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router } from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
@@ -43,17 +43,22 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
             action: () => this.modalService.open(TaxReportModal)/*.onClose.subscribe(() => { })*/,
             disabled: false,
             main: false
-        }
+        },
+            label: 'Skattemelding',
+            action: () => this.router.navigateByUrl('/altinn/skattemelding'),
+            disabled: false,
+            main: false
+        },
     ];
 
     private table$: ReplaySubject<AgGridWrapper> = new ReplaySubject(1);
 
-    constructor (
+    constructor(
         private altinnReceiptService: AltinnReceiptService,
         private tabService: TabService,
         private modalService: UniModalService,
-        private router: Router
-    ) {}
+        private router: Router,
+    ) { }
 
     public ngOnInit() {
         this.altinnReceiptService

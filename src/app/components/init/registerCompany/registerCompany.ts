@@ -37,6 +37,7 @@ export class RegisterCompany {
     routeSubscription: Subscription;
 
     selectedCompanyType: string;
+    isTest: boolean;
     busy: boolean;
     missingContract = false;
     contractID: number;
@@ -63,6 +64,7 @@ export class RegisterCompany {
 
                 if (!this.routeSubscription) {
                     this.routeSubscription = this.route.queryParamMap.subscribe(params => {
+                        this.isTest = params.get('isTest') === 'true' || false;
                         this.selectedCompanyType = params.get('type') || undefined;
                     });
                 }
@@ -85,10 +87,6 @@ export class RegisterCompany {
             const contract = contracts && contracts[0];
             if (contract) {
                 this.contractID = contract.ID;
-
-                if (contract.Customer?.SignUpReferrer === 'CustomerProspect') {
-                    this.router.navigateByUrl('/init/register-company?type=company');
-                }
 
                 this.registrationOptions = theme.theme === THEMES.SR
                     ? this.getSrOptions()
@@ -135,15 +133,11 @@ export class RegisterCompany {
                         class: 'secondary',
                         action: () => this.router.navigateByUrl('/init/register-company?type=demo')
                     },
-
-                    // Demo with real company option disabled due to backend bug
-                    // https://unimicro.atlassian.net/browse/SMS-308
-
-                    // {
-                    //     label: 'Start demo med din bedrift',
-                    //     class: 'c2a',
-                    //     action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
-                    // }
+                    {
+                        label: 'Start demo med din bedrift',
+                        class: 'c2a',
+                        action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
+                    }
                 ]
             },
 

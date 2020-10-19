@@ -1,8 +1,9 @@
 export const environment = {
     useProdMode: false,
+    usePKCE: true,
 
     authority: 'https://dev-login.unieconomy.no',
-    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
+    client_id: '9ffed151-cb38-8092-5650-c2c5ddbfd0ad',
     post_logout_redirect_uri: '/#/login',
     BASE_URL_INIT: 'http://localhost:29077',
     BASE_URL: 'http://localhost:29077',
@@ -24,6 +25,11 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
+    },
+
+    ID_PORTEN: {
+        authority: 'https://oidc-ver2.difi.no/idporten-oidc-provider/',
+        client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d',
     },
 
     RAYGUN_API_KEY: '',

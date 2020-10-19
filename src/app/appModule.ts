@@ -41,6 +41,7 @@ import {AdminServicesModule} from './services/adminServicesModule';
 import {AssignmentServicesModule} from './services/assignmentServicesModule';
 import {ElsaServicesModule} from '@app/services/elsaServicesModule';
 import {BankServicesModule} from '@app/services/bankServicesModule';
+import {TrackingServicesModule} from '@app/services/tracking-services/tracking-service-module';
 
 import {CanDeactivateGuard} from './canDeactivateGuard';
 import {RoutePermissionGuard} from './routePermissionGuard';
@@ -84,6 +85,7 @@ moment.locale('nb');
         ElsaServicesModule.forRoot(),
         ImportCentralServicesModule.forRoot(),
         BankServicesModule.forRoot(),
+        TrackingServicesModule.forRoot(),
 
         APP_ROUTES,
 

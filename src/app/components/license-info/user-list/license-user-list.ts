@@ -6,6 +6,7 @@ import {IContextMenuItem} from '@uni-framework/ui/unitable';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {DeactivateUserModal} from './deactivate-user-modal/deactivate-user-modal';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {Subscription} from 'rxjs';
 
 @Component({
     selector: 'license-user-list',
@@ -13,6 +14,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
     styleUrls: ['./license-user-list.sass']
 })
 export class UserList {
+    contractIDSubscription: Subscription;
     contractID: number;
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
@@ -64,10 +66,16 @@ export class UserList {
         private modalService: UniModalService,
         private toastService: ToastService,
     ) {
-        this.licenseInfo.selectedContractID$.subscribe(id => {
+        this.contractIDSubscription = this.licenseInfo.selectedContractID$.subscribe(id => {
             this.contractID = id;
             this.loadData();
         });
+    }
+
+    ngOnDestroy() {
+        if (this.contractIDSubscription) {
+            this.contractIDSubscription.unsubscribe();
+        }
     }
 
     loadData() {

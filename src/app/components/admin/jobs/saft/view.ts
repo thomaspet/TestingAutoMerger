@@ -295,17 +295,7 @@ export class SaftExportView implements OnInit {
 
     public exportSaft(event) {
 
-        this.modalService.open(SaftExportModal, {data:
-            {
-                FromYear: new Date().getFullYear(),
-                ToYear: new Date().getFullYear(),
-                FromPeriod: 1,
-                ToPeriod: 12,
-                Anonymous: false,
-                SendEmail: true,
-                Validate: true
-            }
-            }).onClose.subscribe((resp) => {
+        this.modalService.open(SaftExportModal).onClose.subscribe((resp) => {
                 if (resp) {
                     this.jobService.startJob('ExportSaft', undefined, resp)
                         .subscribe((jobID: number) => {

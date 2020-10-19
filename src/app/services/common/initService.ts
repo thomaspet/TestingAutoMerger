@@ -3,6 +3,7 @@ import {UniHttp} from '@uni-framework/core/http';
 import {map, catchError, tap} from 'rxjs/operators';
 import {of, Observable} from 'rxjs';
 import {ElsaContract} from '@app/models';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Injectable()
 export class InitService {
@@ -87,10 +88,16 @@ export class InitService {
     }
 
     createCompany(body) {
+        let endpoint = 'create-company';
+
+        if (theme.theme === THEMES.SR && !(body?.IsTest)) {
+            endpoint += '?licenseStatus=3';
+        }
+
         return this.uniHttp
             .asPOST()
             .usingInitDomain()
-            .withEndPoint('create-company')
+            .withEndPoint(endpoint)
             .withBody(body)
             .send({}, null, false)
             .pipe(map(res => res.body));

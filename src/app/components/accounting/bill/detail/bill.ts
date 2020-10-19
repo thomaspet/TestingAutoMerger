@@ -599,9 +599,12 @@ export class BillView implements OnInit, AfterViewInit {
             {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
-                Label: 'KID',
+                Label: 'KID/Melding',
                 Classes: 'bill-small-field right',
-                Section: 0
+                Section: 0,
+                Tooltip: {
+                    Text: 'Skriv inn KID-nummer eller melding til mottaker. Dersom feltet inneholder tekst vil det tolkes som en melding.',
+                }
             },
             {
                 Property: 'TaxInclusiveAmountCurrency',
@@ -2291,7 +2294,7 @@ export class BillView implements OnInit, AfterViewInit {
                 || it.StatusCode === StatusCodeSupplierInvoice.Approved
             ) {
                 if (it.PaymentStatus !== 30112) {
-                    if (it.PaymentStatus !== 30110) {
+                    if (it.PaymentStatus !== 30110 && it.PaymentStatus !== 30113) {
                         if (hasJournalEntry) {
                             list.forEach(action => action.main = false);
                         }
@@ -3529,7 +3532,8 @@ export class BillView implements OnInit, AfterViewInit {
                 });
             };
 
-            if (!this.modulusService.isValidKID(current.PaymentID)) {
+            const paymentIdContainsCharacters = current.PaymentID.match(/[a-å]/gi)?.length > 0 ?? false;
+            if (!paymentIdContainsCharacters && !this.modulusService.isValidKID(current.PaymentID)) {
                 this.toast.toast({
                     title: 'KID er ikke gyldig',
                     type: ToastType.bad,

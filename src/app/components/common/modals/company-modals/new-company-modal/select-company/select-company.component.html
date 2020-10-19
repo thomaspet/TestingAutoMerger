@@ -1,0 +1,54 @@
+<label>
+    <span>
+        Opprett som malklient
+        <uni-tooltip [text]="'Malklienter brukes som base for oppretting av nye klienter. Data og innstillinger fra malen kopieres over til klienter som opprettes basert på den.'"></uni-tooltip>
+    </span>
+    <mat-checkbox [(ngModel)]="companyInfo.isTemplate" (change)="onIsTemplateChange()"></mat-checkbox>
+</label>
+
+<form [formGroup]="formGroup" (keydown.esc)="$event.stopPropagation()">
+    <label>
+        <span>Organisasjonsnummer</span>
+        <input
+            type="search"
+            formControlName="orgNumber"
+            [ngClass]="{'warning': !isOrgNumberValid}"
+        />
+        <input type="hidden" formControlName="orgNumber">
+    </label>
+    <small class="form-warning" *ngIf="orgNumberAlreadyExists">
+        Du har allerede et selskap med dette organisasjonsnummeret
+    </small>
+    <small class="form-warning" *ngIf="!isOrgNumberValid && !orgNumberAlreadyExists">
+        Organisasjonsnummeret er ikke gyldig, men du kan velge å fortsette
+    </small>
+
+    <label>
+        <span>Selskapsnavn *</span>
+        <input
+            type="text"
+            formControlName="companyName"
+            [ngClass]="{'invalid': isCompanyNameFieldTouched && !formGroup.controls['companyName'].valid}"
+            (blur)="isCompanyNameFieldTouched = true"
+        />
+    </label>
+    <small class="form-error" *ngIf="isCompanyNameFieldTouched && !formGroup.controls['companyName'].valid">
+        Selskapsnavn er påkrevd for å få opprette nytt selskap
+    </small>
+
+    <label>
+        <span>Adresse</span>
+        <input type="text" formControlName="address">
+    </label>
+
+    <label>
+        <span>Postnummer</span>
+        <input type="text" formControlName="postalCode">
+    </label>
+
+    <label>
+        <span>Poststed</span>
+        <input type="text" formControlName="city">
+    </label>
+</form>
+

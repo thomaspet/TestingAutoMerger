@@ -1,0 +1,50 @@
+.header
+	h1
+		flex: 1
+.button-section
+	ul
+		list-style: none
+		display: flex
+		justify-content: center
+
+		li
+			font-size: 14px
+			margin-left: 2rem
+			color: var(--color-c2a)
+			padding: 0 .7rem
+			border-radius: 3.5rem
+			cursor: pointer
+
+			&.marked
+				background-color: var(--color-c2a)
+				color: #fff
+
+.curreny-content-container
+	width: 100%
+
+.canvas-section
+	height: 270px
+
+.currency-widget-table
+	height: 290px
+	font-size: 14px
+	tbody > tr:hover
+		cursor: pointer
+		background-color: var(--table-row-select-background)
+
+canvas
+	height: 100%
+	width: 100%
+
+:host ::ng-deep .mat-radio-outer-circle
+	height: 15px
+	width: 15px
+
+:host ::ng-deep .mat-radio-inner-circle
+	height: 15px
+	width: 15px
+
+:host ::ng-deep .mat-radio-container
+	height: 15px
+	width: 15px
+

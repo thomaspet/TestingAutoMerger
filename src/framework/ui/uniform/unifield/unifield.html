@@ -6,7 +6,7 @@
 
     <span
         [hidden]="!isInput(field?.FieldType)"
-        [title]="field?.Label"
+        [title]="field?.Tooltip?.Text ? '' : field?.Label"
         [style.width]="labelWidth">
         {{field?.Label | isRequired:field | translate}}
 

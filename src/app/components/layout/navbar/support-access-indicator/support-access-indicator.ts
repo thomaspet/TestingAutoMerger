@@ -1,10 +1,10 @@
 import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
 import {ElsaContractService, UserService, UserRoleService} from '@app/services/services';
-import {User} from '@uni-entities';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '@app/authService';
 import {SignalRService} from '@app/services/common/signal-r.service';
 import {trigger, style, transition, animate, state, group} from '@angular/animations';
+import {ElsaSupportUserDTO} from '@app/models';
 
 @Component({
     selector: 'support-access-indicator',
@@ -34,7 +34,7 @@ import {trigger, style, transition, animate, state, group} from '@angular/animat
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SupportAccessIndicator {
-    supportUsers: User[] = [];
+    supportUsers: ElsaSupportUserDTO[] = [];
     showDialog = true;
 
     isAdmin = false;
@@ -74,7 +74,7 @@ export class SupportAccessIndicator {
 
     checkForSupportUsers() {
         this.elsaContractService.getSupportUsers().subscribe(users => {
-            this.supportUsers = users;
+            this.supportUsers = users.filter(su => su.StatusCode === 110001); // Active
             this.cdr.markForCheck();
         });
     }
@@ -84,13 +84,13 @@ export class SupportAccessIndicator {
     }
 
     deactivateSupportUser() {
-        const userToBeDeactivatedEmail = this.supportUsers[0].Email ? this.supportUsers[0].Email : 'Denne brukeren';
+        const userToBeDeactivatedEmail = this.supportUsers[0].DisplayName ? this.supportUsers[0].DisplayName : 'Denne brukeren';
         this.userService.PostAction(this.supportUsers[0].ID, 'inactivate').subscribe(() => {
             this.toastService.addToast(
                 'Support avsluttet',
                 ToastType.good,
                 ToastTime.medium,
-                `${userToBeDeactivatedEmail} har ikke lenger lesetilgang til selskapet ditt`
+                `${userToBeDeactivatedEmail} har ikke lenger tilgang til selskapet ditt`
             );
             this.showDialog = false;
             this.checkForSupportUsers();

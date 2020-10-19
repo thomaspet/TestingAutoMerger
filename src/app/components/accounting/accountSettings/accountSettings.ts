@@ -46,10 +46,6 @@ export class AccountSettings {
                 label: 'Synkroniser kontoplan NS4102',
                 action: () => this.SynchronizeNS4102()
             },
-            {
-                label: 'Sett påkrevde dimensjoner',
-                action: () => this.openMandatoryDimensionsModal()
-            }
         ]
     };
 
@@ -77,6 +73,11 @@ export class AccountSettings {
                     action: () => this.account = <Account> {}
                 }
             };
+
+            this.toolbarconfig.contextmenu.push({
+                label: 'Sett påkrevde dimensjoner',
+                action: () => this.openMandatoryDimensionsModal(),
+            });
         }
 
         this.setImportActions();

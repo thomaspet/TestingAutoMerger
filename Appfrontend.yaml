@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+spec:
+  selector:
+    app: frontend
+  ports:  #adjust port settings suited for needs
+  - port: 8081
+    targetPort: 80
+  #  protocol: TCP
+  type: LoadBalancer #consider if a loadbalancer is necessary for this purpose?
+  #clusterIP: 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  replicas: 2 #2 replicas atm
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:      
+      - name: frontend
+        image: appfrontend #get image from private container
+        resources:
+          limits: #tune cpu and mem usage 
+            memory: "128Mi"
+            cpu: "1500m"
+        ports:
+        - containerPort: 80
+        imagePullPolicy: IfNotPresent #use local image pool 

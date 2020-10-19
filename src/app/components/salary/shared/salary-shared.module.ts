@@ -24,6 +24,12 @@ import { SalaryTransactionSupplementService } from './services/salary-transactio
 import { SalaryTransactionViewService } from './services/salary-transaction/salary-transaction-view.service';
 import { RegulativeImportComponent } from './components/regulative-import/regulative-import.component';
 import { PayrollRunService } from './services/payroll-run/payroll-run.service';
+import { TaxCardModal } from './components/tax-card-modal/tax-card-modal.component';
+import { ReadTaxCardComponent } from './components/tax-card-modal/read-tax-card.component';
+import { TaxCardRequestComponent } from './components/tax-card-modal/tax-card-request.component';
+import { TaxResponseModalComponent } from './components/tax-card-modal/tax-response-modal.component';
+import { TaxCardReadStatusComponent } from './components/tax-card-modal/tax-card-read-status.component';
+import { SalaryYearService } from './services/salary-year/salary-year.service';
 
 
 @NgModule({
@@ -46,6 +52,11 @@ import { PayrollRunService } from './services/payroll-run/payroll-run.service';
         SalaryTransSupplementModalComponent,
         SyncWagetypesModalComponent,
         RegulativeImportComponent,
+        TaxCardModal,
+        ReadTaxCardComponent,
+        TaxCardRequestComponent,
+        TaxResponseModalComponent,
+        TaxCardReadStatusComponent,
     ],
     exports: [
         // shared modules
@@ -67,6 +78,8 @@ import { PayrollRunService } from './services/payroll-run/payroll-run.service';
         SalaryTransSupplementModalComponent,
         SyncWagetypesModalComponent,
         RegulativeImportComponent,
+        TaxCardModal,
+
     ],
     providers: [
         EmployeeCategoryService,
@@ -78,6 +91,7 @@ import { PayrollRunService } from './services/payroll-run/payroll-run.service';
         SalaryTransactionSupplementService,
         SalaryTransactionViewService,
         PayrollRunService,
+        SalaryYearService,
     ]
   })
   export class SalarySharedModule { }

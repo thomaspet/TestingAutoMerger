@@ -4,11 +4,11 @@ import * as moment from 'moment';
 
 import {AuthService} from '@app/authService';
 import {ElsaCompanyLicense, ElsaCustomer} from '@app/models';
-import {ElsaContractService, ErrorService} from '@app/services/services';
+import {ElsaContractService, ErrorService, SubEntityService, CompanySettingsService} from '@app/services/services';
 import {ListViewColumn} from '../list-view/list-view';
 import {CompanyService} from '@app/services/services';
-import {UniModalService, UniEditFieldModal} from '@uni-framework/uni-modal';
-import {GrantAccessModal, GrantSelfAccessModal} from '@app/components/common/modals/company-modals';
+import {UniModalService, UniEditFieldModal, WizardSettingsModal} from '@uni-framework/uni-modal';
+import {GrantAccessModal, GrantSelfAccessModal, UniNewCompanyModal} from '@app/components/common/modals/company-modals';
 import {DeletedCompaniesModal} from './deleted-companies-modal/deleted-companies-modal';
 import {DeleteCompanyModal} from './delete-company-modal/delete-company-modal';
 import {LicenseInfo} from '../license-info';
@@ -16,6 +16,10 @@ import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {NewCompanyModal} from '../new-company-modal/new-company-modal';
 import {FieldType} from '@uni-entities';
+import {theme, THEMES} from 'src/themes/theme';
+import { Company } from '@uni-entities';
+import { tap } from 'rxjs/internal/operators/tap';
+import { switchMap } from 'rxjs/operators';
 
 @Component({
     selector: 'license-info-company-list',
@@ -24,6 +28,7 @@ import {FieldType} from '@uni-entities';
 })
 export class CompanyList {
     contractID: number;
+    contractType: number;
     currentContractID: number;
     companies: ElsaCompanyLicense[];
     companyLimitReached = false;
@@ -85,6 +90,8 @@ export class CompanyList {
         private licenseInfo: LicenseInfo,
         private toastService: ToastService,
         private errorService: ErrorService,
+        private subEntityService: SubEntityService,
+        private companySettingsService: CompanySettingsService,
     ) {
         try {
             this.currentContractID = this.authService.currentUser.License.Company.ContractID;
@@ -99,11 +106,11 @@ export class CompanyList {
 
     loadData() {
         if (this.contractID) {
-            forkJoin(
+            forkJoin([
                 this.elsaContractService.getCompanyLicenses(this.contractID),
                 this.companyService.GetAll(),
                 this.elsaContractService.get(this.contractID, 'contracttypes', 'contracttypes')
-            ).subscribe(
+            ]).subscribe(
                 res => {
                     const ueCompanies = res[1] || [];
                     this.companies = (res[0] || [])
@@ -123,6 +130,7 @@ export class CompanyList {
                             return license;
                         });
                     this.filteredCompanies = this.companies;
+                    this.contractType = res[2].ContractTypes.ContractType;
                     this.companyLimitReached =
                         res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
                 },
@@ -149,6 +157,7 @@ export class CompanyList {
         this.modalService.open(GrantSelfAccessModal, {
             data: {
                 contractID: this.contractID,
+                contractType: this.contractType,
                 currentContractID: this.currentContractID,
                 companyLicense: company,
                 userIdentity: this.authService.currentUser.License.GlobalIdentity
@@ -157,9 +166,31 @@ export class CompanyList {
     }
 
     createCompany() {
-        this.modalService.open(NewCompanyModal, {
-            data: { contractID: this.contractID }
-        });
+        if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
+            this.modalService.open(UniNewCompanyModal, {
+                data: { contractID: this.contractID }
+            }).onClose.subscribe((company: Company) => {
+                if (company && company.ID) {
+                    this.authService.setActiveCompany(company);
+                    this.modalService.open(WizardSettingsModal).onClose.pipe(
+                        tap(() => this.handleSubEntityImport()),
+                    ).subscribe(() => {
+                        this.loadData();
+                    }, err => this.errorService.handle(err));
+                }
+            });
+        } else {
+            this.modalService.open(NewCompanyModal, {
+                data: { contractID: this.contractID }
+            });
+        }
+    }
+
+    handleSubEntityImport() {
+        this.companySettingsService.getCompanySettings()
+            .pipe(switchMap(companySettings =>
+                this.subEntityService.checkZonesAndSaveFromEnhetsregisteret(companySettings.OrganizationNumber)
+            )).take(1).subscribe();
     }
 
     deleteCompanyModal(company: ElsaCompanyLicense) {

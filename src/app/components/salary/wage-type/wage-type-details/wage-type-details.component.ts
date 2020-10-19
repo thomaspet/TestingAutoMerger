@@ -585,10 +585,7 @@ export class WageTypeDetailsComponent extends UniView {
         tilleggsopplysning.editable = false;
         const suggestedValue = new UniTableColumn('SuggestedValue', 'Fast verdi', UniTableColumnType.Text)
             .setTemplate((supplement: WageTypeSupplement) => {
-                if (supplement.SuggestedValue && Object.keys(supplement.SuggestedValue).length) {
-                    return '';
-                }
-                return supplement.SuggestedValue;
+                return (supplement?.SuggestedValue) ? supplement.SuggestedValue : '';
             });
 
         this.tilleggspakkeConfig = new UniTableConfig('salary.wagetype.details.tilleggspakke', true, true, 15)

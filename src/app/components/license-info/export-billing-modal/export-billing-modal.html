@@ -1,0 +1,49 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        Lag ordregrunnlag
+    </header>
+
+    <article style="font-size: 15px">
+        Ordregrunnlag for viderefakturering av sluttkunder sine kostnader.
+        Dette grunnlaget kan lastes opp i systemet via importsentralen for utfakturering.
+        Merk at det genereres et ordrenummer per kunde, og angitt ordrenummer vil være det første i rekken.
+    </article>
+
+    <article *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </article>
+
+    <article>
+        <form [formGroup]="form">
+            <label class="uni-label" uniAutoFocus>
+                <span>Ordrenummer</span>
+                <input type="text" formControlName="OrderNumber">
+            </label>
+
+            <label class="uni-label">
+                <span>Periode</span>
+                <input type="date" formControlName="Period">
+            </label>
+
+            <label class="uni-label">
+                <span>Ordredato</span>
+                <input type="date" formControlName="OrderDate">
+            </label>
+
+            <label class="uni-label">
+                <span>Vår referanse</span>
+                <input type="text" formControlName="Reference">
+            </label>
+        </form>
+    </article>
+
+    <footer>
+        <button class="secondary" (click)="onClose.emit()" [disabled]="busy">
+            Avbryt
+        </button>
+
+        <button (click)="onSubmit()" class="c2a" [disabled]="busy">
+            Lag ordregrunnlag
+        </button>
+    </footer>
+</section>

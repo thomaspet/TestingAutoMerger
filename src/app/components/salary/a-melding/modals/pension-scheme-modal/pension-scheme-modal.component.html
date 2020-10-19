@@ -1,0 +1,21 @@
+<section role="dialog" class="uni-modal">
+    <header>{{ 'SALARY.PENSION_SCHEME.MODAL_HEADER' | translate }}</header>
+    <article [attr.aria-busy]="busy">
+        <p>{{ 'SALARY.PENSION_SCHEME.MODAL_MESSAGE' | translate }}</p>
+        <autocomplete [options]="autocompleteOptions" (valueChange)="onSelect($event)"></autocomplete>
+        <button (click)="addCustomScheme()" class="tertiary c2a">{{ 'SALARY.PENSION_SCHEME.NEW_CUSTOM_PENSION_SCHEME' | translate }}</button>
+        <ul class="pension-schemes">
+            <li *ngFor="let scheme of filteredPensionSchemes">
+                <p class="pension-scheme">{{scheme.identificator}} - {{scheme.name}}</p>
+                <button class="icon-button" (click)="remove(scheme)">
+                    <i class="material-icons">close</i>
+                </button>
+            </li>
+        </ul>
+    </article>
+    <footer>
+        <button class="secondary" (click)="close()" [disabled]="busy">{{'COMMON.CANCEL' | translate}}</button>
+        <button class="good" *ngIf="needSave" (click)="saveAndClose()" [attr.aria-busy]="busy">{{'COMMON.SAVE' | translate}}</button>
+        <button class="c2a" *ngIf="!needSave" (click)="close()">{{'COMMON.OK' | translate}}</button>
+    </footer>
+</section>

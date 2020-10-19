@@ -1,6 +1,6 @@
 ﻿import {Component, OnInit, ViewChild, SimpleChanges} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, of} from 'rxjs';
 import {SubEntityList} from '@app/components/settings/agaAndSubEntitySettings/subEntityList';
 import {GrantModal} from '@app/components/settings/agaAndSubEntitySettings/modals/grantModal';
 import {FreeAmountModal} from '@app/components/settings/agaAndSubEntitySettings/modals/freeamountModal';
@@ -478,10 +478,10 @@ export class AgaAndSubEntitySettings implements OnInit {
         financial.FieldType = FieldType.UNI_SEARCH;
         financial.Options = {
             valueProperty: 'AccountNumber',
-            source: (model: CompanySalary) => this.accountService
+            source: (model: CompanySalary) => { return !model.MainAccountAllocatedFinancial ? of(null) : this.accountService
                 .GetAll(`filter=AccountNumber eq ${model.MainAccountAllocatedFinancial}`)
                 .map(results => results[0])
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))},
             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig()
         };
 

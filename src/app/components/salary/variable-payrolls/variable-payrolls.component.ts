@@ -350,7 +350,11 @@ export class VariablePayrollsComponent {
                 this.checkDates(row);
             }
 
-            if ((event.field === 'Wagetype' || event.field === 'employment') || (event.field === 'Employee' && row.Wagetype)) {
+            if (event.field === 'Wagetype') {
+                row.Text = event.newValue.WageTypeName;
+            }
+
+            if (event.field === 'Wagetype' || event.field === 'employment' || event.field === 'Employee' && row.Wagetype) {
                 suggestions$ = suggestions$ ? suggestions$.switchMap(this.fillIn) : this.fillIn(row);
             }
 

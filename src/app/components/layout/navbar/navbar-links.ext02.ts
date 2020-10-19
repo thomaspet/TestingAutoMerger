@@ -233,6 +233,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true,
                     },
                     {
+                        name: 'NAVBAR.ASSETS',
+                        url: '/accounting/assets',
+                        moduleID: UniModules.Accounting,
+                        activeInSidebar: true,
+                        featurePermission: 'ui.accounting.assets'
+                    },
+                    {
                         name: 'NAVBAR.SEARCH_JOURNALENTRY',
                         url: '/accounting/transquery',
                         moduleID: UniModules.TransqueryDetails,

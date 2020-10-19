@@ -8,6 +8,7 @@ import { IncomeService } from './shared/services/income.service';
 import { WageTypeViewService } from './shared/services/wage-type-view.service';
 import { WagetypeSyncGuard } from './wage-type-sync.guard';
 import { WageTypeTranslationService } from './shared/services/wage-type-translation.service';
+import { WageTypeEmptyStateComponent } from './wage-type-empty-state/wage-type-empty-state.component';
 
 @NgModule({
     imports: [
@@ -18,6 +19,7 @@ import { WageTypeTranslationService } from './shared/services/wage-type-translat
         WageTypeSettingsComponent,
         WageTypeListComponent,
         WageTypeViewComponent,
+        WageTypeEmptyStateComponent,
     ],
     providers: [
         IncomeService,

@@ -1,7 +1,7 @@
 import {Component, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions, UniModalService, UniEmailModal, UniPhoneModal, UniAddressModal} from '@uni-framework/uni-modal';
-import {Customer, FieldType, Address, BusinessRelation, Phone, Email, StatusCode} from '@uni-entities';
-import {CustomerService, ErrorService, AddressService, IntegrationServerCaller} from '@app/services/services';
+import {Customer, FieldType, Address, BusinessRelation, Phone, Email, StatusCode, NumberSeries} from '@uni-entities';
+import {CustomerService, ErrorService, AddressService, IntegrationServerCaller, NumberSeriesService} from '@app/services/services';
 import {BehaviorSubject} from 'rxjs';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {UniForm} from '@uni-framework/ui/uniform';
@@ -26,8 +26,12 @@ export class CustomerEditModal implements IUniModal {
     fields$ = new BehaviorSubject([]);
     config$ = new BehaviorSubject({});
 
+    numberSeries: NumberSeries[];
+
     isDirty: boolean;
     externalLookupOptions: AutocompleteOptions;
+
+    initSearchValue: string;
 
     constructor(
         private modalService: UniModalService,
@@ -36,19 +40,23 @@ export class CustomerEditModal implements IUniModal {
         private addressService: AddressService,
         private integrationServerCaller: IntegrationServerCaller,
         private permissionService: FeaturePermissionService,
+        private numberSeriesService: NumberSeriesService,
     ) {}
 
     ngOnInit() {
-        const customer = this.options.data;
+        const customer = this.options.data?.customer;
         this.isNewCustomer = !!customer;
         if (customer) {
             this.customer$.next(customer);
             this.config$.next({autofocus: true});
+            this.initNumberSeries();
         } else {
             this.initNewCustomer();
         }
 
-        this.fields$.next(this.getFormFields());
+        if (this.options.data?.search) {
+            this.initSearchValue = this.options.data?.search;
+        }
     }
 
     ngOnDestroy() {
@@ -94,13 +102,56 @@ export class CustomerEditModal implements IUniModal {
         ).subscribe(
             res =>  {
                 this.customer$.next(res);
-                this.busy = false;
+                this.initNumberSeries();
             },
             err => {
                 this.errorService.handle(err);
                 this.busy = false;
             }
         );
+    }
+
+    initNumberSeries() {
+        this.busy = true;
+        this.numberSeriesService.GetAll(
+            `filter=NumberSeriesType.Name eq 'Customer Account number series'
+            and Empty eq false and Disabled eq false`,
+            ['NumberSeriesType']
+        ).subscribe(response => {
+            this.numberSeries = this.numberSeriesService.CreateAndSet_DisplayNameAttributeOnSeries(response);
+            const numberSerie = this.numberSeries.find(x => x.Name === 'Customer number series');
+            if (numberSerie) {
+                this.numberSeriesChange(numberSerie);
+            }
+            
+            this.fields$.next(this.getFormFields());
+            if (this.numberSeries.length > 1) {
+                const fields = this.fields$.getValue();
+                fields.push({
+                    Property: 'SubAccountNumberSeriesID',
+                    FieldType: FieldType.DROPDOWN,
+                    Label: 'Nummerserie',
+                    Options: {
+                        source: this.numberSeries,
+                        valueProperty: 'ID',
+                        displayProperty: 'DisplayName',
+                        debounceTime: 200
+                    }
+                });
+                this.fields$.next(fields);
+            }
+            this.busy = false;
+        },
+        err => {
+            this.errorService.handle(err);
+            this.busy = false;
+        });
+    }
+
+    numberSeriesChange(selectedSerie) {
+        const customer = this.customer$.getValue();
+        customer.SubAccountNumberSeriesID = selectedSerie.ID;
+        this.customer$.next(customer);
     }
 
     onExternalSearchSelected(item) {

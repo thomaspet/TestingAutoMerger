@@ -46,5 +46,6 @@
 <license-user-details
     *ngIf="selectedUser && detailsVisible"
     [user]="selectedUser"
+    [contractID]="contractID"
     (close)="detailsVisible = false">
 </license-user-details>

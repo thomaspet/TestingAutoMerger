@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
-import {Observable, BehaviorSubject, forkJoin} from 'rxjs';
+import {BehaviorSubject, forkJoin} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     Account, VatType, AccountGroup, VatDeductionGroup,
@@ -23,6 +23,7 @@ import {RequestMethod} from '@uni-framework/core/http';
 
 import * as _ from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
+import {FeaturePermissionService} from '@app/featurePermissionService';
 
 @Component({
     selector: 'account-details',
@@ -33,21 +34,24 @@ export class AccountDetails implements OnInit {
     @Output() public accountSaved = new EventEmitter<Account>();
     @Output() public changeEvent = new EventEmitter<Account>();
 
-    public account$ = new BehaviorSubject(null);
-    public dimensions$ = new BehaviorSubject({});
+    account$ = new BehaviorSubject(null);
+    dimensions$ = new BehaviorSubject({});
     private currencyCodes: Array<any> = [];
     private vattypes: Array<any> = [];
     private accountGroups: AccountGroup[];
     private vatDeductionGroups: any[];
     private saftMappingAccounts: SaftMappingAccount[];
-    public config$ = new BehaviorSubject({});
-    public fields$ = new BehaviorSubject(this.getFormFields());
-    public dimensionsConfig$ = new BehaviorSubject({});
-    public dimensionsFields$ = new BehaviorSubject([]);
-    public invalidateDimensionsCache = false;
-    public deleteButtonDisabled = true;
+
+    fields$ = new BehaviorSubject(this.getFormFields());
+
+    dimensionsFormVisible: boolean;
+    dimensionsFields$ = new BehaviorSubject([]);
+
+    invalidateDimensionsCache = false;
+    canDeleteAccount: boolean;
 
     constructor(
+        private permissionService: FeaturePermissionService,
         private accountService: AccountService,
         private currencyCodeService: CurrencyCodeService,
         private vatTypeService: VatTypeService,
@@ -57,7 +61,7 @@ export class AccountDetails implements OnInit {
         private vatDeductionGroupService: VatDeductionGroupService,
         private costAllocationService: CostAllocationService,
         private dimensionSettingsService: DimensionSettingsService,
-        private accountMandatoryDimensionService: AccountMandatoryDimensionService
+        private accountMandatoryDimensionService: AccountMandatoryDimensionService,
     ) {}
 
     public ngOnInit() {
@@ -67,14 +71,11 @@ export class AccountDetails implements OnInit {
     ngOnDestroy() {
         this.account$.complete();
         this.dimensions$.complete();
-        this.config$.complete();
         this.fields$.complete();
-        this.dimensionsConfig$.complete();
         this.dimensionsFields$.complete();
     }
 
     private setup() {
-
         forkJoin(
             this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
@@ -105,19 +106,40 @@ export class AccountDetails implements OnInit {
             return;
         } else if (!incomingAccount.ID) {
             this.account$.next(incomingAccount);
+            this.updateFieldVisibility();
         } else {
             this.getAccount(this.inputAccount.ID).subscribe(
                 dataset => {
                     this.account$.next(dataset);
                     this.extendFormConfig();
                     this.setDimensionsForm();
-                    this.accountService.Action(this.inputAccount.ID, 'is-account-used', null, RequestMethod.Get)
-                    .subscribe((used) => {
-                        this.deleteButtonDisabled = used;
-                    });
+                    this.updateFieldVisibility();
+
+                    if (this.permissionService.canShowUiFeature('ui.accounting.advanced-account-settings')) {
+                        this.accountService.Action(
+                            this.inputAccount.ID, 'is-account-used', null, RequestMethod.Get
+                        ).subscribe(used =>  {
+                            this.canDeleteAccount = !used;
+                        });
+
+                    }
                 },
                 err => this.errorService.handle(err)
             );
+        }
+    }
+
+    updateFieldVisibility() {
+        const account = this.account$.value;
+        const fields = this.fields$.value || [];
+
+        // Bruno wants some fields readonly, but they still need to be editable when creating new accounts
+        if (theme.theme === THEMES.EXT02) {
+            const accountNumberField = fields.find(f => f.Property === 'AccountNumber');
+            const vatCodeField = fields.find(f => f.Property === 'VatTypeID');
+
+            accountNumberField.ReadOnly = account?.ID > 0;
+            vatCodeField.ReadOnly = account?.ID > 0;
         }
     }
 
@@ -206,6 +228,10 @@ export class AccountDetails implements OnInit {
     }
 
     public setDimensionsForm() {
+        if (!this.permissionService.canShowUiFeature('ui.dimensions')) {
+            return;
+        }
+
         this.dimensionSettingsService.GetAll('filter=isActive eq true').subscribe((dimensionSettings: DimensionSettings[]) => {
             const defaultFields = [
                 <UniFieldLayout> {
@@ -265,6 +291,8 @@ export class AccountDetails implements OnInit {
                         }
                     };
             }));
+
+            this.dimensionsFormVisible = true;
             this.dimensionsFields$.next(fields);
             if (this.account$.getValue()) {
                 const dimensions = {};
@@ -520,6 +548,7 @@ export class AccountDetails implements OnInit {
                 Property: 'CurrencyCodeID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Valuta',
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
             {
                 FieldSet: 1,
@@ -530,7 +559,8 @@ export class AccountDetails implements OnInit {
                 Label: 'SAF-T kobling',
                 Tooltip: {
                     Text: 'Kobler kontoen til saf-t standard konto'
-                }
+                },
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
             // Fieldset 2 (details)
             {
@@ -540,6 +570,7 @@ export class AccountDetails implements OnInit {
                 Property: 'SystemAccount',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Systemkonto',
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
             {
                 FieldSet: 2,
@@ -548,6 +579,7 @@ export class AccountDetails implements OnInit {
                 Property: 'UsePostPost',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'PostPost',
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
             {
                 FieldSet: 2,
@@ -555,7 +587,8 @@ export class AccountDetails implements OnInit {
                 EntityType: 'Account',
                 Property: 'CostAllocationID',
                 FieldType: FieldType.AUTOCOMPLETE,
-                Label: 'Fordelingsnøkkel'
+                Label: 'Fordelingsnøkkel',
+                FeaturePermission: 'ui.accounting.costallocation',
             },
             {
                 FieldSet: 2,
@@ -573,6 +606,7 @@ export class AccountDetails implements OnInit {
                 Property: 'UseVatDeductionGroupID',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Bruk satsgruppe',
+                FeaturePermission: 'ui.accounting.vat-deduction-settings',
             },
             // Fieldset 4 (valid)
             {
@@ -599,33 +633,27 @@ export class AccountDetails implements OnInit {
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Sperre manuelle poster',
             },
-        ];
-
-        // Only available on SR currently. Will be added to UE later
-        if (theme.theme === THEMES.SR) {
-            fields.push(
-                {
-                    FieldSet: 5,
-                    Legend: 'Kontohjelp',
-                    EntityType: 'Account',
-                    Property: 'Keywords',
-                    FieldType: FieldType.TEXT,
-                    Label: 'Søkeord',
-                    Tooltip: {
-                        Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
-                    }
+            {
+                FieldSet: 5,
+                Legend: 'Kontohjelp',
+                EntityType: 'Account',
+                Property: 'Keywords',
+                FieldType: FieldType.TEXT,
+                Label: 'Søkeord',
+                Tooltip: {
+                    Text: 'Kommaseparert liste med ord som kan søkes på for å finne denne kontoen'
                 },
-                {
-                    FieldSet: 5,
-                    Legend: 'Kontohjelp',
-                    EntityType: 'Account',
-                    Property: 'Description',
-                    FieldType: FieldType.TEXTAREA,
-                    MaxLength: 255,
-                    Label: 'Beskrivelse',
-                }
-            );
-        }
+            },
+            {
+                FieldSet: 5,
+                Legend: 'Kontohjelp',
+                EntityType: 'Account',
+                Property: 'Description',
+                FieldType: FieldType.TEXTAREA,
+                MaxLength: 255,
+                Label: 'Beskrivelse',
+            }
+        ];
 
         return fields;
     }

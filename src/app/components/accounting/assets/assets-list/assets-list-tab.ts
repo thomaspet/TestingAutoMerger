@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, EventEmitter, Output} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
 import {take, takeUntil} from 'rxjs/operators';
@@ -9,6 +9,8 @@ import {Subject} from 'rxjs';
     template: `<uni-tabs [tabs]="tabs" [activeIndex]="activeIndex" (tabClick)="tabOnClick($event)" [useRouterLinkTabs]="false"></uni-tabs>`
 })
 export class AssetsListTab {
+    @Output() tabsReady: EventEmitter<any> = new EventEmitter<any>();
+    @Output() activeTabChange: EventEmitter<any> = new EventEmitter<any>();
     onDestroy$ = new Subject();
     activeIndex = 0;
     tabs = [
@@ -25,12 +27,14 @@ export class AssetsListTab {
                 tab.count = counters[i];
                 return tab;
             });
+            this.tabsReady.emit(this.tabs);
         });
     }
 
     ngOnInit() {
         this.route.queryParams.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
-            if(!params.assetType) {
+            this.activeTabChange.emit(params.assetType || 'Alle');
+            if (!params.assetType) {
                 this.activeIndex = 5;
             } else {
                 switch (params.assetType) {
@@ -48,7 +52,7 @@ export class AssetsListTab {
                         this.activeIndex = 5;
                 }
             }
-        })
+        });
     }
 
     tabOnClick(clickedTab) {

@@ -69,6 +69,7 @@ export class TradeItemTable {
 
     showTable: boolean = true; // used for hard re-draw
 
+
     private foreignVatType: VatType;
     public tableConfig: UniTableConfig;
     public settings: CompanySettings;
@@ -112,7 +113,6 @@ export class TradeItemTable {
         this.companySettingsService.Get(1).subscribe(settings => {
             this.settings = settings;
             this.initTableConfig();
-
         });
 
         this.accountMandatoryDimensionService.GetNumberOfAccountsWithMandatoryDimensions().subscribe(
@@ -142,7 +142,7 @@ export class TradeItemTable {
         source.subscribe(settings => {
             this.settings = settings;
             // do ngOnChanges stuff
-            
+
             if (changes['readonly'] && this.table) {
                 this.showTable = false;
                 setTimeout(() => {
@@ -150,9 +150,8 @@ export class TradeItemTable {
                     this.showTable = true;
                 });
             }
-           
+
             if (changes['vatDate'] && !settings.UseFinancialDateToCalculateVatPercent) {
-                this.vatDate = changes['vatDate'];
                 const prev = changes['vatDate'].previousValue;
                 const curr = changes['vatDate'].currentValue;
 
@@ -162,7 +161,6 @@ export class TradeItemTable {
             }
 
             if (changes['deliveryDate'] && settings.UseFinancialDateToCalculateVatPercent) {
-                this.vatDate = changes['DeliveryDate'];
                 const prev = changes['deliveryDate'].previousValue;
                 const curr = changes['deliveryDate'].currentValue;
 
@@ -181,10 +179,20 @@ export class TradeItemTable {
                     item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
                 });
             }
-        });
-    }
 
-    public ngOnDestroy() {
+            if (changes['defaultTradeItem'] && this.table) {
+                this.defaultTradeItem.Dimensions.Project =
+                    this.projects.find(project => project.ID === this.defaultTradeItem.Dimensions.ProjectID) || null;
+                this.defaultTradeItem.Dimensions.Department =
+                    this.departments.find(department => department.ID === this.defaultTradeItem.Dimensions.DepartmentID) || null;
+                this.dimensionTypes.forEach(dimType => {
+                    const dimID = this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}ID`];
+                    this.defaultTradeItem.Dimensions[`Dimension${dimType.Dimension}`] = dimType.Data.find(dim => dim.ID === dimID) || null;
+                });
+
+                this.setDefaultProjectAndRefreshItems(this.defaultTradeItem.Dimensions, false);
+            }
+        });
     }
 
     public blurTable() {
@@ -203,17 +211,16 @@ export class TradeItemTable {
             // in that order. VatPercent may change between years, so this needs to be checked each time
             // the date changes
 
-            let vatDate = this.vatDate ? moment(this.vatDate) : moment(Date());
-            
-            if (this.settings.UseFinancialDateToCalculateVatPercent) {                
-                this.vatDate = this.deliveryDate ? this.deliveryDate : this.vatDate;
+            let vdate = this.vatDate;
+            if (this.settings.UseFinancialDateToCalculateVatPercent && this.deliveryDate) {
+                vdate = this.deliveryDate;
             }
             const changedVatTypeIDs: Array<number> = [];
 
             vatTypes.forEach(vatType => {
                 const validPercentageForVatType = vatType.VatTypePercentages.find(vatPercentage => {
-                    return vatPercentage.ValidFrom <= this.vatDate
-                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo)>= this.vatDate;
+                    return vatPercentage.ValidFrom <= vdate
+                        && (!vatPercentage.ValidTo || vatPercentage.ValidTo>= vdate);
                 });
 
                 const vatPercent = validPercentageForVatType ? validPercentageForVatType.VatPercent : 0;
@@ -227,7 +234,7 @@ export class TradeItemTable {
             });
 
             if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
-                
+
                 this.vatTypes = vatTypes;
                 this.items = this.items.map(item => {
                     if (item.VatType) {
@@ -315,11 +322,6 @@ export class TradeItemTable {
             ? this.projects.find(project => project.ID === id)
             : this.departments.find(dep => dep.ID === id);
 
-        // Change default trade item when dimension is changed
-        this.defaultTradeItem.Dimensions[entity] = id;
-        this.defaultTradeItem.Dimensions[entity.substr(0, entity.length - 2)] = defaultDim;
-        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
-
         const func = () => {
             // Set up query to match entity!
             this.items = this.items.map(item => {
@@ -338,7 +340,9 @@ export class TradeItemTable {
         if (shouldAskBeforeChange && !alreadyAskedDimensionChange) {
             this.modalService.confirm({
                 header: `Endre dimensjon på alle varelinjer?`,
-                message: `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`,
+                message: id != null
+                    ? `Vil du endre til denne dimensjonen på alle eksisterende varelinjer?`
+                    : `Vil du fjerne denne dimensjonen på alle eksiterende varelinjer?`,
                 buttonLabels: {
                     accept: 'Ja',
                     reject: 'Nei'
@@ -356,11 +360,6 @@ export class TradeItemTable {
     public setDimensionOnTradeItems(dimension: number, dimensionID: number, alreadyAskedDimensionChange: boolean = false) {
         const dim = this.dimensionTypes.find(dimType => dimType.Dimension === dimension).Data.find(item => item.ID === dimensionID);
         let shouldAskBeforeChange: boolean = false;
-
-        // Change default trade item when dimension is changed
-        this.defaultTradeItem.Dimensions['Dimension' + dimension + 'ID'] = dimensionID;
-        this.defaultTradeItem.Dimensions['Dimension' + dimension] = dim;
-        this.tableConfig = this.tableConfig.setDefaultRowData(this.defaultTradeItem);
 
         // Loop items to see if we need to ask before changing dimensions on line level
         this.items.forEach((item) => {
@@ -789,7 +788,6 @@ export class TradeItemTable {
                     this.settings,
                     this.vatTypes,
                     this.foreignVatType,
-                    this.vatDate,
                     this.pricingSourceLabels,
                     this.priceFactor
                 );

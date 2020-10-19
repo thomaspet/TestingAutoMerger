@@ -624,7 +624,7 @@ export class OrderDetails implements OnInit {
     }
 
     onDimensionChange(event: {field: string, value: any}) {
-        if (event.field && event.value) {
+        if (event.field) {
             const order = this.order;
             this.newOrderItem = this.tradeItemHelper.getDefaultTradeItemData(order);
 
@@ -1199,11 +1199,11 @@ export class OrderDetails implements OnInit {
             this.saveActions.push({
                 label: 'Skriv ut',
                 action: (done) => {
-                    let source = of(null);
+                    let source: any;
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveOrder(false)),
+                            switchMap(x => this.saveOrder()),
                             switchMap( order => {
                                 return this.modalService.open(TofReportModal, {
                                     header: 'Forhåndsvisning',
@@ -1217,6 +1217,17 @@ export class OrderDetails implements OnInit {
                                 }).onClose;
                             })
                         );
+                    } else {
+                        source = this.modalService.open(TofReportModal, {
+                            header: 'Forhåndsvisning',
+                            data: {
+                                entityLabel: 'Ordre',
+                                entityType: 'CustomerOrder',
+                                entity: this.order,
+                                reportType: ReportTypeEnum.ORDER,
+                                skipConfigurationGoStraightToAction: 'print'
+                            }
+                        }).onClose;
                     }
                     source.subscribe(() => done(), () => done(), () => done());
                 }
@@ -1225,11 +1236,11 @@ export class OrderDetails implements OnInit {
             this.saveActions.push({
                 label: 'Send på epost',
                 action: (done) => {
-                    let source = of(null);
+                    let source: any;
                     if (this.isDirty) {
                         source = this.modalService.openUnsavedChangesModal().onClose.pipe(
                             filter(action => action === ConfirmActions.ACCEPT),
-                            switchMap(x => this.saveOrder(false)),
+                            switchMap(x => this.saveOrder()),
                             switchMap(order => {
                                 return this.modalService.open(TofEmailModal, {
                                     data: {
@@ -1240,6 +1251,14 @@ export class OrderDetails implements OnInit {
                                 }).onClose;
                             })
                         );
+                    } else {
+                        source = this.modalService.open(TofEmailModal, {
+                            data: {
+                                entity: this.order,
+                                entityType: 'CustomerOrder',
+                                reportType: ReportTypeEnum.ORDER
+                            }
+                        }).onClose;
                     }
                     source.subscribe(emailSentTo => {
                         if (emailSentTo) {

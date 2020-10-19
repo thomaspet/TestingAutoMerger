@@ -34,7 +34,6 @@ const PUBLIC_ROOT_ROUTES = [
     'gdpr',
     'contract-activation',
     'license-info',
-    // 'accounting', // Remove when ui-permission is in place
     'dashboard-new'
 ];
 
@@ -86,7 +85,49 @@ export class AuthService {
         this.setLoadIndicatorVisibility(true);
         this.userManager = this.getUserManager();
 
-        const onMissingAuth = () => {
+        this.userManager.signinSilent().then(user => {
+            this.id_token = user.id_token;
+            this.jwt = user.access_token;
+            this.token$.next(this.jwt);
+            this.storage.saveOnUser('jwt', this.jwt);
+
+            // Subscribe to userLoaded event to update variables on token renews
+            this.userManager.events.addUserLoaded(newUser => {
+                this.userManager.clearStaleState();
+                this.id_token = newUser.id_token;
+                this.jwt = newUser.access_token;
+                this.token$.next(this.jwt);
+                this.storage.saveOnUser('jwt', this.jwt);
+            });
+
+            if (this.activeCompany) {
+                this.loadCurrentSession().subscribe(
+                    () => {
+                        // Give the app a bit of time to initialize before we remove spinner
+                        // (less visual noise on startup)
+                        setTimeout(() => {
+                            this.setLoadIndicatorVisibility(false);
+                        }, 250);
+                    },
+                    () => {
+                        this.activeCompany = undefined;
+                        this.storage.removeOnUser('activeCompany');
+                        if (!this.router.url.startsWith('/init')) {
+                            this.router.navigate(['/init/login']);
+                        }
+
+                        this.setLoadIndicatorVisibility(false);
+                    }
+                );
+            } else {
+                if (!this.router.url.startsWith('/init')) {
+                    this.router.navigate(['/init/login']);
+                }
+
+                this.setLoadIndicatorVisibility(false);
+            }
+
+        }).catch(() => {
             this.token$.next(undefined);
             this.authentication$.next({
                 activeCompany: undefined,
@@ -96,60 +137,6 @@ export class AuthService {
 
             this.clearAuthAndGotoLogin();
             this.setLoadIndicatorVisibility(false);
-        };
-
-        Promise.all([
-            this.userManager.getUser(),
-            this.userManager.querySessionStatus(),
-        ]).then(res => {
-            const user = res[0];
-            const sessionStatus = res[1];
-
-            if (sessionStatus && user && !user.expired && user.access_token) {
-                this.id_token = user.id_token;
-                this.jwt = user.access_token;
-                this.token$.next(this.jwt);
-                this.storage.saveOnUser('jwt', this.jwt);
-
-                if (this.activeCompany) {
-                    this.loadCurrentSession().subscribe(
-                        () => {
-                            // Give the app a bit of time to initialise before we remove spinner
-                            // (less visual noise on startup)
-                            setTimeout(() => {
-                                this.setLoadIndicatorVisibility(false);
-                            }, 250);
-                        },
-                        () => {
-                            this.activeCompany = undefined;
-                            this.storage.removeOnUser('activeCompany');
-                            if (!this.router.url.startsWith('/init')) {
-                                this.router.navigate(['/init/login']);
-                            }
-
-                            this.setLoadIndicatorVisibility(false);
-                        }
-                    );
-                } else {
-                    if (!this.router.url.startsWith('/init')) {
-                        this.router.navigate(['/init/login']);
-                    }
-
-                    this.setLoadIndicatorVisibility(false);
-                }
-            } else {
-                this.userManager.clearStaleState();
-                this.userManager.removeUser().then(() => {
-                    onMissingAuth();
-                });
-            }
-        }).catch((err) => {
-            // Session has ended ! , clear stale state and redirect to login
-            this.userManager.clearStaleState();
-            this.userManager.removeUser().then((res) => {
-                onMissingAuth();
-            });
-
         });
 
         this.userManager.events.addUserSignedOut(() => {
@@ -158,23 +145,6 @@ export class AuthService {
                 this.cleanStorageAndRedirect();
                 this.setLoadIndicatorVisibility(false);
             });
-
-        });
-
-        this.userManager.events.addUserLoaded(() => {
-            this.userManager.getUser().then(user => {
-                if (user && !user.expired && user.access_token) {
-                    this.userManager.clearStaleState();
-                    this.id_token = user.id_token;
-                    this.jwt = user.access_token;
-                    this.token$.next(this.jwt);
-                    this.storage.saveOnUser('jwt', this.jwt);
-                }
-            });
-        });
-
-        this.userManager.events.addSilentRenewError(function(res) {
-            console.log(res);
         });
     }
 
@@ -210,8 +180,9 @@ export class AuthService {
         }
     }
 
-    private getUserManager(): UserManager {
+    private getSettings(): any {
         const baseUrl = window.location.origin;
+        const responseType = environment.usePKCE ? 'code' : 'id_token token';
 
         const settings: any = {
             authority: environment.authority,
@@ -219,7 +190,7 @@ export class AuthService {
             redirect_uri: baseUrl + '/assets/auth.html',
             silent_redirect_uri: baseUrl + '/assets/silent-renew.html',
             post_logout_redirect_uri: baseUrl + environment.post_logout_redirect_uri,
-            response_type: 'id_token token',
+            response_type: responseType,
             scope: 'profile openid AppFramework',
             filterProtocolClaims: true,
             loadUserInfo: true,
@@ -228,7 +199,11 @@ export class AuthService {
             silentRequestTimeout: 20000, // 20 seconds
             userStore: new WebStorageStateStore({ store: window.localStorage })
         };
+        return settings;
+    }
 
+    private getUserManager(): UserManager {
+        const settings = this.getSettings();
         return new UserManager(settings);
     }
 
@@ -259,15 +234,18 @@ export class AuthService {
 
                     this.reloadCurrentSession().subscribe(
                         authDetails => {
-                            const forcedRedirect = this.getForcedRedirect(
-                                authDetails
-                            );
+                            const forcedRedirect = this.getForcedRedirect(authDetails);
                             if (forcedRedirect) {
                                 redirect = forcedRedirect;
                             }
 
                             setTimeout(() => {
-                                this.router.navigateByUrl(redirect || '');
+                                this.router.navigateByUrl(redirect || '').then(success => {
+                                    if (!success) {
+                                        this.router.navigateByUrl('/');
+                                    }
+                                });
+
                                 this.setLoadIndicatorVisibility(false);
                             });
                         },
@@ -340,21 +318,12 @@ export class AuthService {
             const contract: ContractLicenseType = (user.License && user.License.ContractType) || {};
             this.featurePermissionService.activatePackage(contract.TypeName);
 
-            const isDemo = contract.TypeName === 'Demo';
-            let hasActiveContract = user && !this.isTrialExpired(contract);
-
-
-            // In SR a demo with non-demo company requires contract activation immediately
-            if (theme.theme === THEMES.SR && isDemo && !this.activeCompany.IsTest) {
-                hasActiveContract = false;
-            }
-
             const authDetails = {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
-                hasActiveContract: hasActiveContract,
-                isDemo: isDemo,
+                hasActiveContract: !this.isTrialExpired(contract),
+                isDemo: contract.TypeName === 'Demo',
             };
 
             this.authentication$.next(authDetails);

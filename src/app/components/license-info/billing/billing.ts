@@ -6,6 +6,9 @@ import * as moment from 'moment';
 import {LicenseInfo} from '../license-info';
 import {ElsaContractTypePipe} from '@uni-framework/pipes/elsaContractTypePipe';
 import {BillingData, BillingDataItem} from '@app/models/elsa-models';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {ExportBillingModal} from '../export-billing-modal/export-billing-modal';
+import {theme} from 'src/themes/theme';
 
 @Component({
     selector: 'license-billing',
@@ -24,6 +27,13 @@ export class Billing {
     hasPermission: boolean;
     totalSumWithPeriods: number;
 
+    emptyData: boolean;
+    emptyDataImageUrl = theme.widgets?.empty_state_illustration || 'themes/empty_state.svg';
+    emptyDataImageLoaded = false;
+    hideEmptyDataImage = false;
+
+    settledUntilInfo: string;
+
     columns: ListViewColumn[] = [
         {header: 'Varenr', field: 'ProductID'},
         {header: 'Varenavn', field: 'ProductName', flex: '2'},
@@ -38,6 +48,7 @@ export class Billing {
         private contractService: ElsaContractService,
         private licenseInfo: LicenseInfo,
         private elsaContractTypePipe: ElsaContractTypePipe,
+        private modalService: UniModalService,
     ) {
         const currentYear = new Date().getFullYear();
         this.yearSelectOptions = [currentYear - 2, currentYear - 1, currentYear];
@@ -60,6 +71,18 @@ export class Billing {
             res => {
                 this.hasPermission = true;
                 this.billingData = res;
+
+                this.settledUntilInfo = moment(this.billingData?.SettledUntil).month() === +this.periodFilter.month
+                    ? `I denne perioden starter avregningen fra <b>${moment(this.billingData.SettledUntil).format('DD.MM.YYYY')}</b>`
+                    : '';
+
+
+                if (this.billingData?.Items?.length === 0 && this.billingData?.RelatedOrders?.length === 0) {
+                    this.emptyData = true;
+                    return;
+                }
+                this.emptyData = false;
+
                 if (this.billingData?.RelatedOrders?.length > 0) {
                     this.totalSumWithPeriods = 0;
                     this.billingData.RelatedOrders.forEach(order => {
@@ -90,12 +113,23 @@ export class Billing {
         return period + '&nbsp;&nbsp; &mdash; &nbsp;&nbsp;' + contracttype;
     }
 
+    openExportBillingModal() {
+        this.modalService.open(ExportBillingModal, {
+            data: {
+                contractID: this.contractID,
+                selectedYear: this.periodFilter.year,
+                selectedMonth: +this.periodFilter.month
+            }
+        });
+    }
+
     export() {
         const formatNumber = value => value.toString().replace('.', ',');
         const csv = [];
 
+        // csv files has to start with BOM (uFEFF) to support ÆØÅ
         csv.push(
-            `${this.billingData.CustomerName};`
+            `\uFEFF${this.billingData.CustomerName};`
             + `${this.contractService.getContractTypeText(this.billingData.ContractType)};`
             + `${moment(this.billingData.FromDate).format('DD.MM.YYYY')};`
             + `${moment(this.billingData.ToDate).format('DD.MM.YYYY')};`

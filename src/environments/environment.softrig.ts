@@ -5,9 +5,10 @@
 
 export const environment = {
     useProdMode: true,
+    usePKCE: true,
 
     authority: 'https://test-login.softrig.com',
-    client_id: '017c7ff6-8586-a221-2783-15251a83299b',
+    client_id: '605f1348-8275-5434-0497-0a070694a8f5',
     post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',
@@ -32,6 +33,11 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
+    },
+
+    ID_PORTEN: {
+        authority: '',
+        client_id: '',
     },
 
     RAYGUN_API_KEY: 'o/sDy5tQZkTH2vkbPj+SZA==',

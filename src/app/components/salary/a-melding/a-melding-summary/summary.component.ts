@@ -1,17 +1,26 @@
-import {Component, Input, OnChanges} from '@angular/core';
+import {Component, Input, OnChanges, EventEmitter, Output, SimpleChanges} from '@angular/core';
 import * as moment from 'moment';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
-import { AMeldingService } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { AMeldingService, IAmeldingPeriod } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { PensionSchemeService, IPensionSchemeDto } from '../shared/service/pension-scheme.service';
+import { AmeldingData } from '@uni-entities';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { PensionSchemeModalComponent } from '@app/components/salary/a-melding/modals/pension-scheme-modal/pension-scheme-modal.component';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { FinancialYearService } from '@app/services/services';
 
 @Component({
     selector: 'amelding-summary-view',
-    templateUrl: './summary.component.html'
+    templateUrl: './summary.component.html',
+    styleUrls: ['./summary.component.sass']
 })
 
 export class AmeldingSummaryViewComponent implements OnChanges {
     @Input() public currentSumUp: any;
-    @Input() public currentAMelding: any;
+    @Input() public currentAMelding: AmeldingData;
     @Input() public errorMessage: string;
+    @Input() public onLeaveMessage: string[];
+    @Input() period: number;
     public employeeTableConfig: UniTableConfig;
     public leaveTableConfig: UniTableConfig;
     public transactionTableConfig: UniTableConfig;
@@ -26,16 +35,25 @@ export class AmeldingSummaryViewComponent implements OnChanges {
     private statuses: any[] = ['Generert', 'Generert', 'Innsendt', 'Status mottatt fra altinn'];
     public showXMLValidationError: boolean;
     public validationErrorsInAmelding: string;
+    public pensionSchemeText: string;
 
     constructor(
-        private ameldingService: AMeldingService
+        private ameldingService: AMeldingService,
+        private pensionSchemeService: PensionSchemeService,
+        private modalService: UniModalService,
+        private toastService: ToastService,
+        private yearService: FinancialYearService,
     ) {
         this.setupEmployees();
         this.setupLeaves();
         this.setupTransactions();
     }
 
-    public ngOnChanges() {
+    public ngOnInit() {
+
+    }
+
+    public ngOnChanges(changes: SimpleChanges) {
         if (this.currentSumUp) {
             if (this.currentSumUp.status === null) {
                 this.currentSumUp.status = 0;
@@ -61,6 +79,12 @@ export class AmeldingSummaryViewComponent implements OnChanges {
             this.entitiesWithData = [];
         }
 
+        if (changes['period'] && !isNaN(this.period)) {
+            this.pensionSchemeService
+                .getNames(this.yearService.getActiveYear(), this.period)
+                .subscribe(names => this.pensionSchemeText = names);
+        }
+
         this.validationErrorsInAmelding = '';
         if (this.validations && this.validations.length) {
             this.validationErrorsInAmelding = this.validations.join(',');
@@ -70,6 +94,32 @@ export class AmeldingSummaryViewComponent implements OnChanges {
         }
         this.showXMLValidationError = this.validationErrorsInAmelding !== '' ? true : false;
 
+    }
+
+    openPensionSchemeModal() {
+        if (!this.period) {
+            return;
+        }
+        const period: IAmeldingPeriod = {
+            year: this.yearService.getActiveYear(),
+            month: this.period,
+        };
+        this.modalService
+            .open(PensionSchemeModalComponent, {data: period})
+            .onClose
+            .subscribe((schemes: IPensionSchemeDto[]) => {
+                const updatedPensionSchemeText = this.pensionSchemeService.toNames(schemes);
+                if ((this.pensionSchemeText || '') !== updatedPensionSchemeText) {
+                    this.pensionSchemeText = updatedPensionSchemeText;
+                    this.toastService
+                        .addToast(
+                            'SALARY.AMELDING.SUMMARY.PENSION_SCHEME_TOAST_HEADER',
+                            ToastType.good,
+                            ToastTime.medium,
+                            'SALARY.AMELDING.SUMMARY.PENSION_SCHEME_TOAST_MESSAGE'
+                        );
+                }
+            });
     }
 
     private mapData() {

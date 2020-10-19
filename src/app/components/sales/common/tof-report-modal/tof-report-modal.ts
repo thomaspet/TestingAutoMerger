@@ -1,14 +1,15 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Observable} from 'rxjs';
-import {ReportDefinition, ReportParameter, StatusCodeCustomerInvoice, StatusCodeCustomerOrder, StatusCodeCustomerQuote} from '@uni-entities';
-import {IUniModal, IModalOptions, UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
-import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
+import {Component, EventEmitter, Input, Output} from '@angular/core';
+import {Observable, of} from 'rxjs';
 import {
-    ReportTypeService,
-    ErrorService,
-    ReportDefinitionParameterService,
-    CompanySettingsService,
-} from '@app/services/services';
+    ReportDefinition,
+    ReportParameter,
+    StatusCodeCustomerInvoice,
+    StatusCodeCustomerOrder,
+    StatusCodeCustomerQuote
+} from '@uni-entities';
+import {ConfirmActions, IModalOptions, IUniModal, UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
+import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
+import {CompanySettingsService, ErrorService, ReportDefinitionParameterService, ReportTypeService,} from '@app/services/services';
 import {theme, THEMES} from 'src/themes/theme';
 
 class CustomReportParameter extends ReportParameter {
@@ -65,13 +66,13 @@ export class TofReportModal implements IUniModal {
         this.skipConfigurationGoStraightToAction = modalData.skipConfigurationGoStraightToAction;
 
         const isdraft: boolean =
-            this.entity.StatusCode == StatusCodeCustomerInvoice.Draft ||
-            this.entity.StatusCode == StatusCodeCustomerOrder.Draft ||
-            this.entity.StatusCode == StatusCodeCustomerQuote.Draft;
+            this.entity.StatusCode === StatusCodeCustomerInvoice.Draft ||
+            this.entity.StatusCode === StatusCodeCustomerOrder.Draft ||
+            this.entity.StatusCode === StatusCodeCustomerQuote.Draft;
 
         this.busy = true;
         Observable.forkJoin(
-            this.reportTypeService.getFormType(this.reportType, isdraft),
+            this.reportTypeService.getFormType(this.reportType, isdraft), // TODO: update method when all reports are updated
             this.companySettingsService.Get(1)
         ).subscribe(
             data => {
@@ -97,11 +98,10 @@ export class TofReportModal implements IUniModal {
                     }
                 }
 
-                const defaultReport = defaultReportID && this.reports.find(report => report.ID === defaultReportID);
+                const defaultReport = this.reports.find(report => report.ID === defaultReportID);
                 this.selectedReport = defaultReport || this.reports[0];
                 this.selectedReport.localization = localization;
                 this.reports.map(report => report['localization'] = this.selectedReport.localization);
-
                 this.loadReportParameters();
             },
             err => {
@@ -109,6 +109,21 @@ export class TofReportModal implements IUniModal {
                 this.busy = false;
             }
         );
+    }
+
+    entityHasHours() {
+        return this.entity.Items.some(line => !!line.ItemSourceID);
+    }
+
+    openAddHoursModal() {
+        return this.modalService.confirm(<IModalOptions>{
+            header: 'Faktura rapport',
+            message: 'Fakturaen inneholder timer, ønsker du å legge ved timeliste?',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei'
+            }
+        });
     }
 
     loadReportParameters() {
@@ -146,8 +161,12 @@ export class TofReportModal implements IUniModal {
 
                 // Create default parameters
                 const keys = this.selectedReport.parameters.map(param => param.Name);
+                this.defaultParameters = this.selectedReport?.parameters || [];
+                const duplicatedKeys = this.defaultParameters?.map(x => x.Name) || [];
+                // this.defaultParameters = [];
                 res.forEach(param => {
-                    if (!keys.includes(param.Name)) {
+                    if (!keys.includes(param.Name) && !duplicatedKeys.includes(param.Name)) {
+                        duplicatedKeys.push(param.Name);
                         this.defaultParameters.push(<CustomReportParameter> {
                             Name: param.Name,
                             value: param.DefaultValue
@@ -156,17 +175,41 @@ export class TofReportModal implements IUniModal {
                 });
 
                 this.selectedReport.parameters.concat(this.defaultParameters);
-
-                if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
-                    if (this.skipConfigurationGoStraightToAction === 'preview') {
-                        this.preview();
-                        this.onClose.emit();
-                    } else {
-                        this.print();
+                const source = this.entityHasHours() ? this.openAddHoursModal().onClose : of(ConfirmActions.CANCEL);
+                source.subscribe(action => {
+                    if (action === ConfirmActions.CANCEL) {
+                        if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
+                            if (this.skipConfigurationGoStraightToAction === 'preview') {
+                                this.preview();
+                                this.onClose.emit();
+                            } else {
+                                this.print();
+                            }
+                        } else {
+                            this.busy = false;
+                        }
+                        return;
                     }
-                } else {
-                    this.busy = false;
-                }
+                    const userWantsToPrintHours = action === ConfirmActions.ACCEPT;
+                    let showHoursIndex = this.selectedReport?.parameters?.indexOf(item => item.Name === 'ShowHours') || 0;
+                    if (showHoursIndex < 0) {
+                        showHoursIndex = this.selectedReport?.parameters?.length || 0;
+                    }
+                    this.selectedReport.parameters[showHoursIndex] = (<CustomReportParameter>{
+                        Name: 'ShowHours',
+                        value: this.entityHasHours() && userWantsToPrintHours ? '1' : '0'
+                    });
+                    if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
+                        if (this.skipConfigurationGoStraightToAction === 'preview') {
+                            this.preview();
+                            this.onClose.emit();
+                        } else {
+                            this.print();
+                        }
+                    } else {
+                        this.busy = false;
+                    }
+                });
             },
             err => {
                 this.errorService.handle(err);
@@ -185,10 +228,27 @@ export class TofReportModal implements IUniModal {
                 value: this.toNr
             }].concat(this.defaultParameters);
         }
-        return this.selectedReport.parameters = [ <CustomReportParameter> {
-            Name: this.inputType.name,
-            value: this.fromNr
-        }].concat(this.defaultParameters);
+        const entityNumberParam = this.selectedReport?.parameters?.find(item => item.Name === `${this.entityTypeShort}Number`);
+        if (!entityNumberParam) {
+            if (!this.selectedReport.parameters) {
+                this.selectedReport.parameters = this.defaultParameters || [];
+            }
+        } else {
+            this.selectedReport.parameters = [<CustomReportParameter>{
+                Name: this.inputType.name,
+                value: this.fromNr
+            }].concat(this.defaultParameters);
+        }
+        const idItem = this.selectedReport.parameters.find(item => item.Name === 'Id');
+        const entityItem = this.selectedReport?.parameters?.find(item => item.Name === `${this.entityTypeShort}Number`);
+
+        // if we have Id, we are going to use Id to select the Item
+        if (idItem) {
+            idItem.value = this.entity.ID;
+            if (entityItem && entityItem.value === null) {
+                entityItem.value = '-1';
+            }
+        }
     }
 
     preview() {

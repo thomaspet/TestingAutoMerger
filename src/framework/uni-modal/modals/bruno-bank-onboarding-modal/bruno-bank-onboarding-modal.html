@@ -14,6 +14,11 @@
             for å få innbetalingsdata rett inn i DNB Regnskap?
         </p>
 
+        <label class="uni-label">
+            <span>Bankbruker-ID</span>
+            <input type="text" [(ngModel)]="bankIntegrationUserName">
+        </label>
+
         <mat-checkbox [(ngModel)]="orderKID">
             Ja, jeg ønsker innbetalingsavtale/KID
             (<a href="https://www.dnb.no/bedrift/priser/dnbregnskap.html" target="_blank">se priser<i class="material-icons">launch</i></a>)

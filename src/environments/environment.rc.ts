@@ -1,5 +1,6 @@
 export const environment = {
     useProdMode: false,
+    usePKCE: false,
 
     // Identity Server Settings
     authority: 'https://test-login.unieconomy.no',
@@ -26,6 +27,11 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
+    },
+
+    ID_PORTEN: {
+        authority: '',
+        client_id: '',
     },
 
     RAYGUN_API_KEY: 'hOOPVMkqKMWwJ2REMoQYw',

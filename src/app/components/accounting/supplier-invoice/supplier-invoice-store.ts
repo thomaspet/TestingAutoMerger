@@ -28,7 +28,7 @@ import {
     BankService,
     CurrencyCodeService,
     PaymentMode,
-    StatisticsService
+    StatisticsService, AccountService, AssetsService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap} from 'rxjs/operators';
@@ -41,10 +41,11 @@ import {set} from 'lodash';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
-import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2, UniRegisterPaymentModal } from '@uni-framework/uni-modal';
+import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2, UniRegisterPaymentModal, UniConfirmModalWithCheckbox } from '@uni-framework/uni-modal';
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
+import { read } from 'fs';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -86,15 +87,17 @@ export class SupplierInvoiceStore {
         private modalService: UniModalService,
         private bankService: BankService,
         private currencyCodeService: CurrencyCodeService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private accountService: AccountService,
+        private assetsService: AssetsService
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
         this.currentMode = currentMode;
         Observable.forkJoin(
-            this.companySettingsService.Get(1, []),
+            [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
-            this.currencyCodeService.GetAll()
+            this.currencyCodeService.GetAll()]
         ).subscribe(([companySettings, types, codes]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
@@ -103,7 +106,7 @@ export class SupplierInvoiceStore {
         });
     }
 
-    loadInvoice(id?) {
+    loadInvoice(id?, checkAsset: boolean = false) {
         const expands =  [
             'Supplier.Info.BankAccounts',
             'BankAccount',
@@ -173,6 +176,10 @@ export class SupplierInvoiceStore {
             this.changes$.next(false);
             this.readonly$.next(invoice.StatusCode === StatusCodeSupplierInvoice.Journaled);
             this.initDataLoaded$.next(true);
+
+            if (checkAsset && this.itCanBeAnAsset(this.invoice$.value)) {
+                this.assetsService.openRegisterModal(this.invoice$.value);
+            }
         });
     }
 
@@ -531,14 +538,14 @@ export class SupplierInvoiceStore {
             if (response) {
                 if (alsoPay) {
                     this.supplierInvoiceService.payinvoice(invoice.ID, payment).subscribe(() => {
-                        this.loadInvoice(invoice.ID);
+                        this.loadInvoice(invoice.ID, true);
                         done('Faktura er bokført og registrert som betalt. Bilagsnummer med link vises i toppen.');
                     }, err => {
                         this.errorService.handle(err);
                         done('Betaling feilet');
                     });
                 } else {
-                    this.loadInvoice(this.invoice$.value.ID);
+                    this.loadInvoice(this.invoice$.value.ID, true);
                     done('Faktura er bokført. Bilagsnummer med link vises i toppen.');
                 }
             } else {
@@ -565,9 +572,24 @@ export class SupplierInvoiceStore {
         };
 
         this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
+            if (!response) {
+                done('');
+            }
+
             if (response <= ActionOnReload.SentToPaymentList) {
-                this.openJournaledAndPaidModal(response);
                 this.loadInvoice(this.invoice$.value.ID);
+                this.openJournaledAndPaidModal(response).subscribe((res) => {
+                    if (res === ConfirmActions.ACCEPT) {
+                        this.router.navigateByUrl('/accounting/bills/0');
+                    } else if (res === ConfirmActions.REJECT &&
+                        (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
+                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
+                    } else if (response > 0 && response < 3) {
+                        if (this.itCanBeAnAsset(this.invoice$.value)) {
+                            this.assetsService.openRegisterModal(this.invoice$.value);
+                        }
+                    }
+                });
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
                 this.loadInvoice(this.invoice$.value.ID);
@@ -599,8 +621,9 @@ export class SupplierInvoiceStore {
         });
     }
 
-    registerExpensePayment(accountID): Observable<any> {
+    registerExpensePayment(accountID, id?: number): Observable<any> {
         const invoice = this.invoice$.getValue();
+        invoice.ID = id || invoice.ID;
 
         const paymentData = <InvoicePaymentData> {
             Amount: roundTo(invoice.RestAmount),
@@ -652,9 +675,106 @@ export class SupplierInvoiceStore {
         }));
     }
 
-    registerPayment(done, isAlsoBook: boolean = false) {
-        const invoice = this.invoice$.getValue();
+    journalFromList(ID: number): Observable<any> {
+        return this.supplierInvoiceService.Get(ID, ['Supplier.Info']).pipe(switchMap(invoice => {
+            return this.journalAndPaymentHelper.journal(invoice, true);
+        }));
+    }
 
+    toPaymentFromList(ID: number, onlyPay: boolean = true) {
+        return this.supplierInvoiceService.Get(ID, ['Supplier.Info', 'JournalEntry.DraftLines', 'BankAccount'])
+        .pipe(switchMap((invoice) => {
+            return this.modalService.open(ToPaymentModal, {
+                data: {
+                    supplierInvoice: invoice,
+                    onlyToPayment: onlyPay
+                }
+            }).onClose;
+        }));
+    }
+
+    registerPaymentFromListAndOptionalJournaling(ID: number, isAlsoBook: boolean): Observable<any> {
+        return this.supplierInvoiceService.Get(ID, ['CurrencyCode']).pipe(switchMap((invoice) => {
+            return this.openRegisterPaymentModal(invoice, isAlsoBook).pipe(switchMap((payment) => {
+                if (isAlsoBook) {
+                    return this.supplierInvoiceService.journal(ID).pipe(switchMap(() => {
+                        return this.supplierInvoiceService.payinvoice(invoice.ID, payment);
+                    }));
+                } else {
+                    return this.supplierInvoiceService.payinvoice(invoice.ID, payment);
+                }
+            }));
+        }));
+    }
+
+    deleteFromList(invoice: any): Observable<any> {
+        const amount = invoice.SupplierInvoiceRestAmountCurrency.toFixed(2);
+        const options: IModalOptions = {
+            header: 'Slette regning',
+            message: `Er du sikker på at du ønsker å slette <strong>regning nr ${invoice.ID}</strong> på ${amount} fra <strong>${invoice.InfoName}</strong>? Dette valget kan ikke angres.`,
+            buttonLabels: {
+                accept: 'Avbryt',
+                reject: 'Slett'
+            }
+        };
+
+        return this.modalService.confirm(options).onClose.pipe(switchMap((closeAction: ConfirmActions) => {
+            return closeAction === ConfirmActions.REJECT ? this.supplierInvoiceService.Remove(invoice.ID) : of(false);
+        }));
+    }
+
+    getPaymentsBeforeCredit(ID: number) {
+        const obs = [this.bankService.getBankPayments(ID), this.bankService.getRegisteredPayments(ID)];
+        return Observable.forkJoin(obs).pipe(switchMap((res) => {
+            return this.creditSupplierInvoice(ID, res[0].concat(res[1]));
+        }));
+    }
+
+    creditSupplierInvoice(ID?: number, fetchedPayments?: any[]) {
+
+        const invoiceID = ID || this.invoice$?.value?.ID;
+        const payments = fetchedPayments || this.invoicePayments;
+
+        const paymentsSentToBank = payments.find(payment =>
+            payment.StatusCode === 44002
+            || payment.StatusCode === 44007
+            || payment.StatusCode === 44008
+            || payment.StatusCode === 44009
+            || payment.StatusCode === 44011) !== undefined;
+
+        const paymentsThatWillBeDeleted = payments.find(payment =>
+            payment.StatusCode === 44001
+            || payment.StatusCode === 44003
+            || payment.StatusCode === 44005
+            || payment.StatusCode === 44012
+            || payment.StatusCode === 44014) !== undefined;
+
+        const options = {
+            header: 'Kreditere faktura?',
+            message: 'Vil du kreditere bokføringen for fakturaen? Fakturaen vil settes tilbake til opprettet.',
+            closeOnClickOutside: false,
+            checkboxLabel: '',
+            warning: paymentsSentToBank ?
+                'Leverandørfakturaen har en eller flere betalinger som er sendt til banken. ' +
+                'Dersom du krediterer bør denne betalingen stoppes manuelt i banken.'
+                : paymentsThatWillBeDeleted
+                    ? 'Leverandørfakturaen har en eller flere betalinger som vil bli slettet viss du krediterer.'
+                    : ''
+        };
+
+        if (options.warning !== '') {
+            options.checkboxLabel = 'Jeg har forstått hva som skjer hvis jeg krediterer fakturaen.';
+        }
+
+        return this.modalService.open(UniConfirmModalWithCheckbox, options).onClose.pipe(switchMap((response) => {
+            if (response === ConfirmActions.ACCEPT) {
+                return this.supplierInvoiceService.creditInvoiceJournalEntry(invoiceID);
+            }
+            return of(false);
+        }));
+    }
+
+    openRegisterPaymentModal(invoice, isAlsoBook): Observable<any> {
         const paymentData = <InvoicePaymentData> {
             Amount: roundTo(invoice.RestAmount),
             AmountCurrency: roundTo(invoice.RestAmountCurrency),
@@ -669,13 +789,13 @@ export class SupplierInvoiceStore {
             DimensionsID: invoice.DefaultDimensionsID
         };
 
-        this.modalService.open(UniRegisterPaymentModal, {
+        return this.modalService.open(UniRegisterPaymentModal, {
             header: isAlsoBook ? 'Bokfør og registrer gjennomført betaling' : 'Registrer gjennomført betaling',
             message: 'Regningen vil bli registrert som betalt i systemet. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
             data: paymentData,
             modalConfig: {
                 entityName: 'SupplierInvoice',
-                currencyCode: this.currencyCodes.find(code => code.ID === invoice.CurrencyCodeID).Code,
+                currencyCode: invoice.CurrencyCode || this.currencyCodes.find(code => code.ID === invoice.CurrencyCodeID).Code,
                 currencyExchangeRate: invoice.CurrencyExchangeRate,
                 entityID: invoice.SupplierID,
                 supplierID: invoice.SupplierID,
@@ -683,7 +803,13 @@ export class SupplierInvoiceStore {
             buttonLabels: {
                 accept: isAlsoBook ? 'Bokfør og registrer betaling' : 'Registrer betaling'
             }
-        }).onClose.subscribe((payment) => {
+        }).onClose;
+    }
+
+    registerPayment(done, isAlsoBook: boolean = false, supplierInvoice?: SupplierInvoice) {
+        const invoice = supplierInvoice || this.invoice$.getValue();
+
+        this.openRegisterPaymentModal(invoice, isAlsoBook).subscribe((payment) => {
             if (payment) {
                 if (isAlsoBook) {
                     this.journal(done, true, payment);
@@ -727,6 +853,18 @@ export class SupplierInvoiceStore {
                 done();
             }
         });
+    }
+
+    approveOrRejectFromList(ID: number, key: string) {
+        return this.supplierInvoiceService.Get(ID, [], true).pipe(switchMap((invoice) => {
+            return this.modalService.open(InvoiceApprovalModal, {
+                data: {
+                    task: invoice['_task'],
+                    entityType: 'SupplierInvoice',
+                    action: key
+                }
+            }).onClose;
+        }));
     }
 
     mapDimensions(current: SupplierInvoice, info: any): SupplierInvoice {
@@ -812,14 +950,22 @@ export class SupplierInvoiceStore {
                 return;
         }
 
-        this.modalService.confirm(options).onClose.subscribe((response) => {
-            if (response === ConfirmActions.ACCEPT) {
-                this.router.navigateByUrl('/accounting/bills/0');
-            } else if (response === ConfirmActions.REJECT &&
-                (action === ActionOnReload.SentToPaymentList || action === ActionOnReload.JournaledAndSentToPaymentList)) {
-                this.router.navigateByUrl('/bank/ticker?code=payment_list');
-            }
-        });
+        return this.modalService.confirm(options).onClose;
 
+    }
+
+    itCanBeAnAsset(current: SupplierInvoice) {
+        if (current?.JournalEntry?.DraftLines?.length > 0) {
+            const line = current?.JournalEntry?.DraftLines[0];
+            return this.accountService.Get(line.AccountID).pipe(
+                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                map((account) => {
+                    return account.AccountNumber.toString().startsWith('10')
+                        || account.AccountNumber.toString().startsWith('11')
+                        || account.AccountNumber.toString().startsWith('12');
+                })
+            );
+        }
+        return of(false);
     }
 }

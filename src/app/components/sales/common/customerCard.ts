@@ -2,17 +2,17 @@ import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {Customer} from '@uni-entities';
 import {
-    UniSearchCustomerConfig,
     CustomerService,
     ErrorService,
     StatisticsService,
+    EHFService,
 } from '@app/services/services';
 import {TofHelper} from '../salesHelper/tofHelper';
-import {IUniSearchConfig} from '@uni-framework/ui/unisearch';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
 import {cloneDeep} from 'lodash';
+import { Observable } from 'rxjs';
 
 @Component({
     selector: 'tof-customer-card',
@@ -46,14 +46,10 @@ import {cloneDeep} from 'lodash';
             <div *ngIf="entity?.Customer?.Info?.Emails">
                 {{entity?.Customer?.Info?.Emails[0]?.EmailAddress}}
             </div>
+        </section>
 
-            <div class="unpaid-invoices" *ngIf="customerDueInvoiceData?.NumberOfDueInvoices > 0">
-                <a href="#/sales/customer/{{entity?.Customer?.ID}}">
-                    Kunden har {{customerDueInvoiceData.NumberOfDueInvoices}}
-                    forfalt{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'e' : ''}}
-                    faktura{{customerDueInvoiceData.NumberOfDueInvoices > 1 ? 'er' : ''}}
-                </a>
-            </div>
+        <section class="sharing-badges">
+            <span *ngFor="let dist of distributionChanels" matTooltip="Kunden kan motta {{ dist.ElementTypeName }}"> {{ dist.ElementTypeName }}</span>
         </section>
     `
 })
@@ -63,14 +59,9 @@ export class TofCustomerCard {
     @Input() readonly: boolean;
     @Input() entity: any;
     @Input() entityType: string;
+    @Input() distributions: any[];
 
     @Output() entityChange: EventEmitter<any> = new EventEmitter();
-
-    uniSearchConfig: IUniSearchConfig;
-    customerDueInvoiceData: any;
-
-    private emailControl: FormControl = new FormControl('');
-    private yourRefControl: FormControl = new FormControl('');
 
     autocompleteOptions: AutocompleteOptions;
 
@@ -101,24 +92,21 @@ export class TofCustomerCard {
         'Distributions'
     ];
 
+    lastPeppolAddressChecked: string;
+    canSendEHF: boolean;
+    canSendEfaktura: boolean;
+    distributionChanels = [];
+
     constructor(
-        private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private customerService: CustomerService,
         private errorService: ErrorService,
         private modalService: UniModalService,
         private statisticsService: StatisticsService,
         private tofHelper: TofHelper,
+        private ehfService: EHFService,
     ) {}
 
     ngOnInit() {
-        // Recurring invoice does not have functionality for creating customers when saving
-        // so we create them when selecting from 1880
-        if (this.entityType === 'RecurringInvoice') {
-            this.uniSearchConfig = this.uniSearchCustomerConfig.generate(this.customerExpands);
-        } else {
-            this.uniSearchConfig = this.uniSearchCustomerConfig.generateDoNotCreate(this.customerExpands);
-        }
-
         this.autocompleteOptions = {
             placeholder: 'Velg kunde',
             autofocus: true,
@@ -147,30 +135,15 @@ export class TofCustomerCard {
                 { header: 'Orgnummer', field: 'OrgNumber' },
             ],
             createLabel: 'Opprett ny kunde',
-            createHandler: () => this.modalService.open(CustomerEditModal).onClose
+            createHandler: (search) => this.modalService.open(CustomerEditModal, {data: {search: search}}).onClose
         };
     }
 
     ngOnChanges(changes) {
-        if (changes['entity'] && this.entity) {
-            this.customerDueInvoiceData = null;
-
-            const customer: any = this.entity.Customer || {Info: {Name: ''}};
-            if (this.uniSearchConfig) {
-                this.uniSearchConfig.initialItem$.next(customer);
-            } else {
-                setTimeout(() => {
-                    if (this.uniSearchConfig) {
-                        this.uniSearchConfig.initialItem$.next(customer);
-                    }
-                });
-            }
-
-            if (customer && customer.customerID) {
-                this.emailControl.setValue(this.entity.EmailAddress, {emitEvent: false});
-                this.yourRefControl.setValue(this.entity.YourReference, {emitEvent: false});
-            }
+        if (changes['distributions'] && changes['distributions'].currentValue) {
+            this.distributionChanels = changes['distributions'].currentValue.filter(d => d.IsValid);
         }
+
     }
 
     focus() {
@@ -187,9 +160,14 @@ export class TofCustomerCard {
         };
 
         if (customer && customer.ID) {
-            this.customerService.Get(customer.ID, this.customerExpands).subscribe(
-                res => setCustomer(res),
-                err => {
+            Observable.forkJoin([
+                this.customerService.Get(customer.ID, this.customerExpands),
+                this.customerService.getCustomerDistributions(customer.ID)
+            ]).subscribe(
+                res => {
+                    this.distributionChanels = res[1].filter(d => d.IsValid);
+                    setCustomer(res[0]);
+                }, err => {
                     this.errorService.handle(err);
                     setCustomer(null);
                 }
@@ -201,7 +179,7 @@ export class TofCustomerCard {
 
     editCustomer() {
         this.modalService.open(CustomerEditModal, {
-            data: this.entity.Customer
+            data: {customer: this.entity.Customer}
         }).onClose.subscribe(editedCustomer => {
             if (editedCustomer) {
                 this.onCustomerSelected(editedCustomer, false);

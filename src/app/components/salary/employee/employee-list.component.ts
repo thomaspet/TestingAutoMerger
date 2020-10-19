@@ -5,6 +5,9 @@ import {UniTableConfig, UniTableColumnType, UniTableColumn} from '../../../../fr
 import {Employee} from '../../../unientities';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {ErrorService, StatisticsService} from '../../../services/services';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { TaxCardModal } from '@app/components/salary/shared/components/tax-card-modal/tax-card-modal.component';
 
 
 @Component({
@@ -20,6 +23,16 @@ export class EmployeeListComponent {
         disabled: false
     }];
 
+    toolbarConfig: IToolbarConfig = {
+        title: 'Ansatte',
+        buttons: [
+            {
+                label: 'Hent skattekort',
+                action: () => this.modalService.open(TaxCardModal)
+            }
+        ]
+    };
+
     employeeTableConfig: UniTableConfig;
     lookupFunction: (urlParams: HttpParams) => any;
 
@@ -28,6 +41,7 @@ export class EmployeeListComponent {
         private tabService: TabService,
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
+        private modalService: UniModalService,
     ) {
         this.tabService.addTab(
             {

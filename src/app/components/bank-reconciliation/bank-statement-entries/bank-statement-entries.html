@@ -15,7 +15,7 @@
                 [ngClass]="{'selected': entry.Checked, 'closed': entry.Closed}">
 
                 <span class="date">{{entry.Date | date: 'dd.MM.yy'}}</span>
-                <span class="description">{{entry.Description}}</span>
+                <span class="description" [title]="entry.Description">{{entry.Description}}</span>
                 <span class="amount" [ngClass]="entry.Amount >= 0 ? 'positive' : 'negative'">
                     {{(entry.OpenAmount || entry.Amount) | uninumberformat: 'money'}}
 

@@ -28,11 +28,14 @@
         <ng-container *ngIf="options.data.entity === payrollType">
             <label *ngIf="operators?.length" class="uni-label label-left">
                 <span>Velg lønnsavregning</span>
-                <uni-select
-                    [config]="config"
-                    [value]="selectedPayroll"
-                    [items]="operators"
+                <uni-select [config]="config" [value]="selectedPayroll" [items]="operators"
                     (valueChange)="onSelectChange($event)">
+                </uni-select>
+            </label>
+            <label *ngIf="dateformats?.length" class="uni-label label-left">
+                <span>Dato format</span>
+                <uni-select [config]="config" [value]="selectedFormat" [items]="dateformats"
+                    (valueChange)="onFormatSelectChange($event)">
                 </uni-select>
             </label>
             <!-- <div class="notice">
@@ -112,8 +115,7 @@
 
     <footer>
         <button class="secondary" (click)="close()">Avbryt</button>
-        <button class="c2a"
-            [disabled]="options.data.entity === payrollType && (!operators.length || !selectedPayroll)"
+        <button class="c2a" [disabled]="options.data.entity === payrollType && (!operators.length || !selectedPayroll)"
             (click)="importFile()">
             Importer {{options.data.type}}
         </button>

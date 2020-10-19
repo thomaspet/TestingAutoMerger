@@ -2,8 +2,8 @@ import { Component, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
 import { Observable, of } from 'rxjs';
-import { ToastService, ToastTime, ToastType } from '@uni-framework/uniToast/toastService';
-import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity } from '@uni-entities';
+import { ToastService, ToastTime, ToastType, IToastAction } from '@uni-framework/uniToast/toastService';
+import { AmeldingData, AmeldingType, CompanySalary, InternalAmeldingStatus, AmeldingSumUp, AmeldingEntity, LocalDate } from '@uni-entities';
 import { IContextMenuItem } from '@uni-framework/ui/unitable/index';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { IToolbarConfig, IToolbarSearchConfig } from '../../common/toolbar/toolbar';
@@ -14,9 +14,8 @@ import {
     FinancialYearService,
     NumberFormat,
     PageStateService,
-    SharedPayrollRunService,
     ReportDefinitionService,
-    AltinnAuthenticationService
+    AltinnAuthenticationService, UniTranslationService
 } from '@app/services/services';
 import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
 import { AMeldingTypePickerModalComponent, IAmeldingTypeEvent } from './modals/a-melding-type-picker-modal.component';
@@ -33,8 +32,9 @@ import { RequestMethod } from '@uni-framework/core/http';
 import { ReconciliationModalComponent } from './reconciliation-modal/reconciliation-modal.component';
 import { tap, filter, switchMap } from 'rxjs/operators';
 import { ITaxAndAgaSums, SalarySumsService } from '@app/components/salary/shared/services/salary-transaction/salary-sums.service';
-import { AMeldingService } from '@app/components/salary/a-melding/shared/service/a-melding.service';
+import { AMeldingService, IAmelding } from '@app/components/salary/a-melding/shared/service/a-melding.service';
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
+import { isArray } from 'lodash';
 
 @Component({
     selector: 'amelding-view',
@@ -47,7 +47,7 @@ export class AMeldingViewComponent implements OnInit {
     public currentPeriod: number;
     public currentMonth: string;
     public currentSumsInPeriod: ITaxAndAgaSums;
-    public currentAMelding: any;
+    public currentAMelding: AmeldingData;
     public currentSumUp: any;
     public aMeldingerInPeriod: AmeldingData[];
     public actions: IUniSaveAction[];
@@ -55,6 +55,7 @@ export class AMeldingViewComponent implements OnInit {
     public submittedDate: string = '';
     public feedbackObtained: boolean = false;
     public validationErrorMessage: string;
+    public validationOnLeaveMessage: string[];
 
     public totalAGAFeedback: number = 0;
     public totalAGAFeedBackStr: string;
@@ -74,7 +75,7 @@ export class AMeldingViewComponent implements OnInit {
     public totalFinancialFeedbackStr: string;
 
 
-    public legalEntityNo: string;
+    public legalEntityNo: string = '';
     private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
     public toolbarConfig: IToolbarConfig;
     public toolbarSearchConfig: IToolbarSearchConfig;
@@ -82,7 +83,7 @@ export class AMeldingViewComponent implements OnInit {
     public ameldingStatus: string;
     private alleAvvikStatuser: any[] = [];
     private activeYear: number;
-    private companySalary: CompanySalary;
+    public companySalary: CompanySalary;
     public showFinanceTax: boolean;
     public showGarnishment: boolean = false;
     public triggerForOpenBeforeMakePaymentModalResolver = null;
@@ -156,6 +157,7 @@ export class AMeldingViewComponent implements OnInit {
         private pageStateService: PageStateService,
         private altinnAuthService: AltinnAuthenticationService,
         private payrollRunService: PayrollRunService,
+        private translationService: UniTranslationService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
@@ -188,6 +190,19 @@ export class AMeldingViewComponent implements OnInit {
             this.addTab();
         });
     }
+
+    private informAboutFastAnsatt() {
+        const reminded = localStorage.getItem('fastansatt_notificaton');
+        if ((!reminded || reminded === 'false') && (this.activeYear === 2021 && this.currentPeriod <= 3)) {
+            const toastAction = { label : 'Ikke minn meg igjen', displayInHeader : true,
+                click : () => { localStorage.setItem('fastansatt_notificaton', 'true'); } };
+
+            this._toastService.addToast('Alle ansatte har fått ansattform fast ansatt', ToastType.info, 20,
+                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaet er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.', 
+                toastAction );
+        }
+    }
+
 
     private openReport() {
         this.reportDefinitionService
@@ -232,12 +247,14 @@ export class AMeldingViewComponent implements OnInit {
                     this.getSumsInPeriod();
                     this.getAMeldingForPeriod();
                     this.updateToolbar();
+                    this.informAboutFastAnsatt();
                 }, err => this.errorService.handle(err));
         } else {
             this.currentMonth = moment.months()[this.currentPeriod - 1];
             this.getSumsInPeriod();
             this.getAMeldingForPeriod();
             this.updateToolbar();
+            this.informAboutFastAnsatt();
         }
     }
 
@@ -331,6 +348,15 @@ export class AMeldingViewComponent implements OnInit {
 
     public createAMelding(event: IAmeldingTypeEvent) {
         this.saveStatus.numberOfRequests++;
+        this._ameldingService.CheckGarnishmentInPayroll(this.activeYear, this.currentPeriod).subscribe(
+            isValid => {
+                if (isValid === false) {
+                    this._toastService.addToast('Sjekk oppsett',
+                        ToastType.warn,
+                        ToastTime.medium,
+                        'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding'); 
+                    }
+        });
         this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeYear)
             .subscribe(response => {
                 this.saveStatus.completeCount++;
@@ -393,8 +419,8 @@ export class AMeldingViewComponent implements OnInit {
                 this.totalFinancialFeedbackStr = this.numberformat.asMoney(this.totalFinancialFeedback, { decimalLength: 0 });
                 if (!!this.currentAMelding) {
                     if (this.currentAMelding.hasOwnProperty('feedBack')) {
-                        if (this.currentAMelding.feedBack !== null) {
-                            const alleMottak = this.currentAMelding.feedBack.melding.Mottak;
+                        if (this.currentAMelding['feedBack'] !== null) {
+                            const alleMottak = this.currentAMelding['feedBack'].melding.Mottak;
                             if (alleMottak instanceof Array) {
                                 alleMottak.forEach(mottak => {
                                     const pr = mottak.kalendermaaned;
@@ -546,6 +572,7 @@ export class AMeldingViewComponent implements OnInit {
             .getAmeldingSumUp(this.currentAMelding.ID)
             .subscribe((response) => {
                 this.validationErrorMessage = this.validateAMelding(response);
+                this.validationOnLeaveMessage = this.validateOnLeaveAMelding(response);
                 this.updateSaveActions();
                 this.currentSumUp = response;
                 if (this.currentSumUp.status === 3) {
@@ -815,30 +842,25 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
     private openMakePaymentModal() {
-        const getSafePayDate = (currentAMelding) => {
-            return (
-                currentAMelding
-                && currentAMelding.feedBack
-                && currentAMelding.feedBack.melding
-                && currentAMelding.feedBack.melding.Mottak
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon
-                && currentAMelding.feedBack.melding.Mottak.innbetalingsinformasjon.forfallsdato
-            )
-                ||
-                (
-                    currentAMelding
-                    && currentAMelding.feedBack
-                    && currentAMelding.feedBack.melding
-                    && currentAMelding.feedBack.melding.Mottak
-                    && currentAMelding.feedBack.melding.Mottak.length
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1].innbetalingsinformasjon
-                    && currentAMelding.feedBack.melding.Mottak[currentAMelding.feedBack.melding.Mottak.length - 1]
-                        .innbetalingsinformasjon.forfallsdato
-                )
-                ||
-                null
-                ;
+        const getSafePayDate = (currentAMelding: IAmelding) => {
+            if (isArray(currentAMelding?.feedBack?.melding?.Mottak)) {
+                const mottak: any[] = currentAMelding
+                    ?.feedBack
+                    ?.melding
+                    ?.Mottak;
+                const filteredMottak = mottak?.filter(m => m.kalendermaaned === `${currentAMelding.year}-${currentAMelding.period.toLocaleString(undefined, {minimumIntegerDigits: 2})}`);
+                return filteredMottak
+                    .pop()
+                    ?.innbetalingsinformasjon
+                    ?.forfallsdato || null;
+            }
+            return currentAMelding
+                        ?.feedBack
+                        ?.melding
+                        ?.Mottak
+                        ?.innbetalingsinformasjon
+                        ?.forfallsdato
+                || null;
         };
         this.modalService.open(MakeAmeldingPaymentModalComponent, {
             data: {
@@ -849,9 +871,12 @@ export class AMeldingViewComponent implements OnInit {
                 totalGarnishmentFeedbackStr: this.totalGarnishmentFeedbackStr,
                 showFinanceTax: this.showFinanceTax,
                 showGarnishment: this.showGarnishment,
-                payDate: getSafePayDate(this.currentAMelding)
+                payDate: getSafePayDate(<IAmelding>this.currentAMelding)
             }
-        }).onClose.subscribe((dto: any) => {
+        }).onClose
+        .pipe(
+            filter(dto => !!dto)
+        ).subscribe((dto: any) => {
             if (dto) {
                 this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
                     let toastText = '';
@@ -908,6 +933,47 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
 
+    private validateOnLeaveAMelding(ameldingSumUp: AmeldingSumUp): string [] {
+        if (!ameldingSumUp) {
+            return;
+        }
+        const firstOfMonth = new Date(moment(`${ameldingSumUp.year}-${ameldingSumUp.period}-15`).startOf('month').toDate());
+        const lastOfMonth = new Date(moment(`${ameldingSumUp.year}-${ameldingSumUp.period}-15`).endOf('month').toDate());
+        const onleave: string[] = [];
+        let empNr;
+        ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
+            // Sjekker permisjon
+            ameldingEntity.employees.forEach(employee => {
+                empNr = employee.employeeNumber;
+                if (employee.arbeidsforhold) {
+                    employee.arbeidsforhold.forEach(employment => {
+                        if (employment.permisjon) {
+                            employment.permisjon.forEach(permisjon => {
+                                const permStart = new Date(permisjon.startdato);
+                                const permEnd = permisjon.sluttdato ? new Date(permisjon.sluttdato) : new Date(2199, 1, 1);
+                                const permEndFormat = permisjon.sluttdato ? moment(permisjon.sluttdato).format('DD.MM.YYYY') : '';
+                                if ((permStart <= firstOfMonth && permEnd >= firstOfMonth) ||
+                                    (permStart <= firstOfMonth && permEnd >= lastOfMonth) ||
+                                    (permStart >= firstOfMonth && permEnd <= lastOfMonth) ||
+                                    (permStart <= lastOfMonth && permEnd >= lastOfMonth )) {
+                                        const trans = this.translationService.translate('SALARY.AMELDING.SUMMARY.ONLEAVE_EMPLOYEES~'
+                                            + empNr + '~'
+                                            + moment(permisjon.startdato).format('DD.MM.YYYY')
+                                            + '~' +  permEndFormat
+                                            + '~' + permisjon.beskrivelse);
+                                onleave.push(trans);
+                            }
+                            });
+                        }
+                    });
+                }
+            });
+        });
+
+        return onleave;
+    }
+
+
     private validateAMelding(ameldingSumUp: AmeldingSumUp): string {
         if (!ameldingSumUp) {
             return;
@@ -923,9 +989,15 @@ export class AMeldingViewComponent implements OnInit {
                 if (ameldingEntity.orgNumber === ameldingSumUp.LegalEntityNo) {
                     ameldingEntity.employees.forEach((employee) => {
                         employee.arbeidsforhold.forEach(employeement => {
+                            if (employeement.type === 'pensjonOgAndreTyperYtelserUtenAnsettelsesforhold') {
+                                return;
+                            }
                             employmentIDs.push(employeement.arbeidsforholdId);
                         });
                     });
+                    if (!employmentIDs.length) {
+                        return;
+                    }
                     errorMessages = `Arbeidsforhold ${employmentIDs.join(',')} `
                         + 'er tilknyttet juridisk enhet. Avslutt dette arbeidsforholdet (sluttdato senest september 2020)'
                         + ' og send a-melding for september på nytt. Opprett deretter et nytt arbeidsforhold mot korrekt '
@@ -987,6 +1059,7 @@ export class AMeldingViewComponent implements OnInit {
         this.currentSumsInPeriod = undefined;
         this.currentSumUp = undefined;
         this.validationErrorMessage = null;
+        this.validationOnLeaveMessage = null;
         this.totalGarnishmentSystem = 0;
         this.totalGarnishmentSystemStr = this.numberformat.asMoney(this.totalGarnishmentSystem, { decimalLength: 0 });
     }

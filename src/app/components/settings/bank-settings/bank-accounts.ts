@@ -2,7 +2,7 @@ import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, Output, Ev
 import { UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent } from '@uni-framework/ui/unitable';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { UniModalService, IModalOptions, ConfirmActions } from '@uni-framework/uni-modal';
-import { BankAccount, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
+import { BankAccount, BankIntegrationAgreement, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
 import {CompanyBankAccountModal} from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
 import {BankAccountService, BrunoOnboardingService, BankService} from '@app/services/services';
@@ -53,7 +53,9 @@ export class BankSettingsAccountlist {
     uniTableConfig: UniTableConfig;
     tabs = [ {name: 'Kontodetaljer'}, {name: 'Kobling mot bank'} ];
 
+    orderIntegrationButtonText: string;
     isExt02Environment: boolean = theme.theme === THEMES.EXT02;
+    hasPendingAgreement: boolean;
     bankAccount: BankAccount;
     activeIndex: number = 0;
     busy = false;
@@ -72,6 +74,9 @@ export class BankSettingsAccountlist {
     }
 
     setupUniTable() {
+        this.orderIntegrationButtonText = this.getOrderIntegrationButtonText();
+        this.hasPendingAgreement  = this.agreements ? this.agreementIsPending(this?.agreements[0]) : false;
+
         this.uniTableConfig = new UniTableConfig('settings.bank.accounts', false, false)
             .setColumnMenuVisible(true)
             .setAutoAddNewRow(false)
@@ -212,18 +217,54 @@ export class BankSettingsAccountlist {
         });
     }
 
+    public getOrderIntegrationButtonText(): string {
+        if (this?.agreements[0]) {
+            switch (this.agreements[0].StatusCode) {
+                case StatusCodeBankIntegrationAgreement.Active: {
+                    return 'Endre kobling mot bank';
+                }
+                case StatusCodeBankIntegrationAgreement.Pending: {
+                    return ' Bestill kobling på nytt';
+                }
+            }
+        } else {
+            return 'Bestill kobling mot bank';
+        }
+        this.cdr.markForCheck();
+    }
+
+    public agreementIsPending(agreement: BankIntegrationAgreement) {        
+        return agreement ? 
+        agreement?.StatusCode === StatusCodeBankIntegrationAgreement.Pending || agreement?.HasOrderedIntegrationChange : false
+    }
+
     connectBankAndAccounting() {
         this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
-            if (agreement && agreement.StatusCode === StatusCodeBankIntegrationAgreement.Active) {
-                this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe((orderedChange) => {
-                    if (orderedChange) {
-                        this.orderedIntegration.emit();
+            if (agreement) {
+                switch (agreement.StatusCode) {
+                    case StatusCodeBankIntegrationAgreement.Active: {
+                        this.brunoOnboardingService.RequestBankintegrationChange(agreement).subscribe((orderedChange) => {
+                            if (orderedChange) {
+                                this.agreements[0].HasOrderedIntegrationChange = true;
+                                this.orderedIntegration.emit();
+                            }
+                        });
+                        break;
                     }
-                });
-            } else {
-                this.brunoOnboardingService.createAgreement().subscribe((createdgreement) => {
-                    if (createdgreement) {
+                    case StatusCodeBankIntegrationAgreement.Pending: {
+                        this.hasPendingAgreement = this.agreementIsPending(agreement);
+                        this.brunoOnboardingService.restartOnboarding(agreement);
                         this.orderedIntegration.emit();
+                        break;
+                    }
+                }
+            } else {
+                this.brunoOnboardingService.createAgreement().subscribe((createdAgreement: BankIntegrationAgreement) => {
+                    if (createdAgreement) {
+                        this.hasPendingAgreement = this.agreementIsPending(createdAgreement);
+                        this.agreements = [ createdAgreement ];
+                        this.orderedIntegration.emit();
+                        this.orderIntegrationButtonText = this.getOrderIntegrationButtonText();
                     }
                 });
             }

@@ -12,6 +12,7 @@ import {ConfirmActions} from '@uni-framework/uni-modal/interfaces.ts';
 import {UniModalService} from '@uni-framework/uni-modal/modalService.ts';
 import {Router} from '@angular/router';
 import {FileService} from '@app/services/common/fileService';
+import {AccountService} from '@app/services/accounting/accountService';
 
 @Injectable()
 export class AssetsService extends BizHttp<Asset>{
@@ -20,6 +21,7 @@ export class AssetsService extends BizHttp<Asset>{
     assetGroupCodes: any[] = null;
     constructor(
         public http: UniHttp,
+        private accountService: AccountService,
         private statistics: StatisticsService,
         private errorService: ErrorService,
         private toast: ToastService,
@@ -198,12 +200,19 @@ export class AssetsService extends BizHttp<Asset>{
         }
         return this.checkIfBalanceIsOk(asset).pipe(
             switchMap((isBalanceOk) => {
-                if (isBalanceOk) {
-                    return source;
-                } else {
-                    this.toast.addToast('Balansekonto har ikke nok penger', ToastType.bad, 5);
-                    return of(asset);
+                if (!isBalanceOk) {
+                    return this.accountService.getSaldoInfo(asset.BalanceAccountID).pipe(
+                        tap(info => {
+                            const message = `Saldo på balansekonto ${info.AccountNumber} er kr ${info.Saldo},- og dekker ikke verdien til eiendelen. ` +
+                                `Husk at kjøpet må bokføres i regnskapet før man oppretter eiendelen.`;
+                            this.toast.addToast(
+                                'Saldo på balansekontoen dekker ikke verdien til eiendelen.', ToastType.warn, 5, message
+                            );
+                        }),
+                        switchMap(() => source)
+                    );
                 }
+                return source;
             }),
             switchMap((_asset: Asset) => {
                 const calls = [];

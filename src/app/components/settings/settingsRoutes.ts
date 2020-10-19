@@ -83,7 +83,7 @@ export const settingsRoutes: Routes = [
     },
     {
         path: 'opening-balance',
-        loadChildren: () => import('./opening-balance/OpeningBalanceModule').then(m => m.OpeningBalanceModule),
+        loadChildren: () => import('./opening-balance/openingBalanceModule').then(m => m.OpeningBalanceModule),
         canActivate: [OpeningBalanceGuard],
         canDeactivate: [CanDeactivateGuard]
     }

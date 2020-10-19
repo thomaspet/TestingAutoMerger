@@ -40,6 +40,8 @@ export class BankStatementJournalModal implements IUniModal {
     bankStatementRules: BankStatementRule[];
     numberOfActiveRules: number;
     activeItem: DebitCreditEntry;
+    autorunRuleLines = [];
+    autoRunInfoText: string = '';
 
     config = {
         template: item => item.DisplayName,
@@ -90,15 +92,13 @@ export class BankStatementJournalModal implements IUniModal {
     }
 
     private loadRules() {
-        this.ruleService.GetAll().subscribe(
-            rules => {
-                this.bankStatementRules = rules || [];
-                this.numberOfActiveRules = this.bankStatementRules.reduce((count, rule) => {
-                    return rule.IsActive ? count + 1 : count;
-                }, 0);
-            },
-            err => console.error(err)
-        );
+        this.ruleService.GetAll().subscribe(rules => {
+            this.bankStatementRules = rules || [];
+            this.numberOfActiveRules = this.bankStatementRules.reduce((count, rule) => {
+                return rule.IsActive ? count + 1 : count;
+            }, 0);
+            this.runAllRules(true);
+        }, err => console.error(err) );
     }
 
     openJournalingRulesModal() {
@@ -116,11 +116,45 @@ export class BankStatementJournalModal implements IUniModal {
         );
     }
 
-    runAllRules() {
+    runAllRules(isAutorun: boolean = false) {
+        this.autorunRuleLines = [];
         this.ruleService.runAll(<any> this.matchEntries).subscribe(
-            lines => this.session.addJournalingLines(lines),
+            lines => {
+                if (isAutorun) {
+                    this.autorunRuleLines = lines || [];
+                    this.autoRunInfoText = this.groupUsedRuleNames(this.autorunRuleLines, this.bankStatementRules);
+                } else {
+                    const alteredLines = this.session.addJournalingLines(lines);
+
+                    setTimeout(() => {
+                        this.table.flashRows(alteredLines || []);
+                    });
+                }
+            },
             err => console.error(err)
         );
+    }
+
+    groupUsedRuleNames(autorunRuleLines: any[], bankStatementRules: BankStatementRule[]): string {
+        const rules = [];
+        autorunRuleLines?.forEach( x => {
+            if (rules.indexOf(x.BankStatementRuleID) < 0) {
+                rules.push(x.BankStatementRuleID);
+            }
+        });
+        if (rules.length) {
+            return rules.map(id => bankStatementRules.find( r => r.ID === id).Name).join(', ');
+        }
+        return '';
+    }
+
+    useAutorunLines() {
+        const alteredLines = this.session.addJournalingLines(this.autorunRuleLines);
+        this.autorunRuleLines = [];
+
+        setTimeout(() => {
+            this.table.flashRows(alteredLines);
+        });
     }
 
     closeWithoutSaving() {
@@ -174,6 +208,7 @@ export class BankStatementJournalModal implements IUniModal {
             this.ValidateTableData();
             return;
         }
+        this.autorunRuleLines = [];
     }
 
     private createTableConfig(): UniTableConfig {
@@ -285,7 +320,7 @@ export class BankStatementJournalModal implements IUniModal {
         return col;
     }
 
-    private ValidateTableData() {        
+    private ValidateTableData() {
         this.errorMessages = [];
 
         // Check if any accounts are locked

@@ -20,7 +20,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     public generatePaymentFile(paymentBatchID: number): Observable<PaymentBatch> {
         return super.PutAction(null, 'generate-payment-file', `ID=${paymentBatchID}&acceptjob=true`);
     }
-
+    // OLD
     public registerReceiptFile(fileID: number): Observable<any> {
         return super.PutAction(null, 'register-receipt-file', `fileID=${fileID}`);
     }
@@ -28,7 +28,7 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     public registerCustomerPaymentFile(file: File): Observable<any> {
         return super.PutAction(null, 'register-customer-payment-file', `fileID=${file.ID}`);
     }
-
+    // OLD
     public registerAndCompleteCustomerPayment(fileID: number) {
         return super.PutAction(null, 'register-and-complete-customer-payment', `fileID=${fileID}&acceptjob=true`);
     }
@@ -36,6 +36,15 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
     // OLD
     public completeCustomerPayment(paymentBatchID: number) {
         return super.PutAction(null, 'complete-customer-payment-registration', `ID=${paymentBatchID}`);
+    }
+
+    public registerBankFile(fileID: number): Observable<any> {
+        return this.http
+        .asPOST()
+        .usingRootDomain()
+        .withEndPoint('bank/register-fileID?fileID=' + fileID)
+        .send()
+        .map(response => response.body);
     }
 
     public checkAutoBankAgreement() {

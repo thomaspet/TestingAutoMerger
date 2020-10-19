@@ -20,11 +20,11 @@
     </section>
 
     <section>
-        <strong>Med produkter ({{data.products.length}})</strong>
+        <strong>Med produkter ({{data.products?.length || 0}})</strong>
 
         <ul>
             <li *ngFor="let product of data.products">
-                <small>{{product.Label}}</small>
+                <small>{{product?.Label}}</small>
             </li>
         </ul>
     </section>

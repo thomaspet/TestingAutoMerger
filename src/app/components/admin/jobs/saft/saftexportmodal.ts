@@ -1,10 +1,14 @@
 import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 
-import { BehaviorSubject, timer as observableTimer } from 'rxjs';
-import { JobService, AccountService, ErrorService } from '@app/services/services';
+import { BehaviorSubject, Observable, of, timer as observableTimer } from 'rxjs';
+import { JobService, AccountService, ErrorService, UserService, CompanySettingsService } from '@app/services/services';
 import { MatStepper } from '@angular/material/stepper';
+import { CompanySettings, User } from '@uni-entities';
+import { map, switchMap } from 'rxjs/operators';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { Router } from '@angular/router';
 
 const JOBNAME: string = 'ExportSaft';
 
@@ -13,11 +17,11 @@ const JOBNAME: string = 'ExportSaft';
     templateUrl: './saftexportmodal.html'
 })
 export class SaftExportModal implements IUniModal {
-    @Input()
-    public options: IModalOptions = {};
-
     @Output()
     public onClose: EventEmitter<any> = new EventEmitter();
+
+    @Input()
+    public options: IModalOptions = {};
 
     @ViewChild(MatStepper, { static: true }) stepper: MatStepper;
     public currentStep = 1;
@@ -38,11 +42,17 @@ export class SaftExportModal implements IUniModal {
 
     constructor(private jobService: JobService,
         private accountService: AccountService,
-        private errorService: ErrorService) {}
+        private errorService: ErrorService,
+        private userService: UserService,
+        private companySettingsService: CompanySettingsService,
+        private toastService: ToastService,
+        private router: Router
+        ) {}
 
     public ngOnInit() {
-        const value = this.options.data || {};
-        this.formModel$.next(value);
+        this.getFormModel().subscribe(form => {
+            this.formModel$.next(form);
+        });
         this.formFields$.next(this.getSaftExportFormFields());
         this.emailField$.next(this.getEmailField());
 
@@ -63,13 +73,36 @@ export class SaftExportModal implements IUniModal {
         this.onClose.emit(params);
     }
 
-    public validate() {
+    public startExportSaftJob(): void {
         this.busy = true;
         const params = this.formModel$.getValue();
-        this.jobService.startJob(JOBNAME, undefined, params)
-        .subscribe((jobID: number) => {
+        this.validateCompanySettings().pipe(
+            switchMap((validation: boolean) => validation ? this.jobService.startJob(JOBNAME, undefined, params) : of(0))
+        ).subscribe((jobID: number) => {
+            if (!jobID) {
+                this.close(false);
+                return;
+            }
             this.jobID = jobID;
         });
+    }
+
+    private validateCompanySettings(): Observable<boolean> {
+        return this.companySettingsService.getCompanySettings().pipe(
+            map((settings: CompanySettings) => {
+                const hasAdress = !!settings.DefaultAddress.City && !!settings.DefaultAddress.PostalCode;
+                if (!hasAdress) {
+                    this.toastService.addToast('Mangler adresse', ToastType.warn, 5,
+                    'Du mangler adresse på selskapet. Gå til systeminnstillinger og legg inn adresse der før du kan fortsette eksporten',
+                    {
+                        label: 'Firmaoppsett',
+                        click: () => this.router.navigate(['/settings/company'])
+                    }
+                    );
+                }
+                return hasAdress;
+            })
+        );
     }
 
     public fix() {
@@ -90,8 +123,31 @@ export class SaftExportModal implements IUniModal {
         }
     }
 
+    private getFormModel(): Observable<any> {
+        return this.userService.getCurrentUser().pipe(
+            map((user: User) => {
+                return {
+                    Name: user.DisplayName,
+                    FromYear: new Date().getFullYear(),
+                    ToYear: new Date().getFullYear(),
+                    FromPeriod: 1,
+                    ToPeriod: 12,
+                    Anonymous: false,
+                    SendEmail: true,
+                    Validate: true
+                };
+            })
+        );
+    }
+
     private getSaftExportFormFields(): UniFieldLayout[] {
         return [
+            <any> {
+                EntityType: 'JobDetails',
+                Property: 'Name',
+                FieldType: FieldType.TEXT,
+                Label: 'Kontaktperson'
+            },
             <any> {
                 EntityType: 'JobDetails',
                 Property: 'FromYear',

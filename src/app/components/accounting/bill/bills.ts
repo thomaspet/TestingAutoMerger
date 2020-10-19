@@ -254,7 +254,7 @@ export class BillsView implements OnInit {
         let showToPaymentMenu = true;
         if (this.selectedItems && Array.isArray(this.selectedItems)) {
             this.selectedItems.forEach(invoice => {
-                if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112) {
+                if (invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113) {
                     showToPaymentMenu = false;
                 }
             });
@@ -791,7 +791,7 @@ export class BillsView implements OnInit {
                 .setFilterOperator('eq')
                 .setConditionalCls((item) => {
                     const paid = item.RestAmount === 0;
-                    return (paid || moment(item.PaymentDueDate).isBefore(moment()))
+                    return (!paid && moment(item.PaymentDueDate).isBefore(moment().subtract({days: 1})))
                         ? 'supplier-invoice-table-payment-overdue' : 'supplier-invoice-table-payment-ok';
                 }),
             new UniTableColumn('BankAccountAccountNumber', 'Bankgiro')
@@ -918,8 +918,8 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        if (theme.theme === THEMES.SR) {
-            this.router.navigateByUrl('/accounting/inbox');
+        if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
+            this.router.navigate(['/accounting/inbox'], {queryParams: {openmodal: 1}});
         } else {
             this.router.navigateByUrl('/accounting/bills/0');
         }
@@ -1102,7 +1102,8 @@ export class BillsView implements OnInit {
                 {
                     label: 'Betalingsliste',
                     name: 'issenttopayment',
-                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111)  and StatusCode ne ' + StatusCode.Completed,
+                    filter: '(PaymentStatus eq 30110 OR PaymentStatus eq 30111 OR PaymentStatus eq 30113)  and StatusCode ne '
+                        + StatusCode.Completed,
                     passiveCounter: true
                 },
                 {

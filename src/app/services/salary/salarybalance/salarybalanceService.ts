@@ -1,28 +1,23 @@
-import {Injectable, SimpleChanges} from '@angular/core';
-import {BizHttp} from '../../../../framework/core/http/BizHttp';
-import {UniHttp} from '../../../../framework/core/http/http';
-import {
-    SalaryBalance, WageType, Employee, Supplier, SalBalType,
-    SalBalDrawType, SalaryBalanceTemplate, Employment
-} from '../../../unientities';
-import {Observable, of} from 'rxjs';
-import {FieldType, UniFieldLayout, UniForm} from '../../../../framework/ui/uniform/index';
-import {SalaryBalanceLineService} from './salaryBalanceLineService';
-import {ErrorService} from '../../commonServicesModule';
-import {ModulusService} from '../../common/modulusService';
-import {UniModalService} from '../../../../framework/uni-modal/modalService';
-import {ConfirmActions} from '../../../../framework/uni-modal/interfaces';
-import {SalaryTransactionService} from '../salaryTransaction/salaryTransactionService';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
-import { BehaviorSubject } from '../../../../../node_modules/rxjs';
-import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
-import { SupplierService } from '@app/services/accounting/supplierService';
+import { Injectable, SimpleChanges } from '@angular/core';
+import { SalaryBalance, SalBalType, SalaryBalanceTemplate, WageType, Employee, Supplier, SalBalDrawType, Employment } from '@uni-entities';
+import { BizHttp, UniHttp, RequestMethod } from '@uni-framework/core/http';
+import { FieldType, UniComponentLayout, UniFieldLayout, UniForm } from '@uni-framework/ui/uniform';
+import { UniModalService } from '@uni-framework/uni-modal/modalService';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import { Observable, of, BehaviorSubject, forkJoin } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
 import { EmployeeService } from '@app/services/salary/employee/employeeService';
+import { EmploymentService } from '@app/services/salary/employee/employmentService';
 import { SalarybalanceTemplateService } from '@app/services/salary/salarybalanceTemplate/salarybalanceTemplateService';
-import { EmploymentService } from '../employee/employmentService';
+import { SalaryTransactionService } from '@app/services/salary/salaryTransaction/salaryTransactionService';
+import { WageTypeService } from '@app/services/salary/wageType/wageTypeService';
+import { SalaryBalanceLineService } from '@app/services/salary/salarybalance/salaryBalanceLineService';
+import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import { ErrorService } from '@app/services/common/errorService';
+import { ModulusService } from '@app/services/common/modulusService';
+import { SupplierService } from '@app/services/accounting/supplierService';
 import { StatisticsService } from '@app/services/common/statisticsService';
-import { map } from 'rxjs/operators';
-import { RequestMethod } from '@uni-framework/core/http';
+
 
 interface IFieldFunc {
     prop: string;
@@ -158,9 +153,13 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         return helpText;
     }
 
-    private updateFormFields(salaryBalance: SalaryBalance | SalaryBalanceTemplate, changes: SimpleChanges = null, form: UniForm) {
-        if (!form) {
-            return;
+    private updateFormFields(
+        salaryBalance: SalaryBalance | SalaryBalanceTemplate,
+        changes: SimpleChanges = null,
+        form: UniForm
+    ): Observable<UniFieldLayout[]> {
+        if (!form?.layout) {
+            return of([]);
         }
         const fieldFuncs = this.GetFieldFuncs(salaryBalance);
 
@@ -168,12 +167,14 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             const changesKeys = Object.keys(changes);
             const update = changesKeys.some(change => fieldFuncs.some(func => func.prop === change));
             if (!update) {
-                return;
+                return form.layout.pipe(map(layout => layout.Fields));
             }
         }
 
         fieldFuncs
             .forEach(fieldfunc => this.editFormField(form, fieldfunc.prop, fieldfunc.func));
+
+        return form.layout.pipe(map(layout => layout.Fields));
     }
 
     private editFormField(
@@ -353,9 +354,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         changes: SimpleChanges = null,
         lastChanges$: BehaviorSubject<SimpleChanges> = new BehaviorSubject({}),
         form: UniForm,
-        fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]),
         ignoreFields: string[] = [''],
-        basedOnTemplate: boolean = false): Observable<any> {
+        basedOnTemplate: boolean = false): Observable<UniFieldLayout[]> {
             const changesObs = changes ? Observable.of(changes) : null;
             const obs = changesObs || lastChanges$.asObservable();
 
@@ -365,17 +365,11 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
                 const keys = Object.keys(change);
                 return keys;
             })
-            .do((changesKey) => {
-                if (!updateLayout && form && !changesKey.some(x => x === 'InstalmentType')) {
-                    this.updateFormFields(entityObject, changes, form);
-                } else {
-                    this.refreshLayout(entityObject, ignoreFields, entity, 'SalarybalanceDetails', basedOnTemplate)
-                        .subscribe(layout => {
-                            fields$.next(layout);
-                        });
-                }
-            })
-            .map(() => entityObject);
+            .pipe(
+                switchMap(changesKey => !updateLayout && form?.layout && !changesKey.some(x => x === 'InstalmentType')
+                    ? this.updateFormFields(entityObject, changes, form)
+                    : this.refreshLayout(entityObject, ignoreFields, entity, 'SalarybalanceDetails', basedOnTemplate)),
+            );
     }
 
     public updateFromEmployments(emps: number[]) {
@@ -388,22 +382,22 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         entity: string,
         entityStringID: string = 'SalarybalanceDetails',
         basedOnTemplate: boolean = false): Observable<UniFieldLayout[]> {
-        return Observable
-          .forkJoin(
-          this.wageTypesObs(),
-          this.employeesObs(),
-          this.suppliersObs(),
-          this.templatesObs())
-          .switchMap((result: [WageType[], Employee[], Supplier[], SalaryBalanceTemplate[]]) => {
-              const [wagetypes, employees, suppliers, templates] = result;
-              return this.layout(entityStringID, salbalTemplate, entity, wagetypes, employees, suppliers, templates, basedOnTemplate)
-                  .map(layout => {
-                      layout.Fields = layout.Fields.filter(field => !ignoreFields.some(name => name === field.Property));
-                      return layout;
-                  });
-          })
-          .map(layout => <UniFieldLayout[]>layout.Fields)
-          .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+        return forkJoin([
+                this.wageTypesObs(),
+                this.employeesObs(),
+                this.suppliersObs(),
+                this.templatesObs()
+            ])
+            .switchMap((result: [WageType[], Employee[], Supplier[], SalaryBalanceTemplate[]]) => {
+                const [wagetypes, employees, suppliers, templates] = result;
+                return this.layout(entityStringID, salbalTemplate, entity, wagetypes, employees, suppliers, templates, basedOnTemplate)
+                    .map(layout => {
+                        layout.Fields = layout.Fields.filter(field => !ignoreFields.some(name => name === field.Property));
+                        return layout;
+                    });
+            })
+            .map(layout => <UniFieldLayout[]>layout.Fields)
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
       }
 
     public hasBalance(salaryBalance: SalaryBalance): boolean {
@@ -454,7 +448,7 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
             },
             {
                 prop: 'MinAmount',
-                func: minamountField => minamountField.ReadOnly = !salaryBalance.InstalmentPercent
+                func: minamountField =>   minamountField.ReadOnly = !salaryBalance.InstalmentPercent
             },
             {
                 prop: 'MaxAmount',
@@ -489,14 +483,14 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         suppliers: Supplier[],
         templates: SalaryBalanceTemplate[],
         basedOnTemplate: boolean = false
-    ) {
-        return Observable.from([
-            {
+    ): Observable<UniComponentLayout> {
+        return of(
+            <UniComponentLayout>{
                 Name: layoutID,
                 BaseEntity: entity,
                 Fields: this.GetFieldList(layoutID, salBal, entity, wageTypes, employees, suppliers, templates, basedOnTemplate)
             }
-        ]);
+        );
     }
 
     private GetFieldList(layoutID: string,
@@ -506,8 +500,8 @@ export class SalarybalanceService extends BizHttp<SalaryBalance> {
         employees: Employee[],
         suppliers: Supplier[],
         templates: SalaryBalanceTemplate[],
-        basedOnTemplate: boolean = false) {
-            let fields = [
+        basedOnTemplate: boolean = false): UniFieldLayout[] {
+            let fields: UniFieldLayout[] = <UniFieldLayout[]>[
                 {
                     EntityType: entity,
                     Property: 'SalaryBalanceTemplateID',

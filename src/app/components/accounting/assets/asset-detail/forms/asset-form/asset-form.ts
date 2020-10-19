@@ -52,7 +52,7 @@ export class AssetFormComponent {
                 Property: 'PurchaseAmount',
                 Label: 'Kjøpspris',
                 FieldType: FieldType.NUMERIC,
-                ReadOnly: this.asset.ID || this.supplierInvoiceID,
+                ReadOnly: (this.asset.ID || this.supplierInvoiceID) && this.asset.StatusCode,
                 Options: {
                     decimalLength: 2,
                     decimalSeparator: ','

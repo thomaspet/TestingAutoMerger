@@ -1,5 +1,6 @@
 import {Component, Output, EventEmitter} from '@angular/core';
-import {IModalOptions} from '@uni-framework/uni-modal';
+import {ConfirmActions, IModalOptions} from '@uni-framework/uni-modal/interfaces';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {BehaviorSubject, forkJoin, of} from 'rxjs';
 import {SendEmail} from '@app/models/sendEmail';
 import {ReportDefinition, CompanySettings} from '@uni-entities';
@@ -36,6 +37,7 @@ export class TofEmailModal {
 
     busy: boolean;
     invalidEmail: boolean;
+    showHours = '0';
 
     constructor(
         private authService: AuthService,
@@ -46,6 +48,7 @@ export class TofEmailModal {
         private reportTypeService: ReportTypeService,
         private reportParamService: ReportDefinitionParameterService,
         private emailService: EmailService,
+        private modalService: UniModalService
     ) {}
 
     ngOnInit() {
@@ -59,12 +62,13 @@ export class TofEmailModal {
         const reportsRequest = modalData.reportType ? this.reportTypeService.getFormType(modalData.reportType) : of(null);
 
         this.busy = true;
-        forkJoin(
+        forkJoin([
             this.companySettingsService.Get(1, ['DefaultEmail']),
             this.userService.getCurrentUser(),
             customerRequest,
-            reportsRequest
-        ).subscribe(
+            reportsRequest,
+            this.entityHasHours() ? this.openAddHoursModal().onClose : of(null)
+        ]).subscribe(
             res => {
                 const companySettings: CompanySettings = res[0] || {};
                 const user = res[1];
@@ -75,6 +79,8 @@ export class TofEmailModal {
                     || this.reports.find(report => report.ID === companySettings[`Default${model.EntityType}ReportID`])
                     || this.reports[0];
 
+                const userWantsToPrintHours = res[4] === ConfirmActions.ACCEPT;
+                this.showHours = this.entityHasHours() &&  userWantsToPrintHours ? '1' : '0';
                 if (!model.EmailAddress && customer && customer.Info) {
                     model.EmailAddress = customer.Info.DefaultEmail && customer.Info.DefaultEmail.EmailAddress || '';
                 }
@@ -162,7 +168,7 @@ export class TofEmailModal {
             `Models.Sales.${formModel.model.EntityType}`,
             formModel.reportID,
             formModel.model,
-            [parameter]
+            [parameter, {Name: 'ShowHours', value: this.showHours}]
         ).then(() => {
             this.onClose.emit(email);
             this.busy = false;
@@ -251,4 +257,18 @@ export class TofEmailModal {
         return fields;
     }
 
+    entityHasHours() {
+        return this.entity.Items.some(line => !!line.ItemSourceID);
+    }
+
+    openAddHoursModal() {
+        return this.modalService.confirm(<IModalOptions>{
+            header: 'Faktura rapport',
+            message: 'Fakturaen inneholder timer, ønsker du å legge ved timeliste?',
+            buttonLabels: {
+                accept: 'Ja',
+                reject: 'Nei'
+            }
+        });
+    }
 }

@@ -17,7 +17,7 @@ declare const _; // lodash
 
             <article class="new-account-form" [attr.aria-busy]="busy" style="width: 95vw;">
 
-                <span>Søk etter kunde eller leverandør 1880</span>
+                <span>Søk etter kunde eller leverandør i Brønnøysundregistrene/1880</span>
                 <div>
                     <uni-search [config]="uniSearchConfig" (changeEvent)="selectItem($event)"></uni-search>
                 </div>

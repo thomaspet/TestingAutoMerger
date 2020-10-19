@@ -1,0 +1,21 @@
+<section class="header">
+    <h1>Rapportsnarveier</h1>
+    <button class="tertiary c2a pull-right" (click)="openSetupModal()" *ngIf="selectedReports?.length > 0">
+        Velg rapporter
+    </button>
+</section>
+
+<section class="content">
+    <section *ngIf="unauthorized" class="missing-access">Mangler tilgang</section>
+
+    <widget-empty-state *ngIf="!unauthorized && selectedReports?.length === 0">
+        <button class="secondary" (click)="openSetupModal()">Velg rapporter</button>
+    </widget-empty-state>
+
+
+    <ul id="report-list" class="widget-link-list">
+        <a *ngFor="let report of selectedReports" tabindex="0" (click)="openReport(report)">
+            {{report.Name}}
+        </a>
+    </ul>
+</section>

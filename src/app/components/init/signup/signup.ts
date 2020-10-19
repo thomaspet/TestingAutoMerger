@@ -6,6 +6,7 @@ import {passwordValidator, passwordMatchValidator} from '../authValidators';
 import {AuthService} from '@app/authService';
 import {UniRecaptcha} from './recaptcha';
 import {theme, THEMES} from 'src/themes/theme';
+import {CelebrusService} from '@app/services/services';
 
 @Component({
     selector: 'uni-signup',
@@ -48,6 +49,7 @@ export class Signup {
         public authService: AuthService,
         private http: UniHttp,
         private route: ActivatedRoute,
+        private celebrusService: CelebrusService,
         formBuilder: FormBuilder
     ) {
         this.step1Form = formBuilder.group({
@@ -112,6 +114,12 @@ export class Signup {
                     if (!this.errorMessage) {
                         this.errorMessage = 'Noe gikk galt under verifisering. Vennligst sjekk detaljer og prøv igjen.';
                     }
+                },
+                () => {
+                    if (theme.theme === THEMES.EXT02) {
+                        this.celebrusService.useDataLayer('productView', null,
+                            [this.getCelebrusObject('step1', this.step1Successful ? 'signup-step' : 'signup-step-fail')]);
+                    }
                 }
             );
     }
@@ -126,6 +134,10 @@ export class Signup {
 
             this.step2Form.controls.Password.markAsTouched();
             this.step2Form.controls.ConfirmPassword.markAsTouched();
+
+            if (theme.theme === THEMES.EXT02) {
+                this.celebrusService.useDataLayer('productView', null, [this.getCelebrusObject('step2', 'signup-step-form-fail')]);
+            }
             return;
         }
 
@@ -153,14 +165,18 @@ export class Signup {
                     this.step2Successful = false;
                     let errorMessage;
 
-                    console.log(err);
-
                     try {
                         const errorBody = err.error;
                         errorMessage = errorBody.Message || errorBody.Messages[0].Message;
                     } catch (error) {}
 
                     this.errorMessage = errorMessage || 'Noe gikk galt under registrering, vennligst prøv igjen';
+                },
+                () => {
+                    if (theme.theme === THEMES.EXT02) {
+                        this.celebrusService.useDataLayer('productView', null,
+                            [this.getCelebrusObject('step2', this.step2Successful ? 'signup-step' : 'signup-step-fail')]);
+                    }
                 }
             );
     }
@@ -190,5 +206,14 @@ export class Signup {
                     this.busy = false;
                 }
             );
+    }
+
+    getCelebrusObject(step: string, type: string) {
+        return {
+            application: 'dnb-regnskap',
+            name: 'dnb-regnskap-signup',
+            step,
+            type
+        };
     }
 }

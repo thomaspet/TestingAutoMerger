@@ -1,25 +1,25 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
-import { StatisticsService, FinancialYearService } from '@app/services/services';
+import { FinancialYearService } from '@app/services/services';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { SyncWagetypesModalComponent } from '../shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { SyncWagetypesModalComponent } from '@app/components/salary/shared/components/sync-wagetypes-modal/sync-wagetypes-modal.component';
+import { switchMap } from 'rxjs/operators';
+import { SalaryYearService } from '@app/components/salary/shared/services/salary-year/salary-year.service';
 
 @Injectable()
 export class WagetypeSyncGuard implements CanActivate {
     constructor(
-        private statisticsService: StatisticsService,
         private yearService: FinancialYearService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private salaryYearService: SalaryYearService,
     ) { }
 
     canActivate(next: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> | Promise<boolean> | boolean {
         const activeYear = this.yearService.getActiveYear();
-        return this.statisticsService
-            .GetAllUnwrapped(`model=SalaryYear&Select=CurrentYear&filter=CurrentYear eq ${activeYear}&top=1`)
+        return this.salaryYearService
+            .hasYear()
             .pipe(
-                map(years => years && !!years.length),
                 switchMap(hasYear => this.handleModal(hasYear, activeYear))
             );
     }

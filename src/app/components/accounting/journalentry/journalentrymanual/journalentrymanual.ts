@@ -838,6 +838,23 @@ export class JournalEntryManual implements OnChanges, OnInit {
         }
     }
 
+    public setCsvData(value: string) {
+        return new Promise( (resolve) => {
+            const promise = this.journalEntryProfessional.setCsvData(value);
+            if (!promise) { resolve(false); }
+            promise
+                .finally( () => resolve(true) )
+                .then( data => {
+                    this.calculateItemSums(data);
+                    this.validateJournalEntryData(data);
+                });
+        });
+    }
+
+    public getCsvData(divider = '\t'): string {
+        return this.journalEntryProfessional.getCsvData(divider);
+    }
+
     public setupJournalEntryNumbers() {
         this.journalEntryProfessional.setupJournalEntryNumbers(true);
     }
@@ -984,7 +1001,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
                     });
 
                     if (this.currentJournalEntryData.CurrencyID !== this.companySettings.BaseCurrencyCodeID) {
-                        this.journalEntryProfessional.showAgioDialogPostPost(this.currentJournalEntryData);
+                        this.journalEntryProfessional.showAgioDialog(this.currentJournalEntryData);
                     }
                 } else {
                     this.currentJournalEntryData.PostPostJournalEntryLineID = null;
@@ -1103,6 +1120,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private calculateItemSums(data: JournalEntryData[]) {
+
         this.itemsSummaryData = this.journalEntryService.calculateJournalEntrySummaryLocal(data, this.vatDeductions);
 
         if (this.currentJournalEntryData) {
@@ -1133,6 +1151,7 @@ export class JournalEntryManual implements OnChanges, OnInit {
     }
 
     private validateJournalEntryData(data: JournalEntryData[]) {
+        return new Promise( (resolve) =>
          this.journalEntryService.validateJournalEntryDataLocal(
              data,
              this.currentFinancialYear,
@@ -1140,7 +1159,11 @@ export class JournalEntryManual implements OnChanges, OnInit {
              this.companySettings,
              this.doValidateBalance,
              this.mode)
-             .then(result => this.validationResult = result );
+             .then(result => {
+                 this.validationResult = result;
+                 resolve(result);
+            })
+        );
 
         /*
         KE 08.11.2016: Switch to running the validations locally.

@@ -3,7 +3,7 @@ import {Observable, forkJoin} from 'rxjs';
 
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {AuthService} from '@app/authService';
-import {ElsaProduct, ElsaProductType, ElsaPurchaseStatus} from '@app/models';
+import {ElsaAgreementStatus, ElsaProduct, ElsaProductType, ElsaPurchaseStatus} from '@app/models';
 import {
     ElsaProductService,
     ElsaPurchaseService,
@@ -29,6 +29,11 @@ import {ActivationEnum, ElsaPurchase} from '@app/models';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {FormControl} from '@angular/forms';
 import {THEMES, theme} from 'src/themes/theme';
+
+interface ActivationModal {
+    modal: any;
+    options?: any;
+}
 
 @Component({
     selector: 'uni-product-purchases',
@@ -95,13 +100,13 @@ export class ProductPurchases implements OnInit {
     }
 
     fetchPurchases() {
-        forkJoin(
+        forkJoin([
             this.elsaProductService.getProductsOnContractTypes(this.authService.currentUser.License.ContractType.TypeID),
             this.elsaPurchaseService.getAll(),
             this.companySettingsService.Get(1),
             this.paymentBatchService.checkAutoBankAgreement()
-                .catch(() => Observable.of([])), // fail silently
-        ).subscribe(
+                .catch(() => Observable.of([])) // fail silently
+        ]).subscribe(
             res => {
                 this.products = res[0] || [];
                 this.purchases = res[1] || [];
@@ -149,29 +154,43 @@ export class ProductPurchases implements OnInit {
 
     setActivationFunction(product: ElsaProduct) {
         const name = product && product.Name && product.Name.toLowerCase();
-        let activationModal;
+        let activationModal: ActivationModal;
 
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
-            activationModal = UniActivateInvoicePrintModal;
-        } else if (name === 'ehf' && !this.ehfService.isEHFActivated()) {
-            activationModal = UniActivateAPModal;
-        } else if (name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
-            activationModal = ActivateOCRModal;
+            activationModal = {modal: UniActivateInvoicePrintModal};
+        } else if (name === 'ehf' && !this.ehfService.isEHFIncomingActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
+        } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
+            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
+        } else if (
+            name === 'ocr-scan'
+            && !this.companySettings.UseOcrInterpretation
+            && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active
+        ) {
+            activationModal = {modal: ActivateOCRModal, options: {data: product}};
         } else if (name === 'autobank' && !this.autobankAgreements.length) {
-            activationModal = UniAutobankAgreementModal;
+            activationModal = {modal: UniAutobankAgreementModal};
         } else if (name === 'efakturab2c' && !this.companySettings.NetsIntegrationActivated) {
-            activationModal = UniActivateEInvoiceModal;
+            activationModal = {modal: UniActivateEInvoiceModal};
         }
 
         if (activationModal) {
             product['_activationFunction'] = {
                 click: () => {
-                    this.modalService.open(activationModal, {}).onClose.subscribe(res => {
+                    this.modalService.open(activationModal.modal, activationModal.options).onClose.subscribe(res => {
                         if (res && res !== ActivationEnum.NOT_ACTIVATED) {
                             product['_activationFunction'] = undefined;
                         }
                     });
                 }
+            };
+        }
+
+        // ocr-scan is not activated, and there is no active agreement
+        if (!activationModal && name === 'ocr-scan' && !this.companySettings.UseOcrInterpretation) {
+            product['_activationFunction'] = {
+                label: 'Aktiver',
+                click: () => this.activateOcrScan(product)
             };
         }
     }
@@ -185,6 +204,8 @@ export class ProductPurchases implements OnInit {
     deactivatePurchase(product: ElsaProduct) {
         if (product.ProductType === ElsaProductType.Module) {
             this.manageUserPurchases(product);
+        } else if (product.Name.toLowerCase() === 'ocr-scan') {
+            this.deactivateOcrScan(product);
         } else {
             this.elsaPurchaseService.cancelPurchase(product.ID).subscribe(() => {
                 this.products = this.products.filter(p => p.ID !== product.ID);
@@ -229,5 +250,23 @@ export class ProductPurchases implements OnInit {
             }
             return product.Label.toLowerCase().includes(filterLowerCase) && product.ProductType === this.selectedType;
         });
+    }
+
+    activateOcrScan(product: ElsaProduct) {
+        this.companySettingsService.PostAction(1, 'accept-ocr-agreement').subscribe(
+            () => product['_activationFunction'] = undefined,
+            err => this.errorService.handle(err)
+        );
+    }
+
+    deactivateOcrScan(product: ElsaProduct) {
+        this.companySettingsService.PostAction(1, 'reject-ocr-agreement').subscribe(
+            () => {
+                this.products = this.products.filter(p => p.ID !== product.ID);
+                this.filteredProducts = this.filteredProducts.filter(p => p.ID !== product.ID);
+                this.setCountsByProductType();
+            },
+            err => this.errorService.handle(err)
+        );
     }
 }

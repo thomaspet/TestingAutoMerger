@@ -10,9 +10,6 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
 
         <dropdown-menu [trigger]="trigger">
             <ng-template>
-                <a *ngIf="helpdeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
-                    Hjelpeside
-                </a>
 
                 <a class="dropdown-menu-item" href="https://unimicro.atlassian.net/servicedesk/customer/portal/3/create/24" target="_blank" *ngIf="isUeEnvironment">
                     Opprett supportsak
@@ -27,7 +24,7 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
                 </a>
 
                 <a class="dropdown-menu-item" (click)="openGiveSupportAccessModal()">
-                    Gi lesetilgang
+                    Gi support tilgang
                 </a>
 
                 <a class="dropdown-menu-item" routerLink="/about/versions">
@@ -40,6 +37,10 @@ import {UniModalService, GiveSupportAccessModal} from '@uni-framework/uni-modal'
 
                 <a class="dropdown-menu-item" (click)="openChatBotWithSupport()" *ngIf="isSrEnvironment">
                     Opprett supportsak
+                </a>
+
+                <a *ngIf="helpdeskUrl" class="dropdown-menu-item" [href]="helpdeskUrl" target="_blank">
+                    Hjelp
                 </a>
             </ng-template>
         </dropdown-menu>
@@ -55,8 +56,9 @@ export class UniTabstripHelp {
 
     isUeEnvironment = theme.theme === THEMES.UE;
     isSrEnvironment = theme.theme === THEMES.SR;
+    isBrunoEnvironment = theme.theme === THEMES.EXT02;
 
-    showBoostChat = theme.theme === THEMES.SR || theme.theme === THEMES.EXT02;
+    showBoostChat = theme.theme === THEMES.SR; // || theme.theme === THEMES.EXT02;
 
     helpdeskUrl;
 
@@ -65,6 +67,8 @@ export class UniTabstripHelp {
             this.helpdeskUrl = 'https://help.unieconomy.no';
         } else if (this.isSrEnvironment) {
             this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';
+        } else if (this.isBrunoEnvironment) {
+            this.helpdeskUrl = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/dnbregnskap/hjelp.html';
         }
     }
 

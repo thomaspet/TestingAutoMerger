@@ -54,13 +54,14 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
-import {theme} from 'src/themes/theme';
+import {theme, THEMES} from 'src/themes/theme';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
     {ID: SharingType.AP, Title: 'Aksesspunkt'},
     {ID: SharingType.Email, Title: 'E-post'},
     {ID: SharingType.Export, Title: 'Eksport'},
+    {ID: SharingType.Vipps, Title: 'Vipps faktura'},
     {ID: SharingType.Print, Title: 'Utskrift'},
     {ID: SharingType.InvoicePrint, Title: 'Fakturaprint (fra Nets)'},
     {ID: SharingType.Factoring, Title: 'Factoring'},
@@ -895,6 +896,8 @@ export class UniTicker {
         const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
         this.headers = '';
 
+        this.ticker.Columns = this.ticker.Columns.filter(col => col.ExcludeFromEnvironment !== theme.theme);
+
         for (let i = 0; i < this.ticker.Columns.length; i++) {
             const column = this.ticker.Columns[i];
 
@@ -1122,9 +1125,9 @@ export class UniTicker {
                             break;
                         case 'DueDate':
                             col.setConditionalCls(row => {
-                                return moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}))
-                                    ? 'date-bad'
-                                    : 'date-good';
+                                const isBefore = moment(row[column.Alias || column.Field]).isBefore(moment().subtract({days: 1}));
+                                const isPayed = row['CustomerInvoiceStatusCode'] === 42004;
+                                return isBefore && !isPayed ? 'date-bad' : 'date-good';
                             });
                             break;
                         case 'SharingStatus':

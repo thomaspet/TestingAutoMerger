@@ -31,6 +31,13 @@ export interface ThirdPartyItem {
     amount: number;
 }
 
+export type TaxRequestOption = 'ALL_EMPS_WITHOUT_ENDDATE'
+    | 'ALL_EMPS'
+    | 'EMPS_WITHOUT_TAXINFO'
+    | 'EMPS_IN_CATEGORY'
+    | 'CHANGED_ONLY'
+    | 'SINGLE_EMP';
+
 @Injectable()
 export class AltinnIntegrationService extends BizHttp<Altinn> {
 
@@ -77,7 +84,7 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
     }
 
     public sendTaxRequestAction(
-        option: string,
+        option: TaxRequestOption,
         empId: number = 0,
         empsAndChanged: boolean = false,
         categoryID: number = 0): Observable<AltinnReceipt> {
@@ -134,7 +141,11 @@ export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public getA07Response(authData: AltinnAuthenticationData, receiptID: number) {
         this.http.withHeaders(this.getHeaders(authData));
-        return this.GetAction(null, 'get-a07-response', `receiptID=${receiptID}`).do(response => console.log(response));
+        return this.GetAction(null, 'get-a07-response', `receiptID=${receiptID}`);
+    }
+
+    public pingAltinn(token: string) {
+        return super.PutAction(null, 'ping-altinn', `token=${token}`);
     }
 
     private getHeaders(authData: AltinnAuthenticationData): any {

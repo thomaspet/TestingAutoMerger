@@ -1041,6 +1041,7 @@ export class UniTickerService {
                     {ID: SharingType.AP,            Name: 'Aksesspunkt'},
                     {ID: SharingType.Email,         Name: 'E-post'},
                     {ID: SharingType.Export,        Name: 'Eksport'},
+                    {ID: SharingType.Vipps,         Name: 'Vipps faktura'},
                     {ID: SharingType.Print,         Name: 'Utskrift'},
                     {ID: SharingType.InvoicePrint,  Name: 'Fakturaprint (fra Nets)'},
                     {ID: SharingType.Factoring,     Name: 'Factoring'},
@@ -1179,7 +1180,8 @@ export class UniTickerService {
                     { ID: 30112, Name: 'Betalt' },
                     { ID: 30111, Name: 'Delbetalt' },
                     { ID: 30110, Name: 'Overført til bank' },
-                    { ID: 30009, Name: 'Ubetalt' }
+                    { ID: 30009, Name: 'Ubetalt' },
+                    { ID: 30113, Name: 'I betalingsliste'}
                 ];
             case 'InvoiceOriginType':
                 return [
@@ -1267,6 +1269,7 @@ export class TickerColumn {
     public Resizeable?: boolean;
     public DefaultHidden?: boolean;
     public ShowOnlyOnThisFilter?: number;
+    public ExcludeFromEnvironment?: string;
     public DefaultHiddenOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;

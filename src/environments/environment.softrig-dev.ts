@@ -5,9 +5,10 @@
 
 export const environment = {
     useProdMode: false,
+    usePKCE: true,
 
     authority: 'https://dev-login.unieconomy.no',
-    client_id: '83ccca75-77d9-e08f-7d35-e60bb6a70628',
+    client_id: '9ffed151-cb38-8092-5650-c2c5ddbfd0ad',
     post_logout_redirect_uri: '/#/login',
 
     BASE_URL_INIT: '',
@@ -32,6 +33,11 @@ export const environment = {
 
     INTEGRATION_DOMAINS: {
         ALTINN: '/api/altinn/'
+    },
+
+    ID_PORTEN: {
+        authority: '',
+        client_id: '',
     },
 
     RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',

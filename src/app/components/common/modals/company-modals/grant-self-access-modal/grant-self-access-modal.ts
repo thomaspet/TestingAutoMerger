@@ -48,14 +48,19 @@ export class GrantSelfAccessModal implements IUniModal {
     ngOnInit() {
         this.initData = this.options.data || {};
 
-        if (this.initData.contractID && this.initData.userIdentity && this.initData.companyLicense && this.initData.currentContractID) {
+        if (this.initData.contractID
+            && this.initData.userIdentity
+            && this.initData.companyLicense
+            && this.initData.currentContractID
+            && this.initData.contractType
+        ) {
             this.busy = true;
-            forkJoin(
+            forkJoin([
                 this.elsaContractService
                     .get(this.initData.contractID, 'id,customerid,contracttype,startdate,statuscode,enddate,settleduntil'),
                 this.elsaContractService.getUserLicense(this.initData.currentContractID, this.initData.userIdentity),
-                this.elsaProductService.GetAll()
-            ).pipe(
+                this.elsaProductService.getProductsOnContractTypes(this.initData.contractType)
+            ]).pipe(
                 finalize(() => this.busy = false)
             ).subscribe(
                 res => {
@@ -69,11 +74,17 @@ export class GrantSelfAccessModal implements IUniModal {
                     }
                     this.grantAccessData.companies.push(this.initData.companyLicense);
                     this.products = res[2].filter(product => {
-                        return product.ProductType === ElsaProductType.Module
-                            && product.IsPerUser
-                            && product.Name !== 'Complete';
+                        return (product.ProductType === ElsaProductType.Module
+                            || product.ProductType === ElsaProductType.Package)
+                            && product.IsPerUser;
                     });
-                    this.products.forEach(product => product['_selected'] = false);
+                    this.products.forEach(product => {
+                        product['_selected'] = false;
+                        if (product.IsDefaultProduct || product.IsMandatoryProduct) {
+                            this.onSelectProduct(product);
+                        }
+                        product['_isMandatory'] = product.IsMandatoryProduct;
+                    });
                 },
                 err => this.errorService.handle(err),
             );

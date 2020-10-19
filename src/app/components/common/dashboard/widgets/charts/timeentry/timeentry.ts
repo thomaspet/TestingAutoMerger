@@ -15,7 +15,6 @@ interface CalendarEntry {
     date: Date;
     classList: string[];
     weekNumber: number;
-    flexClass?: 'good' | 'bad' | 'warn';
 }
 
 @Component({
@@ -36,6 +35,9 @@ export class TimeentryWidget {
     activating = false;
     missingWorker = false;
 
+    flexBalance: number;
+    flexBalanceChangeInPeriod: number;
+
     constructor(
         private cdr: ChangeDetectorRef,
         private authService: AuthService,
@@ -55,6 +57,7 @@ export class TimeentryWidget {
             if (workRelation) {
                 this.workRelation = workRelation;
                 this.initCalendar();
+                this.loadFlexBalance();
             }
 
             this.loading = false;
@@ -97,10 +100,10 @@ export class TimeentryWidget {
         this.calendar = calendar;
         this.cdr.markForCheck();
 
-        this.loadFlexBalance(startDay, endDay, ignoreCache);
+        this.loadCalendarData(startDay, endDay, ignoreCache);
     }
 
-    private loadFlexBalance(startDay, endDay, ignoreCache: boolean) {
+    private loadCalendarData(startDay, endDay, ignoreCache: boolean) {
         const endpoint = `/api/biz/workrelations/${this.workRelation.ID}?action=timesheet`
             + `&fromdate=${startDay.format('YYYY-MM-DD')}`
             + `&todate=${endDay.format('YYYY-MM-DD')}`;
@@ -108,26 +111,64 @@ export class TimeentryWidget {
         this.dataService.get(endpoint, ignoreCache).subscribe(
             res => {
                 const items: TimeSheetItem[] = res && res.Items || [];
-                this.calendar.forEach(week => {
-                    week.forEach(day => {
-                        if (moment(day.date).isBefore(moment(), 'day')) {
-                            const timesheetItem = items.find(item => moment(day.date).isSame(moment(item.Date), 'day'));
+                let flexBalanceChangeInPeriod = 0;
 
-                            if (timesheetItem.ExpectedTime) {
-                                if (!timesheetItem.TotalTime) {
-                                    day.classList.push('bad');
-                                } else if (timesheetItem.Flextime >= 0) {
-                                    day.classList.push('good');
-                                } else if (timesheetItem.Flextime < 0) {
-                                    day.classList.push('warn');
+                this.calendar.forEach(week => {
+                    week.forEach(calendarDay => {
+                        if (moment(calendarDay.date).isSameOrBefore(moment())) {
+                            const timesheetItem = items.find(item => moment(calendarDay.date).isSame(moment(item.Date), 'day'));
+
+                            // Ignore today from calculations if the user haven't registered hours today yet
+                            const isToday = moment(calendarDay.date).isSame(moment(), 'day');
+                            if (!isToday || timesheetItem.TotalTime > 0) {
+                                // Calc flex balance changes for selected month
+                                if (moment(calendarDay.date).isSame(moment(this.calendarDate), 'month')) {
+                                    flexBalanceChangeInPeriod += timesheetItem.Flextime;
                                 }
 
-                                day.flexClass = <any> day.classList[day.classList.length - 1];
+                                // Add css class for indicating the calendar day's flex balance
+                                if (timesheetItem.Flextime < 0) {
+                                    calendarDay.classList.push(timesheetItem.TotalTime ? 'warn' : 'bad');
+                                } else if (timesheetItem.Flextime === 0) {
+                                    // For weekend days we only want the good indicator if flex is > 0
+                                    calendarDay.classList.push(timesheetItem.IsWeekend ? '' : 'good');
+                                } else {
+                                    calendarDay.classList.push('good');
+                                }
                             }
                         }
                     });
                 });
 
+                this.flexBalanceChangeInPeriod = parseFloat(flexBalanceChangeInPeriod.toFixed(1));
+                this.cdr.markForCheck();
+            },
+            err => console.error(err)
+        );
+    }
+
+    private loadFlexBalance(ignoreCache?: boolean) {
+        const endpoint = `/api/biz/workrelations/${this.workRelation.ID}?action=calc-flex-balance&hateoas=false`;
+        this.dataService.get(endpoint, ignoreCache).subscribe(
+            res => {
+                if (res.WorkRelation && res.WorkRelation.EndTime) {
+                    let et = moment(res.WorkRelation.EndTime);
+                    if (et.year() > 1980) {
+                        if (et.hour() > 12) { et = moment(et.add(1, 'days').format('YYYY-MM-DD')); }
+                        if (et.year() > 1980 && et < moment(res.BalanceDate)) {
+                            res.LastDayExpected = 0;
+                            res.LastDayActual = 0;
+                            res.relationIsClosed = true;
+                        }
+                    }
+                }
+
+                // Show flex balance from yesterday if user has not registered hours today
+                const minutes = res.LastDayActual > 0
+                    ? res.Minutes
+                    : res.Minutes - (res.LastDayActual - res.LastDayExpected);
+
+                this.flexBalance = parseFloat((minutes / 60).toFixed(1));
                 this.cdr.markForCheck();
             },
             err => console.error(err)
@@ -156,6 +197,7 @@ export class TimeentryWidget {
         }).onClose.subscribe(timesheetChange => {
             if (timesheetChange) {
                 this.initCalendar(true);
+                this.loadFlexBalance(true);
             }
         });
     }

@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal" style="width:900px">
-    <header>{{options.header || 'SAF-T Export'}}</header>
+    <header>SAF-T Export</header>
     <article>
         <mat-horizontal-stepper [linear]="true" #stepper [@.disabled]="true">
             <mat-step label="Valg" [completed]="false">
@@ -33,7 +33,7 @@
     </article>
 
     <footer>
-        <button class="c2a" (click)="validate()" *ngIf="currentStep === 1" [attr.aria-busy]="busy">Videre</button>
+        <button class="c2a" (click)="startExportSaftJob()" *ngIf="currentStep === 1" [attr.aria-busy]="busy">Videre</button>
         <button class="good" (click)="fix()" *ngIf="currentStep === 2">Automatisk SAF-T kobling</button>
         <button class="good" [disabled]="!isReady" (click)="close(true)" *ngIf="currentStep === 3">Start eksport</button>
         <button class="bad" (click)="close(false)">Avbryt</button>

@@ -53,5 +53,17 @@
                 </li>
             </ul>
         </section>
+
+        <section class="history pay-history" *ngIf="payments?.length">
+            <span class="header">Betalingshistorikk</span>
+
+            <ul>
+                <li *ngFor="let payment of payments">
+                    <span class="payment-desc" (click)="goTojournalEntry(payment)" title="Gå til bilag for betalingen"> {{payment.Description}} </span>
+                    <span>Sum: {{payment.AmountCurrency | uninumberformat: 'money'}}</span>
+                    <span>Dato: {{payment.FinancialDate | date: 'dd.MM.yyyy'}}</span>
+                </li>
+            </ul>
+        </section>
     </section>
 </section>

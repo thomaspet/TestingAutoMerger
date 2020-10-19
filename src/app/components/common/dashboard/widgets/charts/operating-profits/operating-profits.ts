@@ -21,6 +21,7 @@ export class OperatingProfitsWidget {
     data: {PeriodNo: number; Sum: number; Income: number; Cost: number}[];
     legend: {label: string; value: number; color: string}[];
 
+    showAccumulatedResult: boolean;
     dataSubscription: Subscription;
     chartConfig;
     tooltip;
@@ -36,6 +37,12 @@ export class OperatingProfitsWidget {
 
     ngOnDestroy() {
         this.dataSubscription?.unsubscribe();
+    }
+
+    setShowAccumulatedResult(showAccumulatedResult) {
+        this.showAccumulatedResult = showAccumulatedResult;
+        this.chartConfig = this.getChartConfig();
+        this.cdr.markForCheck();
     }
 
     initChart() {
@@ -98,6 +105,18 @@ export class OperatingProfitsWidget {
     }
 
     private getChartConfig() {
+        const resultData = [];
+        let accumulatedSum = 0;
+
+        this.data.forEach(item => {
+            if (this.showAccumulatedResult) {
+                accumulatedSum += (item.Sum || 0);
+                resultData.push(accumulatedSum);
+            } else {
+                resultData.push(item.Sum || 0);
+            }
+        });
+
         return {
             type: 'roundedBarChart',
             data: {
@@ -105,7 +124,7 @@ export class OperatingProfitsWidget {
                 datasets: [
                     {
                         label: 'Resultat',
-                        data: this.data.map(item => item.Sum || 0),
+                        data: resultData,
                         borderColor: '#b3b3b3',
                         pointBackgroundColor: this.colors[2],
                         borderWidth: 1,

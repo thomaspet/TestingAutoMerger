@@ -18,6 +18,11 @@ import { AltinnReceiptListComponent } from './altinn-receipt-list/altinn-receipt
 import { ReconciliationRequestComponent } from './reconciliation-request/reconciliation-request.component';
 import { ReconciliationResponseModalComponent } from './reconciliation-response-modal/reconciliation-response-modal.component';
 import { AMeldingRoutingModule } from './a-melding-routing.module';
+import { PensionSchemeService } from './shared/service/pension-scheme.service';
+import { PensionSchemeModalComponent } from './modals/pension-scheme-modal/pension-scheme-modal.component';
+import { CustomPensionSchemeModalComponent } from './modals/custom-pension-scheme-modal/custom-pension-scheme-modal.component';
+import { PensionSchemeSupplierService } from './shared/service/pension-scheme-supplier.service';
+import { CustomPensionSchemeService } from './shared/service/custom-pension-scheme.service';
 
 @NgModule({
     imports: [
@@ -40,10 +45,15 @@ import { AMeldingRoutingModule } from './a-melding-routing.module';
         AltinnReceiptListComponent,
         ReconciliationRequestComponent,
         ReconciliationResponseModalComponent,
+        PensionSchemeModalComponent,
+        CustomPensionSchemeModalComponent,
     ],
     providers: [
         AltinnErrorHandlerService,
         AMeldingService,
+        PensionSchemeService,
+        PensionSchemeSupplierService,
+        CustomPensionSchemeService,
     ]
   })
   export class AMeldingModule { }
