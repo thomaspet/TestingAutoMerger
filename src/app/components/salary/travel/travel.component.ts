@@ -392,6 +392,7 @@ export class TravelComponent implements OnInit {
                 .take(1)
                 .map(trvls => {
                     travels.forEach(travel => {
+                        travel.TravelLines = travel.TravelLines.filter(line => !(line['_isEmpty']));
                         const index = trvls.findIndex(trvl => trvl.ID === travel.ID);
                         if (index < 0) {
                             return;
