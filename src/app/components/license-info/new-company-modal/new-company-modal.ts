@@ -90,6 +90,12 @@ export class NewCompanyModal implements IUniModal {
     }
 
     onStep1Submit() {
+        if (!this.step1Form.get('Country').value) {
+            this.step1Form.controls.Country.setValue('Norge');
+        }
+        if (!this.step1Form.get('CountryCode').value) {
+            this.step1Form.controls.CountryCode.setValue('NO');
+        }
         this.step1Form.markAllAsTouched();
         if (this.step1Form.valid) {
             this.currentStep = 2;

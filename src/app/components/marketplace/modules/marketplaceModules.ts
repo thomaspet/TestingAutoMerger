@@ -54,6 +54,7 @@ export class MarketplaceModules implements AfterViewInit {
     private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
     private autobankAgreements: any[];
+    isBrunoEnv = theme.theme === THEMES.EXT02;
 
     contractTypes: ElsaContractType[];
     currentContractType: number;
