@@ -223,7 +223,7 @@ export class ToPaymentModal implements IUniModal {
             {
                 Property: 'FromBankAccountID',
                 FieldType: FieldType.DROPDOWN,
-                Label: 'Betaling fra konto',
+                Label: 'Betal fra konto',
                 Hidden: !this.accounts.length,
                 Options: {
                     source: this.accounts,
