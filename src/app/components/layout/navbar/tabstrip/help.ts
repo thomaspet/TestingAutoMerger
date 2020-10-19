@@ -59,7 +59,7 @@ export class UniTabstripHelp {
     isSrEnvironment = theme.theme === THEMES.SR;
     isBrunoEnvironment = theme.theme === THEMES.EXT02;
 
-    showBoostChat = theme.theme === THEMES.SR; // || theme.theme === THEMES.EXT02;
+    showBoostChat = false; // theme.theme === THEMES.SR; // || theme.theme === THEMES.EXT02;
 
     helpdeskUrl;
 
