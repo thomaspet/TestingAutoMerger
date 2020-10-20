@@ -16,6 +16,7 @@ import {ReportTypeService} from '@app/services/reports/reportTypeService';
 import {ReportDefinitionParameterService} from '@app/services/reports/reportDefinitionParameterService';
 import {EmailService} from '@app/services/common/emailService';
 import {theme, THEMES} from 'src/themes/theme';
+import {ReportTypeEnum} from '@app/models';
 
 @Component({
     selector: 'tof-email-modal',
@@ -38,6 +39,7 @@ export class TofEmailModal {
     busy: boolean;
     invalidEmail: boolean;
     showHours = '0';
+    reportType: ReportTypeEnum;
 
     constructor(
         private authService: AuthService,
@@ -56,6 +58,7 @@ export class TofEmailModal {
 
         const modalData = this.options.data || {};
         this.entity = modalData.entity;
+        this.reportType = modalData.reportType;
 
         const model = this.getEmailModel(modalData.entityType, this.entity);
         const customerRequest = model.CustomerID ? this.customerService.Get(model.CustomerID, ['Info', 'Info.DefaultEmail']) : of(null);
@@ -67,7 +70,7 @@ export class TofEmailModal {
             this.userService.getCurrentUser(),
             customerRequest,
             reportsRequest,
-            this.entityHasHours() ? this.openAddHoursModal().onClose : of(null)
+            this.entityHasHours() && this.reportType === ReportTypeEnum.INVOICE ? this.openAddHoursModal().onClose : of(null)
         ]).subscribe(
             res => {
                 const companySettings: CompanySettings = res[0] || {};
