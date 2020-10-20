@@ -19,11 +19,11 @@ export class BrunoBankOnboardingModal {
     constructor(private authService: AuthService) {}
 
     ngOnInit() {
-        this.agreement = this.options?.data;
+        this.agreement = this?.options?.data;
     }
 
-    ngAfterViewInit() {
-        this.bankIntegrationUserName = this.authService.currentUser.BankIntegrationUserName || '';
+    ngAfterContentInit() {
+        this.bankIntegrationUserName = this.authService.currentUser?.BankIntegrationUserName || '';
     }
 
     openExternalOnboarding() {
@@ -32,7 +32,7 @@ export class BrunoBankOnboardingModal {
             : 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-regnskap-client.html?erp=Bruno&kontoinfoval=true&utbetalingerval=true';
 
         if (this.bankIntegrationUserName) {
-            url += `&userid=${this.bankIntegrationUserName}`
+            url += `&userid=${this.bankIntegrationUserName}`;
         }
 
         window.open(url, '_blank');

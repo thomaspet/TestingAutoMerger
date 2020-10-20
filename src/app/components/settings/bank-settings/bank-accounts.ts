@@ -1,13 +1,15 @@
-import {Component, Input, ChangeDetectionStrategy, ChangeDetectorRef, Output, EventEmitter} from '@angular/core';
-import { UniTableConfig, UniTableColumn, UniTableColumnType, ICellClickEvent } from '@uni-framework/ui/unitable';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import { UniModalService, IModalOptions, ConfirmActions } from '@uni-framework/uni-modal';
+import { Component, Input, ChangeDetectorRef, Output, EventEmitter } from '@angular/core';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { UniModalService, IModalOptions, ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import { BankAccount, BankIntegrationAgreement, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
-import {CompanyBankAccountModal} from './company-bank-account-modal';
+import { CompanyBankAccountModal } from './company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
-import {BankAccountService, BrunoOnboardingService, BankService} from '@app/services/services';
-import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
-import {theme, THEMES} from 'src/themes/theme';
+import { BankAccountService, BrunoOnboardingService, BankService } from '@app/services/services';
+import { theme, THEMES } from 'src/themes/theme';
+import { UniNumberFormatPipe } from '@uni-framework/pipes/uniNumberFormatPipe';
+import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
+import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/config/unitableColumn';
+import { BrunoBankOffboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
 
 @Component({
     selector: 'bank-setttings-accountlist',
@@ -66,7 +68,8 @@ export class BankSettingsAccountlist {
         private toast: ToastService,
         private bankAccountService: BankAccountService,
         private brunoOnboardingService: BrunoOnboardingService,
-        private bankService: BankService
+        private bankService: BankService,
+        private bankAccountPipe: UniNumberFormatPipe
     ) { }
 
     ngOnChanges() {
@@ -208,13 +211,31 @@ export class BankSettingsAccountlist {
     }
 
     deleteAccount(row) {
-        this.bankAccountService.Remove(row.ID).subscribe(() => {
-            this.companySettings.BankAccounts.splice(this.companySettings.BankAccounts.findIndex(ba => ba.ID === row.ID), 1);
-            this.toast.addToast('Bankkonto slettet', ToastType.good, 5);
-            this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
-        }, err => {
-            this.toast.addToast('Sletting feilet', ToastType.bad, 10, 'Kunne ikke slette konto. Pass på at konto ikke er standard.');
-        });
+        if (!row.IntegrationStatus) {
+            this.bankAccountService.Remove(row.ID).subscribe(() => {
+                this.companySettings.BankAccounts.splice(this.companySettings.BankAccounts.findIndex(ba => ba.ID === row.ID), 1);
+                this.toast.addToast('Bankkonto slettet', ToastType.good, 5);
+                this.companySettings.BankAccounts = [...this.companySettings.BankAccounts];
+            }, err => {
+                this.toast.addToast('Sletting feilet', ToastType.bad, 10, 'Kunne ikke slette konto. Pass på at konto ikke er standard.');
+            });
+        } else {
+            const options: IModalOptions = {
+                header: 'Slette konto',
+                message: `Konto ${this.bankAccountPipe.transform(row.AccountNumber, 'bankacct')} ` +
+                `er koblet mot bank. For å slette denne kontoen må koblingen avsluttes først. Ønsker du å avslutte kobling?`,
+                buttonLabels: {
+                    accept: 'Avslutt kobling',
+                    reject: 'Avbryt'
+                }
+            };
+
+            this.modalService.open(UniConfirmModalV2, options).onClose.subscribe((response) => {
+                if (response === ConfirmActions.ACCEPT) {
+                    this.cancelBankIntegration(row, true);
+                }
+            });
+        }
     }
 
     public getOrderIntegrationButtonText(): string {
@@ -233,12 +254,29 @@ export class BankSettingsAccountlist {
         this.cdr.markForCheck();
     }
 
-    public agreementIsPending(agreement: BankIntegrationAgreement) {        
-        return agreement ? 
-        agreement?.StatusCode === StatusCodeBankIntegrationAgreement.Pending || agreement?.HasOrderedIntegrationChange : false
+    public agreementIsPending(agreement: BankIntegrationAgreement) {
+        return agreement ?
+        agreement?.StatusCode === StatusCodeBankIntegrationAgreement.Pending || agreement?.HasOrderedIntegrationChange : false;
     }
 
-    connectBankAndAccounting() {
+    cancelBankIntegration(bankAccount: BankAccount, deleteAccount: boolean = false) {
+        this.brunoOnboardingService.cancelBankIntegration(bankAccount, deleteAccount, BrunoBankOffboardingModal)
+        .subscribe((bankAccounts: BankAccount[]) => {
+            if (bankAccounts) {
+                this.bankAccount = null;
+                this.companySettings.BankAccounts = bankAccounts;
+
+                if (deleteAccount) {
+                    bankAccount.IntegrationStatus = null;
+                    this.deleteAccount(bankAccount);
+                }
+
+                this.toast.addToast('Koblingen mot bank er oppdatert', ToastType.good, 5);
+            }
+        });
+    }
+
+    makeChangesToBankIntegration() {
         this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
             if (agreement) {
                 switch (agreement.StatusCode) {
@@ -258,7 +296,13 @@ export class BankSettingsAccountlist {
                         break;
                     }
                 }
-            } else {
+            }
+        });
+    }
+
+    initiateBankIntegration() {
+        this.brunoOnboardingService.getAgreement().subscribe((agreement) => {
+            if (!agreement) {
                 this.brunoOnboardingService.createAgreement().subscribe((createdAgreement: BankIntegrationAgreement) => {
                     if (createdAgreement) {
                         this.hasPendingAgreement = this.agreementIsPending(createdAgreement);
@@ -267,6 +311,10 @@ export class BankSettingsAccountlist {
                         this.orderIntegrationButtonText = this.getOrderIntegrationButtonText();
                     }
                 });
+            } else if (this.agreementIsPending(agreement)) {
+                this.hasPendingAgreement = true;
+                this.brunoOnboardingService.restartOnboarding(agreement);
+                this.orderedIntegration.emit();
             }
         });
     }
@@ -340,7 +388,7 @@ export class BankSettingsAccountlist {
     }
 
     getAccountType(row: BankAccount): string {
-        switch (row.BankAccountType.toLowerCase()) {
+        switch (row.BankAccountType?.toLowerCase()) {
             case 'company':
             case 'companysettings':
                 return 'Drift';

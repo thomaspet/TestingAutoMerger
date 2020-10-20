@@ -1,5 +1,5 @@
 import { Injectable, EventEmitter, Output } from '@angular/core';
-import { BankIntegrationAgreement } from '../../unientities';
+import { BankAccount, BankIntegrationAgreement } from '../../unientities';
 import { BankService } from '../accounting/bankService';
 import { Observable, of } from 'rxjs';
 import { AutoBankAgreementDetails, BankAgreementServiceProvider } from '@app/models/autobank-models';
@@ -7,10 +7,13 @@ import { AuthService } from '@app/authService';
 import { ConfigBankAccountsModal } from '@uni-framework/uni-modal/modals/bank-accounts-config-modal/bank-accounts-config-modal';
 import { BankAccountService } from '../accounting/bankAccountService';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
-import { ConfigBankAccountsInfoModal } from '@uni-framework/uni-modal/modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
+import { BankInfoModal } from '@uni-framework/uni-modal/modals/bank-info-modal/bank-info-modal';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { BrunoBankOnboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
+
+import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
+import { NumberFormat } from '@app/services/common/numberFormatService';
 
 @Injectable()
 export class BrunoOnboardingService {
@@ -20,6 +23,7 @@ export class BrunoOnboardingService {
         private modalService: UniModalService,
         private bankAccountService: BankAccountService,
         private statisticsService: StatisticsService,
+        private numberFormat: NumberFormat,
     ) { }
 
     agreementDetails: AutoBankAgreementDetails = {
@@ -128,7 +132,7 @@ export class BrunoOnboardingService {
                 }).onClose.pipe(
                     map(configurationSaved => {
                         if (configurationSaved) {
-                            this.modalService.open(ConfigBankAccountsInfoModal, {
+                            this.modalService.open(BankInfoModal, {
                                 header: 'Integrasjonen med banken er klar!',
                                 message: 'Alle bankkontoer er nå oppdatert i DNB Regnskap og er klar for bruk',
                                 buttonLabels: {
@@ -188,6 +192,78 @@ export class BrunoOnboardingService {
                     }
                 });
             }
+        });
+    }
+
+    public cancelBankIntegration(bankAccount: BankAccount = null, deleteAccount: boolean = false, modal: any = null) {
+        return new Observable(observer => {
+            this.modalService.open(modal, {
+                data: {
+                    account: bankAccount,
+                    deleteAccount: deleteAccount
+                },
+                header: bankAccount ?
+                    'Avslutt integrasjon med banken' : 'Avslutt kobling mot bank',
+                message: deleteAccount ?
+                    `Konto ${this.numberFormat.asBankAcct(+bankAccount.AccountNumber)} vil slettes, følgende tjenester vil avsluttes: ` 
+                    : bankAccount ?
+                        `Jeg ønsker å avslutte disse tjenestene på konto ${this.numberFormat.asBankAcct(+bankAccount.AccountNumber)}:` :
+                        'Jeg ønsker å avslutte koblingene på alle kontoer:',
+                buttonLabels: {
+                    accept: !bankAccount ? 'Avslutt kobling' : deleteAccount ? 'Avslutt og slett konto' : 'Avslutt integrasjon'
+                }
+            }).onClose.subscribe((cancelationData) => {
+                if (cancelationData) {
+                    this.modalService.open(BankInfoModal, {
+                        header: 'Bekreft avslutning av kobling mot bank',
+                        message: 'Når du bekrefter sendes melding om avslutning rett til banken. </br>' +
+                            'Det kan ta litt tid før du mottar bekreftelse på Epost fra DNB.',
+                        buttonLabels: {
+                            reject: 'Avbryt',
+                            accept: 'Bekreft'
+                        },
+                        icon: 'themes/ext02/ext02-cancel-integration.svg',
+                        modalConfig:
+                        {
+                            iconConfig:
+                            {
+                                size: 5
+                            }
+                        },
+                    }).onClose.subscribe((results) => {
+                        if (results === ConfirmActions.ACCEPT) {
+                            if (!bankAccount) {
+                                // Cancel all BankAccounts and BankAgreements
+                                this.bankService.cancelAllBankAccountIntegrations(cancelationData[2])
+                                .subscribe((response: BankAccount[]) => {
+                                    this.authService.reloadCurrentSession().subscribe(() => {
+                                        observer.next(response);
+                                        observer.complete();
+                                    });
+                                });
+                            } else {
+                                // Cancel one BankAccount
+                                this.bankService.cancelBankAccountIntegration(
+                                    cancelationData[0],
+                                    cancelationData[1],
+                                    cancelationData[2],
+                                ).subscribe((response: BankAccount[]) => {
+                                    this.authService.reloadCurrentSession().subscribe(() => {
+                                        observer.next(response);
+                                        observer.complete();
+                                    });
+                                });
+                            }
+                        } else {
+                            observer.next();
+                            observer.complete();
+                        }
+                    });
+                } else {
+                    observer.next();
+                    observer.complete();
+                }
+            });
         });
     }
 }

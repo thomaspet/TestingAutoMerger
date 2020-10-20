@@ -2,8 +2,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 
 @Component({
-    selector: 'uni-brunoaccountsconfigconfirm-modal',
-    styleUrls: ['./config-bank-accounts-info-modal.sass'],
+    selector: 'uni-bankinfo-modal',
+    styleUrls: ['./bank-info-modal.sass'],
     template: `
         <section role="dialog" class="uni-modal uni-redesign" style="width: 38rem">
             <header></header>
@@ -20,10 +20,13 @@ import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-mod
                     <br/>
                     <br/>
                 </section>
+            </section>
 
-
-                <footer [ngClass]="options?.footerCls">
-                    <button *ngIf="options?.buttonLabels?.cancel" class="pull-left secondary" (click)="cancel()">
+            <footer>
+                <section id="actionButtons">
+                    <button *ngIf="options?.buttonLabels?.cancel"
+                        class="secondary" 
+                        (click)="cancel()">
                         {{options.buttonLabels.cancel}}
                         <i class="material-icons" *ngIf="options?.buttonIcons?.cancel"> {{ options.buttonIcons.cancel }} </i>
                     </button>
@@ -36,20 +39,17 @@ import { IUniModal, IModalOptions, ConfirmActions } from '@uni-framework/uni-mod
                     </button>
 
                     <button *ngIf="options?.buttonLabels?.accept"
-                        class="c2a icon-confirm-modal-button"
-                        style="width: auto;"
-                        id="good_button_ok"
+                        class="c2a"
                         (click)="accept()">
-                        {{ options.buttonLabels.accept }}
+                        {{options.buttonLabels.accept}}
                         <i class="material-icons" *ngIf="options?.buttonIcons?.accept"> {{ options.buttonIcons.accept }} </i>
                     </button>
-                </footer>
-
-            </section>
+                </section>
+            </footer>
         </section>
     `
 })
-export class ConfigBankAccountsInfoModal implements IUniModal {
+export class BankInfoModal implements IUniModal {
     @Input()
     options: IModalOptions = {};
 

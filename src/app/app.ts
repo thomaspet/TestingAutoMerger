@@ -14,7 +14,7 @@ import {
     UserLicenseAgreementModal,
     LicenseAgreementModal,
     MissingRolesModal,
-    ConfigBankAccountsInfoModal, CompanyActionsModal
+    BankInfoModal, CompanyActionsModal
 } from '@uni-framework/uni-modal';
 
 // Do not change this import! Since we don't use rx operators correctly
@@ -245,7 +245,7 @@ export class App {
             }
         };
 
-        this.modalService.open(ConfigBankAccountsInfoModal, options).onClose
+        this.modalService.open(BankInfoModal, options).onClose
             .subscribe((action: ConfirmActions) => {
                 if (action === ConfirmActions.ACCEPT) {
                     this.brunoOnboardingService.createAgreement().subscribe(() => {
