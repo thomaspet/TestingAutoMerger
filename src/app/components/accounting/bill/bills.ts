@@ -159,11 +159,6 @@ export class BillsView implements OnInit {
     }
 
     public ngOnInit() {
-        // Remove inbox from filters if SR-environment
-        if (theme.theme === THEMES.SR) {
-            this.filters.shift();
-        }
-
         this.checkPath();
         this.refreshList(this.currentFilter, true);
         this.updateSaveActions();
