@@ -1,5 +1,5 @@
 import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
-import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
+import {DASHBOARD_CONFIGS} from './ext01/dashboard-configs';
 
 import {THEMES} from './themes-enum';
 export * from './themes-enum';
