@@ -5,6 +5,7 @@ import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductSer
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'bank-init-modal',
@@ -60,6 +61,7 @@ export class BankInitModal implements IUniModal, OnInit {
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     hasBoughtAutobank: boolean = false;
     fields$ = new BehaviorSubject([]);
+    bankName: string;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -68,7 +70,8 @@ export class BankInitModal implements IUniModal, OnInit {
         private bankService: BankService,
         private elsaPurchasesService: ElsaPurchaseService,
         private elsaProductService: ElsaProductService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
@@ -79,6 +82,7 @@ export class BankInitModal implements IUniModal, OnInit {
             return;
         }
 
+        this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1 SR-Bank';
         this.currentUser = this.options.data.user;
         this.payload.Phone = this.currentUser.PhoneNumber;
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
@@ -281,9 +285,8 @@ export class BankInitModal implements IUniModal, OnInit {
                             modalConfig: {
                                 ledgerAccountVisible: true,
                                 defaultAccountNumber: accountType.defaultAccount,
-                                BICLock: {
-                                    BIC:  'SPRONO22',
-                                    BankName: 'SpareBank 1 SR-Bank'
+                                BankLock: {
+                                    BankName: this.bankName
                                 }
                             },
                             closeOnClickOutside: false

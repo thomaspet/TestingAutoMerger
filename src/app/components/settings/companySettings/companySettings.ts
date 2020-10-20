@@ -932,9 +932,8 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         if (theme.theme === THEMES.SR) {
-            modalConfig.BICLock = {
-                BIC:  'SPRONO22',
-                BankName: 'SpareBank 1 SR-Bank'
+            modalConfig.BankLock = {
+                BankName: this.authService.publicSettings?.BankName || 'SpareBank 1 SR-Bank'
             };
         }
 
