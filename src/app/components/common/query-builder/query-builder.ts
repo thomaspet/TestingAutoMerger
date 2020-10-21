@@ -13,7 +13,7 @@ export interface QueryItem {
 export interface QueryBuilderField {
     label: string;
     field: string;
-    type?: 'text' | 'number' | 'date';
+    type?: 'text' | 'number' | 'date' | 'boolean';
 }
 
 export interface QueryBuilderOperator {
@@ -31,6 +31,8 @@ export interface QueryBuilderOperator {
 export class QueryBuilder {
     @Input() fields: QueryBuilderField[];
     @Input() query: QueryItem[];
+    @Input() siblingMaxDepth: number = 0;
+    @Input() additionalOperators: QueryBuilderOperator[] = [];
     @Output() queryChange = new EventEmitter<QueryItem[]>();
 
     items: QueryItem[];
@@ -51,12 +53,12 @@ export class QueryBuilder {
         {
             label: 'Er',
             operator: '=',
-            forFieldTypes: ['text', 'number', 'date']
+            forFieldTypes: ['text', 'number', 'date', 'boolean']
         },
         {
             label: 'Er ikke',
             operator: '<>',
-            forFieldTypes: ['text', 'number', 'date']
+            forFieldTypes: ['text', 'number', 'date', 'boolean']
         },
         {
             label: 'Større enn',
@@ -79,6 +81,10 @@ export class QueryBuilder {
             forFieldTypes: ['number', 'date']
         },
     ];
+
+    ngOnInit() {
+        this.operators = [...this.operators, ...this.additionalOperators];
+    }
 
     ngOnChanges(changes) {
         if (changes['query']) {

@@ -37,6 +37,8 @@ import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
+import {QueryBuilder} from "./query-builder/query-builder";
+import {QueryBuilderItem} from "./query-builder/query-item";
 import {LinkMenu} from './linkMenu/linkMenu';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from './modals/vacationpay/vacationPaySettingsModal';
@@ -165,6 +167,8 @@ import {DashboardModule} from './dashboard/dashboard.module';
         ContractTypesComparison,
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        QueryBuilder,
+        QueryBuilderItem,
     ],
     exports: [
         DashboardModule,
@@ -228,6 +232,8 @@ import {DashboardModule} from './dashboard/dashboard.module';
 
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        QueryBuilder,
+        QueryBuilderItem,
     ]
 })
 export class AppCommonModule {}
