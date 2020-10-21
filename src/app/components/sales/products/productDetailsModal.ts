@@ -14,7 +14,7 @@ import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 
             <footer>
                 <button (click)="save()" class="good">Lagre</button>
-                <button (click)="close(null)" class="bad">Avbryt</button>
+                <button (click)="closeButton()" class="bad">Avbryt</button>
             </footer>
         </section>
     `
@@ -40,8 +40,17 @@ export class UniProductDetailsModal implements IUniModal {
         this.productDetails.saveProduct(() => {});
     }
 
+    public closeButton() {
+        this.busy = false;
+        this.onClose.emit(null);
+    }
+
     public close(product) {
         this.busy = false;
+
+        if (!product) 
+            return;
+
         this.onClose.emit(product);
     }
 
