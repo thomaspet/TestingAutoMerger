@@ -1,7 +1,7 @@
-import { Observable, BehaviorSubject, Subject, of, forkJoin, pipe } from 'rxjs';
-import {tap, take, switchMap, filter, finalize, map, catchError, takeUntil} from 'rxjs/operators';
-import {Component, ViewChild, OnDestroy, SimpleChanges} from '@angular/core';
-import {ActivatedRoute, Router, NavigationEnd} from '@angular/router';
+import { Observable, BehaviorSubject, Subject, of, forkJoin, pipe, observable } from 'rxjs';
+import { tap, take, switchMap, filter, finalize, map, catchError, takeUntil } from 'rxjs/operators';
+import { Component, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
+import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import * as _ from 'lodash';
 import { UniModalService, ConfirmActions, UniConfirmModalV2, UniPreviewModal } from '@uni-framework/uni-modal';
 import { IContextMenuItem } from '@uni-framework/ui/unitable';
@@ -13,13 +13,14 @@ import {
     PayrollRun, Employee, SalaryTransaction, WageType, Project, Department,
     EmployeeCategory, JournalEntry, SubEntity, Account, CompanySalary,
     TaxDrawFactor, StdSystemType
-    } from '@uni-entities';
+} from '@uni-entities';
 import {
     PayrollRunPaymentStatus, IEmployee, UniCacheService,
     SalaryTransactionService, WageTypeService, ErrorService, ReportDefinitionService,
     CompanySalaryService, ProjectService, DepartmentService, FinancialYearService,
     FileService, JournalEntryService,
-    StatisticsService, SubEntityService, AccountMandatoryDimensionService, EmployeeService, SharedPayrollRunService
+    StatisticsService, SubEntityService, AccountMandatoryDimensionService, EmployeeService,
+    SharedPayrollRunService, ActionOnPaymentReload, CompanySettingsService
 } from '@app/services/services';
 import { IToolbarSearchConfig, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
@@ -40,6 +41,7 @@ import { SalaryTransactionSupplementService } from '@app/components/salary/share
 import { PayrollRunLayoutService } from '@app/components/salary/payroll-run/services/payroll-run-layout.service';
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 import { TaxCardModal } from '@app/components/salary/shared/components/tax-card-modal/tax-card-modal.component';
+import { PayrollToPaymentModal } from '../modals/to-payment-modal/payroll-to-payment-modal';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -75,7 +77,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
     private payStatus: string;
     public employees: Employee[] = [];
     public negativeSalaryTransactionsCount: number;
-
+    private hasAutobank: boolean = false;
     public busy: boolean = false;
     private url: string = '/salary/payrollrun/';
     public contextMenuItems: IContextMenuItem[] = [];
@@ -146,8 +148,14 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         private payrollRunLayoutService: PayrollRunLayoutService,
         private payrollRunService: PayrollRunService,
         private sharedPayrollRunService: SharedPayrollRunService,
+        private companySettingsService: CompanySettingsService,
     ) {
         super(router.url, cacheService);
+        this.activeYear = this.financialYearService.getActiveYear();
+        this.companySettingsService.getCompanySettings().take(1).subscribe((companySettings) => {
+            this.hasAutobank = companySettings.HasAutobank;
+        });
+
         this.getLayout();
         this.config$.next({
             submitText: ''
@@ -190,7 +198,13 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                             .GetAll(`filter=journalEntryNumber eq '${payrollRun.JournalEntryNumber}'&top=1`)
                             .map(x => x[0])
                             .subscribe((journalEntry: JournalEntry) => this.journalEntry = journalEntry,
-                            err => this.errorService.handle(err));
+                                err => this.errorService.handle(err));
+                    }
+                    if (payrollRun.ID) {
+                        this.sharedPayrollRunService.getPaymentsOnRun([payrollRun], this.activeYear).subscribe(result => {
+                            this.sharedPayrollRunService.markPaymentStatus(payrollRun, result);
+                            this.setPaymentStatus(payrollRun[this.sharedPayrollRunService.payStatusProp]);
+                        });
                     }
                 })
                 .do((payrollRun: PayrollRun) => {
@@ -216,23 +230,23 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
 
                     this.toolbarconfig = {
                         subheads: [
-                        {
-                            title: payrollRun.JournalEntryNumber ?
-                                'Bilag ' + payrollRun.JournalEntryNumber
-                                : '',
-                            link: payrollRun.JournalEntryNumber ? (payrollRun.JournalEntryNumber.split('-').length > 1
-                            ? url +
-                                `${payrollRun.JournalEntryNumber.split('-')[0]}&AccountYear=${payrollRun.JournalEntryNumber.split('-')[1]}`
-                            : url + `${payrollRun.JournalEntryNumber}&AccountYear=${new Date().getFullYear()}`)
-                            : ''
-                        },
-                        {
-                            title: 'Oppsett',
-                            classname: this.detailsActive
-                                ? 'entityDetails_toggle -is-active'
-                                : 'entityDetails_toggle',
-                            event: this.toggleDetailsView.bind(this)
-                        }],
+                            {
+                                title: payrollRun.JournalEntryNumber ?
+                                    'Bilag ' + payrollRun.JournalEntryNumber
+                                    : '',
+                                link: payrollRun.JournalEntryNumber ? (payrollRun.JournalEntryNumber.split('-').length > 1
+                                    ? url +
+                                    `${payrollRun.JournalEntryNumber.split('-')[0]}&AccountYear=${payrollRun.JournalEntryNumber.split('-')[1]}`
+                                    : url + `${payrollRun.JournalEntryNumber}&AccountYear=${new Date().getFullYear()}`)
+                                    : ''
+                            },
+                            {
+                                title: 'Oppsett',
+                                classname: this.detailsActive
+                                    ? 'entityDetails_toggle -is-active'
+                                    : 'entityDetails_toggle',
+                                event: this.toggleDetailsView.bind(this)
+                            }],
                         navigation: {
                             prev: this.previousPayrollrun.bind(this),
                             next: this.nextPayrollrun.bind(this),
@@ -275,7 +289,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                                     .map(x => this.fileService
                                         .linkFile('JournalEntry', this.journalEntry.ID, x.ID)
                                         .subscribe(file => file,
-                                        err => this.errorService.handle(err)));
+                                            err => this.errorService.handle(err)));
                                 trans['_newFiles'] = undefined;
                             }
                             return trans;
@@ -386,27 +400,27 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
     }
 
     private checkIfEmployeesAreRemovedFromCategory(runID: number): Observable<ConfirmActions> {
-        return forkJoin(
+        return forkJoin([
             this.employeeService.getEmployeeIDsAndNumbersFromSalarytransactions(runID),
-            this.employeeService.getEmployeeIDsAndNumbersFromCategories(runID)
+            this.employeeService.getEmployeeIDsAndNumbersFromCategories(runID)]
         )
-        .pipe(
-            map((employeeLists: [any[], any[]]) => {
-                return employeeLists[0].filter(empTrans => !employeeLists[1].some(empCat => empCat.ID === empTrans.ID));
-            }),
-            switchMap(missingEmployees => {
-                return (!missingEmployees.length) ? of(ConfirmActions.ACCEPT)
-                : this.employeesRemovedFromCategoryConfirmModal(missingEmployees.map(e => e.EmployeeNumber));
-            }));
-        }
+            .pipe(
+                map((employeeLists: [any[], any[]]) => {
+                    return employeeLists[0].filter(empTrans => !employeeLists[1].some(empCat => empCat.ID === empTrans.ID));
+                }),
+                switchMap(missingEmployees => {
+                    return (!missingEmployees.length) ? of(ConfirmActions.ACCEPT)
+                        : this.employeesRemovedFromCategoryConfirmModal(missingEmployees.map(e => e.EmployeeNumber));
+                }));
+    }
 
     private employeesRemovedFromCategoryConfirmModal(employeeNumbers: number[]): Observable<ConfirmActions> {
         return this.modalService.confirm({
             header: 'Ansatte uten kategori',
             message: 'Du har ansatte som ikke lenger hører til en ' +
-            'kategori i denne lønnsavregningen, disse vil bli fjernet og poster til disse vil bli slettet. ' +
-            'Gjelder ansattnr ' +
-            this.salaryHelperMethods.idListString(employeeNumbers),
+                'kategori i denne lønnsavregningen, disse vil bli fjernet og poster til disse vil bli slettet. ' +
+                'Gjelder ansattnr ' +
+                this.salaryHelperMethods.idListString(employeeNumbers),
             buttonLabels: {
                 accept: 'Gå videre',
                 cancel: 'Avbryt'
@@ -431,24 +445,24 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         this.modalService.open(TaxCardModal, {
             closeOnClickOutside: false
         }).onClose.subscribe(res => {
-                if (!res) { return; }
+            if (!res) { return; }
 
-                this.updateState(REFRESH_TAX, true, false);
-                this.updateState(REFRESH_SUMS_KEY, true, false);
-                this.updateSum(this.payrollrunID);
-            });
+            this.updateState(REFRESH_TAX, true, false);
+            this.updateState(REFRESH_SUMS_KEY, true, false);
+            this.updateSum(this.payrollrunID);
+        });
     }
 
     transferHoursToSalary() {
-       this.openTimeTransferModal();
+        this.openTimeTransferModal();
     }
 
     transferTravelsToSalary() {
-       this.payrollRunDetailsService.routeToTravel(this.payrollrun$.getValue());
+        this.payrollRunDetailsService.routeToTravel(this.payrollrun$.getValue());
     }
 
     generateVacationPay() {
-       this.openVacationPayModal();
+        this.openVacationPayModal();
     }
 
     private setNegativeSalaryCount() {
@@ -623,7 +637,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             .onClose
             .map(result => {
                 if (result === ConfirmActions.ACCEPT) {
-                    this.saveAll(m => {}, false);
+                    this.saveAll(m => { }, false);
                 }
 
                 return result !== ConfirmActions.CANCEL;
@@ -686,11 +700,11 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         this.salaryTransactionService.invalidateCache();
         super.updateState(SALARY_TRANS_KEY, [], false);
         return super.getStateSubject(SELECTED_EMP_KEY)
-        .pipe(
-            takeUntil(this.destroy$),
-            take(1),
-            switchMap(emp => this.getSalaryTransactionsObservable(emp?.ID))
-        );
+            .pipe(
+                takeUntil(this.destroy$),
+                take(1),
+                switchMap(emp => this.getSalaryTransactionsObservable(emp?.ID))
+            );
     }
 
     private setEmployeeCategories() {
@@ -723,8 +737,8 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
 
     private getSalaryBalanceLineIDs(employeeID: number): Observable<any> {
         const salaryBalanceFilter =
-        `model=SalaryBalanceLine&select=SalaryTransactionID&filter=SalaryTransaction.PayrollRunID eq
-                ${this.payrollrunID} and SalaryTransaction.EmployeeID eq ${ employeeID }&expand=SalaryTransaction`;
+            `model=SalaryBalanceLine&select=SalaryTransactionID&filter=SalaryTransaction.PayrollRunID eq
+                ${this.payrollrunID} and SalaryTransaction.EmployeeID eq ${employeeID}&expand=SalaryTransaction`;
         return this.statisticsService.GetAllUnwrapped(salaryBalanceFilter);
     }
 
@@ -735,15 +749,15 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         const salaryTransactionFilter = `PayrollRunID eq ${this.payrollrunID} and EmployeeID eq ${empID}`;
         return this.payrollrunID
             ? Observable
-                .forkJoin(
-                this.salaryTransactionService
-                    .GetAll(
-                    'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
-                    ['WageType.SupplementaryInformations', 'employment', 'Supplements'
-                        , 'Dimensions', 'Files', 'VatType.VatTypePercentages']),
-                this.getProjectsObservable(),
-                this.getDepartmentsObservable(),
-                this.getSalaryBalanceLineIDs(empID))
+                .forkJoin([
+                    this.salaryTransactionService
+                        .GetAll(
+                            'filter=' + salaryTransactionFilter + '&orderBy=IsRecurringPost DESC,SalaryBalanceID DESC,SystemType DESC',
+                            ['WageType.SupplementaryInformations', 'employment', 'Supplements'
+                                , 'Dimensions', 'Files', 'VatType.VatTypePercentages']),
+                    this.getProjectsObservable(),
+                    this.getDepartmentsObservable(),
+                    this.getSalaryBalanceLineIDs(empID)])
                 .map((response: [SalaryTransaction[], Project[], Department[], any[]]) => {
                     const [transes, projects, departments, salaryBalanceIDs] = response;
                     return transes.map(trans => {
@@ -768,14 +782,13 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                             || trans.IsRecurringPost;
                         return trans;
                     })
-                    .sort((x, y) => x['_isReadOnly'] > y['_isReadOnly'] ? -1 : 1);
+                        .sort((x, y) => x['_isReadOnly'] > y['_isReadOnly'] ? -1 : 1);
                 })
                 .do((transes: SalaryTransaction[]) => this.toggleReadOnlyOnCategories(transes, this.payrollrun$.getValue()))
             : Observable.of([]);
     }
 
     private getPayrollRun() {
-        this.activeYear = this.financialYearService.getActiveYear();
         if (this.payrollrunID) {
             this.payrollRunService.get(this.payrollrunID).
                 subscribe((payroll: PayrollRun) => {
@@ -899,7 +912,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         transes = transes || [];
         const anyEditableTranses = transes
             .some(trans => !trans['_isReadOnly'] && trans.SystemType !== StdSystemType.HolidayPayDeduction);
-            const runIsCalculated = run && run.StatusCode >= 1;
+        const runIsCalculated = run && run.StatusCode >= 1;
         this.tagConfig.readOnly = anyEditableTranses || runIsCalculated;
 
         if (runIsCalculated) {
@@ -929,13 +942,13 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             .subscribe(run => {
                 this.modalService
                     .open(
-                    PostingSummaryModalComponent,
-                    {
-                        data: run,
-                        modalConfig: {
-                            update: () => this.getPayrollRun()
-                        }
-                    });
+                        PostingSummaryModalComponent,
+                        {
+                            data: run,
+                            modalConfig: {
+                                update: () => this.getPayrollRun()
+                            }
+                        });
             });
 
         done('');
@@ -977,14 +990,14 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             .switchMap(run =>
                 this.modalService
                     .open(
-                    VacationPayModal,
-                    {
-                        modalConfig:
+                        VacationPayModal,
                         {
-                            update: () => this.refreshTranses()
-                        },
-                        data: run
-                    })
+                            modalConfig:
+                            {
+                                update: () => this.refreshTranses()
+                            },
+                            data: run
+                        })
                     .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
@@ -1002,7 +1015,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                     .open(TimeTransferComponent, {
                         data: run
                     })
-                .onClose)
+                    .onClose)
             .subscribe(needUpdate => {
                 if (needUpdate) {
                     this.refreshAll();
@@ -1087,8 +1100,8 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         return this.modalService.open(UniConfirmModalV2, {
             header: 'Negativ lønn',
             message: `${this.negativeSalaryTransactionsCount} ansatte har negativ lønn. ` +
-            `Disse beløpene vil bli opprettet som autogenererte forskudd dersom du avregner.`,
-            buttonLabels: {accept: 'Avregn', cancel: 'Avbryt'}
+                `Disse beløpene vil bli opprettet som autogenererte forskudd dersom du avregner.`,
+            buttonLabels: { accept: 'Avregn', cancel: 'Avbryt' }
         }).onClose;
     }
 
@@ -1096,34 +1109,34 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         const canRunSettling$ = !!this.negativeSalaryTransactionsCount ?
             this.openNegativeSalaryConfirmModal() : of(ConfirmActions.ACCEPT);
 
-            canRunSettling$.pipe(
-                finalize(() => this.busy = false),
-                switchMap((res) => {
-                    if (res === ConfirmActions.ACCEPT) {
-                        return this.payrollRunService.runSettling(this.payrollrunID, done);
-                    }
-                    return of(false);
-                })
-                ).subscribe((bResponse: boolean) => {
-                    if (bResponse) {
-                        this.getPayrollRun();
-                        this.refreshTranses();
-                        this.negativeSalaryTransactionsCount = 0;
-                        done('Avregnet');
-                    } else {
-                        done('');
-                    }
-                },
-                (err) => {
-                    done('Feil ved avregning');
-                    this.errorService.handle(err);
-                    this.checkDirty();
-                });
+        canRunSettling$.pipe(
+            finalize(() => this.busy = false),
+            switchMap((res) => {
+                if (res === ConfirmActions.ACCEPT) {
+                    return this.payrollRunService.runSettling(this.payrollrunID, done);
+                }
+                return of(false);
+            })
+        ).subscribe((bResponse: boolean) => {
+            if (bResponse) {
+                this.getPayrollRun();
+                this.refreshTranses();
+                this.negativeSalaryTransactionsCount = 0;
+                done('Avregnet');
+            } else {
+                done('');
+            }
+        },
+            (err) => {
+                done('Feil ved avregning');
+                this.errorService.handle(err);
+                this.checkDirty();
+            });
     }
 
     public showPaymentList() {
         this.reportDefinitionService.getReportByName('Utbetalingsliste').subscribe((report) => {
-            report.parameters = [{Name: 'RunID', value: this.payrollrun$.getValue().ID}];
+            report.parameters = [{ Name: 'RunID', value: this.payrollrun$.getValue().ID }];
             this.modalService.open(UniPreviewModal, {
                 data: report
             });
@@ -1142,11 +1155,45 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                 }
             }).onClose.subscribe(response => {
                 if (response === ConfirmActions.ACCEPT) {
-                    this.sendPaymentList(done);
+                    this.paymentOptions(done);
                 } else {
                     done('Utbetaling avbrutt');
                 }
             });
+        } else {
+            this.paymentOptions(done);
+        }
+    }
+
+    private paymentOptions(done) {
+        // If Autobank
+        if (this.hasAutobank) {
+            const payrollData = this.payrollrun$.getValue();
+
+            const options = {
+                data: {
+                    payrollRunData: payrollData,
+                    onlyToPayment: true,
+                    paymentSum: this.paymentSum,
+                    empCount: this.empCount,
+                    paymentYear: this.activeYear
+                }
+            };
+
+            this.modalService.open(PayrollToPaymentModal, options).onClose.subscribe((modalresponse: ActionOnPaymentReload) => {
+                if (!modalresponse) {
+                    done('');
+                    return;
+                }
+                if (modalresponse === ActionOnPaymentReload.SendToPaymentList) {
+                    this.sendPaymentList(done);
+                } else if (modalresponse >= ActionOnPaymentReload.SentToBank) {
+                    done('Betaling utført');
+                } else {
+                    done('Betaling avbrutt');
+                }
+            });
+
         } else {
             this.sendPaymentList(done);
         }
@@ -1157,10 +1204,10 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             .subscribe((response: boolean) => {
                 this.router.navigateByUrl('/bank/ticker?code=payment_list');
             },
-            (err) => {
-                done('');
-                this.errorService.handle(err);
-            });
+                (err) => {
+                    done('');
+                    this.errorService.handle(err);
+                });
     }
 
     public sendPaychecks(done) {
@@ -1176,7 +1223,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                     this.refreshTranses();
                 }
             },
-            err => this.errorService.handle(err));
+                err => this.errorService.handle(err));
     }
 
     private findByProperty(name) {
@@ -1189,7 +1236,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         this.fields$.next(this.fields$.getValue());
     }
 
-    public ready(value) {}
+    public ready(value) { }
 
     private saveAll(done: (message: string) => void, updateView = true) {
 
@@ -1228,28 +1275,28 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                     if (this.accountsWithMandatoryDimensionsIsUsed && payrollRun.transactions) {
                         let msg: string = '';
                         this.accountMandatoryDimensionService.getMandatoryDimensionsReportsForPayroll(payrollRun.transactions)
-                        .subscribe((reports) => {
-                            if (reports) {
-                                reports.forEach(report => {
-                                    if (report) {
-                                        if (report.MissingRequiredDimensionsMessage !== '') {
-                                            msg += '! ' +  report.MissingRequiredDimensionsMessage + '<br/>';
+                            .subscribe((reports) => {
+                                if (reports) {
+                                    reports.forEach(report => {
+                                        if (report) {
+                                            if (report.MissingRequiredDimensionsMessage !== '') {
+                                                msg += '! ' + report.MissingRequiredDimensionsMessage + '<br/>';
+                                            }
+                                            if (report.MissingOnlyWarningsDimensionsMessage) {
+                                                msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
+                                            }
                                         }
-                                        if (report.MissingOnlyWarningsDimensionsMessage) {
-                                            msg += report.MissingOnlyWarningsDimensionsMessage + '<br/>';
-                                        }
-                                    }
-                                });
-                                if (msg !== '') {
-                                    this.toastService.toast({
-                                        title: 'Dimensjon(er) mangler',
-                                        message: msg,
-                                        type: ToastType.warn,
-                                        duration: 3
                                     });
+                                    if (msg !== '') {
+                                        this.toastService.toast({
+                                            title: 'Dimensjon(er) mangler',
+                                            message: msg,
+                                            type: ToastType.warn,
+                                            duration: 3
+                                        });
+                                    }
                                 }
-                            }
-                        });
+                            });
                     }
                     return this.cleanAndGetTranses();
                 }),
@@ -1266,10 +1313,10 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
                 this.toggleDetailsView(false);
                 done('Lagret');
             },
-            (err) => {
-                done('Feil ved lagring');
-                this.errorService.handle(err);
-            });
+                (err) => {
+                    done('Feil ved lagring');
+                    this.errorService.handle(err);
+                });
     }
 
     public change(changes: SimpleChanges) {
@@ -1298,7 +1345,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
 
     private populateCategoryFilters(categories: EmployeeCategory[]) {
         this.categoryFilter = [];
-        categories.map(x => this.categoryFilter.push({linkID: x.ID, title: x.Name}));
+        categories.map(x => this.categoryFilter.push({ linkID: x.ID, title: x.Name }));
         this.tagConfig.description = this.categoryFilter.length ? 'Utvalg: ' : 'Utvalg';
     }
 
@@ -1313,7 +1360,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             this.selectionList.setEditable(!busy);
             this.selectionList.busy = busy;
             if (busy) {
-                this.saveActions = this.saveActions.map(x => {x.disabled = true; return x; });
+                this.saveActions = this.saveActions.map(x => { x.disabled = true; return x; });
             } else {
                 this.saveActions = this.getSaveActions(this.payrollrun$.value);
                 this.checkDirty();
@@ -1329,7 +1376,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
         if (payrollRun.ID) {
             payrollRun.transactions = this.salaryTransactions
                 .filter(x => !x['_isEmpty'] && (x['_isDirty'] || x.Deleted))
-                .map(trans => ({...trans}))
+                .map(trans => ({ ...trans }))
                 .map(trans => this.transViewService.prepareTransForSave(trans));
         }
 
@@ -1363,9 +1410,9 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
             .subscribe(response => {
                 this.refreshTranses();
             },
-            (err) => {
-                this.errorService.handle(err);
-            }
+                (err) => {
+                    this.errorService.handle(err);
+                }
             );
     }
 

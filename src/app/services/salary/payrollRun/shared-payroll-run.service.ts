@@ -27,6 +27,14 @@ export enum SalaryBookingType {
     NoDimensions = 2,
 }
 
+export enum ActionOnPaymentReload {
+    DoNothing = 0,
+    SendToBank = 1,
+    SentToBank = 2,
+    SendToPaymentList = 3,
+}
+
+
 @Injectable()
 export class SharedPayrollRunService extends BizHttp<PayrollRun> {
     readonly payStatusProp = '_payStatus';
@@ -115,7 +123,7 @@ export class SharedPayrollRunService extends BizHttp<PayrollRun> {
         .map(response => response.body);
     }
 
-    private getPaymentsOnRun(runs: PayrollRun[], year: number) {
+    public getPaymentsOnRun(runs: PayrollRun[], year: number) {
         return this.statisticsService.GetAll(
             `model=Tracelink`
             + `&select=PayrollRun.ID as ID,Payment.StatusCode as StatusCode,Payment.PaymentDate as PaymentDate,`
@@ -127,6 +135,18 @@ export class SharedPayrollRunService extends BizHttp<PayrollRun> {
         ).map(x => x.Data);
     }
 
+    public getPaymentIDsQueuedOnPayrollRun(run: PayrollRun) {
+        return this.statisticsService.GetAll(
+            `model=Tracelink`
+            + `&select=Payment.ID as PaymentID`
+            + `&filter=SourceEntityName eq 'PayrollRun' and DestinationEntityName eq 'Payment' `
+            + `and PayrollRun.ID eq ${run.ID} `
+            + `and Payment.StatusCode eq ${StatusCodePayment.Queued}`
+            + `&join=Tracelink.DestinationInstanceId eq Payment.ID as Payment and Tracelink.SourceInstanceId eq PayrollRun.ID as PayrollRun`
+        ).map(x => x.Data);
+    }
+
+
     private setPaymentStatusOnPayrollList(payrollRuns: PayrollRun[], payments?: any[]): PayrollRun[] {
         return payrollRuns
             ? payrollRuns
@@ -134,7 +154,7 @@ export class SharedPayrollRunService extends BizHttp<PayrollRun> {
             : [];
     }
 
-    private markPaymentStatus(payrollRun: PayrollRun, payments?: any[]): PayrollRun {
+    public markPaymentStatus(payrollRun: PayrollRun, payments?: any[]): PayrollRun {
         payments = payments || payrollRun['Payments'] || [];
         if (payments.length <= 0) {
             payrollRun[this.payStatusProp] = PayrollRunPaymentStatus.None;
