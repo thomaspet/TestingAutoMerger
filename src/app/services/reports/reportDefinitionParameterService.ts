@@ -11,7 +11,7 @@ export class ReportDefinitionParameterService extends BizHttp<ReportDefinitionPa
 
         this.relativeURL = ReportDefinitionParameter.RelativeUrl;
         this.entityType = ReportDefinitionParameter.EntityType;
-        this.DefaultOrderBy = 'ID';
+        this.DefaultOrderBy = 'SortIndex,ID';
     }
 
 }

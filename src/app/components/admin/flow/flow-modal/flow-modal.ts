@@ -5,6 +5,11 @@ import { Eventplan, EventplanType, EventSubscriber } from '@uni-entities';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal';
 import { StatisticsService, JobService, ErrorService, EventplanService, GuidService } from '@app/services/services';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { QueryBuilderField, QueryBuilderOperator, QueryItem } from '@app/components/common/query-builder/query-builder';
+import * as moment from 'moment';
+import { UniHttp } from '@uni-framework/core/http/http';
+import { QueryParser } from '@app/components/bank-reconciliation/bank-statement-rules/query-parser';
+import { MatSlideToggleChange } from '@angular/material/slide-toggle';
 
 interface OperationFilterItem {
     operation: string;
@@ -33,6 +38,19 @@ export class FlowModal implements IUniModal {
     filteredModels: string[];
     filteredJobs: string[];
 
+    filterEnabled: boolean = false;
+    fields: QueryBuilderField[];
+    queryItems: QueryItem[] = [];
+
+    additionalOperators: QueryBuilderOperator[] = [
+        {
+            label: "Forandrer verdi",
+            operator: "updated",
+            isFunction: true,
+            forFieldTypes: ["text", "number", "date", "boolean"]
+        },
+    ];
+
     operationFilters: OperationFilterItem[] = [
         { operation: 'C', label: 'Oppretting' },
         { operation: 'U', label: 'Endring' },
@@ -45,12 +63,13 @@ export class FlowModal implements IUniModal {
         private errorService: ErrorService,
         private toastService: ToastService,
         private eventPlanService: EventplanService,
-        private guidService: GuidService
+        private guidService: GuidService,
+        protected http: UniHttp
     ) {
-        forkJoin(
+        forkJoin([
             statisticsService.GetAllUnwrapped('model=model&select=name'),
             jobService.getJobs()
-        ).subscribe(
+        ]).subscribe(
             res => {
                 this.models = this.filteredModels = res[0].map(d => d.ModelName);
                 this.jobs = this.filteredJobs = res[1];
@@ -82,6 +101,20 @@ export class FlowModal implements IUniModal {
         if (!this.eventPlan.Subscribers) {
             this.eventPlan.Subscribers = [<EventSubscriber> {}];
         }
+
+        if (this.eventPlan.ModelFilter) {
+            this.updateFilterModels();
+        }
+
+        if (this.eventPlan.ExpressionFilter) {
+            const parser = new QueryParser();
+            try {
+                this.queryItems = parser.parseExpression(this.eventPlan.ExpressionFilter);
+                this.filterEnabled = true;
+            } catch (e) {
+                console.error(e);
+            }
+        }
     }
 
     savePlan() {
@@ -102,6 +135,11 @@ export class FlowModal implements IUniModal {
         }
 
         this.busy = true;
+        
+        if (!this.filterEnabled) {
+            this.eventPlan.ExpressionFilter = "";
+        }
+
         this.eventPlanService.save(this.eventPlan).subscribe(
             () => this.onClose.emit(true),
             err => {
@@ -130,6 +168,14 @@ export class FlowModal implements IUniModal {
         this.filteredModels = this.models.filter(model => {
             return (model || '').toLowerCase().includes(query.toLowerCase());
         });
+    }
+
+    updateFilterModels() {
+        this.http.usingMetadataDomain()
+            .asGET()
+            .withEndPoint(`${this.eventPlan.ModelFilter}/types`)
+            .send()
+            .subscribe(a => this.setFields(a.body))
     }
 
     filterJobs(query) {
@@ -170,5 +216,96 @@ export class FlowModal implements IUniModal {
         }
 
         return true;
+    }
+
+    onQueryChange() {
+        this.eventPlan.ExpressionFilter = this.buildQueryString(this.queryItems);
+    }
+
+    private buildQueryString(items: QueryItem[]) {
+        let string = '';
+        items.forEach(item => {
+            if (!item.field || !item.operator || (!item.value && item.operator !== "updated")) {
+                return '';
+            }
+
+            if (item.logicalOperator) {
+                string += ` ${item.logicalOperator} `;
+            }
+
+            const field = this.fields.find(f => f.field === item.field);
+            let value = field && field.type === 'date'
+                ? moment(item.value).format('YYYY-MM-DD')
+                : item.value;
+
+            if (!field || field.type !== 'number') {
+                value = `'${value}'`;
+            }
+
+            const isFunctionOperator = ['contains', 'startswith', 'endswith', 'updated'].includes(item.operator);
+            
+            let query: string = "";
+            if (isFunctionOperator) {
+                if (item.operator === "updated") {
+                    const tokens = item.field.split(".");
+                    const last = tokens.splice(tokens.length - 1, 1);
+                    query = `${item.operator}(${tokens.join(".")},'${last}')`;
+                } 
+                else {
+                    query = `${item.operator}(${item.field},${value})`;
+                }
+            } 
+            else {
+                query = `${item.field} ${item.operator} ${value}`;
+            }
+
+            if (item.siblings && item.siblings.length) {
+                string += `(${query}${this.buildQueryString(item.siblings)})`;
+            } else {
+                string += query;
+            }
+        });
+
+
+        return string.replace('  ', ' ');
+    }
+
+    private parseTupleToField(tuple: [string, string]): QueryBuilderField {
+        switch (tuple[1]) {
+            case "Boolean":
+                return {
+                    label: tuple[0],
+                    field: `entry.${tuple[0]}`,
+                    type: "boolean"
+                };
+            case "Int32":
+            case "Decimal":
+                return {
+                    label: tuple[0],
+                    field: `entry.${tuple[0]}`,
+                    type: "number"
+                };
+            case "LocalDate":
+                return {
+                    label: tuple[0],
+                    field: `entry.${tuple[0]}`,
+                    type: "date"
+                };
+            case "String":
+            default:
+                return {
+                    label: tuple[0],
+                    field: `entry.${tuple[0]}`,
+                    type: "text"
+                };
+        }
+    }
+
+    private setFields(response){
+        const allowedTypes = ["Boolean", "Int32", "String", "Decimal", "LocalDate"];
+        this.fields = Object.entries(response)
+            .filter(tup => allowedTypes.includes(tup[1] as string))
+            .map(this.parseTupleToField);
+        
     }
 }
