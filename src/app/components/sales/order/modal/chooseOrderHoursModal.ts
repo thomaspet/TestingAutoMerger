@@ -405,7 +405,7 @@ export class UniChooseOrderHoursModal implements IUniModal {
             });
             this.workItems.filter(hour => hour._rowSelected).forEach(hour => this.transferredWorkItemIDs.push(hour.ID));
             this.onClose.emit({
-                items: customerOrderItems,
+                items: customerOrderItems.filter(i => !!i.ProductID),
                 transferredHoursIDs: this.transferredWorkItemIDs
             });
         });
