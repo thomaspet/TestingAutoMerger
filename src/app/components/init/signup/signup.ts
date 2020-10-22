@@ -1,5 +1,5 @@
 import {Component, ViewChild, HostBinding} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
@@ -48,8 +48,21 @@ export class Signup {
         public authService: AuthService,
         private http: UniHttp,
         private route: ActivatedRoute,
-        formBuilder: FormBuilder
+        formBuilder: FormBuilder,
+        private router: Router
     ) {
+        // temporary
+        // immediately disable sign-up for ext02 if they're not coming from prospect
+        if (theme.theme === THEMES.EXT02) {
+            this.route.queryParams.subscribe(params => {
+                if (!params['code']) {
+                    this.router.navigateByUrl('/init/login');
+                    return;
+                }
+            });
+        }
+        // end temporary
+
         this.step1Form = formBuilder.group({
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
