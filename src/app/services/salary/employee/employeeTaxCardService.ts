@@ -2,9 +2,10 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../../framework/core/http/http';
 import {EmployeeTaxCard, TaxCard, FreeAmountType} from '../../../unientities';
-import {Observable} from 'rxjs';
+import {Observable, of} from 'rxjs';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import { map } from 'rxjs/operators';
+import { FinancialYearService } from '@app/services/accounting/financialYearService';
 
 const EMPLOYEE_TAX_KEY = 'employeeTaxCard';
 
@@ -15,7 +16,10 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         { id: FreeAmountType.WithAmount, name: 'Frikort med beløp' },
         { id: FreeAmountType.NoLimit, name: 'Frikort uten beløp' }
     ];
-    constructor(protected http: UniHttp) {
+    constructor(
+        protected http: UniHttp,
+        private yearService: FinancialYearService,
+    ) {
         super(http);
         this.relativeURL = EmployeeTaxCard.RelativeUrl;
         this.entityType = EmployeeTaxCard.EntityType;
@@ -31,6 +35,15 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
         'ufoereYtelserAndre'
     ];
 
+    public save(taxCard: EmployeeTaxCard): Observable<EmployeeTaxCard> {
+        if (!taxCard) {
+            return of(null);
+        }
+        return taxCard.ID
+            ? super.Put(taxCard.ID, taxCard)
+            : super.Post(taxCard);
+    }
+
     public getNameFromFreeAmountType(freeAmountType: FreeAmountType) {
         const type = this.freeAmountTypes.find(t => t.id === freeAmountType);
         return type && type.name || this.freeAmountTypes[0].name;
@@ -45,27 +58,46 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             + '&expand=' + this.taxExpands())
             .pipe(
                 map((response: EmployeeTaxCard[]) => response[0]),
-                map((taxCard: EmployeeTaxCard) => this.CopyToNewYearIfNeeded(taxCard, activeYear))
+                map((taxCard: EmployeeTaxCard) => this.copyToNewYearIfNeeded(taxCard, activeYear))
             );
     }
 
-    private CopyToNewYearIfNeeded(employeeTaxCard: EmployeeTaxCard, year: number): EmployeeTaxCard {
+    private copyToNewYearIfNeeded(employeeTaxCard: EmployeeTaxCard, year: number): EmployeeTaxCard {
         if (!employeeTaxCard || employeeTaxCard.Year === year) {
             return employeeTaxCard;
         }
         employeeTaxCard.ID = 0;
         employeeTaxCard.Year = year;
-        const keys = Object.keys(employeeTaxCard);
-        keys
-            .filter(key => key.length > 2 && key.endsWith('ID') && !key.toLowerCase().startsWith('employee'))
+        this.getTaxCardIDKeyes(employeeTaxCard)
             .forEach(key => {
-                employeeTaxCard[key] = 0;
+                employeeTaxCard[key] = null;
                 const  taxCard = employeeTaxCard[key.replace('ID', '')];
                 if (taxCard) {
                     taxCard.ID = 0;
                 }
             });
         return employeeTaxCard;
+    }
+
+    public addCreateGuidWhereNeeded(employeeTaxCard: EmployeeTaxCard): EmployeeTaxCard {
+        this.getTaxCardIDKeyes(employeeTaxCard)
+            .map(key => key.replace('ID', ''))
+            .forEach(key => {
+                if (!employeeTaxCard[key] || employeeTaxCard[key].ID) {
+                    return;
+                }
+                employeeTaxCard[key]._createguid = super.getNewGuid();
+            });
+        if (!employeeTaxCard.ID) {
+            employeeTaxCard._createguid = super.getNewGuid();
+        }
+        return employeeTaxCard;
+    }
+
+    private getTaxCardIDKeyes(taxCard: EmployeeTaxCard): string[] {
+        return Object
+            .keys(taxCard)
+            .filter(key => key.length > 2 && key.endsWith('ID') && !key.toLowerCase().startsWith('employee'));
     }
 
     public hasTaxCard(taxcard: EmployeeTaxCard, year: number): boolean {
@@ -79,6 +111,13 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
 
     public taxExpands(): string {
         return this.expandOptionsNewTaxcardEntity.toString();
+    }
+
+    public updateModelTo2018IfNeeded(employeeTaxCard: EmployeeTaxCard, employeeID: number): Observable<EmployeeTaxCard> {
+        if (!this.isEmployeeTaxcard2018Model(employeeTaxCard) || employeeTaxCard.Year < 2018) {
+            return this.updateModelTo2018(employeeTaxCard, employeeID);
+        }
+        return of(employeeTaxCard);
     }
 
     public isEmployeeTaxcard2018Model(employeetaxcard: EmployeeTaxCard): boolean {
@@ -107,6 +146,9 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
     }
 
     public setNumericValues(employeeTaxCard: EmployeeTaxCard, year: number = 0) {
+        if (!employeeTaxCard) {
+            return employeeTaxCard;
+        }
         if (year === 0) {
             year = employeeTaxCard.Year;
         }
@@ -145,6 +187,7 @@ export class EmployeeTaxCardService extends BizHttp<EmployeeTaxCard> {
             }
 
         }
+        return employeeTaxCard;
     }
 
     public getTaxCardPercentAndTable(taxCard: EmployeeTaxCard, year = taxCard && taxCard.Year): {percent: string, table: string} {
