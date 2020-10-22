@@ -80,10 +80,10 @@ export class RegisterCompany {
     }
 
     init() {
-        forkJoin(
+        forkJoin([
             this.elsaContractService.getAll(true),
             this.elsaContractService.getContractTypes(),
-        ).subscribe(([contracts, contractTypes]) => {
+        ]).subscribe(([contracts, contractTypes]) => {
             const contract = contracts && contracts[0];
             if (contract) {
                 this.contractID = contract.ID;

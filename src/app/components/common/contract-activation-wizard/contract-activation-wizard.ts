@@ -75,7 +75,16 @@ export class ContractActivationWizard {
             customerDetails,
             this.contractType
         ).subscribe(
-            () => this.contractActivated.emit(customerDetails.OrgNumber),
+            () => {
+                if (customerDetails?.IsBankCustomer === false && this.authService.publicSettings?.BankCustomerUrl) {
+                    let url = this.authService.publicSettings.BankCustomerUrl;
+                    if (this.orgNumber) {
+                        url += `?bm-orgNumber=${this.orgNumber}`;
+                    }
+                    window.open(url, '_blank');
+                }
+                this.contractActivated.emit();
+            },
             err => {
                 this.errorService.handle(err);
                 this.activationInProgress = false;
