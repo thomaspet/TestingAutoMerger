@@ -34,6 +34,7 @@ export class NewDemo {
         this.initService.createCompany({
             ContractID: this.contractID,
             TemplateCompanyKey: this.template && this.template.Key,
+            IsTest: true,
         }).subscribe(
             () => {
                 this.error = false;
