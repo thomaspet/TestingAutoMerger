@@ -90,7 +90,7 @@ export class InitService {
     createCompany(body) {
         let endpoint = 'create-company';
 
-        if (theme.theme === THEMES.SR) {
+        if (theme.theme === THEMES.SR && !(body?.IsTest)) {
             endpoint += '?licenseStatus=3';
         }
 
