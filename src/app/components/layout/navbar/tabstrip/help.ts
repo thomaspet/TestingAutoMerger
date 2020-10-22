@@ -36,7 +36,12 @@ import {AuthService} from '@app/authService';
                     Lisensinformasjon
                 </a>
 
-                <a class="dropdown-menu-item" (click)="openChatBotWithSupport()" *ngIf="isSrEnvironment">
+                <!-- <a class="dropdown-menu-item" (click)="openChatBotWithSupport()" *ngIf="isSrEnvironment">
+                    Opprett supportsak
+                </a> -->
+
+                <!-- ChatBot support (above) is disabled temporarily, this is its replacement -->
+                <a *ngIf="supportPageUrl && isSrEnvironment" class="dropdown-menu-item" [href]="supportPageUrl" target="_blank">
                     Opprett supportsak
                 </a>
 
@@ -61,7 +66,8 @@ export class UniTabstripHelp {
 
     showBoostChat = false; // theme.theme === THEMES.SR; // || theme.theme === THEMES.EXT02;
 
-    helpdeskUrl;
+    helpdeskUrl: string;
+    supportPageUrl: string;
 
     constructor(private modalService: UniModalService, private authService: AuthService) {
         // every else-if can be removed when we're sure every environment has set HelpDeskUrl in Elsa
@@ -73,6 +79,10 @@ export class UniTabstripHelp {
             this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';
         } else if (this.isBrunoEnvironment) {
             this.helpdeskUrl = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/dnbregnskap/hjelp.html';
+        }
+
+        if (this.isSrEnvironment && this.authService.publicSettings?.SupportPageUrl) {
+            this.supportPageUrl = this.authService.publicSettings.SupportPageUrl;
         }
     }
 

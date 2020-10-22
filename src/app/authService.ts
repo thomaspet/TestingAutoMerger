@@ -25,6 +25,7 @@ export interface PublicWebSettings {
     BankCustomerUrl?: string;
     PriceListUrl?: string;
     HelpDeskUrl?: string;
+    SupportPageUrl?: string;
 }
 
 const PUBLIC_ROOT_ROUTES = [
