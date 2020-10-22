@@ -46,7 +46,7 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         },
         {
             label: 'Test årsoppgjør',
-            action: () => this.modalService.open(TaxReportModal)/*.onClose.subscribe(() => { })*/,
+            action: (done) => this.modalService.open(TaxReportModal).onClose.subscribe(done),
             disabled: false,
             main: false
         }

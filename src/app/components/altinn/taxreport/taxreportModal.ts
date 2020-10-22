@@ -5,23 +5,23 @@ import { FieldType, UniFieldLayout } from '@uni-framework/ui/uniform';
 import { IUniTableConfig, UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { IUniModal } from '@uni-framework/uni-modal';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import {switchMap, tap} from 'rxjs/operators';
 
 @Component({
     selector: 'taxreport-modal',
     templateUrl: './taxreport-modal.html'
 })
-export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
+export class TaxReportModal implements IUniModal, OnInit  {
     @ViewChild(AgGridWrapper, { static: true }) private table: AgGridWrapper;
 
     onClose = new EventEmitter();
 
-    public fields$: BehaviorSubject<Partial<UniFieldLayout>[]>;
+    public fields$: BehaviorSubject<Partial<UniFieldLayout>[]> = null;
     public current = new BehaviorSubject(new SchemaRF1167());
     keys: string[] = [];
 
     taxReport$: BehaviorSubject<TaxReport> = new BehaviorSubject(null);
-    // what is best - Dictionary (as received from backend) or own class FormRecordWithKey?
-    taxRecords$: BehaviorSubject<FormRecordWithKey[]> = new BehaviorSubject([]);// BehaviorSubject<{ Key: string, record: FormRecord}[]> = new BehaviorSubject([]);
+    taxRecords$: BehaviorSubject<FormRecordWithKey[]> = new BehaviorSubject([]);
     taxReportCode: string;
     config$: BehaviorSubject<IUniTableConfig> = new BehaviorSubject(null);
 
@@ -30,28 +30,24 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
     constructor(private taxReportService: TaxReportService) {}
 
     public ngOnInit() {
-        let taxRecords: FormRecordWithKey[];
-        this.taxReportService.GetOrCreateTaxReport()
-            .subscribe((report: TaxReport) => {
+        this.taxReportService.GetOrCreateTaxReport().pipe(
+            tap((report: TaxReport) => {
                 this.taxReport$.next(report);
                 this.taxReportCode = report.Code;
-                taxRecords = this.taxReportService.getRecords(report);
+            }),
+            switchMap((report: TaxReport) => this.taxReportService.getRecords(report))
+        ).subscribe((taxRecords: FormRecordWithKey[]) => {
                 const keys: string[] = [];
                 taxRecords.forEach((rec) => {
                     keys.push(rec.Key);
                 });
                 this.keys = keys;
                 this.taxRecords$.next(taxRecords);
-
                 this.setCurrent(taxRecords);
+                this.config$.next(this.getConfig(false));
+                this.initForm();
+                this.table$.next(this.table);
         });
-        this.config$.next(this.getConfig(false));
-
-        this.initForm();
-    }
-
-    public ngAfterViewInit(): void {
-        this.table$.next(this.table);
     }
 
     public saveAndSend() {
@@ -137,7 +133,6 @@ export class TaxReportModal implements IUniModal, OnInit, AfterViewInit  {
             debounceTime: 200,
             hideDeleteButton: true
         };
-
         this.fields$ = new BehaviorSubject(fields);
     }
 

@@ -4,9 +4,9 @@
     <article>
         <label>Skjema </label><span>{{taxReportCode}}</span>
 
-        <uni-form
+        <uni-form *ngIf="fields$"
             [config]="{}"
-            [fields]="fields$"
+            [fields]="fields$ | async"
             [model]="current">
         </uni-form>
         <ag-grid-wrapper [resource]="taxRecords$ | async" [config]="config$ | async"></ag-grid-wrapper>
