@@ -1277,7 +1277,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                     if (userInput !== ConfirmActions.ACCEPT) {
                         return of(employments);
                     }
-                    employments
+                    employments.filter(emp => emp[UPDATE_RECURRING_PERCENT])
                         .forEach((employment) => {
                             employment['CustomValues'].UpdateWorkPercent = true;
                         });
@@ -1305,7 +1305,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                     if (userInput !== ConfirmActions.ACCEPT) {
                         return of(employments);
                     }
-                    employments
+                    employments.filter(emp => emp[UPDATE_RECURRING])
                         .forEach((employment) => {
                             employment['CustomValues'].UpdateDimension = true;
                         });
