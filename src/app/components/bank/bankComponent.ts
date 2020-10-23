@@ -324,6 +324,7 @@ export class BankComponent {
                                 if (agreements && agreements.length) {
                                     this.agreements = agreements;
                                     this.hasAccessToAutobank = true;
+                                    this.initiateBank();
                                 } else {
                                     this.modalService.open(BankInitModal, {
                                         data: { user: this.authService.currentUser, cs: this.companySettings },
