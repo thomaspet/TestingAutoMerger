@@ -1,0 +1,71 @@
+<uni-incoming-balance-info>
+    {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.INFO_TEXT~' + ('COMMON.APPLICATION_NAME' | translate) | translate }}
+</uni-incoming-balance-info>
+<article>
+    <section class="uni-container">
+        <h1 class="number">1</h1>
+        <h2>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_1_HEADER' | translate }}
+        </h2>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_1_TEXT_1' | translate }}
+        </p>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_1_TEXT_2' | translate }}
+        </p>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_1_TEXT_3' | translate }}
+        </p>
+    </section>
+    <section class="uni-container">
+        <h1 class="number">2</h1>
+        <h2>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_HEADER' | translate }}
+        </h2>
+        <p>{{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_1_PART_1' | translate }}
+            <strong>
+                {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_1_STRONG' | translate }}
+            </strong>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_1_PART_2~' + ('COMMON.APPLICATION_NAME' | translate) | translate }}
+        </p>
+        <h3 class="info-header">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_2_HEADER' | translate }}
+        </h3>
+        <p class="info-text">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_2' | translate }}
+        </p>
+        <h3 class="info-header">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_3_HEADER' | translate }}
+        </h3>
+        <p class="info-text">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_3' | translate }}
+        </p>
+        <h3 class="info-header">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_4_HEADER' | translate }}
+        </h3>
+        <p class="info-text">
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_2_TEXT_4' | translate }}
+        </p>
+    </section>
+    <section class="uni-container">
+        <h1 class="number">3</h1>
+        <h2>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_3_HEADER' | translate }}
+        </h2>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_3_TEXT_1' | translate }}
+        </p>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_3_TEXT_2' | translate }}
+        </p>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_3_TEXT_3' | translate }}
+        </p>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.PREPARATION.STEP_3_TEXT_4' | translate }}
+        </p>
+    </section>
+</article>
+<footer>
+    <uni-incoming-balance-wizard-navigation [currentTab]="'preparation'"></uni-incoming-balance-wizard-navigation>
+</footer>

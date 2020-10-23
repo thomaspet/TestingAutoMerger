@@ -2,6 +2,9 @@ import {Injectable} from '@angular/core';
 import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {JournalEntryLineDraft} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
+import { map } from 'rxjs/operators';
+import { Observable, of } from 'rxjs';
+import { JournalEntryTypes } from './journal-entry-type.service';
 
 
 @Injectable()
@@ -20,5 +23,19 @@ export class JournalEntryLineDraftService extends BizHttp<JournalEntryLineDraft>
 
         // caching journalentrylinedraft requests can caused undesired effects, so diable it
         super.disableCache();
+    }
+
+    public getNewestFromTypes(types: JournalEntryTypes[]): Observable<JournalEntryLineDraft> {
+        if (!types?.length) {
+            return of(null);
+        }
+        return super.GetAll(
+                `filter=${types.map(type => `JournalEntryTypeID eq ${type}`).join(' or ')}` +
+                `&orderby=CreatedAt desc` +
+                `&top=1`
+            )
+            .pipe(
+                map(lines => lines[0]),
+            );
     }
 }

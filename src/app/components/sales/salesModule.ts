@@ -39,7 +39,6 @@ import {DebtCollection} from './reminder/debtCollection/debtCollection';
 import {SentToDebtCollection} from './reminder/sentToDebtCollection/sentToDebtCollection';
 import {TofHead} from './common/tofHead';
 import {TofCustomerCard} from './common/customerCard';
-import {CustomerEditModal} from './common/customer-edit-modal/customer-edit-modal';
 import {TofDetailsForm} from './common/detailsForm';
 import {TofDeliveryForm} from './common/deliveryForm';
 import {TofSellers} from './common/tof-sellers';
@@ -86,7 +85,6 @@ import {AprilaCreditNoteModal} from './invoice/modals/aprila-credit-note/aprila-
 
         TofHead,
         TofCustomerCard,
-        CustomerEditModal,
         TofDetailsForm,
         TofDeliveryForm,
         TofDistributionForm,

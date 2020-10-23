@@ -92,7 +92,7 @@ import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
-import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
+import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {PaymentStatus} from '@app/models/printStatus';
 import {finalize, map, tap, catchError} from 'rxjs/operators';

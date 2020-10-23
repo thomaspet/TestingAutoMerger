@@ -104,4 +104,8 @@ export const TRANSLATION_OVERRIDES = {
             'PAYROLL_RUN_TITLE': 'Lønnskjøring',
         },
     },
+
+    COMMON: {
+        'APPLICATION_NAME': 'SpareBank 1 Regnskap',
+    }
 };

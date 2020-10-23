@@ -37,8 +37,8 @@ import {IsoTimePipe, HoursPipe, NumberPipe} from './utils/pipes';
 import {MinutesToHoursPipe} from './utils/pipes';
 import {WorkTypeSystemTypePipe} from './utils/pipes';
 import {PredefinedDescriptionList} from './predefinedDescriptions/predefinedDescriptionList';
-import {QueryBuilder} from "./query-builder/query-builder";
-import {QueryBuilderItem} from "./query-builder/query-item";
+import {QueryBuilder} from './query-builder/query-builder';
+import {QueryBuilderItem} from './query-builder/query-item';
 import {LinkMenu} from './linkMenu/linkMenu';
 import {BookPaymentManualModal} from './modals/bookPaymentManual';
 import {VacationPaySettingsModal} from './modals/vacationpay/vacationPaySettingsModal';
@@ -79,6 +79,8 @@ import {ContractTypesComparison} from './contract-types-comparison/contract-type
 import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
 import {StandardVacationPayModalComponent} from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
 import {DashboardModule} from './dashboard/dashboard.module';
+import { CustomerEditModal } from './modals/customer-edit-modal/customer-edit-modal';
+import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-modal';
 
 @NgModule({
     imports: [
@@ -167,6 +169,8 @@ import {DashboardModule} from './dashboard/dashboard.module';
         ContractTypesComparison,
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        CustomerEditModal,
+        SupplierEditModal,
         QueryBuilder,
         QueryBuilderItem,
     ],
@@ -232,6 +236,8 @@ import {DashboardModule} from './dashboard/dashboard.module';
 
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        CustomerEditModal,
+        SupplierEditModal,
         QueryBuilder,
         QueryBuilderItem,
     ]

@@ -10,7 +10,7 @@ import {
 import {TofHelper} from '../salesHelper/tofHelper';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {AutocompleteOptions, Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {CustomerEditModal} from './customer-edit-modal/customer-edit-modal';
+import {CustomerEditModal} from '../../common/modals/customer-edit-modal/customer-edit-modal';
 import {cloneDeep} from 'lodash';
 import { Observable } from 'rxjs';
 

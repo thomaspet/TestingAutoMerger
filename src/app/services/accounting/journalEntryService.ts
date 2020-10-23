@@ -388,7 +388,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         }
     }
 
-    private saveJournalEntriesAsDraft(journalEntries: Array<JournalEntry>): Observable<any> {
+    public saveJournalEntriesAsDraft(journalEntries: Array<JournalEntry>): Observable<any> {
         return this.http
             .asPOST()
             .usingBusinessDomain()
@@ -416,7 +416,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(response => response.body);
     }
 
-    private creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number)
+    public creditAndBookCorrectedJournalEntries(journalEntries: Array<JournalEntry>, journalEntryID: number)
     : Observable<any> {
         return this.http
             .asPOST()
@@ -1856,8 +1856,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         // find the correct vatpercentage based on the either vatdate, financialdate or current date,
         // in that order. VatPercent may change between years, so this needs to be checked each time,
         // because changing dates, account, or vattypes may change what vatpercent to use
-        
-        const vatDate = this.companySettings.UseFinancialDateToCalculateVatPercent === true ? 
+
+        const vatDate = this.companySettings.UseFinancialDateToCalculateVatPercent === true ?
                 moment(journalEntryData.FinancialDate) :
             journalEntryData.VatDate ?
                 moment(journalEntryData.VatDate) :

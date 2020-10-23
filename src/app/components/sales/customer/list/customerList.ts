@@ -16,7 +16,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
-import {CustomerEditModal} from '../../common/customer-edit-modal/customer-edit-modal';
+import {CustomerEditModal} from '../../../common/modals/customer-edit-modal/customer-edit-modal';
 
 @Component({
     selector: 'customer-list',

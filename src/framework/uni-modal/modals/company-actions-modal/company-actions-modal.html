@@ -5,11 +5,11 @@
         <h2>Hva vil du gjøre nå?</h2>
 
         <ul>
-            <li (click)="navigate('/settings/opening-balance')" *ngIf="isBrunoEnvironment">
+            <li (click)="navigate('/settings/accounting/incoming-balance/choice')">
                 <i class="material-icons with-border">add</i>
                 <section class="link-info">
-                    <strong>Åpningsbalanse</strong>
-                    <span>Registrer åpningsbalanse</span>
+                    <strong>Inngående balanse</strong>
+                    <span>Registrer inngående balanse</span>
                 </section>
             </li>
             <li (click)="navigate('/bank/ticker?code=bank_list')" *ngIf="isSrEnvironment">

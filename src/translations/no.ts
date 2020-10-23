@@ -220,7 +220,7 @@ export const NO = {
         'AUTO_BANK': 'Autobank',
         'COMPANY': 'Firma',
         'CURRENCY': 'Valuta',
-        'OPENING_BALANCE': 'Åpningsbalanse',
+        'OPENING_BALANCE': 'Inngående balanse',
         'BOOK_FROM_SYSTEM': 'Bokfør kun utbetalinger fra UniEconomy',
         'AUTO_BANK_INFOTEXT': 'Huk av "Bokfør kun utbetalinger fra UniEconomy" om du ønsker at utbetalinger som ikke er sendt fra systemet (som ikke har EndToEndID) ikke blir bokført',
 
@@ -256,9 +256,10 @@ export const NO = {
         'ELECTRONIC_INVOICE_INFOTEXT': 'Her kan du aktivere EHF og Fakturaprint. Om du ikke har kjøpt tjenestene, vil vi ta deg til markedsplassen først.',
         'PERIODE_AND_VAT_INFOTEXT': 'Registrering av MVA-status for selskapet, MVA-perioder og type næring for MVA-formål. Her sperrer man også henholdsvis bokføring og MVA-føringer i regnskapet.',
         'CURRENCY_INFOTEXT': 'Valg av standard valuta for selskapet og hovedbokskonto for valutaposteringer.',
-        'OPENING_BALANCE_INFOTEXT': 'Har du et nystiftet aksjeselskap, kan du registrere åpningsbalansen din ved hjelp av denne veiviseren.',
-        'OPENING_BALANCE_TEXT': 'Kom i gang med regnskapet ditt, og register åpningsbalanse nå!',
-        'OPENING_BALANCE_BUTTON': 'Registrer åpningsbalanse',
+        'OPENING_BALANCE_INFOTEXT': 'Har du et selskap der det er ført transaksjoner i tidligere perioder, bruker du denne veiveiseren for å registrere inngående balanse.',
+        'OPENING_BALANCE_TEXT': 'Du har ikke registrert inngående balanse',
+
+        'OPENING_BALANCE_BUTTON': 'Registrer inngående balanse',
         'AGA_SETTINGS1': 'Firmanavn og organisasjonsnummer fylles automatisk ut dersom man har hentet opplysninger fra Brønnøysundregisteret under Firmaoppsett.',
         'AGA_SETTINGS2': 'Oppsett av sone og beregningsregel for arbeidsgiveravgift. Dersom virksomheten er omfattet av ordning for fribeløp får du oversikt over gjenstående fribeløp her.',
         'REMINDER_SETTINGS_INFOTEXT': 'Overordnede innstillinger for purrede utgående faktura og betingelser for å purre. Antall purringer før inkasso må matche regler i bunnen av bilde.',
@@ -279,7 +280,112 @@ export const NO = {
         'VACATION_PAY_BASE_INFOTEXT':'Har du ansatte som allerede har opptjent seg feriepengegrunnlag registrerer du det her.',
         'FACTORING_INFOTEXT': 'Oppsett av factoring mot selskap',
         'CORPORATE_TAX_INFOTEXT': 'Kryss av og fyll inn hvis det skal beregnes og betales finansskatt av lønn.',
-        'FEE_INFOTEXT': 'Skatte- og avgiftsregler er en gruppe skatteregler for spesielle organisasjoner.  Aktiveres en skatteregel vil den bli tilgjengelig for dette selskapet som valg under a-meldingsinformasjon på lønnsarten. Et selskap kan aktivere flere regler, men en lønnsart kan bare kobles mot en skatte- og avgiftsregel.'
+        'FEE_INFOTEXT': 'Skatte- og avgiftsregler er en gruppe skatteregler for spesielle organisasjoner.  Aktiveres en skatteregel vil den bli tilgjengelig for dette selskapet som valg under a-meldingsinformasjon på lønnsarten. Et selskap kan aktivere flere regler, men en lønnsart kan bare kobles mot en skatte- og avgiftsregel.',
+
+        INCOMING_BALANCE: {
+            START: {
+                'REGISTER_HEADER': 'Registrer inngående balanse',
+                'REGISTER_TEXT': 'Ditt selskap har tidligere ført regnskap i et annet system. Her kan du registrere inngående balanse manuelt. Vår veiviser vil vise deg steg for steg hvordan du gjør dette. Har du ingen tidligere transaksjoner ',
+                'CLICK_HERE': 'klikk her',
+                'REGISTER_LABEL': 'Legg inn inngående balanse',
+                'RECOMENDED': 'Anbefalt',
+                'ADVANCED_REGISTRATION_HEADER': 'Avansert registrering',
+                'ADVANCED_REGISTRATION_TEXT' : 'Du kan også bruke SAF-T import eller import av Excel-filer for å registrere din inngående balanse. Disse metodene er mer avanserte og fordrer mer regnskapskompetanse. Det kan likevel være en fordel om du har mye data som skal inn, f.eks om du har mange kunder eller leverandører med åpne poster (Regninger eller kundefaktura som ikke er betalt) eller mange poster i saldobalansen din.',
+                'ADVANCED_REGISTRATION_SEE_MORE': 'Se avansert',
+                'SAF-T': 'SAF-T',
+                'SAF-T_TEXT': 'Alle regnskapssystemer kan generere en SAF-T fil og denne løsningen er laget for å få alle data på plass på en enkel måte. Ved import fra noen systemer kan imidlertid mer komplekse problemstillinger oppstå. Vi anbefaler derfor denne løsningen bare for brukere med god regnskapsforståelse elle med hjelp av regnskapsfører.',
+                'IMPORT_LINK_LABEL': 'Gå til importsentralen',
+                'EXCEL_IMPORT_HEADER': 'Import via Excel',
+                'EXCEL_IMPORT_TEXT': 'Dersom du har rapporter på saldobalanse, åpne kunde- og leverandørposter i excel, kan du via omportsentralen vår importere inngående balanse. Før du kan importere åpne poster på kunde og leverandør må du gjore noen endringer i Excel-filene.',
+            },
+            MAIN: {
+                'SAVE_DRAFT_LABEL': 'Lagre kladd',
+                'UNLOCK_LABEL': 'Lås opp inngående balanse',
+                'BOOK_LABEL': 'Lagre inngående balanse',
+                'DRAFT_SAVE_CONFIRM_TOAST': 'Kladd er lagret',
+            },
+            PREPARATION: {
+                'INFO_TEXT': 'Her er tre ting du må gjøre før du begynner å registrere inngående balanse i {appName}',
+                'STEP_1_HEADER': 'Avslutt regnskapet i det gamle regnskapsprogrammet',
+                'STEP_1_TEXT_1': 'Gå gjennom regnskapet',
+                'STEP_1_TEXT_2': 'Har du regninger eller salgsfaktura som er betalt, men der betalingen ikke er bokført, gjør dette.',
+                'STEP_1_TEXT_3': 'Har du bokført både faktura og betaling, men ikke koblet(lukket) disse postene mot hverandre, må du gjøre dette.',
+                'STEP_2_HEADER': 'Hent ut rapporter',
+                'STEP_2_TEXT_1_PART_1': 'Ta ut disse tre rapportene ',
+                'STEP_2_TEXT_1_STRONG': 'datert dagen før din startdato',
+                'STEP_2_TEXT_1_PART_2': ' i {appName}:',
+                'STEP_2_TEXT_2_HEADER': 'Åpne poster - kunder',
+                'STEP_2_TEXT_2': 'Rapport over hva kunder skylder deg.',
+                'STEP_2_TEXT_3_HEADER': 'Åpne poster - Leverandør',
+                'STEP_2_TEXT_3': 'Rapport over hva du skylder dine leverandører.',
+                'STEP_2_TEXT_4_HEADER': 'Saldobalanse/Balanserapport',
+                'STEP_2_TEXT_4': 'Oversikt over saldo på alle hovedbokskontoer på valgt dato.',
+                'STEP_3_HEADER': 'Sjekk at alt balanserer',
+                'STEP_3_TEXT_1': 'Det er viktig at summen av hele saldobalansen er lik 0.',
+                'STEP_3_TEXT_2': 'Sjekk at totalsummen av åpne poster på kunde stemmer overens med summen på konto 1500 i saldobalansen.',
+                'STEP_3_TEXT_3': 'Sjekk at totalsummen av åpne poster på leverandør stemmer overens med summen på konto 2400 i saldobalansen.',
+                'STEP_3_TEXT_4': 'Er det differanser på noen av disse må du gå tilbake til ditt gamle regnskap og rette opp.',
+            },
+            DATE: {
+                'INFO_TEXT': 'Det er viktig at det gamle regnskapet er ferdigstilt og avstemt på en gitt dato, og at du velger siste dato i regnskapet fra tidligere system når du legger inn inngående balanse. Hvis du for eksempel starter å bruke {appName} 1.september, henter du ut saldobalanse for 31. august',
+                'DATE_LABEL': 'Hva er den første dagen du skal føre regnskap i {appName}?',
+            },
+            LIST: {
+                'INFO_TEXT': 'Fyll inn dataene fra saldobalanse-rapporten fra ditt gamle system. Sjekk at differansen på saldoen går i null i rapporten. Gjør den ikke det må du gå tilbake og finne ut hva som er feil og korrigere det i ditt gamle system. Når rapporten er korrekt legger du tallene inn her. Det er viktig at alle tallene du legger inn stemmer overens med de i rapporten, bruk samme fortegn som i rapporten. Når differansen er 0,00 kan du gå videre og registrere åpne poster på kunder og leverandører om du har dette',
+                'ACCOUNT_LABEL': 'Konto',
+                'ACCOUNT_NAME_LABEL': 'Kontonavn',
+                'AMOUNT_LABEL': 'Beløp',
+            },
+            CUSTOMERS: {
+                'INFO_TEXT': 'Her legger du inn dataene fra rapporten på "Åpne poster kunde". Totalsummen her skal være den samme som på konto 1500 i saldorapporten din. Det er viktig at alle tallene du legger inn stemmer overens med tallene i rapporten, bruk samme fortegn som i rapporten. Først når differansen er 0,00, kan du gå videre',
+                'CUSTOMER_LABEL': 'Kunde',
+                'EMPTY_STATE_TEXT': 'I følge saldobalansen har du ingenting å registrere på Åpne poster kunde.'
+            },
+            SUPPLIERS: {
+                'INFO_TEXT': 'Her legger du inn dataene fra rapporten på "Åpne poster leverandør". Totalsummen her skal være den samme som  på konto 2400 i saldorapporten din. Det er viktig at alle tallene du legger inn stemmer overens med tallene i rapporten, bruk samme fortegn som i rapporten. Først når differansen er 0,00, kan du gå videre og velge å lagre den inngående balansen.',
+                'SUPPLIER_LABEL': 'Leverandør',
+                'EMPTY_STATE_TEXT': 'I følge saldobalansen har du ingenting å registrere på Åpne poster leverandør. Du kan nå lagre den inngående balansen.'
+            },
+            BOOKING_MODAL: {
+                'HEADER': 'Du har nå registrert din inngående balanse!',
+                'TEXT': 'Inngående balanse er bokført med bilagsnummer',
+            },
+            ROUTING_MODAL: {
+                'HEADER': 'Registrere inngående balanse',
+                'QUESTION': 'Er selskapet nystiftet uten tidligere transaksjoner?',
+                'YES_TEXT': 'Selskapet er nystiftet uten tidligere transaksjoner',
+                'NO_TEXT': 'Selskapet har tidligere ført regnskap i et annet system',
+            },
+            UNLOCK_MODAL: {
+                'HEADER': 'Lås opp inngående balanse',
+                'TEXT_PART_1': 'Inngående balanse er bokført med bilagsnummer',
+                'TEXT_PART_2': 'når du velger å låse opp og gjøre endringer vil det opprinnelige bilaget krediteres og det vil bli opprettet et nytt i regnskapet.',
+                'UNLOCK_BUTTON_LABEL': 'Lås opp',
+            },
+            TOTALS: {
+                'TOTAL': 'Totalt: ',
+                'DIFF': 'Differanse: ',
+            },
+            NAVIGATION: {
+                'BACK_TO_START': ' Tilbake til start',
+                'PREPARATION': '1. Forberedelser',
+                'DATE': '2. Dato',
+                'BALANCE': '3. Saldobalansen',
+                'CUSTOMERS': '4. Åpne poster kunde',
+                'SUPPLIERS': '5. Åpne poster leverandør',
+            },
+            INFO: {
+                'CREATED_MESSAGE': 'Inngående balanse opprettet',
+                'JOURNAL_ENTRY_NUMBER_LABEL': 'Bilagsnummer',
+            },
+            COMMON: {
+                'TITLE': 'Inngående balanse etablert firma',
+                'NEW_LINE_LABEL': '+ Legg til ny linje',
+                'FROM_BALANCE': 'Fra saldobalansen:',
+                'AMOUNT_LABEL': 'Beløp',
+                'INVOICE_LABEL': 'Fakturanummer',
+            }
+        },
     },
 
     NAVBAR: {
@@ -383,7 +489,7 @@ export const NO = {
         'PURCHASES': 'Produktkjøp',
         'BANK_SETTINGS': 'Bankinnstillinger',
         'ASSETS': 'Eiendeler',
-        'OPENING_BALANCE': 'Åpningsbalanse'
+        'OPENING_BALANCE': 'Inngående balanse nyetablert firma'
     },
 
     COMMON: {
@@ -391,6 +497,12 @@ export const NO = {
         'CANCEL': 'Avbryt',
         'SAVE': 'Lagre',
         'CLOSE': 'Lukk',
+        'APPLICATION_NAME': 'Uni Economy',
+        'NEXT': 'Neste',
+        'BACK': 'Tilbake',
+        'YES': 'Ja',
+        'NO': 'Nei',
+        'CONTINUE': 'Fortsett',
     },
 
     DASHBOARD: {

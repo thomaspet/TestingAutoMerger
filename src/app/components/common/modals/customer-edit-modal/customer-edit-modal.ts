@@ -123,7 +123,6 @@ export class CustomerEditModal implements IUniModal {
             if (numberSerie) {
                 this.numberSeriesChange(numberSerie);
             }
-            
             this.fields$.next(this.getFormFields());
             if (this.numberSeries.length > 1) {
                 const fields = this.fields$.getValue();

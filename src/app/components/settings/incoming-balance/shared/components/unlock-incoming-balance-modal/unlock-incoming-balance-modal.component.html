@@ -1,0 +1,15 @@
+<section role="dialog" class="uni-modal">
+    <article>
+        <img [src]="'themes/incoming-balance-existing-unlock.svg'"/>
+        <h3>{{ 'SETTINGS.INCOMING_BALANCE.UNLOCK_MODAL.HEADER' | translate }}</h3>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.UNLOCK_MODAL.TEXT_PART_1' | translate }}
+            <a (click)="routeTo(options.data)">{{options.data}}</a>,
+            {{ 'SETTINGS.INCOMING_BALANCE.UNLOCK_MODAL.TEXT_PART_2' | translate }}
+        </p>
+    </article>
+    <footer>
+        <button class="secondary" (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="c2a" (click)="accept()">{{ 'SETTINGS.INCOMING_BALANCE.UNLOCK_MODAL.UNLOCK_BUTTON_LABEL' | translate }}</button>
+    </footer>
+</section>

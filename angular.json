@@ -389,6 +389,14 @@
                   "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext01/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext01/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -446,6 +454,14 @@
                   "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext01/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext01/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -487,6 +503,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/ext01/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext01/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext01/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -545,6 +569,14 @@
                   "with": "src/themes/ext01/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext01/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext01/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext01.ts"
                 },
@@ -599,6 +631,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/ext01/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext01/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext01/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -749,7 +789,15 @@
                 },
                 {
                   "replace": "src/themes/wagetype.svg",
-                  "with": "src/themes/ext01/wagetype.svg"
+                  "with": "src/themes/softrig/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/softrig/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/softrig/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -885,6 +933,14 @@
                   "with": "src/themes/softrig/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/softrig/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/softrig/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.softrig.ts"
                 },
@@ -939,6 +995,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/softrig/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/softrig/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/softrig/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -997,6 +1061,14 @@
                   "with": "src/themes/softrig/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/softrig/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/softrig/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.softrig.ts"
                 },
@@ -1042,6 +1114,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/ext02/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext02/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext02/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -1094,6 +1174,14 @@
                   "with": "src/themes/ext02/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext02/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext02/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
                 },
@@ -1138,6 +1226,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/ext02/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext02/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext02/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",
@@ -1190,6 +1286,14 @@
                   "with": "src/themes/ext02/wagetype.svg"
                 },
                 {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext02/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext02/incoming-balance-existing-unlock.svg"
+                },
+                {
                   "replace": "src/themes/theme.ts",
                   "with": "src/themes/theme.ext02.ts"
                 },
@@ -1238,6 +1342,14 @@
                 {
                   "replace": "src/themes/wagetype.svg",
                   "with": "src/themes/ext02/wagetype.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance.svg",
+                  "with": "src/themes/ext02/incoming-balance.svg"
+                },
+                {
+                  "replace": "src/themes/incoming-balance-existing-unlock.svg",
+                  "with": "src/themes/ext02/incoming-balance-existing-unlock.svg"
                 },
                 {
                   "replace": "src/themes/theme.ts",

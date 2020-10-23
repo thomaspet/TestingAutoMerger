@@ -114,8 +114,13 @@
             <section class="col-md-8">
                 <section class="uni-card">
                     <section class="uni-card-content opening-balance-uni-card-content">
-                        <p> {{ 'SETTINGS.OPENING_BALANCE_TEXT' | translate }} </p>
-                        <button [routerLink]="['/settings/opening-balance']"> {{ 'SETTINGS.OPENING_BALANCE_BUTTON' | translate }} </button>
+                        <a *ngIf="incomingBalanceJournalEntryNumber" (click)="routeToJournalEntry(incomingBalanceJournalEntryNumber)">
+                            {{incomingBalanceJournalEntryNumber}}
+                        </a>
+                        <p *ngIf="!incomingBalanceJournalEntryNumber">
+                            {{ 'SETTINGS.OPENING_BALANCE_TEXT' | translate }}
+                        </p>
+                        <button [routerLink]="['/settings/accounting/incoming-balance/choice']"> {{ 'SETTINGS.OPENING_BALANCE_BUTTON' | translate }} </button>
                     </section>
                 </section>
             </section>
