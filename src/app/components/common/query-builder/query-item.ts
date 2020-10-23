@@ -11,6 +11,8 @@ export class QueryBuilderItem {
     @Input() fields: QueryBuilderField[];
     @Input() operators: QueryBuilderOperator[];
     @Input() hideLogicalOperator: boolean;
+    @Input() siblingDepth: number = 0;
+    @Input() siblingMaxDepth: number = 0;
 
     @Output() itemChange = new EventEmitter<QueryItem>();
     @Output() remove = new EventEmitter();

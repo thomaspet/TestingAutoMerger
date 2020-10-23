@@ -9,7 +9,7 @@
 <section *ngIf="supportUsers.length > 0 && showDialog" class="show-more-dialog" (clickOutside)="showDialog = false" [@slideInOut]>
     <section class="dialog-body">
         <div style="font-weight: 500;">{{supportUsers[0].DisplayName}}</div>
-        <span>supportbruker har midlertidig tilgang til ditt regnskap</span>
+        <span>{{this.supportUsers[0]['_supportTypeText']}} har midlertidig tilgang til ditt regnskap</span>
     </section>
     <footer>
         <button class="c2a" (click)="deactivateSupportUser()" [disabled]="!isAdmin">

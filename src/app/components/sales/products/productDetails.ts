@@ -158,9 +158,10 @@ export class ProductDetails {
     }
 
     private setContextmenu() {
-        if (this.modalMode) {
+        if (this.modalMode || !this.productId) {
             return;
         }
+
         this.productService.GetAction(this.productId, 'transitions').subscribe((transitions) => {
 
             this.toolbarconfig.contextmenu = [
@@ -239,6 +240,16 @@ export class ProductDetails {
 
             if (response && response[1]) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
+            }
+            
+            if (!this.product$.getValue().AccountID) {
+                this.product$.getValue().AccountID = this.defaultSalesAccount.ID;
+                this.product$.getValue().Account = this.defaultSalesAccount;
+            }
+
+            if (!this.product$.getValue().VatTypeID) {
+                this.product$.getValue().VatTypeID = this.defaultSalesAccount.VatTypeID;
+                this.product$.getValue().VatType = this.defaultSalesAccount.VatType;
             }
 
             if (this.productId && this.featurePermissionService.canShowUiFeature('ui.sales.products.product_categories')) {
@@ -356,7 +367,9 @@ export class ProductDetails {
                 if (updatedValue.invalid) {
                     const errorMessage = this.getAccountErrorMessage(updatedValue);
                     this.toastService.addToast(errorMessage, ToastType.warn, ToastTime.short);
+                    this.productSavedInModalMode.emit(null);
                     completeEvent("");
+
                     return;
                 }
 
@@ -379,7 +392,9 @@ export class ProductDetails {
                 if (newProduct.invalid) {
                     const errorMessage = this.getAccountErrorMessage(newProduct);
                     this.toastService.addToast(errorMessage, ToastType.warn, ToastTime.short);
+                    this.productSavedInModalMode.emit(null);
                     completeEvent("");
+
                     return;
                 }
                 if (this.modalMode) {

@@ -18,13 +18,17 @@
             <label>
                 <span>Entitet</span>
 
-                <input type="search" spellcheck="false"
+                <input
+                    type="search" spellcheck="false"
                     [matAutocomplete]="modelAutocomplete"
                     [(ngModel)]="eventPlan.ModelFilter"
                     (ngModelChange)="filterModels($event)"
                     (keydown.esc)="$event.stopPropagation()"
                 />
-                <mat-autocomplete #modelAutocomplete="matAutocomplete">
+                <mat-autocomplete 
+                    autoActiveFirstOption
+                    (optionSelected)="updateFilterModels()"
+                    #modelAutocomplete="matAutocomplete">
                     <mat-option *ngFor="let model of filteredModels" [value]="model">
                         {{model}}
                     </mat-option>
@@ -65,6 +69,39 @@
                         <span>{{filter.label}}</span>
                     </li>
                 </section>
+            </section>
+        </section>
+
+        <section class="setup-step">
+            <section class ="header">
+                <label class="uni-label label-left">
+                    <i class="material-icons">filter_list</i>
+                    Filter
+                    <mat-slide-toggle
+                        (change)="this.filterEnabled = $event.checked;"
+                        [checked]="this.filterEnabled"
+                        [labelPosition]="'before'">
+                    </mat-slide-toggle>
+                </label>
+
+                <span class="model-filter-error"
+                      *ngIf="this.filterEnabled && (!this.fields || this.eventPlan.ModelFilter ==='*')">
+                    <i class="material-icons">error_outline</i>
+                    {{ this.eventPlan.ModelFilter ==="*" ? "Støtter ikke '*'" : "Velg entitet først" }}
+                </span>
+            </section>
+
+
+            <section
+                class="content"
+                *ngIf="this.filterEnabled && this.fields && this.eventPlan.ModelFilter !=='*'">
+                <query-builder
+                    (queryChange)="onQueryChange()"
+                    [(query)]="queryItems"
+                    [siblingMaxDepth]=6
+                    [additionalOperators]="additionalOperators"
+                    [fields]="fields">
+                </query-builder>
             </section>
         </section>
 

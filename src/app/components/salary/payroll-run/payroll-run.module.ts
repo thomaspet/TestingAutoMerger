@@ -20,6 +20,7 @@ import { PayrollRunRoutingModule } from './payroll-run-routing.module';
 import { SalaryTransactionChangeService } from './services/salary-transaction-change.service';
 import { PayrollRunLayoutService } from './services/payroll-run-layout.service';
 import {NewPayrollRunGuard} from './new-payroll-run.guard';
+import { PayrollToPaymentModal } from './modals/to-payment-modal/payroll-to-payment-modal';
 
 @NgModule({
     imports: [
@@ -40,6 +41,7 @@ import {NewPayrollRunGuard} from './new-payroll-run.guard';
         PaycheckSendingComponent,
         PayrollRunDetailsComponent,
         PayrollRunListComponent,
+        PayrollToPaymentModal,
     ],
     providers: [
         PayrollRunDetailsService,
