@@ -10,9 +10,7 @@ export const DASHBOARD_CONFIGS = {
             'PUBLIC_DUEDATES',
 
             'UNPAID',
-            'UNPAID_BILLS',
-
-            'LIQUIDITY',
+            'UNPAID_BILLS'
         ]
     },
     sales: {
