@@ -833,7 +833,16 @@ export class ProductDetails {
             if (modalResult === ConfirmActions.ACCEPT) {
                 return this.save()
                     .catch(err => Observable.of(false))
-                    .map(res => !!res);
+                    .map(res => {
+                        if (res.invalid) {
+                            this.toastService.addToast(
+                                this.getAccountErrorMessage(res), 
+                                ToastType.warn,
+                                ToastTime.short);
+                            return false;
+                        }
+                        return !!res;
+                    });
             }
             return Observable.of(modalResult !== ConfirmActions.CANCEL);
         });
