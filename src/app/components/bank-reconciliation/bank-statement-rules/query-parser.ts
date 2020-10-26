@@ -36,7 +36,7 @@ export class QueryParser {
             } else if (tokens[0].type === 'FUNC') {
                 const parts = tokens.splice(0, 6);
 
-                // We have to combine the parameter sto get the field name here, as there is no real value
+                // We have to combine the parameters to get the field name here, as there is no "value"
                 if (parts[0].value === "updated") {
                     queryItems.push({
                         field: `${parts[2].value}.${parts[4].value.replace("'","")}`,
@@ -128,7 +128,7 @@ export class QueryParser {
         this.tokens.push(token);
     }
 
-    private tokenize(str: string): Token[] {
+    tokenize(str: string): Token[] {
         str = str.trim();
         let s = '';
         let isFuncCandidate = false;

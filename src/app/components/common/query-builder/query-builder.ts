@@ -29,6 +29,7 @@ export interface QueryBuilderOperator {
     styleUrls: ['./query-builder.sass']
 })
 export class QueryBuilder {
+    @Input() disableAddButton: boolean = false;
     @Input() fields: QueryBuilderField[];
     @Input() query: QueryItem[];
     @Input() siblingMaxDepth: number = 0;

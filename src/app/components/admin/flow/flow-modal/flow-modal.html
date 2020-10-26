@@ -16,26 +16,6 @@
             </label>
 
             <label>
-                <span>Entitet</span>
-
-                <input
-                    type="search" spellcheck="false"
-                    [matAutocomplete]="modelAutocomplete"
-                    [(ngModel)]="eventPlan.ModelFilter"
-                    (ngModelChange)="filterModels($event)"
-                    (keydown.esc)="$event.stopPropagation()"
-                />
-                <mat-autocomplete 
-                    autoActiveFirstOption
-                    (optionSelected)="updateFilterModels()"
-                    #modelAutocomplete="matAutocomplete">
-                    <mat-option *ngFor="let model of filteredModels" [value]="model">
-                        {{model}}
-                    </mat-option>
-                </mat-autocomplete>
-            </label>
-
-            <label>
                 <span>
                     Privat nøkkel 
                     <uni-tooltip
@@ -47,6 +27,53 @@
                     [(ngModel)]="eventPlan.SigningKey"
                 />
             </label>
+
+            <section>
+
+                <label class="entity-model">
+                    <span>Entitet</span>
+
+                        <input
+                            type="search" spellcheck="false"
+                            [matAutocomplete]="modelAutocomplete"
+                            [(ngModel)]="modelQuery"
+                            (ngModelChange)="filterModels($event)"
+                            (keydown.esc)="$event.stopPropagation()"/>
+
+                        <mat-autocomplete 
+                            autoActiveFirstOption
+                            (optionSelected)="entityOptionSelected()"
+                            #modelAutocomplete="matAutocomplete">
+
+                            <mat-option *ngFor="let model of filteredModels" [value]="model">
+                                {{model}}
+                            </mat-option>
+
+                        </mat-autocomplete>
+
+                </label>
+
+                <label>
+                    <span></span>
+                    <section class="active-filters-display"
+                        *ngIf="selectedModelsLength > 0">
+
+                        <section class="active-filter" *ngFor="let model of selectedModels | keyvalue">
+                            <span>{{model.key}}</span>
+                            <i class="material-icons" (click)="removeModel(model.key)">close</i>
+                        </section>
+
+                        <span *ngIf="selectedModelsLength > 1"
+                            role="button"
+                            class="clear-all"
+                            (click)="resetSelectedModels()">
+                            Fjern alle
+                        </span>
+                    </section>
+                </label>
+
+            </section>
+
         </section>
 
         <section class="setup-step">
@@ -78,30 +105,48 @@
                     <i class="material-icons">filter_list</i>
                     Filter
                     <mat-slide-toggle
-                        (change)="this.filterEnabled = $event.checked;"
-                        [checked]="this.filterEnabled"
+                        (change)="filterEnabled = $event.checked;"
+                        [checked]="filterEnabled"
                         [labelPosition]="'before'">
                     </mat-slide-toggle>
+
+                    <span class="model-filter-error"
+                        *ngIf="filterEnabled
+                               && (selectedModelsLength === 0
+                               || selectedModels['Alle (*)'])">
+                        <i class="material-icons">error_outline</i>
+                        {{ selectedModels['Alle (*)'] ? "Støtter ikke '*'" : "Velg entitet først" }}
+                    </span>
                 </label>
-
-                <span class="model-filter-error"
-                      *ngIf="this.filterEnabled && (!this.fields || this.eventPlan.ModelFilter ==='*')">
-                    <i class="material-icons">error_outline</i>
-                    {{ this.eventPlan.ModelFilter ==="*" ? "Støtter ikke '*'" : "Velg entitet først" }}
-                </span>
             </section>
-
 
             <section
                 class="content"
-                *ngIf="this.filterEnabled && this.fields && this.eventPlan.ModelFilter !=='*'">
-                <query-builder
-                    (queryChange)="onQueryChange()"
-                    [(query)]="queryItems"
-                    [siblingMaxDepth]=6
-                    [additionalOperators]="additionalOperators"
-                    [fields]="fields">
-                </query-builder>
+                *ngIf="this.filterEnabled
+                        && this.selectedModelsLength > 0
+                        && !selectedModels['Alle (*)']">
+
+                <section class="add-filter-buttons">
+                    <button *ngFor="let model of selectedModels | keyvalue"
+                        (click)="addQueryItem(model.key)"
+                        class="tertiary c2a">
+                        <i class="material-icons">add</i>
+                            {{model.key}}
+                    </button>
+                </section>
+
+                <div *ngFor="let model of selectedModels | keyvalue">
+                    <span *ngIf="model.value.queryItems.length">{{model.key}}</span>
+                    <query-builder 
+                        (queryChange)="onQueryChange(model.key)"
+                        [(query)]="model.value.queryItems"
+                        [siblingMaxDepth]=6
+                        [additionalOperators]="additionalOperators"
+                        [fields]="model.value.fields"
+                        [disableAddButton]="true">
+                    </query-builder>
+                </div>
+
             </section>
         </section>
 

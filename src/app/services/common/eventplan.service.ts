@@ -19,7 +19,7 @@ export class EventplanService extends BizHttp<Eventplan> {
         super(http);
         this.relativeURL = Eventplan.RelativeUrl;
         this.entityType = Eventplan.EntityType;
-        this.defaultExpand = ['Subscribers'];
+        this.defaultExpand = ['Subscribers', 'ExpressionFilters'];
     }
 
     save(eventplan: Eventplan): Observable<Eventplan> {

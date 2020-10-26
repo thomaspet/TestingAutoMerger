@@ -1,6 +1,6 @@
 
 <section class="item-container">
-    <i class="material-icons" *ngIf="!hideLogicalOperator">subdirectory_arrow_right</i>
+    <i class="material-icons" *ngIf="!hideLogicalOperator && siblingDepth > 0">subdirectory_arrow_right</i>
 
     <section class="logical-operator" *ngIf="!hideLogicalOperator">
         <ng-container>
