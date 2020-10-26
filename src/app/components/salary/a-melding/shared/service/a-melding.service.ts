@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {Observable, of, combineLatest} from 'rxjs';
+import {Observable, of, forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
 import { AmeldingData, PayrollRunInAmeldingPeriod, SalBalType, StdWageType } from '@uni-entities';
@@ -125,7 +125,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
 
     public CheckGarnishmentInPayroll(year: number, period: number ): Observable<Boolean> {
         const filter = `month(PayrollRun.Paydate) eq ${period} and year(PayrollRun.Paydate) eq ${year} and isnull(PayrollRun.StatusCode,0) gt 0`;
-        return combineLatest([this.statisticsService
+        return forkJoin([this.statisticsService
         .GetAllUnwrapped(
             `Select=count(ID) as count&` +
             `model=PayrollRun&` +
@@ -140,10 +140,10 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             `model=SalaryBalanceLine&` +
             `expand=SalaryBalance,SalaryTransaction,SalaryTransaction.PayrollRun&` +
             `join=WageType on SalaryTransaction.WageTypeId eq WageType.Id and WageType.ValidYear ge 2021&` +
-            `filter= ` + filter + ` and SalaryBalance.InstalmentType ge ${SalBalType.Garnishment}` +
+            `filter= ` + filter + ` and SalaryBalance.InstalmentType eq ${SalBalType.Garnishment}` +
                 ` and (isnull(WageType.IncomeType, 'null') ne 'Utleggstrekk'  or isnull(WageType.Description, 'null') ne 'utleggstrekkSkatt' )`
-        )])
-        .mergeMap(([paytrans, salarytrans]) => Observable.of(paytrans[0].count === 0  && salarytrans[0].count === 0));
+        )]).pipe(
+            map(([paytrans, salarytrans]) => (paytrans[0].count === 0  && salarytrans[0].count === 0)));
     }
 
 

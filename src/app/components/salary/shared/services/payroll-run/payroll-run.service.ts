@@ -276,7 +276,7 @@ export class PayrollRunService {
                 `model=SalaryBalanceLine&` +
                 `expand=SalaryBalance,SalaryTransaction&` +
                 `join=WageType on SalaryTransaction.WageTypeId eq WageType.Id and WageType.ValidYear ge 2021&` +
-                `filter=SalaryTransaction.PayrollRunID eq ${runID} and SalaryBalance.InstalmentType ge ${SalBalType.Garnishment}` +
+                `filter=SalaryTransaction.PayrollRunID eq ${runID} and SalaryBalance.InstalmentType eq ${SalBalType.Garnishment}` +
                 ` and (isnull(WageType.IncomeType, 'null') ne 'Utleggstrekk'  or isnull(WageType.Description, 'null') ne 'utleggstrekkSkatt' )`
             )
             .pipe(
