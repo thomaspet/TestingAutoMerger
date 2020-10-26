@@ -1,5 +1,5 @@
 import { BizHttp, UniHttp, RequestMethod } from '@uni-framework/core/http';
-import { PayrollRun, LocalDate, WorkItemToSalary, EmployeeCategory, Employee, StdWageType } from '@uni-entities';
+import { PayrollRun, LocalDate, WorkItemToSalary, EmployeeCategory, Employee, StdWageType, SalBalType } from '@uni-entities';
 import { Observable} from 'rxjs';
 import {
     ErrorService, SalarybalanceService, SalaryBalanceLineService, SalaryTransactionService,
@@ -218,10 +218,11 @@ export class PayrollRunService {
     }
 
     public validateBeforeCalculation(runID: number): Observable<boolean> {
-        return forkJoin(
+        return forkJoin([
             this.validateRunHasTranses(runID),
             this.validateAccountsOnTranses(runID),
-            this.validateAmeldingGarnishmentTrans(runID)
+            this.validateAmeldingGarnishmentTrans(runID),
+            this.validateAmeldingGarnishmentSalaryBalance(runID)]
         )
         .pipe(
             map(result => result.reduce((acc, curr) => acc && curr, true))
@@ -241,13 +242,15 @@ export class PayrollRunService {
     }
 
     private validateAmeldingGarnishmentTrans(runID: number): Observable<boolean> {
-        return this.statisticsService
+        const currentYear = this.getYear();
+        return  currentYear < 2021 ? Observable.of(true) :
+            this.statisticsService
             .GetAllUnwrapped(
                 `Select=count(ID) as count&` +
                 `model=SalaryTransaction&` +
                 `expand=wagetype&` +
-                `filter=PayrollRunID eq ${runID} and WageType.StandardWageTypeFor eq ${StdWageType.Garnishment} and WageType.ValidYear ge 2021` +
-                ` and (WageType.IncomeType ne 'Utleggstrekk' or WageType.Description ne 'utleggstrekkSkatt')`
+                `filter=PayrollRunID eq ${runID} and WageType.StandardWageTypeFor eq ${StdWageType.Garnishment}` +
+                ` and (isnull(WageType.IncomeType, 'null') ne 'Utleggstrekk'  or isnull(WageType.Description, 'null') ne 'utleggstrekkSkatt' )`
             )
             .pipe(
                 map(data => {
@@ -258,6 +261,33 @@ export class PayrollRunService {
                             ToastType.warn,
                             ToastTime.medium,
                             'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding');
+                    }
+                    return true;
+                })
+            );
+    }
+
+    private validateAmeldingGarnishmentSalaryBalance(runID: number): Observable<boolean> {
+        const currentYear = this.getYear();
+        return  currentYear < 2021 ? Observable.of(true) :
+            this.statisticsService
+            .GetAllUnwrapped(
+                `Select=count(ID) as count&` +
+                `model=SalaryBalanceLine&` +
+                `expand=SalaryBalance,SalaryTransaction&` +
+                `join=WageType on SalaryTransaction.WageTypeId eq WageType.Id and WageType.ValidYear ge 2021&` +
+                `filter=SalaryTransaction.PayrollRunID eq ${runID} and SalaryBalance.InstalmentType ge ${SalBalType.Garnishment}` +
+                ` and (isnull(WageType.IncomeType, 'null') ne 'Utleggstrekk'  or isnull(WageType.Description, 'null') ne 'utleggstrekkSkatt' )`
+            )
+            .pipe(
+                map(data => {
+                    if (!!data[0].count) {
+                        this.toastService
+                        .addToast(
+                            'Sjekk oppsett',
+                            ToastType.warn,
+                            ToastTime.medium,
+                            'Utleggstrekk skatt fra Forskudd/trekk ikke satt opp korrekt for innrapportering på a-melding');
                     }
                     return true;
                 })
