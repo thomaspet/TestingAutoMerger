@@ -53,22 +53,22 @@ export class AuditLog extends UniEntity {
     public static RelativeUrl = 'auditlogs';
     public static EntityType = 'AuditLog';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
-    public Action: string;
-    public OldValue: string;
     public EntityType: string;
-    public Transaction: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Field: string;
-    public ClientID: string;
-    public Route: string;
     public Verb: string;
+    public Deleted: boolean;
     public NewValue: string;
+    public CreatedBy: string;
+    public Route: string;
+    public OldValue: string;
+    public ClientID: string;
+    public Action: string;
+    public EntityID: number;
+    public ID: number;
+    public Transaction: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Field: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -78,25 +78,25 @@ export class WorkBalance extends UniEntity {
     public static RelativeUrl = 'workbalances';
     public static EntityType = 'WorkBalance';
 
-    public ValidTimeOff: number;
-    public IsStartBalance: boolean;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public ExpectedMinutes: number;
-    public UpdatedAt: Date;
-    public BalanceDate: Date;
-    public Days: number;
-    public Balancetype: WorkBalanceTypeEnum;
     public Deleted: boolean;
-    public BalanceFrom: Date;
-    public ActualMinutes: number;
-    public ValidFrom: Date;
-    public WorkRelationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Minutes: number;
-    public Description: string;
     public StatusCode: number;
+    public ExpectedMinutes: number;
+    public CreatedBy: string;
+    public Days: number;
+    public ValidFrom: Date;
+    public IsStartBalance: boolean;
+    public Description: string;
+    public ActualMinutes: number;
+    public Balancetype: WorkBalanceTypeEnum;
+    public ID: number;
+    public BalanceFrom: Date;
+    public WorkRelationID: number;
+    public CreatedAt: Date;
+    public Minutes: number;
+    public UpdatedAt: Date;
+    public ValidTimeOff: number;
+    public UpdatedBy: string;
+    public BalanceDate: Date;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -106,16 +106,16 @@ export class Worker extends UniEntity {
     public static RelativeUrl = 'workers';
     public static EntityType = 'Worker';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public BusinessRelationID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public EmployeeID: number;
-    public ID: number;
-    public StatusCode: number;
     public UserID: number;
+    public StatusCode: number;
+    public EmployeeID: number;
+    public CreatedBy: string;
+    public BusinessRelationID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Info: BusinessRelation;
     public Relations: Array<WorkRelation>;
@@ -128,33 +128,33 @@ export class WorkItem extends UniEntity {
     public static RelativeUrl = 'workitems';
     public static EntityType = 'WorkItem';
 
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public MinutesToOrder: number;
+    public StatusCode: number;
     public Date: Date;
-    public WorkItemGroupID: number;
-    public CreatedAt: Date;
     public CreatedBy: string;
+    public WorkItemGroupID: number;
+    public TransferedToOrder: boolean;
+    public PayrollTrackingID: number;
+    public OrderItemId: number;
+    public PriceExVat: number;
+    public Invoiceable: boolean;
+    public EndTime: Date;
+    public CustomerOrderID: number;
+    public Description: string;
+    public TransferedToPayroll: boolean;
+    public ID: number;
+    public WorkRelationID: number;
+    public Label: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public Minutes: number;
+    public LunchInMinutes: number;
     public UpdatedAt: Date;
     public StartTime: Date;
-    public Invoiceable: boolean;
-    public TransferedToOrder: boolean;
-    public MinutesToOrder: number;
-    public Deleted: boolean;
-    public EndTime: Date;
-    public TransferedToPayroll: boolean;
-    public WorkTypeID: number;
-    public PayrollTrackingID: number;
-    public WorkRelationID: number;
-    public CustomerID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public Label: string;
-    public Minutes: number;
-    public PriceExVat: number;
-    public OrderItemId: number;
-    public DimensionsID: number;
-    public Description: string;
-    public CustomerOrderID: number;
-    public StatusCode: number;
-    public LunchInMinutes: number;
+    public WorkTypeID: number;
     public _createguid: string;
     public WorkRelation: WorkRelation;
     public Worktype: WorkType;
@@ -170,14 +170,14 @@ export class WorkItemGroup extends UniEntity {
     public static RelativeUrl = 'workitemgroups';
     public static EntityType = 'WorkItemGroup';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public WorkRelationID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public WorkRelationID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public WorkRelation: WorkRelation;
     public Items: Array<WorkItem>;
@@ -189,19 +189,19 @@ export class WorkProfile extends UniEntity {
     public static RelativeUrl = 'workprofiles';
     public static EntityType = 'WorkProfile';
 
+    public Deleted: boolean;
     public MinutesPerMonth: number;
-    public CreatedAt: Date;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public IsShared: boolean;
+    public MinutesPerYear: number;
     public LunchIncluded: boolean;
     public Name: string;
     public MinutesPerWeek: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public IsShared: boolean;
-    public MinutesPerYear: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -211,24 +211,24 @@ export class WorkRelation extends UniEntity {
     public static RelativeUrl = 'workrelations';
     public static EntityType = 'WorkRelation';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public Deleted: boolean;
-    public EndTime: Date;
     public IsPrivate: boolean;
-    public CompanyID: number;
-    public StartDate: Date;
-    public UpdatedBy: string;
-    public ID: number;
-    public WorkPercentage: number;
-    public IsActive: boolean;
-    public WorkProfileID: number;
-    public Description: string;
+    public Deleted: boolean;
     public StatusCode: number;
     public TeamID: number;
+    public CreatedBy: string;
+    public CompanyID: number;
+    public StartDate: Date;
+    public EndTime: Date;
+    public Description: string;
+    public ID: number;
     public WorkerID: number;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public WorkPercentage: number;
+    public UpdatedAt: Date;
+    public WorkProfileID: number;
+    public UpdatedBy: string;
+    public IsActive: boolean;
     public _createguid: string;
     public Worker: Worker;
     public WorkProfile: WorkProfile;
@@ -242,21 +242,21 @@ export class WorkTimeOff extends UniEntity {
     public static RelativeUrl = 'worktimeoff';
     public static EntityType = 'WorkTimeOff';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public FromDate: Date;
-    public UpdatedAt: Date;
-    public TimeoffType: number;
     public Deleted: boolean;
-    public SystemKey: string;
-    public ToDate: Date;
-    public RegionKey: string;
-    public WorkRelationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
-    public IsHalfDay: boolean;
     public StatusCode: number;
+    public ToDate: Date;
+    public CreatedBy: string;
+    public RegionKey: string;
+    public IsHalfDay: boolean;
+    public SystemKey: string;
+    public TimeoffType: number;
+    public Description: string;
+    public FromDate: Date;
+    public ID: number;
+    public WorkRelationID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -267,18 +267,18 @@ export class WorkType extends UniEntity {
     public static EntityType = 'WorkType';
 
     public Price: number;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public SystemType: WorkTypeEnum;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public ProductID: number;
     public CreatedAt: Date;
     public WagetypeNumber: number;
-    public SystemType: WorkTypeEnum;
-    public Name: string;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public ProductID: number;
-    public Deleted: boolean;
     public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
-    public StatusCode: number;
     public _createguid: string;
     public Product: Product;
     public CustomFields: any;
@@ -289,17 +289,17 @@ export class BankFile extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankFile';
 
-    public CreatedAt: Date;
     public SubCompanyID: number;
-    public CreatedBy: string;
-    public FileID: number;
-    public UpdatedAt: Date;
-    public ParentFileid: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Accountnumber: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ParentFileid: number;
+    public FileID: number;
+    public Accountnumber: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public File: File;
     public SubCompany: SubCompany;
@@ -311,26 +311,26 @@ export class BatchInvoice extends UniEntity {
     public static RelativeUrl = 'batchinvoices';
     public static EntityType = 'BatchInvoice';
 
-    public CreatedAt: Date;
-    public OurRef: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public YourRef: string;
-    public MinAmount: number;
-    public Processed: number;
-    public Deleted: boolean;
-    public TotalToProcess: number;
-    public Comment: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public FreeTxt: string;
-    public SellerID: number;
-    public DueDate: LocalDate;
-    public NumberOfBatches: number;
-    public StatusCode: number;
-    public Operation: BatchInvoiceOperation;
     public NotifyEmail: boolean;
     public InvoiceDate: LocalDate;
+    public Deleted: boolean;
+    public NumberOfBatches: number;
+    public StatusCode: number;
+    public YourRef: string;
+    public CreatedBy: string;
+    public Processed: number;
+    public Comment: string;
+    public SellerID: number;
+    public FreeTxt: string;
+    public DueDate: LocalDate;
+    public MinAmount: number;
+    public ID: number;
+    public Operation: BatchInvoiceOperation;
+    public OurRef: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public TotalToProcess: number;
     public ProjectID: number;
     public CustomerID: number;
     public _createguid: string;
@@ -343,18 +343,18 @@ export class BatchInvoiceItem extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BatchInvoiceItem';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: StatusCode;
     public CreatedBy: string;
+    public CustomerInvoiceID: number;
+    public CustomerOrderID: number;
+    public ID: number;
+    public BatchInvoiceID: number;
+    public CommentID: number;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public BatchNumber: number;
-    public BatchInvoiceID: number;
-    public Deleted: boolean;
-    public CustomerInvoiceID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public CustomerOrderID: number;
-    public StatusCode: StatusCode;
-    public CommentID: number;
     public ProjectID: number;
     public CustomerID: number;
     public _createguid: string;
@@ -368,15 +368,15 @@ export class CampaignTemplate extends UniEntity {
     public static RelativeUrl = 'campaigntemplate';
     public static EntityType = 'CampaignTemplate';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public EntityName: string;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public EntityName: string;
     public Template: string;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -386,44 +386,44 @@ export class Customer extends UniEntity {
     public static RelativeUrl = 'customers';
     public static EntityType = 'Customer';
 
-    public CustomerNumberKidAlias: string;
-    public CreatedAt: Date;
-    public AcceptableDelta4CustomerPaymentAccountID: number;
-    public CreditDays: number;
-    public CreatedBy: string;
-    public PeppolAddress: string;
-    public SubAccountNumberSeriesID: number;
-    public UpdatedAt: Date;
-    public Localization: string;
-    public CustomerNumber: number;
-    public DefaultDistributionsID: number;
-    public OrgNumber: string;
-    public BusinessRelationID: number;
-    public CustomerInvoiceReminderSettingsID: number;
-    public DefaultCustomerQuoteReportID: number;
-    public ReminderEmailAddress: string;
-    public Deleted: boolean;
-    public AcceptableDelta4CustomerPayment: number;
-    public DefaultCustomerInvoiceReportID: number;
-    public IsPrivate: boolean;
-    public DefaultCustomerOrderReportID: number;
-    public PaymentTermsID: number;
-    public DefaultSellerID: number;
-    public AvtaleGiroNotification: boolean;
-    public WebUrl: string;
-    public EfakturaIdentifier: string;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public GLN: string;
-    public ID: number;
     public SocialSecurityNumber: string;
-    public DeliveryTermsID: number;
-    public DimensionsID: number;
-    public FactoringNumber: number;
-    public StatusCode: number;
-    public AvtaleGiro: boolean;
+    public AcceptableDelta4CustomerPaymentAccountID: number;
     public DontSendReminders: boolean;
+    public IsPrivate: boolean;
+    public DimensionsID: number;
+    public DefaultCustomerInvoiceReportID: number;
+    public DefaultDistributionsID: number;
+    public CustomerInvoiceReminderSettingsID: number;
+    public Deleted: boolean;
+    public PeppolAddress: string;
+    public StatusCode: number;
+    public EfakturaIdentifier: string;
+    public DeliveryTermsID: number;
+    public SubAccountNumberSeriesID: number;
+    public ReminderEmailAddress: string;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public DefaultCustomerQuoteReportID: number;
+    public CustomerNumber: number;
+    public CustomerNumberKidAlias: string;
+    public WebUrl: string;
+    public CreditDays: number;
+    public DefaultSellerID: number;
+    public AvtaleGiro: boolean;
+    public BusinessRelationID: number;
+    public Localization: string;
+    public DefaultCustomerOrderReportID: number;
+    public AvtaleGiroNotification: boolean;
+    public ID: number;
+    public PaymentTermsID: number;
+    public AcceptableDelta4CustomerPayment: number;
+    public CreatedAt: Date;
     public EInvoiceAgreementReference: string;
+    public GLN: string;
+    public UpdatedAt: Date;
+    public OrgNumber: string;
+    public UpdatedBy: string;
+    public FactoringNumber: number;
     public _createguid: string;
     public Info: BusinessRelation;
     public Distributions: Distributions;
@@ -449,88 +449,89 @@ export class CustomerInvoice extends UniEntity {
     public static RelativeUrl = 'invoices';
     public static EntityType = 'CustomerInvoice';
 
-    public InternalNote: string;
-    public CustomerOrgNumber: string;
-    public PaymentDueDate: LocalDate;
-    public ExternalReference: string;
-    public CreatedAt: Date;
-    public DeliveryTerm: string;
-    public PaymentID: string;
-    public Credited: boolean;
-    public InvoiceNumberSeriesID: number;
-    public InvoiceAddressLine3: string;
-    public CreditedAmount: number;
-    public InvoiceCountryCode: string;
-    public CreditDays: number;
-    public TaxExclusiveAmountCurrency: number;
-    public InvoicePostalCode: string;
-    public YourReference: string;
-    public Payment: string;
-    public CreatedBy: string;
-    public JournalEntryID: number;
-    public CustomerPerson: string;
-    public CollectorStatusCode: number;
-    public InvoiceReceiverName: string;
-    public UpdatedAt: Date;
-    public DistributionPlanID: number;
-    public InvoiceReferenceID: number;
     public ExternalStatus: number;
-    public CurrencyExchangeRate: number;
-    public UseReportID: number;
-    public PayableRoundingAmount: number;
-    public DeliveryName: string;
-    public TaxInclusiveAmountCurrency: number;
-    public AccrualID: number;
-    public ShippingCountryCode: string;
-    public TaxInclusiveAmount: number;
-    public RestAmountCurrency: number;
+    public DontSendReminders: boolean;
+    public Credited: boolean;
+    public PrintStatus: number;
+    public CustomerName: string;
+    public TaxExclusiveAmount: number;
+    public InvoiceDate: LocalDate;
+    public InvoicePostalCode: string;
     public Deleted: boolean;
-    public DeliveryDate: LocalDate;
-    public RestAmount: number;
-    public PaymentTerm: string;
+    public InvoiceNumber: string;
+    public CollectorStatusCode: number;
+    public OurReference: string;
+    public StatusCode: number;
     public AmountRegards: string;
-    public ShippingCountry: string;
+    public PayableRoundingAmount: number;
+    public DeliveryTermsID: number;
+    public InvoiceReceiverName: string;
+    public PayableRoundingCurrencyAmount: number;
+    public EmailAddress: string;
+    public PaymentInformation: string;
+    public UseReportID: number;
+    public CurrencyCodeID: number;
+    public PaymentID: string;
+    public CreatedBy: string;
+    public VatTotalsAmount: number;
+    public BankAccountID: number;
+    public ShippingAddressLine1: string;
+    public InvoiceReferenceID: number;
     public InvoiceAddressLine1: string;
     public DeliveryMethod: string;
-    public InvoiceCity: string;
-    public SupplierOrgNumber: string;
-    public EmailAddress: string;
-    public InvoiceType: number;
-    public PaymentTermsID: number;
-    public DefaultSellerID: number;
     public Comment: string;
-    public InvoiceCountry: string;
-    public TaxExclusiveAmount: number;
-    public UpdateCurrencyAmountsOnDateChange: boolean;
-    public SalesPerson: string;
-    public VatTotalsAmountCurrency: number;
-    public ShippingAddressLine2: string;
-    public CustomerID: number;
-    public CreditedAmountCurrency: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public PaymentInformation: string;
-    public ID: number;
-    public FreeTxt: string;
-    public ShippingPostalCode: string;
     public ShippingAddressLine3: string;
-    public ShippingCity: string;
-    public OurReference: string;
-    public DeliveryTermsID: number;
-    public InvoiceNumber: string;
-    public StatusCode: number;
-    public PayableRoundingCurrencyAmount: number;
+    public InternalNote: string;
+    public DeliveryName: string;
     public PaymentInfoTypeID: number;
-    public InvoiceAddressLine2: string;
-    public DontSendReminders: boolean;
-    public CustomerName: string;
-    public Requisition: string;
-    public InvoiceDate: LocalDate;
-    public ShippingAddressLine1: string;
-    public BankAccountID: number;
-    public PrintStatus: number;
-    public VatTotalsAmount: number;
+    public LastPaymentDate: LocalDate;
+    public CurrencyExchangeRate: number;
+    public FreeTxt: string;
+    public DeliveryTerm: string;
     public DefaultDimensionsID: number;
+    public CreditedAmountCurrency: number;
+    public CreditDays: number;
+    public RestAmount: number;
+    public SalesPerson: string;
+    public Requisition: string;
+    public DefaultSellerID: number;
+    public RestAmountCurrency: number;
+    public PaymentTerm: string;
+    public InvoiceCountry: string;
+    public ShippingPostalCode: string;
+    public TaxInclusiveAmount: number;
+    public YourReference: string;
+    public ShippingCountry: string;
+    public JournalEntryID: number;
+    public InvoiceType: number;
+    public ID: number;
+    public TaxInclusiveAmountCurrency: number;
+    public ShippingAddressLine2: string;
+    public PaymentTermsID: number;
+    public DeliveryDate: LocalDate;
+    public ShippingCity: string;
+    public PaymentDueDate: LocalDate;
+    public InvoiceNumberSeriesID: number;
+    public ShippingCountryCode: string;
+    public InvoiceCountryCode: string;
+    public InvoiceCity: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public SupplierOrgNumber: string;
+    public CustomerPerson: string;
+    public UpdatedAt: Date;
+    public VatTotalsAmountCurrency: number;
+    public CustomerOrgNumber: string;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public DistributionPlanID: number;
+    public CreditedAmount: number;
+    public UpdatedBy: string;
+    public AccrualID: number;
+    public TaxExclusiveAmountCurrency: number;
+    public ExternalReference: string;
+    public InvoiceAddressLine2: string;
+    public Payment: string;
+    public InvoiceAddressLine3: string;
     public _createguid: string;
     public Payments: Array<Payment>;
     public BankAccount: BankAccount;
@@ -557,45 +558,45 @@ export class CustomerInvoiceItem extends UniEntity {
     public static RelativeUrl = 'invoiceitems';
     public static EntityType = 'CustomerInvoiceItem';
 
-    public CreatedAt: Date;
-    public SumTotalExVatCurrency: number;
-    public DiscountCurrency: number;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
-    public CurrencyExchangeRate: number;
     public DiscountPercent: number;
-    public PriceIncVat: number;
-    public SumTotalIncVat: number;
-    public Deleted: boolean;
-    public SumVat: number;
+    public DiscountCurrency: number;
     public VatPercent: number;
-    public SumTotalExVat: number;
-    public InvoicePeriodStartDate: LocalDate;
-    public Discount: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public Comment: string;
-    public SumTotalIncVatCurrency: number;
-    public PriceExVatCurrency: number;
-    public NumberOfItems: number;
-    public SumVatCurrency: number;
-    public VatTypeID: number;
-    public CustomerInvoiceID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountingCost: string;
-    public AccountID: number;
-    public SortIndex: number;
-    public CostPrice: number;
-    public PriceExVat: number;
-    public ItemText: string;
     public DimensionsID: number;
-    public StatusCode: number;
-    public InvoicePeriodEndDate: LocalDate;
     public PriceSetByUser: boolean;
+    public InvoicePeriodEndDate: LocalDate;
+    public SumTotalIncVatCurrency: number;
+    public Discount: number;
+    public Deleted: boolean;
+    public PriceExVatCurrency: number;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public InvoicePeriodStartDate: LocalDate;
+    public CostPrice: number;
+    public CurrencyCodeID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public SumTotalExVat: number;
+    public SumTotalIncVat: number;
+    public Comment: string;
+    public SumVat: number;
+    public AccountingCost: string;
+    public PriceExVat: number;
+    public CurrencyExchangeRate: number;
+    public SumVatCurrency: number;
+    public SumTotalExVatCurrency: number;
+    public CustomerInvoiceID: number;
+    public ItemText: string;
+    public SortIndex: number;
+    public ID: number;
     public ItemSourceID: number;
+    public ProductID: number;
+    public PriceIncVat: number;
+    public NumberOfItems: number;
+    public CreatedAt: Date;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public VatDate: LocalDate;
     public OrderItemId: number;
     public _createguid: string;
@@ -613,34 +614,34 @@ export class CustomerInvoiceReminder extends UniEntity {
     public static RelativeUrl = 'invoicereminders';
     public static EntityType = 'CustomerInvoiceReminder';
 
-    public CreatedAt: Date;
-    public ReminderFeeCurrency: number;
-    public DebtCollectionFeeCurrency: number;
-    public InterestFee: number;
-    public ReminderNumber: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public InterestFeeCurrency: number;
-    public CreatedByReminderRuleID: number;
-    public CurrencyExchangeRate: number;
-    public RestAmountCurrency: number;
-    public Deleted: boolean;
-    public RestAmount: number;
-    public EmailAddress: string;
-    public Title: string;
-    public RemindedDate: LocalDate;
-    public Notified: boolean;
-    public CustomerInvoiceID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public DebtCollectionFee: number;
-    public ReminderFee: number;
-    public DueDate: LocalDate;
-    public RunNumber: number;
     public DimensionsID: number;
-    public Description: string;
+    public ReminderNumber: number;
+    public Deleted: boolean;
+    public RunNumber: number;
     public StatusCode: number;
+    public RemindedDate: LocalDate;
+    public Title: string;
+    public EmailAddress: string;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public DebtCollectionFeeCurrency: number;
+    public CurrencyExchangeRate: number;
+    public CreatedByReminderRuleID: number;
+    public RestAmount: number;
+    public CustomerInvoiceID: number;
+    public RestAmountCurrency: number;
+    public DueDate: LocalDate;
+    public InterestFeeCurrency: number;
+    public Description: string;
+    public ReminderFeeCurrency: number;
+    public ID: number;
+    public ReminderFee: number;
+    public DebtCollectionFee: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public InterestFee: number;
+    public UpdatedBy: string;
+    public Notified: boolean;
     public _createguid: string;
     public CurrencyCode: CurrencyCode;
     public CustomerInvoice: CustomerInvoice;
@@ -654,21 +655,21 @@ export class CustomerInvoiceReminderRule extends UniEntity {
     public static RelativeUrl = 'invoicereminderrules';
     public static EntityType = 'CustomerInvoiceReminderRule';
 
-    public CreatedAt: Date;
-    public CreditDays: number;
     public ReminderNumber: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public UseMaximumLegalReminderFee: boolean;
     public CustomerInvoiceReminderSettingsID: number;
     public Deleted: boolean;
+    public StatusCode: number;
     public Title: string;
+    public CreatedBy: string;
     public MinimumDaysFromDueDate: number;
-    public UpdatedBy: string;
+    public CreditDays: number;
+    public Description: string;
+    public UseMaximumLegalReminderFee: boolean;
     public ID: number;
     public ReminderFee: number;
-    public Description: string;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
     public CustomFields: any;
@@ -679,22 +680,22 @@ export class CustomerInvoiceReminderSettings extends UniEntity {
     public static RelativeUrl = 'invoiceremindersettings';
     public static EntityType = 'CustomerInvoiceReminderSettings';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AcceptPaymentWithoutReminderFee: boolean;
     public Deleted: boolean;
-    public DefaultReminderFeeAccountID: number;
-    public RemindersBeforeDebtCollection: number;
+    public StatusCode: number;
+    public AcceptPaymentWithoutReminderFee: boolean;
+    public CreatedBy: string;
     public MinimumAmountToRemind: number;
-    public UpdatedBy: string;
     public ID: number;
     public DebtCollectionSettingsID: number;
-    public StatusCode: number;
+    public RemindersBeforeDebtCollection: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public DefaultReminderFeeAccountID: number;
+    public UpdatedBy: string;
     public _createguid: string;
+    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public DebtCollectionSettings: DebtCollectionSettings;
     public DefaultReminderFeeAccount: Account;
-    public CustomerInvoiceReminderRules: Array<CustomerInvoiceReminderRule>;
     public CustomFields: any;
 }
 
@@ -703,74 +704,74 @@ export class CustomerOrder extends UniEntity {
     public static RelativeUrl = 'orders';
     public static EntityType = 'CustomerOrder';
 
-    public InternalNote: string;
-    public CustomerOrgNumber: string;
     public UpdateCurrencyOnToInvoice: boolean;
-    public CreatedAt: Date;
-    public DeliveryTerm: string;
-    public InvoiceAddressLine3: string;
-    public InvoiceCountryCode: string;
-    public CreditDays: number;
-    public TaxExclusiveAmountCurrency: number;
-    public InvoicePostalCode: string;
-    public YourReference: string;
-    public CreatedBy: string;
-    public CustomerPerson: string;
-    public InvoiceReceiverName: string;
-    public UpdatedAt: Date;
-    public ReadyToInvoice: boolean;
-    public DistributionPlanID: number;
+    public PrintStatus: number;
+    public CustomerName: string;
+    public TaxExclusiveAmount: number;
+    public OrderNumberSeriesID: number;
     public OrderDate: LocalDate;
-    public CurrencyExchangeRate: number;
-    public UseReportID: number;
-    public PayableRoundingAmount: number;
-    public DeliveryName: string;
-    public TaxInclusiveAmountCurrency: number;
-    public AccrualID: number;
-    public ShippingCountryCode: string;
-    public TaxInclusiveAmount: number;
-    public RestAmountCurrency: number;
+    public InvoicePostalCode: string;
     public Deleted: boolean;
-    public DeliveryDate: LocalDate;
-    public PaymentTerm: string;
-    public ShippingCountry: string;
+    public ReadyToInvoice: boolean;
+    public OurReference: string;
+    public StatusCode: number;
+    public PayableRoundingAmount: number;
+    public DeliveryTermsID: number;
+    public InvoiceReceiverName: string;
+    public PayableRoundingCurrencyAmount: number;
+    public EmailAddress: string;
+    public UseReportID: number;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public OrderNumber: number;
+    public VatTotalsAmount: number;
+    public ShippingAddressLine1: string;
     public InvoiceAddressLine1: string;
     public DeliveryMethod: string;
-    public OrderNumberSeriesID: number;
-    public InvoiceCity: string;
-    public SupplierOrgNumber: string;
-    public EmailAddress: string;
-    public PaymentTermsID: number;
-    public DefaultSellerID: number;
     public Comment: string;
-    public InvoiceCountry: string;
-    public TaxExclusiveAmount: number;
-    public UpdateCurrencyAmountsOnDateChange: boolean;
-    public RestExclusiveAmountCurrency: number;
-    public SalesPerson: string;
-    public VatTotalsAmountCurrency: number;
-    public ShippingAddressLine2: string;
-    public CustomerID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public FreeTxt: string;
-    public ShippingPostalCode: string;
     public ShippingAddressLine3: string;
-    public ShippingCity: string;
-    public OurReference: string;
-    public DeliveryTermsID: number;
-    public StatusCode: number;
-    public PayableRoundingCurrencyAmount: number;
+    public InternalNote: string;
+    public DeliveryName: string;
     public PaymentInfoTypeID: number;
-    public InvoiceAddressLine2: string;
-    public CustomerName: string;
-    public Requisition: string;
-    public ShippingAddressLine1: string;
-    public PrintStatus: number;
-    public VatTotalsAmount: number;
-    public OrderNumber: number;
+    public CurrencyExchangeRate: number;
+    public FreeTxt: string;
+    public DeliveryTerm: string;
     public DefaultDimensionsID: number;
+    public CreditDays: number;
+    public SalesPerson: string;
+    public Requisition: string;
+    public DefaultSellerID: number;
+    public RestAmountCurrency: number;
+    public PaymentTerm: string;
+    public InvoiceCountry: string;
+    public ShippingPostalCode: string;
+    public TaxInclusiveAmount: number;
+    public YourReference: string;
+    public ShippingCountry: string;
+    public RestExclusiveAmountCurrency: number;
+    public ID: number;
+    public TaxInclusiveAmountCurrency: number;
+    public ShippingAddressLine2: string;
+    public PaymentTermsID: number;
+    public DeliveryDate: LocalDate;
+    public ShippingCity: string;
+    public ShippingCountryCode: string;
+    public InvoiceCountryCode: string;
+    public InvoiceCity: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public SupplierOrgNumber: string;
+    public CustomerPerson: string;
+    public UpdatedAt: Date;
+    public VatTotalsAmountCurrency: number;
+    public CustomerOrgNumber: string;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public DistributionPlanID: number;
+    public UpdatedBy: string;
+    public AccrualID: number;
+    public TaxExclusiveAmountCurrency: number;
+    public InvoiceAddressLine2: string;
+    public InvoiceAddressLine3: string;
     public _createguid: string;
     public Accrual: Accrual;
     public PaymentTerms: Terms;
@@ -791,43 +792,43 @@ export class CustomerOrderItem extends UniEntity {
     public static RelativeUrl = 'orderitems';
     public static EntityType = 'CustomerOrderItem';
 
-    public CreatedAt: Date;
-    public SumTotalExVatCurrency: number;
-    public DiscountCurrency: number;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ReadyToInvoice: boolean;
-    public ProductID: number;
-    public CurrencyExchangeRate: number;
     public DiscountPercent: number;
-    public PriceIncVat: number;
-    public SumTotalIncVat: number;
-    public Deleted: boolean;
-    public SumVat: number;
+    public DiscountCurrency: number;
     public VatPercent: number;
-    public SumTotalExVat: number;
-    public Discount: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public Comment: string;
-    public SumTotalIncVatCurrency: number;
-    public PriceExVatCurrency: number;
-    public NumberOfItems: number;
-    public SumVatCurrency: number;
-    public VatTypeID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public SortIndex: number;
-    public CostPrice: number;
-    public PriceExVat: number;
-    public ItemText: string;
     public DimensionsID: number;
-    public CustomerOrderID: number;
-    public StatusCode: number;
     public PriceSetByUser: boolean;
+    public SumTotalIncVatCurrency: number;
+    public Discount: number;
+    public Deleted: boolean;
+    public PriceExVatCurrency: number;
+    public ReadyToInvoice: boolean;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public CostPrice: number;
+    public CurrencyCodeID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public SumTotalExVat: number;
+    public SumTotalIncVat: number;
+    public Comment: string;
+    public SumVat: number;
+    public PriceExVat: number;
+    public CurrencyExchangeRate: number;
+    public SumVatCurrency: number;
+    public SumTotalExVatCurrency: number;
+    public CustomerOrderID: number;
+    public ItemText: string;
+    public SortIndex: number;
+    public ID: number;
     public ItemSourceID: number;
+    public ProductID: number;
+    public PriceIncVat: number;
+    public NumberOfItems: number;
+    public CreatedAt: Date;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public VatDate: LocalDate;
     public _createguid: string;
     public Product: Product;
@@ -844,73 +845,73 @@ export class CustomerQuote extends UniEntity {
     public static RelativeUrl = 'quotes';
     public static EntityType = 'CustomerQuote';
 
-    public InternalNote: string;
-    public CustomerOrgNumber: string;
     public UpdateCurrencyOnToInvoice: boolean;
-    public CreatedAt: Date;
-    public DeliveryTerm: string;
-    public InvoiceAddressLine3: string;
-    public InquiryReference: number;
-    public InvoiceCountryCode: string;
-    public UpdateCurrencyOnToOrder: boolean;
-    public CreditDays: number;
-    public TaxExclusiveAmountCurrency: number;
+    public PrintStatus: number;
+    public CustomerName: string;
+    public TaxExclusiveAmount: number;
     public InvoicePostalCode: string;
-    public YourReference: string;
-    public CreatedBy: string;
-    public CustomerPerson: string;
-    public InvoiceReceiverName: string;
-    public UpdatedAt: Date;
-    public DistributionPlanID: number;
-    public QuoteNumberSeriesID: number;
-    public CurrencyExchangeRate: number;
-    public UseReportID: number;
-    public PayableRoundingAmount: number;
-    public DeliveryName: string;
-    public TaxInclusiveAmountCurrency: number;
-    public ShippingCountryCode: string;
-    public TaxInclusiveAmount: number;
     public Deleted: boolean;
-    public DeliveryDate: LocalDate;
-    public PaymentTerm: string;
-    public ShippingCountry: string;
+    public QuoteNumberSeriesID: number;
+    public OurReference: string;
+    public StatusCode: number;
+    public PayableRoundingAmount: number;
+    public DeliveryTermsID: number;
+    public InvoiceReceiverName: string;
+    public PayableRoundingCurrencyAmount: number;
+    public QuoteDate: LocalDate;
+    public EmailAddress: string;
+    public UseReportID: number;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public VatTotalsAmount: number;
+    public ShippingAddressLine1: string;
     public InvoiceAddressLine1: string;
     public DeliveryMethod: string;
-    public InvoiceCity: string;
-    public SupplierOrgNumber: string;
-    public EmailAddress: string;
-    public PaymentTermsID: number;
-    public DefaultSellerID: number;
     public Comment: string;
+    public ShippingAddressLine3: string;
+    public InquiryReference: number;
+    public InternalNote: string;
+    public DeliveryName: string;
+    public PaymentInfoTypeID: number;
+    public CurrencyExchangeRate: number;
+    public FreeTxt: string;
+    public DeliveryTerm: string;
+    public DefaultDimensionsID: number;
+    public UpdateCurrencyOnToOrder: boolean;
+    public CreditDays: number;
+    public SalesPerson: string;
+    public Requisition: string;
+    public DefaultSellerID: number;
+    public PaymentTerm: string;
     public InvoiceCountry: string;
     public QuoteNumber: number;
-    public TaxExclusiveAmount: number;
-    public ValidUntilDate: LocalDate;
-    public UpdateCurrencyAmountsOnDateChange: boolean;
-    public SalesPerson: string;
-    public VatTotalsAmountCurrency: number;
-    public ShippingAddressLine2: string;
-    public CustomerID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public QuoteDate: LocalDate;
-    public ID: number;
-    public FreeTxt: string;
     public ShippingPostalCode: string;
-    public ShippingAddressLine3: string;
+    public TaxInclusiveAmount: number;
+    public YourReference: string;
+    public ShippingCountry: string;
+    public ID: number;
+    public TaxInclusiveAmountCurrency: number;
+    public ShippingAddressLine2: string;
+    public PaymentTermsID: number;
+    public DeliveryDate: LocalDate;
     public ShippingCity: string;
-    public OurReference: string;
-    public DeliveryTermsID: number;
-    public StatusCode: number;
-    public PayableRoundingCurrencyAmount: number;
-    public PaymentInfoTypeID: number;
+    public ShippingCountryCode: string;
+    public InvoiceCountryCode: string;
+    public InvoiceCity: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public ValidUntilDate: LocalDate;
+    public SupplierOrgNumber: string;
+    public CustomerPerson: string;
+    public UpdatedAt: Date;
+    public VatTotalsAmountCurrency: number;
+    public CustomerOrgNumber: string;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public DistributionPlanID: number;
+    public UpdatedBy: string;
+    public TaxExclusiveAmountCurrency: number;
     public InvoiceAddressLine2: string;
-    public CustomerName: string;
-    public Requisition: string;
-    public ShippingAddressLine1: string;
-    public PrintStatus: number;
-    public VatTotalsAmount: number;
-    public DefaultDimensionsID: number;
+    public InvoiceAddressLine3: string;
     public _createguid: string;
     public PaymentTerms: Terms;
     public DeliveryTerms: Terms;
@@ -930,41 +931,41 @@ export class CustomerQuoteItem extends UniEntity {
     public static RelativeUrl = 'quoteitems';
     public static EntityType = 'CustomerQuoteItem';
 
-    public CreatedAt: Date;
-    public SumTotalExVatCurrency: number;
-    public DiscountCurrency: number;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
-    public CurrencyExchangeRate: number;
-    public DiscountPercent: number;
-    public PriceIncVat: number;
     public CustomerQuoteID: number;
-    public SumTotalIncVat: number;
-    public Deleted: boolean;
-    public SumVat: number;
+    public DiscountPercent: number;
+    public DiscountCurrency: number;
     public VatPercent: number;
-    public SumTotalExVat: number;
-    public Discount: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public Comment: string;
-    public SumTotalIncVatCurrency: number;
-    public PriceExVatCurrency: number;
-    public NumberOfItems: number;
-    public SumVatCurrency: number;
-    public VatTypeID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public SortIndex: number;
-    public CostPrice: number;
-    public PriceExVat: number;
-    public ItemText: string;
     public DimensionsID: number;
-    public StatusCode: number;
     public PriceSetByUser: boolean;
+    public SumTotalIncVatCurrency: number;
+    public Discount: number;
+    public Deleted: boolean;
+    public PriceExVatCurrency: number;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public CostPrice: number;
+    public CurrencyCodeID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public SumTotalExVat: number;
+    public SumTotalIncVat: number;
+    public Comment: string;
+    public SumVat: number;
+    public PriceExVat: number;
+    public CurrencyExchangeRate: number;
+    public SumVatCurrency: number;
+    public SumTotalExVatCurrency: number;
+    public ItemText: string;
+    public SortIndex: number;
+    public ID: number;
+    public ProductID: number;
+    public PriceIncVat: number;
+    public NumberOfItems: number;
+    public CreatedAt: Date;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public VatDate: LocalDate;
     public _createguid: string;
     public Product: Product;
@@ -980,21 +981,21 @@ export class DebtCollectionSettings extends UniEntity {
     public static RelativeUrl = 'debtcollectionsettings';
     public static EntityType = 'DebtCollectionSettings';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
+    public IntegrateWithDebtCollection: boolean;
     public CreditorNumber: number;
     public CustomerInvoiceReminderSettingsID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public IntegrateWithDebtCollection: boolean;
     public StatusCode: number;
-    public DebtCollectionAutomationID: number;
+    public CreatedBy: string;
     public DebtCollectionFormat: number;
+    public DebtCollectionAutomationID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
-    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DebtCollectionAutomation: Array<DebtCollectionAutomation>;
     public CustomFields: any;
 }
 
@@ -1003,13 +1004,13 @@ export class ItemSource extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ItemSource';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Details: Array<ItemSourceDetail>;
     public CustomFields: any;
@@ -1020,19 +1021,19 @@ export class ItemSourceDetail extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ItemSourceDetail';
 
+    public Deleted: boolean;
     public SourceFK: number;
-    public CreatedAt: Date;
+    public StatusCode: number;
+    public SourceType: string;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public Tag: string;
-    public SourceType: string;
     public Description: string;
-    public StatusCode: number;
+    public ID: number;
     public ItemSourceID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1042,18 +1043,18 @@ export class PaymentInfoType extends UniEntity {
     public static RelativeUrl = 'paymentinfotype';
     public static EntityType = 'PaymentInfoType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Locked: boolean;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Length: number;
+    public Name: string;
+    public ID: number;
     public Control: Modulus;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public Type: PaymentInfoTypeEnum;
     public UpdatedBy: string;
-    public ID: number;
-    public Length: number;
-    public StatusCode: number;
     public _createguid: string;
     public PaymentInfoTypeParts: Array<PaymentInfoTypePart>;
     public CustomFields: any;
@@ -1064,17 +1065,17 @@ export class PaymentInfoTypePart extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PaymentInfoTypePart';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public SortIndex: number;
-    public Part: string;
-    public Length: number;
     public StatusCode: number;
+    public Part: string;
+    public CreatedBy: string;
     public PaymentInfoTypeID: number;
+    public Length: number;
+    public SortIndex: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1084,82 +1085,82 @@ export class RecurringInvoice extends UniEntity {
     public static RelativeUrl = 'recurringinvoices';
     public static EntityType = 'RecurringInvoice';
 
-    public NextInvoiceDate: LocalDate;
-    public InternalNote: string;
-    public CustomerOrgNumber: string;
-    public CreatedAt: Date;
-    public DeliveryTerm: string;
-    public InvoiceNumberSeriesID: number;
-    public InvoiceAddressLine3: string;
-    public Interval: number;
-    public InvoiceCountryCode: string;
-    public CreditDays: number;
-    public NoCreditDays: boolean;
-    public TaxExclusiveAmountCurrency: number;
-    public InvoicePostalCode: string;
-    public YourReference: string;
-    public Payment: string;
-    public CreatedBy: string;
-    public CustomerPerson: string;
-    public InvoiceReceiverName: string;
-    public UpdatedAt: Date;
-    public DistributionPlanID: number;
-    public EndDate: LocalDate;
-    public CurrencyExchangeRate: number;
-    public UseReportID: number;
-    public PayableRoundingAmount: number;
-    public DeliveryName: string;
+    public TimePeriod: RecurringPeriod;
+    public PrintStatus: number;
+    public CustomerName: string;
+    public TaxExclusiveAmount: number;
     public PreparationDays: number;
-    public TaxInclusiveAmountCurrency: number;
-    public ShippingCountryCode: string;
-    public TaxInclusiveAmount: number;
+    public ProduceAs: RecurringResult;
+    public InvoicePostalCode: string;
     public Deleted: boolean;
-    public DeliveryDate: LocalDate;
-    public PaymentTerm: string;
+    public OurReference: string;
+    public StatusCode: number;
     public AmountRegards: string;
-    public ShippingCountry: string;
+    public MaxIterations: number;
+    public PayableRoundingAmount: number;
+    public DeliveryTermsID: number;
+    public InvoiceReceiverName: string;
+    public PayableRoundingCurrencyAmount: number;
+    public NotifyUser: string;
+    public EmailAddress: string;
+    public PaymentInformation: string;
+    public UseReportID: number;
+    public NoCreditDays: boolean;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public VatTotalsAmount: number;
+    public ShippingAddressLine1: string;
+    public NextInvoiceDate: LocalDate;
     public InvoiceAddressLine1: string;
     public DeliveryMethod: string;
-    public InvoiceCity: string;
-    public SupplierOrgNumber: string;
-    public EmailAddress: string;
-    public PaymentTermsID: number;
-    public TimePeriod: RecurringPeriod;
-    public DefaultSellerID: number;
     public Comment: string;
-    public InvoiceCountry: string;
-    public TaxExclusiveAmount: number;
-    public UpdateCurrencyAmountsOnDateChange: boolean;
-    public StartDate: LocalDate;
-    public SalesPerson: string;
-    public VatTotalsAmountCurrency: number;
-    public NotifyWhenOrdersArePrepared: boolean;
-    public ShippingAddressLine2: string;
-    public CustomerID: number;
-    public MaxIterations: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public PaymentInformation: string;
-    public ID: number;
-    public FreeTxt: string;
-    public ProduceAs: RecurringResult;
-    public ShippingPostalCode: string;
-    public NotifyWhenRecurringEnds: boolean;
     public ShippingAddressLine3: string;
-    public ShippingCity: string;
-    public OurReference: string;
-    public DeliveryTermsID: number;
-    public NotifyUser: string;
-    public StatusCode: number;
-    public PayableRoundingCurrencyAmount: number;
+    public Interval: number;
+    public InternalNote: string;
+    public DeliveryName: string;
+    public StartDate: LocalDate;
+    public NotifyWhenOrdersArePrepared: boolean;
     public PaymentInfoTypeID: number;
-    public InvoiceAddressLine2: string;
-    public CustomerName: string;
-    public Requisition: string;
-    public ShippingAddressLine1: string;
-    public PrintStatus: number;
-    public VatTotalsAmount: number;
+    public CurrencyExchangeRate: number;
+    public FreeTxt: string;
+    public DeliveryTerm: string;
     public DefaultDimensionsID: number;
+    public CreditDays: number;
+    public SalesPerson: string;
+    public Requisition: string;
+    public DefaultSellerID: number;
+    public PaymentTerm: string;
+    public InvoiceCountry: string;
+    public ShippingPostalCode: string;
+    public TaxInclusiveAmount: number;
+    public YourReference: string;
+    public ShippingCountry: string;
+    public ID: number;
+    public TaxInclusiveAmountCurrency: number;
+    public ShippingAddressLine2: string;
+    public PaymentTermsID: number;
+    public DeliveryDate: LocalDate;
+    public ShippingCity: string;
+    public InvoiceNumberSeriesID: number;
+    public ShippingCountryCode: string;
+    public InvoiceCountryCode: string;
+    public InvoiceCity: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public SupplierOrgNumber: string;
+    public EndDate: LocalDate;
+    public CustomerPerson: string;
+    public UpdatedAt: Date;
+    public VatTotalsAmountCurrency: number;
+    public CustomerOrgNumber: string;
+    public UpdateCurrencyAmountsOnDateChange: boolean;
+    public DistributionPlanID: number;
+    public UpdatedBy: string;
+    public TaxExclusiveAmountCurrency: number;
+    public InvoiceAddressLine2: string;
+    public Payment: string;
+    public NotifyWhenRecurringEnds: boolean;
+    public InvoiceAddressLine3: string;
     public _createguid: string;
     public PaymentTerms: Terms;
     public DeliveryTerms: Terms;
@@ -1180,43 +1181,43 @@ export class RecurringInvoiceItem extends UniEntity {
     public static RelativeUrl = 'recurringinvoiceitems';
     public static EntityType = 'RecurringInvoiceItem';
 
-    public ReduceIncompletePeriod: boolean;
-    public CreatedAt: Date;
-    public SumTotalExVatCurrency: number;
-    public DiscountCurrency: number;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
-    public CurrencyExchangeRate: number;
     public DiscountPercent: number;
-    public TimeFactor: RecurringPeriod;
-    public PriceIncVat: number;
-    public SumTotalIncVat: number;
-    public Deleted: boolean;
-    public SumVat: number;
+    public DiscountCurrency: number;
     public VatPercent: number;
-    public SumTotalExVat: number;
-    public RecurringInvoiceID: number;
-    public Discount: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public Comment: string;
-    public SumTotalIncVatCurrency: number;
-    public PriceExVatCurrency: number;
-    public NumberOfItems: number;
-    public SumVatCurrency: number;
-    public VatTypeID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public SortIndex: number;
-    public PriceExVat: number;
-    public ItemText: string;
     public DimensionsID: number;
-    public StatusCode: number;
     public PriceSetByUser: boolean;
+    public SumTotalIncVatCurrency: number;
+    public Discount: number;
+    public Deleted: boolean;
+    public PriceExVatCurrency: number;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public ReduceIncompletePeriod: boolean;
+    public CurrencyCodeID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public SumTotalExVat: number;
+    public SumTotalIncVat: number;
+    public Comment: string;
+    public SumVat: number;
+    public PriceExVat: number;
+    public CurrencyExchangeRate: number;
+    public SumVatCurrency: number;
+    public SumTotalExVatCurrency: number;
+    public ItemText: string;
+    public SortIndex: number;
+    public ID: number;
+    public ProductID: number;
+    public PriceIncVat: number;
     public PricingSource: PricingSource;
+    public NumberOfItems: number;
+    public CreatedAt: Date;
+    public RecurringInvoiceID: number;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public TimeFactor: RecurringPeriod;
     public VatDate: LocalDate;
     public _createguid: string;
     public Product: Product;
@@ -1232,22 +1233,22 @@ export class RecurringInvoiceLog extends UniEntity {
     public static RelativeUrl = 'RecurringInvoicelogs';
     public static EntityType = 'RecurringInvoiceLog';
 
-    public CreatedAt: Date;
-    public InvoiceID: number;
-    public CreatedBy: string;
+    public InvoiceDate: LocalDate;
     public OrderID: number;
-    public UpdatedAt: Date;
-    public NotifiedRecurringEnds: boolean;
     public Deleted: boolean;
-    public IterationNumber: number;
-    public RecurringInvoiceID: number;
+    public StatusCode: number;
     public NotifiedOrdersPrepared: boolean;
+    public CreatedBy: string;
     public Comment: string;
-    public UpdatedBy: string;
+    public IterationNumber: number;
     public CreationDate: LocalDate;
     public ID: number;
-    public StatusCode: number;
-    public InvoiceDate: LocalDate;
+    public CreatedAt: Date;
+    public RecurringInvoiceID: number;
+    public InvoiceID: number;
+    public UpdatedAt: Date;
+    public NotifiedRecurringEnds: boolean;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1257,18 +1258,18 @@ export class Seller extends UniEntity {
     public static RelativeUrl = 'sellers';
     public static EntityType = 'Seller';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public EmployeeID: number;
-    public ID: number;
-    public StatusCode: number;
     public UserID: number;
+    public StatusCode: number;
+    public EmployeeID: number;
     public TeamID: number;
+    public CreatedBy: string;
     public DefaultDimensionsID: number;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public User: User;
     public Employee: Employee;
@@ -1282,21 +1283,21 @@ export class SellerLink extends UniEntity {
     public static RelativeUrl = 'sellerlinks';
     public static EntityType = 'SellerLink';
 
-    public CreatedAt: Date;
-    public Percent: number;
-    public Amount: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public CustomerQuoteID: number;
     public Deleted: boolean;
+    public StatusCode: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public Percent: number;
+    public SellerID: number;
+    public CustomerInvoiceID: number;
+    public CustomerOrderID: number;
+    public ID: number;
+    public CreatedAt: Date;
     public RecurringInvoiceID: number;
     public CustomerID: number;
-    public CustomerInvoiceID: number;
+    public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ID: number;
-    public SellerID: number;
-    public CustomerOrderID: number;
-    public StatusCode: number;
     public _createguid: string;
     public Seller: Seller;
     public CustomFields: any;
@@ -1307,18 +1308,18 @@ export class SubCompany extends UniEntity {
     public static RelativeUrl = 'subcompanies';
     public static EntityType = 'SubCompany';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public CompanyType: CompanyRelation;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public CompanyKey: string;
     public Deleted: boolean;
-    public CompanyID: number;
-    public CustomerID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public CompanyID: number;
+    public CompanyType: CompanyRelation;
+    public ID: number;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Customer: Customer;
     public CustomFields: any;
@@ -1329,26 +1330,26 @@ export class Supplier extends UniEntity {
     public static RelativeUrl = 'suppliers';
     public static EntityType = 'Supplier';
 
-    public CreatedAt: Date;
-    public CreditDays: number;
-    public CreatedBy: string;
-    public PeppolAddress: string;
-    public SelfEmployed: boolean;
-    public SubAccountNumberSeriesID: number;
-    public UpdatedAt: Date;
-    public Localization: string;
-    public OrgNumber: string;
-    public BusinessRelationID: number;
-    public SupplierNumber: number;
-    public Deleted: boolean;
-    public WebUrl: string;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public GLN: string;
-    public ID: number;
-    public DimensionsID: number;
-    public StatusCode: number;
     public CostAllocationID: number;
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public PeppolAddress: string;
+    public StatusCode: number;
+    public SubAccountNumberSeriesID: number;
+    public CurrencyCodeID: number;
+    public CreatedBy: string;
+    public WebUrl: string;
+    public SupplierNumber: number;
+    public CreditDays: number;
+    public BusinessRelationID: number;
+    public Localization: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public SelfEmployed: boolean;
+    public GLN: string;
+    public UpdatedAt: Date;
+    public OrgNumber: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public Info: BusinessRelation;
     public Dimensions: Dimensions;
@@ -1363,17 +1364,17 @@ export class Terms extends UniEntity {
     public static RelativeUrl = 'terms';
     public static EntityType = 'Terms';
 
-    public CreatedAt: Date;
-    public CreditDays: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public CreditDays: number;
     public TermsType: TermsType;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1383,19 +1384,19 @@ export class TOFCurrencySettings extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TOFCurrencySettings';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public UpdateCurrencyAmountsOnQuotedateChange: boolean;
     public CreatedBy: string;
+    public UpdateCurrencyAmountsOnOrderToInvoice: boolean;
+    public ID: number;
+    public UpdateCurrencyAmountsOnQuoteToInvoice: boolean;
+    public UpdateCurrencyAmountsOnOrderdateChange: boolean;
+    public CreatedAt: Date;
     public UpdateCurrencyAmountsOnQuoteToOrder: boolean;
     public UpdatedAt: Date;
-    public UpdateCurrencyAmountsOnOrderdateChange: boolean;
-    public UpdateCurrencyAmountsOnOrderToInvoice: boolean;
-    public Deleted: boolean;
-    public UpdateCurrencyAmountsOnQuotedateChange: boolean;
-    public UpdateCurrencyAmountsOnQuoteToInvoice: boolean;
     public UpdateCurrencyAmountsOnInvoicedateChange: boolean;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1405,22 +1406,22 @@ export class Address extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Address';
 
-    public CreatedAt: Date;
-    public City: string;
-    public PostalCode: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AddressLine2: string;
+    public AddressLine3: string;
     public AddressLine1: string;
-    public BusinessRelationID: number;
-    public CountryCode: string;
     public Deleted: boolean;
+    public StatusCode: number;
+    public City: string;
+    public CreatedBy: string;
+    public CountryCode: string;
+    public AddressLine2: string;
+    public BusinessRelationID: number;
+    public ID: number;
     public Region: string;
     public Country: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ID: number;
-    public AddressLine3: string;
-    public StatusCode: number;
+    public PostalCode: string;
     public _createguid: string;
     public BusinessRelation: BusinessRelation;
     public CustomFields: any;
@@ -1431,20 +1432,20 @@ export class BusinessRelation extends UniEntity {
     public static RelativeUrl = 'business-relations';
     public static EntityType = 'BusinessRelation';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public InvoiceAddressID: number;
-    public DefaultContactID: number;
     public Deleted: boolean;
-    public DefaultPhoneID: number;
-    public DefaultEmailID: number;
-    public ShippingAddressID: number;
-    public DefaultBankAccountID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public ShippingAddressID: number;
+    public CreatedBy: string;
+    public DefaultBankAccountID: number;
+    public DefaultEmailID: number;
+    public DefaultPhoneID: number;
+    public Name: string;
+    public InvoiceAddressID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public DefaultContactID: number;
     public _createguid: string;
     public DefaultContact: Contact;
     public Contacts: Array<Contact>;
@@ -1465,17 +1466,17 @@ export class Contact extends UniEntity {
     public static RelativeUrl = 'contacts';
     public static EntityType = 'Contact';
 
-    public CreatedAt: Date;
-    public Role: string;
-    public InfoID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Comment: string;
-    public ParentBusinessRelationID: number;
-    public UpdatedBy: string;
-    public ID: number;
+    public Role: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Comment: string;
+    public InfoID: number;
+    public ID: number;
+    public ParentBusinessRelationID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ParentBusinessRelation: BusinessRelation;
     public Info: BusinessRelation;
@@ -1487,17 +1488,17 @@ export class Email extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Email';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public BusinessRelationID: number;
     public Deleted: boolean;
-    public Type: string;
-    public EmailAddress: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public EmailAddress: string;
+    public CreatedBy: string;
+    public Description: string;
+    public BusinessRelationID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1507,18 +1508,18 @@ export class Phone extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Phone';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public BusinessRelationID: number;
-    public CountryCode: string;
     public Deleted: boolean;
-    public Type: PhoneTypeEnum;
-    public UpdatedBy: string;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public CountryCode: string;
+    public Description: string;
+    public BusinessRelationID: number;
     public ID: number;
     public Number: string;
-    public Description: string;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: PhoneTypeEnum;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1528,15 +1529,15 @@ export class AGACalculation extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGACalculation';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public PayrollRunID: number;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public DimensionsID: number;
+    public Deleted: boolean;
+    public PayrollRunID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public freeAmountUsed: Array<FreeAmountUsed>;
     public agaTax: Array<AGATax>;
@@ -1555,16 +1556,16 @@ export class FreeAmountUsed extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FreeAmountUsed';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public freeAmount: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public freeAmount: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1575,22 +1576,22 @@ export class AGATax extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGATax';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
     public agaBase: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public beregningsKode: number;
     public zone: number;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public agaRate: number;
+    public beregningsKode: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public agaRate: number;
     public AGARateID: number;
-    public zoneName: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1601,22 +1602,22 @@ export class AGAPension extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGAPension';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
     public agaBase: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public beregningsKode: number;
     public zone: number;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public agaRate: number;
+    public beregningsKode: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public agaRate: number;
     public AGARateID: number;
-    public zoneName: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1627,22 +1628,22 @@ export class AGADraw extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGADraw';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
     public agaBase: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public beregningsKode: number;
     public zone: number;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public agaRate: number;
+    public beregningsKode: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public agaRate: number;
     public AGARateID: number;
-    public zoneName: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1653,19 +1654,19 @@ export class ForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithPercent';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
     public agaBase: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public agaRate: number;
     public StatusCode: number;
-    public zoneName: string;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public agaRate: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1676,19 +1677,19 @@ export class DrawForeignerWithPercent extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DrawForeignerWithPercent';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
     public agaBase: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public agaRate: number;
     public StatusCode: number;
-    public zoneName: string;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public agaRate: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1699,19 +1700,19 @@ export class ForeignerWithAmount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ForeignerWithAmount';
 
-    public CreatedAt: Date;
-    public SubEntityID: number;
-    public aga: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public persons: number;
     public Deleted: boolean;
-    public AGACalculationID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
-    public zoneName: string;
+    public aga: number;
+    public persons: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public AGACalculationID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public municipalityName: string;
+    public zoneName: string;
     public _createguid: string;
     public subEntity: SubEntity;
     public CustomFields: any;
@@ -1722,16 +1723,16 @@ export class TaxAndAgaSums extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TaxAndAgaSums';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public WithholdingTax: number;
+    public FinancialTax: number;
+    public StatusCode: number;
     public CreatedBy: string;
     public GarnishmentTax: number;
-    public WithholdingTax: number;
-    public UpdatedAt: Date;
-    public FinancialTax: number;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1741,32 +1742,32 @@ export class AmeldingData extends UniEntity {
     public static RelativeUrl = 'amelding';
     public static EntityType = 'AmeldingData';
 
-    public OppgaveHash: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public replacesID: number;
-    public created: Date;
-    public UpdatedAt: Date;
-    public receiptID: number;
-    public altinnStatus: string;
-    public PayrollRunID: number;
-    public sent: Date;
-    public year: number;
-    public Deleted: boolean;
-    public mainFileID: number;
-    public type: AmeldingType;
-    public attachmentFileID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public period: number;
-    public status: number;
     public feedbackFileID: number;
     public messageID: string;
-    public StatusCode: number;
+    public Deleted: boolean;
     public initiated: Date;
+    public OppgaveHash: string;
+    public attachmentFileID: number;
+    public PayrollRunID: number;
+    public StatusCode: number;
+    public status: number;
+    public receiptID: number;
+    public replacesID: number;
+    public CreatedBy: string;
+    public mainFileID: number;
+    public year: number;
+    public altinnStatus: string;
+    public period: number;
+    public created: Date;
+    public ID: number;
+    public sent: Date;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public type: AmeldingType;
+    public UpdatedBy: string;
     public xmlValidationErrors: string;
-    public replaceThis: string;
     public _createguid: string;
+    public replaceThis: string;
     public log: Array<AmeldingLog>;
     public CustomFields: any;
 }
@@ -1776,16 +1777,16 @@ export class AmeldingLog extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AmeldingLog';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public registry: SalaryRegistry;
     public Deleted: boolean;
-    public AmeldingsID: number;
-    public key: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public AmeldingsID: number;
+    public CreatedAt: Date;
+    public key: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1795,18 +1796,18 @@ export class BasicAmount extends UniEntity {
     public static RelativeUrl = 'basicamounts';
     public static EntityType = 'BasicAmount';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
     public AveragePrYear: number;
+    public StatusCode: number;
+    public ConversionFactor: number;
     public CreatedBy: string;
     public FromDate: Date;
-    public UpdatedAt: Date;
-    public ConversionFactor: number;
-    public Deleted: boolean;
-    public BasicAmountPrMonth: number;
-    public UpdatedBy: string;
     public ID: number;
+    public BasicAmountPrMonth: number;
+    public CreatedAt: Date;
     public BasicAmountPrYear: number;
-    public StatusCode: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1816,45 +1817,45 @@ export class CompanySalary extends UniEntity {
     public static RelativeUrl = 'companysalary';
     public static EntityType = 'CompanySalary';
 
-    public CalculateFinancialTax: boolean;
-    public CreatedAt: Date;
-    public RateFinancialTax: number;
-    public Base_NettoPayment: boolean;
-    public CreatedBy: string;
-    public PaycheckZipReportID: number;
-    public UpdatedAt: Date;
     public Base_PayAsYouEarnTaxOnPensions: boolean;
-    public OtpExportActive: boolean;
     public Base_SpesialDeductionForMaritim: boolean;
-    public HoursPerMonth: number;
-    public HourFTEs: number;
-    public MainAccountAllocatedFinancial: number;
-    public PostGarnishmentToTaxAccount: boolean;
-    public MainAccountAllocatedFinancialVacation: number;
     public Deleted: boolean;
-    public PostToTaxDraw: boolean;
-    public WagetypeAdvancePaymentAuto: number;
-    public Base_Svalbard: boolean;
-    public InterrimRemitAccount: number;
-    public MainAccountCostAGAVacation: number;
-    public Base_TaxFreeOrganization: boolean;
     public AllowOver6G: boolean;
-    public PaymentInterval: CompanySalaryPaymentInterval;
-    public MainAccountCostVacation: number;
-    public MainAccountCostFinancialVacation: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public MainAccountAllocatedAGAVacation: number;
-    public MainAccountAllocatedVacation: number;
-    public FreeAmount: number;
-    public MainAccountCostFinancial: number;
-    public MainAccountAllocatedAGA: number;
     public WagetypeAdvancePayment: number;
-    public Base_NettoPaymentForMaritim: boolean;
+    public MainAccountAllocatedAGA: number;
     public StatusCode: number;
-    public WageDeductionDueToHoliday: WageDeductionDueToHolidayType;
+    public HoursPerMonth: number;
+    public PostGarnishmentToTaxAccount: boolean;
+    public MainAccountCostFinancial: number;
+    public Base_Svalbard: boolean;
+    public CreatedBy: string;
+    public RateFinancialTax: number;
+    public WagetypeAdvancePaymentAuto: number;
+    public PaycheckZipReportID: number;
+    public MainAccountCostVacation: number;
+    public Base_TaxFreeOrganization: boolean;
+    public InterrimRemitAccount: number;
     public MainAccountCostAGA: number;
+    public PostToTaxDraw: boolean;
+    public MainAccountAllocatedFinancial: number;
+    public FreeAmount: number;
+    public MainAccountAllocatedAGAVacation: number;
+    public Base_NettoPaymentForMaritim: boolean;
+    public MainAccountCostAGAVacation: number;
+    public Base_NettoPayment: boolean;
+    public PaymentInterval: CompanySalaryPaymentInterval;
+    public MainAccountCostFinancialVacation: number;
+    public OtpExportActive: boolean;
+    public HourFTEs: number;
+    public ID: number;
+    public MainAccountAllocatedFinancialVacation: number;
+    public CalculateFinancialTax: boolean;
+    public WageDeductionDueToHoliday: WageDeductionDueToHolidayType;
+    public CreatedAt: Date;
+    public MainAccountAllocatedVacation: number;
     public Base_JanMayenAndBiCountries: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1864,16 +1865,16 @@ export class CompanyVacationRate extends UniEntity {
     public static RelativeUrl = 'companyvacationrates';
     public static EntityType = 'CompanyVacationRate';
 
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Rate: number;
+    public FromDate: Date;
+    public ID: number;
     public CreatedAt: Date;
     public Rate60: number;
-    public CreatedBy: string;
-    public FromDate: Date;
     public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Rate: number;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1883,15 +1884,15 @@ export class EmployeeCategory extends UniEntity {
     public static RelativeUrl = 'employeecategories';
     public static EntityType = 'EmployeeCategory';
 
-    public CreatedAt: Date;
-    public EmployeeCategoryLinkID: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public EmployeeCategoryLinkID: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -1901,16 +1902,16 @@ export class EmployeeCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EmployeeCategoryLink';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EmployeeNumber: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public StatusCode: number;
     public EmployeeID: number;
+    public EmployeeNumber: number;
+    public CreatedBy: string;
     public ID: number;
     public EmployeeCategoryID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public EmployeeCategory: EmployeeCategory;
     public Employee: Employee;
@@ -1922,39 +1923,39 @@ export class Employee extends UniEntity {
     public static RelativeUrl = 'employees';
     public static EntityType = 'Employee';
 
-    public FreeText: string;
-    public EmploymentDateOtp: LocalDate;
-    public CreatedAt: Date;
-    public IncludeOtpUntilYear: number;
-    public SubEntityID: number;
-    public CreatedBy: string;
-    public InternasjonalIDType: InternationalIDType;
-    public OtpStatus: OtpStatus;
-    public UpdatedAt: Date;
-    public IncludeOtpUntilMonth: number;
-    public AdvancePaymentAmount: number;
-    public InternationalID: string;
-    public BusinessRelationID: number;
-    public InternasjonalIDCountry: string;
-    public BirthDate: Date;
-    public EmployeeNumber: number;
-    public Deleted: boolean;
-    public Active: boolean;
-    public OtpExport: boolean;
-    public Sex: GenderEnum;
-    public PhotoID: number;
-    public ForeignWorker: ForeignWorker;
-    public PaymentInterval: PaymentInterval;
-    public EndDateOtp: LocalDate;
-    public UpdatedBy: string;
-    public MunicipalityNo: string;
-    public EmploymentDate: Date;
-    public ID: number;
     public SocialSecurityNumber: string;
+    public FreeText: string;
     public EmployeeLanguageID: number;
-    public TypeOfPaymentOtp: TypeOfPaymentOtp;
-    public StatusCode: number;
+    public Deleted: boolean;
+    public OtpStatus: OtpStatus;
+    public IncludeOtpUntilYear: number;
     public UserID: number;
+    public MunicipalityNo: string;
+    public StatusCode: number;
+    public InternasjonalIDType: InternationalIDType;
+    public AdvancePaymentAmount: number;
+    public PhotoID: number;
+    public EmploymentDateOtp: LocalDate;
+    public EmployeeNumber: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public ForeignWorker: ForeignWorker;
+    public EmploymentDate: Date;
+    public InternasjonalIDCountry: string;
+    public Active: boolean;
+    public PaymentInterval: PaymentInterval;
+    public BusinessRelationID: number;
+    public TypeOfPaymentOtp: TypeOfPaymentOtp;
+    public ID: number;
+    public OtpExport: boolean;
+    public BirthDate: Date;
+    public InternationalID: string;
+    public IncludeOtpUntilMonth: number;
+    public Sex: GenderEnum;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public EndDateOtp: LocalDate;
     public _createguid: string;
     public BusinessRelationInfo: BusinessRelation;
     public Employments: Array<Employment>;
@@ -1970,34 +1971,34 @@ export class EmployeeTaxCard extends UniEntity {
     public static RelativeUrl = 'taxcards';
     public static EntityType = 'EmployeeTaxCard';
 
-    public loennTilUtenrikstjenestemannID: number;
-    public SecondaryTable: string;
-    public CreatedAt: Date;
-    public loennFraHovedarbeidsgiverID: number;
-    public Percent: number;
-    public NonTaxableAmount: number;
-    public Table: string;
-    public CreatedBy: string;
-    public IssueDate: Date;
-    public UpdatedAt: Date;
     public loennFraBiarbeidsgiverID: number;
-    public SKDXml: string;
-    public Tilleggsopplysning: string;
-    public loennKunTrygdeavgiftTilUtenlandskBorgerID: number;
-    public EmployeeNumber: number;
-    public Year: number;
     public Deleted: boolean;
-    public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjengerID: number;
-    public NotMainEmployer: boolean;
-    public pensjonID: number;
-    public TaxcardId: number;
-    public ufoereYtelserAndreID: number;
     public ResultatStatus: string;
-    public UpdatedBy: string;
-    public EmployeeID: number;
-    public ID: number;
     public SecondaryPercent: number;
+    public NotMainEmployer: boolean;
+    public NonTaxableAmount: number;
     public StatusCode: number;
+    public IssueDate: Date;
+    public EmployeeID: number;
+    public loennFraHovedarbeidsgiverID: number;
+    public EmployeeNumber: number;
+    public CreatedBy: string;
+    public Percent: number;
+    public Year: number;
+    public ufoereYtelserAndreID: number;
+    public TaxcardId: number;
+    public SecondaryTable: string;
+    public Table: string;
+    public Tilleggsopplysning: string;
+    public loennKunTrygdeavgiftTilUtenlandskBorgerSomGrensegjengerID: number;
+    public SKDXml: string;
+    public loennTilUtenrikstjenestemannID: number;
+    public ID: number;
+    public pensjonID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public loennKunTrygdeavgiftTilUtenlandskBorgerID: number;
     public NoRecalc: boolean;
     public _createguid: string;
     public loennFraHovedarbeidsgiver: TaxCard;
@@ -2015,18 +2016,18 @@ export class TaxCard extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TaxCard';
 
-    public CreatedAt: Date;
-    public Percent: number;
-    public NonTaxableAmount: number;
-    public Table: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public AntallMaanederForTrekk: number;
     public Deleted: boolean;
-    public tabellType: TabellType;
-    public UpdatedBy: string;
+    public NonTaxableAmount: number;
     public freeAmountType: FreeAmountType;
+    public CreatedBy: string;
+    public Percent: number;
+    public Table: string;
+    public tabellType: TabellType;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2036,20 +2037,20 @@ export class EmployeeLeave extends UniEntity {
     public static RelativeUrl = 'EmployeeLeave';
     public static EntityType = 'EmployeeLeave';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public LeavePercent: number;
+    public StatusCode: number;
+    public LeaveType: Leavetype;
+    public ToDate: Date;
     public CreatedBy: string;
+    public Description: string;
     public FromDate: Date;
+    public ID: number;
+    public AffectsOtp: boolean;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public EmploymentID: number;
-    public AffectsOtp: boolean;
-    public Deleted: boolean;
-    public ToDate: Date;
     public UpdatedBy: string;
-    public ID: number;
-    public LeaveType: Leavetype;
-    public LeavePercent: number;
-    public Description: string;
-    public StatusCode: number;
     public _createguid: string;
     public Employment: Employment;
     public CustomFields: any;
@@ -2060,42 +2061,42 @@ export class Employment extends UniEntity {
     public static RelativeUrl = 'employments';
     public static EntityType = 'Employment';
 
+    public RemunerationType: RemunerationType;
+    public TypeOfEmployment: TypeOfEmployment;
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public JobName: string;
+    public LastSalaryChangeDate: Date;
+    public StatusCode: number;
+    public HoursPerWeek: number;
+    public HourRate: number;
+    public EmployeeID: number;
+    public ShipReg: ShipRegistry;
+    public UserDefinedRate: number;
+    public EmployeeNumber: number;
+    public CreatedBy: string;
+    public SubEntityID: number;
+    public SeniorityDate: Date;
+    public JobCode: string;
+    public WorkPercent: number;
+    public MonthRate: number;
+    public StartDate: Date;
+    public EndDateReason: EndDateReason;
+    public RegulativeGroupID: number;
+    public ShipType: ShipTypeOfShip;
+    public LedgerAccount: string;
+    public LastWorkPercentChangeDate: Date;
+    public ID: number;
+    public WorkingHoursScheme: WorkingHoursScheme;
+    public RegulativeStepNr: number;
     public TradeArea: ShipTradeArea;
     public CreatedAt: Date;
-    public EndDateReason: EndDateReason;
-    public HourRate: number;
-    public RegulativeGroupID: number;
-    public SubEntityID: number;
-    public WorkPercent: number;
-    public LastSalaryChangeDate: Date;
-    public JobCode: string;
-    public CreatedBy: string;
-    public RegulativeStepNr: number;
-    public UpdatedAt: Date;
-    public TypeOfEmployment: TypeOfEmployment;
-    public EndDate: Date;
-    public LedgerAccount: string;
-    public EmployeeNumber: number;
-    public JobName: string;
-    public Deleted: boolean;
-    public UserDefinedRate: number;
-    public ShipType: ShipTypeOfShip;
-    public WorkingHoursScheme: WorkingHoursScheme;
     public Standard: boolean;
-    public StartDate: Date;
-    public UpdatedBy: string;
-    public EmployeeID: number;
-    public ID: number;
-    public RemunerationType: RemunerationType;
-    public LastWorkPercentChangeDate: Date;
-    public DimensionsID: number;
-    public MonthRate: number;
-    public StatusCode: number;
-    public PayGrade: string;
     public EmploymentType: EmploymentType;
-    public SeniorityDate: Date;
-    public HoursPerWeek: number;
-    public ShipReg: ShipRegistry;
+    public EndDate: Date;
+    public UpdatedAt: Date;
+    public PayGrade: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public Employee: Employee;
     public SubEntity: SubEntity;
@@ -2109,18 +2110,18 @@ export class Grant extends UniEntity {
     public static RelativeUrl = 'grants';
     public static EntityType = 'Grant';
 
-    public CreatedAt: Date;
-    public Amount: number;
-    public SubentityID: number;
-    public CreatedBy: string;
-    public FromDate: Date;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AffectsAGA: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public SubentityID: number;
+    public AffectsAGA: boolean;
+    public Description: string;
+    public FromDate: Date;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2130,14 +2131,14 @@ export class OtpExportWagetype extends UniEntity {
     public static RelativeUrl = 'otpexportwagetypes';
     public static EntityType = 'OtpExportWagetype';
 
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
     public CreatedAt: Date;
     public WageTypeNumber: number;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public Deleted: boolean;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2148,26 +2149,26 @@ export class PayrollRun extends UniEntity {
     public static EntityType = 'PayrollRun';
 
     public FreeText: string;
-    public CreatedAt: Date;
-    public PaycheckFileID: number;
-    public CreatedBy: string;
-    public FromDate: Date;
-    public AGAonRun: number;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AGAFreeAmount: number;
+    public StatusCode: number;
     public ToDate: Date;
+    public JournalEntryNumber: string;
+    public CreatedBy: string;
+    public HolidayPayDeduction: boolean;
+    public AGAonRun: number;
+    public PaycheckFileID: number;
+    public AGAFreeAmount: number;
+    public Description: string;
     public PayDate: Date;
     public needsRecalc: boolean;
-    public UpdatedBy: string;
-    public SettlementDate: Date;
+    public FromDate: Date;
     public ID: number;
-    public taxdrawfactor: TaxDrawFactor;
-    public HolidayPayDeduction: boolean;
+    public CreatedAt: Date;
     public ExcludeRecurringPosts: boolean;
-    public Description: string;
-    public StatusCode: number;
-    public JournalEntryNumber: string;
+    public taxdrawfactor: TaxDrawFactor;
+    public SettlementDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public transactions: Array<SalaryTransaction>;
     public agacalculation: Array<AGACalculation>;
@@ -2179,15 +2180,15 @@ export class PayrollRunCategoryLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PayrollRunCategoryLink';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public PayrollRunID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public PayrollRunID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
     public ID: number;
     public EmployeeCategoryID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public EmployeeCategory: EmployeeCategory;
     public PayrollRun: PayrollRun;
@@ -2196,14 +2197,14 @@ export class PayrollRunCategoryLink extends UniEntity {
 
 
 export class PostingSummaryDraft extends UniEntity {
-    public draftWithDimsOnBalance: string;
     public draftWithDims: string;
+    public status: SummaryJobStatus;
     public JobInfoID: number;
     public statusTime: Date;
-    public ID: number;
-    public status: SummaryJobStatus;
     public PayrollID: number;
     public draftBasic: string;
+    public ID: number;
+    public draftWithDimsOnBalance: string;
 }
 
 
@@ -2211,15 +2212,15 @@ export class Regulative extends UniEntity {
     public static RelativeUrl = 'regulatives';
     public static EntityType = 'Regulative';
 
-    public CreatedAt: Date;
-    public RegulativeGroupID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public StartDate: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public StartDate: LocalDate;
+    public RegulativeGroupID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Steps: Array<RegulativeStep>;
     public CustomFields: any;
@@ -2230,14 +2231,14 @@ export class RegulativeGroup extends UniEntity {
     public static RelativeUrl = 'regulativegroups';
     public static EntityType = 'RegulativeGroup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Regulatives: Array<Regulative>;
     public CustomFields: any;
@@ -2248,16 +2249,16 @@ export class RegulativeStep extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'RegulativeStep';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: number;
     public Amount: number;
     public CreatedBy: string;
-    public Step: number;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public RegulativeID: number;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
+    public Step: number;
+    public RegulativeID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2267,33 +2268,33 @@ export class SalaryBalance extends UniEntity {
     public static RelativeUrl = 'salarybalances';
     public static EntityType = 'SalaryBalance';
 
-    public CreatedAt: Date;
-    public WageTypeNumber: number;
-    public MaxAmount: number;
-    public Name: string;
-    public CreatedBy: string;
-    public FromDate: Date;
-    public InstalmentType: SalBalType;
-    public UpdatedAt: Date;
-    public MinAmount: number;
-    public SalaryBalanceTemplateID: number;
-    public EmploymentID: number;
+    public KID: string;
     public Deleted: boolean;
     public CreatePayment: boolean;
-    public ToDate: Date;
-    public Type: SalBalDrawType;
-    public InstalmentPercent: number;
-    public UpdatedBy: string;
-    public Instalment: number;
-    public EmployeeID: number;
-    public ID: number;
-    public Source: SalBalSource;
-    public KID: string;
     public SupplierID: number;
     public StatusCode: number;
+    public EmployeeID: number;
+    public ToDate: Date;
+    public CreatedBy: string;
+    public InstalmentType: SalBalType;
+    public MaxAmount: number;
+    public Instalment: number;
+    public InstalmentPercent: number;
+    public FromDate: Date;
+    public Name: string;
+    public MinAmount: number;
+    public ID: number;
+    public SalaryBalanceTemplateID: number;
+    public CreatedAt: Date;
+    public Source: SalBalSource;
+    public WageTypeNumber: number;
+    public UpdatedAt: Date;
+    public Type: SalBalDrawType;
+    public EmploymentID: number;
+    public UpdatedBy: string;
+    public CalculatedBalance: number;
     public Amount: number;
     public Balance: number;
-    public CalculatedBalance: number;
     public _createguid: string;
     public Employee: Employee;
     public Supplier: Supplier;
@@ -2307,18 +2308,18 @@ export class SalaryBalanceLine extends UniEntity {
     public static RelativeUrl = 'salarybalancelines';
     public static EntityType = 'SalaryBalanceLine';
 
-    public Date: LocalDate;
-    public CreatedAt: Date;
-    public Amount: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
+    public SalaryTransactionID: number;
     public SalaryBalanceID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
-    public SalaryTransactionID: number;
+    public Date: LocalDate;
+    public Amount: number;
+    public CreatedBy: string;
+    public Description: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public SalaryTransaction: SalaryTransaction;
     public SalaryBalance: SalaryBalance;
@@ -2330,25 +2331,25 @@ export class SalaryBalanceTemplate extends UniEntity {
     public static RelativeUrl = 'salarybalancetemplates';
     public static EntityType = 'SalaryBalanceTemplate';
 
-    public CreatedAt: Date;
-    public WageTypeNumber: number;
-    public MaxAmount: number;
-    public Name: string;
-    public CreatedBy: string;
-    public InstalmentType: SalBalType;
-    public UpdatedAt: Date;
-    public MinAmount: number;
+    public KID: string;
     public Deleted: boolean;
     public CreatePayment: boolean;
-    public InstalmentPercent: number;
-    public UpdatedBy: string;
-    public Instalment: number;
-    public ID: number;
-    public Account: number;
-    public KID: string;
     public SupplierID: number;
     public StatusCode: number;
+    public CreatedBy: string;
     public SalarytransactionDescription: string;
+    public Account: number;
+    public InstalmentType: SalBalType;
+    public MaxAmount: number;
+    public Instalment: number;
+    public InstalmentPercent: number;
+    public Name: string;
+    public MinAmount: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public WageTypeNumber: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Supplier: Supplier;
     public SalaryBalances: Array<SalaryBalance>;
@@ -2360,39 +2361,39 @@ export class SalaryTransaction extends UniEntity {
     public static RelativeUrl = 'salarytrans';
     public static EntityType = 'SalaryTransaction';
 
-    public RecurringID: number;
+    public DimensionsID: number;
+    public SalaryBalanceID: number;
+    public Deleted: boolean;
+    public VatTypeID: number;
+    public MunicipalityNo: string;
+    public PayrollRunID: number;
+    public StatusCode: number;
+    public EmployeeID: number;
+    public ToDate: Date;
+    public EmployeeNumber: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public HolidayPayDeduction: boolean;
+    public WageTypeID: number;
+    public Account: number;
+    public Rate: number;
+    public SystemType: StdSystemType;
+    public Text: string;
+    public calcAGA: number;
+    public recurringPostValidTo: Date;
+    public FromDate: Date;
+    public Sum: number;
+    public ChildSalaryTransactionID: number;
+    public ID: number;
+    public IsRecurringPost: boolean;
+    public recurringPostValidFrom: Date;
     public CreatedAt: Date;
     public WageTypeNumber: number;
-    public SystemType: StdSystemType;
-    public Amount: number;
-    public ChildSalaryTransactionID: number;
-    public CreatedBy: string;
-    public FromDate: Date;
-    public UpdatedAt: Date;
-    public SalaryBalanceID: number;
-    public PayrollRunID: number;
-    public recurringPostValidFrom: Date;
-    public IsRecurringPost: boolean;
-    public EmploymentID: number;
+    public RecurringID: number;
     public TaxbasisID: number;
-    public Sum: number;
-    public EmployeeNumber: number;
-    public Deleted: boolean;
-    public recurringPostValidTo: Date;
-    public ToDate: Date;
-    public Rate: number;
-    public WageTypeID: number;
-    public calcAGA: number;
-    public VatTypeID: number;
+    public UpdatedAt: Date;
+    public EmploymentID: number;
     public UpdatedBy: string;
-    public MunicipalityNo: string;
-    public EmployeeID: number;
-    public ID: number;
-    public Account: number;
-    public HolidayPayDeduction: boolean;
-    public DimensionsID: number;
-    public StatusCode: number;
-    public Text: string;
     public _createguid: string;
     public payrollrun: PayrollRun;
     public Employee: Employee;
@@ -2410,20 +2411,20 @@ export class SalaryTransactionSupplement extends UniEntity {
     public static RelativeUrl = 'supplements';
     public static EntityType = 'SalaryTransactionSupplement';
 
-    public CreatedAt: Date;
-    public ValueDate: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ValueDate2: Date;
-    public Deleted: boolean;
-    public WageTypeSupplementID: number;
-    public ValueString: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public ValueMoney: number;
-    public StatusCode: number;
-    public ValueBool: boolean;
     public SalaryTransactionID: number;
+    public Deleted: boolean;
+    public ValueString: string;
+    public StatusCode: number;
+    public WageTypeSupplementID: number;
+    public CreatedBy: string;
+    public ValueMoney: number;
+    public ValueDate2: Date;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public ValueDate: Date;
+    public UpdatedBy: string;
+    public ValueBool: boolean;
     public _createguid: string;
     public WageTypeSupplement: WageTypeSupplement;
     public CustomFields: any;
@@ -2434,14 +2435,14 @@ export class SalaryYear extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SalaryYear';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public CurrentYear: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public CurrentYear: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2451,20 +2452,20 @@ export class SubEntity extends UniEntity {
     public static RelativeUrl = 'subentities';
     public static EntityType = 'SubEntity';
 
-    public CreatedAt: Date;
+    public SuperiorOrganizationID: number;
+    public Deleted: boolean;
+    public MunicipalityNo: string;
+    public StatusCode: number;
+    public AgaZone: number;
     public CreatedBy: string;
+    public freeAmount: number;
+    public BusinessRelationID: number;
+    public ID: number;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public OrgNumber: string;
-    public BusinessRelationID: number;
-    public Deleted: boolean;
     public AgaRule: number;
-    public AgaZone: number;
     public UpdatedBy: string;
-    public MunicipalityNo: string;
-    public ID: number;
-    public freeAmount: number;
-    public StatusCode: number;
-    public SuperiorOrganizationID: number;
     public _createguid: string;
     public BusinessRelationInfo: BusinessRelation;
     public SuperiorOrganization: SubEntity;
@@ -2476,23 +2477,23 @@ export class TaxBasis extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TaxBasis';
 
-    public JanMayenBasis: number;
-    public CreatedAt: Date;
-    public SailorBasis: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ForeignCitizenInsuranceBasis: number;
-    public ForeignBorderCommuterBasis: number;
-    public PensionSourcetaxBasis: number;
-    public Basis: number;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public SvalbardBasis: number;
-    public ID: number;
-    public DisabilityOtherBasis: number;
-    public PensionBasis: number;
-    public StatusCode: number;
     public SalaryTransactionID: number;
+    public PensionBasis: number;
+    public Deleted: boolean;
+    public SailorBasis: number;
+    public ForeignBorderCommuterBasis: number;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Basis: number;
+    public ForeignCitizenInsuranceBasis: number;
+    public JanMayenBasis: number;
+    public DisabilityOtherBasis: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public PensionSourcetaxBasis: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2502,26 +2503,26 @@ export class Travel extends UniEntity {
     public static RelativeUrl = 'travels';
     public static EntityType = 'Travel';
 
-    public CreatedAt: Date;
-    public Name: string;
     public State: state;
-    public CreatedBy: string;
-    public Email: string;
-    public Purpose: string;
-    public UpdatedAt: Date;
-    public SourceSystem: string;
-    public Phone: string;
-    public EmployeeNumber: number;
-    public Deleted: boolean;
-    public TravelIdentificator: string;
-    public Comment: string;
-    public PersonID: string;
-    public UpdatedBy: string;
-    public ID: number;
     public DimensionsID: number;
-    public Description: string;
+    public Deleted: boolean;
     public SupplierID: number;
+    public Phone: string;
     public StatusCode: number;
+    public PersonID: string;
+    public SourceSystem: string;
+    public EmployeeNumber: number;
+    public CreatedBy: string;
+    public Comment: string;
+    public Description: string;
+    public Name: string;
+    public Purpose: string;
+    public ID: number;
+    public TravelIdentificator: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public AdvanceAmount: number;
     public _createguid: string;
     public TravelLines: Array<TravelLine>;
@@ -2534,28 +2535,28 @@ export class TravelLine extends UniEntity {
     public static RelativeUrl = 'travellines';
     public static EntityType = 'TravelLine';
 
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public LineState: linestate;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public paytransID: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public TravelID: number;
     public CostType: costtype;
     public From: Date;
-    public CreatedAt: Date;
-    public Amount: number;
-    public paytransID: number;
-    public To: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public InvoiceAccount: number;
-    public LineState: linestate;
-    public Deleted: boolean;
     public Rate: number;
-    public TravelIdentificator: string;
-    public VatTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public TypeID: number;
-    public AccountNumber: number;
-    public DimensionsID: number;
+    public To: Date;
     public Description: string;
-    public StatusCode: number;
-    public TravelID: number;
+    public InvoiceAccount: number;
+    public AccountNumber: number;
+    public TypeID: number;
+    public ID: number;
+    public TravelIdentificator: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Travel: Travel;
     public VatType: VatType;
@@ -2569,18 +2570,18 @@ export class TravelType extends UniEntity {
     public static RelativeUrl = 'traveltype';
     public static EntityType = 'TravelType';
 
+    public ForeignDescription: string;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ForeignTypeID: string;
+    public Description: string;
+    public InvoiceAccount: number;
+    public ID: number;
     public CreatedAt: Date;
     public WageTypeNumber: number;
-    public CreatedBy: string;
-    public ForeignDescription: string;
     public UpdatedAt: Date;
-    public InvoiceAccount: number;
-    public Deleted: boolean;
-    public ForeignTypeID: string;
     public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2590,27 +2591,27 @@ export class VacationPayLine extends UniEntity {
     public static RelativeUrl = 'VacationPayLines';
     public static EntityType = 'VacationPayLine';
 
-    public ManualVacationPayBase: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Year: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public EmployeeID: number;
-    public ID: number;
     public StatusCode: number;
+    public EmployeeID: number;
+    public CreatedBy: string;
+    public Year: number;
+    public ManualVacationPayBase: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public PaidTaxFreeVacationPay: number;
-    public MissingEarlierVacationPay: number;
-    public Rate60: number;
-    public Age: number;
-    public VacationPay: number;
-    public Rate: number;
     public PaidVacationPay: number;
-    public Withdrawal: number;
-    public _createguid: string;
-    public VacationPay60: number;
     public SystemVacationPayBase: number;
+    public Rate: number;
+    public VacationPay: number;
+    public MissingEarlierVacationPay: number;
+    public _createguid: string;
+    public Age: number;
+    public Rate60: number;
+    public VacationPay60: number;
+    public Withdrawal: number;
     public Employee: Employee;
     public CustomFields: any;
 }
@@ -2620,18 +2621,18 @@ export class VacationRateEmployee extends UniEntity {
     public static RelativeUrl = 'employeevacationrates';
     public static EntityType = 'VacationRateEmployee';
 
-    public CreatedAt: Date;
-    public Rate60: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EndDate: Date;
     public Deleted: boolean;
+    public StatusCode: number;
+    public EmployeeID: number;
+    public CreatedBy: string;
     public Rate: number;
     public StartDate: Date;
-    public UpdatedBy: string;
-    public EmployeeID: number;
     public ID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public Rate60: number;
+    public EndDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2641,47 +2642,47 @@ export class WageType extends UniEntity {
     public static RelativeUrl = 'wagetypes';
     public static EntityType = 'WageType';
 
-    public Limit_value: number;
-    public Base_EmploymentTax: boolean;
-    public CreatedAt: Date;
-    public taxtype: TaxType;
-    public WageTypeNumber: number;
-    public Systemtype: string;
+    public HideFromPaycheck: boolean;
+    public Base_div3: boolean;
+    public Base_div2: boolean;
     public RatetypeColumn: RateTypeColumn;
-    public AccountNumber_balance: number;
+    public Deleted: boolean;
+    public Limit_newRate: number;
+    public Base_EmploymentTax: boolean;
+    public StatusCode: number;
+    public Benefit: string;
+    public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
+    public SpecialAgaRule: SpecialAgaRule;
+    public Base_Vacation: boolean;
+    public Limit_value: number;
     public CreatedBy: string;
     public SpecialTaxHandling: string;
-    public WageTypeName: string;
-    public UpdatedAt: Date;
-    public Limit_newRate: number;
-    public GetRateFrom: GetRateFrom;
-    public Postnr: string;
-    public SpecialTaxAndContributionsRule: SpecialTaxAndContributionsRule;
-    public SupplementPackage: string;
-    public IncomeType: string;
-    public StandardWageTypeFor: StdWageType;
-    public Deleted: boolean;
-    public Base_div3: boolean;
-    public DaysOnBoard: boolean;
-    public FixedSalaryHolidayDeduction: boolean;
-    public SpecialAgaRule: SpecialAgaRule;
-    public Benefit: string;
-    public Rate: number;
-    public SystemRequiredWageType: number;
-    public Base_div2: boolean;
-    public Base_Vacation: boolean;
-    public NoNumberOfHours: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Limit_WageTypeNumber: number;
-    public AccountNumber: number;
-    public HideFromPaycheck: boolean;
-    public Description: string;
-    public StatusCode: number;
-    public ValidYear: number;
     public RateFactor: number;
-    public Limit_type: LimitType;
+    public SystemRequiredWageType: number;
+    public SupplementPackage: string;
     public Base_Payment: boolean;
+    public Rate: number;
+    public FixedSalaryHolidayDeduction: boolean;
+    public Systemtype: string;
+    public WageTypeName: string;
+    public Description: string;
+    public StandardWageTypeFor: StdWageType;
+    public AccountNumber: number;
+    public Limit_type: LimitType;
+    public DaysOnBoard: boolean;
+    public ID: number;
+    public NoNumberOfHours: boolean;
+    public Limit_WageTypeNumber: number;
+    public GetRateFrom: GetRateFrom;
+    public CreatedAt: Date;
+    public AccountNumber_balance: number;
+    public taxtype: TaxType;
+    public IncomeType: string;
+    public WageTypeNumber: number;
+    public ValidYear: number;
+    public Postnr: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public SupplementaryInformations: Array<WageTypeSupplement>;
     public CustomFields: any;
@@ -2692,20 +2693,20 @@ export class WageTypeSupplement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WageTypeSupplement';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public ameldingType: string;
+    public StatusCode: number;
+    public CreatedBy: string;
     public WageTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public GetValueFromTrans: boolean;
+    public ameldingType: string;
     public ValueType: Valuetype;
     public Description: string;
-    public StatusCode: number;
     public SuggestedValue: string;
+    public Name: string;
+    public GetValueFromTrans: boolean;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2715,16 +2716,16 @@ export class WageTypeTranslation extends UniEntity {
     public static RelativeUrl = 'wagetypetranslations';
     public static EntityType = 'WageTypeTranslation';
 
-    public CreatedAt: Date;
-    public WageTypeNumber: number;
+    public EmployeeLanguageID: number;
+    public Deleted: boolean;
+    public StatusCode: number;
     public CreatedBy: string;
     public WageTypeName: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public EmployeeLanguageID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public WageTypeNumber: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public EmployeeLanguage: EmployeeLanguage;
     public CustomFields: any;
@@ -2735,16 +2736,16 @@ export class PensionScheme extends UniEntity {
     public static RelativeUrl = 'pensionschemes';
     public static EntityType = 'PensionScheme';
 
-    public Identificator: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Year: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public Period: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Year: number;
+    public Period: number;
+    public Identificator: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2754,15 +2755,15 @@ export class PensionSchemeSupplier extends UniEntity {
     public static RelativeUrl = 'pensionschemesuppliers';
     public static EntityType = 'PensionSchemeSupplier';
 
-    public Identificator: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Identificator: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2772,14 +2773,14 @@ export class StandardPensionSchemeSupplier extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'StandardPensionSchemeSupplier';
 
-    public Identificator: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Identificator: string;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2789,14 +2790,14 @@ export class EmployeeLanguage extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EmployeeLanguage';
 
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
     public LanguageCode: string;
     public CreatedAt: Date;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public Deleted: boolean;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2806,15 +2807,15 @@ export class ComponentLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComponentLayout';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public BaseEntity: string;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public BaseEntity: string;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Fields: Array<FieldLayout>;
     public CustomFields: any;
@@ -2825,35 +2826,35 @@ export class FieldLayout extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FieldLayout';
 
-    public Hidden: boolean;
-    public CreatedAt: Date;
-    public ReadOnly: boolean;
-    public Property: string;
     public Options: string;
-    public Placeholder: string;
-    public ComponentLayoutID: number;
-    public CreatedBy: string;
-    public FieldType: FieldType;
-    public UpdatedAt: Date;
-    public LineBreak: boolean;
-    public Placement: number;
-    public Combo: number;
-    public Deleted: boolean;
-    public HelpText: string;
-    public FieldSet: number;
-    public Alignment: Alignment;
     public EntityType: string;
-    public UpdatedBy: string;
-    public Width: string;
-    public ID: number;
-    public Label: string;
-    public Sectionheader: string;
+    public FieldType: FieldType;
+    public Deleted: boolean;
     public Legend: string;
-    public Description: string;
+    public Combo: number;
     public StatusCode: number;
-    public LookupField: boolean;
-    public DisplayField: string;
+    public HelpText: string;
     public Section: number;
+    public Width: string;
+    public Placement: number;
+    public CreatedBy: string;
+    public Sectionheader: string;
+    public Property: string;
+    public ComponentLayoutID: number;
+    public Placeholder: string;
+    public DisplayField: string;
+    public Alignment: Alignment;
+    public ReadOnly: boolean;
+    public Description: string;
+    public ID: number;
+    public LookupField: boolean;
+    public Label: string;
+    public CreatedAt: Date;
+    public LineBreak: boolean;
+    public UpdatedAt: Date;
+    public FieldSet: number;
+    public UpdatedBy: string;
+    public Hidden: boolean;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2863,19 +2864,19 @@ export class CurrencyOverride extends UniEntity {
     public static RelativeUrl = 'currencyoverrides';
     public static EntityType = 'CurrencyOverride';
 
-    public Factor: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public FromDate: LocalDate;
-    public UpdatedAt: Date;
-    public ExchangeRate: number;
     public Deleted: boolean;
     public ToDate: LocalDate;
-    public ToCurrencyCodeID: number;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public ExchangeRate: number;
+    public Factor: number;
     public FromCurrencyCodeID: number;
+    public FromDate: LocalDate;
     public ID: number;
+    public CreatedAt: Date;
     public Source: CurrencySourceEnum;
+    public ToCurrencyCodeID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public FromCurrencyCode: CurrencyCode;
     public ToCurrencyCode: CurrencyCode;
@@ -2887,15 +2888,15 @@ export class AccountAssetGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountAssetGroup';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public FromAccountNumber: number;
-    public UpdatedAt: Date;
-    public AssetGroupCode: string;
     public Deleted: boolean;
+    public CreatedBy: string;
+    public AssetGroupCode: string;
     public ToAccountNumber: number;
-    public UpdatedBy: string;
+    public FromAccountNumber: number;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2905,16 +2906,16 @@ export class AccountGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountGroupSetup';
 
-    public ExternalReference: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
     public PlanType: PlanTypeEnum;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
     public ParentID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public Parent: AccountGroupSetup;
     public CustomFields: any;
@@ -2925,20 +2926,20 @@ export class AccountSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountSetup';
 
-    public CreatedAt: Date;
-    public SaftMappingAccountID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
+    public AccountGroupSetupID: number;
     public Deleted: boolean;
     public VatCode: string;
-    public AccountName: string;
-    public AccountGroupSetupID: number;
-    public UpdatedBy: string;
-    public PlanType: PlanTypeEnum;
-    public ID: number;
-    public AccountNumber: number;
-    public Visible: boolean;
     public ExpectedDebitBalance: boolean;
+    public AccountName: string;
+    public CreatedBy: string;
+    public PlanType: PlanTypeEnum;
+    public AccountNumber: number;
+    public ID: number;
+    public SaftMappingAccountID: number;
+    public CreatedAt: Date;
+    public Visible: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public AccountGroup: AccountGroupSetup;
     public SaftMappingAccount: SaftMappingAccount;
@@ -2950,13 +2951,13 @@ export class AccountVisibilityGroup extends UniEntity {
     public static RelativeUrl = 'accountvisibilitygroups';
     public static EntityType = 'AccountVisibilityGroup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Accounts: Array<AccountVisibilityGroupAccount>;
     public CompanyTypes: Array<CompanyType>;
@@ -2968,14 +2969,14 @@ export class AccountVisibilityGroupAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountVisibilityGroupAccount';
 
-    public CreatedAt: Date;
-    public AccountVisibilityGroupID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public AccountSetupID: number;
+    public Deleted: boolean;
+    public CreatedBy: string;
+    public AccountVisibilityGroupID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -2985,15 +2986,15 @@ export class AGARate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGARate';
 
-    public CreatedAt: Date;
-    public ZoneID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Rate: number;
-    public UpdatedBy: string;
-    public ID: number;
     public RateValidFrom: Date;
+    public Deleted: boolean;
+    public CreatedBy: string;
+    public Rate: number;
+    public ID: number;
+    public ZoneID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public sector: Array<AGASector>;
     public CustomFields: any;
@@ -3004,18 +3005,18 @@ export class AGASector extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AGASector';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
+    public RateID: number;
+    public SectorID: number;
     public Deleted: boolean;
-    public Rate: number;
+    public CreatedBy: string;
     public Sector: string;
     public ValidFrom: Date;
-    public UpdatedBy: string;
-    public ID: number;
+    public Rate: number;
     public freeAmount: number;
-    public SectorID: number;
-    public RateID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3025,13 +3026,13 @@ export class AGAZone extends UniEntity {
     public static RelativeUrl = 'AGAZones';
     public static EntityType = 'AGAZone';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
     public ZoneName: string;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public rates: Array<AGARate>;
     public municipalsOnZone: Array<MunicipalAGAZone>;
@@ -3043,16 +3044,33 @@ export class Agreement extends UniEntity {
     public static RelativeUrl = 'agreements';
     public static EntityType = 'Agreement';
 
-    public CreatedAt: Date;
-    public Name: string;
+    public Deleted: boolean;
+    public Template: string;
     public CreatedBy: string;
+    public ValidFrom: Date;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public AppliesTo: number;
-    public Deleted: boolean;
-    public ValidFrom: Date;
     public UpdatedBy: string;
+    public _createguid: string;
+    public CustomFields: any;
+}
+
+
+export class AltinnAccountFormLink extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AltinnAccountFormLink';
+
+    public Deleted: boolean;
+    public CreatedBy: string;
+    public Ref: string;
+    public AccountNumber: number;
     public ID: number;
-    public Template: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3062,18 +3080,18 @@ export class AssetGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AssetGroup';
 
-    public CreatedAt: Date;
-    public DepreciationYears: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
     public ToDate: Date;
-    public UpdatedBy: string;
-    public ID: number;
     public DepreciationRate: number;
-    public DepreciationAccountNumber: number;
+    public DepreciationYears: number;
+    public CreatedBy: string;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public DepreciationAccountNumber: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3083,15 +3101,15 @@ export class BankIdentifierCode extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankIdentifierCode';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
     public BankName: string;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public Bic: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public BankIdentifier: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3101,18 +3119,18 @@ export class CompanyType extends UniEntity {
     public static RelativeUrl = 'companytypes';
     public static EntityType = 'CompanyType';
 
-    public CreatedAt: Date;
-    public FullName: string;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public DefaultAccountVisibilityGroupID: number;
     public Priority: boolean;
-    public DefaultPlanType: PlanTypeEnum;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
+    public DefaultAccountVisibilityGroupID: number;
+    public FullName: string;
     public Description: string;
+    public Name: string;
+    public DefaultPlanType: PlanTypeEnum;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3122,21 +3140,21 @@ export class Confirmation extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Confirmation';
 
-    public CreatedAt: Date;
-    public ExpirationDate: Date;
-    public PostalCode: string;
-    public CreatedBy: string;
-    public Email: string;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public Phone: string;
-    public Deleted: boolean;
     public ContractType: string;
-    public DisplayName: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
+    public Phone: string;
     public StatusCode: number;
+    public ExpirationDate: Date;
+    public CreatedBy: string;
     public Code: string;
+    public ID: number;
+    public DisplayName: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
+    public PostalCode: string;
     public SignUpReferrer: string;
     public _createguid: string;
     public CustomFields: any;
@@ -3147,16 +3165,16 @@ export class Country extends UniEntity {
     public static RelativeUrl = 'countries';
     public static EntityType = 'Country';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CountryCode: string;
-    public CurrencyRateSource: string;
     public Deleted: boolean;
+    public CreatedBy: string;
+    public CurrencyRateSource: string;
+    public CountryCode: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public DefaultCurrencyCode: string;
     public UpdatedBy: string;
-    public ID: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3166,18 +3184,18 @@ export class Currency extends UniEntity {
     public static RelativeUrl = 'currencies';
     public static EntityType = 'Currency';
 
-    public Factor: number;
-    public CurrencyDate: LocalDate;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ExchangeRate: number;
     public Deleted: boolean;
-    public ToCurrencyCodeID: number;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public ExchangeRate: number;
+    public Factor: number;
     public FromCurrencyCodeID: number;
     public ID: number;
+    public CurrencyDate: LocalDate;
+    public CreatedAt: Date;
     public Source: CurrencySourceEnum;
+    public ToCurrencyCodeID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public FromCurrencyCode: CurrencyCode;
     public ToCurrencyCode: CurrencyCode;
@@ -3189,16 +3207,16 @@ export class CurrencyCode extends UniEntity {
     public static RelativeUrl = 'currencycodes';
     public static EntityType = 'CurrencyCode';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public ShortCode: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public ShortCode: string;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3208,15 +3226,15 @@ export class DebtCollectionAutomation extends UniEntity {
     public static RelativeUrl = 'debtcollectionautomation';
     public static EntityType = 'DebtCollectionAutomation';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
     public ID: number;
     public DebtCollectionSettingsID: number;
-    public Description: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public DebtCollectionSettings: DebtCollectionSettings;
     public CustomFields: any;
@@ -3227,32 +3245,32 @@ export class EmploymentValidValues extends UniEntity {
     public static RelativeUrl = 'employmentvalidvalues';
     public static EntityType = 'EmploymentValidValues';
 
+    public RemunerationType: boolean;
+    public typeOfEmployment: boolean;
+    public Deleted: boolean;
+    public JobName: boolean;
+    public LastSalaryChangeDate: boolean;
+    public HoursPerWeek: boolean;
+    public HourRate: boolean;
+    public ShipReg: boolean;
+    public UserDefinedRate: boolean;
+    public CreatedBy: string;
+    public SeniorityDate: boolean;
+    public JobCode: boolean;
+    public WorkPercent: boolean;
+    public MonthRate: boolean;
+    public StartDate: boolean;
+    public ShipType: boolean;
+    public employment: TypeOfEmployment;
+    public ID: number;
+    public WorkingHoursScheme: boolean;
+    public PaymentType: RemunerationType;
     public TradeArea: boolean;
     public CreatedAt: Date;
-    public employment: TypeOfEmployment;
-    public HourRate: boolean;
-    public WorkPercent: boolean;
-    public LastSalaryChangeDate: boolean;
-    public JobCode: boolean;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public typeOfEmployment: boolean;
     public EndDate: boolean;
     public LastWorkPercentChange: boolean;
-    public JobName: boolean;
-    public Deleted: boolean;
-    public UserDefinedRate: boolean;
-    public ShipType: boolean;
-    public WorkingHoursScheme: boolean;
-    public StartDate: boolean;
+    public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ID: number;
-    public RemunerationType: boolean;
-    public MonthRate: boolean;
-    public SeniorityDate: boolean;
-    public HoursPerWeek: boolean;
-    public PaymentType: RemunerationType;
-    public ShipReg: boolean;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3262,18 +3280,18 @@ export class FinancialDeadline extends UniEntity {
     public static RelativeUrl = 'deadlines';
     public static EntityType = 'FinancialDeadline';
 
-    public AdditionalInfo: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Type: FinancialDeadlineType;
-    public Deadline: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
-    public PassableDueDate: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public PassableDueDate: number;
+    public Deadline: LocalDate;
+    public AdditionalInfo: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: FinancialDeadlineType;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3283,14 +3301,14 @@ export class LanguageCode extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'LanguageCode';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3300,17 +3318,17 @@ export class Municipal extends UniEntity {
     public static RelativeUrl = 'Municipals';
     public static EntityType = 'Municipal';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public CountyName: string;
-    public UpdatedBy: string;
     public MunicipalityNo: string;
-    public ID: number;
     public MunicipalityName: string;
+    public CreatedBy: string;
+    public CountyName: string;
+    public ID: number;
     public CountyNo: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public Retired: boolean;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3320,15 +3338,15 @@ export class MunicipalAGAZone extends UniEntity {
     public static RelativeUrl = 'MunicipalAGAZones';
     public static EntityType = 'MunicipalAGAZone';
 
-    public CreatedAt: Date;
-    public ZoneID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Startdate: Date;
-    public UpdatedBy: string;
     public MunicipalityNo: string;
+    public CreatedBy: string;
+    public Startdate: Date;
     public ID: number;
+    public ZoneID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3338,15 +3356,15 @@ export class PaymentBatchType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'PaymentBatchType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public Name: string;
     public Code: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3356,16 +3374,16 @@ export class PaymentCode extends UniEntity {
     public static RelativeUrl = 'paymentCodes';
     public static EntityType = 'PaymentCode';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public PaymentGroup: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public Name: string;
     public Code: number;
+    public ID: number;
+    public PaymentGroup: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3375,15 +3393,33 @@ export class PostalCode extends UniEntity {
     public static RelativeUrl = 'postalcodes';
     public static EntityType = 'PostalCode';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: number;
     public City: string;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public CustomFields: any;
+}
+
+
+export class ReconcileType extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ReconcileType';
+
+    public Deleted: boolean;
+    public MaxIntervalNumber: number;
+    public CreatedBy: string;
+    public Interval: ReconcileInterval;
+    public ReconcileName: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3393,14 +3429,14 @@ export class SaftMappingAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SaftMappingAccount';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public AccountID: string;
     public Description: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3410,14 +3446,14 @@ export class StaticRegister extends UniEntity {
     public static RelativeUrl = 'StaticRegister';
     public static EntityType = 'StaticRegister';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Registry: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public stamp: Date;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3427,16 +3463,16 @@ export class STYRKCode extends UniEntity {
     public static RelativeUrl = 'STYRK';
     public static EntityType = 'STYRKCode';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public ynr: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public tittel: string;
     public styrk: string;
+    public ynr: number;
     public lnr: number;
+    public CreatedBy: string;
+    public tittel: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3446,15 +3482,15 @@ export class Language extends UniEntity {
     public static RelativeUrl = 'languages';
     public static EntityType = 'Language';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public FallBackLanguageID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
+    public FallBackLanguageID: number;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Translations: Array<Translation>;
     public CustomFields: any;
@@ -3465,19 +3501,19 @@ export class Translatable extends UniEntity {
     public static RelativeUrl = 'translatables';
     public static EntityType = 'Translatable';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Model: string;
-    public Value: string;
-    public Deleted: boolean;
-    public Meaning: string;
     public Static: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
     public Module: i18nModule;
+    public CreatedBy: string;
+    public Meaning: string;
     public Column: string;
     public Description: string;
+    public Model: string;
+    public ID: number;
+    public Value: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Translations: Array<Translation>;
     public CustomFields: any;
@@ -3488,15 +3524,15 @@ export class Translation extends UniEntity {
     public static RelativeUrl = 'translations';
     public static EntityType = 'Translation';
 
-    public TranslatableID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Value: string;
-    public LanguageID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public LanguageID: number;
+    public CreatedBy: string;
+    public TranslatableID: number;
     public ID: number;
+    public Value: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Language: Language;
     public Translatable: Translatable;
@@ -3508,14 +3544,14 @@ export class VatCodeGroupSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroupSetup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Name: string;
     public ID: number;
     public No: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3525,18 +3561,18 @@ export class VatPostSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPostSetup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public ReportAsNegativeAmount: boolean;
-    public HasTaxBasis: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public VatCodeGroupSetupNo: string;
-    public No: string;
     public HasTaxAmount: boolean;
+    public CreatedBy: string;
+    public VatCodeGroupSetupNo: string;
+    public Name: string;
+    public ReportAsNegativeAmount: boolean;
+    public ID: number;
+    public No: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public HasTaxBasis: boolean;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3546,14 +3582,14 @@ export class VatReportForm extends UniEntity {
     public static RelativeUrl = 'vatreportforms';
     public static EntityType = 'VatReportForm';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3564,14 +3600,14 @@ export class VatReportReferenceSetup extends UniEntity {
     public static EntityType = 'VatReportReferenceSetup';
 
     public VatPostNo: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
     public VatCode: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public AccountNumber: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3581,23 +3617,23 @@ export class VatTypeSetup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypeSetup';
 
-    public DefaultVisible: boolean;
-    public CreatedAt: Date;
-    public OutgoingAccountNumber: number;
-    public Name: string;
-    public CreatedBy: string;
-    public DirectJournalEntryOnly: boolean;
-    public UpdatedAt: Date;
-    public IsCompensated: boolean;
     public Deleted: boolean;
-    public VatCodeGroupNo: string;
-    public IncomingAccountNumber: number;
     public VatCode: string;
-    public ReversedTaxDutyVat: boolean;
-    public OutputVat: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public DefaultVisible: boolean;
+    public IsCompensated: boolean;
     public IsNotVatRegistered: boolean;
+    public CreatedBy: string;
+    public OutgoingAccountNumber: number;
+    public VatCodeGroupNo: string;
+    public Name: string;
+    public ID: number;
+    public OutputVat: boolean;
+    public DirectJournalEntryOnly: boolean;
+    public ReversedTaxDutyVat: boolean;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public IncomingAccountNumber: number;
     public _createguid: string;
     public VatTypeSetupPercentages: Array<VatTypeSetupPercentage>;
     public CustomFields: any;
@@ -3608,16 +3644,16 @@ export class VatTypeSetupPercentage extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypeSetupPercentage';
 
-    public ValidTo: LocalDate;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public VatPercent: number;
-    public ValidFrom: LocalDate;
+    public Deleted: boolean;
     public VatTypeSetupID: number;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3627,15 +3663,15 @@ export class CompanyReport extends UniEntity {
     public static RelativeUrl = 'company-report';
     public static EntityType = 'CompanyReport';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractId: number;
-    public CompanyKey: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public ReportDefinitionID: number;
+    public ID: number;
+    public CompanyKey: string;
+    public ContractId: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3645,24 +3681,24 @@ export class ReportDefinition extends UniEntity {
     public static RelativeUrl = 'report-definitions';
     public static EntityType = 'ReportDefinition';
 
-    public CreatedAt: Date;
-    public Name: string;
     public ReportType: number;
-    public CreatedBy: string;
-    public ReportSource: string;
-    public TemplateLinkId: string;
-    public UpdatedAt: Date;
     public IsStandard: boolean;
     public Deleted: boolean;
-    public UniqueReportID: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Version: string;
-    public Md5: string;
-    public Visible: boolean;
-    public Description: string;
-    public Category: string;
     public CategoryLabel: string;
+    public UniqueReportID: string;
+    public CreatedBy: string;
+    public ReportSource: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public Md5: string;
+    public TemplateLinkId: string;
+    public Category: string;
+    public Version: string;
+    public CreatedAt: Date;
+    public Visible: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3672,15 +3708,15 @@ export class ReportDefinitionDataSource extends UniEntity {
     public static RelativeUrl = 'report-definition-data-sources';
     public static EntityType = 'ReportDefinitionDataSource';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public DataSourceUrl: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
+    public Name: string;
     public ReportDefinitionId: number;
+    public ID: number;
+    public DataSourceUrl: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3690,21 +3726,21 @@ export class ReportDefinitionParameter extends UniEntity {
     public static RelativeUrl = 'report-definition-parameters';
     public static EntityType = 'ReportDefinitionParameter';
 
-    public DefaultValue: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public DefaultValueLookupType: string;
-    public Type: string;
-    public UpdatedBy: string;
+    public Deleted: boolean;
+    public DefaultValueSource: string;
+    public DefaultValueList: string;
+    public CreatedBy: string;
+    public Name: string;
+    public ReportDefinitionId: number;
     public ID: number;
     public Label: string;
-    public ReportDefinitionId: number;
-    public DefaultValueSource: string;
+    public CreatedAt: Date;
     public Visible: boolean;
-    public DefaultValueList: string;
+    public UpdatedAt: Date;
+    public DefaultValue: string;
+    public Type: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3714,15 +3750,15 @@ export class PeriodSeries extends UniEntity {
     public static RelativeUrl = 'period-series';
     public static EntityType = 'PeriodSeries';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public SeriesType: PeriodSeriesType;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public SeriesType: PeriodSeriesType;
+    public CreatedBy: string;
     public Active: boolean;
-    public UpdatedBy: string;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3732,17 +3768,17 @@ export class PeriodTemplate extends UniEntity {
     public static RelativeUrl = 'period-templates';
     public static EntityType = 'PeriodTemplate';
 
-    public CreatedAt: Date;
-    public Name: string;
+    public Deleted: boolean;
+    public PeriodSeriesID: number;
+    public ToDate: LocalDate;
     public CreatedBy: string;
     public FromDate: LocalDate;
-    public UpdatedAt: Date;
-    public PeriodSeriesID: number;
-    public Deleted: boolean;
-    public ToDate: LocalDate;
-    public UpdatedBy: string;
+    public Name: string;
     public ID: number;
     public No: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public PeriodSeries: PeriodSeries;
     public CustomFields: any;
@@ -3753,18 +3789,18 @@ export class Model extends UniEntity {
     public static RelativeUrl = 'models';
     public static EntityType = 'Model';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public LabelPlural: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public Admin: boolean;
     public Shared: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public LabelPlural: string;
     public ID: number;
     public Label: string;
-    public Admin: boolean;
-    public Description: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Fields: Array<Field>;
     public CustomFields: any;
@@ -3775,17 +3811,17 @@ export class Field extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Field';
 
-    public CreatedAt: Date;
-    public ModelID: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
     public HelpText: string;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public ModelID: number;
+    public Description: string;
+    public Name: string;
     public ID: number;
     public Label: string;
-    public Description: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Model: Model;
     public CustomFields: any;
@@ -3796,22 +3832,22 @@ export class Notification extends UniEntity {
     public static RelativeUrl = 'notifications';
     public static EntityType = 'Notification';
 
-    public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public RecipientID: string;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public SenderDisplayName: string;
-    public CompanyKey: string;
-    public EntityID: number;
-    public Deleted: boolean;
     public EntityType: string;
     public SourceEntityType: string;
+    public Message: string;
+    public Deleted: boolean;
     public SourceEntityID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public RecipientID: string;
+    public SenderDisplayName: string;
+    public EntityID: number;
+    public ID: number;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -3821,120 +3857,121 @@ export class CompanySettings extends UniEntity {
     public static RelativeUrl = 'companysettings';
     public static EntityType = 'CompanySettings';
 
-    public LogoAlign: number;
-    public UseFinancialDateToCalculateVatPercent: boolean;
-    public CustomerAccountID: number;
-    public InterrimPaymentAccountID: number;
-    public InterrimRemitAccountID: number;
-    public PaymentBankAgreementNumber: string;
-    public CreatedAt: Date;
-    public DefaultTOFCurrencySettingsID: number;
-    public APIncludeAttachment: boolean;
-    public AcceptableDelta4CustomerPaymentAccountID: number;
-    public AllowAvtalegiroRegularInvoice: boolean;
-    public AccountVisibilityGroupID: number;
-    public AccountingLockedDate: LocalDate;
-    public TaxableFromDate: LocalDate;
-    public CreatedBy: string;
-    public Factoring: number;
-    public DefaultAddressID: number;
-    public HideInActiveSuppliers: boolean;
-    public UpdatedAt: Date;
-    public Localization: string;
-    public SaveCustomersFromQuoteAsLead: boolean;
-    public DefaultDistributionsID: number;
-    public RoundingNumberOfDecimals: number;
-    public CompanyName: string;
-    public DefaultSalesAccountID: number;
-    public SalaryBankAccountID: number;
-    public AgioLossAccountID: number;
-    public VatReportFormID: number;
-    public AutoDistributeInvoice: boolean;
-    public APContactID: number;
-    public TaxMandatoryType: number;
-    public CustomerInvoiceReminderSettingsID: number;
-    public DefaultCustomerQuoteReportID: number;
-    public TaxBankAccountID: number;
-    public OrganizationNumber: string;
-    public RoundingType: RoundingType;
-    public DefaultCustomerInvoiceReminderReportID: number;
-    public HasAutobank: boolean;
-    public APActivated: boolean;
-    public ForceSupplierInvoiceApproval: boolean;
-    public Deleted: boolean;
-    public SettlementVatAccountID: number;
-    public TwoStageAutobankEnabled: boolean;
-    public AcceptableDelta4CustomerPayment: number;
-    public BookCustomerInvoiceOnDeliveryDate: boolean;
     public UseNetsIntegration: boolean;
-    public DefaultCustomerInvoiceReportID: number;
-    public LogoFileID: number;
-    public PeriodSeriesVatID: number;
-    public DefaultPhoneID: number;
-    public DefaultCustomerOrderReportID: number;
-    public UseAssetRegister: boolean;
-    public DefaultEmailID: number;
-    public IgnorePaymentsWithoutEndToEndID: boolean;
-    public UseXtraPaymentOrgXmlTag: boolean;
-    public LogoHideField: number;
-    public CompanyTypeID: number;
-    public SAFTimportAccountID: number;
-    public BankChargeAccountID: number;
-    public OfficeMunicipalityNo: string;
-    public AutoJournalPayment: string;
-    public CompanyBankAccountID: number;
-    public BatchInvoiceMinAmount: number;
-    public SupplierAccountID: number;
-    public FactoringEmailID: number;
-    public XtraPaymentOrgXmlTagValue: string;
-    public UpdatedBy: string;
-    public GLN: string;
-    public ID: number;
-    public TaxableFromLimit: number;
     public BaseCurrencyCodeID: number;
-    public UsePaymentBankValues: boolean;
-    public StoreDistributedInvoice: boolean;
-    public PeriodSeriesAccountID: number;
-    public HideInActiveCustomers: boolean;
-    public CustomerCreditDays: number;
-    public UseOcrInterpretation: boolean;
-    public AccountGroupSetID: number;
-    public VatLockedDate: LocalDate;
-    public FactoringNumber: number;
-    public PaymentBankIdentification: string;
-    public APGuid: string;
-    public StatusCode: number;
-    public WebAddress: string;
-    public TaxMandatory: boolean;
-    public ShowKIDOnCustomerInvoice: boolean;
+    public AcceptableDelta4CustomerPaymentAccountID: number;
+    public CustomerAccountID: number;
+    public AccountingLockedDate: LocalDate;
+    public DefaultTOFCurrencySettingsID: number;
     public NetsIntegrationActivated: boolean;
     public CompanyRegistered: boolean;
+    public CustomerCreditDays: number;
+    public InterrimRemitAccountID: number;
+    public DefaultCustomerInvoiceReportID: number;
+    public DefaultDistributionsID: number;
+    public CustomerInvoiceReminderSettingsID: number;
+    public AgioLossAccountID: number;
+    public Deleted: boolean;
+    public AllowAvtalegiroRegularInvoice: boolean;
+    public DefaultCustomerInvoiceReminderReportID: number;
     public AgioGainAccountID: number;
+    public TwoStageAutobankEnabled: boolean;
+    public TaxMandatoryType: number;
+    public StatusCode: number;
+    public CompanyBankAccountID: number;
+    public VatLockedDate: LocalDate;
+    public TaxableFromDate: LocalDate;
+    public VatReportFormID: number;
+    public InterrimPaymentAccountID: number;
+    public UseFinancialDateToCalculateVatPercent: boolean;
+    public CreatedBy: string;
+    public SalaryBankAccountID: number;
+    public DefaultAddressID: number;
+    public DefaultCustomerQuoteReportID: number;
+    public SettlementVatAccountID: number;
+    public HideInActiveCustomers: boolean;
+    public PersonNumber: string;
+    public BatchInvoiceMinAmount: number;
+    public LogoHideField: number;
+    public AccountGroupSetID: number;
+    public WebAddress: string;
+    public HasAutobank: boolean;
+    public LogoAlign: number;
+    public AutoDistributeInvoice: boolean;
+    public UseAssetRegister: boolean;
+    public TaxBankAccountID: number;
+    public OrganizationNumber: string;
+    public DefaultEmailID: number;
+    public StoreDistributedInvoice: boolean;
+    public FactoringEmailID: number;
+    public XtraPaymentOrgXmlTagValue: string;
+    public SAFTimportAccountID: number;
+    public PaymentBankIdentification: string;
+    public ForceSupplierInvoiceApproval: boolean;
+    public PeriodSeriesAccountID: number;
+    public HideInActiveSuppliers: boolean;
+    public TaxableFromLimit: number;
+    public DefaultPhoneID: number;
+    public APContactID: number;
+    public RoundingType: RoundingType;
+    public AccountVisibilityGroupID: number;
+    public Localization: string;
+    public OfficeMunicipalityNo: string;
+    public CompanyTypeID: number;
+    public DefaultCustomerOrderReportID: number;
     public ShowNumberOfDecimals: number;
+    public ID: number;
+    public PaymentBankAgreementNumber: string;
+    public AutoJournalPayment: string;
+    public UsePaymentBankValues: boolean;
+    public SupplierAccountID: number;
+    public UseOcrInterpretation: boolean;
+    public IgnorePaymentsWithoutEndToEndID: boolean;
+    public CompanyName: string;
+    public APIncludeAttachment: boolean;
+    public AcceptableDelta4CustomerPayment: number;
+    public Factoring: number;
+    public CreatedAt: Date;
+    public APActivated: boolean;
+    public ShowKIDOnCustomerInvoice: boolean;
+    public UseXtraPaymentOrgXmlTag: boolean;
+    public TaxMandatory: boolean;
+    public GLN: string;
+    public RoundingNumberOfDecimals: number;
+    public PeriodSeriesVatID: number;
+    public UpdatedAt: Date;
+    public APGuid: string;
+    public SaveCustomersFromQuoteAsLead: boolean;
+    public UpdatedBy: string;
+    public LogoFileID: number;
+    public FactoringNumber: number;
+    public DefaultSalesAccountID: number;
+    public BookCustomerInvoiceOnDeliveryDate: boolean;
+    public BankChargeAccountID: number;
     public _createguid: string;
-    public DefaultEmail: Email;
-    public DefaultPhone: Phone;
     public DefaultAddress: Address;
-    public BaseCurrencyCode: CurrencyCode;
-    public SalaryBankAccount: BankAccount;
-    public CompanyBankAccount: BankAccount;
-    public DefaultTOFCurrencySettings: TOFCurrencySettings;
-    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public DefaultPhone: Phone;
+    public DefaultEmail: Email;
     public SupplierAccount: Account;
     public CustomerAccount: Account;
     public SAFTimportAccount: Account;
     public BankAccounts: Array<BankAccount>;
+    public CompanyBankAccount: BankAccount;
     public TaxBankAccount: BankAccount;
+    public SalaryBankAccount: BankAccount;
     public SettlementVatAccount: Account;
     public DefaultSalesAccount: Account;
     public APContact: Contact;
     public APIncomming: Array<AccessPointFormat>;
     public APOutgoing: Array<AccessPointFormat>;
     public Distributions: Distributions;
+    public CustomerInvoiceReminderSettings: CustomerInvoiceReminderSettings;
+    public BaseCurrencyCode: CurrencyCode;
     public AgioGainAccount: Account;
     public AgioLossAccount: Account;
     public BankChargeAccount: Account;
     public AcceptableDelta4CustomerPaymentAccount: Account;
+    public DefaultTOFCurrencySettings: TOFCurrencySettings;
     public FactoringEmail: Email;
     public CustomFields: any;
 }
@@ -3944,15 +3981,15 @@ export class DistributionPlan extends UniEntity {
     public static RelativeUrl = 'distributions';
     public static EntityType = 'DistributionPlan';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Elements: Array<DistributionPlanElement>;
     public CustomFields: any;
@@ -3963,16 +4000,16 @@ export class DistributionPlanElement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DistributionPlanElement';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public DistributionPlanID: number;
     public Deleted: boolean;
     public Priority: number;
-    public DistributionPlanElementTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public DistributionPlanElementTypeID: number;
+    public DistributionPlanID: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public ElementType: DistributionPlanElementType;
     public CustomFields: any;
@@ -3983,14 +4020,14 @@ export class DistributionPlanElementType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DistributionPlanElementType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public LegalEntities: Array<DistributionPlanElementTypeLegalEntity>;
     public CustomFields: any;
@@ -4001,15 +4038,15 @@ export class DistributionPlanElementTypeLegalEntity extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DistributionPlanElementTypeLegalEntity';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public EntityType: string;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public DistributionPlanElementTypeID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4019,19 +4056,19 @@ export class Distributions extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Distributions';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CustomerInvoiceDistributionPlanID: number;
-    public CustomerInvoiceReminderDistributionPlanID: number;
-    public CustomerOrderDistributionPlanID: number;
     public Deleted: boolean;
-    public AnnualStatementDistributionPlanID: number;
     public PayCheckDistributionPlanID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public CustomerInvoiceReminderDistributionPlanID: number;
     public CustomerQuoteDistributionPlanID: number;
+    public CustomerOrderDistributionPlanID: number;
+    public AnnualStatementDistributionPlanID: number;
+    public ID: number;
+    public CustomerInvoiceDistributionPlanID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomerInvoiceDistributionPlan: DistributionPlan;
     public CustomerOrderDistributionPlan: DistributionPlan;
@@ -4047,14 +4084,14 @@ export class DistributionType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DistributionType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4064,25 +4101,25 @@ export class EmailLog extends UniEntity {
     public static RelativeUrl = 'emails';
     public static EntityType = 'EmailLog';
 
-    public From: string;
-    public DistributeAt: LocalDate;
-    public ExternalReference: string;
-    public CreatedAt: Date;
     public ExternalMessage: string;
-    public To: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
-    public Type: SharingType;
-    public JobRunExternalRef: string;
-    public JobRunID: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public EntityDisplayValue: string;
+    public Deleted: boolean;
+    public JobRunExternalRef: string;
+    public DistributeAt: LocalDate;
     public StatusCode: number;
+    public CreatedBy: string;
+    public From: string;
+    public EntityDisplayValue: string;
+    public To: string;
     public Subject: string;
+    public EntityID: number;
+    public ID: number;
+    public JobRunID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: SharingType;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4092,23 +4129,23 @@ export class Eventplan extends UniEntity {
     public static RelativeUrl = 'eventplans';
     public static EntityType = 'Eventplan';
 
-    public CreatedAt: Date;
-    public ModelFilter: string;
-    public JobNames: string;
-    public Name: string;
     public ExpressionFilter: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public SigningKey: string;
-    public IsSystemPlan: boolean;
     public Deleted: boolean;
-    public Cargo: string;
-    public Active: boolean;
-    public OperationFilter: string;
-    public UpdatedBy: string;
-    public PlanType: EventplanType;
-    public ID: number;
     public StatusCode: number;
+    public ModelFilter: string;
+    public Cargo: string;
+    public IsSystemPlan: boolean;
+    public CreatedBy: string;
+    public PlanType: EventplanType;
+    public Active: boolean;
+    public Name: string;
+    public ID: number;
+    public JobNames: string;
+    public OperationFilter: string;
+    public CreatedAt: Date;
+    public SigningKey: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Subscribers: Array<EventSubscriber>;
     public CustomFields: any;
@@ -4119,19 +4156,19 @@ export class EventSubscriber extends UniEntity {
     public static RelativeUrl = 'eventsubscribers';
     public static EntityType = 'EventSubscriber';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Endpoint: string;
-    public Headers: string;
-    public EventplanID: number;
     public Deleted: boolean;
+    public StatusCode: number;
+    public EventplanID: number;
+    public Headers: string;
+    public CreatedBy: string;
     public Active: boolean;
-    public UpdatedBy: string;
+    public Name: string;
     public ID: number;
     public Authorization: string;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Endpoint: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public Eventplan: Eventplan;
     public CustomFields: any;
@@ -4142,20 +4179,20 @@ export class Period extends UniEntity {
     public static RelativeUrl = 'periodes';
     public static EntityType = 'Period';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public AccountYear: number;
-    public CreatedBy: string;
-    public FromDate: LocalDate;
-    public UpdatedAt: Date;
-    public PeriodSeriesID: number;
     public Deleted: boolean;
-    public ToDate: LocalDate;
-    public PeriodTemplateID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public PeriodSeriesID: number;
+    public ToDate: LocalDate;
+    public CreatedBy: string;
+    public AccountYear: number;
+    public FromDate: LocalDate;
+    public Name: string;
+    public ID: number;
     public No: number;
+    public PeriodTemplateID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public PeriodTemplate: PeriodTemplate;
     public PeriodSeries: PeriodSeries;
@@ -4167,16 +4204,16 @@ export class PredefinedDescription extends UniEntity {
     public static RelativeUrl = 'predefineddescriptions';
     public static EntityType = 'PredefinedDescription';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public Type: PredefinedDescriptionType;
     public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
-    public StatusCode: number;
-    public Code: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4186,21 +4223,21 @@ export class ProductCategory extends UniEntity {
     public static RelativeUrl = 'productcategories';
     public static EntityType = 'ProductCategory';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Depth: number;
-    public Comment: string;
-    public Rght: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Status: number;
-    public Description: string;
-    public StatusCode: number;
-    public ParentID: number;
     public Lft: number;
+    public StatusCode: number;
+    public Status: number;
+    public Depth: number;
+    public CreatedBy: string;
+    public Comment: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public Rght: number;
+    public CreatedAt: Date;
+    public ParentID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4210,15 +4247,15 @@ export class ProductCategoryLink extends UniEntity {
     public static RelativeUrl = 'productcategorylinks';
     public static EntityType = 'ProductCategoryLink';
 
-    public ProductCategoryID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ProductCategoryID: number;
+    public ID: number;
+    public ProductID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ProductCategory: ProductCategory;
     public CustomFields: any;
@@ -4229,25 +4266,25 @@ export class Sharing extends UniEntity {
     public static RelativeUrl = 'sharings';
     public static EntityType = 'Sharing';
 
-    public From: string;
-    public DistributeAt: LocalDate;
-    public ExternalReference: string;
-    public CreatedAt: Date;
     public ExternalMessage: string;
-    public To: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
-    public Type: SharingType;
-    public JobRunExternalRef: string;
-    public JobRunID: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public EntityDisplayValue: string;
+    public Deleted: boolean;
+    public JobRunExternalRef: string;
+    public DistributeAt: LocalDate;
     public StatusCode: number;
+    public CreatedBy: string;
+    public From: string;
+    public EntityDisplayValue: string;
+    public To: string;
     public Subject: string;
+    public EntityID: number;
+    public ID: number;
+    public JobRunID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: SharingType;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4257,16 +4294,16 @@ export class StatusLog extends UniEntity {
     public static RelativeUrl = 'statuslogs';
     public static EntityType = 'StatusLog';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
     public ToStatus: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
     public FromStatus: number;
+    public CreatedBy: string;
+    public EntityID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4276,18 +4313,18 @@ export class Tracelink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Tracelink';
 
+    public Deleted: boolean;
+    public StatusCode: number;
+    public DestinationEntityName: string;
     public Date: Date;
-    public CreatedAt: Date;
     public CreatedBy: string;
+    public DestinationInstanceID: number;
+    public SourceEntityName: string;
+    public ID: number;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public SourceInstanceID: number;
-    public DestinationInstanceID: number;
-    public Deleted: boolean;
-    public DestinationEntityName: string;
-    public SourceEntityName: string;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4297,27 +4334,27 @@ export class User extends UniEntity {
     public static RelativeUrl = 'users';
     public static EntityType = 'User';
 
-    public CreatedAt: Date;
     public GlobalIdentity: string;
-    public CreatedBy: string;
-    public Email: string;
-    public LastLogin: Date;
-    public UpdatedAt: Date;
-    public IsAutobankAdmin: boolean;
-    public BankIntegrationUserName: string;
-    public Deleted: boolean;
-    public UserName: string;
-    public DisplayName: string;
-    public HasAgreedToImportDisclaimer: boolean;
-    public UpdatedBy: string;
-    public PhoneNumber: string;
-    public ID: number;
     public Protected: boolean;
+    public UserName: string;
+    public Deleted: boolean;
+    public IsAutobankAdmin: boolean;
     public StatusCode: number;
-    public EndDate: Date;
+    public HasAgreedToImportDisclaimer: boolean;
+    public CreatedBy: string;
+    public LastLogin: Date;
+    public BankIntegrationUserName: string;
+    public ID: number;
+    public DisplayName: string;
+    public CreatedAt: Date;
+    public PhoneNumber: string;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public TwoFactorEnabled: boolean;
     public AuthPhoneNumber: string;
     public _createguid: string;
+    public EndDate: Date;
     public CustomFields: any;
 }
 
@@ -4326,25 +4363,25 @@ export class UniQueryDefinition extends UniEntity {
     public static RelativeUrl = 'uniquerydefinitions';
     public static EntityType = 'UniQueryDefinition';
 
-    public ClickUrl: string;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ClickParam: string;
     public Deleted: boolean;
-    public ModuleID: number;
-    public MainModelName: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public SortIndex: number;
-    public IsShared: boolean;
-    public Description: string;
-    public Category: string;
-    public StatusCode: number;
     public UserID: number;
-    public Code: string;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ClickParam: string;
+    public ClickUrl: string;
+    public IsShared: boolean;
+    public MainModelName: string;
+    public ModuleID: number;
     public SystemGeneratedQuery: boolean;
+    public Description: string;
+    public Name: string;
+    public Code: string;
+    public SortIndex: number;
+    public ID: number;
+    public Category: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public UniQueryFilters: Array<UniQueryFilter>;
     public UniQueryFields: Array<UniQueryField>;
@@ -4356,22 +4393,22 @@ export class UniQueryField extends UniEntity {
     public static RelativeUrl = 'uniqueryfields';
     public static EntityType = 'UniQueryField';
 
-    public CreatedAt: Date;
-    public SumFunction: string;
-    public CreatedBy: string;
     public FieldType: number;
-    public Alias: string;
-    public UpdatedAt: Date;
-    public Header: string;
     public Deleted: boolean;
     public Index: number;
-    public UpdatedBy: string;
-    public Width: string;
-    public ID: number;
-    public UniQueryDefinitionID: number;
-    public Path: string;
-    public Field: string;
     public StatusCode: number;
+    public Width: string;
+    public CreatedBy: string;
+    public SumFunction: string;
+    public Header: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public Path: string;
+    public Alias: string;
+    public UpdatedAt: Date;
+    public Field: string;
+    public UpdatedBy: string;
+    public UniQueryDefinitionID: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4381,18 +4418,18 @@ export class UniQueryFilter extends UniEntity {
     public static RelativeUrl = 'uniqueryfilters';
     public static EntityType = 'UniQueryFilter';
 
-    public CreatedAt: Date;
-    public Group: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Value: string;
-    public Deleted: boolean;
     public Operator: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public UniQueryDefinitionID: number;
-    public Field: string;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Group: number;
+    public ID: number;
+    public Value: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Field: string;
+    public UpdatedBy: string;
+    public UniQueryDefinitionID: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4402,19 +4439,19 @@ export class Team extends UniEntity {
     public static RelativeUrl = 'teams';
     public static EntityType = 'Team';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Depth: number;
-    public Rght: number;
-    public UpdatedBy: string;
-    public ID: number;
     public DimensionsID: number;
-    public StatusCode: number;
-    public ParentID: number;
+    public Deleted: boolean;
     public Lft: number;
+    public StatusCode: number;
+    public Depth: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public Rght: number;
+    public CreatedAt: Date;
+    public ParentID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Dimensions: Dimensions;
     public Positions: Array<TeamPosition>;
@@ -4426,20 +4463,20 @@ export class TeamPosition extends UniEntity {
     public static RelativeUrl = 'teampositions';
     public static EntityType = 'TeamPosition';
 
+    public ApproveOrder: number;
     public RelatedSharedRoleId: number;
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public Position: TeamPositionEnum;
+    public UserID: number;
+    public StatusCode: number;
+    public ToDate: LocalDate;
+    public TeamID: number;
     public CreatedBy: string;
     public FromDate: LocalDate;
-    public Position: TeamPositionEnum;
-    public UpdatedAt: Date;
-    public ApproveOrder: number;
-    public Deleted: boolean;
-    public ToDate: LocalDate;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
-    public UserID: number;
-    public TeamID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Team: Team;
     public CustomFields: any;
@@ -4450,17 +4487,17 @@ export class ApprovalRule extends UniEntity {
     public static RelativeUrl = 'approvalrules';
     public static EntityType = 'ApprovalRule';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public RuleType: ApprovalRuleType;
     public Deleted: boolean;
-    public IndustryCodes: string;
-    public UpdatedBy: string;
     public Keywords: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public RuleType: ApprovalRuleType;
+    public ID: number;
+    public IndustryCodes: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Steps: Array<ApprovalRuleStep>;
     public CustomFields: any;
@@ -4471,17 +4508,17 @@ export class ApprovalRuleStep extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ApprovalRuleStep';
 
+    public ApprovalRuleID: number;
+    public Deleted: boolean;
+    public UserID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public StepNumber: number;
+    public ID: number;
     public Limit: number;
     public CreatedAt: Date;
-    public StepNumber: number;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public Deleted: boolean;
-    public ApprovalRuleID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public UserID: number;
     public _createguid: string;
     public ApprovalRule: ApprovalRule;
     public User: User;
@@ -4493,17 +4530,17 @@ export class ApprovalSubstitute extends UniEntity {
     public static RelativeUrl = 'approvalsubstitutes';
     public static EntityType = 'ApprovalSubstitute';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public UserID: number;
+    public StatusCode: number;
+    public ToDate: LocalDate;
     public CreatedBy: string;
     public FromDate: LocalDate;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public ToDate: LocalDate;
-    public SubstituteUserID: number;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
-    public UserID: number;
+    public SubstituteUserID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public User: User;
     public SubstituteUser: User;
@@ -4515,21 +4552,21 @@ export class TaskApprovalPlan extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TaskApprovalPlan';
 
-    public Limit: number;
-    public ApprovalID: number;
-    public CreatedAt: Date;
-    public Amount: number;
-    public StepNumber: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public TaskID: number;
-    public Deleted: boolean;
-    public Comment: string;
     public ApprovalRuleID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
+    public Deleted: boolean;
     public UserID: number;
+    public StatusCode: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public StepNumber: number;
+    public ApprovalID: number;
+    public TaskID: number;
+    public Comment: string;
+    public ID: number;
+    public Limit: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Task: Task;
     public Approval: Approval;
@@ -4543,19 +4580,19 @@ export class Status extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Status';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Order: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public IsDepricated: boolean;
-    public Description: string;
-    public System: boolean;
+    public Deleted: boolean;
     public StatusCode: number;
+    public System: boolean;
+    public CreatedBy: string;
+    public Order: number;
     public StatusCategoryID: number;
+    public Description: string;
+    public IsDepricated: boolean;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public StatusCategory: StatusCategory;
     public CustomFields: any;
@@ -4566,14 +4603,14 @@ export class StatusCategory extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'StatusCategory';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public StatusCategoryCode: StatusCategoryCode;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public StatusCategoryCode: StatusCategoryCode;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4583,16 +4620,16 @@ export class StatusRemark extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'StatusRemark';
 
-    public Remark: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Remark: string;
+    public EntityID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4602,15 +4639,15 @@ export class Transition extends UniEntity {
     public static RelativeUrl = 'transitions';
     public static EntityType = 'Transition';
 
-    public Controller: string;
-    public CreatedAt: Date;
-    public MethodName: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
+    public Deleted: boolean;
+    public CreatedBy: string;
+    public MethodName: string;
+    public Controller: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4620,21 +4657,21 @@ export class TransitionThreshold extends UniEntity {
     public static RelativeUrl = 'thresholds';
     public static EntityType = 'TransitionThreshold';
 
-    public CreatedAt: Date;
-    public PropertyName: string;
-    public CreatedBy: string;
-    public SharedApproveTransitionId: number;
-    public UpdatedAt: Date;
-    public RejectStatusCode: number;
-    public SharedRoleId: number;
-    public SharedRejectTransitionId: number;
-    public Value: string;
-    public Deleted: boolean;
-    public Disabled: boolean;
     public Operator: Operator;
-    public UpdatedBy: string;
+    public SharedApproveTransitionId: number;
+    public Deleted: boolean;
+    public SharedRejectTransitionId: number;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public CreatedBy: string;
+    public RejectStatusCode: number;
     public ID: number;
+    public Value: string;
     public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Disabled: boolean;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4644,21 +4681,21 @@ export class TransitionThresholdApproval extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionThresholdApproval';
 
-    public ApprovalID: number;
-    public CreatedAt: Date;
-    public PropertyName: string;
-    public CreatedBy: string;
-    public SharedApproveTransitionId: number;
-    public UpdatedAt: Date;
-    public RejectStatusCode: number;
-    public SharedRoleId: number;
-    public SharedRejectTransitionId: number;
-    public Value: string;
-    public Deleted: boolean;
     public Operator: Operator;
-    public UpdatedBy: string;
+    public SharedApproveTransitionId: number;
+    public Deleted: boolean;
+    public SharedRejectTransitionId: number;
+    public PropertyName: string;
+    public SharedRoleId: number;
+    public CreatedBy: string;
+    public ApprovalID: number;
+    public RejectStatusCode: number;
     public ID: number;
+    public Value: string;
     public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Approval: Approval;
     public CustomFields: any;
@@ -4669,20 +4706,20 @@ export class Approval extends UniEntity {
     public static RelativeUrl = 'approvals';
     public static EntityType = 'Approval';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public UserID: number;
+    public StatusCode: number;
+    public SharedRoleId: number;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
     public TaskID: number;
-    public SharedRoleId: number;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
-    public UserID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
-    public Task: Task;
     public Thresholds: Array<TransitionThresholdApproval>;
+    public Task: Task;
     public User: User;
     public CustomFields: any;
 }
@@ -4692,22 +4729,22 @@ export class Task extends UniEntity {
     public static RelativeUrl = 'tasks';
     public static EntityType = 'Task';
 
-    public CreatedAt: Date;
-    public ModelID: number;
-    public CreatedBy: string;
     public SharedApproveTransitionId: number;
-    public UpdatedAt: Date;
-    public RejectStatusCode: number;
-    public SharedRoleId: number;
-    public SharedRejectTransitionId: number;
-    public EntityID: number;
     public Deleted: boolean;
-    public Type: TaskType;
-    public Title: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
+    public SharedRejectTransitionId: number;
     public UserID: number;
+    public StatusCode: number;
+    public Title: string;
+    public SharedRoleId: number;
+    public CreatedBy: string;
+    public ModelID: number;
+    public RejectStatusCode: number;
+    public EntityID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: TaskType;
+    public UpdatedBy: string;
     public _createguid: string;
     public Model: Model;
     public Approvals: Array<Approval>;
@@ -4721,18 +4758,18 @@ export class TransitionFlow extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'TransitionFlow';
 
-    public CreatedAt: Date;
-    public TransitionID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ExpiresDate: Date;
-    public FromStatusID: number;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
+    public TransitionID: number;
+    public Deleted: boolean;
+    public CreatedBy: string;
     public ToStatusID: number;
-    public ID: number;
+    public FromStatusID: number;
+    public ExpiresDate: Date;
     public IsDepricated: boolean;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public FromStatus: Status;
     public ToStatus: Status;
@@ -4746,29 +4783,29 @@ export class Project extends UniEntity {
     public static EntityType = 'Project';
 
     public Price: number;
-    public CreatedAt: Date;
-    public Name: string;
-    public Amount: number;
-    public ProjectCustomerID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public WorkPlaceAddressID: number;
-    public EndDate: LocalDate;
-    public PlannedEnddate: LocalDate;
-    public ProjectNumberSeriesID: number;
-    public ProjectNumberNumeric: number;
-    public Deleted: boolean;
-    public Total: number;
-    public ProjectLeadName: string;
-    public ProjectNumber: string;
-    public StartDate: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
-    public CostPrice: number;
     public DimensionsID: number;
-    public Description: string;
-    public PlannedStartdate: LocalDate;
+    public ProjectNumberSeriesID: number;
+    public Deleted: boolean;
+    public WorkPlaceAddressID: number;
     public StatusCode: number;
+    public PlannedStartdate: LocalDate;
+    public PlannedEnddate: LocalDate;
+    public CostPrice: number;
+    public ProjectNumberNumeric: number;
+    public ProjectLeadName: string;
+    public Amount: number;
+    public CreatedBy: string;
+    public StartDate: LocalDate;
+    public ProjectNumber: string;
+    public Description: string;
+    public Total: number;
+    public Name: string;
+    public ID: number;
+    public ProjectCustomerID: number;
+    public CreatedAt: Date;
+    public EndDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public IsUsed: boolean;
     public _createguid: string;
     public ProjectCustomer: Customer;
@@ -4784,17 +4821,17 @@ export class ProjectResource extends UniEntity {
     public static RelativeUrl = 'projects-resources';
     public static EntityType = 'ProjectResource';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Responsibility: string;
-    public ProjectID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public UserID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ProjectID: number;
+    public Name: string;
+    public Responsibility: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ProjectUser: User;
     public CustomFields: any;
@@ -4805,16 +4842,16 @@ export class ProjectResourceSchedule extends UniEntity {
     public static RelativeUrl = 'projects-schedules-resources';
     public static EntityType = 'ProjectResourceSchedule';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProjectTaskID: number;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ProjectTaskID: number;
+    public ProjectTaskScheduleID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public ProjectResourceID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public ProjectTaskScheduleID: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -4825,23 +4862,23 @@ export class ProjectTask extends UniEntity {
     public static EntityType = 'ProjectTask';
 
     public Price: number;
-    public CreatedAt: Date;
-    public Name: string;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CostPrice: number;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EndDate: LocalDate;
-    public SuggestedNumber: string;
-    public Deleted: boolean;
-    public Total: number;
     public StartDate: LocalDate;
     public ProjectID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public CostPrice: number;
     public Description: string;
-    public StatusCode: number;
+    public Total: number;
+    public Name: string;
+    public ID: number;
+    public SuggestedNumber: string;
+    public Number: string;
+    public CreatedAt: Date;
+    public EndDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ProjectTaskSchedules: Array<ProjectTaskSchedule>;
     public ProjectTaskResources: Array<ProjectResourceSchedule>;
@@ -4853,16 +4890,16 @@ export class ProjectTaskSchedule extends UniEntity {
     public static RelativeUrl = 'projects-tasks-schedules';
     public static EntityType = 'ProjectTaskSchedule';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EndDate: LocalDate;
-    public ProjectTaskID: number;
     public Deleted: boolean;
-    public StartDate: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public StartDate: LocalDate;
+    public ProjectTaskID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public EndDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ScheduleResources: Array<ProjectResourceSchedule>;
     public CustomFields: any;
@@ -4873,14 +4910,14 @@ export class BarnepassProduct extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BarnepassProduct';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public ProductID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Product: Product;
     public CustomFields: any;
@@ -4891,30 +4928,30 @@ export class Product extends UniEntity {
     public static RelativeUrl = 'products';
     public static EntityType = 'Product';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public DefaultProductCategoryID: number;
-    public PartName: string;
-    public PriceIncVat: number;
-    public Deleted: boolean;
-    public ListPrice: number;
-    public Type: ProductTypeEnum;
-    public VariansParentID: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public ImageFileID: number;
-    public VatTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public CostPrice: number;
-    public PriceExVat: number;
-    public AverageCost: number;
     public DimensionsID: number;
-    public Description: string;
+    public PartName: string;
+    public Deleted: boolean;
+    public VatTypeID: number;
     public StatusCode: number;
+    public ImageFileID: number;
+    public ListPrice: number;
+    public CostPrice: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public PriceExVat: number;
+    public VariansParentID: number;
+    public Description: string;
+    public AverageCost: number;
+    public Name: string;
+    public ID: number;
+    public DefaultProductCategoryID: number;
+    public PriceIncVat: number;
+    public CreatedAt: Date;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public Type: ProductTypeEnum;
+    public UpdatedBy: string;
     public _createguid: string;
     public VatType: VatType;
     public Account: Account;
@@ -4928,29 +4965,29 @@ export class NumberSeries extends UniEntity {
     public static RelativeUrl = 'number-series';
     public static EntityType = 'NumberSeries';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public AccountYear: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ToNumber: number;
-    public Empty: boolean;
-    public NumberSeriesTypeID: number;
     public Deleted: boolean;
-    public Disabled: boolean;
-    public Comment: string;
-    public NumberLock: boolean;
-    public DisplayName: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public System: boolean;
-    public UseNumbersFromNumberSeriesID: number;
-    public StatusCode: number;
-    public MainAccountID: number;
-    public FromNumber: number;
-    public NextNumber: number;
-    public IsDefaultForTask: boolean;
+    public ToNumber: number;
     public NumberSeriesTaskID: number;
+    public StatusCode: number;
+    public Empty: boolean;
+    public FromNumber: number;
+    public System: boolean;
+    public CreatedBy: string;
+    public AccountYear: number;
+    public MainAccountID: number;
+    public Comment: string;
+    public IsDefaultForTask: boolean;
+    public UseNumbersFromNumberSeriesID: number;
+    public Name: string;
+    public NumberLock: boolean;
+    public NumberSeriesTypeID: number;
+    public NextNumber: number;
+    public ID: number;
+    public DisplayName: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Disabled: boolean;
+    public UpdatedBy: string;
     public IsCopiedFromOtherYear: boolean;
     public _createguid: string;
     public NumberSeriesType: NumberSeriesType;
@@ -4965,15 +5002,15 @@ export class NumberSeriesInvalidOverlap extends UniEntity {
     public static RelativeUrl = 'number-series-invalid-overlaps';
     public static EntityType = 'NumberSeriesInvalidOverlap';
 
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public NumberSerieTypeBID: number;
     public NumberSerieTypeAID: number;
     public CreatedAt: Date;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public NumberSerieTypeBID: number;
-    public Deleted: boolean;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public NumberSerieTypeA: NumberSeriesType;
     public NumberSerieTypeB: NumberSeriesType;
@@ -4985,15 +5022,15 @@ export class NumberSeriesTask extends UniEntity {
     public static RelativeUrl = 'number-series-tasks';
     public static EntityType = 'NumberSeriesTask';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public NumberSeries: Array<NumberSeries>;
     public CustomFields: any;
@@ -5004,20 +5041,20 @@ export class NumberSeriesType extends UniEntity {
     public static RelativeUrl = 'number-series-types';
     public static EntityType = 'NumberSeriesType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public EntitySeriesIDField: string;
-    public UpdatedAt: Date;
-    public EntityField: string;
-    public Yearly: boolean;
-    public Deleted: boolean;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public System: boolean;
+    public Deleted: boolean;
     public StatusCode: number;
+    public System: boolean;
+    public CreatedBy: string;
+    public EntityField: string;
+    public EntitySeriesIDField: string;
     public CanHaveSeveralActiveSeries: boolean;
+    public Name: string;
+    public Yearly: boolean;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Series: Array<NumberSeries>;
     public CustomFields: any;
@@ -5028,15 +5065,15 @@ export class EncryptionInfo extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EncryptionInfo';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public password: string;
     public Deleted: boolean;
+    public CreatedBy: string;
+    public description: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public password: string;
+    public UpdatedAt: Date;
     public type: Type;
     public UpdatedBy: string;
-    public ID: number;
-    public description: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5046,23 +5083,23 @@ export class File extends UniEntity {
     public static RelativeUrl = 'files/{entitytype}/{entityid}';
     public static EntityType = 'File';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContentType: string;
     public Deleted: boolean;
-    public OCRData: string;
+    public StatusCode: number;
+    public ContentType: string;
+    public CreatedBy: string;
+    public StorageReference: string;
     public Size: string;
     public PermaLink: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public StorageReference: string;
-    public Md5: string;
     public Pages: number;
-    public encryptionID: number;
+    public OCRData: string;
     public Description: string;
-    public StatusCode: number;
+    public Name: string;
+    public encryptionID: number;
+    public ID: number;
+    public Md5: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public UploadSlot: string;
     public _createguid: string;
     public FileTags: Array<FileTag>;
@@ -5075,15 +5112,15 @@ export class FileTag extends UniEntity {
     public static RelativeUrl = 'filetags';
     public static EntityType = 'FileTag';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public Status: number;
     public CreatedBy: string;
     public FileID: number;
-    public UpdatedAt: Date;
     public TagName: string;
-    public Deleted: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public Status: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public File: File;
     public CustomFields: any;
@@ -5094,17 +5131,17 @@ export class FileEntityLink extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FileEntityLink';
 
-    public CreatedAt: Date;
+    public EntityType: string;
+    public Deleted: boolean;
+    public StatusCode: number;
     public CreatedBy: string;
     public FileID: number;
-    public UpdatedAt: Date;
     public EntityID: number;
-    public Deleted: boolean;
-    public IsAttachment: boolean;
-    public EntityType: string;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
+    public IsAttachment: boolean;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public File: File;
     public CustomFields: any;
@@ -5115,16 +5152,16 @@ export class ElsaUsageLog extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ElsaUsageLog';
 
-    public ExternalReference: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
     public Quantity: number;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public ProductType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public DateLogged: Date;
+    public ID: number;
+    public ProductType: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5134,18 +5171,18 @@ export class AccessPointFormat extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccessPointFormat';
 
-    public IncommingID: number;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public OutgoingID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Label: string;
     public ResourceName: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public Label: string;
+    public CreatedAt: Date;
+    public OutgoingID: number;
+    public UpdatedAt: Date;
+    public IncommingID: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5155,25 +5192,25 @@ export class EHFLog extends UniEntity {
     public static RelativeUrl = 'ehf';
     public static EntityType = 'EHFLog';
 
-    public From: string;
-    public DistributeAt: LocalDate;
-    public ExternalReference: string;
-    public CreatedAt: Date;
     public ExternalMessage: string;
-    public To: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
-    public Type: SharingType;
-    public JobRunExternalRef: string;
-    public JobRunID: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public EntityDisplayValue: string;
+    public Deleted: boolean;
+    public JobRunExternalRef: string;
+    public DistributeAt: LocalDate;
     public StatusCode: number;
+    public CreatedBy: string;
+    public From: string;
+    public EntityDisplayValue: string;
+    public To: string;
     public Subject: string;
+    public EntityID: number;
+    public ID: number;
+    public JobRunID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: SharingType;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5184,18 +5221,18 @@ export class Department extends UniEntity {
     public static EntityType = 'Department';
 
     public DepartmentNumberNumeric: number;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public DepartmentNumberSeriesID: number;
-    public DepartmentManagerName: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
-    public StatusCode: number;
     public DepartmentNumber: string;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public DepartmentNumberSeriesID: number;
+    public Description: string;
+    public DepartmentManagerName: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public DepartmentNumberSeries: NumberSeries;
     public CustomFields: any;
@@ -5206,17 +5243,17 @@ export class Dimension10 extends UniEntity {
     public static RelativeUrl = 'Dimension10';
     public static EntityType = 'Dimension10';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5226,17 +5263,17 @@ export class Dimension5 extends UniEntity {
     public static RelativeUrl = 'Dimension5';
     public static EntityType = 'Dimension5';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5246,17 +5283,17 @@ export class Dimension6 extends UniEntity {
     public static RelativeUrl = 'Dimension6';
     public static EntityType = 'Dimension6';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5266,17 +5303,17 @@ export class Dimension7 extends UniEntity {
     public static RelativeUrl = 'Dimension7';
     public static EntityType = 'Dimension7';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5286,17 +5323,17 @@ export class Dimension8 extends UniEntity {
     public static RelativeUrl = 'Dimension8';
     public static EntityType = 'Dimension8';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5306,17 +5343,17 @@ export class Dimension9 extends UniEntity {
     public static RelativeUrl = 'Dimension9';
     public static EntityType = 'Dimension9';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public NumberNumeric: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Number: string;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public NumberNumeric: number;
+    public Number: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5326,35 +5363,35 @@ export class Dimensions extends UniEntity {
     public static RelativeUrl = 'dimensions';
     public static EntityType = 'Dimensions';
 
-    public CreatedAt: Date;
     public Dimension6ID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProjectTaskID: number;
-    public Dimension8ID: number;
-    public Deleted: boolean;
-    public DepartmentID: number;
-    public Dimension10ID: number;
-    public Dimension9ID: number;
-    public ProjectID: number;
     public Dimension5ID: number;
+    public Deleted: boolean;
+    public Dimension10ID: number;
+    public Dimension8ID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
     public RegionID: number;
-    public UpdatedBy: string;
+    public ProjectID: number;
+    public ProjectTaskID: number;
     public ID: number;
     public Dimension7ID: number;
-    public StatusCode: number;
+    public DepartmentID: number;
+    public CreatedAt: Date;
+    public Dimension9ID: number;
     public ResponsibleID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
-    public Region: Region;
     public Project: Project;
     public Department: Department;
+    public ProjectTask: ProjectTask;
+    public Responsible: Responsible;
+    public Region: Region;
     public Dimension5: Dimension5;
     public Dimension6: Dimension6;
     public Dimension7: Dimension7;
     public Dimension8: Dimension8;
     public Dimension9: Dimension9;
-    public ProjectTask: ProjectTask;
-    public Responsible: Responsible;
     public Dimension10: Dimension10;
     public Info: Array<DimensionsInfo>;
     public CustomFields: any;
@@ -5362,29 +5399,29 @@ export class Dimensions extends UniEntity {
 
 
 export class DimensionsInfo extends UniEntity {
-    public ProjectTaskNumber: string;
-    public DepartmentName: string;
-    public Dimension6Name: string;
-    public Dimension5Name: string;
-    public Dimension10Number: string;
-    public Dimension10Name: string;
-    public Dimension9Name: string;
+    public RegionName: string;
     public Dimension7Name: string;
-    public Dimension9Number: string;
-    public Dimension7Number: string;
-    public RegionCode: string;
     public ProjectTaskName: string;
+    public ProjectTaskNumber: string;
+    public DimensionsID: number;
+    public Dimension9Name: string;
+    public DepartmentNumber: string;
+    public RegionCode: string;
+    public Dimension10Number: string;
+    public Dimension8Number: string;
+    public Dimension6Name: string;
+    public Dimension9Number: string;
     public Dimension6Number: string;
     public ResponsibleName: string;
-    public ProjectNumber: string;
     public Dimension8Name: string;
-    public ProjectName: string;
-    public Dimension8Number: string;
-    public ID: number;
-    public RegionName: string;
-    public DimensionsID: number;
+    public ProjectNumber: string;
     public Dimension5Number: string;
-    public DepartmentNumber: string;
+    public Dimension7Number: string;
+    public ID: number;
+    public DepartmentName: string;
+    public Dimension5Name: string;
+    public Dimension10Name: string;
+    public ProjectName: string;
 }
 
 
@@ -5392,16 +5429,16 @@ export class DimensionSettings extends UniEntity {
     public static RelativeUrl = 'dimensionsettings';
     public static EntityType = 'DimensionSettings';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Dimension: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public StatusCode: number;
+    public CreatedBy: string;
     public ID: number;
     public Label: string;
+    public CreatedAt: Date;
+    public Dimension: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public IsActive: boolean;
-    public StatusCode: number;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5411,17 +5448,17 @@ export class Region extends UniEntity {
     public static RelativeUrl = 'regions';
     public static EntityType = 'Region';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CountryCode: string;
     public Deleted: boolean;
     public RegionCode: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public CreatedBy: string;
+    public CountryCode: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5431,16 +5468,16 @@ export class Responsible extends UniEntity {
     public static RelativeUrl = 'responsibles';
     public static EntityType = 'Responsible';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public NameOfResponsible: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Description: string;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5450,20 +5487,20 @@ export class Contract extends UniEntity {
     public static RelativeUrl = 'contracts';
     public static EntityType = 'Contract';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractCode: string;
     public Deleted: boolean;
-    public TeamsUri: string;
-    public UpdatedBy: string;
-    public Engine: ContractEngine;
-    public ID: number;
-    public Description: string;
     public StatusCode: number;
+    public Engine: ContractEngine;
+    public CreatedBy: string;
     public Hash: string;
     public HashTransactionAddress: string;
+    public Description: string;
+    public ContractCode: string;
+    public Name: string;
+    public TeamsUri: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Parameters: Array<ContractParameter>;
     public Triggers: Array<ContractTrigger>;
@@ -5476,21 +5513,21 @@ export class ContractAddress extends UniEntity {
     public static RelativeUrl = 'contractaddresses';
     public static EntityType = 'ContractAddress';
 
-    public CreatedAt: Date;
+    public EntityType: string;
+    public Deleted: boolean;
+    public StatusCode: number;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
+    public ContractAssetID: number;
+    public AssetAddress: string;
     public Address: string;
     public EntityID: number;
-    public Deleted: boolean;
-    public Type: AddressType;
-    public EntityType: string;
-    public UpdatedBy: string;
     public ID: number;
-    public AssetAddress: string;
-    public ContractAssetID: number;
-    public StatusCode: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: AddressType;
+    public UpdatedBy: string;
     public _createguid: string;
     public Contract: Contract;
     public ContractAsset: ContractAsset;
@@ -5502,23 +5539,23 @@ export class ContractAsset extends UniEntity {
     public static RelativeUrl = 'contractassets';
     public static EntityType = 'ContractAsset';
 
-    public CreatedAt: Date;
-    public IsTransferrable: boolean;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
-    public Deleted: boolean;
-    public Type: AddressType;
     public IsPrivate: boolean;
-    public Cap: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public SpenderAttested: boolean;
-    public IsFixedDenominations: boolean;
-    public StatusCode: number;
-    public IsIssuedByDefinerOnly: boolean;
+    public Deleted: boolean;
     public IsAutoDestroy: boolean;
+    public StatusCode: number;
+    public Cap: number;
+    public CreatedBy: string;
+    public IsFixedDenominations: boolean;
+    public SpenderAttested: boolean;
     public IsCosignedByDefiner: boolean;
+    public ID: number;
+    public IsTransferrable: boolean;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public IsIssuedByDefinerOnly: boolean;
+    public UpdatedAt: Date;
+    public Type: AddressType;
+    public UpdatedBy: string;
     public _createguid: string;
     public Contract: Contract;
     public CustomFields: any;
@@ -5529,17 +5566,17 @@ export class ContractDebugLog extends UniEntity {
     public static RelativeUrl = 'contractdebuglogs';
     public static EntityType = 'ContractDebugLog';
 
+    public ContractRunLogID: number;
     public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public Type: ContractEventType;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public ContractRunLogID: number;
     public _createguid: string;
     public Contract: Contract;
     public ContractRunLog: ContractRunLog;
@@ -5551,16 +5588,16 @@ export class ContractParameter extends UniEntity {
     public static RelativeUrl = 'contractparameters';
     public static EntityType = 'ContractParameter';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
-    public Value: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public Value: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Contract: Contract;
     public CustomFields: any;
@@ -5572,17 +5609,17 @@ export class ContractRunLog extends UniEntity {
     public static EntityType = 'ContractRunLog';
 
     public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
-    public RunTime: string;
     public Deleted: boolean;
-    public ContractTriggerID: number;
+    public RunTime: string;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public Type: ContractEventType;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
+    public ContractTriggerID: number;
     public _createguid: string;
     public Contract: Contract;
     public CustomFields: any;
@@ -5593,19 +5630,19 @@ export class ContractTransaction extends UniEntity {
     public static RelativeUrl = 'contracttransactions';
     public static EntityType = 'ContractTransaction';
 
-    public CreatedAt: Date;
+    public ReceiverAddress: string;
+    public Deleted: boolean;
+    public StatusCode: number;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
     public SenderAddress: string;
-    public Deleted: boolean;
-    public ReceiverAddress: string;
-    public UpdatedBy: string;
-    public ID: number;
     public ContractAddressID: number;
     public AssetAddress: string;
-    public StatusCode: number;
+    public ID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Contract: Contract;
     public ContractAddress: ContractAddress;
@@ -5617,18 +5654,18 @@ export class ContractTrigger extends UniEntity {
     public static RelativeUrl = 'contracttriggers';
     public static EntityType = 'ContractTrigger';
 
-    public CreatedAt: Date;
-    public ModelFilter: string;
     public ExpressionFilter: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
     public Deleted: boolean;
-    public Type: ContractEventType;
-    public OperationFilter: string;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public ModelFilter: string;
+    public CreatedBy: string;
+    public ID: number;
+    public OperationFilter: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Type: ContractEventType;
+    public UpdatedBy: string;
     public _createguid: string;
     public Contract: Contract;
     public CustomFields: any;
@@ -5639,17 +5676,17 @@ export class Comment extends UniEntity {
     public static RelativeUrl = 'comments';
     public static EntityType = 'Comment';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EntityID: number;
-    public Deleted: boolean;
-    public AuthorID: number;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public AuthorID: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
     public Text: string;
+    public EntityID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Mentioned: Array<Mentioned>;
     public Author: User;
@@ -5661,15 +5698,15 @@ export class Mentioned extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Mentioned';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public UserID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public ID: number;
     public CommentID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public User: User;
     public CustomFields: any;
@@ -5680,20 +5717,20 @@ export class ApiKey extends UniEntity {
     public static RelativeUrl = 'apikeys';
     public static EntityType = 'ApiKey';
 
-    public CreatedAt: Date;
-    public IntegrationType: TypeOfIntegration;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Encrypt: boolean;
     public Deleted: boolean;
-    public FilterDate: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
-    public IntegrationKey: string;
-    public Url: string;
-    public Description: string;
     public StatusCode: number;
     public ExternalId: string;
+    public Url: string;
+    public CreatedBy: string;
+    public IntegrationType: TypeOfIntegration;
+    public IntegrationKey: string;
+    public FilterDate: LocalDate;
+    public Encrypt: boolean;
+    public Description: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5703,17 +5740,17 @@ export class Altinn extends UniEntity {
     public static RelativeUrl = 'altinn';
     public static EntityType = 'Altinn';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public SystemID: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public PreferredLogin: TypeOfLogin;
-    public Language: string;
     public StatusCode: number;
     public SystemPw: string;
+    public CreatedBy: string;
+    public Language: string;
+    public PreferredLogin: TypeOfLogin;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public SystemID: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5723,21 +5760,21 @@ export class AltinnReceipt extends UniEntity {
     public static RelativeUrl = 'altinnreceipts';
     public static EntityType = 'AltinnReceipt';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ReceiptID: number;
-    public UserSign: string;
-    public Deleted: boolean;
-    public ErrorText: string;
     public XmlReceipt: string;
-    public UpdatedBy: string;
-    public ID: number;
     public Form: string;
-    public TimeStamp: Date;
+    public Deleted: boolean;
     public StatusCode: number;
+    public TimeStamp: Date;
     public AltinnResponseData: string;
+    public ReceiptID: number;
+    public CreatedBy: string;
+    public ErrorText: string;
+    public UserSign: string;
+    public ID: number;
     public HasBeenRegistered: boolean;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Signings: Array<AltinnSigning>;
     public CustomFields: any;
@@ -5748,18 +5785,18 @@ export class AltinnSigning extends UniEntity {
     public static RelativeUrl = 'altinnsigning';
     public static EntityType = 'AltinnSigning';
 
-    public CreatedAt: Date;
-    public StatusText: string;
-    public SignatureText: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public SignatureReference: string;
     public Deleted: boolean;
-    public AltinnReceiptID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public DateSigned: Date;
     public StatusCode: number;
+    public CreatedBy: string;
+    public DateSigned: Date;
+    public SignatureText: string;
+    public SignatureReference: string;
+    public ID: number;
+    public AltinnReceiptID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public StatusText: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public AltinnReceipt: AltinnReceipt;
     public CustomFields: any;
@@ -5770,14 +5807,14 @@ export class Barnepass extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'Barnepass';
 
-    public CreatedAt: Date;
-    public inntektsaar: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public inntektsaar: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public oppgave: Array<BarnepassOppgave>;
     public CustomFields: any;
@@ -5788,18 +5825,18 @@ export class BarnepassOppgave extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BarnepassOppgave';
 
-    public CreatedAt: Date;
-    public foedselsnummer: string;
-    public CreatedBy: string;
-    public email: string;
-    public UpdatedAt: Date;
-    public navn: string;
     public Deleted: boolean;
+    public StatusCode: number;
+    public navn: string;
+    public CreatedBy: string;
+    public foedselsnummer: string;
     public paaloeptBeloep: number;
     public BarnepassID: number;
-    public UpdatedBy: string;
     public ID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public email: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5809,15 +5846,15 @@ export class UserRole extends UniEntity {
     public static RelativeUrl = 'userroles';
     public static EntityType = 'UserRole';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public SharedRoleId: number;
     public Deleted: boolean;
     public SharedRoleName: string;
-    public UpdatedBy: string;
-    public ID: number;
     public UserID: number;
+    public SharedRoleId: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public User: User;
     public CustomFields: any;
@@ -5828,15 +5865,15 @@ export class Role extends UniEntity {
     public static RelativeUrl = 'roles';
     public static EntityType = 'Role';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Description: string;
+    public Name: string;
     public ID: number;
     public Label: string;
-    public Description: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public RolePermissions: Array<RolePermission>;
     public CustomFields: any;
@@ -5847,14 +5884,14 @@ export class RolePermission extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'RolePermission';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
     public PermissionID: number;
-    public UpdatedBy: string;
+    public CreatedBy: string;
     public ID: number;
+    public CreatedAt: Date;
     public RoleID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Role: Role;
     public Permission: Permission;
@@ -5866,13 +5903,13 @@ export class Permission extends UniEntity {
     public static RelativeUrl = 'permissions';
     public static EntityType = 'Permission';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
+    public CreatedBy: string;
+    public Name: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public RolePermissions: Array<RolePermission>;
     public CustomFields: any;
@@ -5883,17 +5920,17 @@ export class AvtaleGiroAgreement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AvtaleGiroAgreement';
 
-    public CreatedAt: Date;
     public Thumbprint: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public DataSender: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public KeyPath: string;
+    public DataSender: string;
     public Description: string;
     public NextNumber: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5903,15 +5940,15 @@ export class AvtaleGiroBankAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AvtaleGiroBankAccount';
 
-    public BankAccountNumber: string;
-    public CreatedAt: Date;
-    public AvtaleGiroAgreementID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public BankAccountNumber: string;
+    public CreatedBy: string;
     public CompanyID: number;
-    public UpdatedBy: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public AvtaleGiroAgreementID: number;
     public _createguid: string;
     public Company: Company;
     public CustomFields: any;
@@ -5922,17 +5959,17 @@ export class AvtaleGiroFile extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AvtaleGiroFile';
 
-    public CreatedAt: Date;
-    public AvtaleGiroContent: string;
-    public AvtaleGiroAgreementID: number;
+    public Deleted: boolean;
     public CreatedBy: string;
     public FileID: number;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public AvtaleGiroMergedFileID: number;
     public CompanyID: number;
-    public UpdatedBy: string;
     public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public AvtaleGiroContent: string;
+    public UpdatedBy: string;
+    public AvtaleGiroMergedFileID: number;
+    public AvtaleGiroAgreementID: number;
     public _createguid: string;
     public Company: Company;
     public CustomFields: any;
@@ -5943,13 +5980,13 @@ export class AvtaleGiroMergedFile extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AvtaleGiroMergedFile';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public TransmissionNumber: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -5959,24 +5996,24 @@ export class BankAgreement extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankAgreement';
 
+    public CustomerName: string;
+    public Deleted: boolean;
+    public OrderName: string;
+    public ServiceAccountID: number;
+    public ReceiptID: string;
+    public CreatedBy: string;
     public OrderMobile: string;
-    public CustomerOrgNumber: string;
+    public CompanyID: number;
+    public AccountOwnerName: string;
+    public ReceiptDate: Date;
+    public OrderEmail: string;
+    public ID: number;
+    public ServiceID: string;
     public CreatedAt: Date;
     public AccountOwnerOrgNumber: string;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public ReceiptID: string;
-    public OrderEmail: string;
-    public Deleted: boolean;
-    public ServiceID: string;
-    public CompanyID: number;
+    public CustomerOrgNumber: string;
     public UpdatedBy: string;
-    public ID: number;
-    public ReceiptDate: Date;
-    public AccountOwnerName: string;
-    public CustomerName: string;
-    public ServiceAccountID: number;
-    public OrderName: string;
     public _createguid: string;
     public ServiceAccount: ServiceAccount;
     public Company: Company;
@@ -5989,19 +6026,19 @@ export class BankService extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankService';
 
-    public CreatedAt: Date;
-    public KidRule: string;
+    public Deleted: boolean;
+    public DivisionID: number;
+    public FileType: string;
     public CreatedBy: string;
+    public ConfirmInNetbank: boolean;
+    public BankAgreementID: number;
+    public KidRule: string;
+    public ID: number;
+    public ServiceType: number;
+    public CreatedAt: Date;
     public UpdatedAt: Date;
     public DivisionName: string;
-    public Deleted: boolean;
-    public ConfirmInNetbank: boolean;
-    public ServiceType: number;
     public UpdatedBy: string;
-    public ID: number;
-    public DivisionID: number;
-    public BankAgreementID: number;
-    public FileType: string;
     public _createguid: string;
     public BankAgreement: BankAgreement;
     public BankAccounts: Array<BankServiceBankAccount>;
@@ -6013,14 +6050,14 @@ export class BankServiceBankAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'BankServiceBankAccount';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountNumber: string;
     public BankServiceID: number;
+    public CreatedBy: string;
+    public AccountNumber: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public BankService: BankService;
     public CustomFields: any;
@@ -6032,24 +6069,26 @@ export class Company extends UniEntity {
     public static EntityType = 'Company';
 
     public ConnectionString: string;
-    public SchemaName: string;
-    public CreatedAt: Date;
-    public ClientNumber: number;
-    public Name: string;
-    public CreatedBy: string;
-    public IsTemplate: boolean;
-    public UpdatedAt: Date;
-    public IsTest: boolean;
-    public WebHookSubscriberId: string;
-    public OrganizationNumber: string;
     public Deleted: boolean;
-    public Key: string;
-    public FileFlowEmail: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public IsGlobalTemplate: boolean;
+    public StatusCode: CompanyStatusCode;
+    public WebHookSubscriberId: string;
+    public CreatedBy: string;
     public LastActivity: Date;
+    public OrganizationNumber: string;
+    public MigrationVersion: string;
+    public ClientNumber: number;
+    public FileFlowEmail: string;
     public FileFlowOrgnrEmail: string;
+    public SchemaName: string;
+    public Name: string;
+    public IsTemplate: boolean;
+    public ID: number;
+    public IsTest: boolean;
+    public IsGlobalTemplate: boolean;
+    public CreatedAt: Date;
+    public Key: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6059,18 +6098,18 @@ export class CompanyAccess extends UniEntity {
     public static RelativeUrl = 'companies-access';
     public static EntityType = 'CompanyAccess';
 
-    public CreatedAt: Date;
     public GlobalIdentity: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EndDate: Date;
-    public Roles: string;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
     public CompanyID: number;
     public StartDate: Date;
-    public UpdatedBy: string;
+    public Roles: string;
     public ID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public EndDate: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6080,28 +6119,28 @@ export class CompanyBackup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'CompanyBackup';
 
-    public SchemaName: string;
-    public Message: string;
-    public CreatedAt: Date;
-    public Reason: string;
-    public CreatedBy: string;
-    public CopyFiles: boolean;
-    public UpdatedAt: Date;
-    public OrgNumber: string;
-    public CompanyName: string;
-    public ContractID: number;
-    public CompanyKey: string;
-    public Deleted: boolean;
-    public ContainerName: string;
-    public DeletedAt: Date;
-    public BackupStatus: BackupStatus;
-    public ContractType: number;
-    public ScheduledForDeleteAt: Date;
-    public UpdatedBy: string;
-    public ID: number;
     public CloudBlobName: string;
     public CustomerName: string;
+    public ContractType: number;
+    public Message: string;
+    public Deleted: boolean;
+    public CreatedBy: string;
+    public DeletedAt: Date;
+    public SchemaName: string;
+    public ContainerName: string;
     public Environment: string;
+    public ID: number;
+    public BackupStatus: BackupStatus;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public CopyFiles: boolean;
+    public Reason: string;
+    public ScheduledForDeleteAt: Date;
+    public OrgNumber: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6111,18 +6150,18 @@ export class ContractCron extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ContractCron';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
     public Deleted: boolean;
-    public ContractTriggerID: number;
+    public CreatedBy: string;
     public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public Expression: string;
-    public CompanyKey: string;
+    public ID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ContractTriggerID: number;
     public CompanyDbName: string;
+    public CompanyKey: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6132,19 +6171,19 @@ export class ContractObyte extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ContractObyte';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ContractID: number;
-    public Address: string;
     public Deleted: boolean;
+    public CreatedBy: string;
     public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public ContractAddressID: number;
     public AssetAddress: string;
-    public CompanyKey: string;
+    public Address: string;
+    public ID: number;
+    public ContractID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public CompanyDbName: string;
+    public CompanyKey: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6154,18 +6193,18 @@ export class DeniedUserAccessLog extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'DeniedUserAccessLog';
 
-    public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public Email: string;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public Deleted: boolean;
     public Username: string;
-    public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
+    public Message: string;
+    public Deleted: boolean;
     public Occurred: Date;
+    public CreatedBy: string;
+    public CompanyID: number;
+    public ID: number;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public Company: Company;
     public CustomFields: any;
@@ -6176,16 +6215,16 @@ export class FailedBankFile extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FailedBankFile';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CompanyKey: string;
     public Deleted: boolean;
-    public FileContent: string;
-    public UpdatedBy: string;
+    public CreatedBy: string;
     public ID: number;
     public FileName: string;
+    public CompanyKey: string;
+    public FileContent: string;
+    public CreatedAt: Date;
     public FailedReason: FailedReasonEnum;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6195,17 +6234,17 @@ export class HangfireJob extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'HangfireJob';
 
-    public CreatedAt: Date;
     public GlobalIdentity: string;
-    public UpdatedAt: Date;
-    public CompanyKey: string;
-    public Year: number;
-    public CompanyID: number;
-    public ID: number;
+    public JobId: string;
     public HasError: boolean;
     public Status: number;
+    public Year: number;
+    public CompanyID: number;
     public Completed: boolean;
-    public JobId: string;
+    public ID: number;
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public CustomFields: any;
 }
 
@@ -6214,18 +6253,18 @@ export class HangfireJobContext extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'HangfireJobContext';
 
-    public SchemaName: string;
-    public CreatedAt: Date;
     public GlobalIdentity: string;
-    public UpdatedAt: Date;
-    public CompanyKey: string;
-    public Year: number;
-    public CompanyID: number;
-    public ID: number;
+    public JobId: string;
     public HasError: boolean;
     public Status: number;
+    public Year: number;
+    public CompanyID: number;
+    public SchemaName: string;
     public Completed: boolean;
-    public JobId: string;
+    public ID: number;
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public CustomFields: any;
 }
 
@@ -6234,19 +6273,19 @@ export class HangfireResponse extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'HangfireResponse';
 
-    public CreatedAt: Date;
-    public ProgressUrl: string;
     public GlobalIdentity: string;
+    public JobId: string;
     public State: string;
-    public UpdatedAt: Date;
-    public CompanyKey: string;
-    public Year: number;
-    public CompanyID: number;
-    public ID: number;
     public HasError: boolean;
     public Status: number;
+    public Year: number;
+    public CompanyID: number;
+    public ProgressUrl: string;
     public Completed: boolean;
-    public JobId: string;
+    public ID: number;
+    public CompanyKey: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public CustomFields: any;
 }
 
@@ -6255,22 +6294,22 @@ export class KpiDefinition extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiDefinition';
 
-    public CreatedAt: Date;
     public IsPerUser: boolean;
-    public Interval: string;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Application: string;
     public Deleted: boolean;
-    public RoleNames: string;
-    public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public RefreshModels: string;
     public SourceType: KpiSourceType;
+    public RoleNames: string;
+    public CreatedBy: string;
+    public CompanyID: number;
     public ValueType: KpiValueType;
+    public RefreshModels: string;
+    public Interval: string;
     public Route: string;
+    public Name: string;
+    public Application: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6280,21 +6319,21 @@ export class KpiValue extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'KpiValue';
 
+    public KpiName: string;
+    public Deleted: boolean;
+    public CreatedBy: string;
     public LastUpdated: Date;
+    public CompanyID: number;
+    public KpiDefinitionID: number;
+    public Text: string;
+    public Counter: number;
+    public Total: number;
+    public ID: number;
     public ValueStatus: KpiValueStatus;
     public CreatedAt: Date;
-    public KpiDefinitionID: number;
-    public CreatedBy: string;
     public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Total: number;
-    public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Text: string;
     public UserIdentity: string;
-    public Counter: number;
-    public KpiName: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6304,24 +6343,24 @@ export class OutgoingInvoice extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'OutgoingInvoice';
 
-    public ExternalReference: string;
-    public CreatedAt: Date;
-    public InvoiceID: number;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public MetaJson: string;
+    public Status: number;
+    public ISPOrganizationNumber: string;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public InvoiceType: OutgoingInvoiceType;
     public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public RecipientOrganizationNumber: string;
-    public Status: number;
-    public MetaJson: string;
     public DueDate: Date;
+    public InvoiceType: OutgoingInvoiceType;
+    public ID: number;
+    public CreatedAt: Date;
     public RecipientPhoneNumber: string;
-    public ISPOrganizationNumber: string;
-    public StatusCode: number;
+    public InvoiceID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public ExternalReference: string;
     public _createguid: string;
     public Company: Company;
     public CustomFields: any;
@@ -6333,23 +6372,23 @@ export class ProcessFileLog extends UniEntity {
     public static EntityType = 'ProcessFileLog';
 
     public Message: string;
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public EntityName: string;
+    public FileType: number;
     public CreatedBy: string;
     public FileID: number;
-    public UpdatedAt: Date;
-    public CompanyName: string;
-    public CompanyKey: string;
-    public Deleted: boolean;
-    public EntityCount: number;
-    public EntityName: string;
     public CompanyID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public FileName: string;
-    public FileType: number;
     public EntityInstanceID: string;
+    public EntityCount: number;
+    public ID: number;
+    public FileName: string;
+    public CompanyKey: string;
+    public CompanyName: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public UserIdentity: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public Company: Company;
     public CustomFields: any;
@@ -6360,17 +6399,17 @@ export class ServiceAccount extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ServiceAccount';
 
-    public CreatedAt: Date;
     public Thumbprint: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public DataSender: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public KeyPath: string;
+    public DataSender: string;
     public Description: string;
     public NextNumber: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6380,20 +6419,20 @@ export class UserVerification extends UniEntity {
     public static RelativeUrl = 'user-verifications';
     public static EntityType = 'UserVerification';
 
-    public VerificationCode: string;
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public UserId: number;
+    public StatusCode: number;
     public ExpirationDate: Date;
     public CreatedBy: string;
-    public Email: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public VerificationDate: Date;
     public CompanyId: number;
-    public DisplayName: string;
-    public UpdatedBy: string;
+    public VerificationDate: Date;
     public ID: number;
-    public StatusCode: number;
-    public UserId: number;
+    public DisplayName: string;
+    public VerificationCode: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6403,37 +6442,37 @@ export class Account extends UniEntity {
     public static RelativeUrl = 'accounts';
     public static EntityType = 'Account';
 
-    public UseVatDeductionGroupID: number;
-    public CreatedAt: Date;
-    public SaftMappingAccountID: number;
-    public AccountGroupID: number;
-    public CreatedBy: string;
-    public UsePostPost: boolean;
-    public UpdatedAt: Date;
-    public TopLevelAccountGroupID: number;
-    public Locked: boolean;
-    public Deleted: boolean;
-    public Active: boolean;
-    public AccountName: string;
-    public VatTypeID: number;
-    public CustomerID: number;
-    public SystemAccount: boolean;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public Keywords: string;
-    public EmployeeID: number;
-    public ID: number;
-    public AccountID: number;
-    public DoSynchronize: boolean;
-    public LockManualPosts: boolean;
-    public AccountNumber: number;
-    public Visible: boolean;
+    public CostAllocationID: number;
     public DimensionsID: number;
-    public Description: string;
+    public LockManualPosts: boolean;
+    public Locked: boolean;
+    public AccountSetupID: number;
+    public Deleted: boolean;
+    public Keywords: string;
+    public VatTypeID: number;
     public SupplierID: number;
     public StatusCode: number;
-    public AccountSetupID: number;
-    public CostAllocationID: number;
+    public DoSynchronize: boolean;
+    public EmployeeID: number;
+    public CurrencyCodeID: number;
+    public AccountName: string;
+    public TopLevelAccountGroupID: number;
+    public CreatedBy: string;
+    public SystemAccount: boolean;
+    public UseVatDeductionGroupID: number;
+    public AccountID: number;
+    public AccountGroupID: number;
+    public Active: boolean;
+    public Description: string;
+    public AccountNumber: number;
+    public ID: number;
+    public SaftMappingAccountID: number;
+    public CreatedAt: Date;
+    public CustomerID: number;
+    public Visible: boolean;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public UsePostPost: boolean;
     public _createguid: string;
     public AccountGroup: AccountGroup;
     public TopLevelAccountGroup: AccountGroup;
@@ -6459,15 +6498,15 @@ export class AccountAlias extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccountAlias';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6477,21 +6516,21 @@ export class AccountGroup extends UniEntity {
     public static RelativeUrl = 'accountgroups';
     public static EntityType = 'AccountGroup';
 
-    public CompatibleAccountID: number;
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public GroupNumber: string;
-    public UpdatedAt: Date;
-    public Summable: boolean;
-    public Deleted: boolean;
     public AccountGroupSetupID: number;
-    public UpdatedBy: string;
-    public ID: number;
+    public Deleted: boolean;
+    public StatusCode: number;
     public MainGroupID: number;
+    public GroupNumber: string;
+    public CreatedBy: string;
     public AccountID: number;
     public AccountGroupSetID: number;
-    public StatusCode: number;
+    public Summable: boolean;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public CompatibleAccountID: number;
     public _createguid: string;
     public MainGroup: AccountGroup;
     public AccountGroupSet: AccountGroupSet;
@@ -6503,19 +6542,19 @@ export class AccountGroupSet extends UniEntity {
     public static RelativeUrl = 'accountgroupsets';
     public static EntityType = 'AccountGroupSet';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public FromAccountNumber: number;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Shared: boolean;
-    public ToAccountNumber: number;
     public SubAccountAllowed: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public System: boolean;
+    public Deleted: boolean;
     public StatusCode: number;
+    public Shared: boolean;
+    public System: boolean;
+    public CreatedBy: string;
+    public ToAccountNumber: number;
+    public FromAccountNumber: number;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6525,16 +6564,16 @@ export class AccountMandatoryDimension extends UniEntity {
     public static RelativeUrl = 'accountmandatorydimension';
     public static EntityType = 'AccountMandatoryDimension';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public MandatoryType: number;
     public Deleted: boolean;
-    public DimensionNo: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public DimensionNo: number;
+    public ID: number;
+    public MandatoryType: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -6544,18 +6583,18 @@ export class Accrual extends UniEntity {
     public static RelativeUrl = 'accruals';
     public static EntityType = 'Accrual';
 
-    public BalanceAccountID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public AccrualJournalEntryMode: number;
-    public JournalEntryLineDraftID: number;
-    public UpdatedBy: string;
-    public AccrualAmount: number;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
     public ResultAccountID: number;
+    public AccrualJournalEntryMode: number;
+    public BalanceAccountID: number;
+    public JournalEntryLineDraftID: number;
+    public ID: number;
+    public AccrualAmount: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public BalanceAccount: Account;
     public ResultAccount: Account;
@@ -6570,21 +6609,39 @@ export class AccrualPeriod extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'AccrualPeriod';
 
-    public CreatedAt: Date;
-    public Amount: number;
-    public AccountYear: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AccrualID: number;
     public Deleted: boolean;
-    public PeriodNo: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
     public JournalEntryDraftLineID: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public AccountYear: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public AccrualID: number;
+    public PeriodNo: number;
     public _createguid: string;
     public Accrual: Accrual;
     public JournalEntryLineDraft: JournalEntryLineDraft;
+    public CustomFields: any;
+}
+
+
+export class AltinnAccountLink extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AltinnAccountLink';
+
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public AltinnAccountNumber: number;
+    public AccountNumber: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
     public CustomFields: any;
 }
 
@@ -6593,26 +6650,26 @@ export class Asset extends UniEntity {
     public static RelativeUrl = 'assets';
     public static EntityType = 'Asset';
 
-    public BalanceAccountID: number;
-    public CreatedAt: Date;
-    public Name: string;
-    public Lifetime: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public DepreciationAccountID: number;
-    public DepreciationCycle: number;
-    public PurchaseAmount: number;
-    public AssetGroupCode: string;
-    public Deleted: boolean;
-    public PurchaseDate: LocalDate;
-    public NetFinancialValue: number;
-    public DepreciationStartDate: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
     public DimensionsID: number;
-    public AutoDepreciation: boolean;
+    public Deleted: boolean;
     public StatusCode: number;
     public ScrapValue: number;
+    public PurchaseDate: LocalDate;
+    public DepreciationStartDate: LocalDate;
+    public CreatedBy: string;
+    public DepreciationCycle: number;
+    public AssetGroupCode: string;
+    public DepreciationAccountID: number;
+    public AutoDepreciation: boolean;
+    public BalanceAccountID: number;
+    public NetFinancialValue: number;
+    public PurchaseAmount: number;
+    public Name: string;
+    public Lifetime: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public Status: string;
     public CurrentNetFinancialValue: number;
     public _createguid: string;
@@ -6628,20 +6685,20 @@ export class Bank extends UniEntity {
     public static RelativeUrl = 'banks';
     public static EntityType = 'Bank';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AddressID: number;
-    public PhoneID: number;
-    public Deleted: boolean;
     public InitialBIC: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public BIC: string;
-    public StatusCode: number;
+    public Deleted: boolean;
+    public AddressID: number;
     public EmailID: number;
+    public StatusCode: number;
+    public CreatedBy: string;
     public Web: string;
+    public BIC: string;
+    public Name: string;
+    public ID: number;
+    public PhoneID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Address: Address;
     public Phone: Phone;
@@ -6654,27 +6711,27 @@ export class BankAccount extends UniEntity {
     public static RelativeUrl = 'bankaccounts';
     public static EntityType = 'BankAccount';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public BankID: number;
-    public BankAccountType: string;
-    public UpdatedAt: Date;
-    public IntegrationSettings: string;
-    public CompanySettingsID: number;
-    public BusinessRelationID: number;
     public Locked: boolean;
     public Deleted: boolean;
-    public IntegrationStatus: number;
-    public IBAN: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public Label: string;
-    public AccountID: number;
-    public AccountNumber: string;
     public StatusCode: number;
+    public BankAccountType: string;
+    public IntegrationSettings: string;
+    public CreatedBy: string;
+    public AccountID: number;
+    public IBAN: string;
+    public CompanySettingsID: number;
+    public BankID: number;
+    public BusinessRelationID: number;
+    public AccountNumber: string;
+    public ID: number;
+    public IntegrationStatus: number;
+    public Label: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
-    public Account: Account;
     public Bank: Bank;
+    public Account: Account;
     public BusinessRelation: BusinessRelation;
     public CompanySettings: CompanySettings;
     public CustomFields: any;
@@ -6685,29 +6742,29 @@ export class BankIntegrationAgreement extends UniEntity {
     public static RelativeUrl = 'bank-agreements';
     public static EntityType = 'BankIntegrationAgreement';
 
-    public CreatedAt: Date;
-    public Name: string;
     public HasOrderedIntegrationChange: boolean;
-    public ServiceProvider: number;
-    public CreatedBy: string;
-    public Email: string;
-    public IsInbound: boolean;
-    public UpdatedAt: Date;
-    public PropertiesJson: string;
-    public IsOutgoing: boolean;
-    public BankAcceptance: boolean;
     public Deleted: boolean;
-    public ServiceID: string;
-    public HasNewAccountInformation: boolean;
+    public PropertiesJson: string;
     public IsBankBalance: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public ServiceTemplateID: string;
     public StatusCode: number;
-    public DefaultAgreement: boolean;
+    public IsInbound: boolean;
+    public CreatedBy: string;
     public BankAccountID: number;
-    public Password: string;
+    public DefaultAgreement: boolean;
+    public IsOutgoing: boolean;
+    public ServiceTemplateID: string;
+    public ServiceProvider: number;
+    public HasNewAccountInformation: boolean;
+    public Name: string;
+    public ID: number;
+    public ServiceID: string;
+    public BankAcceptance: boolean;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public _createguid: string;
+    public Password: string;
     public BankAccount: BankAccount;
     public CustomFields: any;
 }
@@ -6717,19 +6774,19 @@ export class BankRule extends UniEntity {
     public static RelativeUrl = 'bankrules';
     public static EntityType = 'BankRule';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Rule: string;
     public Deleted: boolean;
-    public Priority: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public IsActive: boolean;
     public ActionCode: ActionCodeBankRule;
+    public Rule: string;
+    public Priority: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public IsActive: boolean;
     public _createguid: string;
     public Account: Account;
     public CustomFields: any;
@@ -6740,24 +6797,24 @@ export class BankStatement extends UniEntity {
     public static RelativeUrl = 'bankstatements';
     public static EntityType = 'BankStatement';
 
-    public CreatedAt: Date;
-    public AmountCurrency: number;
-    public Amount: number;
-    public EndBalance: number;
-    public CreatedBy: string;
-    public FromDate: LocalDate;
-    public FileID: number;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public ToDate: LocalDate;
-    public StartBalance: number;
-    public CurrencyCode: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
     public ArchiveReference: string;
+    public AmountCurrency: number;
+    public Deleted: boolean;
+    public CurrencyCode: string;
+    public StartBalance: number;
     public StatusCode: number;
+    public ToDate: LocalDate;
+    public Amount: number;
+    public CreatedBy: string;
     public BankAccountID: number;
+    public AccountID: number;
+    public FileID: number;
+    public FromDate: LocalDate;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public EndBalance: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public Account: Account;
     public BankAccount: BankAccount;
@@ -6771,32 +6828,32 @@ export class BankStatementEntry extends UniEntity {
     public static RelativeUrl = 'bankstatemententries';
     public static EntityType = 'BankStatementEntry';
 
-    public CID: string;
-    public CreatedAt: Date;
-    public AmountCurrency: number;
-    public Amount: number;
-    public ValueDate: LocalDate;
-    public StructuredReference: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Receivername: string;
-    public SenderAccount: string;
-    public SenderName: string;
-    public BookingDate: LocalDate;
-    public Deleted: boolean;
-    public TransactionId: string;
     public OpenAmountCurrency: number;
-    public BankStatementID: number;
-    public ReceiverAccount: string;
-    public CurrencyCode: string;
-    public UpdatedBy: string;
-    public ID: number;
     public ArchiveReference: string;
-    public OpenAmount: number;
-    public Description: string;
-    public Category: string;
+    public AmountCurrency: number;
+    public Receivername: string;
+    public Deleted: boolean;
     public InvoiceNumber: string;
+    public SenderAccount: string;
+    public CurrencyCode: string;
+    public ReceiverAccount: string;
     public StatusCode: number;
+    public BookingDate: LocalDate;
+    public Amount: number;
+    public CreatedBy: string;
+    public CID: string;
+    public BankStatementID: number;
+    public Description: string;
+    public StructuredReference: string;
+    public OpenAmount: number;
+    public SenderName: string;
+    public ID: number;
+    public TransactionId: string;
+    public Category: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public ValueDate: LocalDate;
+    public UpdatedBy: string;
     public _createguid: string;
     public BankStatement: BankStatement;
     public CustomFields: any;
@@ -6807,18 +6864,18 @@ export class BankStatementMatch extends UniEntity {
     public static RelativeUrl = 'bankstatementmatch';
     public static EntityType = 'BankStatementMatch';
 
-    public CreatedAt: Date;
-    public Group: string;
-    public Amount: number;
-    public BankStatementEntryID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public JournalEntryLineID: number;
     public StatusCode: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public Group: string;
     public Batch: string;
+    public BankStatementEntryID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public JournalEntryLineID: number;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public BankStatementEntry: BankStatementEntry;
     public JournalEntryLine: JournalEntryLine;
@@ -6830,20 +6887,20 @@ export class BankStatementRule extends UniEntity {
     public static RelativeUrl = 'bankstatementrules';
     public static EntityType = 'BankStatementRule';
 
-    public CreatedAt: Date;
-    public Name: string;
     public EntryText: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Rule: string;
-    public Deleted: boolean;
-    public Priority: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public IsActive: boolean;
     public DimensionsID: number;
+    public Deleted: boolean;
+    public Rule: string;
+    public Priority: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public IsActive: boolean;
     public _createguid: string;
     public Dimensions: Dimensions;
     public Account: Account;
@@ -6855,15 +6912,15 @@ export class Budget extends UniEntity {
     public static RelativeUrl = 'budgets';
     public static EntityType = 'Budget';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AccountingYear: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public AccountingYear: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Entries: Array<BudgetEntry>;
     public CustomFields: any;
@@ -6874,18 +6931,18 @@ export class BudgetEntry extends UniEntity {
     public static RelativeUrl = 'budgetentries';
     public static EntityType = 'BudgetEntry';
 
-    public CreatedAt: Date;
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public PeriodNumber: number;
+    public StatusCode: number;
     public Amount: number;
     public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public PeriodNumber: number;
     public AccountID: number;
-    public DimensionsID: number;
+    public ID: number;
     public BudgetID: number;
-    public StatusCode: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Budget: Budget;
     public Account: Account;
@@ -6898,24 +6955,24 @@ export class CompanyAccountingSettings extends UniEntity {
     public static RelativeUrl = 'companyaccountingsettings';
     public static EntityType = 'CompanyAccountingSettings';
 
-    public CreatedAt: Date;
-    public AssetSaleProductID: number;
-    public AssetSaleProfitNoVatAccountID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public AssetWriteoffAccountID: number;
-    public ReInvoicingCostsharingProductID: number;
-    public AssetSaleLossNoVatAccountID: number;
-    public Deleted: boolean;
-    public ReInvoicingTurnoverProductID: number;
-    public AssetSaleLossBalancingAccountID: number;
-    public AssetSaleProfitBalancingAccountID: number;
-    public UpdatedBy: string;
-    public AssetSaleProfitVatAccountID: number;
-    public ID: number;
     public AssetSaleLossVatAccountID: number;
-    public ReInvoicingMethod: number;
+    public Deleted: boolean;
+    public AssetSaleProfitVatAccountID: number;
+    public AssetSaleProductID: number;
     public StatusCode: number;
+    public ReInvoicingCostsharingProductID: number;
+    public AssetSaleLossBalancingAccountID: number;
+    public CreatedBy: string;
+    public ReInvoicingMethod: number;
+    public ReInvoicingTurnoverProductID: number;
+    public AssetSaleProfitBalancingAccountID: number;
+    public ID: number;
+    public AssetSaleProfitNoVatAccountID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public AssetSaleLossNoVatAccountID: number;
+    public UpdatedBy: string;
+    public AssetWriteoffAccountID: number;
     public _createguid: string;
     public ReInvoicingCostsharingProduct: Product;
     public ReInvoicingTurnoverProduct: Product;
@@ -6927,21 +6984,21 @@ export class CompanyBankAccount extends UniEntity {
     public static RelativeUrl = 'companybankaccounts';
     public static EntityType = 'CompanyBankAccount';
 
-    public CreatedAt: Date;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public IsSalary: boolean;
+    public CreditAmount: number;
+    public CreatedBy: string;
+    public BankAccountID: number;
+    public AccountID: number;
+    public IsOutgoing: boolean;
     public IsTax: boolean;
     public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public CreditAmount: number;
-    public IsOutgoing: boolean;
-    public Deleted: boolean;
     public IsIncomming: boolean;
-    public UpdatedBy: string;
     public ID: number;
-    public AccountID: number;
-    public IsSalary: boolean;
-    public StatusCode: number;
-    public BankAccountID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public BankAccount: BankAccount;
     public Account: Account;
@@ -6953,14 +7010,14 @@ export class CostAllocation extends UniEntity {
     public static RelativeUrl = 'costallocations';
     public static EntityType = 'CostAllocation';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Items: Array<CostAllocationItem>;
     public CustomFields: any;
@@ -6971,20 +7028,20 @@ export class CostAllocationItem extends UniEntity {
     public static RelativeUrl = 'costallocationitems';
     public static EntityType = 'CostAllocationItem';
 
-    public CreatedAt: Date;
-    public Percent: number;
-    public Amount: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
+    public CostAllocationID: number;
+    public DimensionsID: number;
     public Deleted: boolean;
     public VatTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public DimensionsID: number;
-    public Description: string;
     public StatusCode: number;
-    public CostAllocationID: number;
+    public Amount: number;
+    public CreatedBy: string;
+    public Percent: number;
+    public AccountID: number;
+    public Description: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Account: Account;
     public VatType: VatType;
@@ -6997,21 +7054,21 @@ export class CustomLiquidityPayment extends UniEntity {
     public static RelativeUrl = 'liquiditypayment';
     public static EntityType = 'CustomLiquidityPayment';
 
-    public CreatedAt: Date;
     public AmountCurrency: number;
-    public Amount: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public EndDate: LocalDate;
-    public IsCustomerPayment: boolean;
     public Deleted: boolean;
-    public CustomLiquidityPaymentType: CustomLiquidityPaymentInterval;
+    public StatusCode: number;
     public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
+    public Amount: number;
+    public IsCustomerPayment: boolean;
+    public CreatedBy: string;
+    public CustomLiquidityPaymentType: CustomLiquidityPaymentInterval;
     public DueDate: LocalDate;
     public Description: string;
-    public StatusCode: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public EndDate: LocalDate;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public currency: CurrencyCode;
     public CustomFields: any;
@@ -7023,16 +7080,16 @@ export class DepreciationLine extends UniEntity {
     public static EntityType = 'DepreciationLine';
 
     public DepreciationJELineID: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public DepreciationType: number;
+    public Deleted: boolean;
     public AssetJELineID: number;
     public StatusCode: number;
+    public CreatedBy: string;
     public AssetID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public DepreciationJELine: JournalEntryLine;
     public AssetJELine: JournalEntryLine;
@@ -7044,16 +7101,16 @@ export class FinancialYear extends UniEntity {
     public static RelativeUrl = 'financialyears';
     public static EntityType = 'FinancialYear';
 
-    public ValidTo: LocalDate;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Year: number;
     public Deleted: boolean;
-    public ValidFrom: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Year: number;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7063,21 +7120,21 @@ export class JournalEntry extends UniEntity {
     public static RelativeUrl = 'journalentries';
     public static EntityType = 'JournalEntry';
 
-    public CreatedAt: Date;
-    public NumberSeriesID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public JournalEntryDraftGroup: string;
-    public JournalEntryAccrualID: number;
-    public JournalEntryNumberNumeric: number;
-    public UpdatedBy: string;
-    public FinancialYearID: number;
-    public ID: number;
-    public Description: string;
+    public Deleted: boolean;
+    public NumberSeriesTaskID: number;
     public StatusCode: number;
     public JournalEntryNumber: string;
-    public NumberSeriesTaskID: number;
+    public CreatedBy: string;
+    public Description: string;
+    public NumberSeriesID: number;
+    public ID: number;
+    public JournalEntryAccrualID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public FinancialYearID: number;
+    public UpdatedBy: string;
+    public JournalEntryNumberNumeric: number;
     public CanSkipMandatoryDimension: boolean;
     public _createguid: string;
     public FinancialYear: FinancialYear;
@@ -7094,56 +7151,56 @@ export class JournalEntryLine extends UniEntity {
     public static RelativeUrl = 'journalentrylines';
     public static EntityType = 'JournalEntryLine';
 
-    public CreatedAt: Date;
-    public PaymentID: string;
-    public AmountCurrency: number;
-    public Amount: number;
-    public CreatedBy: string;
-    public JournalEntryID: number;
-    public TaxBasisAmount: number;
-    public UpdatedAt: Date;
-    public PeriodID: number;
-    public ReferenceOriginalPostID: number;
-    public CurrencyExchangeRate: number;
-    public VatJournalEntryPostID: number;
-    public BatchNumber: number;
-    public PaymentReferenceID: number;
-    public AccrualID: number;
-    public RestAmountCurrency: number;
-    public Deleted: boolean;
-    public VatPercent: number;
-    public PostPostJournalEntryLineID: number;
-    public RestAmount: number;
-    public VatPeriodID: number;
-    public VatDeductionPercent: number;
-    public VatReportID: number;
     public VatDate: LocalDate;
+    public AmountCurrency: number;
+    public VatReportID: number;
+    public VatPercent: number;
+    public DimensionsID: number;
+    public Deleted: boolean;
+    public InvoiceNumber: string;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public Signature: string;
+    public PeriodID: number;
+    public TaxBasisAmountCurrency: number;
+    public PaymentReferenceID: number;
+    public JournalEntryNumber: string;
+    public CurrencyCodeID: number;
+    public OriginalJournalEntryPost: number;
+    public Amount: number;
+    public PaymentID: string;
+    public CreatedBy: string;
+    public FinancialDate: LocalDate;
+    public AccountID: number;
+    public VatJournalEntryPostID: number;
+    public PostPostJournalEntryLineID: number;
+    public PaymentInfoTypeID: number;
+    public CurrencyExchangeRate: number;
+    public VatDeductionPercent: number;
+    public ReferenceOriginalPostID: number;
+    public VatPeriodID: number;
+    public RestAmount: number;
+    public CustomerInvoiceID: number;
+    public RegisteredDate: LocalDate;
+    public CustomerOrderID: number;
+    public RestAmountCurrency: number;
+    public DueDate: LocalDate;
+    public Description: string;
     public JournalEntryLineDraftID: number;
     public SubAccountID: number;
-    public JournalEntryNumberNumeric: number;
-    public VatTypeID: number;
-    public CustomerInvoiceID: number;
-    public ReferenceCreditPostID: number;
-    public OriginalReferencePostID: number;
-    public TaxBasisAmountCurrency: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public FinancialDate: LocalDate;
+    public JournalEntryID: number;
     public ID: number;
-    public AccountID: number;
-    public Signature: string;
-    public DueDate: LocalDate;
-    public DimensionsID: number;
-    public JournalEntryTypeID: number;
-    public Description: string;
-    public CustomerOrderID: number;
     public SupplierInvoiceID: number;
-    public InvoiceNumber: string;
-    public StatusCode: number;
-    public PaymentInfoTypeID: number;
-    public RegisteredDate: LocalDate;
-    public JournalEntryNumber: string;
-    public OriginalJournalEntryPost: number;
+    public ReferenceCreditPostID: number;
+    public TaxBasisAmount: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public JournalEntryTypeID: number;
+    public OriginalReferencePostID: number;
+    public BatchNumber: number;
+    public UpdatedBy: string;
+    public AccrualID: number;
+    public JournalEntryNumberNumeric: number;
     public _createguid: string;
     public JournalEntry: JournalEntry;
     public CurrencyCode: CurrencyCode;
@@ -7172,47 +7229,47 @@ export class JournalEntryLineDraft extends UniEntity {
     public static RelativeUrl = 'journalentrylinedrafts';
     public static EntityType = 'JournalEntryLineDraft';
 
-    public CreatedAt: Date;
-    public PaymentID: string;
-    public AmountCurrency: number;
-    public Amount: number;
-    public CreatedBy: string;
-    public JournalEntryID: number;
-    public TaxBasisAmount: number;
-    public UpdatedAt: Date;
-    public PeriodID: number;
-    public CurrencyExchangeRate: number;
-    public BatchNumber: number;
-    public PaymentReferenceID: number;
-    public AccrualID: number;
-    public Deleted: boolean;
-    public VatPercent: number;
-    public PostPostJournalEntryLineID: number;
-    public VatPeriodID: number;
-    public VatDeductionPercent: number;
     public VatDate: LocalDate;
-    public SubAccountID: number;
-    public JournalEntryNumberNumeric: number;
-    public VatTypeID: number;
-    public CustomerInvoiceID: number;
-    public TaxBasisAmountCurrency: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public FinancialDate: LocalDate;
-    public ID: number;
-    public AccountID: number;
-    public Signature: string;
-    public DueDate: LocalDate;
+    public AmountCurrency: number;
+    public VatPercent: number;
     public DimensionsID: number;
-    public JournalEntryTypeID: number;
-    public Description: string;
-    public CustomerOrderID: number;
-    public SupplierInvoiceID: number;
+    public Deleted: boolean;
     public InvoiceNumber: string;
+    public VatTypeID: number;
     public StatusCode: number;
-    public PaymentInfoTypeID: number;
-    public RegisteredDate: LocalDate;
+    public Signature: string;
+    public PeriodID: number;
+    public TaxBasisAmountCurrency: number;
+    public PaymentReferenceID: number;
     public JournalEntryNumber: string;
+    public CurrencyCodeID: number;
+    public Amount: number;
+    public PaymentID: string;
+    public CreatedBy: string;
+    public FinancialDate: LocalDate;
+    public AccountID: number;
+    public PostPostJournalEntryLineID: number;
+    public PaymentInfoTypeID: number;
+    public CurrencyExchangeRate: number;
+    public VatDeductionPercent: number;
+    public VatPeriodID: number;
+    public CustomerInvoiceID: number;
+    public RegisteredDate: LocalDate;
+    public CustomerOrderID: number;
+    public DueDate: LocalDate;
+    public Description: string;
+    public SubAccountID: number;
+    public JournalEntryID: number;
+    public ID: number;
+    public SupplierInvoiceID: number;
+    public TaxBasisAmount: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public JournalEntryTypeID: number;
+    public BatchNumber: number;
+    public UpdatedBy: string;
+    public AccrualID: number;
+    public JournalEntryNumberNumeric: number;
     public VatIsCaluclauted: boolean;
     public _createguid: string;
     public CurrencyCode: CurrencyCode;
@@ -7235,17 +7292,17 @@ export class JournalEntryMode extends UniEntity {
     public static RelativeUrl = 'journalEntryModes';
     public static EntityType = 'JournalEntryMode';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public VisibleModules: string;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
-    public TraceLinkTypes: string;
     public StatusCode: number;
+    public TraceLinkTypes: string;
+    public CreatedBy: string;
+    public VisibleModules: string;
     public ColumnSetUp: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7255,14 +7312,14 @@ export class JournalEntrySourceSerie extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'JournalEntrySourceSerie';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public JournalEntrySourceID: number;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public JournalEntrySourceID: number;
+    public CreatedBy: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public JournalEntrySourceInstanceID: number;
     public JournalEntrySourceEntityName: string;
     public _createguid: string;
@@ -7274,30 +7331,30 @@ export class JournalEntryType extends UniEntity {
     public static RelativeUrl = 'journalentrytypes';
     public static EntityType = 'JournalEntryType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
     public MainName: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public CreatedBy: string;
     public ExpectNegativeAmount: boolean;
-    public DisplayName: string;
-    public UpdatedBy: string;
+    public Name: string;
     public ID: number;
+    public DisplayName: string;
     public Number: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
 
 
 export class LedgerSuggestion extends UniEntity {
-    public Name: string;
-    public OrgNumber: string;
-    public IndustryCode: string;
-    public IndustryName: string;
     public BusinessType: string;
+    public Name: string;
     public ID: number;
     public Source: SuggestionSource;
+    public IndustryName: string;
+    public OrgNumber: string;
+    public IndustryCode: string;
 }
 
 
@@ -7305,56 +7362,56 @@ export class Payment extends UniEntity {
     public static RelativeUrl = 'payments';
     public static EntityType = 'Payment';
 
-    public PaymentBatchID: number;
-    public CreatedAt: Date;
-    public PaymentID: string;
-    public AmountCurrency: number;
-    public InPaymentID: string;
-    public Amount: number;
-    public StatusText: string;
-    public CreatedBy: string;
-    public PaymentDate: LocalDate;
-    public JournalEntryID: number;
-    public XmlTagPmtInfIdReference: string;
-    public UpdatedAt: Date;
-    public BusinessRelationID: number;
-    public ExternalBankAccountNumber: string;
-    public CurrencyExchangeRate: number;
-    public IsPaymentClaim: boolean;
-    public AutoJournal: boolean;
-    public IsCustomerPayment: boolean;
-    public Deleted: boolean;
-    public SerialNumberOrAcctSvcrRef: string;
-    public ToBankAccountID: number;
     public Debtor: string;
-    public Domain: string;
-    public FromBankAccountID: number;
-    public BankChargeAmount: number;
-    public CustomerInvoiceID: number;
-    public Proprietary: string;
-    public CustomerInvoiceReminderID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public OcrPaymentStrings: string;
     public PaymentCodeID: number;
-    public XmlTagEndToEndIdReference: string;
+    public AmountCurrency: number;
     public IsPaymentCancellationRequest: boolean;
-    public DueDate: LocalDate;
-    public PaymentStatusReportFileID: number;
-    public PaymentNotificationReportFileID: number;
-    public Description: string;
-    public SupplierInvoiceID: number;
+    public Deleted: boolean;
+    public FromBankAccountID: number;
     public InvoiceNumber: string;
+    public ToBankAccountID: number;
+    public PaymentBatchID: number;
+    public OcrPaymentStrings: string;
     public StatusCode: number;
+    public PaymentStatusReportFileID: number;
+    public Domain: string;
+    public PaymentDate: LocalDate;
+    public ExternalBankAccountNumber: string;
+    public CurrencyCodeID: number;
+    public PaymentNotificationReportFileID: number;
+    public Amount: number;
+    public IsCustomerPayment: boolean;
+    public PaymentID: string;
+    public CreatedBy: string;
+    public BankChargeAmount: number;
     public IsExternal: boolean;
+    public CurrencyExchangeRate: number;
+    public CustomerInvoiceReminderID: number;
+    public CustomerInvoiceID: number;
+    public DueDate: LocalDate;
+    public Description: string;
+    public BusinessRelationID: number;
+    public JournalEntryID: number;
+    public ID: number;
+    public AutoJournal: boolean;
+    public SupplierInvoiceID: number;
+    public InPaymentID: string;
+    public IsPaymentClaim: boolean;
+    public Proprietary: string;
+    public XmlTagEndToEndIdReference: string;
+    public CreatedAt: Date;
+    public XmlTagPmtInfIdReference: string;
     public ReconcilePayment: boolean;
+    public SerialNumberOrAcctSvcrRef: string;
+    public UpdatedAt: Date;
+    public StatusText: string;
+    public UpdatedBy: string;
     public DimensionsID: number;
     public _createguid: string;
-    public BusinessRelation: BusinessRelation;
-    public ToBankAccount: BankAccount;
     public PaymentBatch: PaymentBatch;
+    public BusinessRelation: BusinessRelation;
     public FromBankAccount: BankAccount;
+    public ToBankAccount: BankAccount;
     public CurrencyCode: CurrencyCode;
     public PaymentCode: PaymentCode;
     public CustomerInvoice: CustomerInvoice;
@@ -7368,25 +7425,25 @@ export class PaymentBatch extends UniEntity {
     public static RelativeUrl = 'paymentbatches';
     public static EntityType = 'PaymentBatch';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public TotalAmount: number;
-    public PaymentReferenceID: string;
-    public IsCustomerPayment: boolean;
     public Deleted: boolean;
+    public StatusCode: number;
+    public PaymentStatusReportFileID: number;
+    public OcrTransmissionNumber: number;
+    public PaymentReferenceID: string;
+    public NumberOfPayments: number;
+    public Camt054CMsgId: string;
+    public IsCustomerPayment: boolean;
+    public CreatedBy: string;
+    public TransferredDate: Date;
+    public ReceiptDate: Date;
     public OcrHeadingStrings: string;
     public PaymentFileID: number;
-    public NumberOfPayments: number;
-    public PaymentBatchTypeID: number;
-    public Camt054CMsgId: string;
-    public UpdatedBy: string;
-    public OcrTransmissionNumber: number;
+    public TotalAmount: number;
     public ID: number;
-    public ReceiptDate: Date;
-    public PaymentStatusReportFileID: number;
-    public StatusCode: number;
-    public TransferredDate: Date;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public PaymentBatchTypeID: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public Payments: Array<Payment>;
     public PaymentBatchType: PaymentBatchType;
@@ -7398,20 +7455,20 @@ export class PostPost extends UniEntity {
     public static RelativeUrl = 'postposts';
     public static EntityType = 'PostPost';
 
-    public Date: LocalDate;
-    public CreatedAt: Date;
     public AmountCurrency: number;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public Date: LocalDate;
+    public CurrencyCodeID: number;
     public Amount: number;
     public CreatedBy: string;
+    public JournalEntryLine1ID: number;
+    public CurrencyExchangeRate: number;
+    public ID: number;
+    public CreatedAt: Date;
     public JournalEntryLine2ID: number;
     public UpdatedAt: Date;
-    public CurrencyExchangeRate: number;
-    public JournalEntryLine1ID: number;
-    public Deleted: boolean;
-    public CurrencyCodeID: number;
     public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
     public _createguid: string;
     public JournalEntryLine1: JournalEntryLine;
     public JournalEntryLine2: JournalEntryLine;
@@ -7424,20 +7481,20 @@ export class ReInvoice extends UniEntity {
     public static RelativeUrl = 'reinvoicing';
     public static EntityType = 'ReInvoice';
 
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
-    public TaxInclusiveAmount: number;
-    public Deleted: boolean;
     public TaxExclusiveAmount: number;
-    public UpdatedBy: string;
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public TaxInclusiveAmount: number;
     public ID: number;
+    public SupplierInvoiceID: number;
+    public ProductID: number;
+    public OwnCostShare: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
     public OwnCostAmount: number;
     public ReInvoicingType: number;
-    public OwnCostShare: number;
-    public SupplierInvoiceID: number;
-    public StatusCode: number;
+    public UpdatedBy: string;
     public _createguid: string;
     public SupplierInvoice: SupplierInvoice;
     public Product: Product;
@@ -7450,20 +7507,20 @@ export class ReInvoiceItem extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ReInvoiceItem';
 
-    public Share: number;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Vat: number;
     public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Surcharge: number;
+    public Vat: number;
+    public NetAmount: number;
+    public ReInvoiceID: number;
+    public Share: number;
+    public ID: number;
+    public CreatedAt: Date;
     public GrossAmount: number;
     public CustomerID: number;
+    public UpdatedAt: Date;
     public UpdatedBy: string;
-    public ID: number;
-    public ReInvoiceID: number;
-    public StatusCode: number;
-    public Surcharge: number;
-    public NetAmount: number;
     public _createguid: string;
     public Customer: Customer;
     public CustomFields: any;
@@ -7474,81 +7531,81 @@ export class SupplierInvoice extends UniEntity {
     public static RelativeUrl = 'supplierinvoices';
     public static EntityType = 'SupplierInvoice';
 
-    public InternalNote: string;
-    public CustomerOrgNumber: string;
-    public PaymentDueDate: LocalDate;
-    public CreatedAt: Date;
-    public DeliveryTerm: string;
-    public PaymentID: string;
     public Credited: boolean;
-    public InvoiceAddressLine3: string;
-    public CreditedAmount: number;
-    public InvoiceCountryCode: string;
-    public CreditDays: number;
-    public TaxExclusiveAmountCurrency: number;
+    public PrintStatus: number;
+    public TaxExclusiveAmount: number;
+    public IsSentToPayment: boolean;
+    public InvoiceDate: LocalDate;
     public InvoicePostalCode: string;
-    public YourReference: string;
-    public Payment: string;
-    public CreatedBy: string;
-    public JournalEntryID: number;
-    public CustomerPerson: string;
-    public InvoiceReceiverName: string;
-    public UpdatedAt: Date;
-    public InvoiceReferenceID: number;
-    public CurrencyExchangeRate: number;
-    public PayableRoundingAmount: number;
-    public DeliveryName: string;
-    public TaxInclusiveAmountCurrency: number;
-    public ShippingCountryCode: string;
-    public TaxInclusiveAmount: number;
-    public RestAmountCurrency: number;
     public Deleted: boolean;
-    public DeliveryDate: LocalDate;
-    public RestAmount: number;
-    public PaymentTerm: string;
+    public InvoiceNumber: string;
+    public SupplierID: number;
+    public OurReference: string;
+    public StatusCode: number;
     public AmountRegards: string;
-    public ShippingCountry: string;
+    public PayableRoundingAmount: number;
+    public DeliveryTermsID: number;
+    public InvoiceReceiverName: string;
+    public PayableRoundingCurrencyAmount: number;
+    public PaymentInformation: string;
+    public CurrencyCodeID: number;
+    public PaymentID: string;
+    public CreatedBy: string;
+    public VatTotalsAmount: number;
+    public BankAccountID: number;
+    public ShippingAddressLine1: string;
+    public ReInvoiced: boolean;
+    public InvoiceReferenceID: number;
     public InvoiceAddressLine1: string;
     public DeliveryMethod: string;
-    public InvoiceCity: string;
-    public SupplierOrgNumber: string;
-    public InvoiceType: number;
-    public PaymentTermsID: number;
     public Comment: string;
-    public InvoiceCountry: string;
-    public PaymentStatus: number;
-    public TaxExclusiveAmount: number;
-    public ProjectID: number;
-    public SalesPerson: string;
-    public VatTotalsAmountCurrency: number;
-    public ShippingAddressLine2: string;
-    public IsSentToPayment: boolean;
-    public CreditedAmountCurrency: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public PaymentInformation: string;
-    public ID: number;
-    public FreeTxt: string;
-    public ShippingPostalCode: string;
     public ShippingAddressLine3: string;
-    public ReInvoiceID: number;
-    public ShippingCity: string;
-    public OurReference: string;
-    public DeliveryTermsID: number;
-    public SupplierID: number;
-    public InvoiceNumber: string;
-    public StatusCode: number;
-    public PayableRoundingCurrencyAmount: number;
-    public InvoiceAddressLine2: string;
-    public ReInvoiced: boolean;
-    public Requisition: string;
-    public InvoiceDate: LocalDate;
-    public ShippingAddressLine1: string;
-    public BankAccountID: number;
-    public PrintStatus: number;
-    public VatTotalsAmount: number;
+    public PaymentStatus: number;
+    public InternalNote: string;
+    public DeliveryName: string;
     public InvoiceOriginType: SupplierInvoiceOriginType;
+    public ProjectID: number;
+    public CurrencyExchangeRate: number;
+    public FreeTxt: string;
+    public DeliveryTerm: string;
     public DefaultDimensionsID: number;
+    public CreditedAmountCurrency: number;
+    public ReInvoiceID: number;
+    public CreditDays: number;
+    public RestAmount: number;
+    public SalesPerson: string;
+    public Requisition: string;
+    public RestAmountCurrency: number;
+    public PaymentTerm: string;
+    public InvoiceCountry: string;
+    public ShippingPostalCode: string;
+    public TaxInclusiveAmount: number;
+    public YourReference: string;
+    public ShippingCountry: string;
+    public JournalEntryID: number;
+    public InvoiceType: number;
+    public ID: number;
+    public TaxInclusiveAmountCurrency: number;
+    public ShippingAddressLine2: string;
+    public PaymentTermsID: number;
+    public DeliveryDate: LocalDate;
+    public ShippingCity: string;
+    public PaymentDueDate: LocalDate;
+    public ShippingCountryCode: string;
+    public InvoiceCountryCode: string;
+    public InvoiceCity: string;
+    public CreatedAt: Date;
+    public SupplierOrgNumber: string;
+    public CustomerPerson: string;
+    public UpdatedAt: Date;
+    public VatTotalsAmountCurrency: number;
+    public CustomerOrgNumber: string;
+    public CreditedAmount: number;
+    public UpdatedBy: string;
+    public TaxExclusiveAmountCurrency: number;
+    public InvoiceAddressLine2: string;
+    public Payment: string;
+    public InvoiceAddressLine3: string;
     public _createguid: string;
     public Payments: Array<Payment>;
     public BankAccount: BankAccount;
@@ -7567,42 +7624,42 @@ export class SupplierInvoiceItem extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'SupplierInvoiceItem';
 
-    public CreatedAt: Date;
-    public SumTotalExVatCurrency: number;
-    public DiscountCurrency: number;
-    public Unit: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public ProductID: number;
-    public CurrencyExchangeRate: number;
     public DiscountPercent: number;
-    public PriceIncVat: number;
-    public SumTotalIncVat: number;
-    public Deleted: boolean;
-    public SumVat: number;
+    public DiscountCurrency: number;
     public VatPercent: number;
-    public SumTotalExVat: number;
-    public InvoicePeriodStartDate: LocalDate;
-    public Discount: number;
-    public CalculateGrossPriceBasedOnNetPrice: boolean;
-    public Comment: string;
-    public SumTotalIncVatCurrency: number;
-    public PriceExVatCurrency: number;
-    public NumberOfItems: number;
-    public SumVatCurrency: number;
-    public VatTypeID: number;
-    public CurrencyCodeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountingCost: string;
-    public SortIndex: number;
-    public PriceExVat: number;
-    public ItemText: string;
     public DimensionsID: number;
-    public SupplierInvoiceID: number;
-    public StatusCode: number;
-    public InvoicePeriodEndDate: LocalDate;
     public PriceSetByUser: boolean;
+    public InvoicePeriodEndDate: LocalDate;
+    public SumTotalIncVatCurrency: number;
+    public Discount: number;
+    public Deleted: boolean;
+    public PriceExVatCurrency: number;
+    public VatTypeID: number;
+    public StatusCode: number;
+    public InvoicePeriodStartDate: LocalDate;
+    public CurrencyCodeID: number;
+    public CalculateGrossPriceBasedOnNetPrice: boolean;
+    public CreatedBy: string;
+    public SumTotalExVat: number;
+    public SumTotalIncVat: number;
+    public Comment: string;
+    public SumVat: number;
+    public AccountingCost: string;
+    public PriceExVat: number;
+    public CurrencyExchangeRate: number;
+    public SumVatCurrency: number;
+    public SumTotalExVatCurrency: number;
+    public ItemText: string;
+    public SortIndex: number;
+    public ID: number;
+    public SupplierInvoiceID: number;
+    public ProductID: number;
+    public PriceIncVat: number;
+    public NumberOfItems: number;
+    public CreatedAt: Date;
+    public Unit: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public VatDate: LocalDate;
     public _createguid: string;
     public Product: Product;
@@ -7617,15 +7674,15 @@ export class VatCodeGroup extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatCodeGroup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
     public No: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7635,17 +7692,17 @@ export class VatDeduction extends UniEntity {
     public static RelativeUrl = 'vatdeductions';
     public static EntityType = 'VatDeduction';
 
-    public ValidTo: LocalDate;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public DeductionPercent: number;
     public Deleted: boolean;
-    public VatDeductionGroupID: number;
-    public ValidFrom: LocalDate;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
+    public VatDeductionGroupID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public VatDeductionGroup: VatDeductionGroup;
     public CustomFields: any;
@@ -7656,14 +7713,14 @@ export class VatDeductionGroup extends UniEntity {
     public static RelativeUrl = 'vatdeductiongroups';
     public static EntityType = 'VatDeductionGroup';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7673,19 +7730,19 @@ export class VatPost extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatPost';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public ReportAsNegativeAmount: boolean;
-    public HasTaxBasis: boolean;
-    public VatCodeGroupID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
-    public No: string;
     public HasTaxAmount: boolean;
+    public CreatedBy: string;
+    public Name: string;
+    public ReportAsNegativeAmount: boolean;
+    public ID: number;
+    public No: string;
+    public VatCodeGroupID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public HasTaxBasis: boolean;
     public _createguid: string;
     public VatCodeGroup: VatCodeGroup;
     public VatReportReferences: Array<VatReportReference>;
@@ -7697,23 +7754,23 @@ export class VatReport extends UniEntity {
     public static RelativeUrl = 'vatreports';
     public static EntityType = 'VatReport';
 
-    public CreatedAt: Date;
-    public ExternalRefNo: string;
+    public Deleted: boolean;
+    public StatusCode: number;
     public ReportedDate: Date;
+    public Title: string;
     public TerminPeriodID: number;
     public CreatedBy: string;
-    public JournalEntryID: number;
-    public UpdatedAt: Date;
     public ExecutedDate: Date;
-    public Deleted: boolean;
-    public Title: string;
     public Comment: string;
-    public VatReportArchivedSummaryID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public InternalComment: string;
+    public ExternalRefNo: string;
     public VatReportTypeID: number;
+    public InternalComment: string;
+    public JournalEntryID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public VatReportArchivedSummaryID: number;
     public _createguid: string;
     public TerminPeriod: Period;
     public VatReportType: VatReportType;
@@ -7727,23 +7784,23 @@ export class VatReportArchivedSummary extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportArchivedSummary';
 
+    public Deleted: boolean;
     public AmountToBeReceived: number;
-    public PaymentDueDate: Date;
+    public StatusCode: number;
     public ReportName: string;
-    public CreatedAt: Date;
+    public PaymentYear: number;
     public PaymentID: string;
     public CreatedBy: string;
-    public PaymentToDescription: string;
-    public UpdatedAt: Date;
-    public PaymentYear: number;
-    public Deleted: boolean;
     public AmountToBePayed: number;
     public PaymentPeriod: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public StatusCode: number;
-    public PaymentBankAccountNumber: string;
     public SummaryHeader: string;
+    public PaymentToDescription: string;
+    public ID: number;
+    public PaymentDueDate: Date;
+    public PaymentBankAccountNumber: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7753,16 +7810,16 @@ export class VatReportReference extends UniEntity {
     public static RelativeUrl = 'vatreportreferences';
     public static EntityType = 'VatReportReference';
 
-    public CreatedAt: Date;
-    public VatPostID: number;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
+    public VatPostID: number;
     public VatTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public VatType: VatType;
     public VatPost: VatPost;
@@ -7775,14 +7832,14 @@ export class VatReportType extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatReportType';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7792,35 +7849,35 @@ export class VatType extends UniEntity {
     public static RelativeUrl = 'vattypes';
     public static EntityType = 'VatType';
 
-    public CreatedAt: Date;
     public AvailableInModules: boolean;
-    public Name: string;
-    public VatCodeGroupingValue: VatCodeGroupingValueEnum;
-    public CreatedBy: string;
-    public DirectJournalEntryOnly: boolean;
-    public Alias: string;
-    public UpdatedAt: Date;
-    public InUse: boolean;
-    public IncomingAccountID: number;
     public Locked: boolean;
     public Deleted: boolean;
     public VatCode: string;
+    public StatusCode: number;
+    public VatCodeGroupingValue: VatCodeGroupingValueEnum;
+    public OutgoingAccountID: number;
+    public VatTypeSetupID: number;
+    public CreatedBy: string;
+    public InUse: boolean;
+    public IncomingAccountID: number;
+    public Name: string;
+    public ID: number;
+    public OutputVat: boolean;
+    public DirectJournalEntryOnly: boolean;
     public ReversedTaxDutyVat: boolean;
     public VatCodeGroupID: number;
-    public OutputVat: boolean;
-    public VatTypeSetupID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public OutgoingAccountID: number;
+    public CreatedAt: Date;
     public Visible: boolean;
-    public StatusCode: number;
+    public Alias: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public VatPercent: number;
     public _createguid: string;
-    public IncomingAccount: Account;
-    public OutgoingAccount: Account;
-    public VatCodeGroup: VatCodeGroup;
-    public VatReportReferences: Array<VatReportReference>;
     public VatTypePercentages: Array<VatTypePercentage>;
+    public VatCodeGroup: VatCodeGroup;
+    public OutgoingAccount: Account;
+    public IncomingAccount: Account;
+    public VatReportReferences: Array<VatReportReference>;
     public CustomFields: any;
 }
 
@@ -7829,17 +7886,128 @@ export class VatTypePercentage extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'VatTypePercentage';
 
-    public ValidTo: LocalDate;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
     public VatPercent: number;
-    public ValidFrom: LocalDate;
+    public Deleted: boolean;
     public VatTypeID: number;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ValidFrom: LocalDate;
+    public ValidTo: LocalDate;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public CustomFields: any;
+}
+
+
+export class Reconcile extends UniEntity {
+    public static RelativeUrl = 'reconcile';
+    public static EntityType = 'Reconcile';
+
+    public Deleted: boolean;
+    public IntervalNumber: number;
+    public StatusCode: number;
+    public ToDate: LocalDate;
+    public CreatedBy: string;
+    public ReconcileType: string;
+    public AccountYear: number;
+    public Interval: ReconcileInterval;
+    public FromDate: LocalDate;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public Accounts: Array<ReconcileAccount>;
+    public CustomFields: any;
+}
+
+
+export class ReconcileAccount extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'ReconcileAccount';
+
+    public Deleted: boolean;
+    public StatusCode: number;
+    public IsApproved: boolean;
+    public CreatedBy: string;
+    public AccountID: number;
+    public Balance: number;
+    public Comment: string;
+    public ID: number;
+    public ApprovedAt: Date;
+    public ReconcileID: number;
+    public CreatedAt: Date;
+    public ApprovedBy: string;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public CustomFields: any;
+}
+
+
+export class AnnualSettlement extends UniEntity {
+    public static RelativeUrl = 'annualsettlement';
+    public static EntityType = 'AnnualSettlement';
+
+    public Deleted: boolean;
+    public StatusCode: number;
+    public AnnualSettlementCheckListID: number;
+    public CreatedBy: string;
+    public AccountYear: number;
+    public JournalEntryID: number;
+    public ID: number;
+    public ReconcileID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public Reconcile: Reconcile;
+    public AnnualSettlementCheckList: AnnualSettlementCheckList;
+    public CustomFields: any;
+}
+
+
+export class AnnualSettlementCheckList extends UniEntity {
+    public static RelativeUrl = '';
+    public static EntityType = 'AnnualSettlementCheckList';
+
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public AreAllPreviousYearsEndedAndBalances: boolean;
+    public IsVatReportOK: boolean;
+    public IsAllSupplierInvoicesPaid: boolean;
+    public ID: number;
+    public IsShareCapitalOK: boolean;
+    public IsAllCustomerInvoicesPaid: boolean;
+    public CreatedAt: Date;
+    public IsAmeldingOK: boolean;
+    public UpdatedAt: Date;
+    public IsAllJournalsDone: boolean;
+    public UpdatedBy: string;
+    public _createguid: string;
+    public CustomFields: any;
+}
+
+
+export class TaxReport extends UniEntity {
+    public static RelativeUrl = 'taxreport';
+    public static EntityType = 'TaxReport';
+
+    public Deleted: boolean;
+    public StatusCode: number;
+    public CreatedBy: string;
+    public Year: number;
+    public AnnualSettlementID: number;
+    public Data: string;
+    public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7849,23 +8017,23 @@ export class EntityValidationRule extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRule';
 
-    public Message: string;
-    public CreatedAt: Date;
-    public PropertyName: string;
-    public CreatedBy: string;
-    public ChangedByCompany: boolean;
-    public UpdatedAt: Date;
-    public Value: string;
-    public Deleted: boolean;
     public Operator: Operator;
-    public Level: ValidationLevel;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public ChangedByCompany: boolean;
+    public Message: string;
+    public Level: ValidationLevel;
+    public Deleted: boolean;
     public OnConflict: OnConflict;
+    public PropertyName: string;
     public System: boolean;
-    public Operation: OperationType;
     public SyncKey: string;
+    public CreatedBy: string;
+    public ID: number;
+    public Value: string;
+    public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7875,23 +8043,23 @@ export class EntityValidationRuleTemplate extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'EntityValidationRuleTemplate';
 
-    public Message: string;
-    public CreatedAt: Date;
-    public PropertyName: string;
-    public CreatedBy: string;
-    public ChangedByCompany: boolean;
-    public UpdatedAt: Date;
-    public Value: string;
-    public Deleted: boolean;
     public Operator: Operator;
-    public Level: ValidationLevel;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public ChangedByCompany: boolean;
+    public Message: string;
+    public Level: ValidationLevel;
+    public Deleted: boolean;
     public OnConflict: OnConflict;
+    public PropertyName: string;
     public System: boolean;
-    public Operation: OperationType;
     public SyncKey: string;
+    public CreatedBy: string;
+    public ID: number;
+    public Value: string;
+    public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7902,20 +8070,20 @@ export class ComplexValidationRule extends UniEntity {
     public static EntityType = 'ComplexValidationRule';
 
     public ValidationCode: number;
-    public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public ChangedByCompany: boolean;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Level: ValidationLevel;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public ChangedByCompany: boolean;
+    public Message: string;
+    public Level: ValidationLevel;
+    public Deleted: boolean;
     public OnConflict: OnConflict;
     public System: boolean;
-    public Operation: OperationType;
     public SyncKey: string;
+    public CreatedBy: string;
+    public ID: number;
+    public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7926,20 +8094,20 @@ export class ComplexValidationRuleTemplate extends UniEntity {
     public static EntityType = 'ComplexValidationRuleTemplate';
 
     public ValidationCode: number;
-    public Message: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public ChangedByCompany: boolean;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public Level: ValidationLevel;
     public EntityType: string;
-    public UpdatedBy: string;
-    public ID: number;
+    public ChangedByCompany: boolean;
+    public Message: string;
+    public Level: ValidationLevel;
+    public Deleted: boolean;
     public OnConflict: OnConflict;
     public System: boolean;
-    public Operation: OperationType;
     public SyncKey: string;
+    public CreatedBy: string;
+    public ID: number;
+    public Operation: OperationType;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7949,17 +8117,17 @@ export class CustomField extends UniEntity {
     public static RelativeUrl = 'custom-fields';
     public static EntityType = 'CustomField';
 
-    public DataType: string;
-    public CreatedAt: Date;
-    public ModelID: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public Nullable: boolean;
-    public UpdatedBy: string;
-    public ID: number;
     public StatusCode: number;
+    public CreatedBy: string;
+    public ModelID: number;
+    public Nullable: boolean;
+    public DataType: string;
+    public Name: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public CustomFields: any;
 }
@@ -7969,15 +8137,15 @@ export class ValueList extends UniEntity {
     public static RelativeUrl = 'valuelists';
     public static EntityType = 'ValueList';
 
-    public CreatedAt: Date;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
     public Deleted: boolean;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public Items: Array<ValueItem>;
     public CustomFields: any;
@@ -7988,18 +8156,18 @@ export class ValueItem extends UniEntity {
     public static RelativeUrl = 'valueitems';
     public static EntityType = 'ValueItem';
 
-    public CreatedAt: Date;
     public ValueListID: number;
-    public Name: string;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Value: string;
     public Deleted: boolean;
     public Index: number;
-    public UpdatedBy: string;
-    public ID: number;
+    public CreatedBy: string;
     public Description: string;
+    public Name: string;
     public Code: string;
+    public ID: number;
+    public Value: string;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
     public _createguid: string;
     public ValueList: ValueList;
     public CustomFields: any;
@@ -8010,9 +8178,9 @@ export class ComponentLayoutDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'ComponentLayoutDto';
 
-    public Name: string;
-    public BaseEntity: string;
     public Url: string;
+    public BaseEntity: string;
+    public Name: string;
     public Fields: Array<FieldLayoutDto>;
     public CustomFields: any;
 }
@@ -8022,38 +8190,38 @@ export class FieldLayoutDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'FieldLayoutDto';
 
-    public Hidden: boolean;
-    public CreatedAt: Date;
-    public ReadOnly: boolean;
-    public Property: string;
     public Options: string;
-    public Placeholder: string;
-    public ComponentLayoutID: number;
-    public CreatedBy: string;
-    public FieldType: FieldType;
-    public UpdatedAt: Date;
-    public LineBreak: boolean;
-    public LookupEntityType: string;
-    public Placement: number;
-    public Combo: number;
-    public Deleted: boolean;
-    public HelpText: string;
-    public FieldSet: number;
-    public Alignment: Alignment;
     public EntityType: string;
-    public UpdatedBy: string;
-    public Width: string;
-    public ID: number;
-    public Label: string;
-    public Sectionheader: string;
-    public Url: string;
+    public FieldType: FieldType;
+    public Deleted: boolean;
     public Legend: string;
-    public Description: string;
-    public ValueList: string;
+    public Combo: number;
     public StatusCode: number;
-    public LookupField: boolean;
-    public DisplayField: string;
+    public Url: string;
+    public HelpText: string;
     public Section: number;
+    public Width: string;
+    public Placement: number;
+    public CreatedBy: string;
+    public Sectionheader: string;
+    public Property: string;
+    public ComponentLayoutID: number;
+    public Placeholder: string;
+    public DisplayField: string;
+    public Alignment: Alignment;
+    public ReadOnly: boolean;
+    public Description: string;
+    public LookupEntityType: string;
+    public ID: number;
+    public LookupField: boolean;
+    public Label: string;
+    public CreatedAt: Date;
+    public LineBreak: boolean;
+    public UpdatedAt: Date;
+    public ValueList: string;
+    public FieldSet: number;
+    public UpdatedBy: string;
+    public Hidden: boolean;
     public _createguid: string;
     public Validations: Array<EntityValidationRule>;
     public CustomFields: any;
@@ -8066,33 +8234,33 @@ export class AssignmentDetails extends UniEntity {
 
 
 export class TimeSheet extends UniEntity {
-    public FromDate: Date;
-    public ToDate: Date;
     public Workflow: TimesheetWorkflow;
+    public ToDate: Date;
+    public FromDate: Date;
     public Relation: WorkRelation;
     public Items: Array<TimeSheetItem>;
 }
 
 
 export class TimeSheetItem extends UniEntity {
-    public Date: Date;
     public Invoicable: number;
-    public ValidTimeOff: number;
-    public Projecttime: number;
-    public IsWeekend: boolean;
-    public StartTime: Date;
-    public WeekNumber: number;
-    public WeekDay: number;
-    public EndTime: Date;
-    public ValidTime: number;
-    public ExpectedTime: number;
-    public TimeOff: number;
-    public TotalTime: number;
     public Workflow: TimesheetWorkflow;
-    public Status: WorkStatus;
-    public Flextime: number;
-    public SickTime: number;
+    public WeekNumber: number;
     public Overtime: number;
+    public Status: WorkStatus;
+    public ExpectedTime: number;
+    public Flextime: number;
+    public TotalTime: number;
+    public Date: Date;
+    public SickTime: number;
+    public EndTime: Date;
+    public WeekDay: number;
+    public Projecttime: number;
+    public TimeOff: number;
+    public ValidTime: number;
+    public StartTime: Date;
+    public IsWeekend: boolean;
+    public ValidTimeOff: number;
 }
 
 
@@ -8100,28 +8268,28 @@ export class WorkBalanceDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'WorkBalanceDto';
 
-    public ValidTimeOff: number;
-    public IsStartBalance: boolean;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public ExpectedMinutes: number;
-    public UpdatedAt: Date;
-    public BalanceDate: Date;
-    public Days: number;
-    public Balancetype: WorkBalanceTypeEnum;
-    public Deleted: boolean;
-    public BalanceFrom: Date;
-    public ActualMinutes: number;
-    public ValidFrom: Date;
-    public WorkRelationID: number;
-    public UpdatedBy: string;
-    public ID: number;
-    public Minutes: number;
     public LastDayActual: number;
-    public Description: string;
-    public SumOvertime: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public ExpectedMinutes: number;
+    public CreatedBy: string;
+    public Days: number;
+    public ValidFrom: Date;
     public LastDayExpected: number;
+    public IsStartBalance: boolean;
+    public Description: string;
+    public ActualMinutes: number;
+    public SumOvertime: number;
+    public Balancetype: WorkBalanceTypeEnum;
+    public ID: number;
+    public BalanceFrom: Date;
+    public WorkRelationID: number;
+    public CreatedAt: Date;
+    public Minutes: number;
+    public UpdatedAt: Date;
+    public ValidTimeOff: number;
+    public UpdatedBy: string;
+    public BalanceDate: Date;
     public _createguid: string;
     public Previous: BalanceInfo;
     public Details: Array<FlexDetail>;
@@ -8131,105 +8299,105 @@ export class WorkBalanceDto extends UniEntity {
 
 
 export class BalanceInfo extends UniEntity {
-    public BalanceDate: Date;
+    public Description: string;
     public ID: number;
     public Minutes: number;
-    public Description: string;
+    public BalanceDate: Date;
 }
 
 
 export class FlexDetail extends UniEntity {
-    public Date: Date;
-    public ValidTimeOff: number;
     public ExpectedMinutes: number;
-    public IsWeekend: boolean;
+    public Date: Date;
     public WorkedMinutes: number;
+    public IsWeekend: boolean;
+    public ValidTimeOff: number;
 }
 
 
 export class ContactSearchServiceResponse extends UniEntity {
-    public ObjectName: string;
-    public Success: boolean;
     public ErrorCode: number;
     public ErrorMessage: string;
     public Method: string;
+    public ObjectName: string;
+    public Success: boolean;
 }
 
 
 export class InvoicesAndRemindersReadyToRemind extends UniEntity {
-    public ExternalReference: string;
-    public ReminderNumber: number;
-    public CustomerNumber: number;
-    public CurrencyExchangeRate: number;
-    public TaxInclusiveAmountCurrency: number;
-    public TaxInclusiveAmount: number;
-    public RestAmountCurrency: number;
-    public RestAmount: number;
-    public EmailAddress: string;
-    public Interest: number;
-    public Fee: number;
-    public CurrencyCodeCode: string;
-    public CustomerID: number;
-    public CustomerInvoiceID: number;
-    public CustomerInvoiceReminderID: number;
-    public CurrencyCodeID: number;
-    public DueDate: Date;
-    public CurrencyCodeShortCode: string;
-    public InvoiceNumber: number;
-    public StatusCode: number;
     public DontSendReminders: boolean;
     public CustomerName: string;
     public InvoiceDate: Date;
+    public ReminderNumber: number;
+    public InvoiceNumber: number;
+    public StatusCode: number;
+    public CurrencyCodeCode: string;
+    public EmailAddress: string;
+    public CurrencyCodeID: number;
+    public CustomerNumber: number;
+    public Fee: number;
+    public CurrencyExchangeRate: number;
+    public CustomerInvoiceReminderID: number;
+    public RestAmount: number;
+    public CustomerInvoiceID: number;
+    public RestAmountCurrency: number;
+    public DueDate: Date;
+    public TaxInclusiveAmount: number;
+    public TaxInclusiveAmountCurrency: number;
+    public Interest: number;
+    public CurrencyCodeShortCode: string;
+    public CustomerID: number;
+    public ExternalReference: string;
 }
 
 
 export class TradeHeaderCalculationSummary extends UniEntity {
-    public DecimalRounding: number;
-    public SumDiscountCurrency: number;
-    public SumTotalExVatCurrency: number;
-    public SumDiscount: number;
+    public SumNoVatBasisCurrency: number;
+    public SumVatBasis: number;
+    public SumTotalIncVatCurrency: number;
+    public DecimalRoundingCurrency: number;
+    public SumTotalExVat: number;
     public SumTotalIncVat: number;
     public SumVat: number;
-    public SumTotalExVat: number;
-    public SumNoVatBasisCurrency: number;
-    public SumVatBasisCurrency: number;
-    public SumTotalIncVatCurrency: number;
+    public SumDiscountCurrency: number;
     public SumVatCurrency: number;
-    public SumVatBasis: number;
+    public SumTotalExVatCurrency: number;
     public SumNoVatBasis: number;
-    public DecimalRoundingCurrency: number;
+    public SumDiscount: number;
+    public SumVatBasisCurrency: number;
+    public DecimalRounding: number;
 }
 
 
 export class VatCalculationSummary extends UniEntity {
-    public SumVat: number;
     public VatPercent: number;
-    public SumVatBasisCurrency: number;
-    public SumVatCurrency: number;
     public SumVatBasis: number;
+    public SumVat: number;
+    public SumVatCurrency: number;
+    public SumVatBasisCurrency: number;
 }
 
 
 export class InvoicePaymentData extends UniEntity {
-    public PaymentID: string;
     public AmountCurrency: number;
-    public Amount: number;
-    public AgioAccountID: number;
-    public PaymentDate: LocalDate;
-    public CurrencyExchangeRate: number;
-    public FromBankAccountID: number;
-    public BankChargeAccountID: number;
-    public BankChargeAmount: number;
-    public CurrencyCodeID: number;
-    public AccountID: number;
     public DimensionsID: number;
+    public FromBankAccountID: number;
+    public PaymentDate: LocalDate;
+    public CurrencyCodeID: number;
+    public Amount: number;
+    public PaymentID: string;
+    public BankChargeAmount: number;
+    public AccountID: number;
+    public CurrencyExchangeRate: number;
+    public AgioAccountID: number;
     public AgioAmount: number;
+    public BankChargeAccountID: number;
 }
 
 
 export class InvoiceSummary extends UniEntity {
-    public SumRestAmount: number;
     public SumCreditedAmount: number;
+    public SumRestAmount: number;
     public SumTotalAmount: number;
 }
 
@@ -8237,6 +8405,17 @@ export class InvoiceSummary extends UniEntity {
 export class CustomerNoAndName extends UniEntity {
     public Name: string;
     public Number: string;
+}
+
+
+export class InvoicePayment extends UniEntity {
+    public AmountCurrency: number;
+    public JournalEntryNumber: string;
+    public Amount: number;
+    public FinancialDate: LocalDate;
+    public Description: string;
+    public JournalEntryID: number;
+    public JournalEntryLineID: number;
 }
 
 
@@ -8270,60 +8449,60 @@ export class AmountDetail extends UniEntity {
 
 
 export class Limits extends UniEntity {
-    public Limit: number;
     public MaxInvoiceAmount: number;
+    public Limit: number;
     public RemainingLimit: number;
 }
 
 
 export class AmeldingAgaAndTaxSums extends UniEntity {
-    public KIDGarnishment: string;
-    public GarnishmentTax: number;
     public EmploymentTax: number;
+    public MessageID: string;
     public FinancialTax: number;
     public TaxDraw: number;
+    public GarnishmentTax: number;
     public period: number;
-    public KIDFinancialTax: string;
-    public KIDEmploymentTax: string;
     public DueDate: Date;
-    public MessageID: string;
+    public KIDFinancialTax: string;
     public AccountNumber: string;
+    public KIDGarnishment: string;
+    public KIDEmploymentTax: string;
     public KIDTaxDraw: string;
 }
 
 
 export class PayrollRunInAmeldingPeriod extends UniEntity {
-    public CanGenerateAddition: boolean;
     public PayrollrunID: number;
     public AmeldingSentdate: Date;
     public PayrollrunDescription: string;
     public PayrollrunPaydate: Date;
+    public CanGenerateAddition: boolean;
 }
 
 
 export class PayAgaTaxDTO extends UniEntity {
     public payGarnishment: boolean;
-    public correctPennyDiff: boolean;
+    public payDate: Date;
     public payTaxDraw: boolean;
     public payFinancialTax: boolean;
-    public payDate: Date;
+    public correctPennyDiff: boolean;
     public payAga: boolean;
 }
 
 
 export class AmeldingSumUp extends UniEntity {
-    public ReplacesAMeldingID: number;
+    public meldingsID: string;
     public generated: Date;
-    public altInnStatus: string;
-    public sent: Date;
+    public status: AmeldingStatus;
     public year: number;
+    public altInnStatus: string;
+    public period: number;
     public LegalEntityNo: string;
+    public ReplacesAMeldingID: number;
+    public ID: number;
+    public sent: Date;
     public type: AmeldingType;
     public Replaces: string;
-    public ID: number;
-    public period: number;
-    public status: AmeldingStatus;
-    public meldingsID: string;
     public entities: Array<AmeldingEntity>;
     public agadetails: Array<AGADetails>;
     public totals: Totals;
@@ -8345,78 +8524,78 @@ export class Sums extends UniEntity {
 
 
 export class Employees extends UniEntity {
-    public name: string;
     public employeeNumber: number;
+    public name: string;
     public arbeidsforhold: Array<Employments>;
 }
 
 
 export class Employments extends UniEntity {
+    public arbeidsforholdId: string;
+    public startDate: Date;
     public endDate: Date;
     public type: string;
-    public startDate: Date;
-    public arbeidsforholdId: string;
     public permisjon: Array<EmploymentLeaves>;
 }
 
 
 export class EmploymentLeaves extends UniEntity {
     public beskrivelse: string;
+    public sluttdato: Date;
     public startdato: Date;
     public permisjonsId: string;
-    public sluttdato: Date;
     public permisjonsprosent: string;
 }
 
 
 export class TransactionTypes extends UniEntity {
-    public Base_EmploymentTax: boolean;
-    public amount: number;
-    public incomeType: string;
-    public benefit: string;
     public tax: boolean;
+    public Base_EmploymentTax: boolean;
+    public benefit: string;
+    public amount: number;
     public description: string;
+    public incomeType: string;
 }
 
 
 export class AGADetails extends UniEntity {
-    public zoneName: string;
     public baseAmount: number;
+    public sectorName: string;
+    public zoneName: string;
     public rate: number;
     public type: string;
-    public sectorName: string;
 }
 
 
 export class Totals extends UniEntity {
     public sumTax: number;
-    public sumUtleggstrekk: number;
     public sumAGA: number;
+    public sumUtleggstrekk: number;
 }
 
 
 export class AnnualStatement extends UniEntity {
+    public EmployeeMunicipalName: string;
+    public EmployerWebAddress: string;
     public EmployerCountry: string;
     public EmployeeSSn: string;
-    public VacationPayBase: number;
-    public EmployerCountryCode: string;
-    public EmployeeMunicipalName: string;
-    public EmployeeName: string;
-    public EmployerPhoneNumber: string;
-    public EmployeePostCode: string;
-    public EmployerEmail: string;
-    public EmployeeNumber: number;
-    public EmployerPostCode: string;
-    public Year: number;
-    public EmployeeMunicipalNumber: string;
-    public EmployerTaxMandatory: boolean;
-    public EmployeeAddress: string;
-    public EmployerCity: string;
-    public EmployerWebAddress: string;
     public EmployerName: string;
-    public EmployerOrgNr: string;
-    public EmployerAddress: string;
+    public EmployeeNumber: number;
+    public EmployerPhoneNumber: string;
+    public EmployeeAddress: string;
+    public Year: number;
+    public EmployeePostCode: string;
     public EmployeeCity: string;
+    public EmployerCountryCode: string;
+    public EmployerEmail: string;
+    public EmployeeMunicipalNumber: string;
+    public EmployerAddress: string;
+    public EmployeeName: string;
+    public EmployerTaxMandatory: boolean;
+    public VacationPayBase: number;
+    public EmployerPostCode: string;
+    public EmployerOrgNr: string;
+    public EmployerCity: string;
     public Contributions: Array<AnnualStatementLine>;
     public PensionOrBenefits: Array<AnnualStatementLine>;
     public Deductions: Array<AnnualStatementLine>;
@@ -8425,25 +8604,25 @@ export class AnnualStatement extends UniEntity {
 
 
 export class AnnualStatementLine extends UniEntity {
-    public Amount: number;
-    public Sum: number;
-    public LineIndex: number;
-    public IsDeduction: boolean;
-    public Description: string;
-    public TaxReturnPost: string;
     public SupplementPackageName: string;
+    public IsDeduction: boolean;
+    public Amount: number;
+    public TaxReturnPost: string;
+    public Description: string;
+    public LineIndex: number;
+    public Sum: number;
     public Supplements: Array<SupplementInfo>;
 }
 
 
 export class SupplementInfo extends UniEntity {
+    public ValueString: string;
+    public WageTypeSupplementID: number;
+    public ValueType: Valuetype;
+    public ValueMoney: number;
+    public ValueDate2: Date;
     public Name: string;
     public ValueDate: Date;
-    public ValueDate2: Date;
-    public WageTypeSupplementID: number;
-    public ValueString: string;
-    public ValueMoney: number;
-    public ValueType: Valuetype;
     public ValueBool: boolean;
 }
 
@@ -8467,37 +8646,37 @@ export class HandleState extends UniEntity {
 export class TaxCardReadStatus extends UniEntity {
     public mainStatus: string;
     public Title: string;
-    public IsJob: boolean;
     public Text: string;
+    public IsJob: boolean;
     public employeestatus: Array<EmployeeStatus>;
 }
 
 
 export class EmployeeStatus extends UniEntity {
-    public ssn: string;
+    public employeeID: number;
+    public status: string;
     public employeeNumber: number;
     public year: number;
     public info: string;
-    public employeeID: number;
-    public status: string;
+    public ssn: string;
     public changedFields: Array<FieldsChanged>;
 }
 
 
 export class FieldsChanged extends UniEntity {
-    public fieldName: string;
-    public valTo: string;
     public valFrom: string;
+    public valTo: string;
+    public fieldName: string;
 }
 
 
 export class EmploymentHistoryRecord extends UniEntity {
     public HourRate: number;
-    public RegulativeGroupID: number;
-    public WorkPercent: number;
-    public RegulativeStepNr: number;
     public ChangedAt: Date;
+    public WorkPercent: number;
     public MonthRate: number;
+    public RegulativeGroupID: number;
+    public RegulativeStepNr: number;
 }
 
 
@@ -8512,43 +8691,43 @@ export class Paycheck extends UniEntity {
 
 
 export class SumOnRun extends UniEntity {
-    public netPayment: number;
-    public employeeID: number;
     public tax: number;
+    public employeeID: number;
+    public netPayment: number;
 }
 
 
 export class SumOnYear extends UniEntity {
+    public taxBase: number;
     public nonTaxableAmount: number;
-    public sumTax: number;
     public pension: number;
+    public employeeID: number;
+    public sumTax: number;
+    public baseVacation: number;
+    public paidHolidaypay: number;
+    public advancePayment: number;
+    public netPayment: number;
     public usedNonTaxableAmount: number;
     public grossPayment: number;
-    public taxBase: number;
-    public paidHolidaypay: number;
-    public netPayment: number;
-    public baseVacation: number;
-    public advancePayment: number;
-    public employeeID: number;
 }
 
 
 export class VacationPayLastYear extends UniEntity {
-    public paidHolidayPay: number;
-    public baseVacation: number;
     public employeeID: number;
+    public baseVacation: number;
+    public paidHolidayPay: number;
 }
 
 
 export class SalaryTransactionPay extends UniEntity {
-    public CompanyAddress: string;
-    public Withholding: number;
-    public CompanyCity: string;
+    public CompanyBankAccountID: number;
     public PaymentDate: Date;
-    public CompanyName: string;
+    public Withholding: number;
     public SalaryBankAccountID: number;
     public TaxBankAccountID: number;
-    public CompanyBankAccountID: number;
+    public CompanyAddress: string;
+    public CompanyName: string;
+    public CompanyCity: string;
     public CompanyPostalCode: string;
     public PayList: Array<SalaryTransactionPayLine>;
     public SalaryBalancePayList: Array<SalaryBalancePayLine>;
@@ -8556,22 +8735,22 @@ export class SalaryTransactionPay extends UniEntity {
 
 
 export class SalaryTransactionPayLine extends UniEntity {
-    public EmployeeName: string;
-    public City: string;
-    public PostalCode: string;
-    public Address: string;
-    public EmployeeNumber: number;
-    public NetPayment: number;
-    public Account: string;
     public Tax: number;
+    public City: string;
+    public EmployeeNumber: number;
+    public Account: string;
+    public NetPayment: number;
+    public EmployeeName: string;
+    public Address: string;
+    public PostalCode: string;
 }
 
 
 export class SalaryBalancePayLine extends UniEntity {
-    public Sum: number;
-    public Account: string;
     public Kid: string;
+    public Account: string;
     public Text: string;
+    public Sum: number;
 }
 
 
@@ -8588,10 +8767,10 @@ export class PaycheckReportSetup extends UniEntity {
 
 
 export class PaycheckEmailInfo extends UniEntity {
-    public Message: string;
     public GroupByWageType: boolean;
-    public Subject: string;
     public ReportID: number;
+    public Message: string;
+    public Subject: string;
 }
 
 
@@ -8605,38 +8784,38 @@ export class WorkItemToSalary extends UniEntity {
 
 
 export class Reconciliation extends UniEntity {
-    public Year: number;
     public CalculatedPayruns: number;
-    public ToPeriod: number;
+    public Year: number;
+    public BookedPayruns: number;
     public CreatedPayruns: number;
     public FromPeriod: number;
-    public BookedPayruns: number;
+    public ToPeriod: number;
     public Groups: Array<ReconciliationGroup>;
 }
 
 
 export class ReconciliationGroup extends UniEntity {
-    public Sum: number;
     public AccountNumber: string;
+    public Sum: number;
     public Lines: Array<ReconciliationLine>;
 }
 
 
 export class ReconciliationLine extends UniEntity {
-    public WageTypeNumber: number;
-    public WageTypeName: string;
-    public IncomeType: string;
-    public Sum: number;
     public Benefit: string;
     public HasEmploymentTax: boolean;
+    public WageTypeName: string;
     public Description: string;
+    public Sum: number;
+    public IncomeType: string;
+    public WageTypeNumber: number;
 }
 
 
 export class UnionReport extends UniEntity {
-    public FromDate: LocalDate;
-    public Year: number;
     public ToDate: LocalDate;
+    public Year: number;
+    public FromDate: LocalDate;
     public Summaries: Array<UnionSummary>;
 }
 
@@ -8649,58 +8828,58 @@ export class UnionSummary extends UniEntity {
 
 
 export class UnionMember extends UniEntity {
-    public Name: string;
     public OUO: number;
     public Ensurance: number;
-    public MemberNumber: string;
+    public Name: string;
     public UnionDraw: number;
+    public MemberNumber: string;
 }
 
 
 export class SalaryTransactionSums extends UniEntity {
-    public percentTax: number;
-    public basePercentTax: number;
-    public calculatedFinancialTax: number;
-    public paidAdvance: number;
-    public grossPayment: number;
-    public Employee: number;
     public baseAGA: number;
+    public paidAdvance: number;
+    public calculatedVacationPay: number;
+    public baseVacation: number;
     public tableTax: number;
+    public calculatedFinancialTax: number;
+    public percentTax: number;
     public calculatedAGA: number;
     public netPayment: number;
-    public baseVacation: number;
-    public Payrun: number;
-    public baseTableTax: number;
-    public calculatedVacationPay: number;
     public paidPension: number;
     public manualTax: number;
+    public baseTableTax: number;
+    public grossPayment: number;
+    public Employee: number;
+    public Payrun: number;
+    public basePercentTax: number;
 }
 
 
 export class SalaryTransactionPeriodSums extends UniEntity {
-    public MunicipalName: string;
-    public OrgNumber: string;
-    public Year: number;
     public AgaZone: string;
-    public ToPeriod: number;
+    public Year: number;
     public AgaRate: number;
     public FromPeriod: number;
+    public MunicipalName: string;
+    public ToPeriod: number;
+    public OrgNumber: string;
     public Sums: SalaryTransactionSums;
     public Aga: AGACalculation;
 }
 
 
 export class code extends UniEntity {
-    public gyldigtil: string;
     public inngaarIGrunnlagForTrekk: string;
-    public postnr: string;
-    public skatteOgAvgiftregel: string;
-    public gyldigfom: string;
-    public kunfranav: string;
-    public gmlcode: string;
-    public utloeserArbeidsgiveravgift: string;
-    public uninavn: string;
     public fordel: string;
+    public skatteOgAvgiftregel: string;
+    public kunfranav: string;
+    public uninavn: string;
+    public gyldigtil: string;
+    public utloeserArbeidsgiveravgift: string;
+    public gyldigfom: string;
+    public postnr: string;
+    public gmlcode: string;
     public loennsinntekt: Loennsinntekt;
     public ytelseFraOffentlige: YtelseFraOffentlige;
     public pensjonEllerTrygd: PensjonEllerTrygd;
@@ -8746,15 +8925,15 @@ export class IActionResult extends UniEntity {
 
 
 export class CreateCompanyDetails extends UniEntity {
-    public CopyFiles: boolean;
+    public ContractType: number;
+    public ProductNames: string;
+    public TemplateCompanyKey: string;
+    public LicenseKey: string;
     public IsTemplate: boolean;
     public CompanyName: string;
     public IsTest: boolean;
     public ContractID: number;
-    public TemplateCompanyKey: string;
-    public ContractType: number;
-    public ProductNames: string;
-    public LicenseKey: string;
+    public CopyFiles: boolean;
     public CompanySettings: CompanySettings;
 }
 
@@ -8763,38 +8942,38 @@ export class UserDto extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'UserDto';
 
-    public PermissionHandling: string;
-    public CreatedAt: Date;
     public GlobalIdentity: string;
-    public CreatedBy: string;
-    public Email: string;
-    public LastLogin: Date;
-    public UpdatedAt: Date;
-    public IsAutobankAdmin: boolean;
-    public BankIntegrationUserName: string;
-    public Deleted: boolean;
-    public UserName: string;
-    public DisplayName: string;
-    public HasAgreedToImportDisclaimer: boolean;
-    public UpdatedBy: string;
-    public PhoneNumber: string;
-    public ID: number;
     public Protected: boolean;
+    public UserName: string;
+    public Deleted: boolean;
+    public IsAutobankAdmin: boolean;
     public StatusCode: number;
-    public EndDate: Date;
+    public PermissionHandling: string;
+    public HasAgreedToImportDisclaimer: boolean;
+    public CreatedBy: string;
+    public LastLogin: Date;
+    public BankIntegrationUserName: string;
+    public ID: number;
+    public DisplayName: string;
+    public CreatedAt: Date;
+    public PhoneNumber: string;
+    public UpdatedAt: Date;
+    public Email: string;
+    public UpdatedBy: string;
     public TwoFactorEnabled: boolean;
     public AuthPhoneNumber: string;
     public _createguid: string;
+    public EndDate: Date;
     public License: UserLicenseInformation;
     public CustomFields: any;
 }
 
 
 export class UserLicenseInformation extends UniEntity {
-    public UserLicenseKey: string;
-    public Name: string;
     public GlobalIdentity: string;
     public Comment: string;
+    public UserLicenseKey: string;
+    public Name: string;
     public CustomerAgreement: CustomerLicenseAgreementInfo;
     public UserType: UserLicenseType;
     public Company: CompanyLicenseInfomation;
@@ -8805,27 +8984,27 @@ export class UserLicenseInformation extends UniEntity {
 
 export class CustomerLicenseAgreementInfo extends UniEntity {
     public CanAgreeToLicense: boolean;
-    public AgreementId: number;
     public HasAgreedToLicense: boolean;
+    public AgreementId: number;
 }
 
 
 export class UserLicenseType extends UniEntity {
-    public EndDate: Date;
-    public TypeName: string;
     public TypeID: number;
+    public TypeName: string;
+    public EndDate: Date;
 }
 
 
 export class CompanyLicenseInfomation extends UniEntity {
+    public StatusCode: LicenseEntityStatus;
     public Name: string;
+    public ID: number;
     public ContactEmail: string;
-    public EndDate: Date;
     public ContractID: number;
     public Key: string;
     public ContactPerson: string;
-    public ID: number;
-    public StatusCode: LicenseEntityStatus;
+    public EndDate: Date;
     public Agency: Agency;
 }
 
@@ -8837,31 +9016,31 @@ export class Agency extends UniEntity {
 
 
 export class ContractLicenseType extends UniEntity {
-    public TrialExpiration: Date;
-    public TypeName: string;
     public StartDate: Date;
     public TypeID: number;
+    public TypeName: string;
+    public TrialExpiration: Date;
 }
 
 
 export class LicenseAgreementInfo extends UniEntity {
-    public AgreementId: number;
     public HasAgreedToLicense: boolean;
+    public AgreementId: number;
 }
 
 
 export class CreateBankUserDTO extends UniEntity {
-    public AdminPassword: string;
-    public Password: string;
-    public AdminUserId: number;
     public Phone: string;
+    public AdminPassword: string;
+    public AdminUserId: number;
     public IsAdmin: boolean;
+    public Password: string;
 }
 
 
 export class ChangeAutobankPasswordDTO extends UniEntity {
-    public Password: string;
     public NewPassword: string;
+    public Password: string;
 }
 
 
@@ -8896,16 +9075,16 @@ export class SubEntityAgaSums extends UniEntity {
 
 export class AGASums extends UniEntity {
     public GrantSum: number;
-    public UsedFreeAmount: number;
     public MaxFreeAmount: number;
+    public UsedFreeAmount: number;
 }
 
 
 export class AuthenticationChallengeBE extends UniEntity {
     public Message: string;
-    public ValidTo: Date;
-    public ValidFrom: Date;
     public Status: ChallengeRequestResult;
+    public ValidFrom: Date;
+    public ValidTo: Date;
     public ExtensionData: ExtensionDataObject;
 }
 
@@ -8915,30 +9094,30 @@ export class ExtensionDataObject extends UniEntity {
 
 
 export class AltinnAuthRequest extends UniEntity {
-    public PreferredLogin: string;
     public UserPassword: string;
     public UserID: string;
+    public PreferredLogin: string;
 }
 
 
 export class A06Options extends UniEntity {
+    public IncludeIncome: boolean;
     public ReportType: ReportType;
     public Year: number;
-    public IncludeInfoPerPerson: boolean;
-    public ToPeriod: Maaned;
-    public IncludeIncome: boolean;
     public IncludeEmployments: boolean;
     public FromPeriod: Maaned;
+    public IncludeInfoPerPerson: boolean;
+    public ToPeriod: Maaned;
 }
 
 
 export class A07Response extends UniEntity {
-    public DataType: string;
     public mainStatus: string;
-    public Data: string;
-    public DataName: string;
     public Title: string;
     public Text: string;
+    public Data: string;
+    public DataType: string;
+    public DataName: string;
 }
 
 
@@ -8949,34 +9128,35 @@ export class SelfEmployed extends UniEntity {
 
 
 export class SelfEmployedItem extends UniEntity {
-    public name: string;
-    public amount: number;
-    public number: string;
     public supplierID: number;
+    public amount: number;
+    public name: string;
+    public number: string;
 }
 
 
 export class SetIntegrationDataDto extends UniEntity {
-    public IntegrationKey: string;
     public ExternalId: string;
+    public IntegrationKey: string;
 }
 
 
 export class CurrencyRateData extends UniEntity {
-    public Factor: number;
     public IsOverrideRate: boolean;
     public ExchangeRate: number;
+    public Factor: number;
+    public ExchangeRateOld: number;
     public FromCurrencyCode: CurrencyCode;
 }
 
 
 export class EmailDTO extends UniEntity {
-    public Message: string;
-    public CopyAddress: string;
-    public FromAddress: string;
-    public Subject: string;
     public ReportID: number;
+    public FromAddress: string;
+    public Message: string;
     public Format: string;
+    public CopyAddress: string;
+    public Subject: string;
     public Parameters: Array<ReportParameter>;
 }
 
@@ -8988,60 +9168,60 @@ export class ReportParameter extends UniEntity {
 
 
 export class DistributionPlanElementValidation extends UniEntity {
-    public ElementTypeName: string;
     public IsValid: boolean;
-    public ElementType: DistributionPlanElementTypes;
     public Priority: number;
+    public ElementTypeName: string;
+    public ElementType: DistributionPlanElementTypes;
     public PlanElement: DistributionPlanElement;
 }
 
 
 export class SendEmail extends UniEntity {
-    public Message: string;
-    public ExternalReference: string;
-    public ReportName: string;
-    public CopyAddress: string;
-    public Localization: string;
-    public EntityID: number;
-    public EntityType: string;
-    public FromAddress: string;
-    public Subject: string;
     public ReportID: number;
+    public FromAddress: string;
+    public EntityType: string;
+    public Message: string;
+    public ReportName: string;
+    public Localization: string;
+    public CopyAddress: string;
+    public Subject: string;
+    public EntityID: number;
+    public ExternalReference: string;
     public Attachments: Array<SendEmailAttachment>;
     public Parameters: Array<ReportParameter>;
 }
 
 
 export class SendEmailAttachment extends UniEntity {
-    public FileID: number;
     public Attachment: string;
+    public FileID: number;
     public FileName: string;
 }
 
 
 export class RssList extends UniEntity {
-    public Title: string;
     public Url: string;
+    public Title: string;
     public Description: string;
     public Items: Array<RssItem>;
 }
 
 
 export class RssItem extends UniEntity {
-    public Title: string;
     public Guid: string;
-    public PubDate: string;
-    public Link: string;
+    public Title: string;
     public Description: string;
     public Category: string;
+    public PubDate: string;
+    public Link: string;
     public Enclosure: Enclosure;
 }
 
 
 export class Enclosure extends UniEntity {
-    public Type: string;
     public Url: string;
     public Length: string;
+    public Type: string;
 }
 
 
@@ -9051,25 +9231,25 @@ export class SharingUpdates extends UniEntity {
 
 
 export class SharingStatusUpdate extends UniEntity {
-    public SharingId: number;
     public Status: StatusCodeSharing;
+    public SharingId: number;
 }
 
 
 export class TeamReport extends UniEntity {
-    public FromDate: LocalDate;
     public ToDate: LocalDate;
+    public FromDate: LocalDate;
     public Team: Team;
     public Members: Array<MemberDetails>;
 }
 
 
 export class MemberDetails extends UniEntity {
-    public MinutesWorked: number;
-    public Name: string;
     public ExpectedMinutes: number;
-    public ReportBalance: number;
+    public Name: string;
+    public MinutesWorked: number;
     public TotalBalance: number;
+    public ReportBalance: number;
     public WorkRelation: WorkRelation;
     public TimeOff: Array<FlexDetail>;
     public MissingDays: Array<FlexDetail>;
@@ -9077,23 +9257,23 @@ export class MemberDetails extends UniEntity {
 
 
 export class TeamPositionDto extends UniEntity {
-    public PositionName: string;
     public Position: TeamPositionEnum;
+    public PositionName: string;
 }
 
 
 export class EHFCustomer extends UniEntity {
-    public contactemail: string;
     public contactphone: string;
     public orgno: string;
-    public orgname: string;
     public contactname: string;
+    public contactemail: string;
+    public orgname: string;
 }
 
 
 export class ServiceMetadataDto extends UniEntity {
-    public SupportEmail: string;
     public ServiceName: string;
+    public SupportEmail: string;
 }
 
 
@@ -9108,52 +9288,52 @@ export class MandatoryDimensionAccountReport extends UniEntity {
     public static RelativeUrl = '';
     public static EntityType = 'MandatoryDimensionAccountReport';
 
-    public MissingRequiredDimensionsMessage: string;
-    public CreatedAt: Date;
-    public CreatedBy: string;
-    public UpdatedAt: Date;
-    public Deleted: boolean;
-    public journalEntryLineDraftID: number;
-    public MissingOnlyWarningsDimensionsMessage: string;
-    public UpdatedBy: string;
-    public ID: number;
-    public AccountID: number;
-    public AccountNumber: string;
     public DimensionsID: number;
+    public Deleted: boolean;
     public StatusCode: number;
+    public CreatedBy: string;
+    public AccountID: number;
+    public MissingRequiredDimensionsMessage: string;
+    public AccountNumber: string;
+    public journalEntryLineDraftID: number;
+    public ID: number;
+    public CreatedAt: Date;
+    public UpdatedAt: Date;
+    public UpdatedBy: string;
+    public MissingOnlyWarningsDimensionsMessage: string;
     public _createguid: string;
     public CustomFields: any;
 }
 
 
 export class AccountDimension extends UniEntity {
+    public DimensionsID: number;
     public AccountID: number;
     public AccountNumber: number;
-    public DimensionsID: number;
     public Dimensions: Dimensions;
 }
 
 
 export class AssetReportDTO extends UniEntity {
+    public GroupName: string;
+    public LastDepreciation: LocalDate;
     public GroupCode: string;
-    public BalanceAccountName: string;
     public CurrentValue: number;
+    public BalanceAccountNumber: number;
     public Name: string;
     public Lifetime: number;
-    public GroupName: string;
     public Number: number;
-    public LastDepreciation: LocalDate;
     public DepreciationAccountNumber: number;
-    public BalanceAccountNumber: number;
+    public BalanceAccountName: string;
     public Lines: Array<AssetReportLineDTO>;
 }
 
 
 export class AssetReportLineDTO extends UniEntity {
     public Date: LocalDate;
+    public TypeID: number;
     public Value: number;
     public Type: string;
-    public TypeID: number;
 }
 
 
@@ -9165,70 +9345,70 @@ export class BankData extends UniEntity {
 
 
 export class CreateBankIntegrationDTO extends UniEntity {
-    public RequireTwoStage: boolean;
-    public ServiceProvider: number;
-    public Email: string;
-    public IsInbound: boolean;
-    public Password: string;
-    public IsOutgoing: boolean;
-    public BankAcceptance: boolean;
-    public Phone: string;
     public UserName: string;
-    public IsBankStatement: boolean;
-    public Bank: string;
-    public BankApproval: boolean;
-    public IsBankBalance: boolean;
-    public DisplayName: string;
     public TuserName: string;
+    public IsBankBalance: boolean;
+    public Phone: string;
+    public BankApproval: boolean;
+    public Bank: string;
+    public IsInbound: boolean;
     public BankAccountID: number;
+    public IsOutgoing: boolean;
+    public ServiceProvider: number;
+    public IsBankStatement: boolean;
+    public DisplayName: string;
+    public BankAcceptance: boolean;
+    public RequireTwoStage: boolean;
+    public Password: string;
+    public Email: string;
     public BankAccounts: Array<BankAccountDTO>;
 }
 
 
 export class BankAccountDTO extends UniEntity {
+    public IsBankBalance: boolean;
+    public BBAN: string;
     public IsInbound: boolean;
     public IsOutgoing: boolean;
-    public IsBankStatement: boolean;
     public IBAN: string;
-    public IsBankBalance: boolean;
     public Bic: string;
-    public BBAN: string;
+    public IsBankStatement: boolean;
 }
 
 
 export class ZdataUpdateBankProperties extends UniEntity {
+    public IsBankBalance: boolean;
     public IsInbound: boolean;
-    public Password: string;
     public IsOutgoing: boolean;
     public IsBankStatement: boolean;
     public ServiceID: string;
-    public IsBankBalance: boolean;
+    public Password: string;
 }
 
 
 export class AutobankUserDTO extends UniEntity {
-    public Password: string;
+    public UserID: number;
     public Phone: string;
     public IsAdmin: boolean;
-    public UserID: number;
+    public Password: string;
 }
 
 
 export class UpdateServiceStatusDTO extends UniEntity {
-    public ServiceID: string;
     public StatusCode: StatusCodeBankIntegrationAgreement;
+    public ServiceID: string;
 }
 
 
 export class UpdateServiceIDDTO extends UniEntity {
-    public ServiceID: string;
     public NewServiceID: string;
+    public ServiceID: string;
 }
 
 
 export class BankMatchSuggestion extends UniEntity {
-    public Group: string;
     public Amount: number;
+    public Group: string;
     public BankStatementEntryID: number;
     public JournalEntryLineID: number;
 }
@@ -9242,11 +9422,11 @@ export class MatchRequest extends UniEntity {
 
 
 export class MatchCandidate extends UniEntity {
+    public Closed: boolean;
     public Date: Date;
     public Amount: number;
-    public IsBankEntry: boolean;
     public ID: number;
-    public Closed: boolean;
+    public IsBankEntry: boolean;
 }
 
 
@@ -9257,51 +9437,51 @@ export class MatchSettings extends UniEntity {
 
 
 export class ReconciliationStatus extends UniEntity {
-    public FromDate: Date;
-    public TotalAmount: number;
+    public IsReconciled: boolean;
     public TotalUnreconciled: number;
     public Todate: Date;
-    public IsReconciled: boolean;
-    public NumberOfItems: number;
     public AccountID: number;
+    public FromDate: Date;
+    public TotalAmount: number;
     public NumberOfUnReconciled: number;
+    public NumberOfItems: number;
 }
 
 
 export class BalanceDto extends UniEntity {
-    public EndDate: Date;
     public BalanceInStatement: number;
     public Balance: number;
     public StartDate: Date;
+    public EndDate: Date;
 }
 
 
 export class BankfileFormat extends UniEntity {
-    public Name: string;
-    public Separator: string;
+    public LinePrefix: string;
+    public FileExtension: string;
     public IsFixed: boolean;
     public CustomFormat: BankFileCustomFormat;
-    public LinePrefix: string;
     public IsXml: boolean;
-    public FileExtension: string;
+    public Name: string;
+    public Separator: string;
     public SkipRows: number;
     public Columns: Array<BankfileColumn>;
 }
 
 
 export class BankfileColumn extends UniEntity {
-    public DataType: BankfileDataType;
-    public FieldMapping: BankfileField;
     public StartPos: number;
-    public IsFallBack: boolean;
     public Length: number;
+    public DataType: BankfileDataType;
+    public IsFallBack: boolean;
+    public FieldMapping: BankfileField;
 }
 
 
 export class JournalSuggestion extends UniEntity {
     public MatchWithEntryID: number;
-    public Amount: number;
     public BankStatementRuleID: number;
+    public Amount: number;
     public FinancialDate: LocalDate;
     public AccountID: number;
     public Description: string;
@@ -9310,48 +9490,48 @@ export class JournalSuggestion extends UniEntity {
 
 
 export class ReportRow extends UniEntity {
-    public SubGroupNumber: number;
-    public IsSubTotal: boolean;
-    public BudPeriod7: number;
-    public Period5: number;
-    public Period2: number;
-    public PrecedingBalance: number;
-    public AccountYear: number;
-    public GroupNumber: number;
-    public SumPeriodAccumulated: number;
-    public Period6: number;
-    public BudPeriod10: number;
-    public GroupName: string;
-    public Period7: number;
-    public Period8: number;
-    public Period11: number;
-    public Sum: number;
-    public SumPeriodLastYear: number;
-    public BudPeriod12: number;
-    public Period1: number;
     public SumLastYear: number;
-    public Period10: number;
-    public BudPeriod3: number;
-    public Period12: number;
+    public Period8: number;
     public BudPeriod6: number;
-    public Period9: number;
-    public BudgetSum: number;
-    public BudPeriod4: number;
-    public AccountName: string;
-    public BudPeriod11: number;
-    public BudPeriod2: number;
-    public SumPeriod: number;
-    public ID: number;
-    public SubGroupName: string;
-    public SumPeriodLastYearAccumulated: number;
     public Period3: number;
-    public BudgetAccumulated: number;
-    public Period4: number;
-    public AccountNumber: number;
-    public BudPeriod1: number;
+    public Period7: number;
+    public BudPeriod7: number;
+    public Period9: number;
+    public BudPeriod4: number;
+    public GroupName: string;
+    public Period11: number;
+    public BudPeriod12: number;
+    public PrecedingBalance: number;
+    public Period6: number;
+    public AccountName: string;
+    public GroupNumber: number;
+    public IsSubTotal: boolean;
+    public Period12: number;
+    public SubGroupName: string;
+    public AccountYear: number;
+    public BudPeriod11: number;
     public BudPeriod8: number;
+    public BudgetSum: number;
+    public Period10: number;
+    public SumPeriodLastYearAccumulated: number;
     public BudPeriod9: number;
+    public SumPeriodLastYear: number;
     public BudPeriod5: number;
+    public AccountNumber: number;
+    public BudPeriod2: number;
+    public Sum: number;
+    public ID: number;
+    public Period2: number;
+    public SumPeriod: number;
+    public Period4: number;
+    public SubGroupNumber: number;
+    public BudPeriod3: number;
+    public SumPeriodAccumulated: number;
+    public Period1: number;
+    public BudgetAccumulated: number;
+    public Period5: number;
+    public BudPeriod1: number;
+    public BudPeriod10: number;
 }
 
 
@@ -9361,53 +9541,53 @@ export class BudgetImport extends UniEntity {
 
 
 export class LiquidityTableDTO extends UniEntity {
-    public BankBalance: number;
-    public OverdueSupplierInvoices: number;
     public BankBalanceRefferance: BankBalanceType;
+    public OverdueSupplierInvoices: number;
+    public BankBalance: number;
     public OverdueCustomerInvoices: number;
     public Period: Array<DetailsDTO>;
 }
 
 
 export class DetailsDTO extends UniEntity {
-    public VAT: number;
-    public Custumer: number;
-    public Sum: number;
     public CustomPayments: number;
     public Supplier: number;
+    public VAT: number;
+    public Custumer: number;
     public Liquidity: number;
+    public Sum: number;
 }
 
 
 export class JournalEntryData extends UniEntity {
-    public CreditAccountID: number;
-    public PaymentID: string;
-    public CreditVatTypeID: number;
-    public AmountCurrency: number;
-    public Amount: number;
-    public JournalEntryDataAccrualID: number;
-    public NumberSeriesID: number;
-    public DebitAccountNumber: number;
-    public JournalEntryID: number;
-    public SupplierInvoiceNo: string;
-    public CurrencyExchangeRate: number;
-    public PostPostJournalEntryLineID: number;
-    public DebitVatTypeID: number;
-    public VatDeductionPercent: number;
-    public CreditAccountNumber: number;
-    public VatDate: LocalDate;
-    public CustomerInvoiceID: number;
-    public FinancialDate: LocalDate;
     public CurrencyID: number;
+    public VatDate: LocalDate;
+    public AmountCurrency: number;
+    public JournalEntryNo: string;
+    public InvoiceNumber: string;
+    public DebitAccountNumber: number;
+    public NumberSeriesTaskID: number;
+    public StatusCode: number;
     public DebitAccountID: number;
+    public Amount: number;
+    public PaymentID: string;
+    public SupplierInvoiceNo: string;
+    public FinancialDate: LocalDate;
+    public CreditAccountNumber: number;
+    public DebitVatTypeID: number;
+    public PostPostJournalEntryLineID: number;
+    public CurrencyExchangeRate: number;
+    public VatDeductionPercent: number;
+    public CustomerInvoiceID: number;
+    public CustomerOrderID: number;
     public DueDate: LocalDate;
     public Description: string;
-    public CustomerOrderID: number;
-    public JournalEntryNo: string;
+    public NumberSeriesID: number;
+    public JournalEntryID: number;
+    public CreditAccountID: number;
     public SupplierInvoiceID: number;
-    public InvoiceNumber: string;
-    public StatusCode: number;
-    public NumberSeriesTaskID: number;
+    public CreditVatTypeID: number;
+    public JournalEntryDataAccrualID: number;
     public CurrencyCode: CurrencyCode;
     public DebitAccount: Account;
     public DebitVatType: VatType;
@@ -9425,58 +9605,58 @@ export class JournalEntryPaymentData extends UniEntity {
 
 
 export class JournalEntryPeriodData extends UniEntity {
+    public PeriodName: string;
     public PeriodSumYear1: number;
     public PeriodSumYear2: number;
     public PeriodNo: number;
-    public PeriodName: string;
 }
 
 
 export class JournalEntryLineRequestSummary extends UniEntity {
     public SumTaxBasisAmount: number;
-    public SumBalance: number;
-    public SumCredit: number;
     public SumDebit: number;
+    public SumBalance: number;
     public SumLedger: number;
+    public SumCredit: number;
 }
 
 
 export class JournalEntryLinePostPostData extends UniEntity {
-    public PaymentID: string;
-    public AmountCurrency: number;
-    public Amount: number;
-    public SubAccountName: string;
-    public AccountYear: number;
-    public JournalEntryID: number;
     public MarkedAgainstJournalEntryNumber: string;
-    public SumPostPostAmount: number;
-    public CurrencyExchangeRate: number;
-    public JournalEntryTypeName: string;
-    public MarkedAgainstJournalEntryLineID: number;
-    public RestAmountCurrency: number;
-    public RestAmount: number;
-    public SumPostPostAmountCurrency: number;
-    public NumberOfPayments: number;
+    public AmountCurrency: number;
+    public InvoiceNumber: string;
+    public SubAccountName: string;
+    public StatusCode: number;
     public CurrencyCodeCode: string;
+    public NumberOfPayments: number;
+    public SubAccountNumber: number;
+    public JournalEntryNumber: string;
+    public CurrencyCodeID: number;
+    public SumPostPostAmountCurrency: number;
+    public Amount: number;
+    public PaymentID: string;
+    public FinancialDate: Date;
+    public AccountYear: number;
+    public CurrencyExchangeRate: number;
+    public MarkedAgainstJournalEntryLineID: number;
+    public JournalEntryTypeName: string;
+    public RestAmount: number;
+    public RestAmountCurrency: number;
+    public DueDate: Date;
+    public Description: string;
+    public SumPostPostAmount: number;
+    public JournalEntryID: number;
+    public ID: number;
+    public CurrencyCodeShortCode: string;
     public JournalEntryNumberNumeric: number;
     public PeriodNo: number;
-    public CurrencyCodeID: number;
-    public FinancialDate: Date;
-    public SubAccountNumber: number;
-    public ID: number;
-    public DueDate: Date;
-    public CurrencyCodeShortCode: string;
-    public Description: string;
-    public InvoiceNumber: string;
-    public StatusCode: number;
-    public JournalEntryNumber: string;
     public Markings: Array<JournalEntryLinePostPostData>;
 }
 
 
 export class CreatePaymentBatchDTO extends UniEntity {
-    public Password: string;
     public Code: string;
+    public Password: string;
 }
 
 
@@ -9496,42 +9676,42 @@ export class MarkingResult extends UniEntity {
 
 export class MarkingEntry extends UniEntity {
     public AmountCurrency: number;
-    public OriginalRestAmount: number;
-    public Amount: number;
-    public RestAmountCurrency: number;
-    public RestAmount: number;
-    public FinancialDate: Date;
-    public ID: number;
     public InvoiceNumber: string;
     public StatusCode: StatusCodeJournalEntryLine;
     public JournalEntryNumber: string;
+    public Amount: number;
+    public FinancialDate: Date;
+    public RestAmount: number;
+    public RestAmountCurrency: number;
     public OriginalStatusCode: StatusCodeJournalEntryLine;
+    public ID: number;
+    public OriginalRestAmount: number;
     public Markings: Array<MarkingReference>;
 }
 
 
 export class MarkingReference extends UniEntity {
-    public ID: number;
     public JournalEntryNumber: string;
+    public ID: number;
 }
 
 
 export class SupplierInvoiceDetail extends UniEntity {
     public AmountCurrency: number;
+    public VatPercent: number;
+    public InvoiceDate: Date;
+    public VatCode: string;
+    public InvoiceNumber: string;
+    public VatTypeID: number;
+    public SupplierID: number;
+    public AccountName: string;
     public Amount: number;
+    public AccountID: number;
+    public Description: string;
+    public AccountNumber: number;
     public VatTypeName: string;
     public DeliveryDate: Date;
-    public VatPercent: number;
-    public VatCode: string;
-    public AccountName: string;
-    public VatTypeID: number;
-    public AccountID: number;
-    public AccountNumber: number;
-    public Description: string;
-    public SupplierID: number;
     public SupplierInvoiceID: number;
-    public InvoiceNumber: string;
-    public InvoiceDate: Date;
 }
 
 
@@ -9542,71 +9722,71 @@ export class VatReportMessage extends UniEntity {
 
 
 export class VatReportSummary extends UniEntity {
+    public IsHistoricData: boolean;
+    public SumVatAmount: number;
+    public HasTaxAmount: boolean;
     public SumTaxBasisAmount: number;
     public NumberOfJournalEntryLines: number;
-    public VatCodeGroupNo: string;
-    public SumVatAmount: number;
-    public HasTaxBasis: boolean;
-    public VatCodeGroupID: number;
-    public HasTaxAmount: boolean;
     public VatCodeGroupName: string;
-    public IsHistoricData: boolean;
+    public VatCodeGroupNo: string;
+    public VatCodeGroupID: number;
+    public HasTaxBasis: boolean;
 }
 
 
 export class VatReportSummaryPerPost extends UniEntity {
+    public IsHistoricData: boolean;
+    public VatPostName: string;
     public VatPostNo: string;
     public VatPostID: number;
-    public SumTaxBasisAmount: number;
-    public NumberOfJournalEntryLines: number;
-    public VatCodeGroupNo: string;
     public SumVatAmount: number;
-    public VatPostName: string;
-    public HasTaxBasis: boolean;
-    public VatCodeGroupID: number;
-    public VatPostReportAsNegativeAmount: boolean;
     public HasTaxAmount: boolean;
+    public SumTaxBasisAmount: number;
+    public VatPostReportAsNegativeAmount: boolean;
+    public NumberOfJournalEntryLines: number;
     public VatCodeGroupName: string;
-    public IsHistoricData: boolean;
+    public VatCodeGroupNo: string;
+    public VatCodeGroupID: number;
+    public HasTaxBasis: boolean;
 }
 
 
 export class VatReportSummaryPerPostPerAccount extends UniEntity {
-    public VatPostNo: string;
-    public VatPostID: number;
-    public Amount: number;
-    public SumTaxBasisAmount: number;
-    public TaxBasisAmount: number;
-    public VatAccountNumber: number;
-    public NumberOfJournalEntryLines: number;
-    public VatJournalEntryPostAccountName: string;
-    public VatCodeGroupNo: string;
-    public SumVatAmount: number;
     public StdVatCode: string;
-    public VatJournalEntryPostAccountNumber: number;
-    public VatPostName: string;
-    public VatCode: string;
-    public VatDate: Date;
-    public HasTaxBasis: boolean;
-    public VatCodeGroupID: number;
-    public FinancialDate: Date;
-    public VatJournalEntryPostAccountID: number;
-    public VatPostReportAsNegativeAmount: boolean;
-    public VatAccountName: string;
-    public Description: string;
-    public HasTaxAmount: boolean;
-    public JournalEntryNumber: string;
-    public VatCodeGroupName: string;
-    public VatAccountID: number;
     public IsHistoricData: boolean;
+    public VatJournalEntryPostAccountID: number;
+    public VatPostName: string;
+    public VatDate: Date;
+    public VatPostNo: string;
+    public VatCode: string;
+    public VatPostID: number;
+    public SumVatAmount: number;
+    public HasTaxAmount: boolean;
+    public VatJournalEntryPostAccountNumber: number;
+    public SumTaxBasisAmount: number;
+    public VatPostReportAsNegativeAmount: boolean;
+    public JournalEntryNumber: string;
+    public Amount: number;
+    public FinancialDate: Date;
+    public NumberOfJournalEntryLines: number;
+    public VatCodeGroupName: string;
+    public VatCodeGroupNo: string;
+    public Description: string;
+    public VatJournalEntryPostAccountName: string;
+    public VatAccountID: number;
+    public TaxBasisAmount: number;
+    public VatCodeGroupID: number;
+    public VatAccountName: string;
+    public VatAccountNumber: number;
+    public HasTaxBasis: boolean;
 }
 
 
 export class VatReportNotReportedJournalEntryData extends UniEntity {
+    public SumVatAmount: number;
     public SumTaxBasisAmount: number;
     public TerminPeriodID: number;
     public NumberOfJournalEntryLines: number;
-    public SumVatAmount: number;
 }
 
 
@@ -9622,9 +9802,9 @@ export class AltinnGetVatReportDataFromAltinnResult extends UniEntity {
 
 
 export class AccountUsage extends UniEntity {
+    public Counter: number;
     public PercentWeight: number;
     public AccountNumber: number;
-    public Counter: number;
 }
 
 
@@ -9754,15 +9934,6 @@ export enum WageDeductionDueToHolidayType{
 }
 
 
-export enum InternationalIDType{
-    notSet = 0,
-    Passportnumber = 1,
-    SocialSecurityNumber = 2,
-    TaxIdentificationNumber = 3,
-    ValueAddedTaxNumber = 4,
-}
-
-
 export enum OtpStatus{
     A = 0,
     S = 1,
@@ -9772,10 +9943,12 @@ export enum OtpStatus{
 }
 
 
-export enum GenderEnum{
-    NotDefined = 0,
-    Woman = 1,
-    Man = 2,
+export enum InternationalIDType{
+    notSet = 0,
+    Passportnumber = 1,
+    SocialSecurityNumber = 2,
+    TaxIdentificationNumber = 3,
+    ValueAddedTaxNumber = 4,
 }
 
 
@@ -9801,9 +9974,10 @@ export enum TypeOfPaymentOtp{
 }
 
 
-export enum TabellType{
-    loenn = 0,
-    pension = 1,
+export enum GenderEnum{
+    NotDefined = 0,
+    Woman = 1,
+    Man = 2,
 }
 
 
@@ -9811,6 +9985,12 @@ export enum FreeAmountType{
     None = 0,
     WithAmount = 1,
     NoLimit = 2,
+}
+
+
+export enum TabellType{
+    loenn = 0,
+    pension = 1,
 }
 
 
@@ -9825,10 +10005,30 @@ export enum Leavetype{
 }
 
 
-export enum ShipTradeArea{
+export enum RemunerationType{
     notSet = 0,
-    Domestic = 1,
-    Foreign = 2,
+    FixedSalary = 1,
+    HourlyPaid = 2,
+    PaidOnCommission = 3,
+    OnAgreement_Honorar = 4,
+    ByPerformance = 5,
+}
+
+
+export enum TypeOfEmployment{
+    notSet = 0,
+    OrdinaryEmployment = 1,
+    MaritimeEmployment = 2,
+    FrilancerContratorFeeRecipient = 3,
+    PensionOrOtherNonEmployedBenefits = 4,
+}
+
+
+export enum ShipRegistry{
+    notSet = 0,
+    NorwegianInternationalShipRegister = 1,
+    NorwegianOrdinaryShipRegister = 2,
+    ForeignShipRegister = 3,
 }
 
 
@@ -9840,15 +10040,6 @@ export enum EndDateReason{
     ChangedAccountingSystemOrAccountant = 4,
     ChangeInOrganizationStructureOrChangedJobInternally = 5,
     TemporaryEmploymentHasExpired = 6,
-}
-
-
-export enum TypeOfEmployment{
-    notSet = 0,
-    OrdinaryEmployment = 1,
-    MaritimeEmployment = 2,
-    FrilancerContratorFeeRecipient = 3,
-    PensionOrOtherNonEmployedBenefits = 4,
 }
 
 
@@ -9870,13 +10061,10 @@ export enum WorkingHoursScheme{
 }
 
 
-export enum RemunerationType{
+export enum ShipTradeArea{
     notSet = 0,
-    FixedSalary = 1,
-    HourlyPaid = 2,
-    PaidOnCommission = 3,
-    OnAgreement_Honorar = 4,
-    ByPerformance = 5,
+    Domestic = 1,
+    Foreign = 2,
 }
 
 
@@ -9884,14 +10072,6 @@ export enum EmploymentType{
     notSet = 0,
     Permanent = 1,
     Temporary = 2,
-}
-
-
-export enum ShipRegistry{
-    notSet = 0,
-    NorwegianInternationalShipRegister = 1,
-    NorwegianOrdinaryShipRegister = 2,
-    ForeignShipRegister = 3,
 }
 
 
@@ -9919,17 +10099,17 @@ export enum SalBalType{
 }
 
 
-export enum SalBalDrawType{
-    FixedAmount = 0,
-    InstalmentWithBalance = 1,
-}
-
-
 export enum SalBalSource{
     AdvanceRoutine = 1,
     NegativeSalary = 2,
     Loan = 3,
     Other = 4,
+}
+
+
+export enum SalBalDrawType{
+    FixedAmount = 0,
+    InstalmentWithBalance = 1,
 }
 
 
@@ -9952,12 +10132,6 @@ export enum state{
 }
 
 
-export enum costtype{
-    Travel = 0,
-    Expense = 1,
-}
-
-
 export enum linestate{
     Received = 0,
     Processed = 1,
@@ -9965,11 +10139,9 @@ export enum linestate{
 }
 
 
-export enum TaxType{
-    Tax_None = 0,
-    Tax_Table = 1,
-    Tax_Percent = 2,
-    Tax_0 = 3,
+export enum costtype{
+    Travel = 0,
+    Expense = 1,
 }
 
 
@@ -9978,14 +10150,6 @@ export enum RateTypeColumn{
     Employment = 1,
     Employee = 2,
     Salary_scale = 3,
-}
-
-
-export enum GetRateFrom{
-    WageType = 0,
-    MonthlyPayEmployee = 1,
-    HourlyPayEmployee = 2,
-    FreeRateEmployee = 3,
 }
 
 
@@ -9998,6 +10162,13 @@ export enum SpecialTaxAndContributionsRule{
     JanMayenAndBiCountries = 5,
     NettoPaymentForMaritim = 6,
     TaxFreeOrganization = 7,
+}
+
+
+export enum SpecialAgaRule{
+    Regular = 0,
+    AgaRefund = 1,
+    AgaPension = 2,
 }
 
 
@@ -10017,17 +10188,26 @@ export enum StdWageType{
 }
 
 
-export enum SpecialAgaRule{
-    Regular = 0,
-    AgaRefund = 1,
-    AgaPension = 2,
-}
-
-
 export enum LimitType{
     None = 0,
     Amount = 1,
     Sum = 2,
+}
+
+
+export enum GetRateFrom{
+    WageType = 0,
+    MonthlyPayEmployee = 1,
+    HourlyPayEmployee = 2,
+    FreeRateEmployee = 3,
+}
+
+
+export enum TaxType{
+    Tax_None = 0,
+    Tax_Table = 1,
+    Tax_Percent = 2,
+    Tax_0 = 3,
 }
 
 
@@ -10085,6 +10265,14 @@ export enum FinancialDeadlineType{
     AS = 3,
     ENK = 4,
     ALL = 5,
+}
+
+
+export enum ReconcileInterval{
+    year = 0,
+    month = 1,
+    term = 2,
+    quarter = 3,
 }
 
 
@@ -10247,6 +10435,14 @@ export enum TypeOfLogin{
     AltinnPin = 1,
     SMSPin = 2,
     TaxPin = 3,
+}
+
+
+export enum CompanyStatusCode{
+    NotMigrated = 0,
+    Migrating = 5,
+    Error = 9,
+    Migrated = 10,
 }
 
 
