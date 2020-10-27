@@ -181,7 +181,10 @@ export class CompanyList {
             });
         } else {
             this.modalService.open(NewCompanyModal, {
-                data: { contractID: this.contractID }
+                data: {
+                    contractID: this.contractID,
+                    contractType: this.contractType
+                }
             });
         }
     }
