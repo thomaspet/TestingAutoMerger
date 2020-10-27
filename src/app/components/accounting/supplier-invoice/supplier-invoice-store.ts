@@ -53,7 +53,7 @@ import {
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
-import { read } from 'fs';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -77,6 +77,7 @@ export class SupplierInvoiceStore {
     currentMode: number = 0;
     bankAccounts: any[] = [];
     selectedBankAccount;
+    url = theme.theme === THEMES.SR ? '/accounting/supplier-invoice/' : '/accounting/bills/';
 
     constructor(
         private router: Router,
@@ -159,7 +160,7 @@ export class SupplierInvoiceStore {
             // e.g simple/advanced variations of supplier-invoice, very specific whitelabel versions etc.
             if (!invoice) {
                 this.changes$.next(false);
-                this.router.navigateByUrl('/accounting/bills/0');
+                this.router.navigateByUrl(this.url + '0');
                 return;
             }
 
@@ -602,7 +603,7 @@ export class SupplierInvoiceStore {
             AgioAmount: 0,
             PaymentID: null,
             DimensionsID: invoice.DefaultDimensionsID,
-            FromBankAccountID: this.selectedBankAccount.ID
+            FromBankAccountID: this.selectedBankAccount?.ID
         };
 
         const options = {
@@ -706,7 +707,7 @@ export class SupplierInvoiceStore {
             AgioAmount: 0,
             PaymentID: null,
             DimensionsID: invoice.DefaultDimensionsID,
-            FromBankAccountID: this.selectedBankAccount.ID
+            FromBankAccountID: this.selectedBankAccount?.ID
         };
 
         return this.modalService.open(ToPaymentModal, {
