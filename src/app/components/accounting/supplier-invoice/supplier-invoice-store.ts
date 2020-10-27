@@ -45,6 +45,7 @@ import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, U
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -66,6 +67,7 @@ export class SupplierInvoiceStore {
     currencyCodes = [];
     companySettings: CompanySettings;
     currentMode: number = 0;
+    url = theme.theme === THEMES.SR ? '/accounting/supplier-invoice/' : '/accounting/bills/';
 
     constructor(
         private router: Router,
@@ -142,7 +144,7 @@ export class SupplierInvoiceStore {
             // e.g simple/advanced variations of supplier-invoice, very specific whitelabel versions etc.
             if (!invoice) {
                 this.changes$.next(false);
-                this.router.navigateByUrl('/accounting/bills/0');
+                this.router.navigateByUrl(this.url + '0');
                 return;
             }
 

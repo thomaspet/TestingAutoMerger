@@ -113,7 +113,7 @@ export class SupplierInvoiceView {
                             this.store.changes$.next(false);
                             done('Lagring fullført');
                             if (redirectAfterSave) {
-                                this.router.navigateByUrl('/accounting/bills/' + savedInvoice.ID);
+                                this.router.navigateByUrl(this.store.url + savedInvoice.ID);
                             } else {
                                 this.store.loadInvoice(savedInvoice.ID);
                             }
@@ -189,7 +189,7 @@ export class SupplierInvoiceView {
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
                     || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
-                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || hasAutobank
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || invoice.PaymentStatus === 30112
             },
             {
                 label: 'Bokfør',
@@ -219,7 +219,7 @@ export class SupplierInvoiceView {
                     && invoice.PaymentStatus <= 30109 ) && !hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
-                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || hasAutobank
+                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113
             },
             {
                 label: 'Slett',

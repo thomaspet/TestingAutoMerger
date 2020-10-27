@@ -5,6 +5,7 @@ import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchServi
 import {ActionOnReload} from '../../journal-and-pay-helper';
 import { of, Observable } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'to-payment-modal',
@@ -67,7 +68,7 @@ export class ToPaymentModal implements IUniModal {
                 this.total.net += net;
             }
 
-            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0) {
+            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || theme.theme !== THEMES.EXT02) {
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
             }
