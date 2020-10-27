@@ -12,11 +12,16 @@ import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
                     <mat-spinner class="c2a"></mat-spinner>
                 </section>
 
-                <company-bankaccount-edit [bankAccount]="bankAccount" [isNew]="true" (setBusy)="setBusy($event)" (saved)="close($event)"> </company-bankaccount-edit>
+                <company-bankaccount-edit
+                    [bankAccount]="bankAccount"
+                    [isNew]="true"
+                    [lockAccountType]="lockAccountType"
+                    (setBusy)="setBusy($event)"
+                    (saved)="close($event)">
+                </company-bankaccount-edit>
             </article>
         </section>
     `,
-    styleUrls: ['./bank-accounts.sass']
 })
 export class CompanyBankAccountModal implements IUniModal {
 
@@ -28,11 +33,13 @@ export class CompanyBankAccountModal implements IUniModal {
 
     bankAccount: BankAccount;
     busy: boolean = false;
+    lockAccountType: boolean = false;
 
     constructor () { }
 
     public ngOnInit() {
         this.bankAccount = this.options.data.bankAccount;
+        this.lockAccountType = this.options.modalConfig?.lockAccountType;
     }
 
     setBusy(busy) {

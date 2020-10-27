@@ -6,6 +6,7 @@ import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
 import {AuthService} from '@app/authService';
+import {CompanyBankAccountModal} from '../bank-account-modal/company-bank-account-modal';
 
 @Component({
     selector: 'bank-init-modal',
@@ -47,13 +48,13 @@ export class BankInitModal implements IUniModal, OnInit {
         {
             label: 'Lønnskonto',
             field: 'SalaryBankAccount',
-            type: 'salarybank',
+            type: 'salary',
             defaultAccount: null
         },
         {
             label: 'Skattetrekkskonto',
             field: 'TaxBankAccount',
-            type: 'bankaccount',
+            type: 'tax',
             defaultAccount: 1950
         }
     ];
@@ -262,15 +263,6 @@ export class BankInitModal implements IUniModal, OnInit {
 
     setUpUniForm() {
         const accountType = this.accounts[this.steps - 1];
-        const modalConfig: any = {
-            ledgerAccountVisible: true,
-            defaultAccountNumber: accountType.defaultAccount,
-        };
-        if (this.forceSameBank) {
-            modalConfig.BankLock = {
-                BankName: this.bankName
-            };
-        }
         return [
             {
                 EntityType: 'Supplier',
@@ -293,11 +285,14 @@ export class BankInitModal implements IUniModal, OnInit {
                             bankaccount.BusinessRelationID = 0;
                             bankaccount.ID = 0;
                         }
-                        const modal = this.modalService.open(UniBankAccountModal, {
+                        const modal = this.modalService.open(CompanyBankAccountModal, {
                             data: {
                                 bankAccount: bankaccount
                             },
-                            modalConfig: modalConfig,
+                            modalConfig: {
+                                lockAccountType: !!accountType.type
+                            },
+                            header: bankaccount?.ID ? 'Rediger bankkonto' : 'Legg til bankkonto',
                             closeOnClickOutside: false
                         });
 

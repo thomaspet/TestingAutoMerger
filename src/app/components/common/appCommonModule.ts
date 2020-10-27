@@ -79,6 +79,8 @@ import {ContractTypesComparison} from './contract-types-comparison/contract-type
 import {RegisterAssetModal} from '@app/components/common/modals/register-asset-modal/register-asset-modal';
 import {StandardVacationPayModalComponent} from './modals/standard-vacation-pay-modal/standard-vacation-pay-modal.component';
 import {DashboardModule} from './dashboard/dashboard.module';
+import {CompanyBankAccountModal} from './modals/bank-account-modal/company-bank-account-modal';
+import {CompanyBankAccountEdit} from './modals/bank-account-modal/bank-account-edit';
 import { CustomerEditModal } from './modals/customer-edit-modal/customer-edit-modal';
 import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-modal';
 
@@ -173,6 +175,8 @@ import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-mo
         SupplierEditModal,
         QueryBuilder,
         QueryBuilderItem,
+        CompanyBankAccountModal,
+        CompanyBankAccountEdit,
     ],
     exports: [
         DashboardModule,
@@ -240,6 +244,8 @@ import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-mo
         SupplierEditModal,
         QueryBuilder,
         QueryBuilderItem,
+        CompanyBankAccountModal,
+        CompanyBankAccountEdit,
     ]
 })
 export class AppCommonModule {}
