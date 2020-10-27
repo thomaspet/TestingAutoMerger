@@ -562,6 +562,15 @@ export class AccountDetails implements OnInit {
                 },
                 FeaturePermission: 'ui.accounting.advanced-account-settings',
             },
+            {
+                FieldSet: 1,
+                Legend: 'Konto',
+                EntityType: 'Account',
+                Property: 'AnnualSettlementMappingAccountID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Kobling mot årsoppgjør',
+                FeaturePermission: 'ui.accounting.advanced-account-settings',
+            },
             // Fieldset 2 (details)
             {
                 FieldSet: 2,
