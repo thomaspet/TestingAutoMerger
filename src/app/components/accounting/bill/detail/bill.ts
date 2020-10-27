@@ -2238,7 +2238,7 @@ export class BillView implements OnInit, AfterViewInit {
                 && it.StatusCode === StatusCodeSupplierInvoice.ForApproval
             ) {
                 if (this.myUserRoles.find(
-                        x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')
+                        x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator' || x.SharedRoleName === 'Accounting.Approval')
                 ) {
                     const reassign = this.newAction(
                         'Tildel på nytt',

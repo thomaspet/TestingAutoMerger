@@ -183,7 +183,7 @@ export class SupplierInvoiceView {
                     || !hasAutobank || invoice.PaymentStatus === 30112
             },
             {
-                label: 'Bokfør og registrer betaling',
+                label: 'Bokfør og merk som betalt',
                 action: (done) => {
                     this.store.registerPayment(done, true);
                 },
@@ -212,7 +212,7 @@ export class SupplierInvoiceView {
                     || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || !hasAutobank
             },
             {
-                label: 'Registrer betaling',
+                label: 'Merk som betalt',
                 action: (done) => {
                     this.store.registerPayment(done);
                 },
