@@ -55,7 +55,7 @@ export class LicenseDetails {
 
     loadTwoFactorData() {
         this.elsaContractService.get(this.contractID).subscribe(res => {
-            this.twoFactorEnabled = res.TwoFactorEnabled;
+            this.twoFactorEnabled = res?.TwoFactorEnabled;
         });
     }
 
