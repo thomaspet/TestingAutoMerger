@@ -46,6 +46,10 @@ export class LicenseDetails {
         private licenseInfo: LicenseInfo,
         private toastService: ToastService,
     ) {
+        this.licenseInfo.isAdmin$.subscribe(isAdmin => {
+            this.isAdmin = isAdmin;
+        });
+
         this.licenseInfo.selectedContractID$.subscribe(id => {
             this.contractID = id;
             this.loadData();
@@ -65,7 +69,6 @@ export class LicenseDetails {
                 this.customer = res;
                 this.filterManagers();
 
-                this.isAdmin = this.authService.currentUser.License.CustomerAgreement.CanAgreeToLicense;
                 if (this.isAdmin) {
                     this.contextMenu = [{
                         label: 'Fjern som administrator',

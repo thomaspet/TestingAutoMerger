@@ -1,6 +1,6 @@
-<div class="select-container">
+<div *ngIf="tabs?.length || customers?.length > 0" class="select-container">
     <uni-tabs [tabs]="tabs"></uni-tabs>
-    <section class="select-contract" *ngIf="customers?.length > 1">
+    <section class="select-contract" *ngIf="customers?.length > 0">
         <button #trigger class="tertiary">
             Dine lisenser<i class="material-icons">keyboard_arrow_down</i>
         </button>
