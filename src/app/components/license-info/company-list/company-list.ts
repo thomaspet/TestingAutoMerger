@@ -133,6 +133,7 @@ export class CompanyList {
                     this.contractType = res[2].ContractTypes.ContractType;
                     this.companyLimitReached =
                         res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
+                    this.contractType = res[2].ContractTypes?.ContractType;
                 },
                 err => console.error(err)
             );

@@ -31,7 +31,7 @@ import {
     StatisticsService, AccountService, AssetsService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
-import {switchMap, catchError, map, tap} from 'rxjs/operators';
+import {switchMap, catchError, map, tap, finalize} from 'rxjs/operators';
 import {SmartBookingHelperClass, ISmartBookingResult} from './smart-booking-helper';
 import {OCRHelperClass} from './ocr-helper';
 import {JournalAndPaymentHelper, ActionOnReload} from './journal-and-pay-helper';
@@ -194,8 +194,12 @@ export class SupplierInvoiceStore {
             this.readonly$.next(invoice.StatusCode === StatusCodeSupplierInvoice.Journaled);
             this.initDataLoaded$.next(true);
 
-            if (checkAsset && this.itCanBeAnAsset(this.invoice$.value)) {
-                this.assetsService.openRegisterModal(this.invoice$.value);
+            if (checkAsset) {
+                this.itCanBeAnAsset(this.invoice$.value).subscribe((res) => {
+                    if (res) {
+                        this.assetsService.openRegisterModal(this.invoice$.value);
+                    }
+                });
             }
         });
     }
@@ -630,9 +634,14 @@ export class SupplierInvoiceStore {
                         (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
                         this.router.navigateByUrl('/bank/ticker?code=payment_list');
                     } else if (response > 0 && response < 3) {
-                        if (this.itCanBeAnAsset(this.invoice$.value)) {
-                            this.assetsService.openRegisterModal(this.invoice$.value);
-                        }
+                        const current = this.invoice$.value;
+                        this.itCanBeAnAsset(current).pipe(
+                            finalize(() => done('Bokført'))
+                        ).subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(this.invoice$.value);
+                            }
+                        });
                     }
                 });
                 done('Faktura sendt til betaling');
@@ -1052,14 +1061,22 @@ export class SupplierInvoiceStore {
     itCanBeAnAsset(current: SupplierInvoice) {
         if (current?.JournalEntry?.DraftLines?.length > 0) {
             const line = current?.JournalEntry?.DraftLines[0];
-            return this.accountService.Get(line.AccountID).pipe(
-                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
-                map((account) => {
-                    return account.AccountNumber.toString().startsWith('10')
-                        || account.AccountNumber.toString().startsWith('11')
-                        || account.AccountNumber.toString().startsWith('12');
-                })
-            );
+            const accountFromLine = line.Account;
+            if (accountFromLine) {
+                return of(accountFromLine.AccountNumber.toString().startsWith('10')
+                    || accountFromLine.AccountNumber.toString().startsWith('11')
+                    || accountFromLine.AccountNumber.toString().startsWith('12'));
+
+            } else {
+                return this.accountService.Get(line.AccountID).pipe(
+                    tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                    map((account) => {
+                        return account.AccountNumber.toString().startsWith('10')
+                            || account.AccountNumber.toString().startsWith('11')
+                            || account.AccountNumber.toString().startsWith('12');
+                    })
+                );
+            }
         }
         return of(false);
     }
