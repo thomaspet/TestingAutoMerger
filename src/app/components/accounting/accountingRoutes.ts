@@ -142,5 +142,12 @@ export const accountingRoutes: Routes = [
             return m.AssetsModule;
         }),
         canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'annual-settlement',
+        loadChildren: () => import('./annual-settlement/annual-settlement.module').then(m => {
+            return m.AnnualSettlementModule;
+        }),
+        canDeactivate: [CanDeactivateGuard]
     }
 ];

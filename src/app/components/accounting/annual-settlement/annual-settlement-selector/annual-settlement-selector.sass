@@ -1,0 +1,18 @@
+\:host
+    margin-bottom: 20px
+    display: flex
+\:host ::ng-deep span
+    margin: 0 20px 10px 0px
+\:host ::ng-deep span:first-of-type
+    margin-left: 0px
+\:host ::ng-deep span:last-of-type
+    margin-right: 0px
+
+@media screen and (max-width: 1000px)
+    \:host ::ng-deep span
+        display: inline-block
+
+@media screen and (max-width: 560px)
+    \:host ::ng-deep span
+        display: block
+        margin: 10px 0

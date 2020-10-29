@@ -1,0 +1,12 @@
+<uni-options-list-component
+    [options]="annualSettlements"
+    [selectedOption]="selectedAnnualSettlement"
+    (selectOption)="onSelectOption($event)"
+>
+    <ng-template #optionTemplate let-item="item">
+        <button [class.c2a]="item === selectedAnnualSettlement">
+            <i class="material-icons">{{ item | AnnualSettlementGetIcon }}</i>
+            Regnskapsåret {{ item?.AccountYear }}
+        </button>
+    </ng-template>
+</uni-options-list-component>

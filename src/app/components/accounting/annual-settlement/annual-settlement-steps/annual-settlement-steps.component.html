@@ -1,0 +1,14 @@
+<annual-settlement-toolbar-component></annual-settlement-toolbar-component>
+<section class="container-fluid uni-grid-container" style="margin-top: 20px">
+    <section class="row">
+        <annual-settlement-selector-component
+            [annualSettlements]="annualSettlements$ | async"
+            [selectedAnnualSettlement]="selectedAnnualSettlement$ | async"
+            (selectAnnualSettlement)="onSelectAnnualSettlement($event)"
+        >
+        </annual-settlement-selector-component>
+    </section>
+    <section class="row">
+        hello
+    </section>
+</section>

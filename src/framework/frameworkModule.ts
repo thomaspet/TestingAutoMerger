@@ -44,6 +44,7 @@ import {LibraryImportsModule} from '@app/library-imports.module';
 import {AutoFocusDirective} from './autofocus.directive';
 import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
 import {SimpleTable} from './ui/simple-table/simple-table';
+import {UniOptionsListComponent} from '@uni-framework/ui/options-list/options-list.component';
 
 @NgModule({
     imports: [
@@ -84,6 +85,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         AutoFocusDirective,
         UniFileUpload,
         SimpleTable,
+        UniOptionsListComponent,
         ...MODALS
     ],
     providers: [
@@ -132,6 +134,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
         AutoFocusDirective,
         UniFileUpload,
         SimpleTable,
+        UniOptionsListComponent
     ]
 })
 export class UniFrameworkModule {}
