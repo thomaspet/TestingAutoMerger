@@ -1,0 +1,7 @@
+{
+    "/api": {
+        "target": "https://rcext01-api.unieconomy.no",
+        "secure": false,
+        "changeOrigin": true
+    }
+}

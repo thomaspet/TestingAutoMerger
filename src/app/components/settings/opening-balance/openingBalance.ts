@@ -48,7 +48,7 @@ export class OpeningBalanceComponent {
     dateform = [
         {
             Property: 'financialDate',
-            Label: 'Dato for åpningsbalanse',
+            Label: 'Dato for ingående balanse',
             FieldType: FieldType.LOCAL_DATE_PICKER,
         }
     ];

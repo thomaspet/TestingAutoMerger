@@ -1,0 +1,36 @@
+article
+    display: grid
+    justify-content: center
+    h2
+        margin: 0
+        font-weight: 500
+    .recomended-option
+        background-color: var(--alert-info)
+    .uni-container
+        max-width: 76rem
+        padding: 1.5rem
+        .register-incoming
+            display: grid
+            grid-template-columns: repeat(3, auto)
+            img
+                margin: 0 7rem
+                max-width: 15rem
+            .register-incoming-info
+                display: grid
+                grid-template-columns: auto
+                justify-content: space-between
+                padding: 0
+            .recomended
+                background-color: var(--alert-good)
+                padding: .25rem 1rem
+                border-radius: 5px
+                text-align: center
+        .advanced-options
+            display: grid
+            grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr))
+            column-gap: 2rem
+            .advanced-option
+                display: grid
+                align-content: space-between
+                h2, p, footer
+                    padding: 0

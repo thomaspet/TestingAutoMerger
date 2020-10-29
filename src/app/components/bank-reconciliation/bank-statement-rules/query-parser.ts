@@ -35,12 +35,24 @@ export class QueryParser {
                 });
             } else if (tokens[0].type === 'FUNC') {
                 const parts = tokens.splice(0, 6);
-                queryItems.push({
-                    field: parts[2].value,
-                    operator: parts[0].value,
-                    value: parts[4].value,
-                    isFunction: true
-                });
+
+                // We have to combine the parameter sto get the field name here, as there is no real value
+                if (parts[0].value === "updated") {
+                    queryItems.push({
+                        field: `${parts[2].value}.${parts[4].value.replace("'","")}`,
+                        operator: parts[0].value,
+                        value: undefined,
+                        isFunction: true
+                    });
+                }
+                else {
+                    queryItems.push({
+                        field: parts[2].value,
+                        operator: parts[0].value,
+                        value: parts[4].value,
+                        isFunction: true
+                    });
+                }
             } else {
                 queryItems.push(tokens.splice(0, 1)[0]);
             }

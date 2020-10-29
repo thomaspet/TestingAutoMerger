@@ -1,10 +1,11 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniBankAccountModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService, ErrorService} from '@app/services/services';
+import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService, ErrorService, ElsaContractService} from '@app/services/services';
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
 import {BehaviorSubject} from 'rxjs';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'bank-init-modal',
@@ -60,6 +61,8 @@ export class BankInitModal implements IUniModal, OnInit {
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
     hasBoughtAutobank: boolean = false;
     fields$ = new BehaviorSubject([]);
+    bankName: string;
+    forceSameBank = false;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -68,7 +71,9 @@ export class BankInitModal implements IUniModal, OnInit {
         private bankService: BankService,
         private elsaPurchasesService: ElsaPurchaseService,
         private elsaProductService: ElsaProductService,
-        private errorService: ErrorService
+        private errorService: ErrorService,
+        private authService: AuthService,
+        private elsaContractService: ElsaContractService,
     ) {}
 
     ngOnInit() {
@@ -79,8 +84,13 @@ export class BankInitModal implements IUniModal, OnInit {
             return;
         }
 
+        this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1 SR-Bank';
         this.currentUser = this.options.data.user;
         this.payload.Phone = this.currentUser.PhoneNumber;
+
+        this.elsaContractService.getCurrentContractType(this.currentUser.License?.ContractType?.TypeName)
+            .subscribe(contracttype => this.forceSameBank = !!contracttype?.ForceSameBank);
+
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
             this.hasBoughtAutobank = !!response;
             this.initiateRegistrationModal();
@@ -252,6 +262,15 @@ export class BankInitModal implements IUniModal, OnInit {
 
     setUpUniForm() {
         const accountType = this.accounts[this.steps - 1];
+        const modalConfig: any = {
+            ledgerAccountVisible: true,
+            defaultAccountNumber: accountType.defaultAccount,
+        };
+        if (this.forceSameBank) {
+            modalConfig.BankLock = {
+                BankName: this.bankName
+            };
+        }
         return [
             {
                 EntityType: 'Supplier',
@@ -269,7 +288,7 @@ export class BankInitModal implements IUniModal, OnInit {
                         if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                             bankaccount = bankaccount || new BankAccount();
                             bankaccount['_createguid'] = this.companySettingsService.getNewGuid();
-                            bankaccount.BankAccountType =  accountType.type,
+                            bankaccount.BankAccountType = accountType.type;
                             bankaccount.CompanySettingsID = 1;
                             bankaccount.BusinessRelationID = 0;
                             bankaccount.ID = 0;
@@ -278,14 +297,7 @@ export class BankInitModal implements IUniModal, OnInit {
                             data: {
                                 bankAccount: bankaccount
                             },
-                            modalConfig: {
-                                ledgerAccountVisible: true,
-                                defaultAccountNumber: accountType.defaultAccount,
-                                BICLock: {
-                                    BIC:  'SPRONO22',
-                                    BankName: 'SpareBank 1 SR-Bank'
-                                }
-                            },
+                            modalConfig: modalConfig,
                             closeOnClickOutside: false
                         });
 
@@ -293,6 +305,6 @@ export class BankInitModal implements IUniModal, OnInit {
                     }
                 }
             },
-        ]
+        ];
     }
 }

@@ -765,7 +765,6 @@ export class AgGridWrapper {
         if (this.editor) {
             this.editor.emitAndClose();
         }
-
         this.dataService.deleteRow(row);
         this.resourceChange.emit(this.dataService.getTableData());
         this.rowDelete.emit(row);

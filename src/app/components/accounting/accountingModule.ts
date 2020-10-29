@@ -72,7 +72,6 @@ import {UniInbox} from './inbox/inbox';
 import {NewOutgoingWizardModal} from './inbox/new-outgoing-wizard-modal';
 import { UniDateAdapter } from '@app/date-adapter';
 import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirect-modal';
-import {SupplierEditModal} from './bill/edit-supplier-modal/edit-supplier-modal';
 import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module';
 import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
 import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
@@ -107,7 +106,6 @@ import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
         UniInbox,
         NewOutgoingWizardModal,
         DoneRedirectModal,
-        SupplierEditModal,
         SRSupplierInvoiceList,
 
         // journalentry

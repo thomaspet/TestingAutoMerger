@@ -9,7 +9,7 @@
             <contract-type-card
                 *ngFor="let contractType of contractTypes"
                 [contractType]="contractType"
-                [recommended]="contractType.Name === 'Plus'"
+                [recommended]="contractType.Name === 'Plus' && isBrunoEnv"
                 (selected)="onContractTypeSelected(contractType)">
             </contract-type-card>
         </section>

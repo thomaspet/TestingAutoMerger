@@ -53,7 +53,8 @@ export class PurchaseTraveltextModal implements IUniModal {
     invalidInputErrorMsg: string;
 
     isSrEnvironment = theme.theme === THEMES.SR;
-    productName = this.isSrEnvironment ? 'SR-Bank Reise' : 'TravelText';
+    appName = theme.appName;
+    productName = this.isSrEnvironment ? 'SpareBank 1 Reise' : 'TravelText';
     product: ElsaProduct;
     isBought: boolean;
 
@@ -83,13 +84,14 @@ export class PurchaseTraveltextModal implements IUniModal {
     }
 
     initActivationModel() {
-        forkJoin(
+        forkJoin([
             this.userService.getCurrentUser(),
             this.companySettingsService.Get(1, [
                 'DefaultPhone',
                 'DefaultEmail',
                 'DefaultAddress',
-        ])).subscribe(
+            ])
+        ]).subscribe(
             res => {
                 this.user = res[0];
                 this.company = res[1];
@@ -114,10 +116,10 @@ export class PurchaseTraveltextModal implements IUniModal {
 
     initChooseUsers() {
         this.busy = true;
-        forkJoin(
+        forkJoin([
             this.userService.GetAll(),
-            this.integrationService.getTravelTextPurchases(),
-        ).subscribe(
+            this.integrationService.getTravelTextPurchases()
+        ]).subscribe(
             res => {
                 this.users = res[0].filter(user => user.Email && user.StatusCode !== 110000);
                 this.travelTextUsers = res[1];

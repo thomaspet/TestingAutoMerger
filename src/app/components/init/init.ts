@@ -14,6 +14,8 @@ export class UniInit {
     showTryForFree = true;
     confirmed: boolean = true;
 
+    sbLogo = theme.theme === THEMES.SR;
+
     private onDestroy$ = new Subject();
 
     constructor(

@@ -1,0 +1,10 @@
+<section>
+    <button *ngIf="currentTab === 'preparation'" class="tertiary c2a" (click)="navigationService.toStart()">
+        <i class="material-icons">west</i>
+        {{ 'SETTINGS.INCOMING_BALANCE.NAVIGATION.BACK_TO_START' | translate }}
+    </button>
+    <button *ngIf="currentTab !== 'preparation'" class="secondary" [disabled]="previousDisabled" (click)="navigationService.toPrevious()">{{ 'COMMON.BACK' | translate}}</button>
+</section>
+<section *ngIf="currentTab !== 'suppliers'" class="next-button">
+    <button class="c2a" (click)="navigationService.ToNext()" [disabled]="nextDisabled">{{ 'COMMON.NEXT' | translate }}</button>
+</section>

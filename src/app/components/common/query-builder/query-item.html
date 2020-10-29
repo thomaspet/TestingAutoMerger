@@ -1,0 +1,88 @@
+
+<section class="item-container">
+    <i class="material-icons" *ngIf="!hideLogicalOperator">subdirectory_arrow_right</i>
+
+    <section class="logical-operator" *ngIf="!hideLogicalOperator">
+        <ng-container>
+            <span #trigger>
+                {{item.logicalOperator === 'and' ? 'og' : 'eller'}}
+                <i class="material-icons">expand_more</i>
+            </span>
+
+            <dropdown-menu [trigger]="trigger" [minWidth]="'6rem'">
+                <ng-template>
+                    <section class="dropdown-menu-item" (click)="setLogicalOperator('and')">og</section>
+                    <section class="dropdown-menu-item" (click)="setLogicalOperator('or')">eller</section>
+                </ng-template>
+            </dropdown-menu>
+        </ng-container>
+    </section>
+
+    <section class="input-section">
+        <select [(ngModel)]="selectedField" (ngModelChange)="onFieldChange()">
+            <option *ngFor="let field of fields" [ngValue]="field">
+                {{field.label}}
+            </option>
+        </select>
+
+        <select [(ngModel)]="item.operator" (ngModelChange)="itemChange.emit(item)">
+            <option *ngFor="let operator of availableOperators" [ngValue]="operator.operator">
+                {{operator.label}}
+            </option>
+        </select>
+
+        <uni-datepicker
+            *ngIf="selectedField?.type === 'date' && item.operator !== 'updated'"
+            [(value)]="item.value"
+            (valueChange)="itemChange.emit(item)">
+        </uni-datepicker>
+
+        <select class="dropdown-selection"
+            *ngIf="selectedField?.type ==='boolean' && item.operator !== 'updated'"
+            [(value)]="item.value"
+            (ngModelChange)="itemChange.emit(item)">
+            <option value="true">Sant</option>
+            <option value="false">Usant</option>
+        </select>
+
+        <input
+            *ngIf="selectedField?.type !== 'date' && selectedField?.type !== 'boolean' && item.operator !== 'updated'"
+            [(ngModel)]="item.value"
+            (ngModelChange)="itemChange.emit(item)"
+            type="text"
+            placeholder="Verdi"
+        />
+
+
+        <section class="actions">
+            <i
+                role="button"
+                class="material-icons"
+                *ngIf="siblingMaxDepth === 0 || siblingDepth < siblingMaxDepth"
+                (click)="addSibling('or')">
+                add
+            </i>
+            <i
+                role="button"
+                class="material-icons"
+                (click)="remove.emit()">
+                delete_outline
+            </i>
+        </section>
+    </section>
+
+</section>
+
+<section *ngIf="item.siblings?.length" class="sibling-section">
+    <query-item
+        class="sibling"
+        *ngFor="let sibling of item.siblings; let idx = index"
+        [(item)]="item.siblings[idx]"
+        [fields]="fields"
+        [operators]="operators"
+        [siblingDepth]="siblingDepth + 1"
+        [siblingMaxDepth]="siblingMaxDepth"
+        (remove)="removeSibling(idx)"
+        (itemChange)="itemChange.emit(item)">
+    </query-item>
+</section>

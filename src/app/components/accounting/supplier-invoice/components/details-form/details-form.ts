@@ -4,7 +4,7 @@ import { BehaviorSubject } from 'rxjs';
 import { SupplierInvoice, BankAccount } from '@uni-entities';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { UniModalService, UniBankAccountModal } from '@uni-framework/uni-modal';
-import { SupplierEditModal } from '@app/components/accounting/bill/edit-supplier-modal/edit-supplier-modal';
+import { SupplierEditModal } from '@app/components/common/modals/edit-supplier-modal/edit-supplier-modal';
 import { StatisticsService, SupplierService, BankAccountService, ErrorService } from '@app/services/services';
 import { trigger, transition, animate, style, state, group } from '@angular/animations';
 

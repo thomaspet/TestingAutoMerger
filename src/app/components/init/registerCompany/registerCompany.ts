@@ -44,7 +44,7 @@ export class RegisterCompany {
     contracts: Contract[];
 
     registrationOptions: RegistrationOption[];
-    illustration = theme.init.illustration;
+    illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
 
     hasActiveContract: boolean;
 
@@ -80,10 +80,10 @@ export class RegisterCompany {
     }
 
     init() {
-        forkJoin(
+        forkJoin([
             this.elsaContractService.getAll(true),
             this.elsaContractService.getContractTypes(),
-        ).subscribe(([contracts, contractTypes]) => {
+        ]).subscribe(([contracts, contractTypes]) => {
             const contract = contracts && contracts[0];
             if (contract) {
                 this.contractID = contract.ID;
@@ -108,12 +108,10 @@ export class RegisterCompany {
         return [
             {
                 header: 'Bestill Bank + Regnskap',
-                priceTag: '199,- per måned',
                 textSections: [
-                    '0,- i etablering',
-                    '1 måneds oppsigelsestid',
+                    'Registrer bedriften din og kom i gang med markedets mest komplette økonomistyringspakke!',
+                    'Du kan betale regninger og lønn fra første dag. Og ja, første måned er gratis.',
                 ],
-                footerText: 'Registrer deg i dag og få første måned gratis',
                 buttons: [{
                     label: 'Bestill Bank + Regnskap',
                     class: 'good',
@@ -124,8 +122,8 @@ export class RegisterCompany {
             {
                 header: 'Prøv gratis demo i 30 dager',
                 textSections: [
-                    'Med demo har du mulighet til å bli kjent med systemet før du bestemmer deg. Her kan du teste funksjoner uten at fakturaer faktisk blir sendt og lønn blir utbetalt.',
-                    // 'Du kan prøve demo med fiktive data, eller demo hvor du bruker data fra din egen bedrift'
+                    'Bli kjent med SpareBank 1 Regnskap før du bestemmer deg. Test funksjoner uten at fakturaer faktisk blir sendt eller betalinger blir utført.',
+                    'Er du fornøyd, kan du bestille senere. Ingen forpliktelser!'
                 ],
                 buttons: [
                     {

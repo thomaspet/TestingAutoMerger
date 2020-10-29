@@ -340,4 +340,21 @@ export class BankService extends BizHttp<Bank> {
             .withEndPoint('/bank-agreements/' + agreement.ID)
             .send();
     }
+
+    cancelBankAccountIntegration(bankAccountId: number, intergrationSettings: number, emailForReceipt: string) {
+        return this.http.asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`/bank-agreements?action=delete-bankagreements&` +
+            `bankAccountID=${bankAccountId}&integrationSettings=${intergrationSettings}&emailAddress=${emailForReceipt}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    cancelAllBankAccountIntegrations(emailForReceipt: string) {
+        return this.http.asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`/bank-agreements?action=delete-all-bankagreements&emailAddress=${emailForReceipt}`)
+            .send()
+            .map(response => response.body);
+    }
 }

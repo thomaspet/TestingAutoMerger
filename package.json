@@ -34,6 +34,7 @@
     "start.rc": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=rc-serve --proxy-config proxy/rc.proxy.json",
     "start.prod": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=prod-serve --proxy-config proxy/prod.proxy.json",
     "start.ext01": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext01-serve --proxy-config proxy/ext01.proxy.json",
+    "start.ext01-rc": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext01-rc-serve --proxy-config proxy/ext01-rc.proxy.json",
     "start.ext02": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext02-serve --proxy-config proxy/ext02.proxy.json",
     "start.ext02-rc": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext02-rc-serve --proxy-config proxy/ext02-rc.proxy.json",
     "start.ext03-poc01": "npm run prebuild && npm run high-memory-build -- serve --port=3000 --configuration=ext03-poc01-serve --proxy-config proxy/ext03-poc01.proxy.json",

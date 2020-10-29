@@ -2,7 +2,7 @@ import {Component, Input} from '@angular/core';
 import {StatisticsService, SupplierService} from '@app/services/services';
 import {Supplier} from '@uni-entities';
 import {UniModalService} from '@uni-framework/uni-modal';
-import {SupplierEditModal} from '@app/components/accounting/bill/edit-supplier-modal/edit-supplier-modal';
+import {SupplierEditModal} from '@app/components/common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Observable} from 'rxjs';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';

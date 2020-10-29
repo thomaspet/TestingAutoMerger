@@ -1,0 +1,20 @@
+<uni-incoming-balance-info
+    [journalEntry]="stateService.journalEntry$ | async"
+    [journalEntryDraftLines]="stateService.journalLines$ | async"
+    [isBooked]="stateService.isBooked$ | async">
+    {{ 'SETTINGS.INCOMING_BALANCE.LIST.INFO_TEXT' | translate }}
+</uni-incoming-balance-info>
+
+<ag-grid-wrapper
+    [config]="balanceConfig"
+    [resource]="stateService.journalLines$ | async"
+    (rowChange)="onRowChange($event.rowModel)"
+    (rowDelete)="onRowDelete($event)">
+</ag-grid-wrapper>
+<button *ngIf="!(stateService.isBooked$ | async)" (click)="addRow()" class="tertiary c2a">
+    {{ 'SETTINGS.INCOMING_BALANCE.COMMON.NEW_LINE_LABEL' | translate }}
+</button>
+<footer>
+    <uni-incoming-balance-totals [diff]="stateService.balanceDiff$ | async"></uni-incoming-balance-totals>
+    <uni-incoming-balance-wizard-navigation [nextDisabled]="(stateService.balanceDiff$ | async) !== 0 || !(stateService.journalLines$ | async).length" [currentTab]="'balance'"></uni-incoming-balance-wizard-navigation>
+</footer>

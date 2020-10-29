@@ -50,7 +50,7 @@ import {
 
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
 import {IUniTab} from '@uni-framework/uni-tabs';
-import {SupplierEditModal} from '../../bill/edit-supplier-modal/edit-supplier-modal';
+import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Location} from '@angular/common';
 import {cloneDeep} from 'lodash';
 

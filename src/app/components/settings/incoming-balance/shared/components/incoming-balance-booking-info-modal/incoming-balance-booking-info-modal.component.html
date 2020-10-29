@@ -1,0 +1,12 @@
+<section role="dialog" class="uni-modal small">
+    <article>
+        <i class="material-icons check">check_circle</i>
+        <h3>{{ 'SETTINGS.INCOMING_BALANCE.BOOKING_MODAL.HEADER' | translate }}</h3>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.BOOKING_MODAL.TEXT' | translate }} <a (click)="routeTo(options.data)">{{options.data}}</a>
+        </p>
+    </article>
+    <footer>
+        <button class="c2a" (click)="onClose.next()">{{ 'COMMON.CLOSE' | translate }}</button>
+    </footer>
+</section>

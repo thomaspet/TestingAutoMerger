@@ -1,7 +1,7 @@
 import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
 import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
 import * as _ from 'lodash';
-import {tap, finalize, map, filter, switchMap, isEmpty, catchError} from 'rxjs/operators';
+import {tap, finalize, map, filter, switchMap, isEmpty, catchError, take} from 'rxjs/operators';
 import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salary-balance-view.service';
 import { EmployeeLeaveService } from '@app/components/salary/employee/shared/services/employee-leave.service';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
@@ -1095,53 +1095,26 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     }
 
     private saveTax(config: IEmployeeSaveConfig, tax: EmployeeTaxCard, employee: Employee) {
-        let year = 0;
-        return this.getFinancialYearObs()
-            .do(fYear => year = fYear)
-            .map(() => tax)
-            .take(1)
-            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
-                if (!this.employeeTaxCardService.isEmployeeTaxcard2018Model(employeeTaxCard) || employeeTaxCard.Year < 2018) {
-                    return this.employeeTaxCardService.updateModelTo2018(employeeTaxCard, employee.ID);
-                } else {
-                    return Observable.of(employeeTaxCard);
-                }
-            })
-            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
-                if (employeeTaxCard.Year !== year) {
-                    employeeTaxCard.ID = undefined;
-                    employeeTaxCard.Year = year;
-                }
-                this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
-
-                if (employeeTaxCard.ID === 0 || !employeeTaxCard.ID) {
-                    employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
-                }
-                if (employeeTaxCard.ufoereYtelserAndre && !employeeTaxCard.ufoereYtelserAndreID) {
-                    employeeTaxCard.ufoereYtelserAndre['_createguid'] = this.employeeTaxCardService.getNewGuid();
-                }
-
-                if (employeeTaxCard) {
-                    return employeeTaxCard.ID
-                        ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
-                        : this.employeeTaxCardService.Post(employeeTaxCard);
-                } else {
-                    return Observable.of(undefined);
-                }
-            })
-            .catch((err, obs) => {
-                this.saveStatus.hasErrors = true;
-                return this.errorService.handleRxCatch(err, obs);
-            })
-            .finally(() => {
-                this.saveStatus.completeCount++;
-                this.checkForSaveDone(config.done);
-            })
-            .do(updatedTaxCard => {
-                if (updatedTaxCard && !config.ignoreRefresh) {
-                    super.updateState(EMPLOYEE_TAX_KEY, updatedTaxCard, false);
-                }
-            });
+        return this.employeeTaxCardService
+            .updateModelTo2018IfNeeded(tax, employee.ID)
+            .pipe(
+                map(employeeTaxCard => this.employeeTaxCardService.addCreateGuidWhereNeeded(employeeTaxCard)),
+                map(employeeTaxCard => this.employeeTaxCardService.setNumericValues(employeeTaxCard)),
+                switchMap((employeeTaxCard: EmployeeTaxCard) => this.employeeTaxCardService.save(employeeTaxCard)),
+                catchError((err, obs) => {
+                    this.saveStatus.hasErrors = true;
+                    return this.errorService.handleRxCatch(err, obs);
+                }),
+                finalize(() => {
+                    this.saveStatus.completeCount++;
+                    this.checkForSaveDone(config.done);
+                }),
+                tap(updatedTaxCard => {
+                    if (updatedTaxCard && !config.ignoreRefresh) {
+                        super.updateState(EMPLOYEE_TAX_KEY, updatedTaxCard, false);
+                    }
+                })
+            );
     }
 
     private saveEmploymentsObs(config: IEmployeeSaveConfig, emps: Employment[], employee: Employee): Observable<Employment[]> {

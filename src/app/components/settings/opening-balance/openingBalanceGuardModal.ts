@@ -12,7 +12,7 @@ import {Router} from '@angular/router';
             <article>
                 <i class="material-icons info">info</i>
                 <p>
-                    Det er allerede ført transaksjoner på aksjekapitalkontoen, som kan tyde på at åpningsbalanse allerede er registrert. Vil du allikevel registrere åpningsbalanse?
+                    Det er allerede ført transaksjoner på aksjekapitalkontoen, som kan tyde på at inngående balanse allerede er registrert. Vil du allikevel registrere inngående balanse nyetablert firma?
                 </p>
             </article>
             <footer>

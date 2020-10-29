@@ -9,7 +9,7 @@ import {OpeningBalanceService} from '@app/components/settings/opening-balance/op
             <article>
                 <i class="material-icons check_circle">check_circle</i>
                 <p>
-                    Åpningsbalanse er bokført med bilagsnummer
+                    Inngående balanse nyetablert firma er bokført med bilagsnummer
                     <a (click)="navigateToPost($event)">{{postNumber}}-{{financialYear}}</a>
                 </p>
             </article>

@@ -3700,6 +3700,7 @@ export class ReportDefinitionParameter extends UniEntity {
     public Type: string;
     public UpdatedBy: string;
     public ID: number;
+    public SortIndex: number;
     public Label: string;
     public ReportDefinitionId: number;
     public DefaultValueSource: string;
