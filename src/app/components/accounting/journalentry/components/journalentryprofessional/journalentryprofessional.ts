@@ -2115,13 +2115,13 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
 
     public showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
-        
+
         const postPostJournalEntryLine = journalEntryRow.PostPostJournalEntryLine;
         const sign = postPostJournalEntryLine.CustomerInvoiceID > 0 ? 1 : -1; // we need to invert but not use abs!
         const customerInvoice = journalEntryRow.CustomerInvoice;
 
         if (sign === 1) {
-   
+
             return new Promise(resolve => {
                 const paymentData: Partial<InvoicePaymentData> = {
                     Amount: UniMath.round(postPostJournalEntryLine.RestAmount * sign, 2),
@@ -2152,7 +2152,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
                 paymentModal.onClose.subscribe((payment) => {
                     if (payment) {
-        
+
                         this.customerInvoiceService.ActionWithBody(postPostJournalEntryLine.CustomerInvoiceID, payment, 'payInvoice').subscribe(
                             res => {
                                 this.toastService.addToast(
@@ -2170,7 +2170,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                 this.errorService.handle(err);
                             }
                         );
-                    } 
+                    }
                 });
             });
 
@@ -2188,7 +2188,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     BankChargeAccountID: 0,
                     AgioAmount: 0
                 };
-    
+
                 this.modalService.open(UniRegisterPaymentModal, {
                     header: 'Registrer betaling',
                     message: 'Regningen vil bli registrert som betalt i systemet. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
@@ -2209,7 +2209,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                             this.toastService.addToast(
                                 'Faktura er betalt',
                                 ToastType.good,
-                                5                                  
+                                5
                                 );
                                 this.table.removeRow(this.currentRowIndex);
                                 setTimeout(() => {
@@ -2479,6 +2479,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (this.companySettings.AccountingLockedDate) {
             data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
         }
+        data.companySettings = this.companySettings;
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 this.onModalChanged(item, res.model);

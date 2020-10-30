@@ -63,6 +63,7 @@ export class UniSalesSettingsView {
         'APOutgoing',
         'FactoringEmail',
         'DefaultSalesAccount',
+        'DefaultAccrualAccount',
         'CustomerInvoiceReminderSettings',
         'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
         'CustomerInvoiceReminderSettings.DebtCollectionSettings.DebtCollectionAutomation'
@@ -386,6 +387,16 @@ export class UniSalesSettingsView {
                         Property: 'AcceptableDelta4CustomerPaymentAccountID',
                         FieldType: FieldType.UNI_SEARCH,
                         Label: 'Konto for øredifferanse',
+                        Options: {
+                            uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
+                            valueProperty: 'ID'
+                        }
+                    },
+                    {
+                        EntityType: 'CompanySettings',
+                        Property: 'DefaultAccrualAccountID',
+                        FieldType: FieldType.UNI_SEARCH,
+                        Label: 'Standardkonto for peridodisering',
                         Options: {
                             uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                             valueProperty: 'ID'
