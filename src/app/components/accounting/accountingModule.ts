@@ -75,6 +75,7 @@ import {DoneRedirectModal} from './bill/expense/done-redirect-modal/done-redirec
 import {SupplierInvoiceModule} from './supplier-invoice/supplier-invoice.module';
 import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
 import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
+import {BalanceSearch} from './balance/balanceSearch';
 
 @NgModule({
     imports: [
@@ -162,6 +163,7 @@ import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
         DrilldownBalanceReportPart,
         DimensionTypeReport,
         AccountingReportShortcuts,
+        BalanceSearch,
 
         // PostPost
         PostPost,

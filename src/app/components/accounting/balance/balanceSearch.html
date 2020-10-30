@@ -1,0 +1,39 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<section class="application">
+    <!-- <uni-form
+        class="balancesearch-filter-form"
+        [config]="config$"
+        [fields]="fields$"
+        [model]="searchParams$"
+        (readyEvent)="onFormReady()"
+        (changeEvent)="onFormFilterChange($event)"
+        (inputEvent)="onFormInput($event)">
+    </uni-form> -->
+
+    <uni-select
+        class="uni-account-report-details-year-select"
+        [config]="selectYearConfig"
+        [items]="financialYears"
+        [value]="activeYear"
+        (valueChange)="onYearDropdownChange($event)">
+    </uni-select>
+
+
+    <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
+    <button (click)="toExcel()" class="c2a" style="float: right">Eksporter til excel</button>
+
+
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+
+    <ag-grid-wrapper
+        [(resource)]="lookupFunction"
+        [config]="uniTableConfig"
+        [columnSumResolver]="columnSumResolver"
+        (columnsChange)="onColumnsChange($event)"
+        (cellClick)="onCellClick($event)">
+    </ag-grid-wrapper>
+</section>

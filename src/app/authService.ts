@@ -46,7 +46,7 @@ const PUBLIC_ROOT_ROUTES = [
     'dashboard-new'
 ];
 
-const PUBLIC_ROUTES = [];
+const PUBLIC_ROUTES = ['/accounting/balancesearch'];
 
 @Injectable()
 export class AuthService {

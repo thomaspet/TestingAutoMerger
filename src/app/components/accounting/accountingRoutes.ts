@@ -26,6 +26,7 @@ import {SRSupplierInvoiceList} from './supplier-invoice/list/list';
 import {UniInbox} from './inbox/inbox';
 import {NewSupplierInvoiceList} from './supplier-invoice/supplier-invoice-list/supplier-invoice-list';
 import {theme, THEMES} from 'src/themes/theme';
+import {BalanceSearch} from './balance/balanceSearch';
 
 export const accountingRoutes: Routes = [
     {
@@ -58,6 +59,11 @@ export const accountingRoutes: Routes = [
     {
         path: 'vatreport',
         component: VatReportView,
+        canDeactivate: [CanDeactivateGuard]
+    },
+    {
+        path: 'balancesearch',
+        component: BalanceSearch,
         canDeactivate: [CanDeactivateGuard]
     },
     {
