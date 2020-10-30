@@ -105,18 +105,15 @@ export class TradeItemHelper  {
 
     public tradeItemChangeCallback(
         event, currencyCodeID: number, currencyExchangeRate: number,
-        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType, 
+        companySettings: CompanySettings, vatTypes: Array<VatType>, foreignVatType: VatType,
         pricingSourceLabels, priceFactor
     ) {
         const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
-        if (!newRow.PriceIncVatCurrency) {
-            this.calculatePriceIncVat(event.rowModel, currencyExchangeRate);
-        }
-        if (!newRow.PriceExVatCurrency) {
-            this.calculatePriceExVat(event.rowModel, currencyExchangeRate);
-        }
+        this.calculatePriceIncVat(event.rowModel, currencyExchangeRate);
+        this.calculatePriceExVat(event.rowModel, currencyExchangeRate);
+
         // if not currencyExchangeRate has been defined from the parent component, assume no
         // currency is select - i.e. the currency amounts will be the same as the base currency
         // amounts - this is accomplished by setting the currencyExchangeRate to 1
