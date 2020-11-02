@@ -1,7 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Observable} from 'rxjs';
-import * as moment from 'moment';
 
 import {
     CompanySettings,
@@ -13,7 +12,6 @@ import {
     LocalDate,
     Project,
     Seller,
-    SellerLink,
     StatusCodeCustomerInvoice,
     NumberSeries,
     VatType,
@@ -68,7 +66,7 @@ import {TofHelper} from '../salesHelper/tofHelper';
 import {TradeItemHelper, ISummaryLine} from '../salesHelper/tradeItemHelper';
 import {UniRecurringInvoiceLogModal} from './recurringInvoiceLogModal';
 
-declare const _;
+declare const _: any;
 
 @Component({
     selector: 'uni-recurring-invoice',
@@ -243,7 +241,7 @@ export class UniRecurringInvoice implements OnInit {
                     invoice.ProduceAs = 1;
                     invoice.StartDate = new LocalDate();
 
-                    invoice.NextInvoiceDate = new LocalDate(moment().toDate());
+                    invoice.NextInvoiceDate = new LocalDate(Date());
 
                     this.currentUser = res[1];
                     invoice.OurReference = this.currentUser.DisplayName;
@@ -734,9 +732,9 @@ export class UniRecurringInvoice implements OnInit {
 
     private setDeliveryDate(invoice: RecurringInvoice) {
         if (invoice.DeliveryTerms && invoice.DeliveryTerms.CreditDays) {
-            invoice.DeliveryDate = new LocalDate(
-                moment(invoice.DeliveryDate).add(Math.abs(invoice.DeliveryTerms.CreditDays), 'days').toDate()
-            );
+            let date = invoice.DeliveryDate.toDate();
+            date.setDate(date.getDate() + Math.abs(invoice.DeliveryTerms.CreditDays));
+            invoice.DeliveryDate = new LocalDate(date);
         }
     }
 
