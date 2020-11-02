@@ -3,6 +3,9 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {IUniTab} from '@uni-framework/uni-tabs';
 import {BankService, PageStateService} from '@app/services/services';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import { UniModalService } from '@uni-framework/uni-modal';
+import { ManualBankStatementRegisterModal } from '@app/components/bank-reconciliation/manual-bankstatement-register-modal/manual-bankstatement-register-modal';
+import { BankStatementUploadModal } from '@app/components/bank-reconciliation/bank-statement-upload-modal/bank-statement-upload-modal';
 
 @Component({
     selector: 'uni-bank-reconciliation-list',
@@ -19,8 +22,10 @@ export class UniBankReconciliationList {
     ];
 
     actions: any[] = [
-        { label: 'Avstem konto',            name: 'reconciliate' },
-        { label: 'Se månedsoversikt',       name: 'month' }
+        { label: 'Avstem konto',                name: 'reconciliate' },
+        { label: 'Se månedsoversikt',           name: 'month' },
+        { label: 'Opprett bankposter manuelt',  name: 'manual_post' },
+        { label: 'Legg til kontoutskrift',      name: 'upload' }
     ];
 
 
@@ -35,7 +40,8 @@ export class UniBankReconciliationList {
         private router: Router,
         private route: ActivatedRoute,
         private pageStateService: PageStateService,
-        private tabService: TabService
+        private tabService: TabService,
+        private modalService: UniModalService,
     ) {
 
         this.route.queryParams.subscribe((params: any) => {
@@ -52,6 +58,10 @@ export class UniBankReconciliationList {
             .subscribe(accounts => {
             this.bankAccounts = accounts.map(acc => {
                 acc.count = acc.total - acc.closed;
+                acc.Account = {
+                    AccountNumber: acc.AccountAccountNumber,
+                    AccountName: acc.AccountName
+                };
                 return acc;
             }).sort((a, b) => {
                 return a.count === b.count ? 0 : a.count ? -1 : 1;
@@ -82,7 +92,35 @@ export class UniBankReconciliationList {
                 this.activeIndex = 1;
                 this.setTabAndState();
                 break;
+            case 'manual_post':
+                this.modalService.open(ManualBankStatementRegisterModal, {
+                    data: {
+                        AccountID: account.AccountID
+                    },
+                    closeOnClickOutside: false
+                }).onClose.subscribe((response) => {
+                    if (response) {
+                        this.getListAndLoadData();
+                    }
+                });
+                break;
+            case 'upload':
+                this.openImportModal(account);
+                break;
         }
+    }
+
+    openImportModal(account: any) {
+        this.modalService.open(BankStatementUploadModal, {
+            data: {
+                bankAccounts: this.bankAccounts,
+                selectedAccountID: account.AccountID
+            }
+        }).onClose.subscribe(importResult => {
+            if (importResult) {
+                this.getListAndLoadData();
+            }
+        });
     }
 
     private setTabAndState() {

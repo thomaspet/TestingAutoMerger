@@ -14,6 +14,7 @@ import {BankStatementRulesModal} from './bank-statement-rules/bank-statement-rul
 import {UnsavedAttachmentsModal} from './bank-statement-journal/unsaved-journal-modal/unsaved-attachments-modal';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/journal-entry-from-account-modal';
+import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
 
 @NgModule({
     imports: [
@@ -33,7 +34,8 @@ import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/j
         ClosedReconciliations,
         BankStatementSettings,
         BankStatementRulesModal,
-        JournalEntryFromAccountModal
+        JournalEntryFromAccountModal,
+        ManualBankStatementRegisterModal
     ],
 })
 export class BankReconciliationModule {}
