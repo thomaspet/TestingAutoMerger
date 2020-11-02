@@ -47,23 +47,6 @@ export class UniFilesService {
         return this.http.get(url);
     }
 
-    public syncUniEconomyCompanySettings() {
-        this.http.get(this.uniFilesBaseUrl + '/api/client/sync-ue-client-data', {
-            headers: {
-                'Accept': 'application/json',
-                'Token': this.authService.jwt,
-                'Key': this.activeCompany.Key
-            }
-        }).subscribe(
-            () => {
-                console.log('settings synced to unifiles');
-            }, err => {
-                // ignore error here - usually it wont matter much for the user anyway
-                console.log('error syncing settings to uni files', err);
-            }
-        );
-    }
-
     public forceFullLoad(id: string): Observable<any> {
         return this.http.get(this.uniFilesBaseUrl + '/api/file/force-full-load/' + id, {
             headers: {
