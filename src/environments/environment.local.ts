@@ -8,7 +8,7 @@ export const environment = {
     BASE_URL_INIT: 'http://localhost:29077',
     BASE_URL: 'http://localhost:29077',
     BASE_URL_INTEGRATION: 'https://dev-integrations.unieconomy.no/',
-    BASE_URL_FILES: 'https://localhost:44375',
+    BASE_URL_FILES: 'https://dev-unifiles.unieconomy.no',
     UNI_JOB_SERVER_URL: 'https://localhost:44364/api/',
     ELSA_SERVER_URL: 'https://dev-admin.unieconomy.no',
     SIGNALR_PUSHHUB_URL: 'https://dev-unisignal.unieconomy.no/pushHub',

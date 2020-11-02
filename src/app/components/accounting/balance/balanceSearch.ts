@@ -9,17 +9,13 @@ import {
     ICellClickEvent
 } from '../../../../framework/ui/unitable/index';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import {
-    TransqueryDetailsCalculationsSummary
-} from '../../../models/accounting/TransqueryDetailsCalculationsSummary';
 import { HttpParams } from '@angular/common/http';
 import { Observable, forkJoin } from 'rxjs';
-import { JournalEntry, JournalEntryLine, FinancialYear } from '../../../unientities';
+import { FinancialYear } from '../../../unientities';
 import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ToastService, ToastType, ToastTime } from '../../../../framework/uniToast/toastService';
+import { ToastService } from '../../../../framework/uniToast/toastService';
 import { UniForm, FieldType } from '../../../../framework/ui/uniform/index';
-import { ImageModal } from '../../common/modals/ImageModal';
-import { ISummaryConfig } from '../../common/summary/summary';
+
 import {
     ErrorService,
     NumberFormat,
@@ -31,12 +27,24 @@ import {
 
 import {
     UniModalService,
-    ConfirmActions,
 } from '../../../../framework/uni-modal';
 
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
+import { saveAs } from 'file-saver';
+
+export class BalanceData {
+    public accountId: number;
+    public accountNumber: number;
+    public accountName: string;
+    public ib: number = 0;
+    public ib_full: number = 0;
+    public ib_ud: number = 0;
+    public debet: number = 0;
+    public credit: number = 0;
+    public balance: number = 0;
+}
 
 @Component({
     selector: 'balance-search',
@@ -49,18 +57,13 @@ export class BalanceSearch implements OnInit {
     @ViewChild(UniForm)
     private uniForm: UniForm;
 
-    summaryData: TransqueryDetailsCalculationsSummary;
     uniTableConfig: UniTableConfig;
     lookupFunction: (urlParams: HttpParams) => any;
     columnSumResolver: (urlParams: HttpParams) => Observable<{ [field: string]: number }>;
-    summary: ISummaryConfig[] = [];
-    showCredited: boolean = false;
+    balanceDataList: BalanceData[] = [];
 
     loading$: Subject<boolean> = new Subject();
-    private lastFilterString: string;
-    private searchTimeout;
     private configuredFilter: string = '';
-    // searchParams$: BehaviorSubject<ISearchParams> = new BehaviorSubject({});
 
     toDate: any;
     fromDate: any;
@@ -76,7 +79,6 @@ export class BalanceSearch implements OnInit {
     };
 
     config$: BehaviorSubject<any> = new BehaviorSubject({ autofocus: false });
-    // fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     financialYears: Array<FinancialYear> = null;
     private activeFinancialYear: FinancialYear;
@@ -91,7 +93,6 @@ export class BalanceSearch implements OnInit {
         private route: ActivatedRoute,
         private tabService: TabService,
         private statisticsService: StatisticsService,
-        private toastService: ToastService,
         private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private financialYearService: FinancialYearService,
@@ -160,9 +161,8 @@ export class BalanceSearch implements OnInit {
     private setupFunction() {
         this.lookupFunction = (urlParams: HttpParams) =>
             this.getTableData(urlParams)
-                .finally(() => { this.loading$.next(false); })
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
-
+            .finally(() => { this.loading$.next(false); })
+            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         this.columnSumResolver = (urlParams: HttpParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
@@ -182,12 +182,15 @@ export class BalanceSearch implements OnInit {
         const startYear = this.fromDate.Date.year();
         const endPeriod = this.toDate.Date.month() + 1;
         const endYear = this.toDate.Date.year();
-        const fromD = moment(this.fromDate.Date).format('YYYY-MM-DD');
-        const toD = moment(this.toDate.Date).format('YYYY-MM-DD');
+        const fromDt = moment(this.fromDate.Date).format('YYYY-MM-DD');
+        const toDt = moment(this.toDate.Date).format('YYYY-MM-DD');
 
-        const Ib = `sum(casewhen((period.accountyear lt ${startYear}) or (period.accountyear eq ${startYear} and period.no lt ${startPeriod}),amount,0))`;
-        const Debet = `sum(casewhen(period.fromdate ge '${fromD}' and period.todate le '${toD}' and amount ge 0,amount,0))`;
-        const Credit = `sum(casewhen(period.fromdate ge '${fromD}' and period.todate le '${toD}' and amount lt 0,amount,0))`;
+        const Ibif = `casewhen((period.accountyear lt ${startYear}) or (period.accountyear eq ${startYear} and period.no lt ${startPeriod}),amount,0)`;
+        const Ib_full = `casewhen((period.accountyear eq ${startYear}) and (period.no lt ${startPeriod}),amount,0)`;
+        const Ib_show = `sum(casewhen(account.accountnumber ge 3000 and account.accountnumber le 8999, ${Ib_full}, ${Ibif} ))`;
+        const Debet = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount ge 0,amount,0))`;
+        const Credit = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount lt 0,amount,0))`;
+        const DebitCreditChange = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`;
         const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or (period.accountyear eq ${endYear} and period.no le ${endPeriod}),amount,0))`;
 
 
@@ -207,25 +210,22 @@ export class BalanceSearch implements OnInit {
             filters.shift();
         }
 
-        // Hack to be able to filter
-        if (filters && filters[0]) {
-            filters[0] = filters[0].replace('Balance', Balance);
-            filters[0] = filters[0].replace('Debet', Debet);
-            filters[0] = filters[0].replace('Credit', Credit);
-            filters[0] = filters[0].replace('Ib', Ib);
-        }
-
 
         if (filters.length > 1) {
             filters[0] = '( ' + filters[0] + ' )';
         }
 
-        urlParams.get('orderby');
+        let orderBy = urlParams.get('orderby');
+        if (orderBy) {
+            orderBy = orderBy.replace('Balance', Balance)
+                .replace('Debet', Debet)
+                .replace('Credit', Credit)
+                .replace('DebitCreditChange', DebitCreditChange)
+                .replace('Ib', Ib_full);
+        }
 
-
-        const selectString = 'Account.AccountNumber,Account.Accountname,'
-            + `${Ib} as Ib,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance`;
-
+        const selectString = 'Account.ID,Account.AccountNumber,Account.Accountname,'
+            + `${Ib_show} as Ib,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance`;
 
         urlParams = urlParams.set('model', 'JournalEntryLine');
         urlParams = urlParams.set(
@@ -239,14 +239,14 @@ export class BalanceSearch implements OnInit {
         );
 
         if (isSum) {
-            urlParams = urlParams.set('select', 'sum(Amount) as Balance');
+            urlParams = urlParams.set('select', `${Ib_show} as Ib,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance,${DebitCreditChange} as DebitCreditChange`);
             urlParams = urlParams.delete('orderby');
             return this.statisticsService.GetAllByHttpParams(urlParams)
                 .map(res => res.body)
                 .map(res => (res.Data && res.Data[0]) || []);
         } else {
             urlParams = urlParams.set('select', selectString);
-            urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'account.accountnumber');
+            urlParams = urlParams.set('orderby', orderBy || 'account.accountnumber');
             return this.statisticsService.GetAllByHttpParams(urlParams);
         }
     }
@@ -265,9 +265,9 @@ export class BalanceSearch implements OnInit {
 
 
         this.tabService.addTab({
-            name: 'Søk på bilag',
+            name: 'Saldobalanse',
             url: this.pageStateService.getUrl(),
-            moduleID: UniModules.TransqueryDetails,
+            moduleID: UniModules.BalanceSearch ,
             active: true
         });
     }
@@ -288,8 +288,13 @@ export class BalanceSearch implements OnInit {
         const columns = [
             new UniTableColumn('Account.AccountNumber', 'Kontonr.', UniTableColumnType.Link)
                 .setTemplate(line => line.AccountAccountNumber)
-                .setLinkClick(row => this.setSearchParamsOnLinkClick('AccountNumber', row.AccountAccountNumber))
                 .setWidth('85px')
+                .setLinkResolver(row => {
+                    const accountNo = row.AccountAccountNumber;
+                    const fromDt = moment(this.fromDate.Date).format('YYYY-MM-DD');
+                    const toDt = moment(this.toDate.Date).format('YYYY-MM-DD');
+                    return `accounting/accountquery?tabIndex=1&fromDate=${fromDt}&toDate=${toDt}&year=${this.activeYear}&dateFieldIndex=0&account=${accountNo}`;
+                })
                 .setFilterable(true),
             new UniTableColumn('Account.AccountName', 'Kontonavn', UniTableColumnType.Text)
                 .setTemplate(line => line.AccountAccountName)
@@ -298,16 +303,18 @@ export class BalanceSearch implements OnInit {
                 .setFilterable(false)
                 .setTemplate(line => line.Ib)
                 .setIsSumColumn(true),
-            new UniTableColumn('Endring', 'Endring', UniTableColumnType.Money)
+            new UniTableColumn('DebitCreditChange', 'Endring', UniTableColumnType.Money)
                 .setFilterable(false)
                 .setTemplate(line => line.Debet + line.Credit)
                 .setIsSumColumn(true),
             new UniTableColumn('Debet', 'Debet', UniTableColumnType.Money)
                 .setFilterable(false)
                 .setTemplate(line => line.Debet)
+                .setVisible(false)
                 .setIsSumColumn(true),
             new UniTableColumn('Credit', 'Kredit', UniTableColumnType.Money)
                 .setFilterable(false)
+                .setVisible(false)
                 .setTemplate(line => line.Credit)
                 .setIsSumColumn(true),
             new UniTableColumn('Balance', 'Saldo', UniTableColumnType.Money)
@@ -343,25 +350,12 @@ export class BalanceSearch implements OnInit {
             .setPageable(true)
             .setPageSize(pageSize)
             .setColumnMenuVisible(false)
-            .setSearchable(true)
+            .setSearchable(false)
             .setEntityType('JournalEntryLine')
             .setFilters(unitableFilter)
-            .setAllowGroupFilter(true)
+            .setAllowGroupFilter(false)
             .setColumnMenuVisible(true)
             .setColumns(columns);
-    }
-
-    public onCellClick(event: ICellClickEvent) {
-        if (event.column.field === 'ID') {
-            const modalOptions = {
-                entity: JournalEntry.EntityType,
-                entityID: event.row.JournalEntryID,
-                singleImage: false,
-                fileIDs: []
-            };
-
-            this.modalService.open(ImageModal, { data: modalOptions });
-        }
     }
 
     private getCssClasses(data, field) {
@@ -371,7 +365,7 @@ export class BalanceSearch implements OnInit {
             return '';
         }
 
-        if (field === 'Balance' || field === 'Ib' || field === 'Endring' || field === 'Credit' || field === 'Debit') {
+        if (field === 'Balance' || field === 'Ib' || field === 'DebitCreditChange' || field === 'Credit' || field === 'Debit') {
             cssClasses += ' ' + (parseInt(data.value, 10) >= 0 ? 'number-good' : 'number-bad');
         }
 
@@ -395,136 +389,97 @@ export class BalanceSearch implements OnInit {
         };
         this.addTab();
         this.table.refreshTableData();
-
-        // this.setupFunction();
     }
 
     public toExcel() {
-        //     this.loading$.next(true);
-        //     let urlParams = new HttpParams();
-        //     const filtersFromUniTable = this.table.getFilterString();
-        //     const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
-        //     const searchParams = _.cloneDeep(this.searchParams$.getValue());
-        //     // Find the searchvalue
-        //     const splitted = filters[0].split(`'`);
-        //     let searchValue;
-        //     if (splitted.length > 1 && splitted[1] !== undefined) {
-        //         searchValue = splitted[1];
-        //     }
+        this.loading$.next(true);
+        let urlParams = new HttpParams();
+        const filtersFromUniTable = this.table.getFilterString();
+        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
 
-        //     if (searchParams.AccountYear) {
-        //         filters.push(`Period.AccountYear eq ${searchParams.AccountYear}`);
-        //     }
-        //     if (searchParams.AccountNumber && !isNaN(searchParams.AccountNumber)) {
-        //         filters.push(`(Account.AccountNumber eq ${searchParams.AccountNumber} or SubAccount.AccountNumber eq ${searchParams.AccountNumber})`);
-        //     }
-        //     let amount = searchParams.Amount ? searchParams.Amount.toString() : '';
-        //     amount = amount.replace(',', '.');
-        //     if (amount && !isNaN(+amount)) {
-        //         filters.push(`Amount eq ${amount}`);
-        //     }
+        const startPeriod = this.fromDate.Date.month() + 1;
+        const startYear = this.fromDate.Date.year();
+        const endPeriod = this.toDate.Date.month() + 1;
+        const endYear = this.toDate.Date.year();
+        const fromDt = moment(this.fromDate.Date).format('YYYY-MM-DD');
+        const toDt = moment(this.toDate.Date).format('YYYY-MM-DD');
 
-        //     // remove empty first filter - this is done if we have multiple filters but the first one is
-        //     // empty (this would generate an invalid filter clause otherwise)
-        //     if (filters[0] === '') {
-        //         filters.shift();
-        //     }
-
-        //     // Fix filter from unitable! Uses displaynames, causes errors!
-        //     if (filters && filters[0]) {
-        //         filters[0] = filters[0].replace(/JournalEntryLine/g, '');
-        //     }
-
-        //     if (filters.length > 1) {
-        //         filters[0] = '( ' + filters[0] + ' )';
-        //     }
-        //     const selectString = 'account.accountnumber as accountnumber,account.accountname as accountname,'
-        //         + 'sum(casewhen((period.accountyear lt 2020) or (period.accountyear eq 2020 and period.no lt 1),amount,0)) as ib,sum(casewhen((period.accountyear eq 2020) and (period.no lt 1),amount,0)) as ib_full,sum(casewhen((period.accountyear lt 2020),amount,0)) as ib_ud,sum(casewhen(period.accountyear eq 2020 and period.no ge 1 and period.no le 12 and amount ge 0,amount,0)) as debet,sum(casewhen(period.accountyear eq 2020 and period.no ge 1 and period.no le 12 and amount lt 0,amount,0)) as credit,sum(casewhen((period.accountyear le 2020 and account.accountnumber lt 3000) or (period.accountyear eq 2020 and period.no le 12),amount,0)) as balance';
+        const Ibif = `casewhen((period.accountyear lt ${startYear}) or (period.accountyear eq ${startYear} and period.no lt ${startPeriod}),amount,0)`;
+        const Ib_full = `casewhen((period.accountyear eq ${startYear}) and (period.no lt ${startPeriod}),amount,0)`;
+        const Ib_show = `sum(casewhen(account.accountnumber ge 3000 and account.accountnumber le 8999, ${Ib_full}, ${Ibif} ))`;
+        const Debet = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount ge 0,amount,0))`;
+        const Credit = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount lt 0,amount,0))`;
+        const DebitCreditChange = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`;
+        const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or (period.accountyear eq ${endYear} and period.no le ${endPeriod}),amount,0))`;
 
 
-        //     // Loop the columns in unitable to only get the data for the once visible!
-        //     // this.table.columns.forEach((col) => {
-        //     //     selectString += col.visible ? ',' + col.field : '';
-        //     //     if (col.field.indexOf('Dimension') !== -1 && col.visible) {
-        //     //         selectString += ',Dimension' + parseInt(col.field.substr(9, 3), 10) + '.Number';
-        //     //         expandString += ',Dimensions.Dimension' + parseInt(col.field.substr(9, 3), 10);
-        //     //     } else if (col.field.indexOf('Department') !== -1 && col.visible) {
-        //     //         selectString += ',Department.DepartmentNumber';
-        //     //     } else if (col.field.indexOf('Project') !== -1 && col.visible) {
-        //     //         selectString += ',Project.ProjectNumber';
-        //     //     }
-        //     // });
+        // Find the searchvalue
+        const splitted = filters[0].split(`'`);
 
-        //     urlParams = urlParams.set('model', 'JournalEntryLine');
-        //     urlParams = urlParams.set(
-        //         'expand',
-        //         'Account,SubAccount,JournalEntry,VatType,Dimensions.Department'
-        //         + ',Dimensions.Project,Period,VatReport.TerminPeriod,CurrencyCode,JournalEntryType'
-        //     );
-        //     urlParams = urlParams.set('filter', filters.join(' and '));
-        //     urlParams = urlParams.set('select', selectString);
-        //     urlParams = urlParams.set('join',
-        //         'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID and Journalentryline.createdby eq user.globalidentity');
-        //     urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-        //     this.statisticsService.GetExportedExcelFileFromUrlParams(urlParams)
-        //         .finally(() => this.loading$.next(false))
-        //         .subscribe((result) => {
-        //             let filename = '';
-        //             // Get filename with filetype from headers
-        //             if (result.headers) {
-        //                 const fromHeader = result.headers.get('content-disposition');
-        //                 if (fromHeader) {
-        //                     filename = fromHeader.split('=')[1];
-        //                 }
-        //             }
+        let searchValue;
+        if (splitted.length > 1 && splitted[1] !== undefined) {
+            searchValue = splitted[1];
+        }
 
-        //             if (!filename || filename === '') {
-        //                 filename = 'export.xlsx';
-        //             }
+        // account.accountnumber ge 1000 and account.accountnumber le 9999 ?
+        filters.push(`period.todate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
+        // remove empty first filter - this is done if we have multiple filters but the first one is
+        // empty (this would generate an invalid filter clause otherwise)
+        if (filters[0] === '') {
+            filters.shift();
+        }
 
-        //             const blob = new Blob([result.body], { type: 'text/csv' });
-        //             // download file so the user can open it
-        //             saveAs(blob, filename);
-        //         }, err => this.errorService.handle(err));
+        if (filters.length > 1) {
+            filters[0] = '( ' + filters[0] + ' )';
+        }
+
+        let orderBy = urlParams.get('orderby');
+        if (orderBy) {
+            orderBy = orderBy.replace('Balance', Balance)
+                .replace('Debet', Debet)
+                .replace('Credit', Credit)
+                .replace('DebitCreditChange', `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`)
+                .replace('Ib', Ib_show);
+        }
+
+
+        const selectString = 'Account.AccountNumber,Account.Accountname,'
+            + `${Ib_show} as Ib,${DebitCreditChange} as Change,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance`;
+
+
+        urlParams = urlParams.set('model', 'JournalEntryLine');
+        urlParams = urlParams.set(
+            'expand',
+            'account,period'
+        );
+
+        urlParams = urlParams.set(
+            'filter',
+            filters.join(' and ')
+        );
+
+        urlParams = urlParams.set('select', selectString);
+        urlParams = urlParams.set('orderby', orderBy || 'account.accountnumber');
+
+        this.statisticsService.GetExportedExcelFileFromUrlParams(urlParams)
+            .finally(() => this.loading$.next(false))
+            .subscribe((result) => {
+                let filename = '';
+                // Get filename with filetype from headers
+                if (result.headers) {
+                    const fromHeader = result.headers.get('content-disposition');
+                    if (fromHeader) {
+                        filename = fromHeader.split('=')[1];
+                    }
+                }
+
+                if (!filename || filename === '') {
+                    filename = 'export.xlsx';
+                }
+
+                const blob = new Blob([result.body], { type: 'text/csv' });
+                // download file so the user can open it
+                saveAs(blob, filename);
+            }, err => this.errorService.handle(err));
     }
-
-    // private getLayout() {
-    //     return {
-    //         Name: 'TransqueryList',
-    //         BaseEntity: 'Account',
-    //         Fields: [
-    //             {
-    //                 EntityType: 'JournalEntryLine',
-    //                 Property: 'AccountYear',
-    //                 FieldType: FieldType.DROPDOWN,
-    //                 Label: 'Regnskapsår',
-    //                 Placeholder: 'Regnskapsår',
-    //                 Options: {
-    //                     source: this.financialYears,
-    //                     valueProperty: 'Year',
-    //                     debounceTime: 200,
-    //                     template: (item) => {
-    //                         return item ? item.Year.toString() : '';
-    //                     },
-    //                     searchable: false,
-    //                     hideDeleteButton: true
-    //                 }
-    //             },
-    //             // {
-    //             //     EntityType: 'JournalEntryLine',
-    //             //     Property: 'AccountNumber',
-    //             //     FieldType: FieldType.TEXT,
-    //             //     Label: 'Kontonr',
-    //             //     Placeholder: 'Kontonr'
-    //             // },
-    //             // {
-    //             //     EntityType: 'JournalEntryLine',
-    //             //     Property: 'Amount',
-    //             //     FieldType: FieldType.TEXT,
-    //             //     Label: 'Beløp',
-    //             //     Placeholder: 'Beløp'
-    //             // }
-    //         ]
-    //     };
-    // }
 }

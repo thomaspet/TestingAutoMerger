@@ -263,7 +263,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.BALANCE_SEARCH',
                         url: '/accounting/balancesearch',
-                        moduleID: UniModules.Accounting,
+                        moduleID: UniModules.BalanceSearch,
                         activeInSidebar: true
                     },
                     {
