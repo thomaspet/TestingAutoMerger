@@ -30,6 +30,7 @@ import { ReInvoicingService } from '@app/services/accounting/ReInvoicingService'
 import { CompanyAccountingSettingsService } from '@app/services/accounting/companyAccountingSettingsService';
 import { AccountMandatoryDimensionService } from './accounting/accountMandatoryDimensionService';
 import { JournalEntryTypeService } from './accounting/journal-entry-type.service';
+import {AltinnAccountLinkService} from '@app/services/accounting/altinnAccountLinkService';
 
 
 export * from './accounting/accountGroupService';
@@ -101,6 +102,7 @@ export class AccountingServicesModule {
                 CompanyAccountingSettingsService,
                 AccountMandatoryDimensionService,
                 JournalEntryTypeService,
+                AltinnAccountLinkService
             ]
         };
     }
