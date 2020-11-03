@@ -16,7 +16,7 @@ export class AltinnAccountLinkService extends BizHttp<AltinnAccountLink> {
 
     constructor(http: UniHttp, private statisticsService: StatisticsService) {
         super(http);
-        this.relativeURL = 'AltinnAccountLink';
+        this.relativeURL = 'AltinnAccountLinks';
         this.entityType = 'AltinnAccountLink';
         this.DefaultOrderBy = 'AccountNumber';
     }
