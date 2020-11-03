@@ -265,7 +265,7 @@ export class BalanceSearch implements OnInit {
 
 
         this.tabService.addTab({
-            name: 'Saldobalanse',
+            name: 'Saldobalanse hovedbok',
             url: this.pageStateService.getUrl(),
             moduleID: UniModules.BalanceSearch ,
             active: true

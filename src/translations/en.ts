@@ -28,7 +28,7 @@ export const EN = {
         'BUDGET': 'Budget',
         'OPEN_POST': 'Open posts',
         'VAT_MESSAGE': 'VAT message',
-        'BALANCE_SEARCH': 'Balance',
+        'BALANCE_SEARCH': 'Balance main ledger',
         'SEARCH_JOURNALENTRY': 'Search journal entry',
         'SEARCH_ACCOUNT': 'Search account',
         'SUPPLIER': 'Supplier',
