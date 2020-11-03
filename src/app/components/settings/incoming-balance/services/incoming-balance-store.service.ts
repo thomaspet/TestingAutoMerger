@@ -72,7 +72,15 @@ export class IncomingBalanceStoreService {
     public setDate(date: LocalDate) {
         this.dateSubject$.next(date);
         this.journalLinesSubject$.next(
-            this.journalLinesSubject$.getValue().map(line => ({...line, _isDirty: true, FinancialDate: date}))
+            this.journalLinesSubject$
+                .getValue()
+                .map(line => ({
+                    ...line,
+                    _isDirty: true,
+                    FinancialDate: date,
+                    VatDate: date,
+                    RegisteredDate: date
+                }))
         );
     }
 
@@ -89,6 +97,9 @@ export class IncomingBalanceStoreService {
                     AccountID: balanceLine.Account?.ID,
                     SubAccountID: balanceLine.SubAccount?.ID,
                     FinancialDate: date,
+                    RegisteredDate: date,
+                    VatDate: date,
+                    AmountCurrency: 0,
                 })),
                 switchMap(line => (line.ID || line._balanceGuid)
                     ? this.update(line)
@@ -98,6 +109,9 @@ export class IncomingBalanceStoreService {
     }
 
     public remove(forRemoval: IIncomingBalanceLine): Observable<boolean> {
+        if (forRemoval['_isEmpty']) {
+            return of(true);
+        }
         if (forRemoval.ID) {
             return this
                 .update({
@@ -186,7 +200,7 @@ export class IncomingBalanceStoreService {
     }
 
     private book() {
-        return this.saveChangedMainAccountsAsDraft()
+        return this.handleNonBookableLines()
             .pipe(
                 switchMap(() => combineLatest(
                     [
@@ -197,7 +211,14 @@ export class IncomingBalanceStoreService {
                 take(1),
                 switchMap(([journalEntry, draftLines]) => this.httpService.book({
                     ...journalEntry,
-                    DraftLines: this.filterOutMainAccountLines(draftLines.map(line => ({...line, StatusCode: null})))
+                    DraftLines: this.removeNonBookableLines(
+                        draftLines
+                            .filter(line => !line.Deleted)
+                            .map(line => ({
+                                ...line,
+                                StatusCode: null
+                            }))
+                    )
                 })),
             );
     }
@@ -207,12 +228,9 @@ export class IncomingBalanceStoreService {
             .pipe(
                 take(1),
                 switchMap(journalEntry => this.httpService.credit(journalEntry)),
-                switchMap(() => combineLatest([
-                    this.journalLines$,
-                    this.date$
-                ])),
+                switchMap(() => this.journalLines$),
                 take(1),
-                switchMap(([lines, date]) => {
+                switchMap((lines) => {
                     const cleanLines = lines
                         .map(line => ({
                             ...line,
@@ -223,27 +241,21 @@ export class IncomingBalanceStoreService {
                             JournalEntryNumberNumeric: null,
                             StatusCode: null,
                         }));
-                    return this.saveChangesAsDraft(null, cleanLines, date);
+                    return this.saveChangesAsDraft(null, cleanLines);
                 }),
             );
     }
 
-    private filterOutMainAccountLines(lines: IIncomingBalanceLine[]) {
+    private removeNonBookableLines(lines: IIncomingBalanceLine[]) {
         const mainAccounts = lines.filter(line => !!line.SubAccountID).map(line => line.AccountID);
         return lines
-            .filter(line =>
-                !mainAccounts.includes(line.AccountID)
-                || line.SubAccountID
-            );
+            .filter(line => (!mainAccounts.includes(line.AccountID) || line.SubAccountID) && !line.Deleted);
     }
 
-    private getMainAccountLines(lines: IIncomingBalanceLine[]) {
+    private getNonBookableLines(lines: IIncomingBalanceLine[]) {
         const mainAccounts = lines.filter(line => !!line.SubAccountID).map(line => line.AccountID);
         return lines
-            .filter(line =>
-                mainAccounts.includes(line.AccountID)
-                && !line.SubAccountID
-            );
+            .filter(line => (mainAccounts.includes(line.AccountID) && !line.SubAccountID) || line.Deleted);
     }
 
     private saveDraft() {
@@ -251,35 +263,32 @@ export class IncomingBalanceStoreService {
             [
                 this.journalEntry$,
                 this.allJournalLines$,
-                this.date$,
             ]
         )
         .pipe(
             take(1),
-            switchMap(([journalEntry, lines, date]) => this.saveChangesAsDraft(journalEntry, lines, date)),
+            switchMap(([journalEntry, lines]) => this.saveChangesAsDraft(journalEntry, lines)),
         );
     }
 
-    private saveChangedMainAccountsAsDraft() {
+    private handleNonBookableLines() {
         return this.allJournalLines$
-        .pipe(
-            take(1),
-            map(lines => this.getMainAccountLines(lines)),
-            switchMap(lines => combineLatest([
-                this.journalEntry$,
-                of(lines),
-                this.date$
-            ])),
-            switchMap(([journalEntry, lines, date]) => this.saveChangesAsDraft(journalEntry, lines, date)),
-        );
+            .pipe(
+                take(1),
+                map(lines => this.getNonBookableLines(lines)),
+                switchMap(lines => combineLatest([
+                    this.journalEntry$,
+                    of(lines),
+                ])),
+                take(1),
+                switchMap(([journalEntry, lines]) => this.saveChangesAsDraft(journalEntry, lines)),
+            );
     }
 
-    private saveChangesAsDraft(journalEntry: JournalEntry, lines: IIncomingBalanceLine[], date: LocalDate) {
+    private saveChangesAsDraft(journalEntry: JournalEntry, lines: IIncomingBalanceLine[]) {
         return this.httpService
             .saveDraft(
-                lines
-                    .filter(line => line._isDirty)
-                    .map(line => ({...line, FinancialDate: date})),
+                lines.filter(line => line._isDirty),
                 journalEntry,
             );
     }
@@ -289,8 +298,9 @@ export class IncomingBalanceStoreService {
             .getJournalData()
             .pipe(
                 tap(journalEntry => {
-                    const lines: IIncomingBalanceLine[] = journalEntry
-                        ?.DraftLines
+                    const lines: IIncomingBalanceLine[] = this.reCreateMainAccountsIfMissing(
+                            <IIncomingBalanceLine[]>journalEntry?.DraftLines || []
+                        )
                         .map((line: any) => ({...line, _source: this.getSource(line)})) || [];
                     this.dateSubject$.next(lines[0]?.FinancialDate || new LocalDate());
                     this.journalLinesSubject$.next(lines);
@@ -301,6 +311,37 @@ export class IncomingBalanceStoreService {
                     }
                 }),
             );
+    }
+
+    private reCreateMainAccountsIfMissing(lines: IIncomingBalanceLine[]) {
+        const mainAccounts = lines
+            .filter((line) => !!line.SubAccountID)
+            .map(line => line.AccountID);
+        const extraLines: IIncomingBalanceLine[] = [];
+        mainAccounts
+            .forEach(accountID => {
+                if (extraLines.some(line => line.AccountID === accountID)) {
+                    return;
+                }
+                if (lines.filter(line => !line.SubAccountID).some(line => line.AccountID === accountID)) {
+                    return;
+                }
+                const sum = lines
+                    .filter(line => line.AccountID === accountID && line.SubAccountID)
+                    .reduce((acc, line) => acc + line.Amount, 0);
+                extraLines.push({
+                    ...lines.find(line => line.AccountID === accountID),
+                    SubAccountID:  null,
+                    SubAccount: null,
+                    Amount: sum,
+                    AmountCurrency: 0,
+                    InvoiceNumber: null,
+                    ID: 0,
+                    _balanceGuid: this.httpService.getNewGuid(),
+                    _source: 'Balance'
+                });
+            });
+        return [...lines, ...extraLines];
     }
 
     private setMainAccounts() {

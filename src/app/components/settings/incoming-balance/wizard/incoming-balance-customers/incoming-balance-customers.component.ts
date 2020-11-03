@@ -3,12 +3,13 @@ import { Account } from '@uni-entities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { IAutoCompleteOptions } from '@uni-framework/ui/unitable/controls';
-import { take, takeUntil } from 'rxjs/operators';
+import { filter, switchMap, take, takeUntil } from 'rxjs/operators';
 import { IncomingBalanceLogicService } from '../../shared/services/incoming-balance-logic.service';
 import { IIncomingBalanceLine } from '../../services/incoming-balance-store.service';
 import { IncomingBalanceCustomersStoreService } from '../shared/services/incoming-balance-customers-store.service';
 import { UniTranslationService } from '@app/services/services';
 import { Subject } from 'rxjs';
+import { IRowChangeEvent } from '@uni-framework/ui/ag-grid/interfaces';
 
 @Component({
     selector: 'uni-incoming-balance-customers',
@@ -45,8 +46,16 @@ export class IncomingBalanceCustomersComponent implements OnInit {
         this.table.addRow(null);
     }
 
-    onRowChange(row: IIncomingBalanceLine) {
-        this.stateService.createOrUpdate(row).subscribe();
+    onRowChange(event: IRowChangeEvent) {
+        this.stateService
+            .createOrUpdate(event.rowModel)
+            .pipe(
+                filter(() => event.field === 'Amount'),
+                switchMap(() => this.stateService.journalLines$),
+                take(1),
+                filter(rows => event.originalIndex === (rows.length - 1))
+            )
+            .subscribe(() => setTimeout(() => this.addRow()));
     }
 
     onRowDelete(row: IIncomingBalanceLine) {
@@ -94,11 +103,12 @@ export class IncomingBalanceCustomersComponent implements OnInit {
             UniTableColumnType.Money,
             (line: IIncomingBalanceLine) => !line._booked
         );
-        this.balanceConfig = new UniTableConfig('settings.incoming-balance.wizard.balance', true)
+        this.balanceConfig = new UniTableConfig('settings.incoming-balance.wizard.customers', true)
             .setColumns([accountCol, invoiceCol, amountCol])
             .setAutoAddNewRow(false)
             .setDeleteButton(!isBooked)
-            .setCopyFromCellAbove(false);;
+            .setCopyFromCellAbove(false)
+            .setColumnMenuVisible(false);
     }
 
 }
