@@ -119,7 +119,7 @@ export class IncomingBalanceHttpService {
         return this.accountService
             .GetAll(
                 `filter=${entityType}ID eq ${entityID}` +
-                `&expand=${entityType}`
+                `&expand=${entityType}.Info`
             )
             .pipe(
                 map(result => this.mapToIncomingBalanceAccount(result[0], entityType)),

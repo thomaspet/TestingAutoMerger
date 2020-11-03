@@ -128,7 +128,7 @@ export class IncomingBalanceWizardComponent implements OnInit, OnDestroy {
                 ),
             )
             .subscribe(
-                () => this.navigationService.toTab('balance'),
+                (shouldRoute) => shouldRoute && this.navigationService.toTab('balance'),
                 err => {
                     this.errorService.handle(err);
                     done();

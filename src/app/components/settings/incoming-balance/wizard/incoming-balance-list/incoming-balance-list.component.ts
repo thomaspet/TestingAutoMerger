@@ -2,12 +2,13 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { Account } from '@uni-entities';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
-import { take, takeUntil, tap } from 'rxjs/operators';
+import { filter, switchMap, take, takeUntil } from 'rxjs/operators';
 import { IncomingBalanceLogicService } from '../../shared/services/incoming-balance-logic.service';
 import { IIncomingBalanceLine } from '../../services/incoming-balance-store.service';
 import { IncomingBalanceListStoreService } from '../shared/services/incoming-balance-list-store.service';
 import { UniTranslationService } from '@app/services/services';
 import { Subject } from 'rxjs';
+import { IRowChangeEvent } from '@uni-framework/ui/ag-grid/interfaces';
 
 @Component({
     selector: 'uni-incoming-balance-list',
@@ -45,15 +46,23 @@ export class IncomingBalanceBalanceComponent implements OnInit {
         this.table.addRow(null);
     }
 
-    onRowChange(row: IIncomingBalanceLine) {
-        this.stateService.createOrUpdate(row).subscribe();
+    onRowChange(event: IRowChangeEvent) {
+        this.stateService
+            .createOrUpdate(event.rowModel)
+            .pipe(
+                filter(() => event.field === 'Amount'),
+                switchMap(() => this.stateService.journalLines$),
+                take(1),
+                filter(rows => event.originalIndex === (rows.length - 1))
+            )
+            .subscribe(() => setTimeout(() => this.addRow()));
     }
 
     onRowDelete(row: IIncomingBalanceLine) {
         this.stateService.remove(row).subscribe();
     }
 
-    private setConfig(isBooked: boolean) {
+    private setConfig(isBooked: boolean, addNewRow?: boolean) {
         const accountCol = new UniTableColumn(
                 'Account',
                 this.translationService.translate('SETTINGS.INCOMING_BALANCE.LIST.ACCOUNT_LABEL'),
@@ -83,9 +92,10 @@ export class IncomingBalanceBalanceComponent implements OnInit {
             );
         this.balanceConfig = new UniTableConfig('settings.incoming-balance.wizard.balance', true)
             .setColumns([accountCol, accountNameCol, amountCol])
-            .setAutoAddNewRow(false)
+            .setAutoAddNewRow(addNewRow)
             .setDeleteButton(!isBooked)
-            .setCopyFromCellAbove(false);
+            .setCopyFromCellAbove(false)
+            .setColumnMenuVisible(false);
     }
 
 }

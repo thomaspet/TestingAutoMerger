@@ -29,10 +29,10 @@ export class IncomingBalanceLogicService {
     public addNewSubAccount(search: string, type: IncomingBalanceSubAccount) {
         const modal: Type<IUniModal> = type === 'Customer' ? CustomerEditModal : SupplierEditModal;
         return this.modalService
-            .open(modal, {data: {search: search}})
+            .open(modal, type === 'Customer' && {data: {search: search}})
             .onClose
             .pipe(
-                switchMap((result: Supplier | Customer) => this.httpService.getAccount(result.ID, type))
+                switchMap((result: Supplier | Customer) => this.httpService.getAccount(result?.ID, type))
             )
             .toPromise();
     }

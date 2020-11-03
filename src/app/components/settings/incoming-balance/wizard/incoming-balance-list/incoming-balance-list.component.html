@@ -8,7 +8,7 @@
 <ag-grid-wrapper
     [config]="balanceConfig"
     [resource]="stateService.journalLines$ | async"
-    (rowChange)="onRowChange($event.rowModel)"
+    (rowChange)="onRowChange($event)"
     (rowDelete)="onRowDelete($event)">
 </ag-grid-wrapper>
 <button *ngIf="!(stateService.isBooked$ | async)" (click)="addRow()" class="tertiary c2a">
