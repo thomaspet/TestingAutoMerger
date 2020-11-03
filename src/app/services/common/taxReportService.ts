@@ -96,6 +96,11 @@ export class TaxReportService extends BizHttp<TaxReport> {
             // this action does not return anything yet
         });
     }
+    public SendAnnualTaxReport(annualSettlementID: number) {
+        super.PutAction(null, 'send-annual', 'annualSettlementID=' + annualSettlementID).subscribe(() => {
+            // this action does not return anything yet
+        });
+    }
 
     public getRecords(taxReport: TaxReport): Observable<FormRecordWithKey[]> {
         const taxRecords: FormRecordWithKey[] = [];
