@@ -1,50 +1,30 @@
-import { IToolbarConfig } from '../../common/toolbar/toolbar';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { HttpParams } from '@angular/common/http';
 import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
-    ITableFilter,
-    ICellClickEvent
-} from '../../../../framework/ui/unitable/index';
+    ITableFilter} from '@uni-framework/ui/unitable/index';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
-import { HttpParams } from '@angular/common/http';
-import { Observable, forkJoin } from 'rxjs';
-import { FinancialYear } from '../../../unientities';
-import { TabService, UniModules } from '../../layout/navbar/tabstrip/tabService';
-import { ToastService } from '../../../../framework/uniToast/toastService';
-import { UniForm, FieldType } from '../../../../framework/ui/uniform/index';
+import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { Observable } from 'rxjs';
+import { FinancialYear } from '@app/unientities';
+import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
+import { UniForm } from '@uni-framework/ui/uniform';
 
 import {
     ErrorService,
-    NumberFormat,
     StatisticsService,
     FinancialYearService,
     BrowserStorageService,
     PageStateService
-} from '../../../services/services';
-
-import {
-    UniModalService,
-} from '../../../../framework/uni-modal';
+} from '@app/services/services';
 
 import { BehaviorSubject, Subject } from 'rxjs';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { saveAs } from 'file-saver';
-
-export class BalanceData {
-    public accountId: number;
-    public accountNumber: number;
-    public accountName: string;
-    public ib: number = 0;
-    public ib_full: number = 0;
-    public ib_ud: number = 0;
-    public debet: number = 0;
-    public credit: number = 0;
-    public balance: number = 0;
-}
 
 @Component({
     selector: 'balance-search',
@@ -60,7 +40,6 @@ export class BalanceSearch implements OnInit {
     uniTableConfig: UniTableConfig;
     lookupFunction: (urlParams: HttpParams) => any;
     columnSumResolver: (urlParams: HttpParams) => Observable<{ [field: string]: number }>;
-    balanceDataList: BalanceData[] = [];
 
     loading$: Subject<boolean> = new Subject();
     private configuredFilter: string = '';
@@ -84,7 +63,7 @@ export class BalanceSearch implements OnInit {
     private activeFinancialYear: FinancialYear;
 
     toolbarconfig: IToolbarConfig = {
-        title: 'Søk på saldo'
+        title: 'Saldobalanse hovedbok'
     };
 
     private COLUMN_VISIBILITY_LOCALSTORAGE_KEY: string = 'BalanceSearchColumnVisibility';
@@ -93,12 +72,9 @@ export class BalanceSearch implements OnInit {
         private route: ActivatedRoute,
         private tabService: TabService,
         private statisticsService: StatisticsService,
-        private numberFormat: NumberFormat,
         private errorService: ErrorService,
         private financialYearService: FinancialYearService,
         private storageService: BrowserStorageService,
-        private router: Router,
-        private modalService: UniModalService,
         private pageStateService: PageStateService,
     ) { }
 
@@ -202,7 +178,6 @@ export class BalanceSearch implements OnInit {
             searchValue = splitted[1];
         }
 
-        // account.accountnumber ge 1000 and account.accountnumber le 9999 ?
         filters.push(`period.todate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)
@@ -218,10 +193,10 @@ export class BalanceSearch implements OnInit {
         let orderBy = urlParams.get('orderby');
         if (orderBy) {
             orderBy = orderBy.replace('Balance', Balance)
+                .replace('DebitCreditChange', DebitCreditChange)
                 .replace('Debet', Debet)
                 .replace('Credit', Credit)
-                .replace('DebitCreditChange', DebitCreditChange)
-                .replace('Ib', Ib_full);
+                .replace('Ib', Ib_show);
         }
 
         const selectString = 'Account.ID,Account.AccountNumber,Account.Accountname,'
@@ -256,8 +231,6 @@ export class BalanceSearch implements OnInit {
     }
 
     public addTab() {
-        // const form = this.searchParams$.getValue();
-
         // Set page state service to make sure browser navigatio works
         this.pageStateService.setPageState('AccountYear', this.activeYear + '');
         this.pageStateService.setPageState('fromDate', moment(this.fromDate.Date).format('YYYY-MM-DD'));
@@ -421,7 +394,6 @@ export class BalanceSearch implements OnInit {
             searchValue = splitted[1];
         }
 
-        // account.accountnumber ge 1000 and account.accountnumber le 9999 ?
         filters.push(`period.todate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)
@@ -436,9 +408,9 @@ export class BalanceSearch implements OnInit {
         let orderBy = urlParams.get('orderby');
         if (orderBy) {
             orderBy = orderBy.replace('Balance', Balance)
+                .replace('DebitCreditChange', DebitCreditChange)
                 .replace('Debet', Debet)
                 .replace('Credit', Credit)
-                .replace('DebitCreditChange', `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`)
                 .replace('Ib', Ib_show);
         }
 

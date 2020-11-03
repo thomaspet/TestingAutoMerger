@@ -1,6 +1,7 @@
 <uni-toolbar [config]="toolbarconfig"></uni-toolbar>
 <section class="application">
-    <div style="display: flex; padding: 1rem 0rem !important;">
+    <button (click)="toExcel()" class="c2a">Eksporter til excel</button>
+    <section class="balance-search-selecthdr">
         <uni-select
             class="balance-search-year-select"
             [config]="selectYearConfig"
@@ -8,10 +9,8 @@
             [value]="activeYear"
             (valueChange)="onYearDropdownChange($event)">
         </uni-select>
-
         <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
-        <button (click)="toExcel()" class="good" style="float: right;">Eksporter til excel</button>
-    </div>
+    </section>
 
     <mat-progress-bar
         *ngIf="loading$ | async"
