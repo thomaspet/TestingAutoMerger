@@ -6,9 +6,10 @@ import {
     BankService,
     BankAccountService,
     UniFilesService,
+    EHFService,
 } from '@app/services/services';
 import {OcrValuables, IOcrServiceResult} from '@app/models/accounting/ocr';
-import {SupplierInvoice, LocalDate, Supplier, BankAccount, BusinessRelation} from '@uni-entities';
+import {SupplierInvoice, LocalDate, Supplier, File, BankAccount, BusinessRelation} from '@uni-entities';
 import {Observable, of} from 'rxjs';
 import {safeDec} from '@app/components/common/utils/utils';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
@@ -31,6 +32,7 @@ export class OCRHelperClass {
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
         private bankService: BankService,
+        private ehfService: EHFService,
         private bankAccountService: BankAccountService,
     ) {}
 
@@ -239,6 +241,61 @@ export class OCRHelperClass {
             } else {
                 return of(null);
             }
+        }));
+    }
+
+    runEHFParse(file: File): Observable<SupplierInvoice> {
+        return this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`).pipe(
+            switchMap((invoice: SupplierInvoice) => {
+                return this.handleEHF(invoice);
+        }));
+    }
+
+   handleEHF(invoice: SupplierInvoice): Observable<SupplierInvoice> {
+        const handler = invoice.BankAccount && !invoice.BankAccount.AccountNumber && invoice.BankAccount.IBAN
+            ? this.bankService.validateIBANUpsertBank(invoice.BankAccount.IBAN)
+            : Observable.of(null);
+
+        return handler.pipe(switchMap((bankaccount: BankAccount) => {
+            if (bankaccount) {
+                invoice.BankAccount.AccountNumber = bankaccount.AccountNumber;
+                invoice.BankAccount.BankID = bankaccount.Bank.ID;
+                invoice.Supplier.Info.BankAccounts.forEach(b => {
+                    if (b.IBAN === bankaccount.IBAN) {
+                        b = invoice.BankAccount;
+                        if (invoice?.Supplier?.Info?.DefaultBankAccount?.IBAN === bankaccount.IBAN) {
+                            invoice.Supplier.Info.DefaultBankAccount = b;
+                        }
+                    }
+                });
+            }
+
+            const ocrData = <OcrValuables>{
+                Orgno: invoice?.Supplier?.OrgNumber,
+                BankAccount: invoice?.BankAccount?.AccountNumber
+            };
+
+            return this.getOrCreateSupplier(ocrData).pipe(
+                catchError(err => {
+                    console.error(err);
+                    return of(null);
+                }),
+                switchMap((supplier: Supplier) => {
+                    if (supplier) {
+                        invoice.SupplierID = supplier.ID;
+                        invoice.Supplier = supplier;
+
+                        const account = (supplier.Info.BankAccounts || []).find(acc => acc.AccountNumber === ocrData.BankAccount);
+                        invoice.BankAccount = account || null;
+                        invoice.BankAccountID = account?.ID || null;
+                    } else {
+                        invoice.SupplierID = null;
+                        invoice.Supplier = null;
+                    }
+
+                    return of(invoice);
+                })
+            );
         }));
     }
 }
