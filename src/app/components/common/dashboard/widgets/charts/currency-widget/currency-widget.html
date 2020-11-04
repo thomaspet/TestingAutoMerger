@@ -1,5 +1,5 @@
 <section class="header">
-	<h1>Valutakurser</h1>
+	<h1 routerLink="/currency/exchange" title="Gå til side for valutakurser">Valutakurser</h1>
 
 	<mat-radio-group [(ngModel)]="showChart" class="horizontal" aria-label="Visning" *ngIf="hasData">
 		<mat-radio-button [value]="true" (click)="reloadChart()">Graf</mat-radio-button>
@@ -37,7 +37,8 @@
                     <tr>
 						<th>Valuta</th>
 						<th>Kode</th>
-                        <th class="date-col align-right"> {{ dateLabel }} </th>
+						<th class="date-col align-right"> {{ dateLabelOld }} </th>
+						<th class="date-col align-right"> {{ dateLabel }} </th>
                     </tr>
                 </thead>
 
@@ -45,6 +46,7 @@
                     <tr *ngFor="let currency of currencyCodes" (click)="showChart = true; showCode(currency.FromCurrencyCode)" title="Se utvikling av valuta i graf">
 						<td>{{currency.FromCurrencyCode.Name}}</td>
 						<td>{{currency.FromCurrencyCode.Code}}</td>
+						<td class="align-right"> {{ currency.ExchangeRateOld }} </td>
                         <td class="align-right"> {{ currency.ExchangeRate }} </td>
                     </tr>
                 </tbody>

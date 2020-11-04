@@ -75,6 +75,9 @@ export class SupportAccessIndicator {
     checkForSupportUsers() {
         this.elsaContractService.getSupportUsers().subscribe(users => {
             this.supportUsers = users.filter(su => su.StatusCode === 110001); // Active
+            if (this.supportUsers[0]) {
+                this.supportUsers[0]['_supportTypeText'] = this.translateSupportType(this.supportUsers[0].SupportType);
+            }
             this.cdr.markForCheck();
         });
     }
@@ -95,5 +98,9 @@ export class SupportAccessIndicator {
             this.showDialog = false;
             this.checkForSupportUsers();
         });
+    }
+
+    translateSupportType(supportType: number): string {
+        return supportType === 0 ? 'supportbruker' : 'regnskapsfører';
     }
 }

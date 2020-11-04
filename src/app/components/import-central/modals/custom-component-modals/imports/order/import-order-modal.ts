@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { DisclaimerModal } from '../../../disclaimer/disclaimer-modal';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { User } from '@uni-entities';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'import-order-modal',
@@ -59,6 +60,7 @@ export class ImportOrderModal implements OnInit, IUniModal {
         private errorService: ErrorService,
         private modalService: UniModalService,
         private userService: UserService,
+        private router: Router
     ) {
         this.userService.getCurrentUser().subscribe(res => {
             this.user = res;
@@ -251,12 +253,13 @@ export class ImportOrderModal implements OnInit, IUniModal {
 
     // show success message
     private showToast(fileName: string, type: TemplateType) {
-        this.toastService.addToast(
-            '',
-            ToastType.good,
-            ToastTime.medium,
-            `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`
-        );
+        const action = {
+            label: 'Logg',
+            click: () => { this.router.navigate(['/import/log', { id: type }]); },
+            displayInHeader: false
+        };
+        this.toastService.addToast('', ToastType.info, ToastTime.medium,
+        `Filen er lastet opp, vennlist sjekk loggen for resultat.`, action);
     }
 
     public close() {

@@ -60,13 +60,13 @@
             (rowDelete)="onRowDeleted($event)">
         </ag-grid-wrapper>
 
-        <secttion *ngIf="session?.balance" class="alert info diff-alert align-right" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
+        <section *ngIf="session?.balance" class="alert info diff-alert align-right" [ngClass]="session?.balance >= 0 ? 'positive' : 'negative'">
             <i class="material-icons">error_outline</i>
             <span>
                 Differanse:
                 <strong>{{ session?.balance | uninumberformat: 'money'}}</strong>
             </span>
-        </secttion>
+        </section>
 
         <div class="validation_messages_container" *ngIf="errorMessages?.length">
             <section *ngFor="let message of errorMessages">

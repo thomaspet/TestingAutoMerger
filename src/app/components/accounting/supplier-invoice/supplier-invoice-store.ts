@@ -31,7 +31,7 @@ import {
     StatisticsService, AccountService, AssetsService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
-import {switchMap, catchError, map, tap} from 'rxjs/operators';
+import {switchMap, catchError, map, tap, finalize} from 'rxjs/operators';
 import {SmartBookingHelperClass, ISmartBookingResult} from './smart-booking-helper';
 import {OCRHelperClass} from './ocr-helper';
 import {JournalAndPaymentHelper, ActionOnReload} from './journal-and-pay-helper';
@@ -41,11 +41,19 @@ import {set} from 'lodash';
 import * as moment from 'moment';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
-import { IModalOptions, UniModalService, ConfirmActions, InvoiceApprovalModal, UniConfirmModalV2, UniRegisterPaymentModal, UniConfirmModalWithCheckbox } from '@uni-framework/uni-modal';
+import {
+    IModalOptions,
+    UniModalService,
+    ConfirmActions,
+    InvoiceApprovalModal,
+    UniConfirmModalV2,
+    UniRegisterPaymentModal,
+    UniConfirmModalWithCheckbox
+} from '@uni-framework/uni-modal';
 import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
-import { read } from 'fs';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -67,6 +75,9 @@ export class SupplierInvoiceStore {
     currencyCodes = [];
     companySettings: CompanySettings;
     currentMode: number = 0;
+    bankAccounts: any[] = [];
+    selectedBankAccount;
+    url = theme.theme === THEMES.SR ? '/accounting/supplier-invoice/' : '/accounting/bills/';
 
     constructor(
         private router: Router,
@@ -97,11 +108,17 @@ export class SupplierInvoiceStore {
         Observable.forkJoin(
             [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
-            this.currencyCodeService.GetAll()]
-        ).subscribe(([companySettings, types, codes]) => {
+            this.currencyCodeService.GetAll(),
+            this.getSystemBankAccounts()]
+        ).subscribe(([companySettings, types, codes, accounts]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
             this.currencyCodes = codes;
+            this.bankAccounts = accounts;
+
+            const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
+            this.selectedBankAccount = defaultAccount || accounts[0];
+
             this.loadInvoice(invoiceID);
         });
     }
@@ -143,7 +160,7 @@ export class SupplierInvoiceStore {
             // e.g simple/advanced variations of supplier-invoice, very specific whitelabel versions etc.
             if (!invoice) {
                 this.changes$.next(false);
-                this.router.navigateByUrl('/accounting/bills/0');
+                this.router.navigateByUrl(this.url + '0');
                 return;
             }
 
@@ -177,9 +194,22 @@ export class SupplierInvoiceStore {
             this.readonly$.next(invoice.StatusCode === StatusCodeSupplierInvoice.Journaled);
             this.initDataLoaded$.next(true);
 
-            if (checkAsset && this.itCanBeAnAsset(this.invoice$.value)) {
-                this.assetsService.openRegisterModal(this.invoice$.value);
+            if (checkAsset) {
+                this.itCanBeAnAsset(this.invoice$.value).subscribe((res) => {
+                    if (res) {
+                        this.assetsService.openRegisterModal(this.invoice$.value);
+                    }
+                });
             }
+        });
+    }
+
+    listInit(companySettings: CompanySettings) {
+        this.companySettings = companySettings;
+        this.getSystemBankAccounts().subscribe((accounts) => {
+            this.bankAccounts = accounts;
+            const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
+            this.selectedBankAccount = defaultAccount || accounts[0];
         });
     }
 
@@ -557,6 +587,7 @@ export class SupplierInvoiceStore {
     }
 
     sendToPayment(isOnlyPayment = true, done) {
+        const invoice = this.invoice$.value;
 
         if (!this.invoice$?.value?.BankAccountID) {
             this.toastService.addToast('Ukomplett regning', ToastType.warn, 8, 'Kan ikke opprette betaling uten at feltet "Betal til bankkonto" er fylt ut');
@@ -564,16 +595,34 @@ export class SupplierInvoiceStore {
             return;
         }
 
+        const paymentData = <InvoicePaymentData> {
+            Amount: roundTo(invoice.RestAmount),
+            AmountCurrency: roundTo(invoice.RestAmountCurrency),
+            BankChargeAmount: 0,
+            CurrencyCodeID: invoice.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: invoice.InvoiceDate,
+            AgioAccountID: 0,
+            BankChargeAccountID: this.companySettings.BankChargeAccountID,
+            AgioAmount: 0,
+            PaymentID: null,
+            DimensionsID: invoice.DefaultDimensionsID,
+            FromBankAccountID: this.selectedBankAccount?.ID
+        };
+
         const options = {
             data: {
-                supplierInvoice: this.invoice$.value,
-                onlyToPayment: isOnlyPayment
+                supplierInvoice: invoice,
+                onlyToPayment: isOnlyPayment,
+                accounts: this.bankAccounts,
+                payment: paymentData
             }
         };
 
         this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
             if (!response) {
                 done('');
+                return;
             }
 
             if (response <= ActionOnReload.SentToPaymentList) {
@@ -585,9 +634,14 @@ export class SupplierInvoiceStore {
                         (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
                         this.router.navigateByUrl('/bank/ticker?code=payment_list');
                     } else if (response > 0 && response < 3) {
-                        if (this.itCanBeAnAsset(this.invoice$.value)) {
-                            this.assetsService.openRegisterModal(this.invoice$.value);
-                        }
+                        const current = this.invoice$.value;
+                        this.itCanBeAnAsset(current).pipe(
+                            finalize(() => done('Bokført'))
+                        ).subscribe(canBeAnAsset => {
+                            if (canBeAnAsset) {
+                                this.assetsService.openRegisterModal(this.invoice$.value);
+                            }
+                        });
                     }
                 });
                 done('Faktura sendt til betaling');
@@ -649,10 +703,28 @@ export class SupplierInvoiceStore {
     }
 
     sendExpenseToPayment(): Observable<any> {
+        const invoice = this.invoice$.value;
+        const paymentData = <InvoicePaymentData> {
+            Amount: roundTo(invoice.RestAmount),
+            AmountCurrency: roundTo(invoice.RestAmountCurrency),
+            BankChargeAmount: 0,
+            CurrencyCodeID: invoice.CurrencyCodeID,
+            CurrencyExchangeRate: 0,
+            PaymentDate: invoice.InvoiceDate,
+            AgioAccountID: 0,
+            BankChargeAccountID: this.companySettings.BankChargeAccountID,
+            AgioAmount: 0,
+            PaymentID: null,
+            DimensionsID: invoice.DefaultDimensionsID,
+            FromBankAccountID: this.selectedBankAccount?.ID
+        };
+
         return this.modalService.open(ToPaymentModal, {
             data: {
-                supplierInvoice: this.invoice$.value,
-                onlyToPayment: false
+                supplierInvoice: invoice,
+                accounts: this.bankAccounts,
+                onlyToPayment: false,
+                payment: paymentData
             }
         }).onClose.pipe(switchMap((response: ActionOnReload) => {
             return of(response);
@@ -682,12 +754,29 @@ export class SupplierInvoiceStore {
     }
 
     toPaymentFromList(ID: number, onlyPay: boolean = true) {
-        return this.supplierInvoiceService.Get(ID, ['Supplier.Info', 'JournalEntry.DraftLines', 'BankAccount'])
+                return this.supplierInvoiceService.Get(ID, ['Supplier.Info', 'JournalEntry.DraftLines', 'BankAccount'])
         .pipe(switchMap((invoice) => {
+            const paymentData = <InvoicePaymentData> {
+                Amount: roundTo(invoice.RestAmount),
+                AmountCurrency: roundTo(invoice.RestAmountCurrency),
+                BankChargeAmount: 0,
+                CurrencyCodeID: invoice.CurrencyCodeID,
+                CurrencyExchangeRate: 0,
+                PaymentDate: invoice.InvoiceDate,
+                AgioAccountID: 0,
+                BankChargeAccountID: this.companySettings.BankChargeAccountID,
+                AgioAmount: 0,
+                PaymentID: null,
+                DimensionsID: invoice.DefaultDimensionsID,
+                FromBankAccountID: this.selectedBankAccount.ID
+            };
+
             return this.modalService.open(ToPaymentModal, {
                 data: {
                     supplierInvoice: invoice,
-                    onlyToPayment: onlyPay
+                    onlyToPayment: onlyPay,
+                    accounts: this.bankAccounts,
+                    payment: paymentData
                 }
             }).onClose;
         }));
@@ -789,6 +878,8 @@ export class SupplierInvoiceStore {
             DimensionsID: invoice.DefaultDimensionsID
         };
 
+        paymentData['_accounts'] = this.bankAccounts;
+
         return this.modalService.open(UniRegisterPaymentModal, {
             header: isAlsoBook ? 'Bokfør og registrer gjennomført betaling' : 'Registrer gjennomført betaling',
             message: 'Regningen vil bli registrert som betalt i systemet. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',
@@ -799,6 +890,7 @@ export class SupplierInvoiceStore {
                 currencyExchangeRate: invoice.CurrencyExchangeRate,
                 entityID: invoice.SupplierID,
                 supplierID: invoice.SupplierID,
+                isSendForPayment: true
             },
             buttonLabels: {
                 accept: isAlsoBook ? 'Bokfør og registrer betaling' : 'Registrer betaling'
@@ -853,6 +945,18 @@ export class SupplierInvoiceStore {
                 done();
             }
         });
+    }
+
+    getSystemBankAccounts() {
+        return this.statisticsService.GetAll('model=bankaccount&select=ID as ID,AccountID as AccountID'
+        + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
+        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
+        + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
+        + '&filter=companysettingsid gt 0&expand=bank,account'
+        + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
+        + '&top=50&distinct=false'
+        + '&orderby=casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,0,1)')
+            .map( x => x.Data );
     }
 
     approveOrRejectFromList(ID: number, key: string) {
@@ -957,14 +1061,22 @@ export class SupplierInvoiceStore {
     itCanBeAnAsset(current: SupplierInvoice) {
         if (current?.JournalEntry?.DraftLines?.length > 0) {
             const line = current?.JournalEntry?.DraftLines[0];
-            return this.accountService.Get(line.AccountID).pipe(
-                tap((account) => current.JournalEntry.DraftLines[0].Account = account),
-                map((account) => {
-                    return account.AccountNumber.toString().startsWith('10')
-                        || account.AccountNumber.toString().startsWith('11')
-                        || account.AccountNumber.toString().startsWith('12');
-                })
-            );
+            const accountFromLine = line.Account;
+            if (accountFromLine) {
+                return of(accountFromLine.AccountNumber.toString().startsWith('10')
+                    || accountFromLine.AccountNumber.toString().startsWith('11')
+                    || accountFromLine.AccountNumber.toString().startsWith('12'));
+
+            } else {
+                return this.accountService.Get(line.AccountID).pipe(
+                    tap((account) => current.JournalEntry.DraftLines[0].Account = account),
+                    map((account) => {
+                        return account.AccountNumber.toString().startsWith('10')
+                            || account.AccountNumber.toString().startsWith('11')
+                            || account.AccountNumber.toString().startsWith('12');
+                    })
+                );
+            }
         }
         return of(false);
     }

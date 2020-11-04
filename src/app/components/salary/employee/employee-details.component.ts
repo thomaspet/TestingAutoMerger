@@ -1,7 +1,7 @@
-import {Component, ViewChild, OnDestroy, Type} from '@angular/core';
-import {Router, ActivatedRoute, NavigationEnd} from '@angular/router';
+import { Component, ViewChild, OnDestroy, Type } from '@angular/core';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import * as _ from 'lodash';
-import {tap, finalize, map, filter, switchMap, isEmpty, catchError} from 'rxjs/operators';
+import {tap, finalize, map, filter, switchMap, isEmpty, catchError, take} from 'rxjs/operators';
 import { SalaryBalanceViewService } from '@app/components/salary/shared/services/salary-balance/salary-balance-view.service';
 import { EmployeeLeaveService } from '@app/components/salary/employee/shared/services/employee-leave.service';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
@@ -43,6 +43,7 @@ const SAVE_TRIGGER_KEY = 'save';
 const NEW_TRIGGER_KEY = 'new';
 const SELECTED_KEY = '_rowSelected';
 const UPDATE_RECURRING = '_updateRecurringTranses';
+const UPDATE_RECURRING_PERCENT = '_updateRecurringTransesPercent';
 
 interface IEmployeeSaveConfig {
     done: (message) => void;
@@ -58,7 +59,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     public busy: boolean;
     private url: string = '/salary/employees/';
     public childRoutes: any[];
-    private saveStatus: {numberOfRequests: number, completeCount: number, hasErrors: boolean};
+    private saveStatus: { numberOfRequests: number, completeCount: number, hasErrors: boolean };
 
     private employeeID: number;
     private employee: Employee;
@@ -97,11 +98,11 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                         reject: 'Nei'
                     }
                 })
-                .onClose.subscribe((res: ConfirmActions) => {
-                    if (res === ConfirmActions.ACCEPT) {
+                    .onClose.subscribe((res: ConfirmActions) => {
+                        if (res === ConfirmActions.ACCEPT) {
                             this.busy = true;
-                                this.employeeService.deleteEmployee(this.employee.ID)
-                                .finally(() => {this.busy = false; })
+                            this.employeeService.deleteEmployee(this.employee.ID)
+                                .finally(() => { this.busy = false; })
                                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
                                 .subscribe((result) => {
                                     this.router.navigateByUrl('/salary/employees');
@@ -109,7 +110,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                         }
                         this.busy = false;
                     }
-                );
+                    );
             },
             disabled: (rowModel) => {
                 if (this.employee && this.employee.ID > 0) { return false; }
@@ -170,128 +171,128 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                 tap(id => this.refreshPaths(id)),
             )
             .subscribe((id) => {
-            this.employeeID = id;
-            this.tagConfig.readOnly = !this.employeeID;
+                this.employeeID = id;
+                this.tagConfig.readOnly = !this.employeeID;
 
-            // Update cache key and clear data variables when employee ID is changed
-            super.updateCacheKey(this.router.url);
+                // Update cache key and clear data variables when employee ID is changed
+                super.updateCacheKey(this.router.url);
 
-            super.getStateSubject(SAVE_TRIGGER_KEY)
-                .subscribe((type: Type<UniEntity>) => this.triggerSave(type));
-            super.getStateSubject(NEW_TRIGGER_KEY)
-                .subscribe((type: Type<UniEntity>) => this.createNewChildEntity(type));
+                super.getStateSubject(SAVE_TRIGGER_KEY)
+                    .subscribe((type: Type<UniEntity>) => this.triggerSave(type));
+                super.getStateSubject(NEW_TRIGGER_KEY)
+                    .subscribe((type: Type<UniEntity>) => this.createNewChildEntity(type));
 
-            if (!this.employeeID) {
-                this.cacheService.clearPageCache(this.cacheKey);
-            }
+                if (!this.employeeID) {
+                    this.cacheService.clearPageCache(this.cacheKey);
+                }
 
-            this.employments = undefined;
-            this.employeeLeave = undefined;
-            this.recurringPosts = undefined;
-            this.employeeTaxCard = undefined;
-            this.categories = undefined;
-            this.taxOptions = undefined;
-            this.salarybalances = undefined;
+                this.employments = undefined;
+                this.employeeLeave = undefined;
+                this.recurringPosts = undefined;
+                this.employeeTaxCard = undefined;
+                this.categories = undefined;
+                this.taxOptions = undefined;
+                this.salarybalances = undefined;
 
-            // (Re)subscribe to state var updates
-            super.getStateSubject(EMPLOYEE_KEY)
-                .do(employee => this.updateTabStrip(employee))
-                .do(emp => this.fillInnSubEntityOnEmp(emp))
-                .subscribe((employee: Employee) => {
-                    this.employee = employee;
-                    this.posterEmployee.employee = employee;
-                    this.posterEmployee = _.cloneDeep(this.posterEmployee);
+                // (Re)subscribe to state var updates
+                super.getStateSubject(EMPLOYEE_KEY)
+                    .do(employee => this.updateTabStrip(employee))
+                    .do(emp => this.fillInnSubEntityOnEmp(emp))
+                    .subscribe((employee: Employee) => {
+                        this.employee = employee;
+                        this.posterEmployee.employee = employee;
+                        this.posterEmployee = _.cloneDeep(this.posterEmployee);
 
-                    const info = employee && employee.BusinessRelationInfo;
+                        const info = employee && employee.BusinessRelationInfo;
 
-                    let toolbarTitle = this.employee.ID ? this.employee.EmployeeNumber + ' - ' : '';
-                    if (info && info.Name) {
-                        toolbarTitle += info.Name;
-                    }
-
-                    this.toolbarConfig = {
-                        title: toolbarTitle || 'Ny ansatt',
-                        navigation: {
-                            prev: this.previousEmployee.bind(this),
-                            next: this.nextEmployee.bind(this),
-                            add: this.newEmployee.bind(this)
+                        let toolbarTitle = this.employee.ID ? this.employee.EmployeeNumber + ' - ' : '';
+                        if (info && info.Name) {
+                            toolbarTitle += info.Name;
                         }
-                    };
 
-                    this.toolbarSearchConfig = this.employeeDetailsService.setupToolbarSearchConfig(employee);
-                    this.setToolbarValidation(this.employee, this.employeeTaxCard);
+                        this.toolbarConfig = {
+                            title: toolbarTitle || 'Ny ansatt',
+                            navigation: {
+                                prev: this.previousEmployee.bind(this),
+                                next: this.nextEmployee.bind(this),
+                                add: this.newEmployee.bind(this)
+                            }
+                        };
 
-                    this.saveActions = [{
-                        label: 'Lagre',
-                        action: this.saveAll.bind(this),
-                        main: true,
-                        disabled: true
-                    }];
+                        this.toolbarSearchConfig = this.employeeDetailsService.setupToolbarSearchConfig(employee);
+                        this.setToolbarValidation(this.employee, this.employeeTaxCard);
+
+                        this.saveActions = [{
+                            label: 'Lagre',
+                            action: this.saveAll.bind(this),
+                            main: true,
+                            disabled: true
+                        }];
+                        this.checkDirty();
+                    }, err => this.errorService.handle(err));
+
+                super.getStateSubject(EMPLOYMENTS_KEY)
+                    .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
+                    .subscribe((employments: Employment[]) => {
+                        this.employments = employments;
+                        this.posterEmployee.employments = employments;
+                        this.posterEmployee = _.cloneDeep(this.posterEmployee);
+                        this.checkDirty();
+                    });
+
+                super.getStateSubject(SALARYBALANCES_KEY)
+                    .do(salaryBalances => this.checkSelectedOnChildEntities(salaryBalances, SalaryBalance))
+                    .subscribe((salarybalances) => {
+                        this.salarybalances = salarybalances;
+                        this.checkDirty();
+                    }, err => this.errorService.handle(err));
+
+                super.getStateSubject(RECURRING_POSTS_KEY).subscribe((recurringPosts) => {
+                    this.recurringPosts = recurringPosts;
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
 
-            super.getStateSubject(EMPLOYMENTS_KEY)
-                .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
-                .subscribe((employments: Employment[]) => {
-                    this.employments = employments;
-                    this.posterEmployee.employments = employments;
-                    this.posterEmployee = _.cloneDeep(this.posterEmployee);
-                    this.checkDirty();
-                });
-
-            super.getStateSubject(SALARYBALANCES_KEY)
-                .do(salaryBalances => this.checkSelectedOnChildEntities(salaryBalances, SalaryBalance))
-                .subscribe((salarybalances) => {
-                    this.salarybalances = salarybalances;
+                super.getStateSubject(EMPLOYEE_LEAVE_KEY).subscribe((employeeLeave) => {
+                    this.employeeLeave = employeeLeave;
                     this.checkDirty();
                 }, err => this.errorService.handle(err));
 
-            super.getStateSubject(RECURRING_POSTS_KEY).subscribe((recurringPosts) => {
-                this.recurringPosts = recurringPosts;
-                this.checkDirty();
-            }, err => this.errorService.handle(err));
+                super.getStateSubject(SUB_ENTITIES_KEY).subscribe((subEntities: SubEntity[]) => {
+                    this.subEntities = subEntities;
+                }, err => this.errorService.handle(err));
 
-            super.getStateSubject(EMPLOYEE_LEAVE_KEY).subscribe((employeeLeave) => {
-                this.employeeLeave = employeeLeave;
-                this.checkDirty();
-            }, err => this.errorService.handle(err));
-
-            super.getStateSubject(SUB_ENTITIES_KEY).subscribe((subEntities: SubEntity[]) => {
-                this.subEntities = subEntities;
-            }, err => this.errorService.handle(err));
-
-            super.getStateSubject('projects').subscribe((projects) => {
-                this.projects = projects;
-            });
-
-            super.getStateSubject('departments').subscribe((departments) => {
-                this.departments = departments;
-            });
-
-            super.getStateSubject('wageTypes').subscribe((wageTypes: WageType[]) => {
-                this.wageTypes = wageTypes;
-            });
-
-            super.getStateSubject(EMPLOYEE_TAX_KEY)
-                .subscribe((employeeTaxCard: EmployeeTaxCard) => {
-                    this.employeeTaxCard = employeeTaxCard;
-                    this.setToolbarValidation(this.employee, this.employeeTaxCard);
-                    // this.updateTaxAlerts(employeeTaxCard);
-                    this.checkDirty();
+                super.getStateSubject('projects').subscribe((projects) => {
+                    this.projects = projects;
                 });
 
-            super.getStateSubject('taxCardModalCallback')
-                .subscribe((options) => this.taxOptions = options);
+                super.getStateSubject('departments').subscribe((departments) => {
+                    this.departments = departments;
+                });
+
+                super.getStateSubject('wageTypes').subscribe((wageTypes: WageType[]) => {
+                    this.wageTypes = wageTypes;
+                });
+
+                super.getStateSubject(EMPLOYEE_TAX_KEY)
+                    .subscribe((employeeTaxCard: EmployeeTaxCard) => {
+                        this.employeeTaxCard = employeeTaxCard;
+                        this.setToolbarValidation(this.employee, this.employeeTaxCard);
+                        // this.updateTaxAlerts(employeeTaxCard);
+                        this.checkDirty();
+                    });
+
+                super.getStateSubject('taxCardModalCallback')
+                    .subscribe((options) => this.taxOptions = options);
 
 
-            // If employee ID was changed by next/prev button clicks employee has been
-            // pre-loaded. No need to clear and refresh in these cases
-            if (this.employee && this.employee.ID === id) {
-                super.updateState(EMPLOYEE_KEY, this.employee, false);
-            } else {
-                this.employee = undefined;
-            }
-        });
+                // If employee ID was changed by next/prev button clicks employee has been
+                // pre-loaded. No need to clear and refresh in these cases
+                if (this.employee && this.employee.ID === id) {
+                    super.updateState(EMPLOYEE_KEY, this.employee, false);
+                } else {
+                    this.employee = undefined;
+                }
+            });
 
         // Subscribe to route changes and load necessary data
         this.subscriptions
@@ -375,16 +376,16 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     private getPaths(employeeID: number, companySalary: CompanySalary): any[] {
         const disabled = employeeID === 0;
         const paths = [
-            {name: 'Detaljer', path: 'personal-details'},
-            {name: 'Skatt', path: 'employee-tax', disabled: disabled},
-            {name: 'Arbeidsforhold', path: 'employments', disabled: disabled},
-            {name: 'Faste poster', path: 'recurring-post', disabled: disabled},
-            {name: 'Forskudd/trekk', path: 'employee-salarybalances', disabled: disabled},
-            {name: 'Permisjon', path: 'employee-leave', disabled: disabled},
-            {name: 'Historiske poster', path: 'employee-trans-ticker', disabled: disabled}
+            { name: 'Detaljer', path: 'personal-details' },
+            { name: 'Skatt', path: 'employee-tax', disabled: disabled },
+            { name: 'Arbeidsforhold', path: 'employments', disabled: disabled },
+            { name: 'Faste poster', path: 'recurring-post', disabled: disabled },
+            { name: 'Forskudd/trekk', path: 'employee-salarybalances', disabled: disabled },
+            { name: 'Permisjon', path: 'employee-leave', disabled: disabled },
+            { name: 'Historiske poster', path: 'employee-trans-ticker', disabled: disabled }
         ];
         if (companySalary && companySalary.OtpExportActive) {
-            paths.push({name: 'OTP', path: 'employee-otp'});
+            paths.push({ name: 'OTP', path: 'employee-otp' });
         }
         return paths;
     }
@@ -456,7 +457,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
         }
 
         this.busy = true;
-        return this.saveAllObs({done: (m) => {}, ignoreRefresh: true}, saveObj).pipe(
+        return this.saveAllObs({ done: (m) => { }, ignoreRefresh: true }, saveObj).pipe(
             catchError((err, obs) => {
                 return this.errorService.handleRxCatch(err, obs);
             }),
@@ -534,31 +535,31 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
 
     public previousEmployee(): void {
         this.employeeService.getPrevious(this.employee.EmployeeNumber).pipe(
-                filter(emp => !!emp),
-            ).subscribe(
-                prev => {
-                    const childRoute = this.router.url.split('/').pop();
-                    this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute).then(x => {
-                        if (x) {
-                            this.employee = prev;
-                        }
-                    });
-                },
-                error => {
-                    this.errorService.handle(error);
-                }
-            );
+            filter(emp => !!emp),
+        ).subscribe(
+            prev => {
+                const childRoute = this.router.url.split('/').pop();
+                this.router.navigateByUrl(this.url + prev.ID + '/' + childRoute).then(x => {
+                    if (x) {
+                        this.employee = prev;
+                    }
+                });
+            },
+            error => {
+                this.errorService.handle(error);
+            }
+        );
     }
 
     public newEmployee(): void {
         this.employeeService.get(0).subscribe((emp: Employee) => {
-            this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then( x => {
+            this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then(x => {
                 if (x) {
                     this.employee = emp;
                 }
             });
         },
-        error => this.errorService.handle(error));
+            error => this.errorService.handle(error));
     }
 
     private getEmployee() {
@@ -781,7 +782,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
         // Update the tab to match childroute
         setTimeout(() => {
             this.tabService.addTab({
-                name: this.employee.EmployeeNumber ?  'Ansattnr. ' + this.employee.EmployeeNumber : 'Ny ansatt',
+                name: this.employee.EmployeeNumber ? 'Ansattnr. ' + this.employee.EmployeeNumber : 'Ny ansatt',
                 url: this.pageStateService.getUrl(),
                 moduleID: UniModules.Employees,
                 active: true
@@ -809,7 +810,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
         super.updateState(SAVING_KEY, true, false);
         saveAction.action = (done) => {
             this.createSaveObjects()
-                .switchMap(saveObj => this.saveAllObs({done: done}, saveObj))
+                .switchMap(saveObj => this.saveAllObs({ done: done }, saveObj))
                 .finally(() => super.updateState(SAVING_KEY, false, false))
                 .switchMap(() => this.createNewChildEntityObs(type))
                 .subscribe();
@@ -883,7 +884,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     private saveAll(done: (message: string) => void) {
         super.updateState(SAVING_KEY, true, false);
         this.createSaveObjects()
-            .switchMap(saveObj => this.saveAllObs({done: done}, saveObj))
+            .switchMap(saveObj => this.saveAllObs({ done: done }, saveObj))
             .finally(() => super.updateState(SAVING_KEY, false, false))
             .subscribe();
     }
@@ -906,10 +907,10 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
             hasErrors: false,
         };
         return this.saveEmployee(saveObjects)
-        .catch((error, obs) => {
-            config.done('Feil ved lagring');
-            return this.errorService.handleRxCatch(error, obs);
-        })
+            .catch((error, obs) => {
+                config.done('Feil ved lagring');
+                return this.errorService.handleRxCatch(error, obs);
+            })
             .switchMap(
                 (employee) => {
                     if (!this.employeeID && !config.ignoreRefresh) {
@@ -1095,53 +1096,26 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
     }
 
     private saveTax(config: IEmployeeSaveConfig, tax: EmployeeTaxCard, employee: Employee) {
-        let year = 0;
-        return this.getFinancialYearObs()
-            .do(fYear => year = fYear)
-            .map(() => tax)
-            .take(1)
-            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
-                if (!this.employeeTaxCardService.isEmployeeTaxcard2018Model(employeeTaxCard) || employeeTaxCard.Year < 2018) {
-                    return this.employeeTaxCardService.updateModelTo2018(employeeTaxCard, employee.ID);
-                } else {
-                    return Observable.of(employeeTaxCard);
-                }
-            })
-            .switchMap((employeeTaxCard: EmployeeTaxCard) => {
-                if (employeeTaxCard.Year !== year) {
-                    employeeTaxCard.ID = undefined;
-                    employeeTaxCard.Year = year;
-                }
-                this.employeeTaxCardService.setNumericValues(employeeTaxCard, year);
-
-                if (employeeTaxCard.ID === 0 || !employeeTaxCard.ID) {
-                    employeeTaxCard['_createguid'] = this.employeeTaxCardService.getNewGuid();
-                }
-                if (employeeTaxCard.ufoereYtelserAndre && !employeeTaxCard.ufoereYtelserAndreID) {
-                    employeeTaxCard.ufoereYtelserAndre['_createguid'] = this.employeeTaxCardService.getNewGuid();
-                }
-
-                if (employeeTaxCard) {
-                    return employeeTaxCard.ID
-                        ? this.employeeTaxCardService.Put(employeeTaxCard.ID, employeeTaxCard)
-                        : this.employeeTaxCardService.Post(employeeTaxCard);
-                } else {
-                    return Observable.of(undefined);
-                }
-            })
-            .catch((err, obs) => {
-                this.saveStatus.hasErrors = true;
-                return this.errorService.handleRxCatch(err, obs);
-            })
-            .finally(() => {
-                this.saveStatus.completeCount++;
-                this.checkForSaveDone(config.done);
-            })
-            .do(updatedTaxCard => {
-                if (updatedTaxCard && !config.ignoreRefresh) {
-                    super.updateState(EMPLOYEE_TAX_KEY, updatedTaxCard, false);
-                }
-            });
+        return this.employeeTaxCardService
+            .updateModelTo2018IfNeeded(tax, employee.ID)
+            .pipe(
+                map(employeeTaxCard => this.employeeTaxCardService.addCreateGuidWhereNeeded(employeeTaxCard)),
+                map(employeeTaxCard => this.employeeTaxCardService.setNumericValues(employeeTaxCard)),
+                switchMap((employeeTaxCard: EmployeeTaxCard) => this.employeeTaxCardService.save(employeeTaxCard)),
+                catchError((err, obs) => {
+                    this.saveStatus.hasErrors = true;
+                    return this.errorService.handleRxCatch(err, obs);
+                }),
+                finalize(() => {
+                    this.saveStatus.completeCount++;
+                    this.checkForSaveDone(config.done);
+                }),
+                tap(updatedTaxCard => {
+                    if (updatedTaxCard && !config.ignoreRefresh) {
+                        super.updateState(EMPLOYEE_TAX_KEY, updatedTaxCard, false);
+                    }
+                })
+            );
     }
 
     private saveEmploymentsObs(config: IEmployeeSaveConfig, emps: Employment[], employee: Employee): Observable<Employment[]> {
@@ -1149,7 +1123,8 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
         return Observable
             .of(emps)
             .pipe(
-                switchMap(empls => this.schedualEmploymentPostSave(empls))
+                switchMap(empls => this.askIfUpdateWorkPercent(empls)),
+                switchMap(empls => this.askIfUpdateDimension(empls))
             )
             .switchMap((employments: Employment[]) => {
                 const changes = [];
@@ -1168,7 +1143,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                             if (Object.keys(employment.Dimensions)
                                 .filter(x => x.indexOf('ID') > -1)
                                 .some(key => employment.Dimensions[key])) {
-                                    employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                                employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                             } else {
                                 employment.Dimensions = null;
                             }
@@ -1214,6 +1189,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                         () => {
                             if (!config.ignoreRefresh) {
                                 this.getEmployments();
+                                this.getRecurringPosts();
                             }
                         })
                     .map((emp: Employee) => {
@@ -1254,12 +1230,39 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
             );
     }
 
-    private schedualEmploymentPostSave(employments: Employment[]) {
-        const updateEmpIds = employments.filter(emp => emp[UPDATE_RECURRING]).map(emp => emp.ID);
-        if (!updateEmpIds.length) {
+    private askIfUpdateWorkPercent(employments: Employment[]) {
+        const updateWorkPercentEmpIds = employments.filter(emp => emp[UPDATE_RECURRING_PERCENT]).map(emp => emp.ID);
+        if (!updateWorkPercentEmpIds.length) {
             return of(employments);
         }
+        return this.modalService
+            .confirm({
+                header: 'Oppdatere antall på faste poster ',
+                message: 'Vil du oppdatere antall på faste månedslønnsposter fra arbeidsforhold?',
+                buttonLabels: {
+                    accept: 'Ja',
+                    reject: 'Nei',
+                }
+            })
+            .onClose
+            .pipe(
+                switchMap((userInput) => {
+                    if (userInput !== ConfirmActions.ACCEPT) {
+                        return of(employments);
+                    }
+                    employments.filter(emp => emp[UPDATE_RECURRING_PERCENT])
+                        .forEach((employment) => {
+                            employment['CustomValues'].UpdateWorkPercent = true;
+                        });
+                    return of(employments);
+                }));
+    }
 
+    private askIfUpdateDimension(employments: Employment[]) {
+        const updateWorkDimsEmpIds = employments.filter(emp => emp[UPDATE_RECURRING]).map(emp => emp.ID);
+        if (!updateWorkDimsEmpIds.length) {
+            return of(employments);
+        }
         return this.modalService
             .confirm({
                 header: 'Oppdatere dimensjoner på faste poster og trekk',
@@ -1271,26 +1274,16 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
             })
             .onClose
             .pipe(
-                tap((userInput) => {
+                switchMap((userInput) => {
                     if (userInput !== ConfirmActions.ACCEPT) {
-                        return;
+                        return of(employments);
                     }
-                    this.schedualPostSave(config => {
-                        return this.updateTransesAndSalaryBalancesFromEmployments(config, updateEmpIds);
-                    });
-                }),
-                map(() => employments),
-            );
-    }
-
-    private updateTransesAndSalaryBalancesFromEmployments(config: IEmployeeSaveConfig, updateEmpIds: number[]) {
-        return this.salarybalanceService
-                    .updateFromEmployments(updateEmpIds)
-                    .pipe(
-                        switchMap(() => this.salaryTransService.updateFromEmployments(updateEmpIds)),
-                        filter((transes) => !config.ignoreRefresh && !!transes.length),
-                        tap(() => setTimeout(() => this.getRecurringPosts())),
-                    );
+                    employments.filter(emp => emp[UPDATE_RECURRING])
+                        .forEach((employment) => {
+                            employment['CustomValues'].UpdateDimension = true;
+                        });
+                    return of(employments);
+                }));
     }
 
     private saveSalarybalancesObs(config: IEmployeeSaveConfig, salBals: SalaryBalance[], employee: Employee): Observable<SalaryBalance[]> {
@@ -1454,18 +1447,18 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                 }
                 return from(this.runTransSave(obsList))
                     .pipe(finalize(() => {
-                            this.saveStatus.completeCount++;
-                            if (hasErrors) {
-                                this.saveStatus.hasErrors = true;
-                            }
-                            if (!config.ignoreRefresh) {
-                                super.updateState(RECURRING_POSTS_KEY,
-                                    recurringPosts.filter(x => !x.Deleted),
-                                    recurringPosts.some(trans => trans['_isDirty']));
-                            }
+                        this.saveStatus.completeCount++;
+                        if (hasErrors) {
+                            this.saveStatus.hasErrors = true;
+                        }
+                        if (!config.ignoreRefresh) {
+                            super.updateState(RECURRING_POSTS_KEY,
+                                recurringPosts.filter(x => !x.Deleted),
+                                recurringPosts.some(trans => trans['_isDirty']));
+                        }
 
-                            this.checkForSaveDone(config.done);
-                        }),
+                        this.checkForSaveDone(config.done);
+                    }),
                     );
             });
     }
@@ -1525,7 +1518,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
                                 if (Object.keys(leave.Employment.Dimensions)
                                     .filter(x => x.indexOf('ID') > -1)
                                     .some(key => leave.Employment.Dimensions[key])) {
-                                        leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
+                                    leave.Employment.Dimensions['_createguid'] = this.employmentService.getNewGuid();
                                 } else {
                                     leave.Employment.Dimensions = null;
                                 }
@@ -1577,7 +1570,7 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
 
     private populateCategoryFilters(categories) {
         this.categoryFilter = categories.map(x => {
-            return {linkID: x.ID, title: x.Name};
+            return { linkID: x.ID, title: x.Name };
         });
     }
 

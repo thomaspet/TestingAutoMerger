@@ -227,7 +227,7 @@ export class AssetsActions {
         if (currentAsset.Dimensions && !currentAsset.Dimensions.ID) {
             currentAsset.Dimensions['_createguid'] = this.assetsService.getNewGuid();
         }
-        if (currentAsset.DepreciationAccountID !== currentAsset.DepreciationAccount.ID) {
+        if (currentAsset.DepreciationAccountID !== currentAsset.DepreciationAccount?.ID) {
             currentAsset.DepreciationAccount = undefined;
         }
         this.store.currentAsset = lodash.merge(currentAsset, partialAsset);
@@ -260,7 +260,7 @@ export class AssetsActions {
             }
         }
         if (changes['BalanceAccountID'] && changes['BalanceAccountID'].currentValue) {
-            if (changes['BalanceAccountID'].currentValue !== currentAsset.BalanceAccount.ID) {
+            if (changes['BalanceAccountID'].currentValue !== currentAsset.BalanceAccount?.ID) {
                 currentAsset.BalanceAccount = undefined;
             }
             const options: IModalOptions = {

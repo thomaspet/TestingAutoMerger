@@ -105,4 +105,8 @@ export const TRANSLATION_OVERRIDES = {
             'PAYROLL_RUN_TITLE': 'Lønnskjøring',
         },
     },
+
+    COMMON: {
+        'APPLICATION_NAME': 'DNB Regnskap',
+    }
 };

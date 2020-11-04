@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {Observable, of} from 'rxjs';
+import {Observable, of, forkJoin} from 'rxjs';
 import {map} from 'rxjs/operators';
 import { BizHttp, UniHttp } from '@uni-framework/core/http';
-import { AmeldingData, PayrollRunInAmeldingPeriod, StdWageType } from '@uni-entities';
+import { AmeldingData, PayrollRunInAmeldingPeriod, SalBalType, StdWageType } from '@uni-entities';
 import { AltinnAuthenticationData } from '@app/models/AltinnAuthenticationData';
 import { StatisticsService } from '@app/services/common/statisticsService';
 export interface IAmeldingPeriod {
@@ -124,8 +124,8 @@ export class AMeldingService extends BizHttp<AmeldingData> {
     }
 
     public CheckGarnishmentInPayroll(year: number, period: number ): Observable<Boolean> {
-        const filter = `month(Paydate) eq ${period} and year(Paydate) eq ${year} and isnull(StatusCode,0) gt 0`;
-        return this.statisticsService
+        const filter = `month(PayrollRun.Paydate) eq ${period} and year(PayrollRun.Paydate) eq ${year} and isnull(PayrollRun.StatusCode,0) gt 0`;
+        return forkJoin([this.statisticsService
         .GetAllUnwrapped(
             `Select=count(ID) as count&` +
             `model=PayrollRun&` +
@@ -133,10 +133,17 @@ export class AMeldingService extends BizHttp<AmeldingData> {
             `filter= ` + filter +
             ` and WageType.StandardWageTypeFor eq ${StdWageType.Garnishment} and WageType.ValidYear ge 2021` +
             ` and (WageType.IncomeType ne 'Utleggstrekk' or WageType.Description ne 'utleggstrekkSkatt')`
-        )
-        .pipe(
-            map(data => !data[0].count)
-        );
+        ),
+        this.statisticsService
+        .GetAllUnwrapped(
+            `Select=count(ID) as count&` +
+            `model=SalaryBalanceLine&` +
+            `expand=SalaryBalance,SalaryTransaction,SalaryTransaction.PayrollRun&` +
+            `join=WageType on SalaryTransaction.WageTypeId eq WageType.Id and WageType.ValidYear ge 2021&` +
+            `filter= ` + filter + ` and SalaryBalance.InstalmentType eq ${SalBalType.Garnishment}` +
+                ` and (isnull(WageType.IncomeType, 'null') ne 'Utleggstrekk'  or isnull(WageType.Description, 'null') ne 'utleggstrekkSkatt' )`
+        )]).pipe(
+            map(([paytrans, salarytrans]) => (paytrans[0].count === 0  && salarytrans[0].count === 0)));
     }
 
 

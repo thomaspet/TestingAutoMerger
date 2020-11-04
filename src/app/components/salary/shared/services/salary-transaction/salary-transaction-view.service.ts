@@ -28,7 +28,7 @@ export class SalaryTransactionViewService {
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel: any) => {
                 const vatType = rowModel.VatType;
-                if (vatType) {
+                if (vatType && rowModel[fromDateField]) {
                     return `${vatType.VatCode}: ${this.getVatPercent(vatType, rowModel, fromDateField)}%`;
                 }
                 return '';

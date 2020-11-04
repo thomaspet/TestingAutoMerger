@@ -33,6 +33,10 @@
                         </ng-template>
                     </dropdown-menu>
 
+                </section>
+
+                <section class="balance-section">
+                    <span>Utgående saldo bank:</span>
                     <span class="nowrap" [ngClass]="session.bankBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.bankBalance | uninumberformat: 'money'}}</span>
                 </section>
 
@@ -48,6 +52,12 @@
             </section>
 
             <section class="center-section">
+
+                <span class="top-center-imbalance-warning">
+                    <i class="material-icons">warning</i>
+                    Avvik i saldo: {{session.totalImbalance | uninumberformat: 'money' || '0.00'}}
+                </span>
+
 
                 <section class="reconciliation-summary" [attr.aria-busy]="session.preparing">
                     <header>
@@ -71,11 +81,6 @@
                         <section *ngIf="session.status == 5" class="info-box warn">
                             Du har poster {{ session.journalEntryMode === 0 ? 'i regnskapet' : session.journalEntryMode === 1 ? 'på kunder' : 'på leverandører'  }} som ikke finnes på bankutskriften.
                         </section>
-<!--
-                        <section *ngIf="session.status == 6" class="info-box c2a">
-                            Du er nesten ferdig!
-                            <article>Klikk på 'Lagre' for å fullføre merkingen!</article>
-                        </section> -->
 
                         <section *ngIf="session.status == 7" class="info-box good">
                             <i style="font-size: 40pt" class="material-icons">done_all</i>
@@ -134,14 +139,14 @@
 
             <section class="list-section">
                 <section class="list-header">
-                    <!-- <i class="material-icons-outlined">article</i> -->
                     <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 0" (click)="changeMode(0);" title="Se alle poster i regnskapet i perioden">Regnskap - {{selectedBankAccount?.Account?.AccountNumber}} ({{ session.originalCounter }})</span>
                     <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 1" (click)="changeMode(1);" title="Viser åpne poster på dine kunder">Kunde ({{session.customerCounter}})</span>
                     <span class="accounting-name" [class.selected-value]="session.journalEntryMode === 2" (click)="changeMode(2);" title="Viser åpne poster på dine leverandører">Leverandør ({{session.supplierCounter}})</span>
-                    <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'">
-                        <i class="material-icons-outlined" *ngIf="session.totalImbalance" [matTooltip]="'Det er differanse mellom saldo i bank og saldo i regnskapet'"> info </i>
-                        {{session.journalEntryBalance | uninumberformat: 'money' || '0.00'}}
-                    </span>
+                </section>
+
+                <section class="balance-section">
+                    <span>Utgående saldo regnskap:</span>
+                    <span class="nowrap" [ngClass]="session.journalEntryBalance >= 0 ? 'positive' : 'negative'" style="margin-right: 1rem;">{{session.journalEntryBalance | uninumberformat: 'money'}}</span>
                 </section>
 
                 <bank-statement-entries *ngIf="!cleanUp"

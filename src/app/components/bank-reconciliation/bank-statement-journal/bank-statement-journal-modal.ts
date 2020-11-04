@@ -3,7 +3,7 @@ import {environment} from 'src/environments/environment';
 import {tap} from 'rxjs/operators';
 import {filterInput, getDeepValue} from '@app/components/common/utils/utils';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry} from '@app/services/services';
+import {BankJournalSession, ErrorService, IMatchEntry, DebitCreditEntry, CompanySettingsService} from '@app/services/services';
 import {BankAccount, BankStatementRule, ValidationLevel} from '@uni-entities';
 import {UniTableConfig, UniTableColumn, UniTableColumnType} from '@uni-framework/ui/unitable';
 import {IVatType} from '@uni-framework/interfaces/interfaces';
@@ -53,34 +53,41 @@ export class BankStatementJournalModal implements IUniModal {
         private modalService: UniModalService,
         private errorService: ErrorService,
         private ruleService: BankStatementRuleService,
+        private companySettingsService: CompanySettingsService,
         public session: BankJournalSession,
     ) {
         this.loadRules();
     }
 
     ngOnInit() {
-        const data = this.options.data || {};
-        this.bankAccounts = data.bankAccounts;
-        this.selectedAccountID = data.selectedAccountID;
+        const init = () => {
+            const data = this.options.data || {};
+            this.bankAccounts = data.bankAccounts;
+            this.selectedAccountID = data.selectedAccountID;
 
-        this.matchEntries = data.entries || [];
+            this.matchEntries = data.entries || [];
+            this.session.initialize(0, this.selectedAccountID, 'bank').subscribe(
+                () => {
+                    this.matchEntries.forEach(entry => {
+                        this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
+                    });
+
+                    this.session.ensureRowCount(3);
+                    this.resetTableLayout();
+                    this.busy = false;
+                },
+                err => {
+                    this.errorService.handle(err);
+                    this.busy = false;
+                }
+            );
+        };
 
         this.busy = true;
-        this.session.initialize(0, this.selectedAccountID, 'bank').subscribe(
-            () => {
-                this.matchEntries.forEach(entry => {
-                    this.session.addRowFromMatchEntry(this.selectedAccountID, entry);
-                });
-
-                this.session.ensureRowCount(3);
-                this.resetTableLayout();
-                this.busy = false;
-            },
-            err => {
-                this.errorService.handle(err);
-                this.busy = false;
-            }
-        );
+        this.companySettingsService.Get(1).subscribe(cs => {
+            this.session.companySettings = cs;
+            init();
+        }, err => init());
     }
 
     public closeEditor() {

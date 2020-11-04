@@ -9,9 +9,15 @@
         <section class="to-payment-modal-conatiner">
 
             <section class="data-summary-container" *ngIf="supplierInvoice || payment">
-                <span> {{ supplierInvoice?.Supplier.Info.Name || "Til konto"}}: {{ supplierInvoice?.BankAccount.AccountNumber || payment?.ToBankAccount.AccountNumber | uniaccountnumber }} </span>
-                <span> Netto: {{ total.net | uninumberformat: 'money' }} + MVA: {{ total.vat | uninumberformat: 'money' }} = <strong>Totalt: kr. {{ total.sum | uninumberformat: 'money' }}</strong> </span>
-                <span> <strong>Forfallsdato:</strong> {{ supplierInvoice?.PaymentDueDate || payment?.DueDate | date: 'dd.MM.yyyy' }} </span>
+                <span> Betaling til {{ supplierInvoice?.Supplier?.Info?.Name || 'leverandør' }} </span>
+
+                <uni-form
+                    [model]="current$"
+                    [fields]="fields$"
+                    [config]="{showLabelAbove: true, autoFocus: true}"
+                    (changeEvent)="isDirty = true">
+                </uni-form>
+
             </section>
 
             <section class="outgoing-item-container" *ngFor="let item of VALUE_ITEMS" [ngClass]="{ 'checked': item.selected, 'disabled': item.disabled || !!errorMessage }" (click)="valueItemSelected(item)" title="{{ item.disabled ? 'Du må ha aktiv autobankavtale for å sende betaling rett til bank' : '' }}">

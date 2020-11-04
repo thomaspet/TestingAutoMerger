@@ -80,6 +80,7 @@ export interface ElsaContractType {
     IsActive: boolean;
     IsDefault: boolean;
     IsPublic: boolean;
+    ForceSameBank: boolean;
     Label: string;
     MaxCompanies: number;
     MaxUsers: number;

@@ -1,0 +1,11 @@
+<section *ngIf="sum || sum === 0" class="footer-section">
+    <h2>{{ 'SETTINGS.INCOMING_BALANCE.TOTALS.TOTAL' | translate }}</h2>
+    {{sum | unicurrency}}
+</section>
+<section class="footer-section" [ngClass]="{ 'warn': diff}">
+    <h2>{{ 'SETTINGS.INCOMING_BALANCE.TOTALS.DIFF' | translate }}</h2>
+    <section>
+        <i class="material-icons" [ngClass]="{ 'warn': diff}">{{diff ? 'info' : 'check_circle_outline'}}</i>
+        {{diff | unicurrency}}
+    </section>
+</section>

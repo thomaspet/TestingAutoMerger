@@ -68,11 +68,11 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         ],
                         expands: ['customer']
                     },
-                    // {
-                    //     name: 'NAVBAR.BATCH_INVOICE',
-                    //     url: '/sales/batch-invoices',
-                    //     activeInSidebar: true,
-                    // },
+                    {
+                        name: 'NAVBAR.BATCH_INVOICE',
+                        url: '/sales/batch-invoices',
+                        activeInSidebar: true,
+                    },
                     {
                         name: 'NAVBAR.REMINDER',
                         url: '/sales/reminders',
@@ -156,7 +156,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     },
                     {
                         name: 'NAVBAR.SUPPLIER_INVOICE',
-                        url: '/accounting/bills',
+                        url: '/accounting/supplier-invoice',
                         moduleID: UniModules.Bills,
                         activeInSidebar: true,
                         isSuperSearchComponent: true,
@@ -207,6 +207,23 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         url: '/accounting/journalentry',
                         moduleID: UniModules.Accounting,
                         activeInSidebar: true
+                    },
+                    {
+                        name: 'Leverandørfaktura',
+                        url: '/accounting/bills',
+                        moduleID: UniModules.Bills,
+                        activeInSidebar: false,
+                        isSuperSearchComponent: true,
+                        moduleName: 'SupplierInvoice',
+                        shortcutName: 'Ny regning',
+                        prefix: ['r', 'regning'],
+                        selects: [
+                            {key: 'ID', isNumeric: true},
+                            {key: 'InvoiceNumber', isNumeric: true},
+                            {key: 'BusinessRelation.Name', isNumeric: false}
+                        ],
+                        joins: ['Supplier.BusinessRelationid eq BusinessRelation.id'],
+                        expands: ['Supplier']
                     },
                     {
                         name: 'NAVBAR.BUDGET',

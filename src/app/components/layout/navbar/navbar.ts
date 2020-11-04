@@ -61,7 +61,7 @@ export class UniNavbar {
                 this.isTestCompany = auth.activeCompany.IsTest;
                 this.isDemo = auth.isDemo;
 
-                this.showDemoPackageSelector = auth.isDemo && theme.theme === THEMES.EXT02;
+                this.showDemoPackageSelector = auth.isDemo && (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR);
 
                 if (auth.isDemo) {
                     const contract = (auth.user.License && auth.user.License.ContractType) || <ContractLicenseType> {};

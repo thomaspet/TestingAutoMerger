@@ -29,7 +29,7 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
     ],
     template: `
         <section role="dialog" class="uni-modal uni-autobank-agreement-modal uni-redesign" [class.step2]="steps === 2">
-            <i class="material-icons close-bankagreement-button" (click)="close()"> close </i>
+            <i class="material-icons close-bankagreement-button" (click)="close(false)"> close </i>
             <div style="width: 20vw; flex: 1" class="progressbar_container">
                 <p> Veiviser for ny autobank avtale </p>
                 <ul class="autobank_progressbar">
@@ -440,8 +440,8 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         });
     }
 
-    public close() {
-        this.onClose.emit(true);
+    public close(value: boolean = true) {
+        this.onClose.emit(value);
     }
 
     public onFormChange(event) {

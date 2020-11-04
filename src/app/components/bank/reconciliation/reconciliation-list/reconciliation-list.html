@@ -23,7 +23,7 @@
 
                 <tbody>
                     <tr *ngFor="let account of bankAccounts">
-                        <td> {{ account.BankAccountNumber }} </td>
+                        <td> {{ account.AccountNumber }} </td>
                         <td>
                             {{ account.AccountName }}
                         </td>
@@ -34,7 +34,7 @@
                             </a>
                         </td>
                         <td>
-                            <i #toggle class="material-icons">more_vert</i>
+                            <i #toggle class="material-icons">more_horiz</i>
                             <dropdown-menu [trigger]="toggle">
                                 <ng-template>
                                     <section class="dropdown-menu-item"

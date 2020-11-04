@@ -16,6 +16,7 @@ import * as moment from 'moment';
 import {Observable, of} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -433,23 +434,40 @@ export class BankReconciliation {
             title: 'Bankavstemming',
             contextmenu: [
                 {
-                    label: 'Last opp ny kontoutskrift',
-                    action: () => { this.openImportModal(); }
-                },
-                {
-                    label: 'Bokføre bankposter',
+                    label: 'Bokfør alle bankposter i listen',
                     action: () => { this.openJournalModal(true); }
                 },
                 {
                     label: 'Se etter match-forslag',
                     action: () => { this.checkSuggest(true); }
+                },
+                {
+                    label: 'Opprett bankposter manuelt',
+                    action: () => { this.registerStatementManually(); }
+                },
+                {
+                    label: 'Legg til kontoutskrift',
+                    action: () => { this.openImportModal(); }
                 }
             ],
             period: this.bankPeriod
         };
     }
 
-    public canDeactivate(): boolean | Observable<boolean> {
+    registerStatementManually() {
+        this.modalService.open(ManualBankStatementRegisterModal, {
+            data: {
+                AccountID: this.selectedBankAccount.AccountID
+            },
+            closeOnClickOutside: false
+        }).onClose.subscribe((response) => {
+            if (response) {
+                this.onAccountChange();
+            }
+        });
+    }
+
+    canDeactivate(): boolean | Observable<boolean> {
         if (!this.session.closedGroups.length) {
             return true;
         }

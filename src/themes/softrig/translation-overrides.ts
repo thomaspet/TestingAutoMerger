@@ -1,1 +1,5 @@
-export const TRANSLATION_OVERRIDES = { };
+export const TRANSLATION_OVERRIDES = {
+    COMMON: {
+        'APPLICATION_NAME': 'Softrig',
+    }
+ };

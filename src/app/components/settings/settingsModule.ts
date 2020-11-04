@@ -17,8 +17,6 @@ import {ChangeCompanySettingsPeriodSeriesModal} from './companySettings/ChangeCo
 import {UniCompanySettingsView} from './companySettings/company-settings';
 import {UniBankSettings} from './bank-settings/bank-settings';
 import {BankSettingsAccountlist} from './bank-settings/bank-accounts';
-import {CompanyBankAccountModal} from './bank-settings/company-bank-account-modal';
-import {CompanyBankAccountEdit} from './bank-settings/bank-account-edit';
 
 import {VatTypeSettingsList} from './accounting-settings/vattype-settings-list/vattype-settings-list';
 import {VatTypeSettingsDetails} from './accounting-settings/vattypedetails/vattype-settings-details';
@@ -109,8 +107,6 @@ import {OpeningBalanceGuard} from '@app/components/settings/opening-balance/open
         VatDeductionSettingsGroupSetupModal,
         EiendelerSettings,
         BankSettingsAccountlist,
-        CompanyBankAccountModal,
-        CompanyBankAccountEdit
     ],
     providers: [
         SubEntitySettingsService,

@@ -106,7 +106,7 @@ export class CreateOpeningBalanceModal implements IUniModal {
                 Label: 'Skal selskapet registreres med overkurs?',
                 Tooltip: {
                     Text: 'Dersom det innbetales inn et beløp per aksje som overstiger aksjens pålydende, kalles dette overkurs. ' +
-                        'Sum overkurs skal stå i stiftelsesdokumentet, og skal registreres som en del av åpningsbalansen.'
+                        'Sum overkurs skal stå i stiftelsesdokumentet, og skal registreres som en del av den inngående balansen.'
                 },
                 FieldType: FieldType.RADIOGROUP,
                 Options: {

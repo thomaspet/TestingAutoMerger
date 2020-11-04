@@ -1,10 +1,14 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import { SupplierInvoice, Payment, JournalEntryLine } from '@uni-entities';
+import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine } from '@uni-entities';
 import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService } from '@app/services/services';
 import {ActionOnReload} from '../../journal-and-pay-helper';
-import { of, Observable } from 'rxjs';
+import { of, Observable, BehaviorSubject } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
+import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces';
+import { FieldType } from '@uni-framework/ui/uniform';
+import * as moment from 'moment';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'to-payment-modal',
@@ -16,7 +20,9 @@ export class ToPaymentModal implements IUniModal {
     @Output() onClose = new EventEmitter();
 
     supplierInvoice: SupplierInvoice;
-    payment: Payment;
+    current$ = new BehaviorSubject(null);
+    fields$ = [];
+    payment: InvoicePaymentData;
     journalEntryLine: JournalEntryLine;
     isPaymentOnly: boolean;
 
@@ -24,8 +30,8 @@ export class ToPaymentModal implements IUniModal {
     onlyToPayment = false;
     hasErrors = false;
     errorMessage = '';
-
     errorOncloseValue = 0;
+    accounts: any[] = [];
     total = {
         net: 0,
         vat: 0,
@@ -43,10 +49,15 @@ export class ToPaymentModal implements IUniModal {
 
     ngOnInit() {
         this.supplierInvoice = this.options?.data?.supplierInvoice;
+        this.accounts = this.options?.data?.accounts;
+        this.fields$ = this.getFormFields();
         this.payment = this.options?.data?.payment;
+        this.current$.next(this.payment);
         this.journalEntryLine = this.options?.data?.journalEntryLine;
         this.isPaymentOnly = this.options?.data?.isPaymentOnly ?? false;
         this.onlyToPayment = this.options?.data?.onlyToPayment;
+
+        this.supplierInvoice['_mainAccount'] = this.supplierInvoice['_mainAccount'] || this.accounts[0];
 
         this.VALUE_ITEMS = this.getValueItems();
 
@@ -67,7 +78,7 @@ export class ToPaymentModal implements IUniModal {
                 this.total.net += net;
             }
 
-            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0) {
+            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || theme.theme !== THEMES.EXT02) {
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
             }
@@ -114,7 +125,7 @@ export class ToPaymentModal implements IUniModal {
 
     sendToPaymentList() {
         if (!this.isPaymentOnly) {
-            this.supplierInvoiceService.sendForPayment(this.supplierInvoice.ID).subscribe(res => {
+            this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(res => {
                 this.onClose.emit(this.onlyToPayment ? ActionOnReload.SentToPaymentList : ActionOnReload.JournaledAndSentToPaymentList);
             }, err => {
                 this.busy = false;
@@ -137,7 +148,7 @@ export class ToPaymentModal implements IUniModal {
     createPaymentAndSendToBank() {
         if (!this.isPaymentOnly) {
             // Creates a payment for the supplier invoice
-            this.supplierInvoiceService.sendForPayment(this.supplierInvoice.ID).subscribe(payment => {
+            this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(payment => {
                 // Send that batch to the bank directly
                 this.sendAutobankPayment(payment);
             }, err => {
@@ -189,6 +200,41 @@ export class ToPaymentModal implements IUniModal {
                 value: 2,
                 disabled: false
             }
+        ];
+    }
+
+    getFormFields() {
+        return [
+            {
+                Property: 'Amount',
+                FieldType: FieldType.NUMERIC,
+                Label: 'Sum til betaling',
+                Classes: 'bill-small-field right',
+                Options: {
+                    decimalLength: 2,
+                    decimalSeparator: ','
+                }
+            },
+            {
+                Property: 'PaymentDate',
+                FieldType: FieldType.LOCAL_DATE_PICKER,
+                Label: 'Forfallsdato',
+                Classes: 'bill-small-field right',
+            },
+            {
+                Property: 'FromBankAccountID',
+                FieldType: FieldType.DROPDOWN,
+                Label: 'Betal fra konto',
+                Hidden: !this.accounts.length,
+                Options: {
+                    source: this.accounts,
+                    valueProperty: 'ID',
+                    template: (item) => item.AccountNumber + ' - ' + item.AccountName,
+                    debounceTime: 200,
+                    searchable: false,
+                    hideDeleteButton: true,
+                }
+            },
         ];
     }
 }

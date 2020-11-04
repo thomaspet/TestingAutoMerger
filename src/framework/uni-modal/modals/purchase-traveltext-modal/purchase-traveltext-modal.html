@@ -73,7 +73,7 @@
                 {{productName}} er nå aktivert.
                 <br><br>Du kan logge deg på web eller vår app med brukernavn og passord du
                 mottar på epost. Dine godkjente reiser og utlegg vil automatisk bli overført til
-                {{ isSrEnvironment ? 'SR-Bank Regnskap' : 'Uni Economy' }}.
+                {{ appName }}.
                 <br><br>Logg inn på web: 
                 <a (click)="openLinkInNewTab(isSrEnvironment ? 'https://reise.sr-bank.no' : 'https://client.traveltext.no')">
                     {{ isSrEnvironment ? 'https://reise.sr-bank.no' : 'https://client.traveltext.no' }}

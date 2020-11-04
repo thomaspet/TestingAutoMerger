@@ -3,7 +3,7 @@ import {HttpParams} from '@angular/common/http';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 
 import {IUniModal, IModalOptions, UniModalService, ConfirmActions} from '@uni-framework/uni-modal';
-import {QueryItem, QueryBuilderField} from './query-builder/query-builder';
+import {QueryItem, QueryBuilderField} from '@app/components/common/query-builder/query-builder';
 import {BankStatementRule} from '@uni-entities';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {StatisticsService, BankStatementRuleService, ErrorService, AccountService} from '@app/services/services';

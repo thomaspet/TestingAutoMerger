@@ -86,7 +86,9 @@ export class CompanyCreationWizard {
             this.step2Form.addControl('AccountNumber', new FormControl('', Validators.required));
         }
 
-        if (theme.theme === THEMES.UE) {
+        if (this.authService.publicSettings?.PriceListUrl) {
+            this.priceListLink = this.authService.publicSettings.PriceListUrl;
+        } else if (theme.theme === THEMES.UE) {
             this.priceListLink = 'https://info.unieconomy.no/priser';
         } else if (theme.theme === THEMES.SR) {
             this.priceListLink = 'https://www.sparebank1.no/nb/sr-bank/bedrift/kundeservice/bestill/prisliste.html';
@@ -164,6 +166,12 @@ export class CompanyCreationWizard {
     }
 
     step1FormSubmit() {
+        if (!this.step1Form.get('Country').value) {
+            this.step1Form.controls.Country.setValue('Norge');
+        }
+        if (!this.step1Form.get('CountryCode').value) {
+            this.step1Form.controls.CountryCode.setValue('NO');
+        }
         this.step1Form.markAllAsTouched();
         if (this.step1Form.valid) {
             this.currentStep = STEPS.COMPANY_STEP2;

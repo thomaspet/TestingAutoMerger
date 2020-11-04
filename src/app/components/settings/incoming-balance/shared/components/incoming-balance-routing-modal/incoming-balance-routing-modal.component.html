@@ -1,0 +1,19 @@
+<section role="dialog" class="uni-modal">
+    <header>
+        {{ 'SETTINGS.INCOMING_BALANCE.ROUTING_MODAL.HEADER' | translate }}
+    </header>
+    <article>
+        <p>{{ 'SETTINGS.INCOMING_BALANCE.ROUTING_MODAL.QUESTION' | translate }}</p>
+        <section class="outgoing-item-container" *ngFor="let item of valueItems" [ngClass]="{ 'checked': item.isChecked }" (click)="valueItemSelected(item)">
+            <i class="material-icons"> {{ item.isChecked ? 'radio_button_checked' : 'radio_button_unchecked' }} </i>
+            <section class="outgoing-text-container">
+                <p class="value-header"> {{ item.label }} </p>
+                <p> {{ item.infoText }} </p>
+            </section>
+        </section>
+    </article>
+    <footer>
+        <button class="secondary" (click)="cancel()">{{ 'COMMON.CANCEL' | translate }}</button>
+        <button class="c2a" (click)="accept()">{{ 'COMMON.CONTINUE' | translate }}</button>
+    </footer>
+</section>

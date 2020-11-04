@@ -1,0 +1,11 @@
+
+<uni-toolbar [config]="{title: 'Utgift'}" [saveactions]="toolbarActions"></uni-toolbar>
+
+<uni-ticker-wrapper
+    [tickerCode]="tickercode"
+    [showFiltersAsNavbar]="true"
+    [actionOverrides]="actionOverrides"
+    [columnOverrides]="columnOverrides"
+    [disableSubTickers]="true"
+    (rowSelected)="onRowSelected($event)">
+</uni-ticker-wrapper>

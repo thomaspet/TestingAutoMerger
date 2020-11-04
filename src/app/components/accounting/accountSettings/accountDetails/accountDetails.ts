@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, SimpleChange, OnInit} from '@angular/core';
+import {Component, Input, Output, EventEmitter, SimpleChange, OnInit, SimpleChanges} from '@angular/core';
 import {BehaviorSubject, forkJoin} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
@@ -24,6 +24,9 @@ import {RequestMethod} from '@uni-framework/core/http';
 import * as _ from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {HttpClient} from '@angular/common/http';
+import {map, switchMap, tap} from 'rxjs/operators';
+import {AltinnAccountLinkService} from '@app/services/accounting/altinnAccountLinkService';
 
 @Component({
     selector: 'account-details',
@@ -32,7 +35,7 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
 export class AccountDetails implements OnInit {
     @Input() public inputAccount: Account;
     @Output() public accountSaved = new EventEmitter<Account>();
-    @Output() public changeEvent = new EventEmitter<Account>();
+    @Output() public changeEvent = new EventEmitter<SimpleChanges>();
 
     account$ = new BehaviorSubject(null);
     dimensions$ = new BehaviorSubject({});
@@ -49,6 +52,7 @@ export class AccountDetails implements OnInit {
 
     invalidateDimensionsCache = false;
     canDeleteAccount: boolean;
+    altinnAccountLinkCodes: any;
 
     constructor(
         private permissionService: FeaturePermissionService,
@@ -62,6 +66,8 @@ export class AccountDetails implements OnInit {
         private costAllocationService: CostAllocationService,
         private dimensionSettingsService: DimensionSettingsService,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
+        private http: HttpClient,
+        private altinnAccountLinkService: AltinnAccountLinkService
     ) {}
 
     public ngOnInit() {
@@ -76,13 +82,14 @@ export class AccountDetails implements OnInit {
     }
 
     private setup() {
-        forkJoin(
+        forkJoin([
             this.currencyCodeService.GetAll(null),
             this.vatTypeService.GetAll(null),
             this.accountGroupService.GetAll('orderby=GroupNumber'),
             this.vatDeductionGroupService.GetAll(null),
-            this.accountService.getSaftMappingAccounts()
-        ).subscribe(
+            this.accountService.getSaftMappingAccounts(),
+            this.http.get('/assets/altinnAccountLinkCodes_2020.json')
+        ]).subscribe(
             (dataset) => {
                 this.currencyCodes = dataset[0];
                 this.vattypes = dataset[1];
@@ -91,7 +98,12 @@ export class AccountDetails implements OnInit {
                 );
                 this.vatDeductionGroups = dataset[3];
                 this.saftMappingAccounts = dataset[4];
-
+                this.altinnAccountLinkCodes = Object.keys(dataset[5]).map((key) => {
+                    return {
+                        code: key,
+                        name: dataset[5][key]
+                    };
+                });
                 this.extendFormConfig();
                 this.setDimensionsForm();
             },
@@ -108,7 +120,9 @@ export class AccountDetails implements OnInit {
             this.account$.next(incomingAccount);
             this.updateFieldVisibility();
         } else {
-            this.getAccount(this.inputAccount.ID).subscribe(
+            this.getAccount(this.inputAccount.ID).pipe(
+                map(account => this.attachAltinnAccountNumber(account))
+            ).subscribe(
                 dataset => {
                     this.account$.next(dataset);
                     this.extendFormConfig();
@@ -127,6 +141,15 @@ export class AccountDetails implements OnInit {
                 err => this.errorService.handle(err)
             );
         }
+    }
+
+    attachAltinnAccountNumber(account: Account) {
+        return this.altinnAccountLinkService.getByAccountNumber(account.AccountNumber).pipe(
+            map((altinnAccountLink: any) => {
+                account['_AltinnAccountNumber'] = altinnAccountLink ? altinnAccountLink.AltinnAccountNumber : null;
+                return account;
+            })
+        );
     }
 
     updateFieldVisibility() {
@@ -223,6 +246,13 @@ export class AccountDetails implements OnInit {
             valueProperty: 'ID'
         };
 
+        const altinnAccountNumberField: UniFieldLayout = fields.find(x => x.Property === '_AltinnAccountNumber');
+        altinnAccountNumberField.Options = {
+            source: this.altinnAccountLinkCodes,
+            valueProperty: 'code',
+            template: (item) => item ? `${item.code} - ${item.name}` : ''
+        };
+
         this.setSynchronizeVisibility(account, fields);
         this.fields$.next(fields);
     }
@@ -296,9 +326,11 @@ export class AccountDetails implements OnInit {
             this.dimensionsFields$.next(fields);
             if (this.account$.getValue()) {
                 const dimensions = {};
-                this.account$.getValue().MandatoryDimensions.forEach(md => {
-                    dimensions['dim' + md.DimensionNo] = md.MandatoryType;
-                });
+                if (this.account$.getValue().MandatoryDimensions) {
+                    this.account$.getValue().MandatoryDimensions.forEach(md => {
+                        dimensions['dim' + md.DimensionNo] = md.MandatoryType;
+                    });
+                }
                 this.dimensions$.next(dimensions);
             } else {
                 this.dimensions$.next({});
@@ -452,45 +484,46 @@ export class AccountDetails implements OnInit {
             completeEvent('Lagring feilet');
             return;
         }
+        const action$ = account.ID && account.ID > 0 ? this.accountService.Put(account.ID, account) : this.accountService.Post(account);
+        action$.pipe(
+            tap( // side effect
+                (_account) => this.saveAltinnAccountLink(_account)
+            )
+        ).subscribe(
+        response => {
+                if (this.invalidateDimensionsCache) {
+                    this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
+                    this.invalidateDimensionsCache = false;
+                }
+                this.account$.next(response);
+                this.accountSaved.emit(account);
+                if (account.ID && account.ID > 0) {
+                    this.checkRecurringInvoices(account.ID);
+                }
+                completeEvent('Lagret');
+            },
+        err => {
+                this.errorService.handle(err);
+                completeEvent('Feil ved lagring');
+            }
+        );
+    }
 
-        if (account.ID && account.ID > 0) {
-            this.accountService
-                .Put(account.ID, account)
-                .subscribe(
-                    (response) => {
-                        completeEvent('Lagret');
-                        if (this.invalidateDimensionsCache) {
-                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
-                            this.invalidateDimensionsCache = false;
-                        }
-                        this.account$.next(response);
-                        this.accountSaved.emit(account);
-                        this.checkRecurringInvoices(account.ID);
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
-                    }
-                );
-        } else {
-            this.accountService
-                .Post(account)
-                .subscribe(
-                    (response) => {
-                        completeEvent('Lagret');
-                        if (this.invalidateDimensionsCache) {
-                            this.accountMandatoryDimensionService.invalidateMandatoryDimensionsCache();
-                            this.invalidateDimensionsCache = false;
-                        }
-                        this.account$.next(response);
-                        this.accountSaved.emit(account);
-                    },
-                    (err) => {
-                        completeEvent('Feil ved lagring');
-                        this.errorService.handle(err);
-                    }
-                );
-        }
+    private saveAltinnAccountLink(account) {
+        return this.altinnAccountLinkService.getByAccountNumber(account.AccountNumber).pipe(
+            map((altinnAccountLink: any) => {
+                if (!altinnAccountLink) {
+                    altinnAccountLink = {
+                        '_createguid': getNewGuid()
+                    };
+                }
+                altinnAccountLink.AltinnAccountNumber = account['_altinnAccountNumber'];
+                altinnAccountLink.AccountNumber = account.AccountNumber;
+                return altinnAccountLink;
+            }),
+            switchMap(altinnAccountLink => this.altinnAccountLinkService.save(altinnAccountLink)),
+            map(altinnAccountLink => account)
+        );
     }
 
     private checkRecurringInvoices(accountID: number) {
@@ -566,7 +599,7 @@ export class AccountDetails implements OnInit {
                 FieldSet: 1,
                 Legend: 'Konto',
                 EntityType: 'Account',
-                Property: 'AnnualSettlementMappingAccountID',
+                Property: '_AltinnAccountNumber',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Kobling mot årsoppgjør',
                 FeaturePermission: 'ui.accounting.advanced-account-settings',

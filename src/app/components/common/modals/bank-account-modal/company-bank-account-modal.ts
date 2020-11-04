@@ -1,0 +1,53 @@
+import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {BankAccount} from '@app/unientities';
+import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+
+@Component({
+    selector: 'company-bankaccount-modal',
+    template: `
+        <section role="dialog" class="uni-modal uni-redesign" style="width: 35rem">
+            <header>{{options.header}}</header>
+            <article>
+                <section *ngIf="busy" class="modal-spinner">
+                    <mat-spinner class="c2a"></mat-spinner>
+                </section>
+
+                <company-bankaccount-edit
+                    [bankAccount]="bankAccount"
+                    [isNew]="true"
+                    [lockAccountType]="lockAccountType"
+                    (setBusy)="setBusy($event)"
+                    (saved)="close($event)">
+                </company-bankaccount-edit>
+            </article>
+        </section>
+    `,
+})
+export class CompanyBankAccountModal implements IUniModal {
+
+    @Input()
+    options: IModalOptions = {};
+
+    @Output()
+    onClose = new EventEmitter();
+
+    bankAccount: BankAccount;
+    busy: boolean = false;
+    lockAccountType: boolean = false;
+
+    constructor () { }
+
+    public ngOnInit() {
+        this.bankAccount = this.options.data.bankAccount;
+        this.lockAccountType = this.options.modalConfig?.lockAccountType;
+    }
+
+    setBusy(busy) {
+        this.busy = busy;
+    }
+
+    close(value) {
+        this.onClose.emit(value);
+    }
+
+}

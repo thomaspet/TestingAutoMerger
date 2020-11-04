@@ -34,7 +34,7 @@
             </label>
 
             <mat-checkbox *ngIf="customerDetailsForm.controls['IsBankCustomer']" formControlName="IsBankCustomer">
-                <span class="checkbox-label">Jeg er allerede SR-Bank bedriftskunde</span>
+                <span class="checkbox-label">Jeg er allerede bedriftskunde i {{bankName}}</span>
             </mat-checkbox>
         </form>
 

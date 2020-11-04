@@ -55,7 +55,7 @@ const BASE = environment.BASE_URL;
             </p>
         </section>
     </section>
-    <section class="tab-part">
+    <section class="tab-part" *ngIf="hasReportAccess">
         <section class="image-container clickable" (click)="runReport('Økonomioversikt')">
             <img class="journalentry-icon">
             <span>Økonomirapport</span>
@@ -68,12 +68,14 @@ const BASE = environment.BASE_URL;
 </section>`
 })
 export class BureauAccountingTab implements AfterViewInit, OnDestroy {
-    public company: KpiCompany;
-    public accountingYear: number;
-    public viewData: any[];
+    company: KpiCompany;
+    accountingYear: number;
+    viewData: any[];
+    hasReportAccess: boolean = false;
+
     private subscription: Subscription;
     private reportCache: Array<any> = [];
-    @HostBinding('class.no_access') public noAccess: boolean;
+    @HostBinding('class.no_access') public noAccess: boolean = false;
 
     constructor(
         private element: ElementRef,
@@ -87,7 +89,7 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
         private reportService: ReportDefinitionService,
         private toast: ToastService
     ) {
-        this.accountingYear = financialYearService.getActiveYear();
+        this.accountingYear = this.financialYearService.getActiveYear();
     }
 
     public ngAfterViewInit() {
@@ -98,24 +100,26 @@ export class BureauAccountingTab implements AfterViewInit, OnDestroy {
                 this.company = company;
                 this.noAccess = false;
                 this.element.nativeElement.setAttribute('aria-busy', true);
-                Observable.forkJoin(
+                Observable.forkJoin([
                     this.getApprovedInvoices(company.Key),
                     this.getNumberOfJournalEntryTransactions(company.Key),
-                    this.getNumberOfJournalEntries(company.Key),
-                )
-                    .finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
-                    .do(() => this.cd.markForCheck())
-                    .subscribe(
-                        result => this.viewData = result,
-                        err => {
-                            if (err.status === 403) {
-                                this.noAccess = true;
-                                this.cd.markForCheck();
-                            } else {
-                                this.errorService.handle(err);
-                            }
-                        },
-                    );
+                    this.getNumberOfJournalEntries(company.Key)
+                ]).finally(() => this.element.nativeElement.setAttribute('aria-busy', false))
+                .do(() => this.cd.markForCheck())
+                .subscribe(
+                    result => {
+                        this.viewData = result;
+                        this.hasReportAccess = this.authService.hasUIPermission(this.authService.currentUser, 'ui_reports');
+                    },
+                    err => {
+                        if (err.status === 403) {
+                            this.noAccess = true;
+                            this.cd.markForCheck();
+                        } else {
+                            this.errorService.handle(err);
+                        }
+                    },
+                );
             });
     }
 

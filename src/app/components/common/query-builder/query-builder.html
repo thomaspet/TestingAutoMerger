@@ -1,0 +1,15 @@
+<query-item
+    *ngFor="let item of items; let idx = index"
+    [(item)]="items[idx]"
+    [fields]="fields"
+    [operators]="operators"
+    [hideLogicalOperator]="idx === 0"
+    [siblingMaxDepth]="siblingMaxDepth"
+    (remove)="removeItem(idx)"
+    (itemChange)="emitChange()">
+</query-item>
+
+<button *ngIf="!disableAddButton" (click)="addItem()" class="tertiary c2a">
+    <i class="material-icons">add</i>
+    Legg til betingelse
+</button>

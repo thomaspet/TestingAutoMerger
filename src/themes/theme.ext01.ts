@@ -1,31 +1,37 @@
 import {TRANSLATION_OVERRIDES} from './ext01/translation-overrides';
-import {DASHBOARD_CONFIGS} from './ue/dashboard-configs';
+import {DASHBOARD_CONFIGS} from './ext01/dashboard-configs';
 
 import {THEMES} from './themes-enum';
+import {MINI_PACKAGE_BLACKLIST, PLUS_PACKAGE_BLACKLIST} from './ext01/feature-blacklists';
 export * from './themes-enum';
 
 export const theme = {
     theme: THEMES.SR,
-    appName: 'SR-Bank Regnskap',
-    appProvider: 'SR-Bank',
+    appName: 'SpareBank 1 Regnskap',
+    appProvider: 'SpareBank 1',
 
     translationOverrides: TRANSLATION_OVERRIDES,
     chatbotIcon: 'themes/ext01/chatbot-icon.png',
 
     dashboardConfigs: DASHBOARD_CONFIGS,
     tableColumnOverrides: undefined,
-    featureBlacklists: undefined,
+    featureBlacklists: {
+        Demo: MINI_PACKAGE_BLACKLIST,
+        Mini: MINI_PACKAGE_BLACKLIST,
+        Plus: PLUS_PACKAGE_BLACKLIST,
+        Complete: undefined
+    },
 
     init: {
-        illustration: 'themes/ext01/register-company-background.svg',
+        illustration: 'themes/ext01/login_background.jpg',
         background: '#ebf6fb',
-        login_background: 'url(themes/ext01/login_background.png)',
+        login_background: 'url(themes/ext01/login_background.jpg)',
         login_background_height: '100%',
-        signup_background_height: undefined,
+        signup_background_height: '100%',
     },
 
     widgets: {
-        empty_state_illustration: 'themes/empty_state.svg',
+        empty_state_illustration: 'themes/ext01/empty_state.svg',
 
         primary: '#0071cd',
         primary_soft: '#DFF1F9',

@@ -11,7 +11,9 @@ import {
     ElsaPurchaseService,
     EHFService,
     AccountVisibilityGroupService,
-    CompanyAccountingSettingsService
+    CompanyAccountingSettingsService,
+    JournalEntryLineDraftService,
+    JournalEntryTypes
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -80,6 +82,7 @@ export class UniCompanyAccountingView {
     fieldsVat$ = new BehaviorSubject<UniFieldLayout[]>([]);
     fieldsCurrency$ = new BehaviorSubject<UniFieldLayout[]>([]);
     companyAccountingSettings = null;
+    incomingBalanceJournalEntryNumber: string;
 
     vatMandatoryOptions = [
         { ID: 1, Name: 'Avgiftsfri'},
@@ -111,7 +114,8 @@ export class UniCompanyAccountingView {
         private router: Router,
         private elsaPurchasesService: ElsaPurchaseService,
         private ehfService: EHFService,
-        private accountVisibilityGroupService: AccountVisibilityGroupService
+        private accountVisibilityGroupService: AccountVisibilityGroupService,
+        private journalEntryLineDraftService: JournalEntryLineDraftService,
     ) { }
 
     ngOnInit() {
@@ -127,6 +131,13 @@ export class UniCompanyAccountingView {
             this.updateTabAndUrl();
             this.reloadCompanySettingsData();
         });
+
+        this.journalEntryLineDraftService
+            .getNewestFromTypes([
+                JournalEntryTypes.OpeningBalance,
+                JournalEntryTypes.IncomingBalance,
+            ])
+            .subscribe(line => this.incomingBalanceJournalEntryNumber = line?.JournalEntryNumber);
     }
 
     ngOnDestroy() {
@@ -229,6 +240,11 @@ export class UniCompanyAccountingView {
         }
     }
 
+    routeToJournalEntry(journalEntryNumber: string) {
+        const [number, year] = journalEntryNumber.split('-');
+        return this.router.navigate(['accounting', 'transquery'], {queryParams: {JournalEntryNumber: number, AccountYear: year}});
+    }
+
     private activateProduct(productName: string, activationModal: () => void) {
         this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
             if (purchase) {
@@ -260,6 +276,15 @@ export class UniCompanyAccountingView {
                 this.companySettings$.next(settings);
             }
         });
+    }
+
+    private getBalanceTextBasedOnType(type: JournalEntryTypes) {
+        const types: {type: JournalEntryTypes, text: string}[] = [
+            {type: JournalEntryTypes.OpeningBalance, text: 'SETTINGS.OPENING_BALANCE_EXIST_TEXT'},
+            {type: JournalEntryTypes.IncomingBalance, text: 'SETTINGS.INCOMING_BALANCE_EXIST_TEXT'},
+        ]
+        return types.find(candidate => candidate.type === type)?.text
+            || 'SETTINGS.OPENING_BALANCE_TEXT';
     }
 
     saveCompanySettings(done?) {

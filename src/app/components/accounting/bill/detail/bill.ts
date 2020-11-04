@@ -92,7 +92,7 @@ import {UniSmartBookingSettingsModal} from './smartBookingSettingsModal';
 import {AccountMandatoryDimensionService} from '@app/services/accounting/accountMandatoryDimensionService';
 import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
-import {SupplierEditModal} from '../edit-supplier-modal/edit-supplier-modal';
+import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
 import {PaymentStatus} from '@app/models/printStatus';
 import {finalize, map, tap, catchError} from 'rxjs/operators';
@@ -520,12 +520,16 @@ export class BillView implements OnInit, AfterViewInit {
     }
 
     private updateInvoicePayments() {
-        return Observable.forkJoin(
+        return Observable.forkJoin([
             this.bankService.getBankPayments(this.currentID),
             this.bankService.getRegisteredPayments(this.currentID),
             this.bankService.getSumOfPayments(this.currentID)
-        ).subscribe(res => {
-            this.invoicePayments = res[0].concat(res[1]);
+        ]).subscribe(res => {
+            let bankPayments = res[0];
+            let registeredPayments = res[1];
+            this.invoicePayments = bankPayments.concat(registeredPayments.filter(
+                payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+            ));
             this.sumOfPayments = res[2][0];
             this.fetchInvoice(this.currentID, false);
         });
@@ -2234,7 +2238,7 @@ export class BillView implements OnInit, AfterViewInit {
                 && it.StatusCode === StatusCodeSupplierInvoice.ForApproval
             ) {
                 if (this.myUserRoles.find(
-                        x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator')
+                        x => x.SharedRoleName === 'Accounting.Admin' || x.SharedRoleName === 'Administrator' || x.SharedRoleName === 'Accounting.Approval')
                 ) {
                     const reassign = this.newAction(
                         'Tildel på nytt',
@@ -3052,7 +3056,11 @@ export class BillView implements OnInit, AfterViewInit {
                     }
 
                     const setupInvoice = () => {
-                        this.invoicePayments = (bankPayments || []).concat(registeredPayments || []);
+                        this.invoicePayments = (bankPayments || []).concat(
+                            (registeredPayments || []).filter(
+                                payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+                            )
+                        );
                         this.sumOfPayments = sumOfPayments[0];
 
                         this.current.next(invoice);
@@ -3532,7 +3540,7 @@ export class BillView implements OnInit, AfterViewInit {
                 });
             };
 
-            const paymentIdContainsCharacters = current.PaymentID.match(/[a-å]/gi)?.length > 0 ?? false;
+            const paymentIdContainsCharacters = current.PaymentID?.match(/[a-å]/gi)?.length > 0 ?? false;
             if (!paymentIdContainsCharacters && !this.modulusService.isValidKID(current.PaymentID)) {
                 this.toast.toast({
                     title: 'KID er ikke gyldig',

@@ -46,7 +46,7 @@
                 [contractType]="contractType"
                 [disabled]="!contractType['_isValidUpgrade']"
                 [active]="contractType['_isActive']"
-                [recommended]="contractType['_isValidUpgrade'] && contractType.Name === 'Plus'"
+                [recommended]="contractType['_isValidUpgrade'] && contractType.Name === 'Plus' && isBrunoEnv"
                 (selected)="changeContractType(contractType)">
             </contract-type-card>
         </section>

@@ -1269,7 +1269,7 @@ export class TickerColumn {
     public Resizeable?: boolean;
     public DefaultHidden?: boolean;
     public ShowOnlyOnThisFilter?: number;
-    public ExcludeFromEnvironment?: string;
+    public ExcludeFromEnvironments?: string[];
     public DefaultHiddenOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;

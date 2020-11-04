@@ -20,6 +20,15 @@ export interface IAuthDetails {
     isDemo?: boolean;
 }
 
+export interface PublicWebSettings {
+    BankName?: string;
+    BIC?: string;
+    BankCustomerUrl?: string;
+    PriceListUrl?: string;
+    HelpDeskUrl?: string;
+    SupportPageUrl?: string;
+}
+
 const PUBLIC_ROOT_ROUTES = [
     'reload',
     'init',
@@ -47,12 +56,14 @@ export class AuthService {
 
     authentication$ = new ReplaySubject<IAuthDetails>(1);
     token$ = new ReplaySubject<string>(1);
+    errorMessage$ = new ReplaySubject<string>(1);
 
     jwt: string;
     id_token: string;
     activeCompany: Company;
     currentUser: UserDto;
     contractID: number;
+    publicSettings: PublicWebSettings;
 
     // Re-implementing a subset of BrowserStorageService here to prevent circular dependencies
     private storage = {
@@ -83,6 +94,7 @@ export class AuthService {
         this.activeCompany = this.storage.getOnUser('activeCompany');
 
         this.setLoadIndicatorVisibility(true);
+
         this.userManager = this.getUserManager();
 
         this.userManager.signinSilent().then(user => {
@@ -249,9 +261,18 @@ export class AuthService {
                                 this.setLoadIndicatorVisibility(false);
                             });
                         },
-                        () => {
-                            this.storage.removeOnUser('lastActiveCompanyKey');
-                            this.idsLogout();
+                        (err) => {
+                            this.isAuthenticated().then(isAuthenticated => {
+                                if (!isAuthenticated) {
+                                    this.storage.removeOnUser('lastActiveCompanyKey');
+                                    this.idsLogout();
+                                } else {
+                                    this.setLoadIndicatorVisibility(false);
+                                    this.storage.removeOnUser('lastActiveCompanyKey');
+                                    this.errorMessage$.next('Klarte ikke hente selskapsdata for dette firma. Prøv igjen senere');
+                                    this.router.navigateByUrl('/init/login');
+                                }
+                            });
                         }
                     );
                 }
@@ -524,5 +545,15 @@ export class AuthService {
         }
 
         return false;
+    }
+
+    getPublicSettings() {
+        const endpoint = environment.ELSA_SERVER_URL + '/api/licenseservicesettings/public-web-settings';
+        this.http.get<PublicWebSettings>(endpoint)
+            .pipe(map(res => res[0]))
+            .subscribe(
+                settings => this.publicSettings = settings,
+                () => {}
+            );
     }
 }

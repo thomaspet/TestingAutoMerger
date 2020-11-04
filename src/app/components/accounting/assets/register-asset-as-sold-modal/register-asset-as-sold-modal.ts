@@ -6,7 +6,7 @@ import {buildAssetSoldForm} from '@app/components/accounting/assets/register-ass
 import {AssetsService} from '@app/services/common/assetsService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {take} from 'rxjs/operators';
-import {CustomerEditModal} from '@app/components/sales/common/customer-edit-modal/customer-edit-modal';
+import {CustomerEditModal} from '@app/components/common/modals/customer-edit-modal/customer-edit-modal';
 import {StatisticsService} from '@app/services/common/statisticsService';
 
 @Component({

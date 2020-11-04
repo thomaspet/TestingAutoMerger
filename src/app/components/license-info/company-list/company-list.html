@@ -1,8 +1,4 @@
-<section class="no-companies" *ngIf="companies?.length === 0">
-    Det er kun lisensadministratorer som har tilgang til å se hvilke selskaper som inngår i en lisens.
-</section>
-
-<section class="list-container" *ngIf="companies?.length">
+<section class="list-container">
     <section class="header">
         <h1>Selskaper på lisensen</h1>
 
@@ -31,7 +27,12 @@
         </div>
     </section>
 
+    <section class="no-companies" *ngIf="companies?.length === 0">
+        Fant ingen selskaper på denne lisensen.
+    </section>
+
     <license-info-list
+        *ngIf="companies?.length"
         [columns]="columns"
         [rows]="filteredCompanies"
         [orderBy]="'CompanyName'"

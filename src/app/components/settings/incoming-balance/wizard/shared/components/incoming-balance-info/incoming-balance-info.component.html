@@ -1,0 +1,28 @@
+<article class="no-info" *ngIf="isHidden && !isBooked">
+    <i (click)="togleHidden()" class="material-icons clickable">info_outline</i>
+</article>
+<article class="general-info" *ngIf="!isHidden && !isBooked">
+    <section>
+        <i *ngIf="!noIcons" class="material-icons info">info_outline</i>
+    </section>
+    <section>
+        <ng-content class="content"></ng-content>
+    </section>
+    <section class="close-section">
+        <i *ngIf="!noIcons" class="material-icons clickable" (click)="togleHidden()">close</i>
+    </section>
+</article>
+<article class="journal-info" *ngIf="isBooked">
+    <section class="journal-info-status" *ngIf="journalEntryDraftLines">
+        <h2>{{journalEntryDraftLines[0]?.FinancialDate | date: 'shortDate'}}</h2>
+        {{ 'SETTINGS.INCOMING_BALANCE.INFO.CREATED_MESSAGE' | translate }}
+    </section>
+    <section class="journal-info-number" *ngIf="journalEntry">
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.INFO.JOURNAL_ENTRY_NUMBER_LABEL' | translate }}
+            <a (click)="navigationService.toJournalEntry(journalEntry.JournalEntryNumber)">
+                {{journalEntry.JournalEntryNumber}}
+            </a>
+        </p>
+    </section>
+</article>

@@ -11,6 +11,7 @@ import {ConfirmActions, IModalOptions, IUniModal, UniModalService, UniPreviewMod
 import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
 import {CompanySettingsService, ErrorService, ReportDefinitionParameterService, ReportTypeService,} from '@app/services/services';
 import {theme, THEMES} from 'src/themes/theme';
+import {ReportTypeEnum} from '@app/models';
 
 class CustomReportParameter extends ReportParameter {
     Name: string;
@@ -175,10 +176,12 @@ export class TofReportModal implements IUniModal {
                 });
 
                 this.selectedReport.parameters.concat(this.defaultParameters);
-                const source = this.entityHasHours() ? this.openAddHoursModal().onClose : of(ConfirmActions.CANCEL);
+                const source = this.entityHasHours() && this.reportType === ReportTypeEnum.INVOICE
+                    ? this.openAddHoursModal().onClose
+                    : of(ConfirmActions.CANCEL);
                 source.subscribe(action => {
                     if (action === ConfirmActions.CANCEL) {
-                        if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
+                        if (this.skipConfigurationGoStraightToAction) {
                             if (this.skipConfigurationGoStraightToAction === 'preview') {
                                 this.preview();
                                 this.onClose.emit();
@@ -199,7 +202,7 @@ export class TofReportModal implements IUniModal {
                         Name: 'ShowHours',
                         value: this.entityHasHours() && userWantsToPrintHours ? '1' : '0'
                     });
-                    if (this.skipConfigurationGoStraightToAction && theme.theme === THEMES.EXT02) {
+                    if (this.skipConfigurationGoStraightToAction) {
                         if (this.skipConfigurationGoStraightToAction === 'preview') {
                             this.preview();
                             this.onClose.emit();
