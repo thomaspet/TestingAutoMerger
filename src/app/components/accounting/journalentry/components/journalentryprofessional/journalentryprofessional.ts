@@ -1998,45 +1998,47 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.calculateCurrencyExchangeRate(row);
                 } else if (event.field === 'FinancialDate') {
                     if (this.currentSavedFinancialDate) {
-                        if (new Date(this.currentSavedFinancialDate).getFullYear() !== event.rowModel.FinancialDate.year) {
+                        if (moment(this.currentSavedFinancialDate).year() !== moment(event.rowModel.FinancialDate).year()) {
                             row.FinancialDate = this.currentSavedFinancialDate;
                             this.toastService.addToast('Ugyldig endring.', ToastType.warn, 10,
                             'Du kan ikke korrigere bilaget til et annet regnskapsår. Hvis dette bilaget skal bokføres i annet regnskapsår må du kreditere bilaget og føre det på nytt i korrekt regnskapsår.');
                         }
                     }
                 } else if (event.field === 'VatDate') {
-                    if (this.currentSavedVatDate && new Date(this.currentSavedVatDate).getFullYear() !== event.rowModel.VatDate.year) {
+
+                    if (this.currentSavedVatDate && moment(this.currentSavedVatDate).year() !== moment(event.rowModel.VatDate).year()) {
                         row.VatDate = this.currentSavedVatDate;
                         this.toastService.addToast('Ugyldig endring.', ToastType.warn, 10,
                         'Du kan ikke korrigere bilaget til et annet regnskapsår. Hvis dette bilaget skal bokføres i annet regnskapsår må du kreditere bilaget og føre det på nytt i korrekt regnskapsår.');
-                    } else {
-                        // set FinancialDate based on VatDate if FinancialDate has not been set, or
-                        // if the FinancialDate was the same as the previous value for VatDate
-                        if (!row.FinancialDate && row.VatDate ||
-                            (originalFieldValue && row.FinancialDate
-                                && row.FinancialDate.toString() === originalFieldValue.toString())
-                        ) {
-                            row.FinancialDate = row.VatDate;
-                        }
-
-                        if (row.DebitVatType) {
-                            this.journalEntryService.setCorrectVatPercent(row.DebitVatType, row);
-                        }
-                        if (row.CreditVatType) {
-                            this.journalEntryService.setCorrectVatPercent(row.CreditVatType, row);
-                        }
-
-                        if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
-                            rowOrPromise = this.getExternalCurrencyExchangeRate(row)
-                                .then(r => this.setVatDeductionPercent(r))
-                                .then(r => this.calculateNetAmountAndNetAmountCurrency(r))
-                                .then(r => this.calculateAmount(r));
-                        } else {
-                            row = this.setVatDeductionPercent(row);
-                            row = this.calculateNetAmountAndNetAmountCurrency(row);
-                            row = this.calculateAmount(row);
-                        }
                     }
+
+                    // set FinancialDate based on VatDate if FinancialDate has not been set, or
+                    // if the FinancialDate was the same as the previous value for VatDate
+                    if (!row.FinancialDate && row.VatDate ||
+                        (originalFieldValue && row.FinancialDate
+                            && row.FinancialDate.toString() === originalFieldValue.toString())
+                    ) {
+                        row.FinancialDate = row.VatDate;
+                    }
+
+                    if (row.DebitVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.DebitVatType, row);
+                    }
+                    if (row.CreditVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.CreditVatType, row);
+                    }
+
+                    if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
+                        rowOrPromise = this.getExternalCurrencyExchangeRate(row)
+                            .then(r => this.setVatDeductionPercent(r))
+                            .then(r => this.calculateNetAmountAndNetAmountCurrency(r))
+                            .then(r => this.calculateAmount(r));
+                    } else {
+                        row = this.setVatDeductionPercent(row);
+                        row = this.calculateNetAmountAndNetAmountCurrency(row);
+                        row = this.calculateAmount(row);
+                    }
+
                 } else if (event.field === 'DebitAccount') {
                     row = this.setDebitAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
