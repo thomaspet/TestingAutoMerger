@@ -1,0 +1,27 @@
+<uni-toolbar [config]="toolbarconfig"></uni-toolbar>
+<section class="application">
+    <button (click)="toExcel()" class="c2a">Eksporter til excel</button>
+    <section class="balance-search-selecthdr">
+        <uni-select
+            class="balance-search-year-select"
+            [config]="selectYearConfig"
+            [items]="financialYears"
+            [value]="activeYear"
+            (valueChange)="onYearDropdownChange($event)">
+        </uni-select>
+        <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
+    </section>
+
+    <mat-progress-bar
+        *ngIf="loading$ | async"
+        class="uni-progress-bar"
+        mode="indeterminate">
+    </mat-progress-bar>
+
+    <ag-grid-wrapper
+        [(resource)]="lookupFunction"
+        [config]="uniTableConfig"
+        [columnSumResolver]="columnSumResolver"
+        (columnsChange)="onColumnsChange($event)">
+    </ag-grid-wrapper>
+</section>
