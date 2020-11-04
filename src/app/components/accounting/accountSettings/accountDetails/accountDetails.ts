@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, OnInit, SimpleChanges} from '@angular/core';
-import {BehaviorSubject, forkJoin} from 'rxjs';
+import {BehaviorSubject, forkJoin, throwError} from 'rxjs';
 import {UniFieldLayout, FieldType} from '../../../../../framework/ui/uniform/index';
 import {
     Account, VatType, AccountGroup, VatDeductionGroup,
@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import {theme, THEMES} from 'src/themes/theme';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {HttpClient} from '@angular/common/http';
-import {map, switchMap, tap} from 'rxjs/operators';
+import {catchError, map, switchMap, tap} from 'rxjs/operators';
 import {AltinnAccountLinkService} from '@app/services/accounting/altinnAccountLinkService';
 
 @Component({
@@ -100,7 +100,7 @@ export class AccountDetails implements OnInit {
                 this.saftMappingAccounts = dataset[4];
                 this.altinnAccountLinkCodes = Object.keys(dataset[5]).map((key) => {
                     return {
-                        code: key,
+                        code: parseInt(key, 10),
                         name: dataset[5][key]
                     };
                 });
@@ -121,7 +121,7 @@ export class AccountDetails implements OnInit {
             this.updateFieldVisibility();
         } else {
             this.getAccount(this.inputAccount.ID).pipe(
-                map(account => this.attachAltinnAccountNumber(account))
+                switchMap(account => this.attachAltinnAccountNumber(account))
             ).subscribe(
                 dataset => {
                     this.account$.next(dataset);
