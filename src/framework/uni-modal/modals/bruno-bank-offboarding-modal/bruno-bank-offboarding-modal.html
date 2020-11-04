@@ -1,0 +1,57 @@
+<section role="dialog" class="uni-modal">
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <article>
+        <img src="themes/ext02/ext02-cancel-integration.svg" alt="Avslutt bankintegrasjon illustrasjon">
+
+        <h1>{{options.header}}</h1>
+
+        <span id="message">{{options.message}}</span>
+        
+        <!-- If all accounts are selected -->
+        <ag-grid-wrapper *ngIf="!bankAccount" 
+            [(resource)]="allBankAccountsWithIntergration" 
+            [config]="tableConfig">
+        </ag-grid-wrapper>
+                
+        <section class="selectionSection">
+            <!-- Only one account is selected -->
+            <section *ngIf="bankAccount" class="integrationSelection">
+                <span *ngIf="bankAccount?.HasStatements">
+                    <mat-checkbox                     
+                        [(ngModel)]="cancelStatements"
+                        [disabled]="deleteAccount">
+                        Kontotransaksjoner/Bankavstemming
+                    </mat-checkbox>
+                    <br>
+                </span>
+                <span *ngIf="bankAccount?.HasIncoming">
+                    <mat-checkbox 
+                        [(ngModel)]="cancelIngoing"
+                        [disabled]="deleteAccount">
+                        Innbetaling/KID
+                    </mat-checkbox>
+                    <br>
+                </span>
+                <span *ngIf="bankAccount?.HasOutgoing">
+                    <mat-checkbox
+                        [(ngModel)]="cancelOutgoing"
+                        [disabled]="deleteAccount">
+                        Utbetaling
+                    </mat-checkbox>
+                </span>                
+            </section>
+                
+            <label class="uni-label">
+                <span>E-postadresse for kvittering</span>
+                <input type="text" [(ngModel)]="mailForReceipt">
+            </label>
+        </section>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit()"> Avbryt </button>
+        <button class="c2a" (click)="confirmCancelation()">{{options.buttonLabels.accept}}</button>
+    </footer>
+</section>

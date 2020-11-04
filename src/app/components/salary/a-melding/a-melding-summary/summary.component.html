@@ -37,8 +37,8 @@
         <dt class="amelding_errorheader">Ugyldig virksomhet</dt>
         <dd id="amelding_mainfile_validation_error_text">{{errorMessage}}</dd>
     </dl>
-    <dl class="amelding_summary_overview" *ngIf="!!onLeaveMessage && currentAMelding">
-        <dt class="amelding_errorheader">{{'SALARY.AMELDING.SUMMARY.ONLEAVE_VALIDATION_HEADER' | translate}}</dt>
+    <dl class="amelding_summary_overview" *ngIf="onLeaveMessage?.length && currentAMelding">
+        <dt class="amelding_warningheader">{{'SALARY.AMELDING.SUMMARY.ONLEAVE_VALIDATION_HEADER' | translate}}</dt>
         <dd id="amelding_mainfile_validation_error_text">{{onLeaveMessage.join(', ')}}</dd>
     </dl>
 </section>

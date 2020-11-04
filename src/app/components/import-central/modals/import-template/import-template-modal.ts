@@ -9,6 +9,7 @@ import { ImportFileType, ImportOption, TemplateType, DateFormats } from '@app/mo
 import { Subject } from 'rxjs';
 import { ISelectConfig } from '@uni-framework/ui/uniform';
 import { DisclaimerModal } from '../disclaimer/disclaimer-modal';
+import { Router } from '@angular/router';
 @Component({
     selector: 'import-template-modal',
     templateUrl: './import-template-modal.html',
@@ -68,17 +69,15 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         private toastService: ToastService,
         private payrollService: SharedPayrollRunService,
         private errorService: ErrorService,
-        private modalService: UniModalService
+        private modalService: UniModalService,
+        private router: Router
     ) { }
 
     ngOnInit(): void {
-        if (this.options.data.entity == this.payrollType) {
+        if (this.options.data.entity === this.payrollType) {
 
             this.dateformats = DateFormats;
             this.selectedFormat = this.dateformats[0];
-
-
-
 
             this.config = {
                 placeholder: 'File type',
@@ -115,7 +114,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     // Get file after user selected from file explorer
     public openFile(event) {
         this.onFileAttach(event, false);
-    };
+    }
 
     // Enabaling file drag into the modal
     public dragFile(event) {
@@ -155,7 +154,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
             return true;
         }
         this.isValidFileFormat = false;
-        return false
+        return false;
     }
 
     private uploadFileToFileServer(file: File) {
@@ -249,7 +248,7 @@ export class ImportTemplateModal implements OnInit, IUniModal {
         setTimeout(() => {
             this.progressBarVal = 100;
             this.showCancel = true;
-        }, 500)
+        }, 500);
     }
 
     public onFileDetach() {
@@ -263,17 +262,21 @@ export class ImportTemplateModal implements OnInit, IUniModal {
     public importFile() {
         if (this.attachedFile) {
             this.uploadFile(this.attachedFile);
-        }
-        else {
+        } else {
             this.isValidFileFormat = false;
         }
     }
 
     // show success message
     private showToast(fileName: string, type: TemplateType) {
-        if (type != this.saftType) {
-            this.toastService.addToast('', ToastType.good, ToastTime.medium,
-                `Opplasting av ${this.options.data.type} fra ${fileName} var vellykket`);
+        const action = {
+            label: 'Logg',
+            click: () => { this.router.navigate(['/import/log', { id: type }]); },
+            displayInHeader: false
+        };
+        if (type !== this.saftType) {
+            this.toastService.addToast('', ToastType.info, ToastTime.medium,
+                `Filen er lastet opp, vennlist sjekk loggen for resultat.`, action);
         } else {
             this.toastService.addToast('', ToastType.good, ToastTime.medium,
                 'Du kan lese inn filen flere ganger dersom det skulle oppstå problemer');

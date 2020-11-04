@@ -30,7 +30,12 @@ export const settingsRoutes: Routes = [
     {
         path: 'accounting',
         component: UniCompanyAccountingView,
-        canDeactivate: [CanDeactivateGuard]
+        canDeactivate: [CanDeactivateGuard],
+    },
+    {
+        path: 'accounting/incoming-balance',
+        loadChildren: () => import('@app/components/settings/incoming-balance/incoming-balance.module')
+            .then(m => m.IncomingBalanceModule),
     },
     {
         path: 'sales',
@@ -86,5 +91,5 @@ export const settingsRoutes: Routes = [
         loadChildren: () => import('./opening-balance/openingBalanceModule').then(m => m.OpeningBalanceModule),
         canActivate: [OpeningBalanceGuard],
         canDeactivate: [CanDeactivateGuard]
-    }
+    },
 ];

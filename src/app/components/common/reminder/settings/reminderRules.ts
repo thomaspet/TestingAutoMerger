@@ -105,11 +105,17 @@ export class ReminderRules implements OnInit, OnChanges {
                 Property: 'MinimumDaysFromDueDate',
                 Label: 'Dager fra forfall',
                 FieldType: FieldType.NUMERIC,
+                Tooltip: {
+                    Text: 'Her angir du hvor mange forfallsdager du skal ha ved sending av purring/inkassovarsel'
+                }
             },
             <any> {
                 Property: 'CreditDays',
                 Label: 'Dager til forfall',
                 FieldType: FieldType.NUMERIC,
+                Tooltip: {
+                    Text: 'Her angir du antall dager etter forfallsdato på faktura/forrige varsel før du kan sende ny purring/inkassovarsel'
+                }
             },
             <any> {
                 Property: 'Description',

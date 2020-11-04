@@ -8,7 +8,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
-import {SupplierEditModal} from '../../bill/edit-supplier-modal/edit-supplier-modal';
+import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 
 @Component({
     selector: 'supplier-list',

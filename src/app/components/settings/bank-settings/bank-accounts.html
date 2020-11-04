@@ -2,17 +2,6 @@
 	<section class="uni-card-header">
 		<h1> Bankkontoer </h1>
 		<section class="pull-right">
-			<button 
-				class="tertiary c2a" 
-				(click)="connectBankAndAccounting()" 
-				*ngIf="isExt02Environment"> 
-				<uni-tooltip
-					*ngIf="hasPendingAgreement"
-					[text]="'Du har bestilt kobling mellom regnskap og bank. Det jobbes med å sette den opp. Ble du avbrutt kan du trykke her for å starte på nytt.'"
-					style="margin-bottom: 0.1rem;">
-				</uni-tooltip>
-				{{orderIntegrationButtonText}}
-			</button>
 			<button class="tertiary c2a" (click)="openBankAccountEditModal()"> Legg til ny bankkonto </button>
 		</section>
 	</section>
@@ -75,6 +64,12 @@
 			<span *ngIf="!bankAccount?.HasOutgoing"> Nei </span>
 			<i class="material-icons" *ngIf="bankAccount?.HasOutgoing"> check_circle_outline </i>
 		</section>
+
+		<footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">	
+            <button class="c2a secondary" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="cancelBankIntegration(bankAccount)">Avbestill</button>	
+			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChangesToBankIntegration()">Gjør endringer</button>	
+			<button class="c2a" *ngIf="!bankAccount?.IntegrationStatus" (click)="initiateBankIntegration()"> Bestill bankintegrasjon </button>
+        </footer>
 
 	</section>
 </section>

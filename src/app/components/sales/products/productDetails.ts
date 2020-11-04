@@ -4,7 +4,7 @@ import {FormControl} from '@angular/forms';
 import {Product, Account, VatType, StatusCodeProduct} from '../../../unientities';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {IUniSaveAction} from '../../../../framework/save/save';
-import {UniForm, UniField, UniFieldLayout} from '../../../../framework/ui/uniform/index';
+import {UniForm, UniFieldLayout} from '../../../../framework/ui/uniform/index';
 import {IUploadConfig} from '../../../../framework/uniImage/uniImage';
 import {TabService, UniModules} from '../../layout/navbar/tabstrip/tabService';
 import {IToolbarConfig, IToolbarValidation} from '../../common/toolbar/toolbar';
@@ -25,11 +25,9 @@ import {
     CompanySettingsService,
     ProductCategoryService,
     CustomDimensionService,
-    UniSearchDimensionConfig,
-    Dimension
+    UniSearchDimensionConfig
 } from '../../../services/services';
-import {BehaviorSubject} from 'rxjs';
-import {Observable} from 'rxjs';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import { IProduct } from '@uni-framework/interfaces/interfaces';
 import { ConfirmActions, IModalOptions, UniModalService, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as _ from 'lodash';
@@ -160,9 +158,10 @@ export class ProductDetails {
     }
 
     private setContextmenu() {
-        if (this.modalMode) {
+        if (this.modalMode || !this.productId) {
             return;
         }
+
         this.productService.GetAction(this.productId, 'transitions').subscribe((transitions) => {
 
             this.toolbarconfig.contextmenu = [
@@ -242,6 +241,16 @@ export class ProductDetails {
             if (response && response[1]) {
                 this.product$.getValue().PartName = response[1].PartNameSuggestion;
             }
+            
+            if (!this.product$.getValue().AccountID) {
+                this.product$.getValue().AccountID = this.defaultSalesAccount.ID;
+                this.product$.getValue().Account = this.defaultSalesAccount;
+            }
+
+            if (!this.product$.getValue().VatTypeID) {
+                this.product$.getValue().VatTypeID = this.defaultSalesAccount.VatTypeID;
+                this.product$.getValue().VatType = this.defaultSalesAccount.VatType;
+            }
 
             if (this.productId && this.featurePermissionService.canShowUiFeature('ui.sales.products.product_categories')) {
                 this.tagConfig = {
@@ -308,11 +317,23 @@ export class ProductDetails {
 
     public save() {
         const product = this.product$.getValue();
+        const vatTypeID = product.VatTypeID;
+        const accountID = product.AccountID ;
+
         if (product.Dimensions && (!product.Dimensions.ID || product.Dimensions.ID === 0)) {
             product.Dimensions['_createguid'] = this.productService.getNewGuid();
         }
+
         product.Account = null;
         product.VatType = null;
+
+        if (!accountID || !vatTypeID) {
+            return of({
+                accountID,
+                vatTypeID,
+                invalid: true,
+            });
+        }
 
         const description = this.descriptionControl.value;
         if (description && description.length) {
@@ -326,39 +347,69 @@ export class ProductDetails {
         }
     }
 
+    private getAccountErrorMessage({accountID, vatTypeID}): string {
+        const errorParts = [];
+
+        if (!accountID) {
+            errorParts.push("Hovedbokskonto");
+        }
+
+        if (!vatTypeID) {
+            errorParts.push("Mvakode");
+        }
+
+        return `${errorParts.join(" og ")} er påkrevd${errorParts.length > 1 ? 'e' : ''} felt.`
+    }
+
     public saveProduct(completeEvent) {
         if (this.productId > 0) {
             this.save().subscribe((updatedValue) => {
-                    if (this.modalMode) {
-                        this.productSavedInModalMode.emit(updatedValue);
-                    } else {
-                        completeEvent('Produkt lagret');
-                        this.loadProduct();
-                        this.setTabTitle();
-                    }
-                    this.isDirty = false;
-                },
-                (err) => {
-                    completeEvent('Feil oppsto ved lagring');
-                    this.errorService.handle(err);
+                if (updatedValue.invalid) {
+                    const errorMessage = this.getAccountErrorMessage(updatedValue);
+                    this.toastService.addToast(errorMessage, ToastType.warn, ToastTime.short);
                     this.productSavedInModalMode.emit(null);
+                    completeEvent("");
+
+                    return;
                 }
-            );
+
+                if (this.modalMode) {
+                    this.productSavedInModalMode.emit(updatedValue);
+                } else {
+                    completeEvent('Produkt lagret');
+                    this.loadProduct();
+                    this.setTabTitle();
+                }
+                this.isDirty = false;
+            },
+            (err) => {
+                completeEvent('Feil oppsto ved lagring');
+                this.errorService.handle(err);
+                this.productSavedInModalMode.emit(null);
+            });
         } else {
             this.save().subscribe((newProduct) => {
-                    if (this.modalMode) {
-                        this.productSavedInModalMode.emit(newProduct);
-                    } else {
-                        completeEvent('Produkt lagret');
-                        this.router.navigateByUrl('/sales/products/' + newProduct.ID);
-                    }
-                    this.isDirty = false;
-                },
-                (err) => {
-                    completeEvent('Feil oppsto ved lagring');
-                    this.errorService.handle(err);
+                if (newProduct.invalid) {
+                    const errorMessage = this.getAccountErrorMessage(newProduct);
+                    this.toastService.addToast(errorMessage, ToastType.warn, ToastTime.short);
                     this.productSavedInModalMode.emit(null);
+                    completeEvent("");
+
+                    return;
                 }
+                if (this.modalMode) {
+                    this.productSavedInModalMode.emit(newProduct);
+                } else {
+                    completeEvent('Produkt lagret');
+                    this.router.navigateByUrl('/sales/products/' + newProduct.ID);
+                }
+                this.isDirty = false;
+            },
+            (err) => {
+                completeEvent('Feil oppsto ved lagring');
+                this.errorService.handle(err);
+                this.productSavedInModalMode.emit(null);
+            }
             );
         }
     }
@@ -479,7 +530,7 @@ export class ProductDetails {
             source: this.vatTypes,
             valueProperty: 'ID',
             displayProperty: 'VatCode',
-            debounceTime: 100,
+            debounceTime: 200,
             search: (searchValue: string) => {
                 if (!searchValue) {
                     return [this.vatTypes];
@@ -560,11 +611,9 @@ export class ProductDetails {
                             if (this.product$.getValue().Account.VatTypeID !== null) {
                                 this.product$.getValue().VatTypeID = this.product$.getValue().Account.VatTypeID;
                                 this.product$.getValue().VatType = this.product$.getValue().Account.VatType;
-                                this.calculateAndUpdatePrice();
-                                console.log('updateAccount:', (this.product$.getValue() && this.product$.getValue().PriceExVat));
                                 this.product$.next(this.product$.getValue());
-                                console.log('UpdateAccount:', (this.product$.getValue() && this.product$.getValue().PriceExVat));
-                            }
+                                this.calculateAndUpdatePrice();
+                            } 
                         }
                     },
                     err => this.errorService.handle(err)
@@ -654,7 +703,8 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'Unit',
                     FieldType: FieldType.TEXT,
-                    Label: 'Enhet'
+                    Label: 'Enhet',
+                    Placeholder: '(Valgfri)'
                 },
                 {
                     FieldSet: 1,
@@ -710,7 +760,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'AccountID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Hovedbokskonto'
+                    Label: 'Hovedbokskonto',
                 },
                 {
                     FieldSet: 3,
@@ -718,7 +768,7 @@ export class ProductDetails {
                     EntityType: 'Product',
                     Property: 'VatTypeID',
                     FieldType: FieldType.AUTOCOMPLETE,
-                    Label: 'Mvakode'
+                    Label: 'Mvakode',
                 },
 
                 // Fieldset 4 (Dimensjoner)
@@ -769,7 +819,6 @@ export class ProductDetails {
             return true;
         }
 
-        const product = this.product$.value;
         const modalOptions: IModalOptions = {
             header: 'Ulagrede endringer',
             message: 'Du har ulagrede endringer. Ønsker du å lagre disse før vi fortsetter?',
@@ -784,7 +833,16 @@ export class ProductDetails {
             if (modalResult === ConfirmActions.ACCEPT) {
                 return this.save()
                     .catch(err => Observable.of(false))
-                    .map(res => !!res);
+                    .map(res => {
+                        if (res.invalid) {
+                            this.toastService.addToast(
+                                this.getAccountErrorMessage(res), 
+                                ToastType.warn,
+                                ToastTime.short);
+                            return false;
+                        }
+                        return !!res;
+                    });
             }
             return Observable.of(modalResult !== ConfirmActions.CANCEL);
         });

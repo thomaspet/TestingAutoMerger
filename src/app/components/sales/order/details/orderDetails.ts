@@ -270,7 +270,7 @@ export class OrderDetails implements OnInit {
                 this.hasTimetrackingAccess = this.authService.hasUIPermission(authDetails.user, 'ui_timetracking');
                 if (this.orderID) {
                     Observable.forkJoin(
-                        this.getOrder(this.orderID),
+                       [ this.getOrder(this.orderID),
                         this.companySettingsService.Get(1, ['APOutgoing']),
                         this.currencyCodeService.GetAll(null),
                         this.projectService.GetAll(null),
@@ -283,7 +283,7 @@ export class OrderDetails implements OnInit {
                         this.reportDefinitionService.GetAll('filter=ReportType eq 2'),
                         this.hasTimetrackingAccess
                             ? this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID).catch(() => Observable.of([]))
-                            : Observable.of([]),
+                            : Observable.of([])]
                     ).subscribe(res => {
                         const order = <CustomerOrder>res[0];
                         if (order && order.Customer && order.Customer.Info) {
@@ -343,7 +343,7 @@ export class OrderDetails implements OnInit {
                         err => this.errorService.handle(err));
                 } else {
                     Observable.forkJoin(
-                        this.getOrder(0),
+                        [this.getOrder(0),
                         this.userService.getCurrentUser(),
                         this.companySettingsService.Get(1),
                         this.currencyCodeService.GetAll(null),
@@ -363,7 +363,7 @@ export class OrderDetails implements OnInit {
                         this.dimensionsSettingsService.GetAll(null),
                         this.paymentInfoTypeService.GetAll(null),
                         this.reportService.getDistributions(this.distributeEntityType),
-                        this.reportDefinitionService.GetAll('filter=ReportType eq 2')
+                        this.reportDefinitionService.GetAll('filter=ReportType eq 2')]
                     ).subscribe(
                         (res) => {
                             let order = <CustomerOrder>res[0];
@@ -449,11 +449,11 @@ export class OrderDetails implements OnInit {
         }
 
         return Observable.forkJoin(
-            this.customerOrderService.Get(ID, this.orderExpands, true),
+            [this.customerOrderService.Get(ID, this.orderExpands, true),
             this.customerOrderItemService.GetAll(
                 `filter=CustomerOrderID eq ${ID}&hateoas=false`,
                 this.orderItemExpands
-            )
+            )]
         ).map(res => {
             const order: CustomerOrder = res[0];
             const orderItems: CustomerOrderItem[] = res[1].map(item => {
@@ -802,10 +802,10 @@ export class OrderDetails implements OnInit {
                 : this.getOrder(this.orderID);
 
             Observable.forkJoin(
-                orderObservable,
+                [orderObservable,
                 this.hasTimetrackingAccess
                     ? this.invoiceHoursService.getInvoicableHoursOnOrder(this.orderID).catch(() => Observable.of([]))
-                    : Observable.of([]),
+                    : Observable.of([])]
                 ).subscribe(res => {
                 if (!order) { order = res[0]; }
 
@@ -1412,13 +1412,12 @@ export class OrderDetails implements OnInit {
     private saveOrder(reloadAfterSave = true): Observable<CustomerOrder> {
         this.order.Items = this.tradeItemHelper.prepareItemsForSave(this.orderItems);
         this.order = this.tofHelper.beforeSave(this.order);
-
         return this.checkCurrencyAndVatBeforeSave().pipe(switchMap(canSave => {
             if (!canSave) {
                 return throwError('Lagring avbrutt');
             }
 
-            const navigateAfterSave = !this.order.ID;
+            const navigateAfterSave = true; 
             const saveRequest = this.order.ID > 0
                 ? this.customerOrderService.Put(this.order.ID, this.order)
                 : this.customerOrderService.Post(this.order);
@@ -1599,7 +1598,7 @@ export class OrderDetails implements OnInit {
             closeOnEscape: true,
             header: 'Overføring av timer 1/2',
         }).onClose.subscribe((result: {items: CustomerOrderItem[], transferredHoursIDs: number[]}) => {
-            if (result && result.items) {
+            if (result?.items) {
                 this.orderItems = result.items;
                 this.transferredWorkItemIDs = result.transferredHoursIDs;
                 this.isDirty = true;

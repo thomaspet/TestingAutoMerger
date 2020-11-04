@@ -261,7 +261,7 @@ export class BankService extends BizHttp<Bank> {
             .usingStatisticsDomain()
             .withEndPoint(
                 '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,' +
-                'Account.AccountNumber as AccountNumber,Account.AccountName as AccountName,AccountNumber as BankAccountNumber,' +
+                'Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountName,AccountNumber as AccountNumber,' +
                 'Bank.Name,casewhen(companysettings.id gt 0\,1\,0) as IsDefault,companysettings.id,' +
                 'sum(casewhen(be.statuscode eq 48002,1,0)) as closed,sum(casewhen(be.id gt 0,1,0)) as total' +
                 '&filter=companysettingsid gt 0&join=bankaccount.id eq companysettings.companybankaccountid and ' +
@@ -339,5 +339,22 @@ export class BankService extends BizHttp<Bank> {
             .usingBusinessDomain()
             .withEndPoint('/bank-agreements/' + agreement.ID)
             .send();
+    }
+
+    cancelBankAccountIntegration(bankAccountId: number, intergrationSettings: number, emailForReceipt: string) {
+        return this.http.asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`/bank-agreements?action=delete-bankagreements&` +
+            `bankAccountID=${bankAccountId}&integrationSettings=${intergrationSettings}&emailAddress=${emailForReceipt}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    cancelAllBankAccountIntegrations(emailForReceipt: string) {
+        return this.http.asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`/bank-agreements?action=delete-all-bankagreements&emailAddress=${emailForReceipt}`)
+            .send()
+            .map(response => response.body);
     }
 }

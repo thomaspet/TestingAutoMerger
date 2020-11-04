@@ -14,6 +14,8 @@ export class UniInit {
     showTryForFree = true;
     confirmed: boolean = true;
 
+    sbLogo = theme.theme === THEMES.SR;
+
     private onDestroy$ = new Subject();
 
     constructor(
@@ -36,13 +38,5 @@ export class UniInit {
 
     logout() {
         this.authService.idsLogout();
-    }
-
-    // temporary "easy access to sign-up" until ext02 goes live
-    navigateToSignUp() {
-        if (theme.theme !== THEMES.EXT02) {
-            return;
-        }
-        this.router.navigateByUrl('/init/sign-up');
     }
 }

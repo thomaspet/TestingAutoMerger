@@ -156,15 +156,15 @@ export class UniBankAccountModal implements IUniModal {
             });
 
             // Check if user can only set up given bank account
-            if (this.options.modalConfig && this.options.modalConfig.BICLock) {
+            if (this.options.modalConfig && this.options.modalConfig.BankLock) {
                 if (!account.Bank) {
                     this.errorMsg = 'Kontoen må være knyttet til en bank. Velg korrekt bank i Banknavn-nedtrekkslisten';
                     return;
                 } else {
-                    if (account.Bank.BIC !== this.options.modalConfig.BICLock.BIC) {
-                        this.errorMsg = 'Valgt konto er ikke en gyldig konto fra ' + this.options.modalConfig.BICLock.BankName +
+                    if (account.Bank.Name !== this.options.modalConfig.BankLock.BankName) {
+                        this.errorMsg = 'Valgt konto er ikke en gyldig konto fra ' + this.options.modalConfig.BankLock.BankName +
                         '. Om du har krysset av for manuelt, sørg for at du har skrevet kontonr korrekt, og velg ' +
-                        this.options.modalConfig.BICLock.BankName + ' i Banknavn-nedtrekkslisten';
+                        this.options.modalConfig.BankLock.BankName + ' i Banknavn-nedtrekkslisten.';
                         return;
                     }
                 }

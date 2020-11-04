@@ -1,0 +1,59 @@
+<uni-toolbar [config]="{title: ('SETTINGS.INCOMING_BALANCE.COMMON.TITLE' | translate)}"></uni-toolbar>
+<article class="application">
+    <section class="uni-container recomended-option">
+        <section class="register-incoming">
+            <section class="register-incoming-info">
+                <h2>{{ 'SETTINGS.INCOMING_BALANCE.START.REGISTER_HEADER' | translate }}</h2>
+                <section>
+                    <p>
+                        {{ 'SETTINGS.INCOMING_BALANCE.START.REGISTER_TEXT' | translate }}
+                        <a (click)="navigationService.toOpeningBalance()">
+                            {{ 'SETTINGS.INCOMING_BALANCE.START.CLICK_HERE' | translate }}
+                        </a>
+                    </p>
+                </section>
+                <section>
+                    <button class="c2a" (click)="navigationService.toWizard()">
+                        {{ 'SETTINGS.INCOMING_BALANCE.START.REGISTER_LABEL' | translate }}
+                    </button>
+                </section>
+            </section>
+            <section>
+                <img [src]="'themes/incoming-balance.svg'"/>
+            </section>
+            <section>
+                <section class="recomended">{{ 'SETTINGS.INCOMING_BALANCE.START.RECOMENDED' | translate }}</section>
+            </section>
+        </section>
+    </section>
+    <section class="uni-container">
+        <h2>{{ 'SETTINGS.INCOMING_BALANCE.START.ADVANCED_REGISTRATION_HEADER' | translate }}</h2>
+        <p>
+            {{ 'SETTINGS.INCOMING_BALANCE.START.ADVANCED_REGISTRATION_TEXT' | translate }}
+        </p>
+        <button class="secondary c2a" (click)="showAdvanced = !showAdvanced">
+            {{ 'SETTINGS.INCOMING_BALANCE.START.ADVANCED_REGISTRATION_SEE_MORE' | translate }} <i class="material-icons">{{ showAdvanced ? 'expand_less' : 'expand_more' }}</i></button>
+        <section *ngIf="showAdvanced" class="advanced-options">
+            <section class="uni-container advanced-option">
+                <h2>{{ 'SETTINGS.INCOMING_BALANCE.START.SAF-T' | translate }}</h2>
+                <p>
+                    {{ 'SETTINGS.INCOMING_BALANCE.START.SAF-T_TEXT' | translate }}
+                </p>
+                <footer>
+                    <button class="secondary c2a" (click)="navigationService.toImportPage()">{{ 'SETTINGS.INCOMING_BALANCE.START.IMPORT_LINK_LABEL' | translate }}</button>
+                </footer>
+            </section>
+            <section class="uni-container advanced-option">
+                <h2>
+                    {{ 'SETTINGS.INCOMING_BALANCE.START.EXCEL_IMPORT_HEADER' | translate }}
+                </h2>
+                <p>
+                    {{ 'SETTINGS.INCOMING_BALANCE.START.EXCEL_IMPORT_TEXT' | translate }}
+                </p>
+                <footer>
+                    <button class="secondary c2a" (click)="navigationService.toImportPage()">{{ 'SETTINGS.INCOMING_BALANCE.START.IMPORT_LINK_LABEL' | translate }}</button>
+                </footer>
+            </section>
+        </section>
+    </section>
+</article>

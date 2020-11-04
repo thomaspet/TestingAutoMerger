@@ -1,5 +1,5 @@
 import {Component, SimpleChanges} from '@angular/core';
-import {CompanySettings, BankAccount, CompanySalary, StatusCodeBankIntegrationAgreement, BankIntegrationAgreement} from '@uni-entities';
+import {CompanySettings, CompanySalary, StatusCodeBankIntegrationAgreement, BankIntegrationAgreement} from '@uni-entities';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {
     CompanySettingsService,
@@ -23,7 +23,9 @@ import {
 import { IUniTab } from '@uni-framework/uni-tabs';
 import { ActivatedRoute } from '@angular/router';
 import { FeaturePermissionService } from '@app/featurePermissionService';
-import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { IContextMenuItem, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { BrunoBankOffboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
 
 @Component({
     selector: 'bank-settings',
@@ -77,6 +79,7 @@ export class UniBankSettings {
         },
     ];
 
+    public contextMenuItems: IContextMenuItem[] = [];
     toolbarconfig: IToolbarConfig;
 
     constructor(
@@ -93,7 +96,8 @@ export class UniBankSettings {
         private bankService: BankService,
         private featurePermissionService: FeaturePermissionService,
         private brunoOnboardingService: BrunoOnboardingService,
-        private paymentBatchService: PaymentBatchService
+        private paymentBatchService: PaymentBatchService,
+        private toast: ToastService,
     ) {}
 
     ngOnInit() {
@@ -480,7 +484,39 @@ export class UniBankSettings {
             };
         });
 
+        config.contextmenu = [
+            {
+                label: this.companySettings.HasAutobank ? 'Avslutt kobling mot bank' : 'Bestill kobling mot bank',
+                action: () => this.companySettings.HasAutobank ?
+                    this.cancelBrunoIntegration() : this.startBrunoOnboarding(),
+                disabled: () => false
+            }
+        ];
+
         return config;
+    }
+
+    cancelBrunoIntegration() {
+        this.brunoOnboardingService.cancelBankIntegration(null, false, BrunoBankOffboardingModal).subscribe((bankAccounts) => {
+            if (bankAccounts) {
+                this.loadAccountsDataAndInit();
+                this.toast.addToast('Koblingen mot bank er oppdatert', ToastType.good, 5);
+            }
+        });
+    }
+
+    private startBrunoOnboarding() {
+        this.brunoOnboardingService.getAgreement().subscribe((agreement: BankIntegrationAgreement) => {
+            if (!agreement) {
+                this.brunoOnboardingService.createAgreement().subscribe((pendingAgreement) => {
+                    this.agreements[0] = pendingAgreement;
+                });
+            } else if (this.brunoOnboardingService.isPendingAgreement(agreement)) {
+                this.brunoOnboardingService.restartOnboarding(agreement).subscribe((pendingAgreement) => {
+                    this.agreements[0] = agreement;
+                });
+            }
+        });
     }
 
     private hasPendingOrder(agreement: BankIntegrationAgreement): boolean {

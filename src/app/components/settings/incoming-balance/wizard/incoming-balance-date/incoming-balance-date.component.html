@@ -1,0 +1,10 @@
+<uni-incoming-balance-info>
+    {{ 'SETTINGS.INCOMING_BALANCE.DATE.INFO_TEXT~' + ( 'COMMON.APPLICATION_NAME' | translate ) | translate }}
+</uni-incoming-balance-info>
+<uni-form
+    [config]="config$"
+    [fields]="fields$"
+    [model]="model$"
+    (changeEvent)="stateService.setDate($event['date'].currentValue)">
+</uni-form>
+<uni-incoming-balance-wizard-navigation [currentTab]="'date'"></uni-incoming-balance-wizard-navigation>

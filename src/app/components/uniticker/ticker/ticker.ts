@@ -176,12 +176,15 @@ export class UniTicker {
             });
 
             const tickerParams = this.getSearchParams(urlParams);
-            const sumParams = new HttpParams()
+            let sumParams = new HttpParams()
                 .set('model', tickerParams.get('model'))
                 .set('filter', tickerParams.get('filter') || '')
                 .set('expand', tickerParams.get('expand') || '')
-                .set('join', tickerParams.get('join') || '')
                 .set('select', selects.join(','));
+
+            if (this.ticker.Code !== 'supplierinvoice_list' && this.ticker.Code !== 'new_supplierinvoice_list') {
+                sumParams = sumParams.set('join', tickerParams.get('join') || '');
+            }
 
             return this.statisticsService.GetAllByHttpParams(sumParams)
                 .map(res => res.body)
@@ -896,7 +899,8 @@ export class UniTicker {
         const customColumnSetup = this.tableUtils.getColumnSetupMap(configStoreKey) || [];
         this.headers = '';
 
-        this.ticker.Columns = this.ticker.Columns.filter(col => col.ExcludeFromEnvironment !== theme.theme);
+        this.ticker.Columns = this.ticker.Columns.filter(col => !col.ExcludeFromEnvironments
+            || col.ExcludeFromEnvironments.findIndex(t => t !== theme.theme) !== -1);
 
         for (let i = 0; i < this.ticker.Columns.length; i++) {
             const column = this.ticker.Columns[i];

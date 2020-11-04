@@ -113,7 +113,7 @@ export class SupplierInvoiceView {
                             this.store.changes$.next(false);
                             done('Lagring fullført');
                             if (redirectAfterSave) {
-                                this.router.navigateByUrl('/accounting/bills/' + savedInvoice.ID);
+                                this.router.navigateByUrl(this.store.url + savedInvoice.ID);
                             } else {
                                 this.store.loadInvoice(savedInvoice.ID);
                             }
@@ -179,17 +179,18 @@ export class SupplierInvoiceView {
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
                     || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
-                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || !hasAutobank
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes
+                    || !hasAutobank || invoice.PaymentStatus === 30112
             },
             {
-                label: 'Bokfør og registrer betaling',
+                label: 'Bokfør og merk som betalt',
                 action: (done) => {
                     this.store.registerPayment(done, true);
                 },
                 main: invoice?.ID && (invoice?.StatusCode === StatusCodeSupplierInvoice.Draft
                     || invoice?.StatusCode === StatusCodeSupplierInvoice.Approved) && !hasAutobank && invoice.PaymentStatus !== 30112,
                 disabled: !invoice?.ID || (invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
-                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || hasAutobank
+                    && invoice?.StatusCode !== StatusCodeSupplierInvoice.Approved) || changes || invoice.PaymentStatus === 30112
             },
             {
                 label: 'Bokfør',
@@ -211,7 +212,7 @@ export class SupplierInvoiceView {
                     || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || !hasAutobank
             },
             {
-                label: 'Registrer betaling',
+                label: 'Merk som betalt',
                 action: (done) => {
                     this.store.registerPayment(done);
                 },
@@ -219,7 +220,7 @@ export class SupplierInvoiceView {
                     && invoice.PaymentStatus <= 30109 ) && !hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
-                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || hasAutobank
+                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113
             },
             {
                 label: 'Slett',
@@ -227,7 +228,7 @@ export class SupplierInvoiceView {
                     this.supplierInvoiceService.Remove(invoice.ID).subscribe(
                         () => {
                             done();
-                            this.router.navigateByUrl('/accounting/bills/0');
+                            this.router.navigateByUrl('/accounting/inbox');
                         },
                         err => {
                             done();
@@ -307,7 +308,7 @@ export class SupplierInvoiceView {
         if (invoice.ID) {
             this.toolbarconfig.buttons.push({
                 label: 'Opprett ny',
-                action: () => this.router.navigateByUrl('/accounting/supplier-invoice/0')
+                action: () => this.router.navigateByUrl('/accounting/inbox')
             });
         }
 

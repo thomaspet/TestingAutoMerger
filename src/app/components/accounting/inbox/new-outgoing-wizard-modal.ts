@@ -1,5 +1,6 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'new-outgoing-wizard-modal',
@@ -19,7 +20,7 @@ export class NewOutgoingWizardModal implements IUniModal {
             label: 'Regning',
             infoText: 'Faktura som skal betales av selskapet',
             value: '1',
-            route: '/accounting/bills/0?fileid='
+            route: theme.theme === THEMES.SR ? '/accounting/supplier-invoice/0?fileid=' : '/accounting/bills/0?fileid='
         },
         {
             selected: false,

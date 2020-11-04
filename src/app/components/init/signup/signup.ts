@@ -1,5 +1,5 @@
 import {Component, ViewChild, HostBinding} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {FormBuilder, FormControl, Validators, FormGroup} from '@angular/forms';
 import {UniHttp} from '@uni-framework/core/http/http';
 import {passwordValidator, passwordMatchValidator} from '../authValidators';
@@ -17,11 +17,12 @@ export class Signup {
     @ViewChild(UniRecaptcha) recaptcha: UniRecaptcha;
 
     @HostBinding('class.ext02-signup') isExt02Env = theme.theme === THEMES.EXT02;
+    @HostBinding('class.sr-signup') srLogin = theme.theme === THEMES.SR;
 
     confirmationCode: string;
     busy: boolean;
 
-    headerText = 'Prøv gratis i 30 dager';
+    headerText = theme.theme === THEMES.SR ? 'Registrer bruker' : 'Prøv gratis i 30 dager';
     appName = theme.appName;
 
     errorMessage: string;
@@ -34,9 +35,9 @@ export class Signup {
     invalidConfirmationCode: boolean;
     userExists: boolean;
 
-    background = theme.init.background;
+    background = theme.theme === THEMES.SR ? theme.init.login_background : theme.init.background;
     backgroundHeight = theme.init.signup_background_height;
-    illustration = theme.init.illustration;
+    illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
 
     agreeementText = theme.theme === THEMES.EXT02
         ? 'Ved å trykke på «start registrering» nedenfor får du en gratis, begrenset lisens til å teste funksjonalitet i DNB Regnskap i 30 dager. DNB vil behandle opplysninger om deg som du har oppgitt for å levere testtilgangen, for markedsføringsformål til din bedrift og for sikkerhetsformål.'
@@ -50,8 +51,21 @@ export class Signup {
         private http: UniHttp,
         private route: ActivatedRoute,
         private celebrusService: CelebrusService,
-        formBuilder: FormBuilder
+        formBuilder: FormBuilder,
+        private router: Router
     ) {
+        // temporary
+        // immediately disable sign-up for ext02 if they're not coming from prospect
+        if (theme.theme === THEMES.EXT02) {
+            this.route.queryParams.subscribe(params => {
+                if (!params['code']) {
+                    this.router.navigateByUrl('/init/login');
+                    return;
+                }
+            });
+        }
+        // end temporary
+
         this.step1Form = formBuilder.group({
             DisplayName: new FormControl('', Validators.required),
             Email: new FormControl('', [Validators.required, Validators.email]),
@@ -100,7 +114,7 @@ export class Signup {
                 () => {
                     this.busy = false;
                     this.step1Successful = true;
-                    this.headerText = 'Epost sendt';
+                    this.headerText = 'E-post sendt';
                 },
                 err => {
                     this.step1Form.enable();

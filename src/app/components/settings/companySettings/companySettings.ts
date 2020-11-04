@@ -641,11 +641,6 @@ export class CompanySettingsComponent implements OnInit {
                     this.reminderSettings.save().then(() => {
                         this.isDirty = false;
                         complete('Innstillinger lagret');
-
-                        // just start this after saving settings - it wont matter much if it
-                        // fails, so the service will fail silently if the updated settings
-                        // cant be synced
-                        this.uniFilesService.syncUniEconomyCompanySettings();
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');
@@ -932,9 +927,8 @@ export class CompanySettingsComponent implements OnInit {
         };
 
         if (theme.theme === THEMES.SR) {
-            modalConfig.BICLock = {
-                BIC:  'SPRONO22',
-                BankName: 'SpareBank 1 SR-Bank'
+            modalConfig.BankLock = {
+                BankName: this.authService.publicSettings?.BankName || 'SpareBank 1 SR-Bank'
             };
         }
 

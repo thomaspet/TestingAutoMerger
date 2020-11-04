@@ -19,7 +19,8 @@
             </section> -->
 
             <section class="init-subtitle" *ngIf="step1Successful">
-                En epost med mer informasjon er sendt til {{step1Form.controls['Email'].value}}
+                En e-post med mer informasjon er sendt til {{step1Form.controls['Email'].value}}.
+                <br>Sjekk gjerne søppelpostkassen dersom du ikke har mottatt noe i løpet av kort tid.
             </section>
 
             <ng-container *ngIf="!step1Successful">
@@ -57,7 +58,7 @@
                 </button>
 
                 <section class="login-link">
-                    Har du allerde en bruker?
+                    Har du allerede en bruker?
                     <a [routerLink]="['/init/login']">Logg inn</a>
                 </section>
             </ng-container>

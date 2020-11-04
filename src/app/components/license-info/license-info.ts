@@ -17,19 +17,14 @@ export class LicenseInfo implements OnDestroy {
     activeTabIndex = 0;
     customers: ElsaCustomer[];
     selectedContractID$ = new BehaviorSubject<number>(null);
+    isAdmin$ = new BehaviorSubject<boolean>(false);
 
-    tabs: IUniTab[] = [
-        {name: 'Detaljer', path: 'details'},
-        {name: 'Selskaper', path: 'companies'},
-        {name: 'Brukere', path: 'users'},
-        {name: 'Estimert forbruk', path: 'billing'},
-        {name: 'Forbrukshistorikk', path: 'history'},
-    ];
+    tabs: IUniTab[] = [];
 
     constructor(
         tabService: TabService,
         private authService: AuthService,
-        private elsaCustomersService: ElsaCustomersService
+        private elsaCustomersService: ElsaCustomersService,
     ) {
         tabService.addTab({
             name: 'Lisensinformasjon',
@@ -37,16 +32,45 @@ export class LicenseInfo implements OnDestroy {
             moduleID: UniModules.LicenseInfo
         });
 
-        if (sessionStorage.getItem('selectedContractID')) {
-            this.selectedContractID$.next(parseInt(sessionStorage.getItem('selectedContractID'), 10));
+        if (!this.isAdmin()) {
+            this.selectedContractID$.next(this.authService.currentUser.License?.Company?.ContractID);
         } else {
-            this.selectedContractID$.next(this.authService.currentUser.License.Company.ContractID);
+            this.isAdmin$.next(true);
+
+            if (sessionStorage.getItem('selectedContractID')) {
+                this.selectedContractID$.next(parseInt(sessionStorage.getItem('selectedContractID'), 10));
+            } else {
+                this.selectedContractID$.next(this.authService.currentUser.License?.Company?.ContractID);
+            }
+
+            this.populateTabs();
         }
 
         this.loadCustomers();
     }
 
+    isAdmin() {
+        return (
+            this.authService.currentUser.License?.CustomerAgreement?.CanAgreeToLicense
+            || !!sessionStorage.getItem('selectedContractID')
+        );
+    }
+
+    populateTabs() {
+        if (this.tabs?.length) {
+            return;
+        }
+        this.tabs = [
+            {name: 'Detaljer', path: 'details'},
+            {name: 'Selskaper', path: 'companies'},
+            {name: 'Brukere', path: 'users'},
+            {name: 'Estimert forbruk', path: 'billing'},
+            {name: 'Forbrukshistorikk', path: 'history'},
+        ];
+    }
+
     ngOnDestroy() {
+        this.isAdmin$.complete();
         this.selectedContractID$.complete();
         sessionStorage.removeItem('selectedContractID');
     }
@@ -63,6 +87,9 @@ export class LicenseInfo implements OnDestroy {
     }
 
     selectContract(contract: ElsaContract) {
+        this.populateTabs();
+        // if they can select a contract, then they are admin on that contract
+        this.isAdmin$.next(true);
         this.selectedContractID$.next(contract.ID);
         sessionStorage.setItem('selectedContractID', contract.ID.toString());
     }

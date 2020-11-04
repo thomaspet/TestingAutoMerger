@@ -324,6 +324,7 @@ export class BankComponent {
                                 if (agreements && agreements.length) {
                                     this.agreements = agreements;
                                     this.hasAccessToAutobank = true;
+                                    this.initiateBank();
                                 } else {
                                     this.modalService.open(BankInitModal, {
                                         data: { user: this.authService.currentUser, cs: this.companySettings },
@@ -1193,7 +1194,7 @@ export class BankComponent {
 
                     Observable.forkJoin(queries)
                         .subscribe((result: any) => {
-                            result.forEach(job => this.handlePaymentJob(job.ID));
+                            result.forEach(job => this.handlePaymentJob(job.ID, true));
                         }, err => {
                             this.errorService.handle(err);
                         });
@@ -1201,19 +1202,23 @@ export class BankComponent {
             });
     }
 
-    private handlePaymentJob(jobID: number) {
+    private handlePaymentJob(jobID: number, customerPayment: boolean) {
 
-        this.toastService.addToast('Innbetalingsjobb startet', ToastType.good, 5,
+        this.toastService.addToast(customerPayment ? 'Innbetalingsjobb startet' : 'Utbetalingsjobb startet', ToastType.good, 5,
             'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
         this.paymentBatchService.waitUntilJobCompleted(jobID).subscribe(jobResponse => {
             if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
-                this.toastService.addToast('Innbetalingjobb er fullført', ToastType.good, 10,
-                    `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`);
+                this.toastService.addToast(customerPayment ? 'Innbetalingjobb er fullført' : 'Utbetalingsjobb er fullført',
+                    ToastType.good, 10, customerPayment
+                    ? `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`
+                    : `<a href="/#/bank/ticker?code=payment_list&filter=payed_and_journaled">Se detaljer</a>`);
 
                     this.tickerContainer.getFilterCounts();
                     this.tickerContainer.mainTicker.reloadData();
             } else {
-                this.toastService.addToast('Innbetalingsjobb feilet', ToastType.bad, 0, jobResponse.Result);
+                this.toastService.addToast(
+                    customerPayment ? 'Innbetalingsjobb feilet' : 'Utbetalingsjobb feilet',
+                    ToastType.bad, 0, jobResponse.Result);
             }
         });
 
@@ -1232,7 +1237,7 @@ export class BankComponent {
                     });
 
                     Observable.forkJoin(queries).subscribe((result: any) => {
-                        result.forEach(job => this.handlePaymentJob(job.ID));
+                        result.forEach(job => this.handlePaymentJob(job.ID, false));
                     }, err => {
                         this.errorService.handle(err);
                     });

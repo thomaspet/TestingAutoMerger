@@ -517,12 +517,6 @@
                 "Format": "DatePassed"
             },
             {
-                "Header": "Type",
-                "Field": "InvoiceOriginType",
-                "FilterSelectConfigKey": "InvoiceOriginType",
-                "ExcludeFromEnvironment": "UE"
-            },
-            {
                 "Header": "Bankgiro",
                 "Field": "BankAccount.AccountNumber"
             },
@@ -559,6 +553,14 @@
             {
                 "Header": "Restbeløp",
                 "Field": "RestAmountCurrency",
+                "Format": "NumberPositiveNegative",
+                "Width": "150px",
+                "SumColumn": true,
+                "FilterOperator": "startswith"
+            },
+            {
+                "Header": "Restbeløp [BASECURRENCY]",
+                "Field": "RestAmount",
                 "Format": "NumberPositiveNegative",
                 "Width": "150px",
                 "SumColumn": true,
@@ -1537,7 +1539,7 @@
         "Code": "new_supplierinvoice_list",
         "RequiredUIPermissions": ["ui_accounting_bills"],
         "Type": "Table",
-        "IsTopLevelTicker": true,
+        "IsTopLevelTicker": false,
         "Group": "Regnskap",
         "Model": "SupplierInvoice",
         "Expand": "",
@@ -1685,7 +1687,7 @@
         },
         "Actions": [
             {
-                "Name": "Åpne faktura",
+                "Name": "Åpne regning",
                 "Code": "open_supplierinvoice",
                 "Type": "details",
                 "DisplayInContextMenu": true,

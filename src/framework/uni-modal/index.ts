@@ -41,9 +41,11 @@ import {UniTermsModal} from './modals/terms-modal';
 import {UniPreviewModal} from './modals/previewModal';
 import {FileFromInboxModal} from './modals/file-from-inbox-modal/file-from-inbox-modal';
 import {ConfigBankAccountsModal} from './modals/bank-accounts-config-modal/bank-accounts-config-modal';
-import {ConfigBankAccountsInfoModal} from './modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
+import {BankInfoModal} from './modals/bank-info-modal/bank-info-modal';
 import {GiveSupportAccessModal} from './modals/give-support-access-modal/give-support-access-modal';
 import {BrunoBankOnboardingModal} from './modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
+import {BrunoBankOffboardingModal} from './modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
+
 
 export * from './modalService';
 export * from './interfaces';
@@ -88,7 +90,7 @@ export * from './modals/terms-modal';
 export * from './modals/previewModal';
 export * from './modals/file-from-inbox-modal/file-from-inbox-modal';
 export * from './modals/bank-accounts-config-modal/bank-accounts-config-modal';
-export * from './modals/config-bank-accounts-info-modal/config-bank-accounts-info-modal';
+export * from './modals/bank-info-modal/bank-info-modal';
 export * from './modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
 export * from './modals/give-support-access-modal/give-support-access-modal';
 
@@ -136,8 +138,9 @@ export const MODALS = [
     UniPreviewModal,
     FileFromInboxModal,
     ConfigBankAccountsModal,
-    ConfigBankAccountsInfoModal,
+    BankInfoModal,
     GiveSupportAccessModal,
     BrunoBankOnboardingModal,
+    BrunoBankOffboardingModal,
 ];
 

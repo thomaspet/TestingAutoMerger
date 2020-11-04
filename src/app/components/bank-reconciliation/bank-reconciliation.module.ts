@@ -11,10 +11,10 @@ import {ClosedReconciliations} from './closed-reconciliations/closed-reconciliat
 import {BankFileEditor} from './bank-statement-upload-modal/bank-file-editor';
 import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
 import {BankStatementRulesModal} from './bank-statement-rules/bank-statement-rules';
-import {QueryBuilder, QueryBuilderItem} from './bank-statement-rules/query-builder/query-builder';
 import {UnsavedAttachmentsModal} from './bank-statement-journal/unsaved-journal-modal/unsaved-attachments-modal';
 import {MatTooltipModule} from '@angular/material/tooltip';
 import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/journal-entry-from-account-modal';
+import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
 
 @NgModule({
     imports: [
@@ -34,9 +34,8 @@ import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/j
         ClosedReconciliations,
         BankStatementSettings,
         BankStatementRulesModal,
-        QueryBuilder,
-        QueryBuilderItem,
-        JournalEntryFromAccountModal
+        JournalEntryFromAccountModal,
+        ManualBankStatementRegisterModal
     ],
 })
 export class BankReconciliationModule {}

@@ -25,6 +25,7 @@ import {BillingHistory} from './billing-history/billing-history';
 import {SettlementsModal} from './settlements-modal/settlements-modal';
 import {NewCompanyModal} from './new-company-modal/new-company-modal';
 import {ExportBillingModal} from './export-billing-modal/export-billing-modal';
+import {LicenseInfoGuard} from './license-info.guard';
 
 @NgModule({
     imports: [
@@ -39,10 +40,10 @@ import {ExportBillingModal} from './export-billing-modal/export-billing-modal';
             children: [
                 { path: '', pathMatch: 'full', redirectTo: 'details' },
                 { path: 'details', component: LicenseDetails },
-                { path: 'companies', component: CompanyList },
-                { path: 'users', component: UserList },
-                { path: 'billing', component: Billing },
-                { path: 'history', component: BillingHistory },
+                { path: 'companies', component: CompanyList, canActivate: [LicenseInfoGuard] },
+                { path: 'users', component: UserList, canActivate: [LicenseInfoGuard] },
+                { path: 'billing', component: Billing, canActivate: [LicenseInfoGuard] },
+                { path: 'history', component: BillingHistory, canActivate: [LicenseInfoGuard] },
             ]
         }]),
     ],
@@ -66,6 +67,9 @@ import {ExportBillingModal} from './export-billing-modal/export-billing-modal';
         BillingHistory,
         SettlementsModal,
         ExportBillingModal,
+    ],
+    providers: [
+        LicenseInfoGuard,
     ]
 })
 export class LicenseInfoModule {}

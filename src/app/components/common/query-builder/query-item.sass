@@ -1,0 +1,59 @@
+\:host
+    display: block
+    white-space: nowrap
+
+.item-container
+    display: flex
+    margin-bottom: 1rem
+
+    select, input
+        width: 14rem
+        min-width: 5rem
+
+    uni-datepicker
+        width: 14rem
+        min-width: 5rem
+
+.logical-operator
+    display: inline-flex
+    align-items: center
+    justify-content: center
+    min-width: 5rem
+    border: 1px solid var(--border-color)
+    border-radius: var(--section-radius)
+    margin-right: .75rem
+    background: var(--alert-info)
+
+    span
+        cursor: pointer
+        i.material-icons
+            font-size: 18px
+            margin-bottom: 2px
+
+        &.active
+            font-weight: 500
+            color: var(--color-c2a)
+
+.input-section
+    display: flex
+    align-items: center
+
+    select, input, uni-datepicker
+        height: 2.25rem
+        margin-right: .75rem
+
+    input, select.dropdown-selection
+        width: 14rem
+        min-width: 5rem
+
+    uni-datepicker
+        width: 14rem
+        min-width: 5rem
+
+    .actions i
+        cursor: pointer
+        &:first-of-type
+            margin-right: .5rem
+
+.sibling-section
+    padding-left: 1.5rem

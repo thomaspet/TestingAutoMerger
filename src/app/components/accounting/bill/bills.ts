@@ -159,11 +159,6 @@ export class BillsView implements OnInit {
     }
 
     public ngOnInit() {
-        // Remove inbox from filters if SR-environment
-        if (theme.theme === THEMES.SR) {
-            this.filters.shift();
-        }
-
         this.checkPath();
         this.refreshList(this.currentFilter, true);
         this.updateSaveActions();
@@ -825,6 +820,14 @@ export class BillsView implements OnInit {
                         ? 'supplier-invoice-table-plus'
                         : 'supplier-invoice-table-minus'
                 ),
+
+            new UniTableColumn('RestAmount', 'Restbeløp', UniTableColumnType.Money)
+                .setFilterOperator('contains')
+                .setConditionalCls(item =>
+                    item.RestAmount >= 0
+                        ? 'supplier-invoice-table-plus'
+                        : 'supplier-invoice-table-minus'
+                ),
             new UniTableColumn('Assignees', 'Tildelt/Godkjent av').setVisible(theme.theme !== THEMES.EXT02),
             new UniTableColumn('ProjectName', 'Prosjektnavn').setVisible(false),
             new UniTableColumn('ProjectProjectNumber', 'Prosjektnr.').setVisible(false),
@@ -846,14 +849,14 @@ export class BillsView implements OnInit {
                     displayField: 'Text',
                     valueField: 'Code'
                 }),
-            new UniTableColumn('InvoiceOriginType', 'Type')
-                .setWidth('10rem', true, false)
-                .setTemplate(row => this.getOriginTypeText(row))
-                .setFilterSelectConfig({
-                    options: this.originTypes,
-                    displayField: 'name',
-                    valueField: 'value'
-                }),
+            // new UniTableColumn('InvoiceOriginType', 'Type')
+            //     .setWidth('10rem', true, false)
+            //     .setTemplate(row => this.getOriginTypeText(row))
+            //     .setFilterSelectConfig({
+            //         options: this.originTypes,
+            //         displayField: 'name',
+            //         valueField: 'value'
+            //     }),
             new UniTableColumn('CreatedAt', 'Opprettet', UniTableColumnType.DateTime).setVisible(false),
             new UniTableColumn('ReInvoiceStatusCode', 'Viderefakturert', UniTableColumnType.Link)
                 .setVisible(!!filter.showStatus)
@@ -918,7 +921,7 @@ export class BillsView implements OnInit {
     }
 
     public onAddNew() {
-        if (theme.theme === THEMES.SR || theme.theme === THEMES.EXT02) {
+        if (theme.theme === THEMES.EXT02) {
             this.router.navigate(['/accounting/inbox'], {queryParams: {openmodal: 1}});
         } else {
             this.router.navigateByUrl('/accounting/bills/0');
@@ -1125,11 +1128,11 @@ export class BillsView implements OnInit {
         }
     }
 
-    private getOriginTypeText(row): string {
-        if (row.InvoiceOriginType > 1) {
-            return row.InvoiceOriginType === 2 ? 'Kvittering' : 'Tilbakebetaling';
-        } else {
-            return theme.theme === THEMES.UE ? 'Leverandørfaktura' : 'Regning';
-        }
-    }
+    // private getOriginTypeText(row): string {
+    //     if (row.InvoiceOriginType > 1) {
+    //         return row.InvoiceOriginType === 2 ? 'Kvittering' : 'Tilbakebetaling';
+    //     } else {
+    //         return theme.theme === THEMES.UE ? 'Leverandørfaktura' : 'Regning';
+    //     }
+    // }
 }

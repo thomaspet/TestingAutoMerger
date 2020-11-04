@@ -72,7 +72,7 @@ import { ReportTypeService } from '@app/services/reports/reportTypeService';
 import { AvtaleGiroModal } from '../avtalegiro-modal/avtalegiro-modal';
 import {SelectDistributionPlanModal} from '@app/components/common/modals/select-distribution-plan-modal/select-distribution-plan-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
-import {CustomerEditModal} from '../../common/customer-edit-modal/customer-edit-modal';
+import {CustomerEditModal} from '../../../common/modals/customer-edit-modal/customer-edit-modal';
 import {Location} from '@angular/common';
 import {cloneDeep} from 'lodash';
 

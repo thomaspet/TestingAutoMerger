@@ -38,10 +38,9 @@
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0" style="margin: 0 auto;">
             <h3>Koble sammen bank og regnskap</h3>
             <p>
-                Autobank gjør det mulig for SR-Bank Regnskap å snakke sammen med nettbanken. Bankkontoer, saldo og transaksjoner er synlige i regnskapssystemet,
-                og du legger opp utbetalinger i nettbanken direkte fra SR-Bank Regnskap. Sammenkoblingen gjør også selve regnskapsførselen enklere for deg.
-                For å komme i gang med denne tjenesten må du gjennom denne veiviseren for oppsett av bankkontoer og opprettelse av passord. <br/> <br/>
-                Dersom du ikke har fått SR-Bank-kontoene dine enda, trykker du Gjennomfør senere under. Veiviseren finner du igjen ved å trykke deg inn på Bank i menyen til venstre.
+                Autobank gjør det mulig for SpareBank 1 Regnskap å snakke sammen med nettbanken. Bankkontoer, saldo og transaksjoner er synlige i regnskapssystemet,
+                og du legger opp utbetalinger i nettbanken direkte fra SpareBank 1 Regnskap. Sammenkoblingen gjør også selve regnskapsførselen enklere for deg.
+                For å komme i gang med denne tjenesten må du gjennom denne veiviseren for oppsett av bankkontoer og opprettelse av passord.
             </p>
             <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
         </article>
@@ -49,7 +48,7 @@
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1">
             <h3>Driftkonto</h3>
             <p>
-                Her kan du sette opp din SR-Bank konto som driftkonto i firmaoppsettet. Denne er <strong>påkrevd</strong> for å fortsette. <br/> Om du allerede har ordnet dette, trykk Neste.
+                Her velger du hvilken bankkonto som brukes som driftskonto. Denne er <strong>påkrevd</strong> for å fortsette. <br/> Om du allerede har ordnet dette, trykk Neste.
             </p>
             <uni-form
                 [model]="companySettings$"
@@ -61,7 +60,7 @@
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 2" id="step2">
             <h3>Lønnskonto</h3>
-            <p> Her kan du velge å sette opp egen konto for lønnstrekk i systemet. Hvis ikke du setter opp en konto her, vil systemet bruke konto satt som Driftskonto ved eventuelle lønnsutbetalinger. Trykk neste for å fortsette. </p>
+            <p> Her kan du velge å sette opp egen konto for eventuelle lønnsutbetalinger. Hvis ikke du setter opp en konto her, vil systemet bruke konto satt som Driftskonto. Trykk neste for å fortsette. </p>
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
@@ -72,7 +71,7 @@
 
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
             <h3>Skattetrekkskonto</h3>
-            <p> Her kan du sette opp en konto for skattetrekk. Denne vil lagres i firmaoppsettet. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
+            <p> Her kan du sette opp en konto for eventuelle skattetrekk. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
             <uni-form
                 [model]="companySettings$"
                 [fields]="fields$"
@@ -84,8 +83,8 @@
         <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4">
             <h3>Sikkerhetsinnstillinger</h3>
             <p>
-                Husk at dette passordet kun gjelder for autobank og må ikke forveksles med passord til pålogging av regskapsprogrammet.
-                Ta godt vare på dette passordet fordi dette passordet brukes til å bekrefte utbetalinger fra din bankkonto
+                Her oppretter du et passord for autobank. Passordet brukes til å bekrefte registrerte utbetalinger i systemet. 
+                Dette passordet må ikke forveksles med passordet du bruker ved pålogging i regnskapssystemet eller nettbanken.
             </p>
 
             <label class="uni-label">

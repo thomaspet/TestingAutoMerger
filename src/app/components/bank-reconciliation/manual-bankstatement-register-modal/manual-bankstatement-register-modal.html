@@ -1,0 +1,20 @@
+<section role="dialog" class="uni-modal" style="width: 55rem;">
+    <header>Opprett bankposter</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <ag-grid-wrapper
+            class="borders"
+			[(resource)]="lines"
+			[config]="uniTableConfig">
+		</ag-grid-wrapper>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit()"> Avbryt </button>
+		<button class="secondary c2a" (click)="save()"> Lagre bankposter </button>
+    </footer>
+</section>

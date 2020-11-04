@@ -1,5 +1,5 @@
 <section class="init-header">
-    <img class="logo" src="themes/logo.svg" routerLink="/init/login">
+    <img class="logo" src="themes/logo.svg" routerLink="/init/login" [ngClass]="sbLogo ? 'sb-logo' : ''">
 
     <a *ngIf="!isAuthenticated && showTryForFree" routerLink="/init/sign-up">Prøv gratis i 30 dager</a>
     <a *ngIf="isAuthenticated" (click)="logout()">Logg ut</a>
@@ -10,7 +10,5 @@
 </section>
 
 <section class="init-footer">
-    <span (click)="navigateToSignUp()">
-        Levert av Uni Micro
-    </span>
+    Levert av Uni Micro
 </section>

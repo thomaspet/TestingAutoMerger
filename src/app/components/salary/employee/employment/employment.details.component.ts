@@ -23,6 +23,7 @@ import { EmploymentHistoryModalComponent } from '@app/components/salary/employee
 
 declare var _;
 const UPDATE_RECURRING = '_updateRecurringTranses';
+const UPDATE_RECURRING_PERCENT = '_updateRecurringTransesPercent';
 
 @Component({
     selector: 'employment-details',
@@ -402,6 +403,10 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
 
         if (changes['Dimensions.ProjectID'] || changes['Dimensions.DepartmentID']) {
             employment[UPDATE_RECURRING] = !!employment.ID;
+            this.employmentChange.emit(employment);
+        }
+        if (changes['WorkPercent']) {
+            employment[UPDATE_RECURRING_PERCENT] = !!employment.ID;
             this.employmentChange.emit(employment);
         }
 

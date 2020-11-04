@@ -1,11 +1,6 @@
 .uni-modal
     max-height: 95vh
-    // article
-    //     padding: 1rem 0
-    // footer
-    //     margin-top: 0
-    //     button.c2a
-    //         min-width: 7rem
+    width: 70rem
 
 .setup-step
     padding: 1.75rem 2.5rem 2rem
@@ -14,24 +9,84 @@
         border-top: 1px solid #ccc
 
     > .header
-        font: 300 20px var(--font-family)
-        i.material-icons
-            vertical-align: middle
-            margin-bottom: 2px
-            margin-right: 5px
-            color: rgba(0, 0, 0, 0.75)
+        label
+            font: 300 20px var(--font-family)
+            i.material-icons
+                vertical-align: middle
+                margin-bottom: 2px
+                margin-right: 5px
+                color: rgba(0, 0, 0, 0.75)
+            > span.model-filter-error
+                font: 300 15px var(--font-family)
+                margin-left: 2.5rem
+
+                i.material-icons
+                    color: red
 
     > .content
         margin: 2rem 0rem 0
+
+        div
+            span
+                display: block
+                margin: 2rem 0 0.5rem
+                font-weight: bold
+
         button
             margin: 0
+
+        section.add-filter-buttons
+            display: flex
+            flex-wrap: wrap
 
 label
     display: flex
     margin-bottom: 1rem
-    span
-        flex: 0 0 10rem
+    > span
+        flex: 0 0 12rem
         margin: auto 0
+
+.entity-model
+    margin-bottom: 0
+
+.active-filters-display
+    display: flex
+    flex-wrap: wrap
+    
+    .active-filter
+        margin: 5px 5px 0 0
+        display: flex
+        background: #f9f9f9
+        height: 30px
+        line-height: 30px
+        border: 1px solid var(--border-color)
+        border-radius: 3px
+        font-size: 14px
+        overflow: hidden
+
+        span
+            padding: 0 10px
+            overflow: hidden
+            white-space: nowrap
+            text-overflow: ellipsis
+
+        i.material-icons
+            cursor: pointer
+            font-size: 18px
+            height: 100%
+            line-height: 30px
+            padding: 0 5px
+            border-left: 1px solid var(--border-color)
+            &:hover
+                background: rgba(0, 0, 0, .05)
+
+    span.clear-all
+        flex: 0 0 auto
+        margin: auto 0 auto 1rem
+        cursor: pointer
+        font-size: 15px
+        color: var(--color-c2a)
+
 
 .operation-filters
     display: flex
