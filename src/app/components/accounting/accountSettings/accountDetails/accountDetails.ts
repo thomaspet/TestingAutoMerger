@@ -517,7 +517,7 @@ export class AccountDetails implements OnInit {
                         '_createguid': getNewGuid()
                     };
                 }
-                altinnAccountLink.AltinnAccountNumber = account['_altinnAccountNumber'];
+                altinnAccountLink.AltinnAccountNumber = account['_AltinnAccountNumber'];
                 altinnAccountLink.AccountNumber = account.AccountNumber;
                 return altinnAccountLink;
             }),
