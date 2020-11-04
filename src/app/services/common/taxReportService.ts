@@ -5,6 +5,7 @@ import { BizHttp } from '@uni-framework/core/http';
 import {Observable} from 'rxjs';
 import {HttpClient} from '@angular/common/http';
 import {map, take} from 'rxjs/operators';
+import { isNullOrUndefined } from 'util';
 
 export class TaxReport extends UniEntity {
     public static RelativeUrl = 'taxreport';
@@ -109,9 +110,14 @@ export class TaxReportService extends BizHttp<TaxReport> {
         const schema = new Schema('RF-1167');
         return schema.GetRecords(this.http.http).pipe(
             map(records => records.map((record) => {
+                if (data[record.Key] !== undefined) {
                     const item: FormRecord = data[record.Key];
                     return new FormRecordWithKey(record.Key, record.Text, item.Value, item.Verified);
-                })
+                } else {
+                    console.error('The record ' + record.Key + ' is in json but not in the records from backend - has something changed?');
+                    return new FormRecordWithKey('', record.Text);
+                }
+            })
             )
         );
     }
