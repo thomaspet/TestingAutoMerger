@@ -2,7 +2,7 @@
 import {Router} from '@angular/router';
 import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
