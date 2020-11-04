@@ -224,12 +224,20 @@ export class SupplierInvoiceStore {
         if (this.selectedFile?.ID !== file.ID) {
             this.selectedFile = file;
 
+            const run = () => {
+                if (this.supplierInvoiceService.isOCR(file)) {
+                    this.runOcr();
+                } else if (this.supplierInvoiceService.isEHF(file)) {
+                    this.runEHF(file);
+                }
+            };
+
             if (this.initDataLoaded$.value) {
-                this.runOcr();
+                run();
             } else {
                 this.initDataLoaded$.take(2).subscribe(res => {
                     if (res) {
-                        this.runOcr();
+                        run();
                     }
                 });
             }
@@ -294,6 +302,26 @@ export class SupplierInvoiceStore {
                 });
             }
         }
+    }
+
+    runEHF(file: any) {
+        this.toastService.showLoadIndicator({
+            title: 'Et lite øyeblikk',
+            message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
+        });
+        this.ocrHelper.runEHFParse(file).subscribe(invoice => {
+            invoice.JournalEntry = invoice.JournalEntry || <JournalEntry>{ ID: 0, DraftLines: [] };
+            this.invoice$.next(invoice);
+
+            this.updateJournalEntryLine(0, 'AmountCurrency', invoice.TaxInclusiveAmountCurrency);
+
+            if (invoice.Supplier) {
+                this.runSmartBooking();
+            }
+            this.toastService.hideLoadIndicator();
+        }, err => {
+            this.toastService.hideLoadIndicator();
+        });
     }
 
     getDescription(): string {
