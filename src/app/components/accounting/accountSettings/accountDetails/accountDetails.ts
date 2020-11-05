@@ -486,10 +486,10 @@ export class AccountDetails implements OnInit {
         }
         const action$ = account.ID && account.ID > 0 ? this.accountService.Put(account.ID, account) : this.accountService.Post(account);
         action$.pipe(
-            tap( // side effect
+            switchMap( // side effect
                 (_account) => {
                     _account['_AltinnAccountNumber'] = account['_AltinnAccountNumber'];
-                    return this.saveAltinnAccountLink(_account);
+                    return this.saveAltinnAccountLink(_account).pipe(map(x => _account));
                 }
             )
         ).subscribe(

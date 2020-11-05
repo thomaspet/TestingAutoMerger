@@ -1,7 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp} from '@uni-framework/core/http';
 
-
 export interface AltinnAccountLink {
     _createguid?: string;
     ID?: number;
@@ -20,7 +19,7 @@ export class AltinnAccountLinkService extends BizHttp<AltinnAccountLink> {
     }
 
     getByAccountNumber(accountNumber: number) {
-        return this.GetOneByQuery('filter=AccountNumber eq ' + accountNumber);
+        return this.GetOneByQuery('filter=AccountNumber eq ' + accountNumber, []);
     }
 
     save(altinnAccountLink: AltinnAccountLink) {
