@@ -310,8 +310,8 @@ export class SendInvoiceModal implements IUniModal {
     private canSendEfaktura() {
         return Observable.of(this.invoice.TaxInclusiveAmount >= 0
             && this.companySettings.NetsIntegrationActivated
-            && this.invoice.Customer.EInvoiceAgreementReference
-            && this.invoice.Customer.EfakturaIdentifier);
+            && (this.invoice.Customer.EInvoiceAgreementReference
+            || this.invoice.Customer.EfakturaIdentifier));
     }
 
     private canSendAvtaleGiroEfaktura() {
