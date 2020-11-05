@@ -26,7 +26,7 @@ import {theme, THEMES} from 'src/themes/theme';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {HttpClient} from '@angular/common/http';
 import {catchError, map, switchMap, tap} from 'rxjs/operators';
-import {AltinnAccountLinkService} from '@app/services/accounting/altinnAccountLinkService';
+import {AltinnAccountLink, AltinnAccountLinkService} from '@app/services/accounting/altinnAccountLinkService';
 
 @Component({
     selector: 'account-details',
@@ -487,7 +487,10 @@ export class AccountDetails implements OnInit {
         const action$ = account.ID && account.ID > 0 ? this.accountService.Put(account.ID, account) : this.accountService.Post(account);
         action$.pipe(
             tap( // side effect
-                (_account) => this.saveAltinnAccountLink(_account)
+                (_account) => {
+                    _account['_AltinnAccountNumber'] = account['_AltinnAccountNumber'];
+                    return this.saveAltinnAccountLink(_account);
+                }
             )
         ).subscribe(
         response => {
@@ -521,7 +524,7 @@ export class AccountDetails implements OnInit {
                 altinnAccountLink.AccountNumber = account.AccountNumber;
                 return altinnAccountLink;
             }),
-            switchMap(altinnAccountLink => this.altinnAccountLinkService.save(altinnAccountLink)),
+            switchMap((altinnAccountLink: AltinnAccountLink) => this.altinnAccountLinkService.save(altinnAccountLink)),
             map(altinnAccountLink => account)
         );
     }
