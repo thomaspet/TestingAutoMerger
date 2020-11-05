@@ -53,6 +53,7 @@ import {AuthService} from '@app/authService';
         <section *ngIf="showBoostChat" class="boost-icon">
             <boost-chat></boost-chat>
         </section>
+        <zendesk-chat *ngIf="isBrunoEnvironment"></zendesk-chat>
     `,
     styleUrls: ['./help.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush

@@ -184,11 +184,18 @@ export class AuthService {
             }
         }
 
-        // #chat-container is added by boost, so it wont show up
-        // if you do a project wide search for it. Dont remove this :)
-        const boostChat = document.getElementById('chat-container');
-        if (boostChat) {
-            boostChat.style.visibility = visible ? 'hidden' : 'visible';
+        // #chat-container is added by boost, #launcher is added by zendesk.
+        // They wont show up if you do a project wide search for them. Dont remove this :)
+        const chatBot = document.getElementById('chat-container') ?? document.getElementById('launcher');
+        if (chatBot) {
+            // if authenticated, we go by the spinners visibility, else we just hide
+            this.isAuthenticated().then(isAuthenticated => {
+                if (isAuthenticated) {
+                    chatBot.style.visibility = visible ? 'hidden' : 'visible';
+                } else {
+                    chatBot.style.visibility = 'hidden';
+                }
+            });
         }
     }
 

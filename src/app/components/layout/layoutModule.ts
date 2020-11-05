@@ -22,6 +22,7 @@ import {SmartSearchDataService} from './smart-search/smart-search-data.service';
 import {NotificationsModule} from './notifications/notifications.module';
 
 import {BoostChat} from './boostChat/boostChat';
+import {ZenDeskChat} from './zendeskChat/zendeskChat';
 
 import {ChatBoxComponent} from './chat-box/chat-box.component';
 import {UniMegaMenu} from './navbar/mega-menu/mega-menu';
@@ -52,6 +53,7 @@ import {DemoPackageSelector} from './navbar/demo-package-selector/demo-package-s
         BoostChat,
         SupportAccessIndicator,
         DemoPackageSelector,
+        ZenDeskChat,
     ],
     providers: [
         SmartSearchService,
@@ -66,6 +68,7 @@ import {DemoPackageSelector} from './navbar/demo-package-selector/demo-package-s
         ChatBoxComponent,
         BoostChat,
         SupportAccessIndicator,
+        ZenDeskChat,
     ]
 })
 export class LayoutModule {
