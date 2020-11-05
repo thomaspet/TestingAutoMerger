@@ -1,7 +1,5 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp} from '@uni-framework/core/http';
-import {StatisticsService} from '@app/services/common/statisticsService';
-import {Account} from '@uni-entities';
 
 
 export interface AltinnAccountLink {
@@ -14,7 +12,7 @@ export interface AltinnAccountLink {
 @Injectable()
 export class AltinnAccountLinkService extends BizHttp<AltinnAccountLink> {
 
-    constructor(http: UniHttp, private statisticsService: StatisticsService) {
+    constructor(http: UniHttp) {
         super(http);
         this.relativeURL = 'AltinnAccountLinks';
         this.entityType = 'AltinnAccountLink';
