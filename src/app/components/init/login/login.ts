@@ -22,6 +22,7 @@ export class Login {
     isLoading: boolean;
     companyErrorMessage = '';
 
+    appName = theme.appName || '';
     background = theme.init.login_background || theme.init.background;
     backgroundHeight = theme.init.login_background_height;
     illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
