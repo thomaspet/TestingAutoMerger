@@ -258,7 +258,7 @@ export class AMeldingService extends BizHttp<AmeldingData> {
                         }
                     });
                 } else {
-                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                    if (alleMottak?.hasOwnProperty('kalendermaaned')) {
                         const pr = alleMottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop(), 10);
                         this.setMottattLeveranser(alleMottak.mottattLeveranse, period);

@@ -133,9 +133,9 @@ export class AmeldingSummaryViewComponent implements OnChanges {
                 const entityExpanded: boolean = entity.expanded;
                 const entitySums: Object = entity.sums;
 
+                this.employeeAndEmployments = [];
+                this.employeeleaves = [];
                 if (entity.employees) {
-                    this.employeeAndEmployments = [];
-                    this.employeeleaves = [];
                     entity.employees.forEach(employee => {
                         const employeeName = employee.name;
                         const employeeNumber = employee.employeeNumber;
