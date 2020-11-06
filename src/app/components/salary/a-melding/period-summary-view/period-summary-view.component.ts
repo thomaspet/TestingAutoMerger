@@ -123,7 +123,7 @@ export class AmeldingPeriodSummaryViewComponent {
                         }
                     });
                 } else {
-                    if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                    if (alleMottak?.hasOwnProperty('kalendermaaned')) {
                         const pr = alleMottak.kalendermaaned;
                         const period = parseInt(pr.split('-').pop(), 10);
                         if ((period === this.currentAMelding.period)

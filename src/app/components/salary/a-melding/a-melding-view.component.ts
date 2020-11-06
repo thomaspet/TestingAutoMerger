@@ -194,12 +194,14 @@ export class AMeldingViewComponent implements OnInit {
     private informAboutFastAnsatt() {
         const reminded = localStorage.getItem('fastansatt_notificaton');
         if ((!reminded || reminded === 'false') && (this.activeYear === 2021 && this.currentPeriod <= 3)) {
-            const toastAction = { label : 'Ikke minn meg igjen', displayInHeader : true,
-                click : () => { localStorage.setItem('fastansatt_notificaton', 'true'); } };
+            const toastAction = {
+                label: 'Ikke minn meg igjen', displayInHeader: true,
+                click: () => { localStorage.setItem('fastansatt_notificaton', 'true'); }
+            };
 
             this._toastService.addToast('Alle ansatte har fått ansattform fast ansatt', ToastType.info, 20,
-                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaet er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.', 
-                toastAction );
+                'Fra a-melding for januar 2021 må alle arbeidsforhold innrapporteres med ansettelsesform. Alle aktive arbeidsforhold på dette firmaet er registrert med fast ansettelsesform. Dersom korrekt innrapportering er midlertidig ansettelsesform må dette endres på arbeidsforholdet.',
+                toastAction);
         }
     }
 
@@ -354,9 +356,9 @@ export class AMeldingViewComponent implements OnInit {
                     this._toastService.addToast('Sjekk oppsett',
                         ToastType.warn,
                         ToastTime.medium,
-                        'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding'); 
-                    }
-        });
+                        'Utleggstrekk skatt ikke satt opp korrekt for innrapportering på a-melding');
+                }
+            });
         this._ameldingService.postAMelding(this.currentPeriod, event.type, this.activeYear)
             .subscribe(response => {
                 this.saveStatus.completeCount++;
@@ -434,7 +436,7 @@ export class AMeldingViewComponent implements OnInit {
                                     }
                                 });
                             } else {
-                                if (alleMottak.hasOwnProperty('kalendermaaned')) {
+                                if (alleMottak?.hasOwnProperty('kalendermaaned')) {
                                     const pr = alleMottak.kalendermaaned;
                                     const period = parseInt(pr.split('-').pop(), 10);
                                     if ((period === this.currentAMelding.period)
@@ -848,18 +850,18 @@ export class AMeldingViewComponent implements OnInit {
                     ?.feedBack
                     ?.melding
                     ?.Mottak;
-                const filteredMottak = mottak?.filter(m => m.kalendermaaned === `${currentAMelding.year}-${currentAMelding.period.toLocaleString(undefined, {minimumIntegerDigits: 2})}`);
+                const filteredMottak = mottak?.filter(m => m.kalendermaaned === `${currentAMelding.year}-${currentAMelding.period.toLocaleString(undefined, { minimumIntegerDigits: 2 })}`);
                 return filteredMottak
                     .pop()
                     ?.innbetalingsinformasjon
                     ?.forfallsdato || null;
             }
             return currentAMelding
-                        ?.feedBack
-                        ?.melding
-                        ?.Mottak
-                        ?.innbetalingsinformasjon
-                        ?.forfallsdato
+                ?.feedBack
+                ?.melding
+                ?.Mottak
+                ?.innbetalingsinformasjon
+                ?.forfallsdato
                 || null;
         };
         this.modalService.open(MakeAmeldingPaymentModalComponent, {
@@ -874,25 +876,25 @@ export class AMeldingViewComponent implements OnInit {
                 payDate: getSafePayDate(<IAmelding>this.currentAMelding)
             }
         }).onClose
-        .pipe(
-            filter(dto => !!dto)
-        ).subscribe((dto: any) => {
-            if (dto) {
-                this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
-                    let toastText = '';
-                    if (dto.payAga || dto.payTaxDraw) {
-                        toastText = `Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. `;
-                    }
-                    if (dto.payFinancialTax) {
-                        toastText += `Finansskatt er lagt til betalingsliste. `;
-                    }
-                    if (dto.payGarnishment) {
-                        toastText += `Utleggstrekk er lagt til betalingsliste. `;
-                    }
-                    this._toastService.addToast(toastText + `Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
-                }, (error) => this.errorService.handle(error));
-            }
-        });
+            .pipe(
+                filter(dto => !!dto)
+            ).subscribe((dto: any) => {
+                if (dto) {
+                    this._ameldingService.ActionWithBody(this.currentAMelding.ID, dto, 'pay-aga-tax', RequestMethod.Post).subscribe(x => {
+                        let toastText = '';
+                        if (dto.payAga || dto.payTaxDraw) {
+                            toastText = `Forskuddstrekk og Arbeidsgiveravgift for periode ${this.currentPeriod} er lagt til betalingsliste. `;
+                        }
+                        if (dto.payFinancialTax) {
+                            toastText += `Finansskatt er lagt til betalingsliste. `;
+                        }
+                        if (dto.payGarnishment) {
+                            toastText += `Utleggstrekk er lagt til betalingsliste. `;
+                        }
+                        this._toastService.addToast(toastText + `Husk at utbetalingene må sendes til banken fra Bank - Utbetaling.`);
+                    }, (error) => this.errorService.handle(error));
+                }
+            });
     }
 
     private handleAltinnError(err, done: (message: string) => void = null) {
@@ -933,7 +935,7 @@ export class AMeldingViewComponent implements OnInit {
         });
     }
 
-    private validateOnLeaveAMelding(ameldingSumUp: AmeldingSumUp): string [] {
+    private validateOnLeaveAMelding(ameldingSumUp: AmeldingSumUp): string[] {
         if (!ameldingSumUp) {
             return;
         }
@@ -943,31 +945,33 @@ export class AMeldingViewComponent implements OnInit {
         let empNr;
         ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
             // Sjekker permisjon
-            ameldingEntity.employees.forEach(employee => {
-                empNr = employee.employeeNumber;
-                if (employee.arbeidsforhold) {
-                    employee.arbeidsforhold.forEach(employment => {
-                        if (employment.permisjon) {
-                            employment.permisjon.forEach(permisjon => {
-                                const permStart = new Date(permisjon.startdato);
-                                const permEnd = permisjon.sluttdato ? new Date(permisjon.sluttdato) : new Date(2199, 1, 1);
-                                const permEndFormat = permisjon.sluttdato ? moment(permisjon.sluttdato).format('DD.MM.YYYY') : '';
-                                if ((permStart <= firstOfMonth && permEnd >= firstOfMonth) ||
-                                    (permStart <= firstOfMonth && permEnd >= lastOfMonth) ||
-                                    (permStart >= firstOfMonth && permEnd <= lastOfMonth) ||
-                                    (permStart <= lastOfMonth && permEnd >= lastOfMonth )) {
+            if (ameldingEntity.employees) {
+                ameldingEntity.employees.forEach(employee => {
+                    empNr = employee.employeeNumber;
+                    if (employee.arbeidsforhold) {
+                        employee.arbeidsforhold.forEach(employment => {
+                            if (employment.permisjon) {
+                                employment.permisjon.forEach(permisjon => {
+                                    const permStart = new Date(permisjon.startdato);
+                                    const permEnd = permisjon.sluttdato ? new Date(permisjon.sluttdato) : new Date(2199, 1, 1);
+                                    const permEndFormat = permisjon.sluttdato ? moment(permisjon.sluttdato).format('DD.MM.YYYY') : '';
+                                    if ((permStart <= firstOfMonth && permEnd >= firstOfMonth) ||
+                                        (permStart <= firstOfMonth && permEnd >= lastOfMonth) ||
+                                        (permStart >= firstOfMonth && permEnd <= lastOfMonth) ||
+                                        (permStart <= lastOfMonth && permEnd >= lastOfMonth)) {
                                         const trans = this.translationService.translate('SALARY.AMELDING.SUMMARY.ONLEAVE_EMPLOYEES~'
                                             + empNr + '~'
                                             + moment(permisjon.startdato).format('DD.MM.YYYY')
-                                            + '~' +  permEndFormat
+                                            + '~' + permEndFormat
                                             + '~' + permisjon.beskrivelse);
-                                onleave.push(trans);
+                                        onleave.push(trans);
+                                    }
+                                });
                             }
-                            });
-                        }
-                    });
-                }
-            });
+                        });
+                    }
+                });
+            }
         });
 
         return onleave;
@@ -987,14 +991,16 @@ export class AMeldingViewComponent implements OnInit {
         ) {
             ameldingSumUp.entities.forEach((ameldingEntity: AmeldingEntity) => {
                 if (ameldingEntity.orgNumber === ameldingSumUp.LegalEntityNo) {
-                    ameldingEntity.employees.forEach((employee) => {
-                        employee.arbeidsforhold.forEach(employeement => {
-                            if (employeement.type === 'pensjonOgAndreTyperYtelserUtenAnsettelsesforhold') {
-                                return;
-                            }
-                            employmentIDs.push(employeement.arbeidsforholdId);
+                    if (ameldingEntity.employees) {
+                        ameldingEntity.employees.forEach((employee) => {
+                            employee.arbeidsforhold.forEach(employeement => {
+                                if (employeement.type === 'pensjonOgAndreTyperYtelserUtenAnsettelsesforhold') {
+                                    return;
+                                }
+                                employmentIDs.push(employeement.arbeidsforholdId);
+                            });
                         });
-                    });
+                    }
                     if (!employmentIDs.length) {
                         return;
                     }
