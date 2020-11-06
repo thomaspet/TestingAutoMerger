@@ -48,6 +48,13 @@ export interface IUploadConfig {
             (rowClick)="attachmentClicked($event)"
             (rowSelectionChange)="onRowSelectionChange($event)">
         </ag-grid-wrapper>
+
+        <section class="attachments-infobox" *ngIf="showInfoBox">
+            <section>
+                <span>Markerte vedlegg sendes ut til kunden som vedlegg til faktura.</span><br>
+                <span>Umarkerte vedlegg lagres som intern dokumentasjon på fakturabilaget, og blir ikke distribuert til kunden.</span>
+            </section>
+        </section>
     `,
 })
 export class UniAttachments {
@@ -60,6 +67,7 @@ export class UniAttachments {
     @Input() uploadWithoutEntity: boolean = false;
     @Input() canSendEHF: boolean = false;
     @Input() tooltip: string;
+    @Input() showInfoBox?: boolean = false;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
     @Output() selectedFileSize: EventEmitter<number> = new EventEmitter();
@@ -72,7 +80,7 @@ export class UniAttachments {
     uploading: boolean;
     files: File[] = [];
     tableConfig: UniTableConfig;
-    
+
     constructor(
         private ngHttp: HttpClient,
         private http: UniHttp,
