@@ -143,7 +143,6 @@ export class App {
                     this.showUserLicenseModal();
                 }
 
-
                 if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest) {
                     this.brunoOnboardingService.getAgreement().subscribe((agreement: BankIntegrationAgreement) => {
 
