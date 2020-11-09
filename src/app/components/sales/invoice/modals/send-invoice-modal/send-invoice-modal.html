@@ -16,7 +16,7 @@
         </section>
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">
-                <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
+                <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:mm'}}</span>
                 <span class="text">{{getSharingText(sharing)}}</span>
                 <span class="status">{{getSharingStatus(sharing)}}</span>
             </section>
