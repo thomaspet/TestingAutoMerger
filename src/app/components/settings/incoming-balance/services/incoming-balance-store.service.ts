@@ -79,7 +79,7 @@ export class IncomingBalanceStoreService {
                     _isDirty: true,
                     FinancialDate: date,
                     VatDate: date,
-                    RegisteredDate: date
+                    RegisteredDate: date,
                 }))
         );
     }
@@ -240,6 +240,8 @@ export class IncomingBalanceStoreService {
                             JournalEntryNumber: null,
                             JournalEntryNumberNumeric: null,
                             StatusCode: null,
+                            PeriodID: null,
+                            VatPeriodID: null,
                         }));
                     return this.saveChangesAsDraft(null, cleanLines);
                 }),
