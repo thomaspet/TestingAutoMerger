@@ -104,12 +104,12 @@ export class App {
                 }
 
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
-                    this.elsaCustomerService.get(authDetails.user.License.Company.ContractID)
+                    this.elsaCustomerService.getByContractID(authDetails.user.License.Company.ContractID)
                     .subscribe(customer => {
-                        if (!customer.IsBankCustomer) {
+                        if (!customer?.IsBankCustomer) {
                             this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1';
                         }
-                        this.isBankCustomer = customer.IsBankCustomer;
+                        this.isBankCustomer = !!customer?.IsBankCustomer;
                     }, err => console.error(err));
                     this.isPendingApproval = true;
                     return;
