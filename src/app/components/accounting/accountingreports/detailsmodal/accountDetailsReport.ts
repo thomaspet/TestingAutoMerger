@@ -406,6 +406,17 @@ export class AccountDetailsReport {
     }
 
     private getTableData(urlParams: HttpParams, isSum: boolean = false) {
+        const params = this.getUrlParams(urlParams, isSum);
+        if (isSum) {
+            return this.statisticsService.GetAllByHttpParams(params)
+                .map(res => res.body)
+                .map(res => (res.Data && res.Data[0]) || []);
+        } else {
+            return this.statisticsService.GetAllByHttpParams(params);
+        }
+    }
+
+    private getUrlParams(urlParams: HttpParams, isSum: boolean = false) {
         urlParams = urlParams || new HttpParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
@@ -437,9 +448,7 @@ export class AccountDetailsReport {
             urlParams = urlParams.delete('join');
             urlParams = urlParams.delete('orderby');
 
-            return this.statisticsService.GetAllByHttpParams(urlParams)
-                .map(res => res.body)
-                .map(res => (res.Data && res.Data[0]) || []);
+            return urlParams;
         } else {
             const select = [
                 'ID as ID',
@@ -467,9 +476,9 @@ export class AccountDetailsReport {
             urlParams = urlParams.set('select', select);
             urlParams = urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
             urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-
-            return this.statisticsService.GetAllByHttpParams(urlParams);
+            return urlParams;
         }
+
     }
 
     private setupLookupTransactions() {
@@ -655,61 +664,8 @@ export class AccountDetailsReport {
     }
 
     public toExcel(urlParams: HttpParams) {
-        urlParams = urlParams || new HttpParams();
-        const filtersFromUniTable = urlParams.get('filter');
-        const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
-
-
-        if (this.config.isSubAccount) {
-            filters.push(`JournalEntryLine.SubAccountID eq ${this.config.accountID}`);
-        } else {
-            filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
-        }
-
-        filters.push(`${this.currentDateField.value} ge '${moment(this.fromDate.Date).format('YYYY-MM-DD')}'`);
-        filters.push(`${this.currentDateField.value} le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
-
-        if (this.dimensionEntityName) {
-            filters.push(`isnull(Dimensions.${this.dimensionEntityName}ID,0) eq ${this.config.dimensionId}`);
-        }
-
-        if (!this.showCredited) {
-            filters.push(`isnull(StatusCode,0) ne '31004'`);
-        }
-
-        urlParams = urlParams.set('model', 'JournalEntryLine');
-        urlParams = urlParams.set('expand', 'Account,SubAccount,VatType,Dimensions.Department,Dimensions.Project,Period');
-        urlParams = urlParams.set('filter', filters.join(' and '));
-
-        const select = [
-            'ID as ID',
-            'JournalEntryNumber as JournalEntryNumber',
-            'JournalEntryNumberNumeric as JournalEntryNumberNumeric',
-            'FinancialDate',
-            'PaymentID as PaymentID',
-            'AmountCurrency as AmountCurrency',
-            'Description as Description',
-            'StatusCode as StatusCode',
-            'VatDate as VatDate',
-            'VatType.VatCode',
-            'Amount as Amount',
-            'VatDeductionPercent as VatDeductionPercent',
-            'Department.Name',
-            'Project.Name',
-            'Department.DepartmentNumber',
-            'Project.ProjectNumber',
-            'JournalEntryID as JournalEntryID',
-            'ReferenceCreditPostID as ReferenceCreditPostID',
-            'OriginalReferencePostID as OriginalReferencePostID',
-            'sum(casewhen(FileEntityLink.EntityType eq \'JournalEntry\'\\,1\\,0)) as Attachments'
-        ].join(',');
-
-        urlParams = urlParams.set('select', select);
-        urlParams = urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
-        urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-
-
-        this.statisticsService.GetExportedExcelFileFromUrlParams(urlParams)
+        const params = this.getUrlParams(urlParams, false);
+        this.statisticsService.GetExportedExcelFileFromUrlParams(params)
             .subscribe((result) => {
                 let filename = '';
                 // Get filename with filetype from headers
@@ -728,7 +684,5 @@ export class AccountDetailsReport {
                 // download file so the user can open it
                 saveAs(blob, filename);
             }, err => this.errorService.handle(err));
-
     }
-
 }
