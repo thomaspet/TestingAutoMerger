@@ -1207,7 +1207,7 @@ export class BankComponent {
         this.toastService.addToast(customerPayment ? 'Innbetalingsjobb startet' : 'Utbetalingsjobb startet', ToastType.good, 5,
             'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
         this.paymentBatchService.waitUntilJobCompleted(jobID).subscribe(jobResponse => {
-            if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
+            if (jobResponse && jobResponse?.State !== 'Failed' && jobResponse.Result === null) {
                 this.toastService.addToast(customerPayment ? 'Innbetalingjobb er fullført' : 'Utbetalingsjobb er fullført',
                     ToastType.good, 10, customerPayment
                     ? `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`
