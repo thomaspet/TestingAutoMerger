@@ -4097,7 +4097,7 @@ export class Eventplan extends UniEntity {
     public ModelFilter: string;
     public JobNames: string;
     public Name: string;
-    public ExpressionFilter: string;
+    public ExpressionFilters: Array<ExpressionFilter>;
     public CreatedBy: string;
     public UpdatedAt: Date;
     public SigningKey: string;
@@ -4115,6 +4115,20 @@ export class Eventplan extends UniEntity {
     public CustomFields: any;
 }
 
+export class ExpressionFilter extends UniEntity {
+    public EntityName: string;
+    public Expression: string;
+    public CreatedAt: Date;
+    public CreatedBy: string;
+    public UpdatedAt: Date;
+    public EventplanID: number;
+    public Deleted: boolean;
+    public UpdatedBy: string;
+    public ID: number;
+    public _createguid: string;
+    public Eventplan: Eventplan;
+    public CustomFields: any;
+}
 
 export class EventSubscriber extends UniEntity {
     public static RelativeUrl = 'eventsubscribers';

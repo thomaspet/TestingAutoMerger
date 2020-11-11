@@ -61,6 +61,11 @@ export const accountingRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
+        path: 'balancesearch',
+        loadChildren: () => import('@app/components/accounting/balance/balanceSearch.module')
+            .then(m => m.BalanceSearchModule)
+    },
+    {
         path: 'accountingreports',
         component: AccountingReports,
         children: AccountintReportsRoutes,

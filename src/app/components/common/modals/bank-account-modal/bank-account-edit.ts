@@ -1,12 +1,13 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {Observable} from 'rxjs';
+import {forkJoin, Observable} from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {BankAccount, CompanySettings} from '@app/unientities';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {BankService, ErrorService, BankAccountService, StatisticsService} from '@app/services/services';
+import {BankService, ErrorService, BankAccountService, StatisticsService, ElsaContractService} from '@app/services/services';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
 import {BehaviorSubject} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'company-bankaccount-edit',
@@ -26,7 +27,6 @@ import {theme, THEMES} from 'src/themes/theme';
             <button class="c2a" style="min-width: 8rem"  (click)="save()" [disabled]="!validAccount">Lagre konto</button>
         </footer>
     `,
-    styleUrls: ['./bank-accounts.sass']
 })
 export class CompanyBankAccountEdit {
 
@@ -38,6 +38,9 @@ export class CompanyBankAccountEdit {
 
     @Input()
     companySettings: CompanySettings;
+
+    @Input()
+    lockAccountType: boolean = false;
 
     @Output()
     saved = new EventEmitter();
@@ -53,17 +56,25 @@ export class CompanyBankAccountEdit {
 
     errorMsg: string = '';
 
+    forceSameBank: boolean = false;
+    bankName: string;
+    sameBankBIC: string;
+
     constructor(
         private bankService: BankService,
         private errorService: ErrorService,
         private toastService: ToastService,
         private bankAccountService: BankAccountService,
         private statisticsService: StatisticsService,
-        private uniSearchAccountConfig: UniSearchAccountConfig
+        private uniSearchAccountConfig: UniSearchAccountConfig,
+        private authService: AuthService,
+        private elsaContractService: ElsaContractService,
     ) {}
 
     public ngOnChanges() {
-        this.bankAccount['_link'] = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/konto/skattetrekkskonto.html?noredirect=true';
+        if (theme.theme === THEMES.EXT02) {
+            this.bankAccount['_link'] = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/konto/skattetrekkskonto.html?noredirect=true';
+        }
         this.bankAccount['_hasChangedStandard'] = this.bankAccount['_hasChangedStandard'] || false;
         this.bankAccount.CompanySettingsID = 1;
 
@@ -72,11 +83,18 @@ export class CompanyBankAccountEdit {
             this.saved.emit(false);
         }
 
-        this.bankService.GetAll(null, ['Address,Email,Phone']).subscribe(banks => {
+        forkJoin([
+            this.bankService.GetAll(null, ['Address,Email,Phone']),
+            this.elsaContractService.getCurrentContractType(this.authService.currentUser.License?.ContractType?.TypeName)
+        ]).subscribe(([banks, contracttype]) => {
             this.bankAccount['BankList'] = banks;
             if (this.bankAccount.BankID && !this.bankAccount.Bank) {
                 this.bankAccount.Bank = banks.find(x => x.ID === this.bankAccount.BankID);
             }
+
+            this.forceSameBank = !!contracttype?.ForceSameBank;
+            this.bankName = this.authService.publicSettings?.BankName;
+            this.sameBankBIC = this.authService.publicSettings?.BIC;
 
             this.formModel$.next(Object.assign({}, this.bankAccount));
             this.formFields$.next(this.getFormFields());
@@ -156,9 +174,8 @@ export class CompanyBankAccountEdit {
             return;
         }
 
-        // Only allow DnB accounts when in ext02 theme
-        if (theme.theme === THEMES.EXT02 && !account.ID && account.Bank.BIC !== 'DNBANOKK') {
-            this.errorMsg = 'DNB-Regnskap tillatter kun gyldige kontoer fra DNB som systemkontoer';
+        if (this.forceSameBank && account.Bank.BIC !== this.sameBankBIC) {
+            this.errorMsg = 'Valgt konto er ikke en gyldig konto fra ' + this.bankName;
             return;
         }
 
@@ -313,8 +330,7 @@ export class CompanyBankAccountEdit {
                 if (res) {
                     const account = this.formModel$.getValue();
 
-                    // Only allow DnB accounts when in ext02 theme
-                    if (theme.theme === THEMES.EXT02 && !res.ID && res.Bank.BIC !== 'DNBANOKK') {
+                    if (this.forceSameBank && res.Bank.BIC !== this.sameBankBIC) {
 
                         account.AccountNumber = res.AccountNumber;
                         account.IBAN = null;
@@ -324,7 +340,7 @@ export class CompanyBankAccountEdit {
 
                         this.formModel$.next(account);
                         this.validAccount = false;
-                        return Observable.of('DNB-Regnskap tillatter kun gyldige kontoer fra DNB');
+                        return Observable.of('Valgt konto er ikke en gyldig konto fra ' + this.bankName);
                     }
 
                     account.AccountNumber = res.AccountNumber;
@@ -353,7 +369,7 @@ export class CompanyBankAccountEdit {
                 Property: 'BankAccountType',
                 FieldType: FieldType.DROPDOWN,
                 Label: 'Type',
-                ReadOnly: this.bankAccount['_count'],
+                ReadOnly: this.bankAccount['_count'] || this.lockAccountType,
                 Options: {
                     source: this.bankService.BANK_ACCOUNT_TYPES,
                     valueProperty: 'value',
@@ -366,7 +382,7 @@ export class CompanyBankAccountEdit {
                 HelpText: 'Skattetrekkskonto',
                 Property: '_link',
                 FieldType: FieldType.HYPERLINK,
-                Hidden: this.formModel$.value.BankAccountType !== 'tax' || !this.isNew,
+                Hidden: !this.bankAccount['_link'] || this.formModel$.value.BankAccountType !== 'tax' || !this.isNew,
                 Options: {
                     linkClass: 'alert info',
                     description: 'Skattetrekkskonto er en type konto som kun kan brukes til betalinger til det offentlige. Den benyttes til overføring av forskuddstrekk for ansatte knyttet til lønnskjøring',

@@ -572,11 +572,13 @@ export class TradeItemHelper  {
                 sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? (item.SumTotalExVatCurrency || 0) : 0;
                 sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? (item.SumTotalExVatCurrency || 0) : 0;
             });
-
-            let roundedAmount = this.round(sum.SumTotalIncVat, decimals);
+            
+            let sign = sum.SumTotalIncVat < 0 ? -1 : 1;
+            let roundedAmount = this.round(Math.abs(sum.SumTotalIncVat), decimals) * sign;
             sum.DecimalRounding = roundedAmount - sum.SumTotalIncVat;
 
-            roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
+            sign = sum.SumTotalIncVatCurrency < 0 ? -1 : 1;
+            roundedAmount = this.round(Math.abs(sum.SumTotalIncVatCurrency), decimals) * sign;
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
 

@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, SimpleChange, ViewChild} from '@angular/core';
 import {UniForm} from '../../../../framework/ui/uniform/index';
-import {Accrual, AccrualPeriod, LocalDate, Period} from '../../../unientities';
+import {Accrual, AccrualPeriod, CompanySettings, LocalDate, Period} from '../../../unientities';
 import {ToastService, ToastType, ToastTime} from '../../../../framework/uniToast/toastService';
 import {IUniModal, IModalOptions} from '../../../../framework/uni-modal';
 import {
@@ -9,7 +9,8 @@ import {
     FinancialYearService,
     JournalEntryService,
     PeriodService,
-    BrowserStorageService
+    BrowserStorageService,
+    CompanySettingsService
 } from '../../../services/services';
 import {FieldType} from '../../../../framework/ui/uniform/index';
 import {BehaviorSubject} from 'rxjs';
@@ -111,6 +112,7 @@ export class AccrualModal implements IUniModal {
     public originalAccrualPeriods: Array<AccrualPeriod>;
 
     buttonsDisabled: boolean = false;
+    companySettings: CompanySettings = <CompanySettings>{};
 
     private lockDate: any;
     public currentFinancialYear: number;
@@ -263,6 +265,7 @@ export class AccrualModal implements IUniModal {
     public ngOnInit() {
         this.lockDate = this.options.data.AccountingLockedDate;
         let accrual = this.options.data.accrual;
+        this.companySettings = this.options.data.companySettings;
         const accrualAmount = this.options.data.accrualAmount;
         const accrualStartDate = this.options.data.accrualStartDate;
         const journalEntryLineDraft = this.options.data.journalEntryLineDraft;
@@ -457,9 +460,15 @@ export class AccrualModal implements IUniModal {
             }
             const model = this.model$.getValue();
             const searchAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
+            let periodeAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
             let promises = [];
             const uniBillElement = document.querySelector('uni-bill');
             const journalEntryElement = document.querySelector('journalentries');
+
+            if (this.companySettings && this.companySettings['DefaultAccrualAccountID']) {
+                periodeAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig(false, null, null, this.companySettings['DefaultAccrualAccountID']);
+            }
+
             if (uniBillElement || journalEntryElement) {
                 promises = [
                     searchAccountConfig.lookupFn('1749').toPromise(),
@@ -468,7 +477,7 @@ export class AccrualModal implements IUniModal {
             } else {
                 promises = [
                     searchAccountConfig.lookupFn('2900').toPromise(),
-                    searchAccountConfig.lookupFn('3900').toPromise()
+                    periodeAccountConfig.lookupFn('3901').toPromise()
                 ];
             }
 

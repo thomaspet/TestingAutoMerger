@@ -27,6 +27,7 @@ import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 import {theme, THEMES} from 'src/themes/theme';
 import {Logger} from '@uni-framework/core/logger';
+import * as moment from 'moment';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -90,6 +91,17 @@ export class App {
                 this.toastService.clear();
 
                 const contractType = authDetails.user.License.ContractType.TypeName;
+                const trialExpiration = authDetails.user.License.ContractType.TrialExpiration;
+
+                if (contractType === 'Demo' && trialExpiration) {
+                    const daysRemaining = moment(trialExpiration).diff(
+                        moment(),
+                        'days'
+                    );
+                    if (daysRemaining < 0) {
+                        this.router.navigateByUrl('/contract-activation');
+                    }
+                }
 
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
                     this.elsaCustomerService.get(authDetails.user.License.Company.ContractID)

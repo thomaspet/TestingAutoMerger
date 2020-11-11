@@ -2481,6 +2481,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         if (this.companySettings.AccountingLockedDate) {
             data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
         }
+        data.companySettings = this.companySettings;
         this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
             if (res && res.action === 'ok') {
                 this.onModalChanged(item, res.model);

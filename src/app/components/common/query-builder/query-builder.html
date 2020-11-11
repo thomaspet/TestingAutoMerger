@@ -9,7 +9,7 @@
     (itemChange)="emitChange()">
 </query-item>
 
-<button (click)="addItem()" class="tertiary c2a">
+<button *ngIf="!disableAddButton" (click)="addItem()" class="tertiary c2a">
     <i class="material-icons">add</i>
     Legg til betingelse
 </button>

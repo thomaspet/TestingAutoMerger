@@ -2,7 +2,7 @@ import { Component, Input, ChangeDetectorRef, Output, EventEmitter } from '@angu
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { UniModalService, IModalOptions, ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import { BankAccount, BankIntegrationAgreement, CompanySettings, StatusCodeBankIntegrationAgreement } from '@uni-entities';
-import { CompanyBankAccountModal } from './company-bank-account-modal';
+import { CompanyBankAccountModal } from '../../common/modals/bank-account-modal/company-bank-account-modal';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { BankAccountService, BrunoOnboardingService, BankService } from '@app/services/services';
 import { theme, THEMES } from 'src/themes/theme';

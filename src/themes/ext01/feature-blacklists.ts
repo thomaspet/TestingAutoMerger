@@ -2,8 +2,6 @@ export const PLUS_PACKAGE_BLACKLIST = {
     view_features: [
         'ui.distribution',
         'ui.bank_account_manual_setup',
-        'ui.sellers',
-        'ui.kid-settings',
         'ui.bureau.company-groups',
         'ui.reports.custom',
         'ui.chat',
@@ -42,9 +40,7 @@ export const PLUS_PACKAGE_BLACKLIST = {
 
         'ui_accounting_budget',
         'ui_accounting_costallocation',
-
-        'ui_sales_recurringinvoice',
-        'ui_sales_sellers',
+        'ui_settings_dimension',
     ],
 };
 
@@ -57,6 +53,7 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui.accountsettings-add-and-import',
         'ui.dashboard.edit',
         'ui.timetracking',
+        'ui.sellers',
 
         'ui.accounting.assets',
         'ui.task.assign-to-user',
@@ -80,17 +77,17 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_quotes',
         'ui_sales_orders',
         'ui_sales_batch-invoices',
+        'ui_sales_recurringinvoice',
+        'ui_sales_sellers',
 
         'ui_sales_productgroups',
 
         'ui_sales_reminders_*',
         'ui_dimensions_*',
-        'ui_settings_dimension',
 
         'ui_import',
         'ui_settings_webhooks',
 
-        'ui_marketplace_integrations',
         'ui_timetracking_*',
     ],
 };

@@ -1257,6 +1257,7 @@ export class InvoiceDetails implements OnInit {
         if (this.companySettings.AccountingLockedDate) {
             data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
         }
+        data.companySettings = this.companySettings;
         this.modalService.open(AccrualModal, { data: data }).onClose.subscribe(modalResult => {
             if (modalResult && modalResult.action === 'ok') {
                 const accrual = modalResult.model;
