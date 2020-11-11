@@ -15,10 +15,10 @@
              [(resource)]="draftlines"
              [config]="tableconfig"
     ></ag-grid-wrapper>
-    <div class="initcost-container">
-        <button type="button" class="secondary" (click)="edit(null)">Legg til konto</button>&nbsp;
-        <span class="initcost-info-span">Når du får faktura fra Brønnøysundregistrene som gjelder stiftelsekostnader, skal disse føres mot konto 2960</span>
-    </div>
+    <section class="initcost-container">
+        <button type="button" class="secondary" (click)="edit(null)">Legg til konto</button>
+        <p class="initcost-info">Når du får faktura fra Brønnøysundregistrene som gjelder stiftelsekostnader, skal disse føres mot konto 2960</p>
+    </section>
     <header class="file-upload-header">Stiftelsedokument</header>
     <uni-file-upload
         [entityType]="'JournalEntry'"
