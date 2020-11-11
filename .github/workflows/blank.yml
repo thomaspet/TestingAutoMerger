@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@master
       - name: run stuff
         id: myid
-        run: echo "::set-output name=myvar=yay"
+        run: echo "::set-output name=myvar::yay"
   
   merge_rc_develop:
     runs-on: ubuntu-latest
