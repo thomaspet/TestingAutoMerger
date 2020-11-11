@@ -6,12 +6,12 @@
 
     <header>
         Lisensavtale
-        <a [href]="agreementUrl" target="_blank">
+        <a *ngIf="agreementUrl" [href]="agreementUrl" target="_blank" rel="noopener noreferrer">
             Åpne i ny fane
         </a>
     </header>
 
-    <object [data]="agreementUrl" type="application/pdf">
+    <object *ngIf="agreementUrl" [data]="agreementUrl" type="application/pdf">
         alt : <a [href]="agreementUrl">License.pdf</a>
     </object>
 
@@ -33,7 +33,7 @@
 
         <section *ngIf="customer?.Managers?.length === 0" style="margin-top: 2rem;">
             Vi fant ingen administratorer på lisensen.
-            Vennligst kontakt <a href="mailto:support@unieconomy.no">support@unieconomy.no</a>.
+            Vennligst kontakt <a [href]="supportPageUrl" target="_blank">support</a>.
         </section>
 
         <ul>

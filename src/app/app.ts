@@ -116,7 +116,6 @@ export class App {
                 }
 
                 const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
-                    && theme.theme !== THEMES.SR
                     && contractType !== 'Demo'
                     && !this.hasAcceptedCustomerLicense(authDetails.user);
 
