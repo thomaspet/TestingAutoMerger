@@ -5,7 +5,8 @@ import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
-    ITableFilter} from '@uni-framework/ui/unitable/index';
+    ITableFilter
+} from '@uni-framework/ui/unitable/index';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
 import { IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { Observable } from 'rxjs';
@@ -137,8 +138,8 @@ export class BalanceSearch implements OnInit {
     private setupFunction() {
         this.lookupFunction = (urlParams: HttpParams) =>
             this.getTableData(urlParams)
-            .finally(() => { this.loading$.next(false); })
-            .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                .finally(() => { this.loading$.next(false); })
+                .catch((err, obs) => this.errorService.handleRxCatch(err, obs));
         this.columnSumResolver = (urlParams: HttpParams) =>
             this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
     }
@@ -148,27 +149,36 @@ export class BalanceSearch implements OnInit {
     }
 
     private getTableData(urlParams: HttpParams, isSum: boolean = false) {
+        const params = this.GetUrlParams(urlParams, isSum);
+
+        if (isSum) {
+            return this.statisticsService.GetAllByHttpParams(params)
+                .map(res => res.body)
+                .map(res => (res.Data && res.Data[0]) || []);
+        } else {
+            return this.statisticsService.GetAllByHttpParams(params);
+        }
+    }
+
+    private GetUrlParams(urlParams: HttpParams, isSum: boolean = false): HttpParams {
         this.loading$.next(true);
         urlParams = urlParams || new HttpParams();
 
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
 
-        const startPeriod = this.fromDate.Date.month() + 1;
         const startYear = this.fromDate.Date.year();
-        const endPeriod = this.toDate.Date.month() + 1;
         const endYear = this.toDate.Date.year();
         const fromDt = moment(this.fromDate.Date).format('YYYY-MM-DD');
         const toDt = moment(this.toDate.Date).format('YYYY-MM-DD');
 
-        const Ibif = `casewhen((period.accountyear lt ${startYear}) or (period.accountyear eq ${startYear} and period.no lt ${startPeriod}),amount,0)`;
-        const Ib_full = `casewhen((period.accountyear eq ${startYear}) and (period.no lt ${startPeriod}),amount,0)`;
+        const Ibif = `casewhen(financialdate lt '${fromDt}',amount,0)`;
+        const Ib_full = `casewhen((period.accountyear eq ${startYear}) and (financialdate lt '${fromDt}'),amount,0)`;
         const Ib_show = `sum(casewhen(account.accountnumber ge 3000 and account.accountnumber le 8999, ${Ib_full}, ${Ibif} ))`;
-        const Debet = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount ge 0,amount,0))`;
-        const Credit = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount lt 0,amount,0))`;
-        const DebitCreditChange = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`;
-        const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or (period.accountyear eq ${endYear} and period.no le ${endPeriod}),amount,0))`;
-
+        const Debet = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}' and amount ge 0,amount,0))`;
+        const Credit = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}' and amount lt 0,amount,0))`;
+        const DebitCreditChange = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}',amount,0))`;
+        const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or financialdate le '${toDt}',amount,0))`;
 
         // Find the searchvalue
         const splitted = filters[0].split(`'`);
@@ -178,7 +188,7 @@ export class BalanceSearch implements OnInit {
             searchValue = splitted[1];
         }
 
-        filters.push(`period.todate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
+        filters.push(`financialdate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
         // remove empty first filter - this is done if we have multiple filters but the first one is
         // empty (this would generate an invalid filter clause otherwise)
         if (filters[0] === '') {
@@ -199,7 +209,7 @@ export class BalanceSearch implements OnInit {
                 .replace('Ib', Ib_show);
         }
 
-        const selectString = 'Account.ID,Account.AccountNumber,Account.Accountname,'
+        const selectString = 'Account.AccountNumber,Account.Accountname,'
             + `${Ib_show} as Ib,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance`;
 
         urlParams = urlParams.set('model', 'JournalEntryLine');
@@ -216,14 +226,11 @@ export class BalanceSearch implements OnInit {
         if (isSum) {
             urlParams = urlParams.set('select', `${Ib_show} as Ib,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance,${DebitCreditChange} as DebitCreditChange`);
             urlParams = urlParams.delete('orderby');
-            return this.statisticsService.GetAllByHttpParams(urlParams)
-                .map(res => res.body)
-                .map(res => (res.Data && res.Data[0]) || []);
         } else {
             urlParams = urlParams.set('select', selectString);
             urlParams = urlParams.set('orderby', orderBy || 'account.accountnumber');
-            return this.statisticsService.GetAllByHttpParams(urlParams);
         }
+        return urlParams;
     }
 
     public onFormReady() {
@@ -240,7 +247,7 @@ export class BalanceSearch implements OnInit {
         this.tabService.addTab({
             name: 'Saldobalanse hovedbok',
             url: this.pageStateService.getUrl(),
-            moduleID: UniModules.BalanceSearch ,
+            moduleID: UniModules.BalanceSearch,
             active: true
         });
     }
@@ -365,75 +372,8 @@ export class BalanceSearch implements OnInit {
     }
 
     public toExcel() {
-        this.loading$.next(true);
-        let urlParams = new HttpParams();
-        const filtersFromUniTable = this.table.getFilterString();
-        const filters = filtersFromUniTable ? [filtersFromUniTable] : [this.configuredFilter];
-
-        const startPeriod = this.fromDate.Date.month() + 1;
-        const startYear = this.fromDate.Date.year();
-        const endPeriod = this.toDate.Date.month() + 1;
-        const endYear = this.toDate.Date.year();
-        const fromDt = moment(this.fromDate.Date).format('YYYY-MM-DD');
-        const toDt = moment(this.toDate.Date).format('YYYY-MM-DD');
-
-        const Ibif = `casewhen((period.accountyear lt ${startYear}) or (period.accountyear eq ${startYear} and period.no lt ${startPeriod}),amount,0)`;
-        const Ib_full = `casewhen((period.accountyear eq ${startYear}) and (period.no lt ${startPeriod}),amount,0)`;
-        const Ib_show = `sum(casewhen(account.accountnumber ge 3000 and account.accountnumber le 8999, ${Ib_full}, ${Ibif} ))`;
-        const Debet = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount ge 0,amount,0))`;
-        const Credit = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}' and amount lt 0,amount,0))`;
-        const DebitCreditChange = `sum(casewhen(period.fromdate ge '${fromDt}' and period.todate le '${toDt}',amount,0))`;
-        const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or (period.accountyear eq ${endYear} and period.no le ${endPeriod}),amount,0))`;
-
-
-        // Find the searchvalue
-        const splitted = filters[0].split(`'`);
-
-        let searchValue;
-        if (splitted.length > 1 && splitted[1] !== undefined) {
-            searchValue = splitted[1];
-        }
-
-        filters.push(`period.todate le '${moment(this.toDate.Date).format('YYYY-MM-DD')}'`);
-        // remove empty first filter - this is done if we have multiple filters but the first one is
-        // empty (this would generate an invalid filter clause otherwise)
-        if (filters[0] === '') {
-            filters.shift();
-        }
-
-        if (filters.length > 1) {
-            filters[0] = '( ' + filters[0] + ' )';
-        }
-
-        let orderBy = urlParams.get('orderby');
-        if (orderBy) {
-            orderBy = orderBy.replace('Balance', Balance)
-                .replace('DebitCreditChange', DebitCreditChange)
-                .replace('Debet', Debet)
-                .replace('Credit', Credit)
-                .replace('Ib', Ib_show);
-        }
-
-
-        const selectString = 'Account.AccountNumber,Account.Accountname,'
-            + `${Ib_show} as Ib,${DebitCreditChange} as Change,${Debet} as Debet,${Credit} as Credit,${Balance} as Balance`;
-
-
-        urlParams = urlParams.set('model', 'JournalEntryLine');
-        urlParams = urlParams.set(
-            'expand',
-            'account,period'
-        );
-
-        urlParams = urlParams.set(
-            'filter',
-            filters.join(' and ')
-        );
-
-        urlParams = urlParams.set('select', selectString);
-        urlParams = urlParams.set('orderby', orderBy || 'account.accountnumber');
-
-        this.statisticsService.GetExportedExcelFileFromUrlParams(urlParams)
+        const params = this.GetUrlParams(null, false);
+        this.statisticsService.GetExportedExcelFileFromUrlParams(params)
             .finally(() => this.loading$.next(false))
             .subscribe((result) => {
                 let filename = '';
