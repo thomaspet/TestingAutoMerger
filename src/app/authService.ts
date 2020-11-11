@@ -17,6 +17,7 @@ export interface IAuthDetails {
     activeCompany: Company;
     user: UserDto;
     hasActiveContract: boolean;
+    hasActiveUserLicense?: boolean;
     isDemo?: boolean;
 }
 
@@ -145,6 +146,7 @@ export class AuthService {
                 activeCompany: undefined,
                 user: undefined,
                 hasActiveContract: false,
+                hasActiveUserLicense: false,
             });
 
             this.clearAuthAndGotoLogin();
@@ -351,6 +353,7 @@ export class AuthService {
                 activeCompany: this.activeCompany,
                 user: user,
                 hasActiveContract: !this.isTrialExpired(contract),
+                hasActiveUserLicense: !this.isUserLicenseExpired(user),
                 isDemo: contract.TypeName === 'Demo',
             };
 
@@ -404,6 +407,7 @@ export class AuthService {
                     activeCompany: undefined,
                     user: undefined,
                     hasActiveContract: false,
+                    hasActiveUserLicense: false,
                 });
 
                 this.idsLogout();
@@ -549,6 +553,15 @@ export class AuthService {
             } else {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private isUserLicenseExpired(user: UserDto): boolean {
+        const userLicenseEndDate = moment(user.License.UserLicenseEndDate);
+        if (userLicenseEndDate.isValid() && userLicenseEndDate.isBefore(moment(), 'day')) {
+            return true;
         }
 
         return false;

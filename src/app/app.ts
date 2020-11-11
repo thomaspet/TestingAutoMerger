@@ -45,6 +45,8 @@ export class App {
     isPendingApproval: boolean;
     isBankCustomer: boolean;
     bankName: string;
+    userLicenseExpired: boolean;
+    supportPageUrl: string;
 
     constructor(
         private titleService: Title,
@@ -90,17 +92,17 @@ export class App {
             if (this.isAuthenticated) {
                 this.toastService.clear();
 
-                const contractType = authDetails.user.License.ContractType.TypeName;
-                const trialExpiration = authDetails.user.License.ContractType.TrialExpiration;
+                if (!authDetails.hasActiveUserLicense) {
+                    this.userLicenseExpired = true;
+                    this.supportPageUrl = this.authService.publicSettings?.SupportPageUrl;
+                    return;
+                }
+                this.userLicenseExpired = false;
 
-                if (contractType === 'Demo' && trialExpiration) {
-                    const daysRemaining = moment(trialExpiration).diff(
-                        moment(),
-                        'days'
-                    );
-                    if (daysRemaining < 0) {
-                        this.router.navigateByUrl('/contract-activation');
-                    }
+                const contractType = authDetails.user.License.ContractType.TypeName;
+
+                if (authDetails.isDemo && !authDetails.hasActiveContract) {
+                    this.router.navigateByUrl('/contract-activation');
                 }
 
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
