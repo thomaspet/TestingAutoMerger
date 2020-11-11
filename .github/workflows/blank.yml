@@ -1,0 +1,19 @@
+name: CI-Merge-master->RC
+
+on:
+  push:
+    branches:
+      - 'master'
+jobs:
+  merge_master_rc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: run stuff
+        run: echo Test
+  
+  merge_rc_develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug 
+        run: echo ${{jobs.merge_master_rc.conclusion}}
