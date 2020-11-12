@@ -89,6 +89,7 @@ export class SupplierInvoiceView {
         this.onDestroy$.next();
         this.onDestroy$.complete();
         this.store.selectedFile = null;
+        this.store.invoiceID = 0;
     }
 
     private syncFormAndAttachmentsHeight() {
