@@ -1236,7 +1236,7 @@ export class AgGridWrapper {
         this.dataService.updateRow(originalIndex, row);
         this.resourceChange.emit(this.dataService.getTableData());
         if (this.editor) {
-            setTimeout(() => this.editor.resetFocus());
+            setTimeout(() => this.editor?.resetFocus());
         }
     }
 

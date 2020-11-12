@@ -78,6 +78,7 @@ export class SupplierInvoiceStore {
     bankAccounts: any[] = [];
     selectedBankAccount;
     url = theme.theme === THEMES.SR ? '/accounting/supplier-invoice/' : '/accounting/bills/';
+    invoiceID: number = 0;
 
     constructor(
         private router: Router,
@@ -104,7 +105,9 @@ export class SupplierInvoiceStore {
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
+        this.invoiceID = invoiceID;
         this.currentMode = currentMode;
+
         Observable.forkJoin(
             [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
@@ -232,14 +235,16 @@ export class SupplierInvoiceStore {
                 }
             };
 
-            if (this.initDataLoaded$.value) {
-                run();
-            } else {
-                this.initDataLoaded$.take(2).subscribe(res => {
-                    if (res) {
-                        run();
-                    }
-                });
+            if (!this.invoiceID) {
+                if (this.initDataLoaded$.value) {
+                    run();
+                } else {
+                    this.initDataLoaded$.take(2).subscribe(res => {
+                        if (res) {
+                            run();
+                        }
+                    });
+                }
             }
         }
     }
