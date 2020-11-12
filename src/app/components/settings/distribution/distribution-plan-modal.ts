@@ -153,6 +153,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 }
                 type['ProductName'] = 'INVOICEPRINT';
                 break;
+            case 'AvtaleGiro + efaktura':
             case 'Efaktura':
                 item = this.purchases.find(p => p.ProductName.toLowerCase().includes('efakturab2c'));
                 if (item) {
@@ -175,8 +176,8 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 break;
 
             case 'AvtaleGiro':
-            case 'AvtaleGiro + efaktura':
-                type.StatusCode = TypeStatusCode.ContinueMarkedPlace;
+                type.StatusCode = TypeStatusCode.Ready;
+                break;
         }
         // If null, set to 30003 = buy
         type.StatusCode = type.StatusCode || TypeStatusCode.NeedsPurchase;
