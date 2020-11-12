@@ -126,7 +126,7 @@ export class SupplierInvoiceStore {
         });
     }
 
-    loadInvoice(id?, checkAsset: boolean = false) {
+    loadInvoice(id?, checkAsset: boolean = false, action: ActionOnReload = 0) {
         const expands =  [
             'Supplier.Info.BankAccounts',
             'BankAccount',
@@ -198,9 +198,27 @@ export class SupplierInvoiceStore {
             this.initDataLoaded$.next(true);
 
             if (checkAsset) {
-                this.itCanBeAnAsset(this.invoice$.value).subscribe((res) => {
-                    if (res) {
-                        this.assetsService.openRegisterModal(this.invoice$.value);
+                this.itCanBeAnAsset(this.invoice$.value).subscribe((canBeAsset) => {
+                    if (canBeAsset) {
+                        this.assetsService.openRegisterModal(this.invoice$.value).take(1).subscribe((response: ConfirmActions) => {
+                            if (action && response !== ConfirmActions.ACCEPT) {
+                                this.openJournaledAndPaidModal(action).subscribe((res) => {
+                                    if (res === ConfirmActions.ACCEPT) {
+                                        this.router.navigateByUrl('/accounting/bills/0');
+                                    } else if (res === ConfirmActions.REJECT &&
+                                        (action === ActionOnReload.SentToPaymentList
+                                            || action === ActionOnReload.JournaledAndSentToPaymentList)) {
+                                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
+                                    } else if (action > 0 && action < 3) {
+                                        this.itCanBeAnAsset(this.invoice$.value).subscribe(canBeAnAsset => {
+                                            if (canBeAnAsset) {
+                                                this.assetsService.openRegisterModal(this.invoice$.value);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
@@ -659,27 +677,10 @@ export class SupplierInvoiceStore {
             }
 
             if (response <= ActionOnReload.SentToPaymentList) {
-                this.loadInvoice(this.invoice$.value.ID);
-                this.openJournaledAndPaidModal(response).subscribe((res) => {
-                    if (res === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/accounting/bills/0');
-                    } else if (res === ConfirmActions.REJECT &&
-                        (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
-                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
-                    } else if (response > 0 && response < 3) {
-                        const current = this.invoice$.value;
-                        this.itCanBeAnAsset(current).pipe(
-                            finalize(() => done('Bokført'))
-                        ).subscribe(canBeAnAsset => {
-                            if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(this.invoice$.value);
-                            }
-                        });
-                    }
-                });
+                this.loadInvoice(this.invoice$.value.ID, true, response);
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
-                this.loadInvoice(this.invoice$.value.ID);
+                this.loadInvoice(this.invoice$.value.ID, true);
                 done('Faktura ble bokført med kunne ikke sende til betaling');
             } else {
                 done('Betaling avbrutt');
