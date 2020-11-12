@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
-import {AuthService} from './authService';
+import {AuthService, IAuthDetails} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, StatisticsService, BrunoOnboardingService, ElsaCustomersService, CelebrusService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
@@ -45,7 +45,8 @@ export class App {
     isPendingApproval: boolean;
     isBankCustomer: boolean;
     bankName: string;
-    userLicenseExpired: boolean;
+    licenseExpired: boolean;
+    expiredEntity: string;
     supportPageUrl: string;
 
     constructor(
@@ -92,17 +93,9 @@ export class App {
             if (this.isAuthenticated) {
                 this.toastService.clear();
 
-                if (!authDetails.hasActiveUserLicense) {
-                    this.userLicenseExpired = true;
-                    this.supportPageUrl = this.authService.publicSettings?.SupportPageUrl;
+                this.supportPageUrl = this.authService.publicSettings?.SupportPageUrl;
+                if (this.hasAnyExpiredLicense(authDetails)) {
                     return;
-                }
-                this.userLicenseExpired = false;
-
-                const contractType = authDetails.user.License.ContractType.TypeName;
-
-                if (authDetails.isDemo && !authDetails.hasActiveContract) {
-                    this.router.navigateByUrl('/contract-activation');
                 }
 
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
@@ -118,7 +111,7 @@ export class App {
                 }
 
                 const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
-                    && contractType !== 'Demo'
+                    && !authDetails.isDemo
                     && !this.hasAcceptedCustomerLicense(authDetails.user);
 
                 if (shouldShowLicenseDialog) {
@@ -175,6 +168,32 @@ export class App {
                 this.checkForInitRoute();
             }
         });
+    }
+
+    private hasAnyExpiredLicense(authDetails: IAuthDetails): boolean {
+        if (!authDetails.hasActiveUserLicense) {
+            this.expiredEntity = 'brukerlisensen';
+            this.licenseExpired = true;
+            return true;
+        }
+
+        if (!authDetails.hasActiveCompanyLicense) {
+            this.expiredEntity = 'selskapslisensen';
+            this.licenseExpired = true;
+            return true;
+        }
+
+        if (!authDetails.hasActiveContract) {
+            if (authDetails.isDemo) {
+                this.router.navigateByUrl('/contract-activation');
+            } else {
+                this.expiredEntity = 'lisensen';
+                this.licenseExpired = true;
+                return true;
+            }
+        }
+        this.licenseExpired = false;
+        return false;
     }
 
     private checkForInitRoute() {
