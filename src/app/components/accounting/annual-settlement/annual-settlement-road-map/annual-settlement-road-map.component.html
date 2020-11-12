@@ -1,0 +1,20 @@
+<annual-settlement-toolbar-component></annual-settlement-toolbar-component>
+<section class="annual-settlement-container container-fluid uni-grid-container">
+    <section class="row">
+        <annual-settlement-selector-component
+            [annualSettlements]="annualSettlements$ | async"
+            [selectedAnnualSettlement]="selectedAnnualSettlement$ | async"
+            (selectAnnualSettlement)="onSelectAnnualSettlement($event)"
+        >
+        </annual-settlement-selector-component>
+    </section>
+    <section class="row">
+        <h2 class="title">{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h2>
+    </section>
+    <section class="row">
+        <annual-settlement-steps-component [steps]="steps"></annual-settlement-steps-component>
+    </section>
+    <section class="row justify-content-end">
+        <button class="complete-button">Fullført</button>
+    </section>
+</section>

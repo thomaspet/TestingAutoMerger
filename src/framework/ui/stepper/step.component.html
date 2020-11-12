@@ -1,0 +1,6 @@
+<section class="step-status">
+    <ng-container *ngTemplateOutlet="stepButtonTemplate;context:{item:step}"></ng-container>
+</section>
+<section class="uni-container step-content">
+    <ng-container *ngTemplateOutlet="stepCardTemplate;context:{item:step}"></ng-container>
+</section>

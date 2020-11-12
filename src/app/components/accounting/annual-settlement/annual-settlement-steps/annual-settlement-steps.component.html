@@ -1,14 +1,14 @@
-<annual-settlement-toolbar-component></annual-settlement-toolbar-component>
-<section class="container-fluid uni-grid-container" style="margin-top: 20px">
-    <section class="row">
-        <annual-settlement-selector-component
-            [annualSettlements]="annualSettlements$ | async"
-            [selectedAnnualSettlement]="selectedAnnualSettlement$ | async"
-            (selectAnnualSettlement)="onSelectAnnualSettlement($event)"
-        >
-        </annual-settlement-selector-component>
-    </section>
-    <section class="row">
-        hello
-    </section>
-</section>
+<uni-stepper>
+    <uni-step *ngFor="let step of steps" [step]="step">
+        <ng-template #stepButtonTemplate let-item="item">
+            <button>
+                <i class="material-icons">edit</i>
+            </button>
+        </ng-template>
+        <ng-template #stepCardTemplate let-item="item">
+            <header>{{item.title}}</header>
+            <article>{{item.text}}</article>
+            <button class="c2a" (click)="runAction(item)">{{item.buttonText}}</button>
+        </ng-template>
+    </uni-step>
+</uni-stepper>

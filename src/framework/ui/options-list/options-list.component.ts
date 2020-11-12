@@ -15,9 +15,7 @@ export class UniOptionsListComponent {
     @Input() options: any[];
     @Input() selectedOption: any;
     @Output() selectOption = new EventEmitter();
-    @ContentChild('optionTemplate')
-
-    private optionTemplate: TemplateRef<any>;
+    @ContentChild('optionTemplate') private optionTemplate: TemplateRef<any>;
 
     onClick(option) {
         this.selectOption.emit(option);
