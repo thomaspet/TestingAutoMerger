@@ -2564,7 +2564,7 @@ export class BillView implements OnInit, AfterViewInit {
                             finalize(() => done('Bokført'))
                         ).subscribe(canBeAnAsset => {
                             if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(current);
+                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                             }
                         });
                     } else {
@@ -2581,7 +2581,7 @@ export class BillView implements OnInit, AfterViewInit {
                         .pipe(finalize(() => done('ok')))
                         .subscribe(canBeAnAsset => {
                             if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(current);
+                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                             }
                         });
                 }, (err) => {
@@ -2641,11 +2641,10 @@ export class BillView implements OnInit, AfterViewInit {
                                         .pipe(finalize(() => done('ok')))
                                         .subscribe(canBeAnAsset => {
                                             if (canBeAnAsset) {
-                                                this.assetsService.openRegisterModal(current);
+                                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                                             }
                                         });
-                                }
-                                else {
+                                } else {
                                     done(!result.cancelled ? 'Godkjent og bokført' : '');
                                 }
                             });
@@ -2682,7 +2681,7 @@ export class BillView implements OnInit, AfterViewInit {
                                             .pipe(finalize(() => done(result ? 'Godkjent, bokført og til betaling' : '')))
                                             .subscribe(canBeAnAsset => {
                                                 if (canBeAnAsset) {
-                                                    this.assetsService.openRegisterModal(current);
+                                                    this.assetsService.openRegisterModal(current).take(1).subscribe();
                                                 }
                                             });
                                     });
@@ -2712,7 +2711,7 @@ export class BillView implements OnInit, AfterViewInit {
                                 done(result ? 'Bokført og til betaling' : '');
                                 this.itCanBeAnAsset(current).subscribe(canBeAnAsset => {
                                     if (canBeAnAsset) {
-                                        this.assetsService.openRegisterModal(current);
+                                        this.assetsService.openRegisterModal(current).take(1).subscribe();
                                     }
                                 });
                             }

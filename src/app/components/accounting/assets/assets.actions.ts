@@ -290,8 +290,7 @@ export class AssetsActions {
             });
         }
         if (changes['PurchaseDate']) {
-            if (changes['PurchaseDate'].currentValue < changes['PurchaseDate'].previousValue &&
-                currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
+            if (currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
                 const asset = this.store.currentAsset;
                 if (asset.Lifetime) {
                     const options: IModalOptions = {

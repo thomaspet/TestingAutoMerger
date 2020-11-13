@@ -260,7 +260,7 @@ export class BankService extends BizHttp<Bank> {
         return this.http.asGET()
             .usingStatisticsDomain()
             .withEndPoint(
-                '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,' +
+                '?model=bankaccount&select=ID as ID,AccountID as AccountID,BankAccountType as BankAccountType,Label as Label,' +
                 'Account.AccountNumber as AccountAccountNumber,Account.AccountName as AccountName,AccountNumber as AccountNumber,' +
                 'Bank.Name,casewhen(companysettings.id gt 0\,1\,0) as IsDefault,companysettings.id,' +
                 'sum(casewhen(be.statuscode eq 48002,1,0)) as closed,sum(casewhen(be.id gt 0,1,0)) as total' +
