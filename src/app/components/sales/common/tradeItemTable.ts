@@ -3,6 +3,7 @@ import { Observable, of as observableOf } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { TradeItemHelper } from '../salesHelper/tradeItemHelper';
 import { UniProductDetailsModal } from '../products/productDetailsModal';
+import { theme, THEMES} from 'src/themes/theme';
 import { UniModalService, ConfirmActions } from '../../../../framework/uni-modal';
 import {
     UniTableColumn,
@@ -19,8 +20,6 @@ import {
     Dimensions,
     LocalDate,
     StatusCodeProduct,
-    Product,
-    CustomerInvoiceItem
 } from '../../../unientities';
 import {
     ProductService,
@@ -580,6 +579,7 @@ export class TradeItemTable {
 
         const vatTypeCol = new UniTableColumn('VatType', 'Momskode', UniTableColumnType.Lookup)
             .setMaxWidth(300)
+            .setEditable(theme.theme === THEMES.EXT02 ? this.settings.TaxMandatoryType === 3 : true)
             .setTemplate((row) => {
                 const vatType = row['VatType'];
                 return (vatType) ? `${row.VatPercent}% - ${vatType.Name}` : '';

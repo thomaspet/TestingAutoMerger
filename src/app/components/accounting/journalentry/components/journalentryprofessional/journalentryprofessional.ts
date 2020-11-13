@@ -1416,9 +1416,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 };
             }
         });
-
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setWidth('8%')
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
@@ -1443,7 +1443,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
@@ -1472,6 +1472,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
             .setWidth('8%')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
@@ -1495,7 +1496,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setWidth('90px')
