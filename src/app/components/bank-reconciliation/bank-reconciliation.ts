@@ -17,6 +17,7 @@ import {Observable, of} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -55,6 +56,7 @@ export class BankReconciliation {
         private pageStateService: PageStateService,
         private toastService: ToastService,
         private permissionService: FeaturePermissionService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
     ) {
         tabService.addTab({
             url: '/bank/reconciliationmatch',
@@ -133,6 +135,15 @@ export class BankReconciliation {
                 accounts => {
                     this.bankAccounts = accounts || [];
                     if (this.bankAccounts.length) {
+                        this.bankAccounts.forEach(account => {
+                            account['_displayValue'] = account.Label
+                                ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                                : account.BankAccountType
+                                    ? this.getAccountType(account.BankAccountType)
+                                        + ' - '
+                                        + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                                    : this.uniAccountNumberPipe.transform(account.AccountNumber);
+                        });
 
                         this.selectedBankAccount = this.bankAccounts[0];
 
@@ -493,5 +504,23 @@ export class BankReconciliation {
             }
             return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
+    }
+
+    private getAccountType(type: string): string {
+        switch (type.toLowerCase()) {
+            case 'company':
+            case 'companysettings':
+                return 'Drift';
+            case 'tax':
+                return 'Skatt';
+            case 'salary':
+                return 'Lønn';
+            case 'credit':
+                return 'Kredittkort';
+            case 'international':
+                return 'Utenlandsbetaling';
+            default:
+                return '';
+        }
     }
 }

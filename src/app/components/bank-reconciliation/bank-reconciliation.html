@@ -21,14 +21,14 @@
                 <section class="list-header">
                     <section class="overflow-ellipsis" #toggle title="Se tilgjengelige kontoer">
                         <i class="material-icons-outlined">account_balance</i>
-                        <span class="bank-name"> {{ (selectedBankAccount?.Bank?.Name || selectedBankAccount?.Account?.AccountName) }} - {{ selectedBankAccount?.AccountNumber }} </span>
+                        <span class="bank-name" *ngIf="selectedBankAccount"> {{ selectedBankAccount['_displayValue'] }} </span>
                         <i class="material-icons-outlined">arrow_drop_down</i>
                     </section>
 
                     <dropdown-menu [trigger]="toggle">
                         <ng-template>
                             <span *ngFor="let bankAccount of bankAccounts" (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
-                                {{ bankAccount.Account?.AccountNumber }} - {{ bankAccount.Account?.AccountName }} ( {{ (bankAccount.AccountNumber | uniaccountnumber) || bankAccount.IBAN }} )
+                                {{ bankAccount['_displayValue'] }}
                             </span>
                         </ng-template>
                     </dropdown-menu>

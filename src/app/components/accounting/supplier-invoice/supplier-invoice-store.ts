@@ -984,7 +984,7 @@ export class SupplierInvoiceStore {
     getSystemBankAccounts() {
         return this.statisticsService.GetAll('model=bankaccount&select=ID as ID,AccountID as AccountID'
         + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
-        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
+        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name,Label as Label'
         + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
         + '&filter=companysettingsid gt 0&expand=bank,account'
         + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'

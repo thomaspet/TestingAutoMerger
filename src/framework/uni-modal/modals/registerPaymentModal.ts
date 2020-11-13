@@ -26,6 +26,7 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 
 @Component({
     selector: 'uni-register-payment-modal',
@@ -80,7 +81,8 @@ export class UniRegisterPaymentModal implements IUniModal {
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
     ) {}
 
     public ngOnInit() {
@@ -350,6 +352,24 @@ export class UniRegisterPaymentModal implements IUniModal {
         return UniMath.round(agioAmount);
     }
 
+    private getAccountType(type: string): string {
+        switch (type.toLowerCase()) {
+            case 'company':
+            case 'companysettings':
+                return 'Drift';
+            case 'tax':
+                return 'Skatt';
+            case 'salary':
+                return 'Lønn';
+            case 'credit':
+                return 'Kredittkort';
+            case 'international':
+                return 'Utenlandsbetaling';
+            default:
+                return '';
+        }
+    }
+
     public onFormChange(changes): void {
 
         const payment: InvoicePaymentData = this.formModel$.getValue();
@@ -412,9 +432,14 @@ export class UniRegisterPaymentModal implements IUniModal {
                     valueProperty: 'ID',
                     template: (item) => {
                         return item?.Label
-                        ? (item.AccountNumber + ' - ' + item.Label)
-                        : item?.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name)
-                        : item?.BankName ? (item.AccountNumber + ' - ' + item.BankName)  : '';
+                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                            : item?.BankAccountType
+                                ? (this.getAccountType(item.BankAccountType)
+                                    + ' - '
+                                    + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                                : item?.BankAccountNumber
+                                    ? this.uniAccountNumberPipe.transform(item.BankAccountNumber)
+                                    : '';
                     },
                     debounceTime: 200,
                     hideDeleteButton: true,
