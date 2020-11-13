@@ -378,7 +378,7 @@ export class SupplierInvoiceStore {
             invoice.PaymentDueDate = new LocalDate(moment(invoice.InvoiceDate).add('d', 14).toDate());
             invoice.DeliveryDate = invoice.InvoiceDate;
 
-            this.updateDatesOnJournalEntryLines(invoice.InvoiceDate);
+            this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
         } else if (field.toLowerCase().includes('dimension') && !invoice.DefaultDimensions.ID) {
             invoice.DefaultDimensions._createguid = this.supplierInvoiceService.getNewGuid();
         } else if (field === 'Supplier' && invoice.TaxInclusiveAmountCurrency && !invoice.ID) {
@@ -491,10 +491,10 @@ export class SupplierInvoiceStore {
     }
 
     // Update dates on all lines when dates are altered on head
-    private updateDatesOnJournalEntryLines(date) {
+    private updateDatesOnJournalEntryLines(date: string) {
         const lines = this.journalEntryLines$.value.map(line => {
-            line.VatDate = date;
-            line.FinancialDate = date;
+            line.VatDate = new LocalDate(date);
+            line.FinancialDate = new LocalDate(date);
             return line;
         });
 
@@ -529,6 +529,11 @@ export class SupplierInvoiceStore {
      */
     saveChanges(): Observable<SupplierInvoice> {
         const invoice = this.invoice$.value;
+
+        // When in expense view, update journal entry line dates based on invoice date before saving
+        if (this.currentMode !== 0) {
+            this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
+        }
 
         // Lets get journal-lines and map dimensions from the head
         invoice.JournalEntry.DraftLines = this.journalEntryLines$.value.map(line => {
