@@ -65,9 +65,9 @@
 			<i class="material-icons" *ngIf="bankAccount?.HasOutgoing"> check_circle_outline </i>
 		</section>
 
-		<footer style="display: flex; align-items: center; justify-content: center; margin-top: 2rem">	
-            <button class="c2a secondary" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="cancelBankIntegration(bankAccount)">Avbestill</button>	
-			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChangesToBankIntegration()">Gjør endringer</button>	
+		<footer *ngIf="isExt02Environment">
+            <button class="c2a secondary" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="cancelBankIntegration(bankAccount)">Avbestill</button>
+			<button class="c2a" *ngIf="bankAccount?.IntegrationStatus === 700005" (click)="makeChangesToBankIntegration()">Gjør endringer</button>
 			<button class="c2a" *ngIf="!bankAccount?.IntegrationStatus" (click)="initiateBankIntegration()"> Bestill bankintegrasjon </button>
         </footer>
 
