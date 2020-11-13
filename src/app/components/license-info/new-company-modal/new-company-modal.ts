@@ -10,6 +10,12 @@ import {AuthService} from '@app/authService';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal';
 import {interval, of} from 'rxjs';
 
+enum TaxMandatoryType {
+    NotTaxMandatory = 1,
+    FutureTaxMandatory = 2,
+    TaxMandatory = 3,
+}
+
 @Component({
     selector: 'new-company-modal',
     templateUrl: './new-company-modal.html',
@@ -30,6 +36,7 @@ export class NewCompanyModal implements IUniModal {
     createFromMal: boolean = false;
     templates = [];
     template;
+    taxType = TaxMandatoryType;
 
     autocompleteOptions: AutocompleteOptions = {
         canClearValue: false,
@@ -52,7 +59,7 @@ export class NewCompanyModal implements IUniModal {
 
     step2Form = new FormGroup({
         AccountNumber: new FormControl('', this.isExt02Env ? Validators.required : undefined),
-        TemplateIncludeVat: new FormControl(undefined, Validators.required),
+        TaxMandatoryType: new FormControl(undefined, Validators.required),
         CreateFromMal: new FormControl(false, undefined),
         TemplateIncludeSalary: new FormControl(undefined, Validators.required),
     });
@@ -116,9 +123,13 @@ export class NewCompanyModal implements IUniModal {
         this.busyCreatingCompany = true;
         this.companyCreationFailed = false;
 
+        const taxType = step2FormValue.TaxMandatoryType;
+        const includeVat = taxType === this.taxType.TaxMandatory;
+        companyDetails.TaxMandatoryType = taxType;
+
         const obs = (this.createFromMal && this.template?.Key)
             ? of(this.template)
-            : this.initService.getCompanyTemplate(this.isEnk, step2FormValue?.TemplateIncludeVat, step2FormValue?.TemplateIncludeSalary);
+            : this.initService.getCompanyTemplate(this.isEnk, includeVat, step2FormValue?.TemplateIncludeSalary);
 
         obs.subscribe(template => {
             if (step2FormValue.AccountNumber) {
