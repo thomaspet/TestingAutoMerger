@@ -69,6 +69,7 @@
                     <label class="uni-label label-above">
                         <span>MVA</span>
                         <uni-select
+                            [readonly]="mvaSelectDisabled"
                             [config]="selectConfig"
                             [items]="filteredVatTypes"
                             [value]="line.VatType"

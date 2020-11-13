@@ -3,8 +3,9 @@ import {SupplierInvoiceStore} from '../../supplier-invoice-store';
 import {JournalEntryLineDraft} from '@uni-entities';
 import {Subject, Observable} from 'rxjs';
 import {takeUntil, take, shareReplay} from 'rxjs/operators';
-import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat} from '@app/services/services';
+import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat, CompanySettingsService} from '@app/services/services';
 import * as _ from 'lodash';
+import { theme, THEMES } from 'src/themes/theme';
 
 interface ITotalObject {
     net?: number;
@@ -30,6 +31,7 @@ export class JournalLines {
     @Input()
     currentMode: number = 3;
 
+    mvaSelectDisabled = false;
     filteredVatTypes = [];
     lines: JournalEntryLineDraft[];
     onDestroy$ = new Subject();
@@ -89,8 +91,13 @@ export class JournalLines {
         private guidService: GuidService,
         private statisticsService: StatisticsService,
         private currencyCodeService: CurrencyCodeService,
+        private companySettings: CompanySettingsService,
         private numberFormatter: NumberFormat,
     ) {
+        this.companySettings.getCompanySettings().subscribe(settings => {
+            this.mvaSelectDisabled = settings.TaxMandatoryType < 3 && theme.theme === THEMES.EXT02;
+        });
+
         this.currencyCodeService.GetAll().subscribe(codes => {
             this.currencyCodes = codes;
             this.currency = codes[0];
