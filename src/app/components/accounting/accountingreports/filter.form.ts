@@ -6,6 +6,7 @@ export const resultBalanceFilter = (projects, departments) => {
     project.Property = 'ProjectNumber';
     project.FieldType = FieldType.DROPDOWN;
     project.Label = 'Prosjekt';
+    project.FeaturePermission = 'ui.dimensions';
     project.Legend = 'Filter';
     project.FieldSet = 1;
     project.Placeholder = 'Prosjekt';
@@ -22,6 +23,7 @@ export const resultBalanceFilter = (projects, departments) => {
     department.Property = 'DepartmentNumber';
     department.FieldType = FieldType.DROPDOWN;
     department.Label = 'Avdeling';
+    department.FeaturePermission = 'ui.dimensions';
     department.Legend = 'Filter';
     department.FieldSet = 1;
     department.Options = {
