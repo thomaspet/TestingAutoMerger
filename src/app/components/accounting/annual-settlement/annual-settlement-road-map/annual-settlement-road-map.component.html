@@ -9,7 +9,7 @@
         </annual-settlement-selector-component>
     </section>
     <section class="row">
-        <h2 class="title">{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h2>
+        <h4>{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h4>
     </section>
     <section class="row">
         <annual-settlement-steps-component [steps]="steps"></annual-settlement-steps-component>

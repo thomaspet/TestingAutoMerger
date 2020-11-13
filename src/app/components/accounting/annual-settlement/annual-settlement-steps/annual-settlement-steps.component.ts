@@ -7,6 +7,6 @@ import {Component, Input} from '@angular/core';
 export class AnnualSettlementStepsComponent {
     @Input() steps: any[];
     runAction(step) {
-        console.log('Action for: ' + JSON.stringify(step));
+        step.action();
     }
 }

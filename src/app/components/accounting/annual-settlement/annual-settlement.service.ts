@@ -16,10 +16,14 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.GetAll();
     }
 
+    getAnnualSettlement(id) {
+        return this.Get(id, ['AnnualSettlementCheckList']);
+    }
+
     createFinancialYear(year: number) {
         return this.Post({
             _createguid: this.getNewGuid(),
-            Year: year
+            AccountYear: year
         });
     }
 

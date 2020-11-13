@@ -5,6 +5,7 @@ import {switchMap, tap} from 'rxjs/operators';
 import steps from '../annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {Router} from '@angular/router';
 
 @Component({
     selector: 'annual-settlement-road-map-component',
@@ -17,7 +18,8 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     constructor(
         private annualSettlementService: AnnualSettlementService,
         private financialYearService: FinancialYearService,
-        private toast: ToastService
+        private toast: ToastService,
+        private router: Router
     ) {
 
     }
@@ -34,7 +36,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     return this.annualSettlementService.createFinancialYear(year)
                         .pipe(switchMap(() => this.annualSettlementService.getAnnualSettlements()));
                 } else {
-                    const currentAS = as.find(it => it.Year === year);
+                    const currentAS = as.find(it => it.AccountYear === year);
                     if (!currentAS) {
                         return this.annualSettlementService.createFinancialYear(year)
                             .pipe(switchMap(() => this.annualSettlementService.getAnnualSettlements()));
@@ -43,12 +45,37 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 return of(as);
             }),
             tap((as: any []) => {
-                const currentAS = as.find(item => item.Year === year);
+                const currentAS = as.find(item => item.AccountYear === year);
+                this.steps = this.addActionsToSteps(this.steps, currentAS);
                 this.selectedAnnualSettlement$.next(currentAS || null);
             })
         );
     }
     onSelectAnnualSettlement(annualSettlement) {
         this.selectedAnnualSettlement$.next(annualSettlement);
+    }
+
+    private addActionsToSteps(_steps, currentAS) {
+        return _steps.map((step, index) => {
+            switch (index) {
+                case 0:
+                    step.action = () => {
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/check-list`
+                        );
+                    };
+                    return step;
+                case 1:
+                    return step;
+                case 2:
+                    return step;
+                case 3:
+                    return step;
+                case 4:
+                    return step;
+                default:
+                    return step;
+            }
+        });
     }
 }

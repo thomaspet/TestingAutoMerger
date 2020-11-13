@@ -6,7 +6,7 @@
             </button>
         </ng-template>
         <ng-template #stepCardTemplate let-item="item">
-            <header>{{item.title}}</header>
+            <h5>{{item.title}}</h5>
             <article>{{item.text}}</article>
             <button class="c2a" (click)="runAction(item)">{{item.buttonText}}</button>
         </ng-template>
