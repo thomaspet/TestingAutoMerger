@@ -9,6 +9,7 @@ import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
 import * as moment from 'moment';
 import {theme, THEMES} from 'src/themes/theme';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 
 @Component({
     selector: 'to-payment-modal',
@@ -44,7 +45,8 @@ export class ToPaymentModal implements IUniModal {
         private supplierInvoiceService: SupplierInvoiceService,
         private errorSerivce: ErrorService,
         private paymentService: PaymentService,
-        private paymentBatchService: PaymentBatchService
+        private paymentBatchService: PaymentBatchService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
     ) {}
 
     ngOnInit() {
@@ -184,6 +186,24 @@ export class ToPaymentModal implements IUniModal {
             .map((x: Payment) => x);
     }
 
+    private getAccountType(type: string): string {
+        switch (type.toLowerCase()) {
+            case 'company':
+            case 'companysettings':
+                return 'Drift';
+            case 'tax':
+                return 'Skatt';
+            case 'salary':
+                return 'Lønn';
+            case 'credit':
+                return 'Kredittkort';
+            case 'international':
+                return 'Utenlandsbetaling';
+            default:
+                return '';
+        }
+    }
+
     private getValueItems() {
         return [
             {
@@ -229,7 +249,17 @@ export class ToPaymentModal implements IUniModal {
                 Options: {
                     source: this.accounts,
                     valueProperty: 'ID',
-                    template: (item) => item.AccountNumber + ' - ' + item.AccountName,
+                    template: (item) => {
+                        return item?.Label
+                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                            : item?.BankAccountType
+                                ? (this.getAccountType(item.BankAccountType)
+                                    + ' - '
+                                    + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                                : item?.BankAccountNumber
+                                    ? this.uniAccountNumberPipe.transform(item.BankAccountNumber)
+                                    : '';
+                    },
                     debounceTime: 200,
                     searchable: false,
                     hideDeleteButton: true,
