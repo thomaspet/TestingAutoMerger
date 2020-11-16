@@ -1088,7 +1088,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
             ['Account.TopLevelAccountGroup', 'VatType', 'JournalEntryType', 'Dimensions.Department', 'Dimensions.Project',
             'Dimensions.Dimension5', 'Dimensions.Dimension6', 'Dimensions.Dimension7', 'Dimensions.Dimension8',
-            'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods']),
+                    'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods', 'CustomerOrder']),
 
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' `
                 + `and EntityID eq ${journalEntryID}&select=FileID`),
@@ -1202,6 +1202,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {
             jed.CustomerInvoiceID = line.CustomerInvoiceID;
+        }
+
+        if (!jed.CustomerOrderID && line.CustomerOrderID) {
+            jed.CustomerOrderID = line.CustomerOrderID;
+            jed.CustomerOrder = line.CustomerOrder;
         }
 
         if (!jed.SupplierInvoiceID && line.SupplierInvoiceID) {
@@ -1554,7 +1559,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     null,
                     entry
                 );
-                const creditData =  this.calculateJournalEntryDataAmount(
+                const creditData = this.calculateJournalEntryDataAmount(
                     entry.CreditAccount,
                     entry.CreditVatType,
                     entry.Amount * -1,

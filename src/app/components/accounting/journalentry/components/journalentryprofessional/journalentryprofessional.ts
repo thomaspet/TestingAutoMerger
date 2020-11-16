@@ -954,6 +954,57 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    private setCustomerOrderProperties(rowModel: any): JournalEntryData {
+
+        if (rowModel.CustomerOrder) {
+             rowModel.CustomerOrderID = rowModel.CustomerOrder.ID;
+            if (rowModel.CustomerOrder.ProjectID) {
+                rowModel.Dimensions.Project = {
+                    ID: rowModel.CustomerOrder.ProjectID,
+                    Name: rowModel.CustomerOrder.ProjectName,
+                    ProjectNumber: rowModel.CustomerOrder.ProjectNumber
+                };
+                rowModel.Dimensions.ProjectID = rowModel.CustomerOrder.ProjectID;
+            }else{
+                rowModel.Dimensions.Project = null;
+                rowModel.Dimensions.ProjectID = null;
+            }
+
+            if (rowModel.CustomerOrder.DepartmentID) {
+                rowModel.Dimensions.Department = {
+                    ID: rowModel.CustomerOrder.DepartmentID,
+                    Name: rowModel.CustomerOrder.DepartmentName,
+                    DepartmentNumber: rowModel.CustomerOrder.DepartmentNumber
+                };
+                rowModel.Dimensions.DepartmentID = rowModel.CustomerOrder.DepartmentID;
+            }else{
+                rowModel.Dimensions.Department = null;
+                rowModel.Dimensions.DepartmentID = null;
+            }
+
+            for (let index = 5; index < 11; index++) {
+                const dimID = rowModel.CustomerOrder[`Dimension${index}ID`];
+
+                if (dimID) {
+                    rowModel.Dimensions[`Dimension${index}`] = {
+                        ID: dimID,
+                        Name: rowModel.CustomerOrder[`Dimension${index}Name`],
+                        Number: rowModel.CustomerOrder[`Dimension${index}Number`]
+                    };
+                    rowModel.Dimensions[`Dimension${index}ID`] = dimID;
+                }else{
+                    rowModel.Dimensions[`Dimension${index}`] = null;
+                    rowModel.Dimensions[`Dimension${index}ID`] = null;
+                }
+            }
+
+
+        } else {
+            rowModel.CustomerOrderID = null;
+        }
+        return rowModel;
+    }
+
     private setDimensionProperties(rowModel: any, dimType: string) {
         const dimSplit = dimType.split('.');
         const dimension = rowModel[dimType];
@@ -1196,7 +1247,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
             row.JournalEntryTypeID = copyFromJournalEntryLine.JournalEntryTypeID;
             row.JournalEntryType = copyFromJournalEntryLine.JournalEntryType;
-
+            row.CustomerOrderID = copyFromJournalEntryLine.CustomerOrderID;
+            row.CustomerOrder = copyFromJournalEntryLine.CustomerOrder;
             if (copyFromJournalEntryLine.CustomerInvoiceID) {
                 this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
                 .map(res => res[0])
@@ -1502,6 +1554,26 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             .setWidth('90px')
             .setSkipOnEnterKeyNavigation(true)
             .setVisible(false);
+
+        const orderReferenceCol = new UniTableColumn('CustomerOrder', 'Ordre referanse', UniTableColumnType.Lookup)
+        .setWidth('90px')
+        .setSkipOnEnterKeyNavigation(true)
+        .setVisible(false)
+        .setTemplate((rowModel) => {
+                if (rowModel.CustomerOrder) {
+                    const customerOrder = rowModel.CustomerOrder;
+                return `${customerOrder.OrderNumber}`;
+            }
+            return '';
+        })
+        .setOptions({
+            itemTemplate: (selectedItem) => {
+                return `${selectedItem.OrderNumber}`;
+            },
+            lookupFunction: (searchValue) => {
+                    return this.customerOrderSearch(searchValue);
+            }
+        });
 
         const amountCol = new UniTableColumn(
             'Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money
@@ -1818,7 +1890,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 currencyExchangeRate,
                 costAllocationCol,
                 manDimReportCol,
-                journalEntryTypeCol
+                journalEntryTypeCol,
+                orderReferenceCol
             ];
 
             if (this.featurePermissionService.canShowUiFeature('ui.dimensions')) {
@@ -2064,6 +2137,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDepartmentProperties(row);
                 } else if (event.field === 'Dimensions.Project') {
                     row = this.setProjectProperties(row);
+                } else if (event.field === 'CustomerOrder') {
+                    row = this.setCustomerOrderProperties(row);
                 } else if (event.field.indexOf('Dimensions.Dimension') !== -1) {
                     row = this.setDimensionProperties(row, event.field);
                 } else if (event.field === 'Description') {
@@ -2392,6 +2467,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private departmentSearch(searchValue): Observable<any> {
         return this.statisticsService.GetAll(`model=Department&select=DepartmentNumber as DepartmentNumber,Name as Name,ID as ID&` +
         `filter=contains(DepartmentNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
+    }
+
+    private customerOrderSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
+            `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
+            `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
+            `&select=ID as ID,OrderNumber as OrderNumber,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
+            `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
+        `filter=contains(OrderNumber, '${searchValue}') `).map(x => x.Data ? x.Data : []);
     }
 
     private deleteLine(line) {
@@ -3247,8 +3332,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return;
             });
         }
-
-
         const strF = event.field + '';
 
         if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))

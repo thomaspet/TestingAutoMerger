@@ -3681,6 +3681,7 @@ export class BillView implements OnInit, AfterViewInit {
                     draft.FinancialDate = line.FinancialDate;
                     draft.VatDate = line.VatDate;
                     draft.Dimensions = line.Dimensions;
+                    draft.CustomerOrderID = line.CustomerOrderID;
 
                     if (draft.Dimensions && !draft.Dimensions.ID) {
                         draft.Dimensions._createguid = draft.Dimensions._createguid || this.journalEntryService.getNewGuid();
