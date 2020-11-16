@@ -695,7 +695,7 @@ export class CustomerDetails implements OnInit {
                             title: this.numberFormat.asMoney(res[1].SumInvoicedExVat)
                         });
                         subheads.push({
-                            label: 'Forfalte utestående',
+                            label: 'Forfalt',
                             title: this.numberFormat.asMoney(res[1].SumDueInvoicesRestAmount),
                             classname: res[1].SumDueInvoicesRestAmount > 0 ? 'bad' : ''
                         });
