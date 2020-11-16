@@ -37,7 +37,8 @@ export const environment = {
 
     ID_PORTEN: {
         authority: 'https://oidc-ver2.difi.no/idporten-oidc-provider/',
-        client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d',
+        client_id: '213d95cf-9f5a-4ea2-b3a8-e45fee9248c5' // http://kistufell:81/
+        // client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d', // http://localhost:3000/
     },
 
     RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',
