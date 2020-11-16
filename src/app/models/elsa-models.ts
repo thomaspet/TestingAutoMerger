@@ -4,6 +4,7 @@ export interface ElsaAgreement {
     AgreementStatus: ElsaAgreementStatus;
     ProductID: number;
     Name: string;
+    DownloadUrl: string;
 }
 
 export enum ElsaAgreementStatus {

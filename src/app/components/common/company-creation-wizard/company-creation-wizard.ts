@@ -3,7 +3,7 @@ import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {AuthService} from '@app/authService';
-import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService, ElsaCustomersService} from '@app/services/services';
+import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService, ElsaCustomersService, ElsaAgreementService} from '@app/services/services';
 import {map} from 'rxjs/operators';
 import {get} from 'lodash';
 import {forkJoin} from 'rxjs';
@@ -63,6 +63,8 @@ export class CompanyCreationWizard {
 
     priceListLink: string;
 
+    contractAgreementExists: boolean;
+
     constructor(
         private authService: AuthService,
         private http: HttpClient,
@@ -72,6 +74,7 @@ export class CompanyCreationWizard {
         private companyService: CompanyService,
         private elsaContractService: ElsaContractService,
         private elsaCustomerService: ElsaCustomersService,
+        private elsaAgreementService: ElsaAgreementService,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -104,9 +107,11 @@ export class CompanyCreationWizard {
             } else {
                 forkJoin([
                     this.elsaContractService.getAll(),
-                    this.elsaContractService.getCustomContractTypes()
+                    this.elsaContractService.getCustomContractTypes(),
+                    this.elsaAgreementService.getContractAgreement()
                 ]).subscribe(
-                    ([contracts, contractTypes]) => {
+                    ([contracts, contractTypes, agreement]) => {
+                        this.contractAgreementExists = !!agreement?.DownloadUrl?.length;
                         this.contract = contracts?.find(c => c.ID === this.contractID);
                         this.contractTypes = contractTypes || [];
                         this.currentStep = this.contractTypes.length ? STEPS.CONTRACT_TYPE : STEPS.COMPANY_STEP1;

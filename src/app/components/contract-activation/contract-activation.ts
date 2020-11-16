@@ -26,7 +26,7 @@ export class ContractActivation {
         });
 
         this.authService.authentication$.pipe(take(1)).subscribe(auth => {
-            this.trialExpired = auth && !auth.hasActiveContract;
+            this.trialExpired = auth.isDemo && !auth.hasActiveContract;
             try {
                 const license = auth.user.License;
                 this.canActivateContract = license.CustomerAgreement.CanAgreeToLicense;
@@ -35,9 +35,8 @@ export class ContractActivation {
                     this.contractID = license.Company && license.Company.ContractID;
 
                     const hasAgreedToLicense = license.CustomerAgreement.HasAgreedToLicense;
-                    const isDemoLicense = license.ContractType.TypeName === 'Demo';
 
-                    this.hasActiveContract = !isDemoLicense && hasAgreedToLicense;
+                    this.hasActiveContract = !auth.isDemo && hasAgreedToLicense;
                 }
             } catch (e) {
                 console.error(e);

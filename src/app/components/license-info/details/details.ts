@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ErrorService, ElsaCustomersService, ElsaContractService } from '@app/services/services';
+import { ErrorService, ElsaCustomersService, ElsaContractService, ElsaAgreementService } from '@app/services/services';
 import { AuthService } from '@app/authService';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { AddAdminModal } from '../add-admin-modal/add-admin-modal';
@@ -9,6 +9,7 @@ import { environment } from 'src/environments/environment';
 import { LicenseInfo } from '../license-info';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
+import {forkJoin} from 'rxjs';
 
 @Component({
     selector: 'license-details',
@@ -20,7 +21,7 @@ export class LicenseDetails {
     customer;
     filteredManagers: any[];
     filterValue: string;
-    lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
+    lisenceAgreementUrl: string;
 
     isAdmin: boolean;
 
@@ -42,6 +43,7 @@ export class LicenseDetails {
         private modalService: UniModalService,
         private elsaCustomerService: ElsaCustomersService,
         private elsaContractService: ElsaContractService,
+        private elsaAgreementService: ElsaAgreementService,
         private errorService: ErrorService,
         private licenseInfo: LicenseInfo,
         private toastService: ToastService,
@@ -64,9 +66,13 @@ export class LicenseDetails {
     }
 
     loadData() {
-        this.elsaCustomerService.getByContractID(this.contractID, 'Managers').subscribe(
-            res => {
-                this.customer = res;
+        forkJoin([
+            this.elsaCustomerService.getByContractID(this.contractID, 'Managers'),
+            this.elsaAgreementService.getContractAgreement()
+        ]).subscribe(
+            ([customer, agreement]) => {
+                this.customer = customer;
+                this.lisenceAgreementUrl = agreement?.DownloadUrl || '';
                 this.filterManagers();
 
                 if (this.isAdmin) {
