@@ -91,8 +91,6 @@ export class UniRegisterPaymentModal implements IUniModal {
         this.config = this.options.modalConfig;
         const paymentData = this.options.data || {};
 
-        this.accounts = paymentData._accounts || [];
-
         if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'SupplierInvoice' ||
             this.config.entityName === 'JournalEntryLine') {
             Math.abs(UniMath.round(this.config.currencyExchangeRate = (paymentData.Amount / paymentData.AmountCurrency) || 1, 4));
@@ -105,10 +103,12 @@ export class UniRegisterPaymentModal implements IUniModal {
             'AgioLossAccount',
             'BankChargeAccount',
             'BaseCurrencyCode',
-            'CompanyBankAccount'
+            'CompanyBankAccount',
+            'BankAccounts'
         ]).subscribe(
             (settings: CompanySettings) => {
                 this.companySettings = settings;
+                this.accounts = settings.BankAccounts;
                 this.isMainCurrency = settings.BaseCurrencyCodeID === paymentData.CurrencyCodeID;
                 this.formFields$.next(this.getFormFields());
 
@@ -416,13 +416,13 @@ export class UniRegisterPaymentModal implements IUniModal {
                     valueProperty: 'ID',
                     template: (item) => {
                         return item?.Label
-                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
+                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.AccountNumber))
                             : item?.BankAccountType
                                 ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
-                                    + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
-                                : item?.BankAccountNumber
-                                    ? this.uniAccountNumberPipe.transform(item.BankAccountNumber)
+                                    + this.uniAccountNumberPipe.transform(item?.AccountNumber))
+                                : item?.AccountNumber
+                                    ? this.uniAccountNumberPipe.transform(item.AccountNumber)
                                     : '';
                     },
                     debounceTime: 200,
