@@ -18,6 +18,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -57,6 +58,7 @@ export class BankReconciliation {
         private toastService: ToastService,
         private permissionService: FeaturePermissionService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {
         tabService.addTab({
             url: '/bank/reconciliationmatch',
@@ -139,7 +141,7 @@ export class BankReconciliation {
                             account['_displayValue'] = account.Label
                                 ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
                                 : account.BankAccountType
-                                    ? this.getAccountType(account.BankAccountType)
+                                    ? this.uniAccountTypePipe.transform(account.BankAccountType)
                                         + ' - '
                                         + this.uniAccountNumberPipe.transform(account.AccountNumber)
                                     : this.uniAccountNumberPipe.transform(account.AccountNumber);
@@ -504,23 +506,5 @@ export class BankReconciliation {
             }
             return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
-    }
-
-    private getAccountType(type: string): string {
-        switch (type.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
     }
 }

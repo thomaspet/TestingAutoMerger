@@ -10,6 +10,7 @@ import { UniNumberFormatPipe } from '@uni-framework/pipes/uniNumberFormatPipe';
 import { UniTableConfig } from '@uni-framework/ui/unitable/config/unitableConfig';
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable/config/unitableColumn';
 import { BrunoBankOffboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'bank-setttings-accountlist',
@@ -69,7 +70,8 @@ export class BankSettingsAccountlist {
         private bankAccountService: BankAccountService,
         private brunoOnboardingService: BrunoOnboardingService,
         private bankService: BankService,
-        private bankAccountPipe: UniNumberFormatPipe
+        private bankAccountPipe: UniNumberFormatPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) { }
 
     ngOnChanges() {
@@ -100,7 +102,7 @@ export class BankSettingsAccountlist {
                 new UniTableColumn('Account.AccountName', 'Hovedbokskonto', UniTableColumnType.Text)
                     .setTemplate(row => row.Account?.AccountNumber + ' - ' + row.Account?.AccountName),
                 new UniTableColumn('BankAccountType', 'Type', UniTableColumnType.Text)
-                    .setTemplate( (row) => this.getAccountType(row))
+                    .setTemplate( (row) => this.uniAccountTypePipe.transform(row.BankAccountType))
                     .setAlignment('center')
                     .setWidth('4rem'),
                 new UniTableColumn('_isStandard', 'Status', UniTableColumnType.Text)
@@ -385,23 +387,5 @@ export class BankSettingsAccountlist {
         return ID === this.companySettings.CompanyBankAccountID ||
             ID === this.companySettings.SalaryBankAccountID ||
             ID === this.companySettings.TaxBankAccountID;
-    }
-
-    getAccountType(row: BankAccount): string {
-        switch (row.BankAccountType?.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
     }
 }
