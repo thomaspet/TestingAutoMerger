@@ -407,6 +407,8 @@ export class SupplierInvoiceStore {
             }
         } else if (field === 'VatType') {
             line.VatTypeID = value?.ID || null;
+        } else if (field === 'AmountCurrency') {
+            line.Amount = line.AmountCurrency;
         }
 
         // recalc
@@ -600,7 +602,7 @@ export class SupplierInvoiceStore {
 
                 // TODO: use message / error
                 if (result.account) {
-                    this.updateJournalEntryLine(0, 'Account', result.account);
+                    this.updateJournalEntryLine(0, 'Account', result.account, true);
                     this.updateJournalEntryLine(0, 'Description', this.getDescription());
                 }
                 setTimeout(() => {
