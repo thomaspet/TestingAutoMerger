@@ -97,7 +97,7 @@
     
                     <label class="uni-label">
                         <span>Skal selskapet betale moms?</span>
-                        <mat-radio-group class="horizontal" formControlName="TemplateIncludeVat">
+                        <mat-radio-group class="horizontal" formControlName="TaxMandatoryType">
                             <mat-radio-button [value]="taxType.TaxMandatory">Ja</mat-radio-button>
                             <mat-radio-button [value]="taxType.NotTaxMandatory">Nei</mat-radio-button>
                             <mat-radio-button [value]="taxType.FutureTaxMandatory">Nei, men planlegger omsetning over 50.000</mat-radio-button>
