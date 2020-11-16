@@ -659,7 +659,7 @@ export class SupplierInvoiceStore {
             BankChargeAmount: 0,
             CurrencyCodeID: invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
-            PaymentDate: invoice.InvoiceDate,
+            PaymentDate: invoice.PaymentDueDate || invoice.InvoiceDate,
             AgioAccountID: 0,
             BankChargeAccountID: this.companySettings.BankChargeAccountID,
             AgioAmount: 0,
