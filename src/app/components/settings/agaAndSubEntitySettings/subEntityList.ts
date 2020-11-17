@@ -150,7 +150,11 @@ export class SubEntityList implements OnInit {
             .finally(() => this.busy = false)
             .subscribe(subEntities => {
                 this.allSubEntities = subEntities;
-                this.currentSubEntity = subEntities.find(sub => sub.ID === this.currentSubEntity.ID);
+                if (subEntities.length) {
+                    this.currentSubEntity = this.currentSubEntity || subEntities[0];
+                    this.currentSubEntity = subEntities.find(sub => sub.ID === this.currentSubEntity.ID);
+                    this.table.focusRow(subEntities.findIndex(sub => sub.ID === this.currentSubEntity.ID));
+                }
             });
     }
 
