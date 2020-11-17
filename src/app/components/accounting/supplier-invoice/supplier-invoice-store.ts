@@ -431,9 +431,11 @@ export class SupplierInvoiceStore {
             const overrideVatCodes = ['3', '31', '32', '33'];
             const overrideVatCodesNone = ['1', '11', '12', '13'];
 
-            if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+            vatType = this.vatTypes.find(x => x.ID === ID);
+
+            if (overrideVatCodes.indexOf(vatType?.VatCode) !== -1) {
                 vatType = this.vatTypes.find(x => x.VatCode === '6');
-            } else if (overrideVatCodesNone.indexOf(vatType.VatCode) !== -1) {
+            } else if (overrideVatCodesNone.indexOf(vatType?.VatCode) !== -1) {
                 vatType = this.vatTypes.find(x => x.VatCode === '0');
             }
         } else {
