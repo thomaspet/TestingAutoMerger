@@ -42,11 +42,17 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                             .pipe(switchMap(() => this.annualSettlementService.getAnnualSettlements()));
                     }
                 }
-                return of(as);
+                const data = Object.assign({}, as[0], {
+                    AccountYear: 2019,
+                    StatusCode: 36125
+                });
+                return of([data].concat(as));
             }),
             tap((as: any []) => {
                 const currentAS = as.find(item => item.AccountYear === year);
                 this.steps = this.addActionsToSteps(this.steps, currentAS);
+                this.steps = this.enableDisableSteps(this.steps, currentAS);
+                this.steps = this.addIconsToSteps(this.steps, currentAS);
                 this.selectedAnnualSettlement$.next(currentAS || null);
             })
         );
@@ -54,7 +60,30 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     onSelectAnnualSettlement(annualSettlement) {
         this.selectedAnnualSettlement$.next(annualSettlement);
     }
-
+    private enableDisableSteps(_steps, currentAS) {
+        return _steps.map((step, index) => {
+            switch (index) {
+                case 0:
+                    step._enabled = currentAS.StatusCode >= 36100;
+                    return step;
+                case 1:
+                    step._enabled = currentAS.StatusCode >= 36105;
+                    return step;
+                case 2:
+                    step._enabled = currentAS.StatusCode >= 36110;
+                    return step;
+                case 3:
+                    step._enabled = currentAS.StatusCode >= 36115;
+                    return step;
+                case 4:
+                    step._enabled = currentAS.StatusCode >= 36120;
+                    return step;
+                default:
+                    step._enabled = currentAS.StatusCode >= 36125;
+                    return step;
+            }
+        });
+    }
     private addActionsToSteps(_steps, currentAS) {
         return _steps.map((step, index) => {
             switch (index) {
@@ -74,6 +103,30 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 4:
                     return step;
                 default:
+                    return step;
+            }
+        });
+    }
+    private addIconsToSteps(_steps, currentAS) {
+        return _steps.map((step, index) => {
+            switch (index) {
+                case 0:
+                    step._icon = currentAS.StatusCode >= 36100 ? 'edit' : index + 1;
+                    return step;
+                case 1:
+                    step._icon = currentAS.StatusCode >= 36105 ? 'edit' : index + 1;
+                    return step;
+                case 2:
+                    step._icon = currentAS.StatusCode >= 36110 ? 'edit' : index + 1;
+                    return step;
+                case 3:
+                    step._icon = currentAS.StatusCode >= 36115 ? 'edit' : index + 1;
+                    return step;
+                case 4:
+                    step._icon = currentAS.StatusCode >= 36120 ? 'edit' : index + 1;
+                    return step;
+                default:
+                    step._icon = currentAS.StatusCode >= 36125 ? 'edit' : 'check';
                     return step;
             }
         });

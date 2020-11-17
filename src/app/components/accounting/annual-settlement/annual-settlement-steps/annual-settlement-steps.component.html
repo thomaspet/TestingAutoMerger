@@ -1,14 +1,15 @@
 <uni-stepper>
-    <uni-step *ngFor="let step of steps" [step]="step">
+    <uni-step *ngFor="let step of steps" [step]="step" [class.disabled]="!step?._enabled">
         <ng-template #stepButtonTemplate let-item="item">
             <button>
-                <i class="material-icons">edit</i>
+                <i class="material-icons" *ngIf="step._icon === 'edit'">{{step._icon}}</i>
+                <i *ngIf="step._icon !== 'edit'">{{step._icon}}</i>
             </button>
         </ng-template>
         <ng-template #stepCardTemplate let-item="item">
-            <h5>{{item.title}}</h5>
+            <h6>{{item.title}}</h6>
             <article>{{item.text}}</article>
-            <button class="c2a" (click)="runAction(item)">{{item.buttonText}}</button>
+            <button class="c2a" (click)="runAction(item)" [disabled]="!item?._enabled">{{item.buttonText}}</button>
         </ng-template>
     </uni-step>
 </uni-stepper>

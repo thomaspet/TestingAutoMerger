@@ -3,7 +3,6 @@ import {ChangeDetectionStrategy, Component, EventEmitter, Input, Output} from '@
 @Component({
     selector: 'annual-settlement-selector-component',
     templateUrl: './annual-settlement-selector.component.html',
-    styleUrls: ['./annual-settlement-selector.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnnualSettlementSelectorComponent {
