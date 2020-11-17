@@ -12,6 +12,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {AnnualSettlementGetIconPipe} from '@app/components/accounting/annual-settlement/annual-settlement-get-icon-class.pipe';
 import {AnnualSettlementStepsComponent} from '@app/components/accounting/annual-settlement/annual-settlement-steps/annual-settlement-steps.component';
 import {AnnualSettlementCheckListComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list.component';
+import {AnnualSettlementCheckListToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list-toolbar.component';
 
 @NgModule({
     imports: [
@@ -27,7 +28,8 @@ import {AnnualSettlementCheckListComponent} from '@app/components/accounting/ann
         AnnualSettlementSelectorComponent,
         AnnualSettlementStepsComponent,
         AnnualSettlementGetIconPipe,
-        AnnualSettlementCheckListComponent
+        AnnualSettlementCheckListComponent,
+        AnnualSettlementCheckListToolbarComponent
     ],
     providers: [
         AnnualSettlementService

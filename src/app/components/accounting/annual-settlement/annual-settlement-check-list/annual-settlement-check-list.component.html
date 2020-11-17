@@ -1,18 +1,29 @@
+<annual-settlement-check-list-toolbar-component></annual-settlement-check-list-toolbar-component>
 <section class="container-fluid uni-grid-container">
-    <!-- this has to be the same component -->
-    <section class="info-section">
-        <i class="material-icons info">info</i>
-        <article class="info-text">
-            <p>
-                Har du et nystiftet AS bruker du denne veiviseren for å registrere inngående balanse for nyetablert firma.
-                Denne inneholder vanligvis bankinsskudd/tingsinnskudd, aksjekapital og avsetning for stiftelseskostnader.
-            </p>
-            <p>
-                Har du et selskap som har vært i drift, skal du registrere inngående balanse for etablert firma
-                <a href="/#/settings/accounting/incoming-balance">Registrere inngående balanse</a>
-            </p>
-        </article>
-        <i class="material-icons close">close</i>
+    <section class="row header">
+        <a href="#/accounting/annual-settlement">
+            <i class="material-icons">keyboard_backspace</i>
+        </a>
+        <h5>
+            Sjekkliste for årsavslutning
+        </h5>
+        <i class="material-icons-outlined">info</i>
+        <h4>
+            2020
+        </h4>
+    </section>
+    <section class="row last">
+        <uni-stepper>
+            <uni-step *ngFor="let option of options" [step]="option">
+                <ng-template #stepButtonTemplate let-item="item">
+                    <input type="checkbox" />
+                </ng-template>
+                <ng-template #stepCardTemplate let-item="item">
+                    <h6>{{item.title}}</h6>
+                    <article [innerHTML]="item.text"></article>
+                </ng-template>
+            </uni-step>
+        </uni-stepper>
     </section>
 </section>
 <!--

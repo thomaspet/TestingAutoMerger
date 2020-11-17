@@ -22,7 +22,7 @@ annual-settlement-road-map-component
     h4
         font-size: pxToRem(24px)
         line-height: pxToRem(38.4px)
-        font-weight: 700
+        font-weight: 700 !important
     .annual-settlement-container
         margin-top: 1.2rem
         padding-bottom: 5rem
@@ -30,54 +30,45 @@ annual-settlement-road-map-component
         float: right
         padding: 0 10rem
         margin: 0
-    uni-step
-        &.disabled
-            .step-container
-                border: 1px solid #F2F2F2
-        .step-container
-            display: flex
-            background: #fff
-            padding: pxToRem(21px)
-            align-items: start
-            border-radius: pxToRem(9px)
-            border: 1px solid var(--active-tab-color)
-            margin-bottom: pxToRem(24px)
-            .step-status
-                margin-right: pxToRem(21px)
-                display: flex
-                justify-content: center
-                button
-                    border: 1px solid #78E6F8
-                    background: #b4f5ff
-                    border-radius: 50%
-                    padding: pxToRem(8px)
-                    i
-                        height: pxToRem(20px)
-                        width: pxToRem(20px)
-                        position: relative
-                        right: pxToRem(2px)
-                        botto: pxToRem(1px)
-
-            .step-content
-                h6
-                    font-weight: 600
-                    font-size: pxToRem(18px)
-                    line-height: pxToRem(28.8px)
-                    letter-spacing: pxToRem(0.15px)
-                    font-family: 'Montserrat', sans-serif
-                    margin: 0 0 pxToRem(15px) 0
-                article
-                    font-weight: 400
-                    font-size: pxToRem(15px)
-                    line-height: pxToRem(24px)
-                    letter-spacing: pxToRem(0.15px)
-                    margin: 0 0 pxToRem(15px) 0
-                button
-                    padding: pxToRem(12px) pxToRem(16px)
-                    border: 1px solid var(--button-c2a)
-                    min-width: pxToRem(194px)
 
 annual-settlement-check-list-component
+    .last
+        margin-bottom: 3rem
+    .header
+        display: flex
+        align-items: center
+        justify-content: flex-start
+        a
+            border-radius: pxToRem(4px)
+            border: 1px solid #CCCCCC
+            color: var(--primary)
+            padding: pxToRem(16px)
+            display: flex
+            align-items: center
+            justify-items: center
+            &:active
+                text-decoration: none
+        a > i
+            width: pxToRem(16px)
+            height: pxToRem(16px)
+            color: var(--primary)
+            position: relative
+            bottom: 4px
+            right: 3px
+        & > i
+            width: pxToRem(20px)
+            height: pxToRem(20px)
+        h5
+            font-weight: 600
+            font-size: pxToRem(22px)
+            line-height: pxToRem(35.2px)
+            margin: 0 pxToRem(10px)
+        h4
+            margin-left: auto
+            font-weight: 700
+            font-size: pxToRem(24px)
+            line-height: pxToRem(38.4px)
+            letter-spacing: pxToRem(0.25px)
     .info-section
         position: relative
         padding: 0rem 2.5rem 1rem 4rem
@@ -99,3 +90,50 @@ annual-settlement-check-list-component
             right: 20px
             color: var(--color-c2a)
             cursor: pointer
+
+uni-step
+    &.disabled
+        .step-container
+            border: 1px solid #F2F2F2
+    .step-container
+        display: flex
+        background: #fff
+        padding: pxToRem(21px)
+        align-items: start
+        border-radius: pxToRem(9px)
+        border: 1px solid var(--active-tab-color)
+        margin-bottom: pxToRem(24px)
+        .step-status
+            margin-right: pxToRem(21px)
+            display: flex
+            justify-content: center
+            button
+                border: 1px solid #78E6F8
+                background: #b4f5ff
+                border-radius: 50%
+                padding: pxToRem(8px)
+                i
+                    height: pxToRem(20px)
+                    width: pxToRem(20px)
+                    position: relative
+                    right: pxToRem(2px)
+                    botto: pxToRem(1px)
+
+        .step-content
+            h6
+                font-weight: 600
+                font-size: pxToRem(18px)
+                line-height: pxToRem(28.8px)
+                letter-spacing: pxToRem(0.15px)
+                font-family: 'Montserrat', sans-serif
+                margin: 0 0 pxToRem(15px) 0
+            article
+                font-weight: 400
+                font-size: pxToRem(15px)
+                line-height: pxToRem(24px)
+                letter-spacing: pxToRem(0.15px)
+                margin: 0 0 pxToRem(15px) 0
+            button
+                padding: pxToRem(12px) pxToRem(16px)
+                border: 1px solid var(--button-c2a)
+                min-width: pxToRem(194px)
