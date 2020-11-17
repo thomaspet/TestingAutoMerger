@@ -4,7 +4,8 @@ import {
     CompanySettings,
     LocalDate,
     InvoicePaymentData,
-    Payment
+    Payment,
+    BankAccount
 } from '../../../app/unientities';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
@@ -73,7 +74,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
-    accounts: any[] = [];
+    accounts: BankAccount[] = [];
 
     constructor(
         private companySettingsService: CompanySettingsService,
