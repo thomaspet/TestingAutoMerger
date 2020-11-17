@@ -480,7 +480,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmountAndNetAmountCurrency(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency && rowModel.AmountCurrency !== 0) {
-            if (rowModel.DebitAccount && rowModel.DebitVatType && !rowModel.DebitVatType.DirectJournalEntryOnly) {
+            if (rowModel.DebitAccount
+                && rowModel.DebitVatType
+                && !rowModel.DebitVatType.DirectJournalEntryOnly
+                && !this.skipVatCalcForVatCode(rowModel?.DebitVatType?.VatCode)
+            ) {
                 const calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.DebitAccount,
                     rowModel.DebitVatType,
@@ -492,6 +496,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else if (rowModel.CreditAccount
                 && rowModel.CreditVatType
                 && !rowModel.CreditVatType.DirectJournalEntryOnly
+                && !this.skipVatCalcForVatCode(rowModel?.CreditVatType?.VatCode)
             ) {
                 const calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.CreditAccount,
@@ -518,6 +523,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
+    }
 
     private calculateNetAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.NetAmountCurrency) {
