@@ -59,7 +59,6 @@
     <!-- Expensions (and modules if the contract-type selector is visible) -->
     <section *ngIf="extensions?.length || (contractTypes?.length && modules?.length)" class="extensions">
         <h2>Utvidelser</h2>
-        <!-- <uni-tabs [tabs]="tabs" (tabClick)="onTabChange($event)"></uni-tabs> -->
 
         <section class="product-card-grid">
             <ng-container *ngIf="contractTypes?.length">

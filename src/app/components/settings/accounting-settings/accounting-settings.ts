@@ -266,7 +266,7 @@ export class UniCompanyAccountingView {
     }
 
     private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal, {data: {isOutgoing: false}}).onClose.subscribe((status) => {
+        this.modalService.open(UniActivateAPModal).onClose.subscribe((status) => {
             if (status !== 0) {
                 this.companySettingsService.Get(1).subscribe(settings => {
                     const company = this.companySettings$.getValue();
