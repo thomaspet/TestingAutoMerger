@@ -332,7 +332,7 @@ export class SupplierInvoiceStore {
             title: 'Et lite øyeblikk',
             message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
         });
-        this.ocrHelper.runEHFParse(file).subscribe(invoice => {
+        this.ocrHelper.runEHFParse(file, this.currentMode === PaymentMode.PrepaidByEmployee).subscribe(invoice => {
             invoice.JournalEntry = invoice.JournalEntry || <JournalEntry>{ ID: 0, DraftLines: [] };
             this.invoice$.next(invoice);
 

@@ -73,7 +73,7 @@ export class RecieverModal implements IUniModal {
                 this.supplierService.GetNewEntity(['Info']),
                 this.statisticsService.GetAllUnwrapped(
                     `model=numberseries&select=ID as ID,Name as Name,Comment as Comment` +
-                    `&filter=Disabled eq 'false' and numberseriestype.entitytype eq 'supplier' and startswith(mainaccount.accountnumber,'29')` +
+                    `&filter=Disabled eq 'false' and numberseriestype.entitytype eq 'supplier' and ( startswith(mainaccount.accountnumber,'29') or startswith(mainaccount.accountnumber,'206') )` +
                     // ` and Name ne 'Ansatte'` +  ||||  Uncomment this to keep testing automatic new numberseries
                     `&expand=NumberseriesType,MainAccount`),
                 this.companySettings.getCompanySettings(),
