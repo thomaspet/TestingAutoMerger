@@ -1,0 +1,89 @@
+name: CI-RC-Down
+
+on:
+  push:
+    branches: [ RC ]
+
+jobs:
+    check-conflicts:
+        runs-on: ubuntu-latest
+        env:
+          HEAD: RC
+          BASE: develop
+        outputs: 
+            conflicts: ${{ steps.check.outputs.conflicts }}
+        steps:
+          - uses: actions/checkout@master
+            with:
+              fetch-depth: 0
+          - name: Check for conflicts
+            run: |
+             git config user.email ${{ github.actor }}@users.noreply.github.com
+             git config user.name ${{ github.actor }}
+             git fetch origin ${{ env.BASE }}
+             git checkout ${{ env.BASE }}
+             git merge ${{ env.HEAD }} & exit 0
+
+          - name: Save amount of conflicts
+            id: check
+            run: |
+             echo "::set-output name=conflicts::$(git ls-files -u | wc -l)"
+    merge:
+        runs-on: ubuntu-latest
+        env:
+          HEAD: RC
+          BASE: develop
+          PATOWNER: frodet
+        needs: check-conflicts
+        if: needs.check-conflicts.outputs.conflicts == 0
+        steps:
+          - uses: actions/checkout@master
+            with:
+                fetch-depth: 0
+                persist-credentials: false
+
+          - name: Merge and push
+            env: 
+              remote: https://${{env.PATOWNER}}:${{secrets.GITHUBACTIONREPOKEY}}@github.com/${{github.repository}}.git
+            run: |
+              git config remote.origin.url ${{env.remote}}
+              git config user.email ${{ github.actor }}@users.noreply.github.com
+              git config user.name ${{ github.actor }}
+              git fetch
+              git checkout ${{ env.BASE }}
+              git merge origin/${{ env.HEAD }} --no-ff
+              git push origin ${{ env.BASE }}
+
+    pull-request:
+      runs-on: ubuntu-latest
+      env:
+          HEAD: RC
+          BASE: develop
+      needs: check-conflicts
+      if: needs.check-conflicts.outputs.conflicts > 0
+      steps:
+        - uses: actions/checkout@master
+          with:
+              fetch-depth: 0
+
+        - name: Set current date as env variable
+          id: date
+          run: echo "::set-output name=date::$(date +'%Y%m%dT%H%M%S')"
+
+        - name: Create PR branch name
+          id: prbranch
+          run: echo "::set-output name=branch_name::Automerge_${{ env.HEAD }}_${{ github.actor }}_${{ steps.date.outputs.date }}"
+        - name: Open pull request
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          run: |
+            git config user.email ${{ github.actor }}@users.noreply.github.com
+            git config user.name ${{ github.actor }}
+            git fetch origin ${{ env.HEAD }}
+            git checkout ${{ env.HEAD }}
+            git checkout -b ${{ steps.prbranch.outputs.branch_name }}
+            git push origin ${{ steps.prbranch.outputs.branch_name }}
+            gh pr create --head ${{ steps.prbranch.outputs.branch_name }} --base ${{ env.BASE }} \
+              --title "[AutoDownMerge] Merge conflict between ${{ env.HEAD }} and ${{ env.BASE }}" \
+              --body "Conflict in automatic downmerge.\nPlease manually fix conflict." \
+              -a ${{ github.actor }}
