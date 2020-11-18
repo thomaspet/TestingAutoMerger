@@ -18,47 +18,47 @@
                     (selected)="onContractTypeSelected(contractType)">
                 </contract-type-card>
             </section>
-    
+
             <contract-types-comparison></contract-types-comparison>
         </section>
-    
-    
+
+
         <!-- Company form part 1 -->
         <section *ngIf="currentStep === STEPS.COMPANY_STEP1" class="uni-card shadow">
             <section class="uni-card-content">
                 <h1>Selskapsinformasjon</h1>
-    
+
                 <autocomplete
                     [options]="autocompleteOptions"
                     (valueChange)="onBrRegCompanyChange($event)">
                 </autocomplete>
-    
+
                 <section *ngIf="companyCreationFailed" class="alert bad">
                     Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
                 </section>
-    
+
                 <form [formGroup]="step1Form">
                     <label #companyNameInput class="uni-label">
                         <span>Firmanavn</span>
                         <input type="text" formControlName="CompanyName">
                     </label>
-    
+
                     <label class="uni-label">
                         <span>Organisasjonsnummer</span>
                         <input type="text" formControlName="OrganizationNumber">
                     </label>
-    
+
                     <label class="uni-label">
                         <span>Adresse</span>
                         <input type="text" formControlName="Address">
                     </label>
-    
+
                     <section class="input-row">
                         <label class="uni-label">
                             <span>Postnummer</span>
                             <input type="text" formControlName="PostalCode">
                         </label>
-    
+
                         <label class="uni-label">
                             <span>Poststed</span>
                             <input type="text" formControlName="City">
@@ -66,25 +66,25 @@
                     </section>
                 </form>
             </section>
-    
+
             <section class="uni-card-footer">
                 <button class="secondary pull-left"
                     *ngIf="includeContractActivation && contractTypes?.length"
                     (click)="currentStep = STEPS.CONTRACT_TYPE">
                     Tilbake
                 </button>
-    
+
                 <button class="c2a" (click)="step1FormSubmit()" (keydown.tab)="$event.preventDefault()">
                     Neste
                 </button>
             </section>
         </section>
-    
+
         <!-- Company form part 2 -->
         <section *ngIf="currentStep === STEPS.COMPANY_STEP2" class="uni-card shadow">
             <section class="uni-card-content">
                 <h1>Selskapsinnstillinger</h1>
-    
+
                 <form [formGroup]="step2Form" uniAutoFocus>
                     <label *ngIf="step2Form.controls['AccountNumber']" class="uni-label">
                         <span>Driftskonto</span>
@@ -94,7 +94,7 @@
                             <span>Kontoen må være en DNB konto</span>
                         </section>
                     </label>
-    
+
                     <label class="uni-label">
                         <span>Skal selskapet betale moms?</span>
                         <mat-radio-group class="horizontal" formControlName="TaxMandatoryType">
@@ -103,7 +103,7 @@
                             <mat-radio-button [value]="taxType.FutureTaxMandatory">Nei, men planlegger omsetning over 50.000</mat-radio-button>
                         </mat-radio-group>
                     </label>
-    
+
                     <label class="uni-label">
                         <span>Skal selskapet ha ansatte?</span>
                         <mat-radio-group class="horizontal" formControlName="TemplateIncludeSalary">
@@ -113,12 +113,12 @@
                     </label>
                 </form>
             </section>
-    
+
             <section class="uni-card-footer">
                 <button class="secondary pull-left" (click)="currentStep = STEPS.COMPANY_STEP1">
                     Tilbake
                 </button>
-    
+
                 <button class="c2a"
                     [disabled]="!step2Form.valid"
                     (click)="step2FormSubmit()"
@@ -127,7 +127,7 @@
                 </button>
             </section>
         </section>
-    
+
         <!-- Contract activation -->
         <contract-activation-wizard
             *ngIf="currentStep === STEPS.CONTRACT_ACTIVATION"
