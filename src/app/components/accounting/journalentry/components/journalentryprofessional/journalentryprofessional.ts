@@ -651,7 +651,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     ? 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort på' +
                                         ' denne leverandøren i UniEconomy'
                                     : 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort i UniEconomy' +
-                                        ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+                                        ' på leverandører i samme bransje som valgt leverandør på din faktura.';
 
                                 this.journalEntryLines = [].concat(this.journalEntryLines);
                                 this.dataChanged.emit(this.journalEntryLines);

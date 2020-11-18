@@ -82,7 +82,7 @@ export const NO = {
             'MULTIPLE_USE_MSG1': 'Flere leverandørfaktura knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en leverandørfaktura. Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen og gå tilbake til innboksen og starte på nytt med riktig fil.',
             'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i UniEconomy',
-            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i UniEconomy på levernadører i samme bransje som valgt leverandør på din faktura.',
+            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i UniEconomy på leverandører i samme bransje som valgt leverandør på din faktura.',
         },
         POSTPOST: {
             'ALL_WITH_OPEN': 'Alle med åpne poster',

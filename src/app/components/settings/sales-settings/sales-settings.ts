@@ -143,7 +143,8 @@ export class UniSalesSettingsView {
         this.companySettingsService.invalidateCache();
         Observable.forkJoin([
             this.companySettingsService.Get(1, this.expands),
-            this.termsService.GetAll(null)
+            this.termsService.GetAll(null),
+            this.elsaPurchasesService.getPurchaseByProductName('EHF_OUT')
         ]).subscribe((response) => {
             const data = response[0];
             data['FactoringEmails'] = [data.FactoringEmail || {_createguid: this.companySettingsService.getNewGuid()}];
@@ -154,9 +155,11 @@ export class UniSalesSettingsView {
             this.terms = response[1];
 
             this.eInvoiceItems[0].isActivated = this.ehfService.isInvoicePrintActivated(response[0]);
-            this.eInvoiceItems[1].isActivated = this.ehfService.isEHFOutActivated(response[0]);
+            if (response[2]) {
+                this.eInvoiceItems[1].isActivated = true;
+                this.setUpEHFField();
+            }
 
-            this.setUpEHFField();
             this.setUpFactoringFields();
             this.setUpTermsArrays();
         });
@@ -302,33 +305,23 @@ export class UniSalesSettingsView {
                 break;
             // EHF
             case 1:
-                this.activateProduct('EHF', this.openActivateAPModal.bind(this));
+                this.activateProduct('EHF_OUT', null);
                 break;
         }
     }
 
-    private activateProduct(productName: string, activationModal: () => void) {
+    private activateProduct(productName: string, activationModal?: () => void) {
         this.elsaPurchasesService.getPurchaseByProductName(productName).subscribe(purchase => {
             if (purchase) {
-                activationModal();
-                this.setUpEHFField();
+                if (activationModal) {
+                    activationModal();
+                } else {
+                    this.router.navigateByUrl(`/marketplace/purchases`);
+                }
             } else {
                 this.router.navigateByUrl(`/marketplace/modules?productName=${productName}`);
             }
         });
-    }
-
-    private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal, {data: {isOutgoing: true}}).onClose.subscribe((status) => {
-            if (status !== 0) {
-                this.companySettingsService.Get(1).subscribe(settings => {
-                    const company = this.companySettings$.getValue();
-                    company.BankAccounts = settings.BankAccounts;
-                    company.CompanyBankAccount = settings.CompanyBankAccount;
-                    this.companySettings$.next(company);
-                });
-            }
-        }, err => this.errorService.handle(err) );
     }
 
     private openActivateInvoicePrintModal() {
@@ -505,14 +498,12 @@ export class UniSalesSettingsView {
     }
 
     setUpEHFField() {
-        const cs = this.companySettings$.getValue();
         this.ehfInvoiceField$.next([
             <any>{
                 EntityType: 'CompanySettings',
                 Property: 'APIncludeAttachment',
                 FieldType: FieldType.CHECKBOX,
                 Label: 'Inkluder PDF av faktura ved sending av EHF',
-                Hidden: !this.companySettings$.getValue()['APActivated']
             }
         ]);
     }
