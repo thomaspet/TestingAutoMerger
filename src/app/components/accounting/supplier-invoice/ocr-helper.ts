@@ -244,14 +244,14 @@ export class OCRHelperClass {
         }));
     }
 
-    runEHFParse(file: File): Observable<SupplierInvoice> {
+    runEHFParse(file: File, ignoreSupplier: boolean): Observable<SupplierInvoice> {
         return this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`).pipe(
             switchMap((invoice: SupplierInvoice) => {
-                return this.handleEHF(invoice);
+                return this.handleEHF(invoice, ignoreSupplier);
         }));
     }
 
-   handleEHF(invoice: SupplierInvoice): Observable<SupplierInvoice> {
+   handleEHF(invoice: SupplierInvoice, ignoreSupplier: boolean): Observable<SupplierInvoice> {
         const handler = invoice.BankAccount && !invoice.BankAccount.AccountNumber && invoice.BankAccount.IBAN
             ? this.bankService.validateIBANUpsertBank(invoice.BankAccount.IBAN)
             : Observable.of(null);
@@ -275,27 +275,33 @@ export class OCRHelperClass {
                 BankAccount: invoice?.BankAccount?.AccountNumber
             };
 
-            return this.getOrCreateSupplier(ocrData).pipe(
-                catchError(err => {
-                    console.error(err);
-                    return of(null);
-                }),
-                switchMap((supplier: Supplier) => {
-                    if (supplier) {
-                        invoice.SupplierID = supplier.ID;
-                        invoice.Supplier = supplier;
+            if (ignoreSupplier) {
+                invoice.Supplier = null;
+                invoice.SupplierID = null;
+                return of(invoice);
+            } else {
+                return this.getOrCreateSupplier(ocrData).pipe(
+                    catchError(err => {
+                        console.error(err);
+                        return of(null);
+                    }),
+                    switchMap((supplier: Supplier) => {
+                        if (supplier) {
+                            invoice.SupplierID = supplier.ID;
+                            invoice.Supplier = supplier;
 
-                        const account = (supplier.Info.BankAccounts || []).find(acc => acc.AccountNumber === ocrData.BankAccount);
-                        invoice.BankAccount = account || null;
-                        invoice.BankAccountID = account?.ID || null;
-                    } else {
-                        invoice.SupplierID = null;
-                        invoice.Supplier = null;
-                    }
+                            const account = (supplier.Info.BankAccounts || []).find(acc => acc.AccountNumber === ocrData.BankAccount);
+                            invoice.BankAccount = account || null;
+                            invoice.BankAccountID = account?.ID || null;
+                        } else {
+                            invoice.SupplierID = null;
+                            invoice.Supplier = null;
+                        }
 
-                    return of(invoice);
-                })
-            );
+                        return of(invoice);
+                    })
+                );
+            }
         }));
     }
 }
