@@ -136,7 +136,6 @@ export class SendInvoiceModal implements IUniModal {
         forkJoin([
             this.statisticsService.GetAllUnwrapped(previousSharingsQuery),
             this.companySettingsService.Get(1, ['DefaultAddress', 'APOutgoing', 'CompanyBankAccount']),
-            this.elsaPurchaseService.getPurchaseByProductName('EHF_OUT'),
             this.invoice.DistributionPlanID
                 ? this.distributionPlanService.Get(this.invoice.DistributionPlanID, ['Elements.ElementType'])
                 : Observable.of(null)
@@ -144,29 +143,14 @@ export class SendInvoiceModal implements IUniModal {
             res => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
-                const hasPurchasedEhfOut = !!res[2];
-                this.canSendEHF(hasPurchasedEhfOut).subscribe(canSendEHF => {
-                    if (canSendEHF && !this.sendingOptions.find(so => so.type === ElementType.EHF)) {
-                        this.sendingOptions.push({
-                            label: 'Send EHF',
-                            action: () => this.sendEHF(),
-                            type: ElementType.EHF
-                        });
-
-                        if (!this.invoice.DistributionPlanID) {
-                            this.selectedOption = this.sendingOptions[this.sendingOptions.length - 1];
-                        }
-                    }
-                });
-
-                const plan = res[3];
+                const plan = res[2];
 
                 if (plan) {
                     this.sendingOptions = [];
 
                     Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
                         concatMap((el: DistributionPlanElement) => { // combine flag if allowed and element
-                            const allowed = this.canUseThisElement(el.ElementType.ID, hasPurchasedEhfOut);
+                            const allowed = this.canUseThisElement(el.ElementType.ID);
                             return combineLatest([allowed, Observable.of(el)]);
                         }),
                         filter(([allow, _]: [boolean, DistributionPlanElement]) => allow), // only keep allowed
@@ -189,23 +173,32 @@ export class SendInvoiceModal implements IUniModal {
 
     addDefaultSendingOptionsIfMissing() {
         if (!this.sendingOptions.find(opt => opt.type === ElementType.Email)) {
-            this.addSendingOptionForElementType(ElementType.Email);
+            let customerDist = this.customerDistributions[ElementType.Email];
+
+            // If it doesn't exist just show email and assume it works, else use isvalid
+            if (!customerDist || customerDist?.isValid) {
+                this.addSendingOptionForElementType(ElementType.Email);
+            }
         }
 
         if (!this.sendingOptions.find(opt => opt.type === ElementType.Print)) {
             this.addSendingOptionForElementType(ElementType.Print);
         }
+
+        if (!this.sendingOptions.find(opt => opt.type === ElementType.EHF)) {
+            let customerDist = this.customerDistributions[ElementType.EHF];
+            if (customerDist.isValid) {
+                this.addSendingOptionForElementType(ElementType.EHF);
+            }
+        }
     }
 
     addSendingOptionForElementType(elementType: ElementType) {
-        var customerDist = this.customerDistributions[elementType];
-        if (!customerDist || customerDist?.isValid) {
-            this.sendingOptions.push({
-                label: `${this.distributionPlanService.getElementTypeText(elementType)}`,
-                action: this.createActionForElementType(elementType),
-                type: elementType
-            });
-        }
+        this.sendingOptions.push({
+            label: `${this.distributionPlanService.getElementTypeText(elementType)}`,
+            action: this.createActionForElementType(elementType),
+            type: elementType
+        });
     }
 
     createActionForElementType(elementType: ElementType) {
@@ -282,92 +275,10 @@ export class SendInvoiceModal implements IUniModal {
     // Section allowed to use elementtype
     //
 
-    private canUseThisElement(elementType: ElementType, hasPurchasedEhfOut: boolean) {
-        switch (elementType) {
-            case ElementType.EHF:
-                return this.canSendEHF(hasPurchasedEhfOut);
-            case ElementType.Invoiceprint:
-                return this.canSendInvoicePrint();
-            case ElementType.Vipps:
-                return this.canSendVippsinvoice();
-            case ElementType.AvtaleGiro:
-                return this.canSendAvtaleGiro();
-            case ElementType.AvtaleGiroEfaktura:
-                return this.canSendAvtaleGiroEfaktura();
-            case ElementType.Efaktura:
-                return this.canSendEfaktura();
-            case ElementType.Factoring:
-                return this.canSendFactoring();
-            default:
-                return Observable.of(true);
-        }
+    private canUseThisElement(elementType: ElementType) {
+        var customerDist = this.customerDistributions[elementType];
+        return Observable.of(customerDist ? customerDist?.isValid : true);
     }
-
-    private canSendFactoring() {
-        return Observable.of(this.companySettings.FactoringNumber > 0
-            && this.companySettings.Factoring > 0
-            && this.invoice.Customer.FactoringNumber > 0);
-    }
-
-    private canSendAvtaleGiro() {
-        return Observable.of(this.invoice.Customer.AvtaleGiro
-            && this.invoice.PaymentID
-            && (this.invoice.EmailAddress || !this.invoice.Customer.AvtaleGiroNotification));
-    }
-
-    private canSendEfaktura() {
-        return Observable.of(this.invoice.TaxInclusiveAmount >= 0
-            && this.companySettings.NetsIntegrationActivated
-            && (this.invoice.Customer.EInvoiceAgreementReference
-            || this.invoice.Customer.EfakturaIdentifier));
-    }
-
-    private canSendAvtaleGiroEfaktura() {
-        return combineLatest([this.canSendAvtaleGiro(), this.canSendEfaktura()])
-            .mergeMap(([avtaleGiro, eFaktura]) => Observable.of(avtaleGiro && eFaktura));
-    }
-
-    private canSendVippsinvoice() {
-        const then = this.invoice.PaymentDueDate != null
-            ? moment(this.invoice.PaymentDueDate)
-            : moment().add(72, 'hours');
-
-        const diffHours = then.diff(moment(), 'hours');
-        const diffDays = then.diff(moment(), 'days');
-
-        if (diffHours <= 72 || diffDays >= 365
-            || !this.companySettings.CompanyBankAccount?.AccountNumber
-            || (!this.invoice.Customer?.Info?.DefaultPhone && !((this.invoice.Customer?.Info?.Phones || []).length > 0))) {
-            return Observable.of(false);
-        }
-
-        return Observable.of(true);
-    }
-
-    private canSendInvoicePrint() {
-        const invoicePrintActive = this.ehfService.isInvoicePrintActivated(this.companySettings);
-        return Observable.of(invoicePrintActive);
-    }
-
-    private canSendEHF(hasPurchasedEhfOut: boolean) {
-        const ehfActive = this.ehfService.isEHFOutActivated(this.companySettings);
-        const peppoladdress = this.invoice.Customer.PeppolAddress
-            || '0192:' + this.invoice.Customer.OrgNumber;
-
-        if ((ehfActive || hasPurchasedEhfOut) && peppoladdress) {
-            const params = `peppoladdress=${peppoladdress}&entitytype=CustomerInvoice`;
-            return this.ehfService.GetAction(null, 'is-ehf-receiver', params).pipe(
-                catchError(() => observableOf(false)),
-                map(canSend => !!canSend)
-            );
-        } else {
-            return observableOf(false);
-        }
-    }
-
-    //
-    // End section
-    //
 
     private print() {
         this.modalService.open(TofReportModal, {
