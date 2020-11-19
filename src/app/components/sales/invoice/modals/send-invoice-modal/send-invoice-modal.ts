@@ -186,8 +186,7 @@ export class SendInvoiceModal implements IUniModal {
         }
 
         if (!this.sendingOptions.find(opt => opt.type === ElementType.EHF)) {
-            let customerDist = this.customerDistributions[ElementType.EHF];
-            if (customerDist.isValid) {
+            if (this.customerDistributions[ElementType.EHF]?.isValid) {
                 this.addSendingOptionForElementType(ElementType.EHF);
             }
         }
