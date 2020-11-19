@@ -2,7 +2,6 @@ import {Component, EventEmitter} from '@angular/core';
 import {IModalOptions, IUniModal, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {
     CustomerInvoice,
-    DistributionPlan,
     CompanySettings,
     SharingType,
     StatusCodeSharing,
@@ -49,6 +48,7 @@ export class SendInvoiceModal implements IUniModal {
 
     busy: boolean;
     invoice: CustomerInvoice;
+    customerDistributions: any;
     previousSharings: any[];
     companySettings: CompanySettings;
 
@@ -76,7 +76,14 @@ export class SendInvoiceModal implements IUniModal {
 
     public ngOnInit() {
         this.busy = true;
-        this.invoice = this.options.data;
+        this.invoice = this.options.data.invoice;
+        this.customerDistributions = {};
+        this.options.data.customerDistributions.forEach(cd => {
+            this.customerDistributions[cd.ElementType as ElementType] = {
+                isValid: cd.IsValid,
+                Errors: cd.Errors
+            };
+        });
         this.journalEntryUrl = this.buildJournalEntryNumberUrl(this.invoice.JournalEntry.JournalEntryNumber);
         this.sendingOptions = [
             { label: 'Send på epost', action: () => this.sendEmail(), type: ElementType.Email },
@@ -139,7 +146,7 @@ export class SendInvoiceModal implements IUniModal {
                 this.companySettings = res[1];
                 const hasPurchasedEhfOut = !!res[2];
                 this.canSendEHF(hasPurchasedEhfOut).subscribe(canSendEHF => {
-                    if (canSendEHF) {
+                    if (canSendEHF && !this.sendingOptions.find(so => so.type === ElementType.EHF)) {
                         this.sendingOptions.push({
                             label: 'Send EHF',
                             action: () => this.sendEHF(),
@@ -191,13 +198,14 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     addSendingOptionForElementType(elementType: ElementType) {
-        this.sendingOptions.push(
-            {
+        var customerDist = this.customerDistributions[elementType];
+        if (!customerDist || customerDist?.isValid) {
+            this.sendingOptions.push({
                 label: `${this.distributionPlanService.getElementTypeText(elementType)}`,
                 action: this.createActionForElementType(elementType),
                 type: elementType
-            }
-        );
+            });
+        }
     }
 
     createActionForElementType(elementType: ElementType) {

@@ -34,7 +34,7 @@
                     <section class="dropdown-menu-item"
                         *ngFor="let option of sendingOptions"
                         (click)="selectedOption = option">
-                        {{option.label}}
+                        {{ option.label }}
                         <small *ngIf="option.small" style="padding-left: .5rem">{{option.small}}</small>
                     </section>
                 </ng-template>

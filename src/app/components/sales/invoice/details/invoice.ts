@@ -1431,7 +1431,10 @@ export class InvoiceDetails implements OnInit {
                         }
                     }
                     this.modalService.open(SendInvoiceModal, {
-                        data: this.invoice
+                        data: {
+                            invoice: this.invoice,
+                            customerDistributions: this.customerDistributions
+                        }
                     }).onClose.subscribe((emailSentTo) => {
                         if (emailSentTo) {
                             this.invoice.EmailAddress = emailSentTo;
@@ -1963,7 +1966,10 @@ export class InvoiceDetails implements OnInit {
                                             }
                                         }
                                         this.modalService.open(SendInvoiceModal, {
-                                            data: this.invoice
+                                            data: {
+                                                invoice: this.invoice,
+                                                customerDistributions: this.customerDistributions
+                                            }
                                         }).onClose.subscribe((emailSentTo) => {
                                             onSendingComplete(emailSentTo);
                                         });
@@ -1999,7 +2005,10 @@ export class InvoiceDetails implements OnInit {
                                             }
                                         }
                                         this.modalService.open(SendInvoiceModal, {
-                                            data: this.invoice
+                                            data: {
+                                                invoice: this.invoice,
+                                                customerDistributions: this.customerDistributions
+                                            }
                                         }).onClose.subscribe((emailSentTo) => {
                                             onSendingComplete(emailSentTo);
                                         });
