@@ -329,6 +329,8 @@ export const NO = {
             DATE: {
                 'INFO_TEXT': 'Det er viktig at det gamle regnskapet er ferdigstilt og avstemt på en gitt dato, og at du velger siste dato i regnskapet fra tidligere system når du legger inn inngående balanse. Hvis du for eksempel starter å bruke {appName} 1.september, henter du ut saldobalanse for 31. august',
                 'DATE_LABEL': 'Hva er den første dagen du skal føre regnskap i {appName}?',
+                'DATE_SUB_TEXT_1': 'Bilaget vil bli bokført {date}',
+                'DATE_SUB_TEXT_2': 'Datoen vil alltid være siste dag i forrige måned!'
             },
             LIST: {
                 'INFO_TEXT': 'Fyll inn dataene fra saldobalanse-rapporten fra ditt gamle system. Sjekk at differansen på saldoen går i null i rapporten. Gjør den ikke det må du gå tilbake og finne ut hva som er feil og korrigere det i ditt gamle system. Når rapporten er korrekt legger du tallene inn her. Det er viktig at alle tallene du legger inn stemmer overens med de i rapporten, bruk samme fortegn som i rapporten. Når differansen er 0,00 kan du gå videre og registrere åpne poster på kunder og leverandører om du har dette',
