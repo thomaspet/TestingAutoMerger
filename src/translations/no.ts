@@ -268,7 +268,7 @@ export const NO = {
         'FETCH_BR_REG_INFOTEXT': 'Du kan også hente opplysninger fra brønnøysundregistrene',
         'FETCH_FROM_BR_REG': 'Hent fra brreg',
 
-        'BANK_INFOTEXT': 'Definer akseptabelt beløp for differanse for å bokføre, og konto for føringer av gebyr',
+        'BANK_INFOTEXT': 'Definer akseptabelt beløp for differanse for å bokføre, og konto for føringer av gebyr. Huk av "Bokfør kun innbetalinger som matcher" om du ønsker at kun innbetalinger som matcher med salgsfaktura blir bokført, alle andre innbetalinger vil bli ignorert',
         'BANK_ACCOUNTS_INFOTEXT': 'Sett opp kontoer for bruk i systemet. Dersom lønnskonto ikke er fylt ut vil lønn bruke driftskonto ved utbetaling av lønn. Du kan sette opp flere kontoer, men valgt konto vil bli brukt som default av systemet.',
         'REM_ACCOUNTS_INFOTEXT': 'Mellomkontoer for innbetaling, utbetaling og lønn',
         'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks. Ved endring av e-postaddresse, lagre ny e-post med "Endre e-postaddresse"-knappen.',
