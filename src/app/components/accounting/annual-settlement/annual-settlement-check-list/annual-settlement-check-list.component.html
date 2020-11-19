@@ -1,4 +1,6 @@
-<annual-settlement-check-list-toolbar-component></annual-settlement-check-list-toolbar-component>
+<annual-settlement-check-list-toolbar-component
+    [annualSettlement]="annualSettlement"
+></annual-settlement-check-list-toolbar-component>
 <section class="container-fluid uni-grid-container">
     <section class="row header">
         <a href="#/accounting/annual-settlement">
@@ -12,7 +14,7 @@
             2020
         </h4>
     </section>
-    <section class="row last">
+    <section class="row">
         <section class="alert info" *ngIf="showInfoBox">
             <i class="material-icons info">info</i>
             <article class="info-text">
@@ -23,7 +25,7 @@
             </article>
             <i class="material-icons close" (click)="showInfoBox = false">close</i>
         </section>
-        <section class="alert info warn" *ngIf="showMvaBox">
+        <section class="alert info warn" *ngIf="showMvaBox && !checkList?.IsMvaMeldingOK">
             <i class="material-icons info">info</i>
             <article class="info-text">
                 <h6>{{mvaOption.title}}</h6>
@@ -32,20 +34,25 @@
             <i class="material-icons close" (click)="showMvaBox = false">close</i>
         </section>
         <uni-stepper>
-            <uni-step *ngFor="let option of options" [step]="option">
+            <uni-step *ngFor="let option of options" [step]="option" [class.checked]="option?.check">
                 <ng-template #stepButtonTemplate let-item="item">
-                    <i class="material-icons" style="color:#78E178; width:27px; height: 27px; cursor:pointer; font-size:27px;user-select: none"
+                    <i class="material-icons"
+                       style="color:#78E178; width:27px; height: 27px; cursor:pointer; font-size:27px;user-select: none"
                        *ngIf="option?.check"
-                       (click)="option.check=false">check_circle</i>
-                    <i style="border:2px solid black; width:27px; height: 27px; border-radius: 50%; cursor:pointer;user-select: none"
+                       (click)="option.check=false; updateOption(option)">check_circle</i>
+                    <i style="border:2px solid black;
+                       width:27px; height: 27px; border-radius: 50%; cursor:pointer;user-select: none"
                        *ngIf="!option?.check"
-                       (click)="option.check=true">&nbsp;</i>
+                       (click)="option.check=true; updateOption(option)">&nbsp;</i>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
                     <h6>{{item.title}}</h6>
-                    <article [innerHTML]="item.text"></article>
+                    <article [innerHTML]="item.text" *ngIf="!item?.check"></article>
                 </ng-template>
             </uni-step>
         </uni-stepper>
+    </section>
+    <section class="row last" style="justify-content: flex-end">
+        <button (click)="completeCheckListStep()">Sjekkliste fullført</button>
     </section>
 </section>

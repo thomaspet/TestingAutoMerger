@@ -30,6 +30,38 @@ export class AnnualSettlementService extends BizHttp<any> {
         });
     }
 
+    checkMvaMelding(financialYear) {
+        return this.http.http.get(
+            this.baseUrl + 'vatreports?action=validate-vatreports-for-financialyear&financialYear=' + financialYear
+        ).pipe(
+            map((result: any[]) => (result && result.length === 0))
+        );
+    }
+
+    checkAmelding() {
+        return this.http.http.get(
+            this.baseUrl + 'amelding?action=validate-periods'
+        ).pipe(
+            map((result: any[]) => (result && result.length === 0))
+        );
+    }
+
+    checkLastyear(financialYear) {
+        return this.http.http.get(
+            this.baseUrl + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + financialYear
+        ).pipe(
+            map((result: number) => result > -1 && result < 1)
+        );
+    }
+
+    checkStocksCapital(financialYear) {
+        return this.http.http.get(
+            this.baseUrl + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + financialYear
+        ).pipe(
+            map((result: number) => result < 30000)
+        );
+    }
+
     checkList(as) {
         // MVA Melding - isVatReportOK - api/biz/vatreports?action=validate-vatreports-for-financialyear&financialYear=<year>
         // Salary - IsAmeldingOK - api/biz/ameling?action=validate-periods
@@ -41,35 +73,16 @@ export class AnnualSettlementService extends BizHttp<any> {
         // Items/Products - ??? - ???
         // Assets - ???
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
-        return of(as).pipe(
-            // step 1
-            switchMap(x => this.http.http
-                    .get(this.baseUrl + 'vatreports?action=validate-vatreports-for-financialyear&financialYear=' + as.AccountYear)
-                    .pipe(
-                        tap(result => {
-                            checkList.isVatReportOK = result;
-                        }),
-                        map(_ => checkList)
-                    )
-            ),
-            switchMap(x => this.http.http
-                    .get(this.baseUrl + 'amelding?action=validate-periods')
-                    .pipe(
-                        tap(result => {
-                            checkList.IsAmeldingOK = result;
-                        }),
-                        map(_ => checkList)
-                    )
-            ),
-            switchMap(x => this.http.http
-                .get(this.baseUrl + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + as.AccountYear)
-                .pipe(
-                    tap(result => {
-                        checkList.AreAllPreviousYearsEndedAndBalances = result;
-                    }),
-                    map(_ => checkList)
-                )
-            )
-        );
+        return this.checkMvaMelding(as.AccountYear)
+            .pipe(
+                tap(resultMvaMelding => checkList.IsMvaMeldingOK = resultMvaMelding),
+                switchMap(() => this.checkAmelding()),
+                tap(resultAmelding => checkList.IsAmeldingOK = resultAmelding),
+                switchMap(() => this.checkLastyear(as.AccountYear)),
+                tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
+                switchMap(() => this.checkStocksCapital(as.AccountYear)),
+                tap(resultStocksCapital => checkList.IsSharedCapitalOK = resultStocksCapital),
+                map(() => checkList)
+            );
     }
 }

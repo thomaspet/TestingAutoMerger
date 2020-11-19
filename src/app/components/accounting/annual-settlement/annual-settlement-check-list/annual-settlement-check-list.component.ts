@@ -1,9 +1,10 @@
 import {Component} from '@angular/core';
-import {ActivatedRoute} from '@angular/router';
+import {ActivatedRoute, Router} from '@angular/router';
 import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {forkJoin, Subject, throwError} from 'rxjs';
+import {Subject, throwError} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {options, mvaOption, infoOption} from './checklistoptions';
+import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 @Component({
     selector: 'annual-settlement-check-list-component',
     templateUrl: './annual-settlement-check-list.component.html'
@@ -17,13 +18,20 @@ export class AnnualSettlementCheckListComponent {
     checkList: any;
     showInfoBox = true;
     showMvaBox = true;
-    constructor(private route: ActivatedRoute, private service: AnnualSettlementService) {}
+    annualSettlement;
+    constructor(
+        private router: Router,
+        private route: ActivatedRoute,
+        private service: AnnualSettlementService,
+        private tabService: TabService) {}
     ngOnInit() {
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
         ).subscribe(id => {
+            this.addTab(id);
             this.service.getAnnualSettlement(id).pipe(
+                tap(as => this.annualSettlement = as),
                 switchMap(as => this.service.checkList(as)),
                 catchError(error => {
                     console.log(error);
@@ -31,11 +39,38 @@ export class AnnualSettlementCheckListComponent {
                 })
             ).subscribe(checkList => {
                 this.checkList = checkList;
-                console.log(checkList);
+                this.initOptions();
             });
         });
     }
+    private addTab(id: number) {
+        this.tabService.addTab({
+            name: 'Årsavslutning Check List', url: `/accounting/annual-settlement/${id}/check-list`,
+            moduleID: UniModules.Accountsettings, active: true
+        });
+    }
+    completeCheckListStep() {
+        this.service.Transition(this.annualSettlement.ID, this.annualSettlement, '1-to-step-2' )
+            .subscribe(result => {
+                this.router.navigateByUrl('accounting/annual-settlement');
+            });
+    }
 
+    initOptions() {
+        this.options = this.options.map((op: any) => {
+            if (this.checkList[op.property]) {
+                op.check = this.checkList[op.property];
+            }
+            return op;
+        });
+    }
+
+    updateOption(option) {
+        if (option.property) {
+            this.checkList[option.property] = option.check;
+            this.annualSettlement.AnnualSettlementCheckList[option.property] = option.check;
+        }
+    }
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
