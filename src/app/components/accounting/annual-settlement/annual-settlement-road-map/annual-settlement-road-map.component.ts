@@ -42,11 +42,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                             .pipe(switchMap(() => this.annualSettlementService.getAnnualSettlements()));
                     }
                 }
-                const data = Object.assign({}, as[0], {
-                    AccountYear: 2019,
-                    StatusCode: 36125
-                });
-                return of([data].concat(as));
+                return of(as);
             }),
             tap((as: any []) => {
                 const currentAS = as.find(item => item.AccountYear === year);
