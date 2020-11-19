@@ -6,6 +6,6 @@ import {Component, ContentChild, Input, TemplateRef} from '@angular/core';
 })
 export class UniStepComponent {
     @Input() step: any;
-    @ContentChild('stepButtonTemplate') private stepButtonTemplate: TemplateRef<any>;
-    @ContentChild('stepCardTemplate') private stepCardTemplate: TemplateRef<any>;
+    @ContentChild('stepButtonTemplate') public stepButtonTemplate: TemplateRef<any>;
+    @ContentChild('stepCardTemplate') public stepCardTemplate: TemplateRef<any>;
 }
