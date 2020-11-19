@@ -1,8 +1,13 @@
+export const infoOption = {
+    title: 'Slik bruker du sjekklisten',
+    text: 'Listen inneholder viktige sjekkpunkter du må se over, og eventuelt ordne opp i, før du kan begynne med avstemming av balansen. Hak av når du har fullført en oppgave.  Finnes det MVA-meldinger eller A-meldingsoppgaver som ikke er sendt inn, må dette håndteres før du kan gå videre. Når det er gjort vil systemet fjerne dem fra listen.'
+};
+export const mvaOption = { // 1 - MVA
+    title: 'En eller flere av dine MVA-meldinger er ikke fullført',
+    text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a>Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`
+};
+
 export const options = [
-    { // 1 - MVA
-        title: 'En eller flere av dine MVA-meldinger er ikke fullført',
-        text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a>Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`
-    },
     { // 2 - Lonn
         title: 'En eller flere av dine A-meldinger er ikke fullført',
         text: `Det er viktig at alle perioder med A-melding er sendt inn og tilbakemelding har status mottatt. <a>Gå til A-melding her</a> Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`
@@ -36,11 +41,4 @@ export const options = [
         text: `Det er viktig at summen du har registrert på dine eiendeler stemmer overens med summen av balansekontoene for eiendeler i regnskapet. <a>Gå til Eiendeler</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`
     }
 ];
-
-export const warningTexts = [
-    {
-        title: 'Slik bruker du sjekklisten',
-        text: 'Listen inneholder viktige sjekkpunkter du må se over, og eventuelt ordne opp i, før du kan begynne med avstemming av balansen. Hak av når du har fullført en oppgave.  Finnes det MVA-meldinger eller A-meldingsoppgaver som ikke er sendt inn, må dette håndteres før du kan gå videre. Når det er gjort vil systemet fjerne dem fra listen.'
-    }
-]
 

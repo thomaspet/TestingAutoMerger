@@ -13,10 +13,33 @@
         </h4>
     </section>
     <section class="row last">
+        <section class="alert info" *ngIf="showInfoBox">
+            <i class="material-icons info">info</i>
+            <article class="info-text">
+                <h6>{{infoOption.title}}</h6>
+                <p>
+                    {{infoOption.text}}
+                </p>
+            </article>
+            <i class="material-icons close" (click)="showInfoBox = false">close</i>
+        </section>
+        <section class="alert info warn" *ngIf="showMvaBox">
+            <i class="material-icons info">info</i>
+            <article class="info-text">
+                <h6>{{mvaOption.title}}</h6>
+                <p [innerHTML]="mvaOption.text"></p>
+            </article>
+            <i class="material-icons close" (click)="showMvaBox = false">close</i>
+        </section>
         <uni-stepper>
             <uni-step *ngFor="let option of options" [step]="option">
                 <ng-template #stepButtonTemplate let-item="item">
-                    <input type="checkbox" />
+                    <i class="material-icons" style="color:#78E178; width:27px; height: 27px; cursor:pointer; font-size:27px;user-select: none"
+                       *ngIf="option?.check"
+                       (click)="option.check=false">check_circle</i>
+                    <i style="border:2px solid black; width:27px; height: 27px; border-radius: 50%; cursor:pointer;user-select: none"
+                       *ngIf="!option?.check"
+                       (click)="option.check=true">&nbsp;</i>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
                     <h6>{{item.title}}</h6>
@@ -26,12 +49,3 @@
         </uni-stepper>
     </section>
 </section>
-<!--
-<mat-selection-list #items>
-    <mat-list-option *ngFor="let item of items">
-        <div class="uni-container">
-            Option
-        </div>
-    </mat-list-option>
-</mat-selection-list>
--->

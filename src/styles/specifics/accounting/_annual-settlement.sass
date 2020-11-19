@@ -69,26 +69,37 @@ annual-settlement-check-list-component
             font-size: pxToRem(24px)
             line-height: pxToRem(38.4px)
             letter-spacing: pxToRem(0.25px)
-    .info-section
+    .alert.info
+        &.warn
+            background: var(--alert-info)
+            width: 100vw
         position: relative
         padding: 0rem 2.5rem 1rem 4rem
         background-color: #fff
-        border-radius: 2px
+        border: 1px solid var(--active-tab-color)
+        border-radius: 9px
         .info-text
             position: relative
             top: 20px
+            h6
+                font-weight: 600
+                font-size: pxToRem(18px)
+                line-height: pxToRem(28.8px)
+                letter-spacing: pxToRem(0.15px)
+                font-family: 'Montserrat', sans-serif
+                margin: 0 0 pxToRem(15px) 0
             a
                 text-decoration: underline
         .material-icons.info
             position: absolute
             top: 20px
             left: 20px
-            color: var(--color-c2a)
+            color: var(--scale1)
         .material-icons.close
             position: absolute
             top: 20px
             right: 20px
-            color: var(--color-c2a)
+            color: var(--scale1)
             cursor: pointer
 
 uni-step
