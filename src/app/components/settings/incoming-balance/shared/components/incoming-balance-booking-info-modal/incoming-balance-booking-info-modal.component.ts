@@ -11,7 +11,7 @@ export class IncomingBalanceBookingInfoModalComponent implements OnInit, IUniMod
 
     onClose: EventEmitter<any> = new EventEmitter();
     options: IModalOptions;
-    forceCloseValueResolver = () => ConfirmActions.CANCEL;
+    forceCloseValueResolver = () => true;
 
     constructor(private navigationService: IncomingBalanceNavigationService) { }
 
@@ -21,7 +21,7 @@ export class IncomingBalanceBookingInfoModalComponent implements OnInit, IUniMod
 
     routeTo(journalEntryNumber: string) {
         this.navigationService.toJournalEntry(journalEntryNumber);
-        this.onClose.next();
+        this.onClose.next(false);
     }
 
 }

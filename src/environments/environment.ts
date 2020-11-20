@@ -32,7 +32,13 @@ export const environment = {
     },
 
     INTEGRATION_DOMAINS: {
-        ALTINN: '/api/altinn/'
+        ALTINN: '/api/altinn/',
+    },
+
+    ID_PORTEN: {
+        authority: 'https://oidc-ver2.difi.no/idporten-oidc-provider/',
+        client_id: '213d95cf-9f5a-4ea2-b3a8-e45fee9248c5' // http://kistufell:81/
+        // client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d', // http://localhost:3000/
     },
 
     RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',
@@ -48,7 +54,7 @@ export const environment = {
         'mKG/BYuqI+OY22eU6OCXTkta7jjNTO3z2r6blIv3NqN6RA1XtrC7YtFdrlyitIxamxd6hQ6Jj6X/zpC7ayJcUZWgzE' +
         'y3pV5vCj93V5FE0loqCUQKiZTgKSSS0Wz9qW',
 
-    IMPORT_CENTRAL_TEMPLATE_URLS : {
+    IMPORT_CENTRAL_TEMPLATE_URLS: {
         CUSTOMER: 'https://public-files.unieconomy.no/files/import/CustomerTemplateFinal.xlsx',
         SUPPLIER: 'https://public-files.unieconomy.no/files/import/SupplierTemplateFinal.xlsx',
         PRODUCT: 'https://public-files.unieconomy.no/files/import/ProductTemplateFinal.xlsx',

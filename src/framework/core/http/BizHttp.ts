@@ -156,8 +156,9 @@ export class BizHttp<T> {
     }
 
     public GetOneByQuery(query: string, expand?: string[]): Observable<any> {
-        return this.GetAll(query, expand)
-            .map(result => result && result.length && result[0]);
+        return this.GetAll(query, expand).pipe(
+            map(result => result && result.length && result[0])
+        );
     }
 
     public GetAllByHttpParams<T>(params: HttpParams, mapResponse?: boolean): Observable<any> {

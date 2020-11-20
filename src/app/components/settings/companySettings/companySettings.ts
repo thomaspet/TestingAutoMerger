@@ -2,7 +2,7 @@
 import {Router} from '@angular/router';
 import {FieldType, UniForm, UniFormError} from '@uni-framework/ui/uniform/index';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/index';
-import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {AuthService} from '../../../authService';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {
@@ -641,11 +641,6 @@ export class CompanySettingsComponent implements OnInit {
                     this.reminderSettings.save().then(() => {
                         this.isDirty = false;
                         complete('Innstillinger lagret');
-
-                        // just start this after saving settings - it wont matter much if it
-                        // fails, so the service will fail silently if the updated settings
-                        // cant be synced
-                        this.uniFilesService.syncUniEconomyCompanySettings();
                     }).catch((err) => {
                         this.errorService.handle(err);
                         complete('Purreinnstillinger feilet i lagring');

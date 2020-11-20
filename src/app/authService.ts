@@ -22,6 +22,7 @@ export interface IAuthDetails {
 
 export interface PublicWebSettings {
     BankName?: string;
+    BIC?: string;
     BankCustomerUrl?: string;
     PriceListUrl?: string;
     HelpDeskUrl?: string;

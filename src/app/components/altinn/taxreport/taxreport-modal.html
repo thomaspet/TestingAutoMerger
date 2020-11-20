@@ -1,0 +1,20 @@
+<section role="dialog" class="uni-modal" style="width: 90vw">
+    <header>TEST årsoppgjør</header>
+
+    <article>
+        <label>Skjema </label><span>{{taxReportCode}}</span>
+
+        <uni-form *ngIf="fields$"
+            [config]="{}"
+            [fields]="fields$ | async"
+            [model]="current">
+        </uni-form>
+        <ag-grid-wrapper [resource]="taxRecords$ | async" [config]="config$ | async"></ag-grid-wrapper>
+    </article>
+
+    <footer class="center">
+        <button class="secondary" (click)="onClose.emit(null)">Avbryt</button>
+        <button class="good" (click)="save()">Lagre</button>
+        <button class="good" (click)="saveAndSend()">Send til Altinn</button>
+    </footer>
+</section>

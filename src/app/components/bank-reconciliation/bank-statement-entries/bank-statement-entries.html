@@ -1,12 +1,6 @@
 <section class="reconciliation-list-view">
     <input [(ngModel)]="searchText" type="search" placeholder="Søk">
 
-    <section class="header">
-        <span class="date">Dato</span>
-        <span class="description">Tekst</span>
-        <span class="amount">Sum</span>
-    </section>
-
     <ul id="bank-statement-entry-list">
         <ng-container *ngFor="let entry of items | reconciliationItemFilter: searchText">
             <li *ngIf="(!entry.StageGroupKey) && (showClosed || !entry.Closed)"

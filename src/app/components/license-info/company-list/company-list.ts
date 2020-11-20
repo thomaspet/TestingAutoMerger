@@ -130,9 +130,11 @@ export class CompanyList {
                             return license;
                         });
                     this.filteredCompanies = this.companies;
-                    this.contractType = res[2].ContractTypes.ContractType;
+
                     this.companyLimitReached =
-                        res[2].ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
+                        res[2]?.ContractTypes.MaxCompanies !== null && res[2].ContractTypes.MaxCompanies <= this.companies.length;
+
+                    this.contractType = res[2]?.ContractTypes?.ContractType;
                 },
                 err => console.error(err)
             );
@@ -181,7 +183,10 @@ export class CompanyList {
             });
         } else {
             this.modalService.open(NewCompanyModal, {
-                data: { contractID: this.contractID }
+                data: {
+                    contractID: this.contractID,
+                    contractType: this.contractType
+                }
             });
         }
     }

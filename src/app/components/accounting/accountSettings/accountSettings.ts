@@ -113,7 +113,7 @@ export class AccountSettings {
 
     public change(event: SimpleChanges) {
         this.accountService.checkLinkedBankAccountsAndPostPost(this.account.AccountNumber).subscribe(hasLinkedBankAccounts => {
-            if (hasLinkedBankAccounts || event && event.UsePostPost && event.UsePostPost.currentValue) {
+            if (hasLinkedBankAccounts || event.UsePostPost && event.UsePostPost.currentValue) {
                 this.toastService.addToast(
                     'En eller flere hovedbokskontoer er knyttet mot enten PostPost eller bankkonto.',
                     ToastType.warn,

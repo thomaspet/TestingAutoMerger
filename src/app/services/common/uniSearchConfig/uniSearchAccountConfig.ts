@@ -86,12 +86,13 @@ export class UniSearchAccountConfig {
 
         all: boolean = false,
         expands: string[] = [],
-        createNewFn?: () => Observable<UniEntity>
+        createNewFn?: () => Observable<UniEntity>,
+        accountID?: number
     ): IUniSearchConfig {
         return <IUniSearchConfig>{
 
             lookupFn: searchTerm => this.statisticsService
-                .GetAllUnwrapped(this.generate17XXAccountsStatisticsQuery(searchTerm, all))
+                .GetAllUnwrapped(accountID ? this.getSimpleQuery(accountID) : this.generate17XXAccountsStatisticsQuery(searchTerm, all))
                 .catch((err, obs) => this.errorService.handleRxCatch(err, obs)),
             onSelect: (selectedItem: CustomStatisticsResultItem) => {
                 // saving to localStorage to have last selected search be stored and used in accrualModal
@@ -118,6 +119,10 @@ export class UniSearchAccountConfig {
             createNewFn: createNewFn,
             maxResultsLength: MAX_RESULTS
         };
+    }
+
+    getSimpleQuery(ID: number) {
+        return `model=Account&filter=ID eq ${ID}&select=Account.ID as ID,Account.AccountNumber as AccountNumber,Account.AccountName as AccountName&top=1`;
     }
 
     // made for accrualModal

@@ -29,6 +29,11 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
+    ID_PORTEN: {
+        authority: '',
+        client_id: '',
+    },
+
     RAYGUN_API_KEY: '2iYzARArU22aNutdEnvtWw==',
     APP_INSIGHTS_KEY: '9ee9d3f1-571d-4ca8-a06e-b56d91b832c5',
 
