@@ -25,14 +25,6 @@
             </article>
             <i class="material-icons close" (click)="showInfoBox = false">close</i>
         </section>
-        <section class="alert info warn" *ngIf="showMvaBox && !checkList?.IsMvaMeldingOK">
-            <i class="material-icons info">info</i>
-            <article class="info-text">
-                <h6>{{mvaOption.title}}</h6>
-                <p [innerHTML]="mvaOption.text"></p>
-            </article>
-            <i class="material-icons close" (click)="showMvaBox = false">close</i>
-        </section>
         <uni-stepper>
             <uni-step *ngFor="let option of options" [step]="option" [class.checked]="option?.check">
                 <ng-template #stepButtonTemplate let-item="item">

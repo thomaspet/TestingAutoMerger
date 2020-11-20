@@ -3,12 +3,12 @@ export const infoOption = {
     text: 'Listen inneholder viktige sjekkpunkter du må se over, og eventuelt ordne opp i, før du kan begynne med avstemming av balansen. Hak av når du har fullført en oppgave.  Finnes det MVA-meldinger eller A-meldingsoppgaver som ikke er sendt inn, må dette håndteres før du kan gå videre. Når det er gjort vil systemet fjerne dem fra listen.',
     property: 'isVatReportOK'
 };
-export const mvaOption = { // 1 - MVA
-    title: 'En eller flere av dine MVA-meldinger er ikke fullført',
-    text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a href="#/accounting/vatreport">Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`
-};
 
 export const options = [
+    {// 1 - MVA
+        title: 'En eller flere av dine MVA-meldinger er ikke fullført',
+        text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a href="#/accounting/vatreport">Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,        property: 'IsMvaMeldingOK'
+    },
     { // 2 - Lonn
         title: 'En eller flere av dine A-meldinger er ikke fullført',
         text: `Det er viktig at alle perioder med A-melding er sendt inn og tilbakemelding har status mottatt. <a href="#/salary/amelding?tabindex=0&periode=1">Gå til A-melding her</a> Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,

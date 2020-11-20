@@ -3,7 +3,7 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Subject, throwError} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {options, mvaOption, infoOption} from './checklistoptions';
+import {options, infoOption} from './checklistoptions';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 @Component({
     selector: 'annual-settlement-check-list-component',
@@ -13,7 +13,6 @@ export class AnnualSettlementCheckListComponent {
     onDestroy$ = new Subject();
     options = options;
     infoOption = infoOption;
-    mvaOption = mvaOption;
     check = false;
     checkList: any;
     showInfoBox = true;
