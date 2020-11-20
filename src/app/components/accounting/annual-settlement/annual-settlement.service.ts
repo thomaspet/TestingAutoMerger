@@ -38,9 +38,9 @@ export class AnnualSettlementService extends BizHttp<any> {
         );
     }
 
-    checkAmelding() {
+    checkAmelding(financialYear) {
         return this.http.http.get(
-            this.baseUrl + 'amelding?action=validate-periods'
+            this.baseUrl + 'amelding?action=validate-periods&year=' + financialYear
         ).pipe(
             map((result: any[]) => (result && result.length === 0))
         );
@@ -76,7 +76,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
                 tap(resultMvaMelding => checkList.IsMvaMeldingOK = resultMvaMelding),
-                switchMap(() => this.checkAmelding()),
+                switchMap(() => this.checkAmelding(as.AccountYear)),
                 tap(resultAmelding => checkList.IsAmeldingOK = resultAmelding),
                 switchMap(() => this.checkLastyear(as.AccountYear)),
                 tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
