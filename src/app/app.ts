@@ -171,6 +171,19 @@ export class App {
     }
 
     private hasAnyExpiredLicense(authDetails: IAuthDetails): boolean {
+        if (!authDetails.hasActiveContract) {
+            if (authDetails.isDemo) {
+                this.router.navigateByUrl('/contract-activation');
+                // it's expired, but we don't want to block an expired demo
+                this.licenseExpired = false;
+                return false;
+            } else {
+                this.expiredEntity = 'lisensen';
+                this.licenseExpired = true;
+                return true;
+            }
+        }
+
         if (!authDetails.hasActiveUserLicense) {
             this.expiredEntity = 'brukerlisensen';
             this.licenseExpired = true;
@@ -183,15 +196,6 @@ export class App {
             return true;
         }
 
-        if (!authDetails.hasActiveContract) {
-            if (authDetails.isDemo) {
-                this.router.navigateByUrl('/contract-activation');
-            } else {
-                this.expiredEntity = 'lisensen';
-                this.licenseExpired = true;
-                return true;
-            }
-        }
         this.licenseExpired = false;
         return false;
     }
