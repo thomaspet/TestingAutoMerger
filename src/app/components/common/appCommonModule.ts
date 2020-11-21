@@ -81,6 +81,7 @@ import {StandardVacationPayModalComponent} from './modals/standard-vacation-pay-
 import {DashboardModule} from './dashboard/dashboard.module';
 import {CompanyBankAccountModal} from './modals/bank-account-modal/company-bank-account-modal';
 import {CompanyBankAccountEdit} from './modals/bank-account-modal/bank-account-edit';
+import {BankIDPaymentModal} from './modals/bankid-payment-modal/bankid-payment-modal';
 import { CustomerEditModal } from './modals/customer-edit-modal/customer-edit-modal';
 import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-modal';
 
@@ -171,6 +172,7 @@ import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-mo
         ContractTypesComparison,
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        BankIDPaymentModal,
         CustomerEditModal,
         SupplierEditModal,
         QueryBuilder,
@@ -240,6 +242,7 @@ import { SupplierEditModal } from './modals/edit-supplier-modal/edit-supplier-mo
 
         RegisterAssetModal,
         StandardVacationPayModalComponent,
+        BankIDPaymentModal,
         CustomerEditModal,
         SupplierEditModal,
         QueryBuilder,

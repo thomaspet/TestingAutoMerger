@@ -4,7 +4,8 @@ import {
     CompanySettings,
     LocalDate,
     InvoicePaymentData,
-    Payment
+    Payment,
+    BankAccount
 } from '../../../app/unientities';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
@@ -27,6 +28,7 @@ import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'uni-register-payment-modal',
@@ -72,7 +74,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
-    accounts: any[] = [];
+    accounts: BankAccount[] = [];
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -83,6 +85,7 @@ export class UniRegisterPaymentModal implements IUniModal {
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
         private statisticsService: StatisticsService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
     public ngOnInit() {
@@ -352,24 +355,6 @@ export class UniRegisterPaymentModal implements IUniModal {
         return UniMath.round(agioAmount);
     }
 
-    private getAccountType(type: string): string {
-        switch (type.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
-    }
-
     public onFormChange(changes): void {
 
         const payment: InvoicePaymentData = this.formModel$.getValue();
@@ -434,7 +419,7 @@ export class UniRegisterPaymentModal implements IUniModal {
                         return item?.Label
                             ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.AccountNumber))
                             : item?.BankAccountType
-                                ? (this.getAccountType(item.BankAccountType)
+                                ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
                                     + this.uniAccountNumberPipe.transform(item?.AccountNumber))
                                 : item?.AccountNumber

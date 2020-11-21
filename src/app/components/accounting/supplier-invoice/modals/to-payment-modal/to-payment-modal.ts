@@ -1,4 +1,5 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine } from '@uni-entities';
 import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService } from '@app/services/services';
@@ -9,7 +10,10 @@ import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
 import * as moment from 'moment';
 import {theme, THEMES} from 'src/themes/theme';
+import {environment} from 'src/environments/environment';
+import { AuthService } from '@app/authService';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'to-payment-modal',
@@ -31,6 +35,7 @@ export class ToPaymentModal implements IUniModal {
     onlyToPayment = false;
     hasErrors = false;
     errorMessage = '';
+    MD5Hash = '';
     errorOncloseValue = 0;
     accounts: any[] = [];
     total = {
@@ -39,6 +44,8 @@ export class ToPaymentModal implements IUniModal {
         sum: 0
     };
 
+    supportsBankIDApprove: boolean = false;
+
     VALUE_ITEMS: IValueItem[];
 
     constructor(
@@ -46,7 +53,11 @@ export class ToPaymentModal implements IUniModal {
         private errorSerivce: ErrorService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
+        private route: ActivatedRoute,
+        private router: Router,
+        private authService: AuthService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
     ngOnInit() {
@@ -58,8 +69,13 @@ export class ToPaymentModal implements IUniModal {
         this.journalEntryLine = this.options?.data?.journalEntryLine;
         this.isPaymentOnly = this.options?.data?.isPaymentOnly ?? false;
         this.onlyToPayment = this.options?.data?.onlyToPayment;
+        this.supportsBankIDApprove = this.options?.data?.supportsBankIDApprove;
 
         this.supplierInvoice['_mainAccount'] = this.supplierInvoice['_mainAccount'] || this.accounts[0];
+
+        // Checks if the current company is whitelisted for preapproved payments
+        this.supportsBankIDApprove = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())
+        
 
         this.VALUE_ITEMS = this.getValueItems();
 
@@ -83,7 +99,7 @@ export class ToPaymentModal implements IUniModal {
             if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || theme.theme !== THEMES.EXT02) {
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
-            }
+            } 
 
             this.busy = false;
         }, err => {
@@ -149,15 +165,40 @@ export class ToPaymentModal implements IUniModal {
 
     createPaymentAndSendToBank() {
         if (!this.isPaymentOnly) {
-            // Creates a payment for the supplier invoice
-            this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(payment => {
-                // Send that batch to the bank directly
-                this.sendAutobankPayment(payment);
-            }, err => {
-                this.busy = false;
-                this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
-                this.errorSerivce.handle(err);
-            });
+
+            if (this.supportsBankIDApprove) {
+                this.MD5Hash = this.generateHash();
+    
+                // Creates a payment for the supplier invoice
+                this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment, this.MD5Hash).subscribe(payment => {
+                    // Send that batch to the bank directly
+                    this.paymentService.createPaymentBatchWithHash([payment.ID], this.MD5Hash, window.location.href).subscribe((paymentBatch: any) => {
+                        const startSign = window.location.href.indexOf('?') >= 0 ? '&' : '?';
+                        const redirecturl = window.location.href + `${startSign}hashValue=${paymentBatch.HashValue}&batchID=${paymentBatch.ID}`;
+
+                        let bankIDURL = environment.authority + `/bankid?clientid=${environment.client_id}&securityHash=${paymentBatch.HashValue}&redirecturl=${encodeURIComponent(redirecturl)}`
+                        window.location.href = bankIDURL;
+                    }, err => {
+                        this.busy = false;
+                        this.errorMessage = 'Noe gikk galt ved oppretting av betalingsbunt.';
+                        this.errorSerivce.handle(err);
+                    });
+                }, err => {
+                    this.busy = false;
+                    this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
+                    this.errorSerivce.handle(err);
+                });
+            } else {
+                // Creates a payment for the supplier invoice
+                this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(payment => {
+                    // Send that batch to the bank directly
+                    this.sendAutobankPayment(payment);
+                }, err => {
+                    this.busy = false;
+                    this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
+                    this.errorSerivce.handle(err);
+                });
+            }
         } else {
             this.savePayment(this.payment).subscribe((savedPayement) => {
                 this.sendAutobankPayment(savedPayement);
@@ -186,26 +227,8 @@ export class ToPaymentModal implements IUniModal {
             .map((x: Payment) => x);
     }
 
-    private getAccountType(type: string): string {
-        switch (type.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
-    }
-
     private getValueItems() {
-        return [
+        const items = [
             {
                 selected: true,
                 label: this.isPaymentOnly ? 'Send betalingen til banken nå' : 'Send regning til banken nå',
@@ -221,6 +244,18 @@ export class ToPaymentModal implements IUniModal {
                 disabled: false
             }
         ];
+
+        if (this.supportsBankIDApprove) {
+            items.splice(0, 1, {
+                selected: true,
+                label: 'Betal og godkjenn med BankID',
+                infoText: (this.isPaymentOnly ? 'Betalingen' : 'Regningen') + ' vil bli sendt til banken hvor den vil bli betalt på forfallsdato.',
+                value: 1,
+                disabled: false
+            });
+        }
+
+        return items;
     }
 
     getFormFields() {
@@ -253,7 +288,7 @@ export class ToPaymentModal implements IUniModal {
                         return item?.Label
                             ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                             : item?.BankAccountType
-                                ? (this.getAccountType(item.BankAccountType)
+                                ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
                                     + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                                 : item?.BankAccountNumber
@@ -266,6 +301,15 @@ export class ToPaymentModal implements IUniModal {
                 }
             },
         ];
+    }
+
+    private generateHash() {
+        const string = this.payment.Amount.toFixed(2) + ';' +
+            this.payment.AmountCurrency.toFixed(2) + ';' +
+            this.payment.CurrencyCodeID.toString() + ';' +
+            this.supplierInvoice.BankAccount.AccountNumber + ';' +
+            this.supplierInvoice.BankAccount.IBAN + '|';
+        return this.supplierInvoiceService.MD5(string);
     }
 }
 
