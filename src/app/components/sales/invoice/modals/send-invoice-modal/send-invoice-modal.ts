@@ -5,9 +5,10 @@ import {
     CompanySettings,
     SharingType,
     StatusCodeSharing,
-    DistributionPlanElement
+    DistributionPlan,
+    Sharing
 } from '@app/unientities';
-import {map, catchError, finalize, filter, tap, concatMap} from 'rxjs/operators';
+import {map} from 'rxjs/operators';
 import {forkJoin, of as observableOf, Observable, combineLatest} from 'rxjs';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {TofEmailModal} from '@uni-framework/uni-modal/modals/tof-email-modal/tof-email-modal';
@@ -17,13 +18,10 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {
     ErrorService,
     CompanySettingsService,
-    EHFService,
     ReportService,
     CustomerInvoiceService,
     StatisticsService,
     DistributionPlanService,
-    EmailService,
-    ElsaPurchaseService
 } from '@app/services/services';
 import {TofReportModal} from '@app/components/sales/common/tof-report-modal/tof-report-modal';
 import {ElementType} from '@app/models/distribution';
@@ -37,6 +35,13 @@ interface SendingOption {
     type: ElementType;
 }
 
+interface CustomerDistribution {
+    type: ElementType;
+    isValid: boolean;
+    errors?: any;
+    priority?: number;
+}
+
 @Component({
     selector: 'send-invoice-modal',
     templateUrl: './send-invoice-modal.html',
@@ -48,7 +53,7 @@ export class SendInvoiceModal implements IUniModal {
 
     busy: boolean;
     invoice: CustomerInvoice;
-    customerDistributions: any;
+    customerDistributions: { [key: number]:  CustomerDistribution};
     previousSharings: any[];
     companySettings: CompanySettings;
 
@@ -69,9 +74,6 @@ export class SendInvoiceModal implements IUniModal {
         private statisticsService: StatisticsService,
         private companySettingsService: CompanySettingsService,
         private invoiceService: CustomerInvoiceService,
-        private ehfService: EHFService,
-        private emailService: EmailService,
-        private elsaPurchaseService: ElsaPurchaseService,
     ) {}
 
     public ngOnInit() {
@@ -80,8 +82,9 @@ export class SendInvoiceModal implements IUniModal {
         this.customerDistributions = {};
         this.options.data.customerDistributions.forEach(cd => {
             this.customerDistributions[cd.ElementType as ElementType] = {
+                type: cd.ElementType,
                 isValid: cd.IsValid,
-                Errors: cd.Errors
+                errors: cd.Errors // These arent' used yet, but nice to keep track of incase we do need them
             };
         });
         this.journalEntryUrl = this.buildJournalEntryNumberUrl(this.invoice.JournalEntry.JournalEntryNumber);
@@ -140,55 +143,37 @@ export class SendInvoiceModal implements IUniModal {
                 ? this.distributionPlanService.Get(this.invoice.DistributionPlanID, ['Elements.ElementType'])
                 : Observable.of(null)
         ]).subscribe(
-            res => {
+            (res: [Sharing[], CompanySettings, DistributionPlan]) => {
                 this.previousSharings = res[0] || [];
                 this.companySettings = res[1];
                 const plan = res[2];
 
-                if (plan) {
-                    this.sendingOptions = [];
+                this.sendingOptions = [];
 
-                    Observable.from(plan.Elements.sort(el => el.Priority)).pipe(
-                        concatMap((el: DistributionPlanElement) => { // combine flag if allowed and element
-                            const allowed = this.canUseThisElement(el.ElementType.ID);
-                            return combineLatest([allowed, Observable.of(el)]);
-                        }),
-                        filter(([allow, _]: [boolean, DistributionPlanElement]) => allow), // only keep allowed
-                        tap(([_, el]) => { // add element to options
-                            this.addSendingOptionForElementType(el.ElementType.ID);
-                        }),
-                        finalize(() => { // add default alternatives if missing
-                            this.addDefaultSendingOptionsIfMissing();
-                            this.selectedOption = this.sendingOptions[0];
-                            this.busy = false;
-                        })
-                    ).subscribe();
-                } else {
-                    this.busy = false;
+                for (let planElement of plan?.Elements?.values() || []) {
+                    this.customerDistributions[planElement.ElementType.ID].priority = planElement.Priority;
                 }
+
+                this.addDefaultSendingOptionsIfMissing();
+                this.selectedOption = this.sendingOptions[0];
+                this.busy = false;
             },
             () => this.busy = false
         );
     }
 
     addDefaultSendingOptionsIfMissing() {
-        if (!this.sendingOptions.find(opt => opt.type === ElementType.Email)) {
-            let customerDist = this.customerDistributions[ElementType.Email];
+        const distributions = Object.values(this.customerDistributions).sort((a, b) => (a.priority) - (b.priority));
+        for (let customerDistribution of distributions) {
 
-            // If it doesn't exist just show email and assume it works, else use isvalid
-            if (!customerDist || customerDist?.isValid) {
-                this.addSendingOptionForElementType(ElementType.Email);
+            if (!this.sendingOptions.find(opt => opt.type === customerDistribution.type)
+                    && customerDistribution.isValid) {
+                this.addSendingOptionForElementType(customerDistribution.type);
             }
         }
 
         if (!this.sendingOptions.find(opt => opt.type === ElementType.Print)) {
             this.addSendingOptionForElementType(ElementType.Print);
-        }
-
-        if (!this.sendingOptions.find(opt => opt.type === ElementType.EHF)) {
-            if (this.customerDistributions[ElementType.EHF]?.isValid) {
-                this.addSendingOptionForElementType(ElementType.EHF);
-            }
         }
     }
 
@@ -271,13 +256,9 @@ export class SendInvoiceModal implements IUniModal {
     }
 
     //
-    // Section allowed to use elementtype
+    // Private methods
     //
 
-    private canUseThisElement(elementType: ElementType) {
-        var customerDist = this.customerDistributions[elementType];
-        return Observable.of(customerDist ? customerDist?.isValid : true);
-    }
 
     private print() {
         this.modalService.open(TofReportModal, {
