@@ -79,11 +79,11 @@
 
                 <section class="openposts_container" *ngIf="mode !== 2">
                     <p *ngIf="openPostRetrievingDataInProgress">Henter åpne poster...</p>
-                    <p *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length === 0">
+                    <p *ngIf="(!openPostRetrievingDataInProgress && !openPostsForSelectedRow) || openPostsForSelectedRow?.length === 0">
                         Ingen åpne poster funnet for valgt rad
                     </p>
                     <div class="openposts_wrapper"
-                    *ngIf="openPostsForSelectedRow && openPostsForSelectedRow.length > 0">
+                    *ngIf="!openPostRetrievingDataInProgress && openPostsForSelectedRow?.length > 0">
                     <uni-table
                         [resource]="openPostsForSelectedRow"
                         [config]="openPostTableConfig"
