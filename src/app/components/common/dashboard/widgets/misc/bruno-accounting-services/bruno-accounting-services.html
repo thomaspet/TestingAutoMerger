@@ -1,28 +1,11 @@
-<ng-container *ngIf="showUpgradeSalesPitch">
-    <section class="header">
-        <h1>Bruker du lang tid på bankavstemming?</h1>
+<section class="header">
+    <h1>Trenger du bankkort til din bedrift?</h1>
+</section>
+
+<section class="content">
+    <section class="image-wrapper">
+        <img src="/themes/ext02/illustration-saving.svg" alt="">
     </section>
 
-    <section class="content">
-        <section class="image-wrapper">
-            <img src="/themes/ext02/illustration-saving.svg" alt="">
-        </section>
-
-        <p>Oppgrader til pluss for å få tilgang til automatisk bankavstemming</p>
-        <button class="c2a" routerLink="/marketplace/modules">Oppgrader</button>
-    </section>
-</ng-container>
-
-<ng-container *ngIf="!showUpgradeSalesPitch">
-    <section class="header">
-        <h1>Trenger du hjelp fra regnskapsfører?</h1>
-    </section>
-
-    <section class="content">
-        <section class="image-wrapper">
-            <img src="/themes/ext02/illustration-saving.svg" alt="">
-        </section>
-
-        <button class="c2a">Start chat med regnskapsfører</button>
-    </section>
-</ng-container>
+    <button class="c2a" (click)="orderCreditCard()">Les mer og bestill her</button>
+</section>
