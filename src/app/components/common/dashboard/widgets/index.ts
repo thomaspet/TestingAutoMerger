@@ -195,7 +195,7 @@ export const WIDGET_DEFINITIONS: WidgetDefinition[] = [
     },
     {
         name: 'BRUNO_ACCOUNTING_SERVICES',
-        label: 'Bestille regnskapstjenester',
+        label: 'Bestille bankkort',
         size: 'small',
         category: WidgetCategory.MISC,
         module: WidgetModule.MISC,
