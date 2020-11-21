@@ -84,7 +84,6 @@ export class UniCompanyAccountingView {
     fieldsCurrency$ = new BehaviorSubject<UniFieldLayout[]>([]);
     companyAccountingSettings = null;
     incomingBalanceJournalEntryNumber: string;
-    shouldSyncAccounts: boolean = false;
 
     vatMandatoryOptions = [
         { ID: 1, Name: 'Avgiftsfri'},
@@ -159,7 +158,6 @@ export class UniCompanyAccountingView {
             this.accountVisibilityGroupService.GetAll(null, ['CompanyTypes']),
             this.companyAccountingSettingsService.Get(1)
         ]).subscribe((response) => {
-            this.shouldSyncAccounts = false;
             this.companySettings$.next(response[0]);
             this.periods = response[1];
 
@@ -183,12 +181,6 @@ export class UniCompanyAccountingView {
     }
 
     periodSeriesChange(changes) {
-        if (changes["TaxMandatoryType"]
-            && changes["TaxMandatoryType"].currentValue !== changes["TaxMandatoryType"].previousValue
-            && changes["TaxMandatoryType"].currentValue === 3) {
-            this.shouldSyncAccounts = true;
-        }
-
         if (changes['PeriodSeriesAccountID'] || changes['PeriodSeriesVatID']) {
             this.modalService.open(ChangeCompanySettingsPeriodSeriesModal, {
                 data: {
@@ -324,12 +316,6 @@ export class UniCompanyAccountingView {
                     this.reloadOnlyCompanySettings();
                     this.vattypeList.vatTypeSaved();
                     this.vatDeducationView.loadData();
-
-                    if (this.shouldSyncAccounts){
-                        this.accountService.PutAction(null, "synchronize-ns4102-as").subscribe(() => {
-                            this.shouldSyncAccounts = false;
-                        });
-                    }
                 }
                 res(true);
             }, err => {
