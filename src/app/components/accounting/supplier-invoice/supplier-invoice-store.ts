@@ -538,14 +538,12 @@ export class SupplierInvoiceStore {
         const invoice = this.invoice$.value;
 
         // When in expense view, update journal entry line dates based on invoice date before saving
-        if (this.currentMode !== 0) {
-            this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
-        }
+        this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
 
         // Lets get journal-lines and map dimensions from the head
         invoice.JournalEntry.DraftLines = this.journalEntryLines$.value.map(line => {
             line.Dimensions = invoice.DefaultDimensions;
-            line.AmountCurrency = parseFloat((line.AmountCurrency + '').replace(',', '.'))
+            line.AmountCurrency = parseFloat((line.AmountCurrency + '').replace(',', '.'));
             return line;
         });
 

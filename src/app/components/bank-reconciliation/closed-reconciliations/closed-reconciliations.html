@@ -15,7 +15,7 @@
             {{ matchList?.length || 0 }} avstemte poster funnet
         </span>
 
-        <button (click)="openAll()" class="secondary" title="Løser opp alle avstemte poster under">Løs opp alle</button>
+        <button (click)="openAll()" class="secondary" title="Løser opp alle avstemte poster under" [disabled]="buttonLocked">Løs opp alle</button>
     </section>
 
     <section class="closed-groups closed-group-panel" *ngFor="let match of matchList">
