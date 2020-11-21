@@ -122,6 +122,13 @@ export class JournalLines {
                 this.recalcDiff();
             });
             this.store.readonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => this.readonly = readonly);
+
+            const currency = this.currency;
+            this.store.invoice$.subscribe((invoice) => {
+                if (invoice.CurrencyCode && currency.ID != invoice.CurrencyCode.ID) {
+                    this.currency = invoice.CurrencyCode;
+                }
+            });
         });
     }
 
