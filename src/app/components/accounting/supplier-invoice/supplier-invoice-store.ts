@@ -95,7 +95,7 @@ export class SupplierInvoiceStore {
         private vatTypeService: VatTypeService,
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
-        private toastService: ToastService,
+        public toastService: ToastService,
         private modalService: UniModalService,
         private bankService: BankService,
         private currencyCodeService: CurrencyCodeService,
@@ -122,7 +122,7 @@ export class SupplierInvoiceStore {
             const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
             this.selectedBankAccount = defaultAccount || accounts[0];
 
-            this.loadInvoice(invoiceID);
+            this.loadInvoice(invoiceID, false);
         });
     }
 
@@ -537,10 +537,13 @@ export class SupplierInvoiceStore {
     saveChanges(): Observable<SupplierInvoice> {
         const invoice = this.invoice$.value;
 
-        // When in expense view, update journal entry line dates based on invoice date before saving
-        if (this.currentMode !== 0) {
-            this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
+        if (invoice.DefaultDimensions) {
+            invoice.DefaultDimensions.Project = null;
+            invoice.DefaultDimensions.Department = null;
         }
+        
+        // When in expense view, update journal entry line dates based on invoice date before saving
+        this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
 
         // Lets get journal-lines and map dimensions from the head
         invoice.JournalEntry.DraftLines = this.journalEntryLines$.value.map(line => {
@@ -1017,25 +1020,20 @@ export class SupplierInvoiceStore {
 
     mapDimensions(current: SupplierInvoice, info: any): SupplierInvoice {
 
-        const dimension = <any>{};
-
         if (info.DepartmentNumber) {
-            dimension.Department = {
+            current.DefaultDimensions.Department = <any>{
                 DepartmentName: info.DepartmentName,
                 DepartmentNumber: info.DepartmentNumber
             };
         }
 
         if (info.ProjectNumber) {
-            dimension.Project = {
+            current.DefaultDimensions.Project = <any>{
                 ProjectName: info.ProjectName,
                 ProjectNumber: info.ProjectNumber
             };
         }
 
-        // Custom dimensions
-
-        current.DefaultDimensions = dimension;
         return current;
     }
 
@@ -1050,13 +1048,13 @@ export class SupplierInvoiceStore {
                         accept: 'Registrer ny utgift',
                         reject: 'Lukk'
                     },
-                    message: `Regningen er bokført i regnskapet ditt og sendt til banken. Husk å logge inn i nettbanken og godkjenn utbetalingen.`
+                    message: `Regningen er bokført i regnskapet ditt og sendt til banken hvor den bil bli betalt på forfallsdato.`
                 };
 
                 break;
             case ActionOnReload.JournaledAndSentToPaymentList:
                 options = {
-                    header: 'Bokført og sendt til betaling',
+                    header: 'Bokført og lagt til betalingsliste',
                     footerCls: 'center',
                     buttonLabels: {
                         accept: 'Registrer ny utgift',

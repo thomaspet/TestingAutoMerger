@@ -1,0 +1,21 @@
+<section class="uni-modal">
+    <header>Betaling til bank</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+		</section>
+
+		<section class="text-container" [class.failed]="failed">
+			<i class="material-icons"> {{ icon }} </i>
+			<span> {{ message }} </span>
+		</section>
+
+    </article>
+
+    <footer class="center">
+        <button (click)="close(true)" class="secondary c2a">
+            Lukk
+        </button>
+    </footer>
+</section>

@@ -11,7 +11,8 @@ import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/stat
 import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/components/common/toolbar/toolbar';
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
 import * as moment from 'moment';
-import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/uni-modal';
+import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 
 declare const ResizeObserver;
@@ -55,9 +56,33 @@ export class SupplierInvoiceView {
         ).subscribe(params => {
             this.store.fileIDs$.next([]);
             const invoiceID = +params.get('id');
-            this.store.init(invoiceID);
+
+            this.store.init(invoiceID, 0);
             this.hasChanges = false;
             this.paymentStatusIndicator = null;
+
+            const batchID = this.activeRoute.snapshot.queryParamMap.get('batchID');
+            const hashValue = this.activeRoute.snapshot.queryParamMap.get('hashValue');
+
+            if (batchID && hashValue) {
+                const options: IModalOptions = {
+                    data: {
+                        batchID: batchID,
+                        hashValue: hashValue
+                    },
+                    closeOnClickOutside: false
+                };
+
+                this.modalService.open(BankIDPaymentModal, options).onClose.subscribe((response) => {
+                    if (response) {
+                        this.store.changes$.next(true);
+                        this.store.loadInvoice(invoiceID);
+                    } else {
+                        this.store.toastService.addToast('Betalingsbunt allerede sendt til betaling', 3, 5);
+                    }
+                    this.router.navigate(['.'], { relativeTo: this.activeRoute, queryParams: {} });
+                });
+            }
 
             if (!invoiceID) {
                 const fileID = +this.activeRoute.snapshot.queryParamMap.get('fileid');

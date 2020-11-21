@@ -7,6 +7,13 @@ import { THEMES, theme } from 'src/themes/theme';
 
 @Injectable()
 export class PaymentService extends BizHttp<Payment> {
+
+    // THIS IS A LIST CREATED FOR TESTING PREAPPROVED PAYMENTS WITH BANKID..
+    whitelistedCompanyKeys = [
+        'dba624ee-d722-4cab-9fa1-2e62ee88cdc2', 
+        '35e5d3ed-e594-4215-9a5d-7557294e0423'
+    ];
+
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Payment.RelativeUrl;
@@ -14,8 +21,8 @@ export class PaymentService extends BizHttp<Payment> {
         this.DefaultOrderBy = null;
     }
 
-    public createPaymentBatchForAll(isManual: boolean = false) {
-        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}`);
+    public createPaymentBatchForAll(isManual: boolean = false, paramString: string = '') {
+        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}${paramString}`);
     }
 
     public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {
@@ -25,6 +32,27 @@ export class PaymentService extends BizHttp<Payment> {
             .usingBusinessDomain()
             .withBody(paymentIDs)
             .withEndPoint(this.relativeURL + `?action=create-payment-batch&isManual=${isManual}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public createPaymentBatchWithHash(paymentIDs: Array<number>, hash: string, url: string): Observable<any> {
+        super.invalidateCache();
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withBody(paymentIDs)
+            .withEndPoint(this.relativeURL + `?action=create-payment-batch&ismanual=false&createPaymentFile=true&hash=${hash}`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public getHashForPayments(filter: string, expand: string) {
+        super.invalidateCache();
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `?action=create-hash-for-payments&filter=${filter}&expand=${expand}`)
             .send()
             .map(response => response.body);
     }
