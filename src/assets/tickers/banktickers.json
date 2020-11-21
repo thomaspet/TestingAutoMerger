@@ -389,7 +389,8 @@
                 "ExternalModel": "JournalEntry",
                 "FilterOperator": "contains",
                 "LinkNavigationProperty": "JournalEntryID",
-                "Type": "link"
+                "Type": "link",
+                "ShowOnlyOnThisFilter": 4
             },
             {
                 "Header": "Betales til",
@@ -414,6 +415,12 @@
                 "Field": "ToBankAccount.AccountNumber",
                 "FilterOperator": "contains",
                 "SelectRequired": true
+            },
+            {
+                "Header": "IBAN",
+                "Field": "ToBankAccount.IBAN",
+                "Alias": "IBAN",
+                "Type": "dontdisplay"
             },
             {
                 "Header": "KID",
@@ -457,6 +464,12 @@
                 "Width": "5rem"
             },
             {
+                "Header": "ValutaID",
+                "Field": "CurrencyCodeID",
+                "Alias": "CurrencyCodeID",
+                "Type": "dontdisplay"
+            },
+            {
                 "Header": "Valutabeløp",
                 "Field": "AmountCurrency",
                 "FilterOperator": "contains",
@@ -475,7 +488,7 @@
                 "Field": "StatusCode",
                 "FilterOperator": "contains",
                 "Alignment": "left",
-                "DefaultHiddenOnGivenFilters": ["not_payed", "payment_list", "payed_and_journaled"]
+                "DefaultHiddenOnGivenFilters": ["not_paid", "payment_list", "payed_and_journaled"]
             },
             {
                 "Header": "Betalingsbunt",
@@ -638,7 +651,7 @@
         "Filters": [
             {
                 "Name": "Betalingsliste",
-                "Code": "not_payed",
+                "Code": "not_paid",
                 "UseAllCriterias": true,
                 "IsMultiRowSelect": true,
                 "FilterGroups": [{
