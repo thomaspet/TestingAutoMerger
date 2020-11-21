@@ -1,5 +1,4 @@
 import {Component, ChangeDetectionStrategy} from '@angular/core';
-import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'bruno-accounting-services',
@@ -8,15 +7,10 @@ import {AuthService} from '@app/authService';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class BrunoAccountingServicesWidget {
-    showUpgradeSalesPitch: boolean;
 
-    constructor(authService: AuthService) {
-        const user = authService.currentUser;
-        const contractType = user.License?.ContractType?.TypeName;
-        this.showUpgradeSalesPitch = contractType?.toLowerCase() === 'mini';
-    }
+    constructor() {}
 
-    orderAccountingHelp() {
-
+    orderCreditCard() {
+        window.open('https://www.dnb.no/bedrift/konto-kort-og-betaling/kort.html', '_blank');
     }
 }
