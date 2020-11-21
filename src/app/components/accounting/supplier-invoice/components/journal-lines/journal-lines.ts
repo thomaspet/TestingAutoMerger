@@ -1,11 +1,14 @@
 import {Component, Input} from '@angular/core';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
-import {JournalEntryLineDraft} from '@uni-entities';
+import {CompanySettings, JournalEntryLineDraft, LocalDate} from '@uni-entities';
 import {Subject, Observable} from 'rxjs';
 import {takeUntil, take, shareReplay} from 'rxjs/operators';
 import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat, CompanySettingsService} from '@app/services/services';
 import * as _ from 'lodash';
 import { theme, THEMES } from 'src/themes/theme';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {AccrualModal} from '@app/components/common/modals/accrualModal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 interface ITotalObject {
     net?: number;
@@ -86,15 +89,27 @@ export class JournalLines {
     ];
     currentInvoiceType = this.invoiceTypes[0];
 
+    listActions = [
+        {
+            label: 'Periodisering',
+            action: (line: JournalEntryLineDraft, index: number) => this.openAccrualModal(line, index)
+        }
+    ];
+
+    companySettings: CompanySettings;
+
     constructor(
         public store: SupplierInvoiceStore,
         private guidService: GuidService,
         private statisticsService: StatisticsService,
         private currencyCodeService: CurrencyCodeService,
-        private companySettings: CompanySettingsService,
+        private companySettingsService: CompanySettingsService,
         private numberFormatter: NumberFormat,
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {
-        this.companySettings.getCompanySettings().subscribe(settings => {
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.companySettings = settings;
             this.mvaSelectDisabled = settings.TaxMandatoryType < 3 && theme.theme === THEMES.EXT02;
         });
 
@@ -334,5 +349,74 @@ export class JournalLines {
 
         const parsed = parseFloat(value);
         return isNaN(parsed) ? null : parsed;
+    }
+
+    openAccrualModal(line: JournalEntryLineDraft, index: number) {
+
+        let title: string = 'Periodisering av utgift ';
+        if (line.Description) {
+            title = title + ' - ' + line.Description;
+        }
+
+        const lineWithModifiedFinancialDate = line;
+        lineWithModifiedFinancialDate.FinancialDate = new LocalDate(line.FinancialDate?.toString());
+
+        let data = <any>{};
+        if (line.Accrual) {
+            data = <any>{
+                item: line,
+                accrualAmount: null,
+                accrualStartDate: lineWithModifiedFinancialDate.FinancialDate,
+                journalEntryLineDraft: lineWithModifiedFinancialDate,
+                accrual: line.Accrual,
+                title: title,
+                isJournalEntry: true,
+            };
+        } else if (line.AmountCurrency && line.AmountCurrency !== 0) {
+            data = <any>{
+                item: line,
+                accrualAmount: line.AmountCurrency,
+                accrualStartDate: lineWithModifiedFinancialDate.FinancialDate,
+                journalEntryLineDraft: lineWithModifiedFinancialDate,
+                accrual: null,
+                title: title,
+                isJournalEntry: true,
+            };
+        } else {
+            this.toastService.addToast('Periodisering', ToastType.warn, 5,
+                'Mangler nødvendig informasjon om dato og beløp for å kunne periodisere.');
+            return;
+        }
+
+        if (this.companySettings.AccountingLockedDate) {
+            data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
+        }
+
+        data.companySettings = this.companySettings;
+
+        this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
+            if (res?.action === 'ok') {
+                this.onModalChanged(line, res.model, index);
+            } else if (res?.action === 'remove') {
+                this.onModalDeleted(line, index);
+            }
+        });
+    }
+
+    public onModalChanged(line: JournalEntryLineDraft, modalval, index: number) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
+        line.Accrual = modalval;
+        this.store.updateJournalEntryLine(index, 'Accrual', line.Accrual);
+    }
+
+    public onModalDeleted(line: JournalEntryLineDraft, index: number) {
+        line.AccrualID = null;
+        line.Accrual = null;
+        this.store.updateJournalEntryLine(index, 'Accrual', line.Accrual);
     }
 }
