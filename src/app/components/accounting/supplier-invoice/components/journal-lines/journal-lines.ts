@@ -175,7 +175,14 @@ export class JournalLines {
     }
 
     filterVatTypesForDropdown() {
-        this.filteredVatTypes = this.vatTypes.filter(type => {
+        this.filteredVatTypes = this.getFilteredVatTypes(this.vatTypes);
+    }
+
+    getFilteredVatTypes(vatTypes) {
+        if (this.mvaSelectDisabled) {
+            return [];
+        }
+        return vatTypes.filter(type => {
             if (this.currentInvoiceType.value === 0) {
                 return !['20', '21', '22', '86', '87', '88', '89'].includes(type.VatCode) && !type.OutputVat;
             } else if (this.currentInvoiceType.value === 1) {
