@@ -104,10 +104,11 @@ export class UniJournalEntryLineModal implements IUniModal {
     public close(emitValue?: boolean) {
        if (emitValue) {
             const jel: JournalEntryLine = this.journalEntryLine;
-            const jelToSave: any = new JournalEntryLine();
+            const jelToSave = new JournalEntryLine();
             jelToSave.ID = jel.ID;
             jelToSave.Description = jel.Description;
             jelToSave.PaymentID = jel.PaymentID;
+            jelToSave.CurrencyCodeID = jel.CurrencyCodeID;
             if (jel.JournalEntryTypeID < 0) {
                 jelToSave.JournalEntryTypeID = null; // for å komme rundt problem med ID null i lookup, brukes -1 og setter null her
             } else {
@@ -117,7 +118,6 @@ export class UniJournalEntryLineModal implements IUniModal {
                 jelToSave.Dimensions = jel.Dimensions;
                 jelToSave.Dimensions['_createguid'] = this.journalEntryLineService.getNewGuid();
             }
-​
             this.journalEntryLineService.Put(jelToSave.ID, jelToSave).subscribe((res) => {
                 this.onClose.emit(jel);
             });
