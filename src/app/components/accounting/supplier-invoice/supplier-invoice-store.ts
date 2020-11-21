@@ -1048,7 +1048,7 @@ export class SupplierInvoiceStore {
                         accept: 'Registrer ny utgift',
                         reject: 'Lukk'
                     },
-                    message: `Regningen er bokført i regnskapet ditt og sendt til banken hvor den bil bli betalt på forfallsdato.`
+                    message: `Regningen er bokført i regnskapet ditt og sendt til banken hvor den vil bli betalt på forfallsdato.`
                 };
 
                 break;
