@@ -309,7 +309,7 @@ export class AccrualModal implements IUniModal {
                     accrual['_periodAmount'] = parseFloat(accrual.Periods[0].Amount).toFixed(2);
                 }
             } else {
-                accrual.AccrualAmount = journalEntryLineDraft.Amount;
+                accrual.AccrualAmount = accrualAmount;
                 const startYear: number = journalEntryLineDraft.FinancialDate.year;
 
                 const startPeriod: number = journalEntryLineDraft.FinancialDate.month;
