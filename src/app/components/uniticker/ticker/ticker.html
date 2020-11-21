@@ -47,6 +47,7 @@
         [config]="tableConfig"
         (columnsChange)="onColumnsChange($event)"
         (rowSelectionChange)="onRowSelectionChange($event)"
+        (dataLoaded)="dataLoaded($event)"
         (rowClick)="onRowClick($event)">
     </ag-grid-wrapper>
 

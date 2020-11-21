@@ -354,6 +354,12 @@ export class UniBankSettings {
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'OnlyJournalMatchedPayments',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bokfør kun innbetalinger som matcher'
             }
         ]);
 

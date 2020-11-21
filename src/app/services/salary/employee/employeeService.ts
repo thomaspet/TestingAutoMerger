@@ -14,11 +14,6 @@ import {ModulusService} from '@app/services/common/modulusService';
 import { StatisticsService } from '@app/services/common/statisticsService';
 import { EmployeeLanguageService } from '@app/services/salary/employee/employee-language.service';
 
-interface IFromToFilter {
-    from: number;
-    to: number;
-}
-
 export interface IEmployee {
     Name: string;
     ID: number;
@@ -148,30 +143,16 @@ export class EmployeeService extends BizHttp<Employee> {
         return helptext;
     }
 
-    public getFromToFilter(employees: number[]): IFromToFilter[] {
-        let from = 0;
-        const ret: IFromToFilter[] = [];
-        if (!employees.length) {
-            return ret;
-        }
-        employees.forEach((empID, i) => {
-            if (!from) {
-                from = empID;
-            } else if (i > 0 && employees[i - 1] + 1 !== empID) {
-                ret.push({from: from, to: employees[i - 1]});
-                from = empID;
-            }
-        });
-
-        ret.push({from: from, to: employees[employees.length - 1]});
-
-        return ret;
-    }
-
     public canAccesssEmployee(id: number): Observable<boolean> {
         return Observable
-            .forkJoin(this.companySettingsService.getCompanySettings(), this.subEntityService.GetAll(''))
-            .map((result: [CompanySettings, SubEntity[]]) => {
+            .forkJoin(
+                [
+                    this.companySettingsService.getCompanySettings(),
+                    this.subEntityService.GetAll(`filter=SuperiorOrganizationID ne null and SuperiorOrganizationID ne 0`)
+                ]
+            )
+            .map((result: [CompanySettings, SubEntity[]]) =>
+            {
                 const [companySettings, subEntities] = result;
                 return !!companySettings.OrganizationNumber &&
                     companySettings.OrganizationNumber !== '-' &&

@@ -45,6 +45,7 @@ import {BankInfoModal} from './modals/bank-info-modal/bank-info-modal';
 import {GiveSupportAccessModal} from './modals/give-support-access-modal/give-support-access-modal';
 import {BrunoBankOnboardingModal} from './modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
 import {BrunoBankOffboardingModal} from './modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
+import {PreapprovedPaymentsModal} from './modals/preapproved-payments-modal/preapproved-payments-modal';
 
 
 export * from './modalService';
@@ -93,6 +94,7 @@ export * from './modals/bank-accounts-config-modal/bank-accounts-config-modal';
 export * from './modals/bank-info-modal/bank-info-modal';
 export * from './modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal';
 export * from './modals/give-support-access-modal/give-support-access-modal';
+export * from './modals/preapproved-payments-modal/preapproved-payments-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -142,5 +144,6 @@ export const MODALS = [
     GiveSupportAccessModal,
     BrunoBankOnboardingModal,
     BrunoBankOffboardingModal,
+    PreapprovedPaymentsModal,
 ];
 

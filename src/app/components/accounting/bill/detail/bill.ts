@@ -2814,7 +2814,7 @@ export class BillView implements OnInit, AfterViewInit {
         const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
         const vd = current.InvoiceDate;
 
-        this.updateJournalEntryManualDates(fd, vd);
+        this.setMissingJournalEntryManualDates(fd, vd);
 
         // Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
@@ -3281,6 +3281,18 @@ export class BillView implements OnInit, AfterViewInit {
         }
     }
 
+    private setMissingJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
+        if (this.journalEntryManual) {
+            let lines = this.journalEntryManual.getJournalEntryData();
+            lines = lines.map(line => {
+                line.VatDate = line.VatDate || vatDate;
+                line.FinancialDate = line.FinancialDate || financialDate;
+                return line;
+            });
+            this.journalEntryManual.setJournalEntryData(lines);
+        }
+    }
+
     public onDetailsTabClick(index: number) {
         // Check lock status when activating the details tab to avoid
         if (index === 0) {
@@ -3647,8 +3659,7 @@ export class BillView implements OnInit, AfterViewInit {
 
         const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
         const vd = current.InvoiceDate;
-
-        this.updateJournalEntryManualDates(fd, vd);
+        this.setMissingJournalEntryManualDates(fd, vd);
 
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();
