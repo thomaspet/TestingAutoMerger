@@ -10,6 +10,7 @@ import { FieldType } from '@uni-framework/ui/uniform';
 import * as moment from 'moment';
 import {theme, THEMES} from 'src/themes/theme';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'to-payment-modal',
@@ -47,6 +48,7 @@ export class ToPaymentModal implements IUniModal {
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
     ngOnInit() {
@@ -186,24 +188,6 @@ export class ToPaymentModal implements IUniModal {
             .map((x: Payment) => x);
     }
 
-    private getAccountType(type: string): string {
-        switch (type.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
-    }
-
     private getValueItems() {
         return [
             {
@@ -253,7 +237,7 @@ export class ToPaymentModal implements IUniModal {
                         return item?.Label
                             ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                             : item?.BankAccountType
-                                ? (this.getAccountType(item.BankAccountType)
+                                ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
                                     + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                                 : item?.BankAccountNumber

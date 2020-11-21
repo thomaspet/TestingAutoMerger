@@ -279,8 +279,11 @@ export class JournalLines {
                 amount = parseFloat(amount.replace(',', '.'));
 
                 line.Amount = amount * (line.CurrencyExchangeRate || 1);
-                const net = !line.VatType ? amount : amount / (1 + (line.VatType.VatPercent / 100));
+
+                const net = !line.VatType || this.skipVatCalcForVatCode(line?.VatType?.VatCode) ?
+                    amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
                 line['_NetAmount'] = net;
+
                 this.total.vat += amount - net;
                 this.total.sum += amount || 0;
                 this.total.net += net;
@@ -290,6 +293,12 @@ export class JournalLines {
         if (invoice) {
             this.total.diff = invoice.TaxInclusiveAmountCurrency - this.total.sum;
         }
+    }
+
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
     }
 
     private accountLookup(query: string) {

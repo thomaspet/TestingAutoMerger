@@ -922,8 +922,6 @@ export class SupplierInvoiceStore {
             DimensionsID: invoice.DefaultDimensionsID
         };
 
-        paymentData['_accounts'] = this.bankAccounts;
-
         return this.modalService.open(UniRegisterPaymentModal, {
             header: isAlsoBook ? 'Bokfør og registrer gjennomført betaling' : 'Registrer gjennomført betaling',
             message: 'Regningen vil bli registrert som betalt i systemet. Husk å betale regningen i nettbanken dersom dette ikke allerede er gjort.',

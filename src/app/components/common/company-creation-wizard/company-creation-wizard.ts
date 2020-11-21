@@ -17,6 +17,12 @@ enum STEPS {
     CONTRACT_ACTIVATION,
 }
 
+enum TaxMandatoryType {
+    NotTaxMandatory = 1,
+    FutureTaxMandatory = 2,
+    TaxMandatory = 3,
+}
+
 @Component({
     selector: 'company-creation-wizard',
     templateUrl: './company-creation-wizard.html',
@@ -36,6 +42,7 @@ export class CompanyCreationWizard {
     contract: ElsaContract;
     contractTypes: ElsaContractType[];
     selectedContractType: number;
+    taxType = TaxMandatoryType;
 
     step1Form = new FormGroup({
         CompanyName: new FormControl('', Validators.required),
@@ -50,7 +57,7 @@ export class CompanyCreationWizard {
     step2Form = new FormGroup({
         // AccountNumber added in constructor (needs env check)
         TemplateIncludeSalary: new FormControl(undefined, Validators.required),
-        TemplateIncludeVat: new FormControl(undefined, Validators.required),
+        TaxMandatoryType: new FormControl(undefined, Validators.required),
     });
 
     isEnk: boolean;
@@ -228,7 +235,10 @@ export class CompanyCreationWizard {
         this.busyCreatingCompany = true;
         this.companyCreationFailed = false;
 
-        const includeVat = this.step2Form.value?.TemplateIncludeVat;
+        const taxType = step2FormDetails.TaxMandatoryType;
+        const includeVat = taxType === this.taxType.TaxMandatory;
+        companyDetails.TaxMandatoryType = taxType;
+
         const includeSalary = this.step2Form.value?.TemplateIncludeSalary;
 
         this.initService.getCompanyTemplate(this.isEnk, includeVat, includeSalary).subscribe(template => {

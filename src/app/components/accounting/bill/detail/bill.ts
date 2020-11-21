@@ -2762,8 +2762,6 @@ export class BillView implements OnInit, AfterViewInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
-        paymentData['_accounts'] = this.companySettings.BankAccounts
-            .filter(acc => acc.BankAccountType.toLowerCase() === 'company' || acc.BankAccountType.toLowerCase() === 'companysettings');
         paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
@@ -3681,6 +3679,7 @@ export class BillView implements OnInit, AfterViewInit {
                     draft.FinancialDate = line.FinancialDate;
                     draft.VatDate = line.VatDate;
                     draft.Dimensions = line.Dimensions;
+                    draft.CustomerOrderID = line.CustomerOrderID;
 
                     if (draft.Dimensions && !draft.Dimensions.ID) {
                         draft.Dimensions._createguid = draft.Dimensions._createguid || this.journalEntryService.getNewGuid();
