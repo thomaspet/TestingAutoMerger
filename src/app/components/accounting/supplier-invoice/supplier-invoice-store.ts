@@ -144,7 +144,7 @@ export class SupplierInvoiceStore {
 
                 if (invoice.JournalEntryID) {
                     obs.push(this.journalEntryService.Get(invoice.JournalEntryID, [
-                        'DraftLines.Account',
+                        'DraftLines.Account', 'DraftLines.Accrual.Periods'
                     ]));
                 }
 
@@ -408,6 +408,9 @@ export class SupplierInvoiceStore {
         } else if (field === 'VatType') {
             line.VatTypeID = value?.ID || null;
         } else if (field === 'AmountCurrency') {
+            if (!line?.AmountCurrency || isNaN(line.AmountCurrency)) {
+                line.AmountCurrency = 0;
+            }
             line.Amount = line.AmountCurrency;
         }
 
