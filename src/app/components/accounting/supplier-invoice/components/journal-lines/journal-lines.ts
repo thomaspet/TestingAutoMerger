@@ -279,7 +279,8 @@ export class JournalLines {
                 amount = parseFloat(amount.replace(',', '.'));
 
                 line.Amount = amount * (line.CurrencyExchangeRate || 1);
-                const net = !line.VatType ? amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
+                const net = !line.VatType ? amount : amount / (1 + (line.VatType.VatPercent / 100));
+                line['_NetAmount'] = net;
                 this.total.vat += amount - net;
                 this.total.sum += amount || 0;
                 this.total.net += net;
@@ -353,9 +354,9 @@ export class JournalLines {
 
     openAccrualModal(line: JournalEntryLineDraft, index: number) {
 
-        let title: string = 'Periodisering av utgift ';
+        let title: string = 'Periodisering av utgift';
         if (line.Description) {
-            title = title + ' - ' + line.Description;
+            title += ' - ' + line.Description;
         }
 
         const lineWithModifiedFinancialDate = line;
@@ -375,7 +376,7 @@ export class JournalLines {
         } else if (line.AmountCurrency && line.AmountCurrency !== 0) {
             data = <any>{
                 item: line,
-                accrualAmount: line.AmountCurrency,
+                accrualAmount: line['_NetAmount'],
                 accrualStartDate: lineWithModifiedFinancialDate.FinancialDate,
                 journalEntryLineDraft: lineWithModifiedFinancialDate,
                 accrual: null,
