@@ -283,7 +283,7 @@ export class JournalLines {
                 const net = !line.VatType || this.skipVatCalcForVatCode(line?.VatType?.VatCode) ?
                     amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
                 line['_NetAmount'] = net;
-
+                                                                        
                 this.total.vat += amount - net;
                 this.total.sum += amount || 0;
                 this.total.net += net;
