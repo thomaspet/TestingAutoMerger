@@ -116,7 +116,8 @@ export class SupplierInvoiceView {
         this.store.selectedFile = null;
         this.store.invoiceID = 0;
         this.store.invoice$.next(<SupplierInvoice>{});
-        this.store.initDataLoaded$.next(false); 
+        this.store.startupFileID$.next(null);
+        this.store.initDataLoaded$.next(false);
     }
 
     private syncFormAndAttachmentsHeight() {
