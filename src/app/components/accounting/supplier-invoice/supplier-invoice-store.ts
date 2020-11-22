@@ -868,6 +868,10 @@ export class SupplierInvoiceStore {
         }));
     }
 
+    restoreSupplierInvoice(ID: number) {
+        return this.supplierInvoiceService.restore(ID);
+    }
+
     creditSupplierInvoice(ID?: number, fetchedPayments?: any[]) {
 
         const invoiceID = ID || this.invoice$?.value?.ID;
@@ -967,14 +971,25 @@ export class SupplierInvoiceStore {
         });
     }
 
-    assignInvoice() {
+    assignInvoice(reAssign: boolean = false, done: any) {
         return this.modalService.open(BillAssignmentModal, {
             closeOnClickOutside: false
-        }).onClose.pipe(switchMap(details => {
-            return of (details);
-        }), catchError(err => {
-            return of(null);
-        }));
+        }).onClose.subscribe((details) => {
+            if (details) {
+                const obs = reAssign
+                    ? this.supplierInvoiceService.reAssign(this.invoice$.value.ID, details)
+                    : this.supplierInvoiceService.assign(this.invoice$.value.ID, details);
+
+                obs.subscribe(res => {
+                    this.loadInvoice(this.invoice$.value.ID);
+                    done('Faktura tildelt');
+                }, err => {
+                    done();
+                });
+            } else {
+                done();
+            }
+        });
     }
 
     approveOrRejectInvoice(key: string, done) {

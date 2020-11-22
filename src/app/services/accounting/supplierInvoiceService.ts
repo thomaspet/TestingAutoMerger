@@ -71,6 +71,15 @@ export class SupplierInvoiceService extends BizHttp<SupplierInvoice> {
             });
     }
 
+    public restore(ID: number) {
+        return this.http
+            .usingBusinessDomain()
+            .asPOST()
+            .withEndPoint(this.relativeURL + '/' + ID + '?action=restore')
+            .send()
+            .map(response => response.body);
+    }
+
     public reAssign(supplierInvoiceId: number, details: AssignmentDetails): Observable<boolean> {
         super.invalidateCache();
         return this.http
