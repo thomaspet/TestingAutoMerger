@@ -1088,7 +1088,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
             ['Account.TopLevelAccountGroup', 'VatType', 'JournalEntryType', 'Dimensions.Department', 'Dimensions.Project',
             'Dimensions.Dimension5', 'Dimensions.Dimension6', 'Dimensions.Dimension7', 'Dimensions.Dimension8',
-            'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods']),
+                    'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods', 'CustomerOrder']),
 
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' `
                 + `and EntityID eq ${journalEntryID}&select=FileID`),
@@ -1214,6 +1214,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {
             jed.CustomerInvoiceID = line.CustomerInvoiceID;
+        }
+
+        if (!jed.CustomerOrderID && line.CustomerOrderID) {
+            jed.CustomerOrderID = line.CustomerOrderID;
+            jed.CustomerOrder = line.CustomerOrder;
         }
 
         if (!jed.SupplierInvoiceID && line.SupplierInvoiceID) {
@@ -1409,7 +1414,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             const originalBalance = accountBalances.find(x => x.accountID === sum.debitAccount.ID);
             sum.debitOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
-            if (currentLine.DebitVatTypeID) {
+            if (currentLine.DebitVatTypeID && !this.skipVatCalcForVatCode(currentLine?.DebitVatType?.VatCode)) {
                 sum.debitNetChangeCurrentLine += currentLine.NetAmount;
 
                 const lineCalc =
@@ -1434,7 +1439,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             const originalBalance = accountBalances.find(x => x.accountID === sum.creditAccount.ID);
             sum.creditOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
-            if (currentLine.CreditVatTypeID) {
+            if (currentLine.CreditVatTypeID && !this.skipVatCalcForVatCode(currentLine?.CreditVatType?.VatCode)) {
                 sum.creditNetChangeCurrentLine += currentLine.NetAmount * -1;
 
                 const lineCalc =
@@ -1496,8 +1501,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     creditNetChange += entry.Amount;
                 }
             }
-            sum.debitNetChange += debitNetChange;
-            sum.creditNetChange += creditNetChange;
+            sum.debitNetChange += !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ? debitNetChange : entry.Amount * -1;
+            sum.creditNetChange += !this.skipVatCalcForVatCode(entry?.CreditVatType?.VatCode) ? creditNetChange : entry.Amount;
 
             if (entry.StatusCode) {
                 sum.debitNetChangeSubstractOriginal += debitNetChange;
@@ -1566,7 +1571,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     null,
                     entry
                 );
-                const creditData =  this.calculateJournalEntryDataAmount(
+                const creditData = this.calculateJournalEntryDataAmount(
                     entry.CreditAccount,
                     entry.CreditVatType,
                     entry.Amount * -1,
@@ -1593,9 +1598,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     sum.SumDebet += creditData.amountGross;
                 }
 
-                const incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
+                const incomingVat = !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ?
+                    debitData.incomingVatAmount + creditData.incomingVatAmount : 0;
                 sum.IncomingVat += incomingVat;
-                const outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
+
+                const outgoingVat = !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ?
+                    debitData.outgoingVatAmount + creditData.outgoingVatAmount : 0;
                 sum.OutgoingVat += outgoingVat;
             });
         }
@@ -1862,6 +1870,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         res.amountNet = UniMath.round(res.amountNet);
 
         return res;
+    }
+
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
     }
 
     public setCorrectVatPercent(vattype: VatType, journalEntryData: JournalEntryData) {

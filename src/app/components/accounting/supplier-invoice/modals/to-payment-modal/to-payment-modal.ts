@@ -13,6 +13,7 @@ import {theme, THEMES} from 'src/themes/theme';
 import {environment} from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'to-payment-modal',
@@ -56,6 +57,7 @@ export class ToPaymentModal implements IUniModal {
         private router: Router,
         private authService: AuthService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
     ngOnInit() {
@@ -225,24 +227,6 @@ export class ToPaymentModal implements IUniModal {
             .map((x: Payment) => x);
     }
 
-    private getAccountType(type: string): string {
-        switch (type.toLowerCase()) {
-            case 'company':
-            case 'companysettings':
-                return 'Drift';
-            case 'tax':
-                return 'Skatt';
-            case 'salary':
-                return 'Lønn';
-            case 'credit':
-                return 'Kredittkort';
-            case 'international':
-                return 'Utenlandsbetaling';
-            default:
-                return '';
-        }
-    }
-
     private getValueItems() {
         const items = [
             {
@@ -304,7 +288,7 @@ export class ToPaymentModal implements IUniModal {
                         return item?.Label
                             ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                             : item?.BankAccountType
-                                ? (this.getAccountType(item.BankAccountType)
+                                ? (this.uniAccountTypePipe.transform(item.BankAccountType)
                                     + ' - '
                                     + this.uniAccountNumberPipe.transform(item?.BankAccountNumber))
                                 : item?.BankAccountNumber
