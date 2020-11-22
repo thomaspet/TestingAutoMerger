@@ -167,23 +167,20 @@ export class SupplierInvoiceView {
             {
                 label: 'Tildel',
                 action: (done) => {
-                    this.store.assignInvoice().subscribe(details => {
-                        if (details) {
-                            const ID = this.store.invoice$.value.ID;
-                            this.supplierInvoiceService.assign(ID, details).subscribe(res => {
-                                this.store.loadInvoice(ID);
-                                done('Faktura tildelt');
-                            }, err => {
-                                done();
-                            });
-                        } else {
-                            done();
-                        }
-                    });
+                    this.store.assignInvoice(false, done);
                 },
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
             },
+            {
+                label: 'Tildel på nytt',
+                action: (done) => {
+                    this.store.assignInvoice(true, done);
+                },
+                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
+                || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
+            },
+
             {
                 label: 'Godkjenn',
                 action: (done) => {
@@ -200,6 +197,7 @@ export class SupplierInvoiceView {
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
             },
+            
             {
                 label: 'Bokfør og betal',
                 action: (done) => {
@@ -278,6 +276,17 @@ export class SupplierInvoiceView {
                 },
                 main: true,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled
+            },
+            {
+                label: 'Gjenopprett',
+                action: (done) => {
+                    this.store.restoreSupplierInvoice(invoice.ID).subscribe(res => {
+                        done();
+                        this.store.loadInvoice(invoice.ID);
+                    }, err => this.errorService.handle(err))
+                },
+                main: false,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Rejected
             },
         ];
     }

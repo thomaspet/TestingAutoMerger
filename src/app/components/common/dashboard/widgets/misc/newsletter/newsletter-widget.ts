@@ -12,7 +12,7 @@ export class NewsletterWidget {
     constructor() { }
 
     goToNewsletter() {
-        window.open('https://support.unimicro.no/nytt-fra-uni-micro', '_blank');
+        window.open('https://info.unieconomy.no/nytt-i-systemet', '_blank');
     }
 
 }
