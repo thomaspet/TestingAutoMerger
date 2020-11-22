@@ -384,7 +384,8 @@ export class BankComponent {
     }
 
     tickerdataHasLoaded(event) {
-        if (this.selectedTicker.Code === 'payment_list' && this.filter === 'not_paid') {
+        if (this.selectedTicker.Code === 'payment_list' && this.filter === 'not_paid' &&
+            this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())) {
             this.getHash();
         }
     }
