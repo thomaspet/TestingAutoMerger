@@ -172,6 +172,10 @@ export class SendInvoiceModal implements IUniModal {
             }
         }
 
+        if (!this.sendingOptions.find(opt => opt.type === ElementType.Email)) {
+            this.addSendingOptionForElementType(ElementType.Email);
+        }
+
         if (!this.sendingOptions.find(opt => opt.type === ElementType.Print)) {
             this.addSendingOptionForElementType(ElementType.Print);
         }
