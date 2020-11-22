@@ -15,6 +15,7 @@ import {
     DepartmentService,
     ProjectService
 } from '@app/services/services';
+import { theme, THEMES } from 'src/themes/theme';
 ​
 @Component({
     selector: 'journalentry-line-modal',
@@ -145,6 +146,7 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Property: 'PaymentID',
                 FieldType: FieldType.TEXT,
                 Label: 'KID',
+                Hidden: theme.theme === THEMES.EXT02
             },
             <any> {
                 Property: 'JournalEntryTypeID',
@@ -165,7 +167,8 @@ export class UniJournalEntryLineModal implements IUniModal {
                     search: (query) => {
                         return this.jeTypes.filter(x => x.DisplayName.toLowerCase().startsWith(query.toLowerCase()));
                     }
-                }
+                },
+                FeaturePermission: 'ui.distribution'
             },
             <any> {
                 Property: ''
@@ -184,14 +187,16 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Dimension: 1,
                 IsActive: true,
                 Property: 'Dimensions.ProjectID',
-                Data: this.projects
+                Data: this.projects,
+                FeaturePermission: 'ui.distribution'
             },
             {
                 Label: 'Avdeling',
                 Dimension: 2,
                 IsActive: true,
                 Property: 'Dimensions.DepartmentID',
-                Data: this.departments
+                Data: this.departments,
+                FeaturePermission: 'ui.distribution'
             }
         ];
 ​
@@ -203,7 +208,8 @@ export class UniJournalEntryLineModal implements IUniModal {
                 Dimension: dim.Dimension,
                 IsActive: dim.IsActive,
                 Property: 'Dimensions.Dimension' + dim.Dimension + 'ID',
-                Data: []
+                Data: [],
+                FeaturePermission: 'ui.distribution'
             });
             queries.push(this.customDimensionService.getCustomDimensionList(dim.Dimension));
         });
