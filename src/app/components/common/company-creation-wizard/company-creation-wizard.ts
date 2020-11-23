@@ -9,6 +9,7 @@ import {get} from 'lodash';
 import {forkJoin} from 'rxjs';
 import {THEMES, theme} from 'src/themes/theme';
 import {ElsaContractType, ElsaContract} from '@app/models/elsa-models';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 enum STEPS {
     CONTRACT_TYPE,
@@ -75,6 +76,7 @@ export class CompanyCreationWizard {
         private elsaContractService: ElsaContractService,
         private elsaCustomerService: ElsaCustomersService,
         private elsaAgreementService: ElsaAgreementService,
+        private toastService: ToastService,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -204,15 +206,33 @@ export class CompanyCreationWizard {
     step2FormSubmit() {
         this.step2Form.markAllAsTouched();
         if (this.step2Form.valid) {
-            if (this.includeContractActivation && !this.contractActivated) {
-                const companyData = this.step1Form.value;
-                this.orgNumber = companyData.OrganizationNumber;
-                this.companyName = companyData.CompanyName;
-
-                this.currentStep = STEPS.CONTRACT_ACTIVATION;
+            if (this.step2Form.controls['AccountNumber']) {
+                this.initService.getBicFromAccountNumber(this.step2Form.get('AccountNumber').value).subscribe(bic => {
+                    if (bic && bic === this.authService.publicSettings?.BIC) {
+                        this.step2FormSubmitNextStep();
+                    } else {
+                        this.toastService.addToast('Kontonummer', ToastType.info, 5, 'Kontoen må være en DNB konto');
+                        return;
+                    }
+                }, err => {
+                        this.toastService.addToast('Kontonummer', ToastType.info, 5, 'Ugyldig kontonummer');
+                        return;
+                });
             } else {
-                this.createCompany();
+                this.step2FormSubmitNextStep();
             }
+        }
+    }
+
+    step2FormSubmitNextStep() {
+        if (this.includeContractActivation && !this.contractActivated) {
+            const companyData = this.step1Form.value;
+            this.orgNumber = companyData.OrganizationNumber;
+            this.companyName = companyData.CompanyName;
+
+            this.currentStep = STEPS.CONTRACT_ACTIVATION;
+        } else {
+            this.createCompany();
         }
     }
 
