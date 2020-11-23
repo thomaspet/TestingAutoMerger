@@ -37,7 +37,6 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    RAYGUN_API_KEY: 'WPLSj88xC6sSqTjXOlWFQ',
     APP_INSIGHTS_KEY: '8f75a68f-71f1-492c-840c-29a228f7c647',
 
     RECAPTCHA_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',
