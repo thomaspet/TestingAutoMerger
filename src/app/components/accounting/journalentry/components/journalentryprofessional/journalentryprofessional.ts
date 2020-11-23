@@ -782,9 +782,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else {
                 rowModel.DebitVatType = null;
             }
-            
-            this.setDebitVatTypeProperties(rowModel);
-            this.setVatDeductionPercent(rowModel);
+            rowModel = this.calculateNetAmountAndNetAmountCurrency(this.setVatDeductionPercent(this.setDebitVatTypeProperties(rowModel)));
         } else {
             rowModel.DebitAccountID = null;
             rowModel.DebitVatType = null;
