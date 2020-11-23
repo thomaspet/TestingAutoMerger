@@ -2058,8 +2058,12 @@ export class BillView implements OnInit, AfterViewInit {
             return;
         }
 
+        const financialDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate
+                ? this.current.getValue().DeliveryDate
+                : this.current.getValue().InvoiceDate;
+
         this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan,
-            this.current.getValue().TaxInclusiveAmountCurrency).then((value: any) => {
+            this.current.getValue().TaxInclusiveAmountCurrency, financialDate).then((value: any) => {
             if (value.msg) {
                 if (this.smartBookingSettings.showNotification) {
                     this.toast.addToast('Smart bokføring', value.type, 10, value.msg);
