@@ -544,7 +544,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return row;
     }
 
-    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0 ) {
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0, date? ) {
         const returnValue: any = {
             type: ToastType.warn
         };
@@ -608,6 +608,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     this.journalEntryLines[0].AmountCurrency = amount;
                                     this.journalEntryLines[0].DebitAccount = match;
                                     this.journalEntryLines[0].DebitAccountID = match.ID;
+                                    this.journalEntryLines[0].VatDate = date;
+                                    this.journalEntryLines[0].FinancialDate = date;
                                     this.journalEntryLines[0]['_updateDescription'] = true;
                                     if (match.VatTypeID) {
                                         this.journalEntryLines[0].DebitVatTypeID = match.VatTypeID;
@@ -623,7 +625,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         Description: '',
                                         FileIDs: [],
                                         Amount: amount,
-                                        AmountCurrency: amount
+                                        AmountCurrency: amount,
+                                        VatDate: date,
+                                        FinancialDate: date
                                     };
                                     if (match.VatTypeID) {
                                         newLine.DebitVatTypeID = match.VatTypeID;
@@ -778,9 +782,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else {
                 rowModel.DebitVatType = null;
             }
-
-            this.setDebitVatTypeProperties(rowModel);
-            this.setVatDeductionPercent(rowModel);
+            rowModel = this.calculateNetAmountAndNetAmountCurrency(this.setVatDeductionPercent(this.setDebitVatTypeProperties(rowModel)));
         } else {
             rowModel.DebitAccountID = null;
             rowModel.DebitVatType = null;
