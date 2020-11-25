@@ -109,19 +109,18 @@ annual-settlement-check-list-component
             cursor: pointer
 
 uni-step
-    &.checked
-        .step-container
-            border: 1px solid #78E178
     &.disabled
-        .step-container
-            border: 1px solid #F2F2F2
+        *
+            opacity: 0.85
+        button.c2a
+            display: none
     .step-container
         display: flex
         background: #fff
         padding: pxToRem(21px)
         align-items: start
         border-radius: pxToRem(9px)
-        border: 1px solid var(--active-tab-color)
+        border: 1px solid var(--border-color)
         margin-bottom: pxToRem(24px)
         .step-status
             margin-right: pxToRem(21px)
