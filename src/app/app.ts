@@ -28,6 +28,7 @@ LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2
 import {theme, THEMES} from 'src/themes/theme';
 import {Logger} from '@uni-framework/core/logger';
 import * as moment from 'moment';
+import {environment} from 'src/environments/environment';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -117,9 +118,9 @@ export class App {
                 if (shouldShowLicenseDialog) {
                     this.licenseAgreementModalOpen = true;
                     this.modalService.open(LicenseAgreementModal, {
-                        hideCloseButton: true,
-                        closeOnClickOutside: false,
-                        closeOnEscape: false
+                        hideCloseButton: environment.useProdMode,
+                        closeOnClickOutside: !environment.useProdMode,
+                        closeOnEscape: !environment.useProdMode
                     }).onClose.subscribe(
                         () => this.licenseAgreementModalOpen = false
                     );
@@ -238,9 +239,9 @@ export class App {
     private showUserLicenseModal() {
         this.userlicenseModalOpen = true;
         this.modalService.open(UserLicenseAgreementModal, {
-            hideCloseButton: true,
-            closeOnClickOutside: false,
-            closeOnEscape: false
+            hideCloseButton: environment.useProdMode,
+            closeOnClickOutside: !environment.useProdMode,
+            closeOnEscape: !environment.useProdMode
         }).onClose.subscribe(response => {
             this.userlicenseModalOpen = true;
             if (response === ConfirmActions.ACCEPT) {
@@ -254,7 +255,7 @@ export class App {
                         () => {},
                         err => this.errorService.handle(err),
                     );
-            } else {
+            } else if (environment.useProdMode) {
                 this.authService.clearAuthAndGotoLogin();
             }
         });
