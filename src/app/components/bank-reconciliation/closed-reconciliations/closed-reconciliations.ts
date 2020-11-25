@@ -32,6 +32,7 @@ export class ClosedReconciliations {
     busy = true;
     hasOpened = false;
 
+    buttonLocked = false;
     groupGuid: any;
     matchList: any[] = [];
     queryString = 'model=BankStatementMatch&select=Group&filter=';
@@ -74,6 +75,10 @@ export class ClosedReconciliations {
                     this.cdr.markForCheck();
                     this.busy = false;
                 });
+            } else {
+                this.busy = false;
+                this.buttonLocked = true;
+                this.cdr.markForCheck();
             }
         }, err => {
             this.busy = false;

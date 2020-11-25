@@ -8,7 +8,7 @@ type ExtendedWindow = typeof window & {
 @Component({
     selector: 'boost-chat',
     template: `
-        <span *ngIf="iconUrl && (chatPanelReady || isExt02)"
+        <span *ngIf="iconUrl && chatPanelReady"
             (click)="openBoostAIChat()"
             role="button"
             aria-label="Chatbot">
@@ -22,7 +22,6 @@ export class BoostChat {
     private chatPanel = null;
 
     chatPanelReady = false;
-    isExt02 = theme.theme === THEMES.EXT02;
 
     iconUrl: string = theme.chatbotIcon;
 
@@ -83,15 +82,7 @@ export class BoostChat {
     }
 
     openBoostAIChat() {
-        if (theme.theme === THEMES.SR) {
-            this.chatPanel.show();
-        } else if (theme.theme === THEMES.EXT02) {
-            window.open(
-                'https://web.chat.tech-03.net/index.html?seg=bm&routingtag=DNB_regnskap',
-                'Aino',
-                'menubar=0,scrollbars=1,height=650,width=400,left=0,top=8'
-            );
-        }
+        this.chatPanel.show();
     }
 
     public openChatWithSupportCase() {

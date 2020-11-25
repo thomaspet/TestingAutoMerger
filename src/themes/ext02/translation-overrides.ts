@@ -54,7 +54,7 @@ export const TRANSLATION_OVERRIDES = {
             'MULTIPLE_USE_MSG1': 'Flere regninger knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en regning, vi henter den nå. Om dette ikke stemmer kan du slette filen fra regningen og gå tilbake til innboksen og starte på nytt med riktig fil.',
             'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i DNB-Regnskap',
-            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i DNB-Regnskap på levernadører i samme bransje som valgt leverandør på din faktura.',
+            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i DNB-Regnskap på leverandører i samme bransje som valgt leverandør på din faktura.',
         },
         POSTPOST: {
             'ALL_WITH_OPEN': 'Alle med utestående',

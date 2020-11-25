@@ -475,13 +475,11 @@ export class SalaryTransactionListComponent extends UniView implements OnChanges
 
         if (transIndex >= 0) {
             if (this.salaryTransactions[transIndex].ID) {
+                this.salaryTransactions[transIndex].Dimensions = null;
                 this.salaryTransactions[transIndex].Deleted = true;
             } else {
                 this.salaryTransactions.splice(transIndex, 1);
                 hasDirtyRow = this.salaryTransactions.some(trans => trans['_isDirty'] || trans['Deleted']);
-            }
-            if (!this.salaryTransactions[transIndex].DimensionsID && this.salaryTransactions[transIndex].Dimensions) {
-                this.salaryTransactions[transIndex].Dimensions = null;
             }
 
             this.refresh = true;

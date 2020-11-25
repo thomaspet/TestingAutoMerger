@@ -480,7 +480,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
     private calculateNetAmountAndNetAmountCurrency(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.AmountCurrency && rowModel.AmountCurrency !== 0) {
-            if (rowModel.DebitAccount && rowModel.DebitVatType && !rowModel.DebitVatType.DirectJournalEntryOnly) {
+            if (rowModel.DebitAccount
+                && rowModel.DebitVatType
+                && !rowModel.DebitVatType.DirectJournalEntryOnly
+                && !this.skipVatCalcForVatCode(rowModel?.DebitVatType?.VatCode)
+            ) {
                 const calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.DebitAccount,
                     rowModel.DebitVatType,
@@ -492,6 +496,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else if (rowModel.CreditAccount
                 && rowModel.CreditVatType
                 && !rowModel.CreditVatType.DirectJournalEntryOnly
+                && !this.skipVatCalcForVatCode(rowModel?.CreditVatType?.VatCode)
             ) {
                 const calc = this.journalEntryService.calculateJournalEntryData(
                     rowModel.CreditAccount,
@@ -518,6 +523,11 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return rowModel;
     }
 
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
+    }
 
     private calculateNetAmount(rowModel: JournalEntryData): JournalEntryData {
         if (rowModel.NetAmountCurrency) {
@@ -544,7 +554,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return row;
     }
 
-    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0 ) {
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0, date? ) {
         const returnValue: any = {
             type: ToastType.warn
         };
@@ -608,6 +618,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     this.journalEntryLines[0].AmountCurrency = amount;
                                     this.journalEntryLines[0].DebitAccount = match;
                                     this.journalEntryLines[0].DebitAccountID = match.ID;
+                                    this.journalEntryLines[0].VatDate = date;
+                                    this.journalEntryLines[0].FinancialDate = date;
                                     this.journalEntryLines[0]['_updateDescription'] = true;
                                     if (match.VatTypeID) {
                                         this.journalEntryLines[0].DebitVatTypeID = match.VatTypeID;
@@ -623,7 +635,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         Description: '',
                                         FileIDs: [],
                                         Amount: amount,
-                                        AmountCurrency: amount
+                                        AmountCurrency: amount,
+                                        VatDate: date,
+                                        FinancialDate: date
                                     };
                                     if (match.VatTypeID) {
                                         newLine.DebitVatTypeID = match.VatTypeID;
@@ -651,7 +665,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     ? 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort på' +
                                         ' denne leverandøren i UniEconomy'
                                     : 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort i UniEconomy' +
-                                        ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+                                        ' på leverandører i samme bransje som valgt leverandør på din faktura.';
 
                                 this.journalEntryLines = [].concat(this.journalEntryLines);
                                 this.dataChanged.emit(this.journalEntryLines);
@@ -778,9 +792,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else {
                 rowModel.DebitVatType = null;
             }
-
-            this.setDebitVatTypeProperties(rowModel);
-            this.setVatDeductionPercent(rowModel);
+            rowModel = this.calculateNetAmountAndNetAmountCurrency(this.setVatDeductionPercent(this.setDebitVatTypeProperties(rowModel)));
         } else {
             rowModel.DebitAccountID = null;
             rowModel.DebitVatType = null;
@@ -950,6 +962,57 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             }
             rowModel.Dimensions.Project = null;
             rowModel.Dimensions.ProjectID = null;
+        }
+        return rowModel;
+    }
+
+    private setCustomerOrderProperties(rowModel: any): JournalEntryData {
+
+        if (rowModel.CustomerOrder) {
+             rowModel.CustomerOrderID = rowModel.CustomerOrder.ID;
+            if (rowModel.CustomerOrder.ProjectID) {
+                rowModel.Dimensions.Project = {
+                    ID: rowModel.CustomerOrder.ProjectID,
+                    Name: rowModel.CustomerOrder.ProjectName,
+                    ProjectNumber: rowModel.CustomerOrder.ProjectNumber
+                };
+                rowModel.Dimensions.ProjectID = rowModel.CustomerOrder.ProjectID;
+            }else{
+                rowModel.Dimensions.Project = null;
+                rowModel.Dimensions.ProjectID = null;
+            }
+
+            if (rowModel.CustomerOrder.DepartmentID) {
+                rowModel.Dimensions.Department = {
+                    ID: rowModel.CustomerOrder.DepartmentID,
+                    Name: rowModel.CustomerOrder.DepartmentName,
+                    DepartmentNumber: rowModel.CustomerOrder.DepartmentNumber
+                };
+                rowModel.Dimensions.DepartmentID = rowModel.CustomerOrder.DepartmentID;
+            }else{
+                rowModel.Dimensions.Department = null;
+                rowModel.Dimensions.DepartmentID = null;
+            }
+
+            for (let index = 5; index < 11; index++) {
+                const dimID = rowModel.CustomerOrder[`Dimension${index}ID`];
+
+                if (dimID) {
+                    rowModel.Dimensions[`Dimension${index}`] = {
+                        ID: dimID,
+                        Name: rowModel.CustomerOrder[`Dimension${index}Name`],
+                        Number: rowModel.CustomerOrder[`Dimension${index}Number`]
+                    };
+                    rowModel.Dimensions[`Dimension${index}ID`] = dimID;
+                }else{
+                    rowModel.Dimensions[`Dimension${index}`] = null;
+                    rowModel.Dimensions[`Dimension${index}ID`] = null;
+                }
+            }
+
+
+        } else {
+            rowModel.CustomerOrderID = null;
         }
         return rowModel;
     }
@@ -1196,7 +1259,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             row.CurrencyExchangeRate = copyFromJournalEntryLine.CurrencyExchangeRate;
             row.JournalEntryTypeID = copyFromJournalEntryLine.JournalEntryTypeID;
             row.JournalEntryType = copyFromJournalEntryLine.JournalEntryType;
-
+            row.CustomerOrderID = copyFromJournalEntryLine.CustomerOrderID;
+            row.CustomerOrder = copyFromJournalEntryLine.CustomerOrder;
             if (copyFromJournalEntryLine.CustomerInvoiceID) {
                 this.statisticsService.GetAllUnwrapped(`model=customerinvoicereminder&select=isnull(sum(reminderfee),0) as SumReminderFee,isnull(sum(reminderfeecurrency),0) as SumReminderFeeCurrency,isnull(sum(interestfee),0) as SumInterestFee,isnull(sum(interestfeecurrency),0) as SumInterestFeeCurrency&filter=customerinvoiceid eq ${copyFromJournalEntryLine.CustomerInvoiceID} and statuscode eq 42101`)
                 .map(res => res[0])
@@ -1416,9 +1480,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 };
             }
         });
-
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setWidth('8%')
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
@@ -1443,7 +1507,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
@@ -1472,6 +1536,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
             .setWidth('8%')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
@@ -1495,12 +1560,32 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setWidth('90px')
             .setSkipOnEnterKeyNavigation(true)
             .setVisible(false);
+
+        const orderReferenceCol = new UniTableColumn('CustomerOrder', 'Ordre referanse', UniTableColumnType.Lookup)
+        .setWidth('90px')
+        .setSkipOnEnterKeyNavigation(true)
+        .setVisible(false)
+        .setTemplate((rowModel) => {
+                if (rowModel.CustomerOrder) {
+                    const customerOrder = rowModel.CustomerOrder;
+                return `${customerOrder.OrderNumber}`;
+            }
+            return '';
+        })
+        .setOptions({
+            itemTemplate: (selectedItem) => {
+                return `${selectedItem.OrderNumber}`;
+            },
+            lookupFunction: (searchValue) => {
+                    return this.customerOrderSearch(searchValue);
+            }
+        });
 
         const amountCol = new UniTableColumn(
             'Amount', `Beløp (${this.companySettings.BaseCurrencyCode.Code})`, UniTableColumnType.Money
@@ -1817,7 +1902,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 currencyExchangeRate,
                 costAllocationCol,
                 manDimReportCol,
-                journalEntryTypeCol
+                journalEntryTypeCol,
+                orderReferenceCol
             ];
 
             if (this.featurePermissionService.canShowUiFeature('ui.dimensions')) {
@@ -1998,45 +2084,47 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.calculateCurrencyExchangeRate(row);
                 } else if (event.field === 'FinancialDate') {
                     if (this.currentSavedFinancialDate) {
-                        if (new Date(this.currentSavedFinancialDate).getFullYear() !== event.rowModel.FinancialDate.year) {
+                        if (moment(this.currentSavedFinancialDate).year() !== moment(event.rowModel.FinancialDate).year()) {
                             row.FinancialDate = this.currentSavedFinancialDate;
                             this.toastService.addToast('Ugyldig endring.', ToastType.warn, 10,
                             'Du kan ikke korrigere bilaget til et annet regnskapsår. Hvis dette bilaget skal bokføres i annet regnskapsår må du kreditere bilaget og føre det på nytt i korrekt regnskapsår.');
                         }
                     }
                 } else if (event.field === 'VatDate') {
-                    if (this.currentSavedVatDate && new Date(this.currentSavedVatDate).getFullYear() !== event.rowModel.VatDate.year) {
+
+                    if (this.currentSavedVatDate && moment(this.currentSavedVatDate).year() !== moment(event.rowModel.VatDate).year()) {
                         row.VatDate = this.currentSavedVatDate;
                         this.toastService.addToast('Ugyldig endring.', ToastType.warn, 10,
                         'Du kan ikke korrigere bilaget til et annet regnskapsår. Hvis dette bilaget skal bokføres i annet regnskapsår må du kreditere bilaget og føre det på nytt i korrekt regnskapsår.');
-                    } else {
-                        // set FinancialDate based on VatDate if FinancialDate has not been set, or
-                        // if the FinancialDate was the same as the previous value for VatDate
-                        if (!row.FinancialDate && row.VatDate ||
-                            (originalFieldValue && row.FinancialDate
-                                && row.FinancialDate.toString() === originalFieldValue.toString())
-                        ) {
-                            row.FinancialDate = row.VatDate;
-                        }
-
-                        if (row.DebitVatType) {
-                            this.journalEntryService.setCorrectVatPercent(row.DebitVatType, row);
-                        }
-                        if (row.CreditVatType) {
-                            this.journalEntryService.setCorrectVatPercent(row.CreditVatType, row);
-                        }
-
-                        if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
-                            rowOrPromise = this.getExternalCurrencyExchangeRate(row)
-                                .then(r => this.setVatDeductionPercent(r))
-                                .then(r => this.calculateNetAmountAndNetAmountCurrency(r))
-                                .then(r => this.calculateAmount(r));
-                        } else {
-                            row = this.setVatDeductionPercent(row);
-                            row = this.calculateNetAmountAndNetAmountCurrency(row);
-                            row = this.calculateAmount(row);
-                        }
                     }
+
+                    // set FinancialDate based on VatDate if FinancialDate has not been set, or
+                    // if the FinancialDate was the same as the previous value for VatDate
+                    if (!row.FinancialDate && row.VatDate ||
+                        (originalFieldValue && row.FinancialDate
+                            && row.FinancialDate.toString() === originalFieldValue.toString())
+                    ) {
+                        row.FinancialDate = row.VatDate;
+                    }
+
+                    if (row.DebitVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.DebitVatType, row);
+                    }
+                    if (row.CreditVatType) {
+                        this.journalEntryService.setCorrectVatPercent(row.CreditVatType, row);
+                    }
+
+                    if (this.mode === JournalEntryMode.Manual && row.CurrencyCode) {
+                        rowOrPromise = this.getExternalCurrencyExchangeRate(row)
+                            .then(r => this.setVatDeductionPercent(r))
+                            .then(r => this.calculateNetAmountAndNetAmountCurrency(r))
+                            .then(r => this.calculateAmount(r));
+                    } else {
+                        row = this.setVatDeductionPercent(row);
+                        row = this.calculateNetAmountAndNetAmountCurrency(row);
+                        row = this.calculateAmount(row);
+                    }
+
                 } else if (event.field === 'DebitAccount') {
                     row = this.setDebitAccountProperties(row);
                     row = this.setVatDeductionPercent(row);
@@ -2061,6 +2149,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                     row = this.setDepartmentProperties(row);
                 } else if (event.field === 'Dimensions.Project') {
                     row = this.setProjectProperties(row);
+                } else if (event.field === 'CustomerOrder') {
+                    row = this.setCustomerOrderProperties(row);
                 } else if (event.field.indexOf('Dimensions.Dimension') !== -1) {
                     row = this.setDimensionProperties(row, event.field);
                 } else if (event.field === 'Description') {
@@ -2389,6 +2479,16 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
     private departmentSearch(searchValue): Observable<any> {
         return this.statisticsService.GetAll(`model=Department&select=DepartmentNumber as DepartmentNumber,Name as Name,ID as ID&` +
         `filter=contains(DepartmentNumber, '${searchValue}') or contains(Name, '${searchValue}')`).map(x => x.Data ? x.Data : []);
+    }
+
+    private customerOrderSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
+            `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
+            `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
+            `&select=ID as ID,OrderNumber as OrderNumber,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
+            `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
+        `filter=contains(OrderNumber, '${searchValue}') `).map(x => x.Data ? x.Data : []);
     }
 
     private deleteLine(line) {
@@ -3244,8 +3344,6 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 return;
             });
         }
-
-
         const strF = event.field + '';
 
         if ( ( event.field === 'DebitAccount' || event.field === 'CreditAccount' || strF.startsWith('Dimensions.'))

@@ -40,12 +40,8 @@ export class UniActivateAPModal implements IUniModal {
 
     terms: ElsaAgreement;
     termsAgreed: boolean;
-    // if false it's incoming
-    isOutgoing: boolean;
     busy: boolean = false;
-    outgoingProductExist: boolean = true;
     hasActivatedIncomming: boolean = false;
-    hasActivatedOutgoing: boolean = false;
 
     constructor(
         private ehfService: EHFService,
@@ -58,23 +54,18 @@ export class UniActivateAPModal implements IUniModal {
     ) {}
 
     public ngOnInit() {
-        this.isOutgoing = this.options.data.isOutgoing;
         this.busy = true;
-        this.elsaProductService.GetAll(`name eq 'EHF_OUT' or name eq 'EHF'`)
+        this.elsaProductService.GetAll(`name eq 'EHF'`)
             .finally(() => {
                 this.busy = false;
                 this.initialize();
             })
             .subscribe(products => {
-                const ehfOut = products.find(p => p.Name === 'EHF_OUT');
-                const ehfIn = products.find(p => p.Name === 'EHF');
+                const product = products.find(p => p.Name === 'EHF');
 
-                const product = this.isOutgoing ? ehfOut : ehfIn;
                 if (product?.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
                     this.terms = product.ProductAgreement;
                 }
-
-                this.outgoingProductExist = !!ehfOut;
             });
     }
 
@@ -123,9 +114,7 @@ export class UniActivateAPModal implements IUniModal {
 
 
                 this.hasActivatedIncomming = settings.APIncomming.find(f => f.Name.startsWith('EHF')) != null;
-                this.hasActivatedOutgoing = settings.APOutgoing.find(f => f.Name.startsWith('EHF')) != null;
                 model.incommingInvoice = this.hasActivatedIncomming;
-                model.outgoingInvoice = this.hasActivatedOutgoing;
 
                 model.settings = settings;
 
@@ -158,36 +147,17 @@ export class UniActivateAPModal implements IUniModal {
         const model = this.formModel$.getValue();
         this.busy = true;
 
-        const direction = this.isOutgoing ?
-            this.hasActivatedIncomming ? 'both' : 'out' :
-            this.outgoingProductExist ?
-                this.hasActivatedOutgoing ? 'both' : 'in' :
-                model.incommingInvoice && model.outgoingInvoice ? 'both' :
-                model.outgoingInvoice ? 'out' :
-                model.incommingInvoice ? 'in' :
-                null;
-
-        if (!direction) {
-            this.toastService.addToast(
-                'Aktivering feilet!',
-                ToastType.bad, 5,
-                'Du må hake av for om du vil ha inngående, utgående eller begge deler'
-            );
-            this.busy = false;
-            return;
-        }
-
         // Save Bankaccount settings
         this.companySettingsService.Put(model.settings.ID, model.settings).subscribe(() => {
             // Activate EHF
-            this.ehfService.activate('billing', model, direction).subscribe(
+            this.ehfService.activate('billing', model, 'in').subscribe(
                 status => {
                     if (status === ActivationEnum.ACTIVATED) {
                         this.toastService.addToast(
                             'Aktivering',
                             ToastType.good,
                             3,
-                            this.isOutgoing ? 'EHF sending aktivert' : 'EHF mottak aktivert'
+                            'EHF mottak aktivert'
                         );
                         this.ehfService.updateActivated();
                     } else if (status === ActivationEnum.EXISTING) {
@@ -279,7 +249,7 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'contactname',
                 FieldType: FieldType.TEXT,
-                Label: 'Kontaktnavn'
+                Label: 'Kontaktnavn',
             },
             <any> {
                 Property: 'contactphone',
@@ -294,20 +264,8 @@ export class UniActivateAPModal implements IUniModal {
             <any> {
                 Property: 'settings.CompanyBankAccount',
                 FieldType: FieldType.MULTIVALUE,
-                Label: 'Driftskonto'
+                Label: 'Driftskonto',
             },
-            <any> {
-                Property: 'incommingInvoice',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Inngående faktura',
-                Hidden: this.outgoingProductExist || this.isOutgoing
-            },
-            <any> {
-                Property: 'outgoingInvoice',
-                FieldType: FieldType.CHECKBOX,
-                Label: 'Utgående faktura',
-                Hidden: this.outgoingProductExist || this.isOutgoing
-            }
         ];
     }
 }

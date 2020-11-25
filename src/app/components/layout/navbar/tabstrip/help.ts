@@ -53,6 +53,7 @@ import {AuthService} from '@app/authService';
         <section *ngIf="showBoostChat" class="boost-icon">
             <boost-chat></boost-chat>
         </section>
+        <zendesk-chat *ngIf="isBrunoEnvironment"></zendesk-chat>
     `,
     styleUrls: ['./help.sass'],
     changeDetection: ChangeDetectionStrategy.OnPush
@@ -78,7 +79,7 @@ export class UniTabstripHelp {
         } else if (this.isSrEnvironment) {
             this.helpdeskUrl = 'https://www.sparebank1.no/nb/sr-bank/bedrift/produkter/bank-regnskap/hjelp.html';
         } else if (this.isBrunoEnvironment) {
-            this.helpdeskUrl = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/dnbregnskap/hjelp.html';
+            this.helpdeskUrl = 'https://hjelp.dnbregnskap.dnb.no/no/ ';
         }
 
         if (this.isSrEnvironment && this.authService.publicSettings?.SupportPageUrl) {

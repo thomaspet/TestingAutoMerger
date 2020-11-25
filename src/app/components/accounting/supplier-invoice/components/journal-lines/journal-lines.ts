@@ -1,10 +1,14 @@
 import {Component, Input} from '@angular/core';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
-import {JournalEntryLineDraft} from '@uni-entities';
+import {CompanySettings, JournalEntryLineDraft, LocalDate} from '@uni-entities';
 import {Subject, Observable} from 'rxjs';
 import {takeUntil, take, shareReplay} from 'rxjs/operators';
-import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat} from '@app/services/services';
+import {GuidService, StatisticsService, CurrencyCodeService, NumberFormat, CompanySettingsService} from '@app/services/services';
 import * as _ from 'lodash';
+import { theme, THEMES } from 'src/themes/theme';
+import {UniModalService} from '@uni-framework/uni-modal';
+import {AccrualModal} from '@app/components/common/modals/accrualModal';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 interface ITotalObject {
     net?: number;
@@ -30,6 +34,7 @@ export class JournalLines {
     @Input()
     currentMode: number = 3;
 
+    mvaSelectDisabled = false;
     filteredVatTypes = [];
     lines: JournalEntryLineDraft[];
     onDestroy$ = new Subject();
@@ -84,13 +89,30 @@ export class JournalLines {
     ];
     currentInvoiceType = this.invoiceTypes[0];
 
+    listActions = [
+        {
+            label: 'Periodisering',
+            action: (line: JournalEntryLineDraft, index: number) => this.openAccrualModal(line, index)
+        }
+    ];
+
+    companySettings: CompanySettings;
+
     constructor(
         public store: SupplierInvoiceStore,
         private guidService: GuidService,
         private statisticsService: StatisticsService,
         private currencyCodeService: CurrencyCodeService,
+        private companySettingsService: CompanySettingsService,
         private numberFormatter: NumberFormat,
+        private modalService: UniModalService,
+        private toastService: ToastService
     ) {
+        this.companySettingsService.Get(1).subscribe(settings => {
+            this.companySettings = settings;
+            this.mvaSelectDisabled = settings.TaxMandatoryType < 3 && theme.theme === THEMES.EXT02;
+        });
+
         this.currencyCodeService.GetAll().subscribe(codes => {
             this.currencyCodes = codes;
             this.currency = codes[0];
@@ -115,6 +137,13 @@ export class JournalLines {
                 this.recalcDiff();
             });
             this.store.readonly$.pipe(takeUntil(this.onDestroy$)).subscribe(readonly => this.readonly = readonly);
+
+            const currency = this.currency;
+            this.store.invoice$.subscribe((invoice) => {
+                if (invoice.CurrencyCode && currency.ID != invoice.CurrencyCode.ID) {
+                    this.currency = invoice.CurrencyCode;
+                }
+            });
         });
     }
 
@@ -146,7 +175,14 @@ export class JournalLines {
     }
 
     filterVatTypesForDropdown() {
-        this.filteredVatTypes = this.vatTypes.filter(type => {
+        this.filteredVatTypes = this.getFilteredVatTypes(this.vatTypes);
+    }
+
+    getFilteredVatTypes(vatTypes) {
+        if (this.mvaSelectDisabled) {
+            return [];
+        }
+        return vatTypes.filter(type => {
             if (this.currentInvoiceType.value === 0) {
                 return !['20', '21', '22', '86', '87', '88', '89'].includes(type.VatCode) && !type.OutputVat;
             } else if (this.currentInvoiceType.value === 1) {
@@ -243,7 +279,11 @@ export class JournalLines {
                 amount = parseFloat(amount.replace(',', '.'));
 
                 line.Amount = amount * (line.CurrencyExchangeRate || 1);
-                const net = !line.VatType ? amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
+
+                const net = !line.VatType || this.skipVatCalcForVatCode(line?.VatType?.VatCode) ?
+                    amount : amount / ( 1 + ( line.VatType.VatPercent / 100 ) );
+                line['_NetAmount'] = net;
+                                                                        
                 this.total.vat += amount - net;
                 this.total.sum += amount || 0;
                 this.total.net += net;
@@ -253,6 +293,12 @@ export class JournalLines {
         if (invoice) {
             this.total.diff = invoice.TaxInclusiveAmountCurrency - this.total.sum;
         }
+    }
+
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
     }
 
     private accountLookup(query: string) {
@@ -313,5 +359,74 @@ export class JournalLines {
 
         const parsed = parseFloat(value);
         return isNaN(parsed) ? null : parsed;
+    }
+
+    openAccrualModal(line: JournalEntryLineDraft, index: number) {
+
+        let title: string = 'Periodisering av utgift';
+        if (line.Description) {
+            title += ' - ' + line.Description;
+        }
+
+        const lineWithModifiedFinancialDate = line;
+        lineWithModifiedFinancialDate.FinancialDate = new LocalDate(line.FinancialDate?.toString());
+
+        let data = <any>{};
+        if (line.Accrual) {
+            data = <any>{
+                item: line,
+                accrualAmount: null,
+                accrualStartDate: lineWithModifiedFinancialDate.FinancialDate,
+                journalEntryLineDraft: lineWithModifiedFinancialDate,
+                accrual: line.Accrual,
+                title: title,
+                isJournalEntry: true,
+            };
+        } else if (line.AmountCurrency && line.AmountCurrency !== 0) {
+            data = <any>{
+                item: line,
+                accrualAmount: line['_NetAmount'],
+                accrualStartDate: lineWithModifiedFinancialDate.FinancialDate,
+                journalEntryLineDraft: lineWithModifiedFinancialDate,
+                accrual: null,
+                title: title,
+                isJournalEntry: true,
+            };
+        } else {
+            this.toastService.addToast('Periodisering', ToastType.warn, 5,
+                'Mangler nødvendig informasjon om dato og beløp for å kunne periodisere.');
+            return;
+        }
+
+        if (this.companySettings.AccountingLockedDate) {
+            data.AccountingLockedDate = this.companySettings.AccountingLockedDate;
+        }
+
+        data.companySettings = this.companySettings;
+
+        this.modalService.open(AccrualModal, {data: data}).onClose.subscribe((res: any) => {
+            if (res?.action === 'ok') {
+                this.onModalChanged(line, res.model, index);
+            } else if (res?.action === 'remove') {
+                this.onModalDeleted(line, index);
+            }
+        });
+    }
+
+    public onModalChanged(line: JournalEntryLineDraft, modalval, index: number) {
+        if (modalval && !modalval.BalanceAccountID) {
+            modalval.BalanceAccountID = 0;
+        }
+        if (modalval && !modalval.ResultAccountID) {
+            modalval.ResultAccountID = 0;
+        }
+        line.Accrual = modalval;
+        this.store.updateJournalEntryLine(index, 'Accrual', line.Accrual);
+    }
+
+    public onModalDeleted(line: JournalEntryLineDraft, index: number) {
+        line.AccrualID = null;
+        line.Accrual = null;
+        this.store.updateJournalEntryLine(index, 'Accrual', line.Accrual);
     }
 }

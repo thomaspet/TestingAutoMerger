@@ -1431,7 +1431,10 @@ export class InvoiceDetails implements OnInit {
                         }
                     }
                     this.modalService.open(SendInvoiceModal, {
-                        data: this.invoice
+                        data: {
+                            invoice: this.invoice,
+                            customerDistributions: this.customerDistributions
+                        }
                     }).onClose.subscribe((emailSentTo) => {
                         if (emailSentTo) {
                             this.invoice.EmailAddress = emailSentTo;
@@ -1963,7 +1966,10 @@ export class InvoiceDetails implements OnInit {
                                             }
                                         }
                                         this.modalService.open(SendInvoiceModal, {
-                                            data: this.invoice
+                                            data: {
+                                                invoice: this.invoice,
+                                                customerDistributions: this.customerDistributions
+                                            }
                                         }).onClose.subscribe((emailSentTo) => {
                                             onSendingComplete(emailSentTo);
                                         });
@@ -1999,7 +2005,10 @@ export class InvoiceDetails implements OnInit {
                                             }
                                         }
                                         this.modalService.open(SendInvoiceModal, {
-                                            data: this.invoice
+                                            data: {
+                                                invoice: this.invoice,
+                                                customerDistributions: this.customerDistributions
+                                            }
                                         }).onClose.subscribe((emailSentTo) => {
                                             onSendingComplete(emailSentTo);
                                         });
@@ -2318,7 +2327,8 @@ export class InvoiceDetails implements OnInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
+            const vatMandatoryEXT02 = theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true;
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData, vatMandatoryEXT02);
         } else {
             this.summaryLines = [];
         }

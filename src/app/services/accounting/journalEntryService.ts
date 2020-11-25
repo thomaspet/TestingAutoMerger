@@ -1088,7 +1088,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             `filter=JournalEntryID eq ${journalEntryID}&orderby=JournalEntryID,ID`,
             ['Account.TopLevelAccountGroup', 'VatType', 'JournalEntryType', 'Dimensions.Department', 'Dimensions.Project',
             'Dimensions.Dimension5', 'Dimensions.Dimension6', 'Dimensions.Dimension7', 'Dimensions.Dimension8',
-            'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods']),
+                    'Dimensions.Dimension9', 'Dimensions.Dimension10', 'Accrual', 'CurrencyCode', 'Accrual.Periods', 'CustomerOrder']),
 
             this.statisticsService.GetAll(`model=FileEntityLink&filter=EntityType eq 'JournalEntry' `
                 + `and EntityID eq ${journalEntryID}&select=FileID`),
@@ -1097,11 +1097,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 + `and SourceEntityName eq 'JournalEntry' and JournalEntry.ID eq ${journalEntryID}`
                 + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID and `
                 + `Tracelink.DestinationInstanceId eq Payment.ID`
-                + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`)
+                + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`),
+
+            this.statisticsService.GetAll(`model=JournalEntryLineDraft&select=id,`
+                + `casewhen(pp1.JournalEntryLine2ID gt 0,pp1.JournalEntryLine2ID,pp2.JournalEntryLine1ID) `
+                + `as PostPostJournalEntryLineID&filter=statuscode eq 34001 and JournalEntryID eq ${journalEntryID} `
+                + `and (journalentryline.statuscode eq 31002 or journalentryline.statuscode eq 31003)`
+                + `&join=journalentrylinedraft.id eq journalentryline.journalentrylinedraftid `
+                + `and journalentryline.id eq postpost.JournalEntryLine1ID as pp1 `
+                + `and journalentryline.id eq postpost.JournalEntryLine2ID as pp2`)
         ).map(responses => {
             const draftLines: Array<JournalEntryLineDraft> = responses[0];
             const fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
             const paymentIDs: Array<any> = responses[2].Data ? responses[2].Data : [];
+            const postPostIDs: Array<any>  = responses[3].Data ? responses[3].Data : [];
 
             const journalEntryDataObjects: Array<JournalEntryData> = [];
             if (singleRowMode) {
@@ -1115,7 +1124,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
                 // components, because this is the way the user wants to see the data
                 draftLines.forEach(line => {
-                    let jed = journalEntryDataObjects.find(
+                        line.PostPostJournalEntryLineID = postPostIDs?.find(
+                            x => x.JournalEntryLineDraftID === line.ID)?.PostPostJournalEntryLineID;
+
+                            let jed = journalEntryDataObjects.find(
                     x => x.JournalEntryID === line.JournalEntryID
                             && x.FinancialDate === line.FinancialDate
                             && x.Amount === line.Amount * -1
@@ -1202,6 +1214,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
 
         if (!jed.CustomerInvoiceID && line.CustomerInvoiceID) {
             jed.CustomerInvoiceID = line.CustomerInvoiceID;
+        }
+
+        if (!jed.CustomerOrderID && line.CustomerOrderID) {
+            jed.CustomerOrderID = line.CustomerOrderID;
+            jed.CustomerOrder = line.CustomerOrder;
         }
 
         if (!jed.SupplierInvoiceID && line.SupplierInvoiceID) {
@@ -1397,7 +1414,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             const originalBalance = accountBalances.find(x => x.accountID === sum.debitAccount.ID);
             sum.debitOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
-            if (currentLine.DebitVatTypeID) {
+            if (currentLine.DebitVatTypeID && !this.skipVatCalcForVatCode(currentLine?.DebitVatType?.VatCode)) {
                 sum.debitNetChangeCurrentLine += currentLine.NetAmount;
 
                 const lineCalc =
@@ -1422,7 +1439,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             const originalBalance = accountBalances.find(x => x.accountID === sum.creditAccount.ID);
             sum.creditOriginalBalance = originalBalance ? originalBalance.balance : 0;
 
-            if (currentLine.CreditVatTypeID) {
+            if (currentLine.CreditVatTypeID && !this.skipVatCalcForVatCode(currentLine?.CreditVatType?.VatCode)) {
                 sum.creditNetChangeCurrentLine += currentLine.NetAmount * -1;
 
                 const lineCalc =
@@ -1484,8 +1501,8 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     creditNetChange += entry.Amount;
                 }
             }
-            sum.debitNetChange += debitNetChange;
-            sum.creditNetChange += creditNetChange;
+            sum.debitNetChange += !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ? debitNetChange : entry.Amount * -1;
+            sum.creditNetChange += !this.skipVatCalcForVatCode(entry?.CreditVatType?.VatCode) ? creditNetChange : entry.Amount;
 
             if (entry.StatusCode) {
                 sum.debitNetChangeSubstractOriginal += debitNetChange;
@@ -1554,7 +1571,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     null,
                     entry
                 );
-                const creditData =  this.calculateJournalEntryDataAmount(
+                const creditData = this.calculateJournalEntryDataAmount(
                     entry.CreditAccount,
                     entry.CreditVatType,
                     entry.Amount * -1,
@@ -1581,9 +1598,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                     sum.SumDebet += creditData.amountGross;
                 }
 
-                const incomingVat = debitData.incomingVatAmount + creditData.incomingVatAmount;
+                const incomingVat = !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ?
+                    debitData.incomingVatAmount + creditData.incomingVatAmount : 0;
                 sum.IncomingVat += incomingVat;
-                const outgoingVat = debitData.outgoingVatAmount + creditData.outgoingVatAmount;
+
+                const outgoingVat = !this.skipVatCalcForVatCode(entry?.DebitVatType?.VatCode) ?
+                    debitData.outgoingVatAmount + creditData.outgoingVatAmount : 0;
                 sum.OutgoingVat += outgoingVat;
             });
         }
@@ -1852,6 +1872,12 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         return res;
     }
 
+    // Je lines with these VAT codes will not produce any Vat calculation or TaxLine when journaled
+    private skipVatCalcForVatCode(vatCode?: string) {
+        const vatCodesWithoutVatLine = ['20', '21', '22'];
+        return vatCodesWithoutVatLine.includes(vatCode);
+    }
+
     public setCorrectVatPercent(vattype: VatType, journalEntryData: JournalEntryData) {
         // find the correct vatpercentage based on the either vatdate, financialdate or current date,
         // in that order. VatPercent may change between years, so this needs to be checked each time,
@@ -1963,4 +1989,3 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         + `&filter=ID gt 5`).map(data => data.Data);
     }
 }
-

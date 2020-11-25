@@ -7,7 +7,6 @@ COPY package.json ./
 RUN npm i
 COPY . ./
 
-ENV RAYGUN_API_KEY N+W68kn/cIAm0QW4DdH6NQ==
 RUN npm run build.prod
 
 #FROM alpine

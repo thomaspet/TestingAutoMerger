@@ -7,7 +7,8 @@ import {
     Ticker,
     TickerGroup,
     ITickerActionOverride,
-    ITickerColumnOverride
+    ITickerColumnOverride,
+    TickerFilter
 } from '../../services/common/uniTickerService';
 import { TabService, UniModules } from '../layout/navbar/tabstrip/tabService';
 import { UniTickerContainer } from '../uniticker/tickerContainer/tickerContainer';
@@ -20,14 +21,16 @@ import {
     UniFileUploadModal,
     EntityForFileUpload,
     IModalOptions,
-    UniConfirmModalWithCheckbox
+    UniConfirmModalWithCheckbox,
+    PreapprovedPaymentsModal
 } from '../../../framework/uni-modal';
+import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {
     UniBankListModal,
     MatchSubAccountManualModal,
-    MatchMainAccountModal
+    MatchMainAccountModal,
 } from './modals';
-import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, File } from '../../unientities';
+import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement } from '../../unientities';
 import { saveAs } from 'file-saver';
 import { UniPaymentEditModal } from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -42,9 +45,9 @@ import {
     CustomerInvoiceService,
     ElsaPurchaseService,
     CompanySettingsService,
-    JobService,
     BrunoOnboardingService,
     UserRoleService,
+    SupplierInvoiceService,
 } from '../../services/services';
 import { ToastService, ToastType, ToastTime } from '../../../framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -57,12 +60,12 @@ import { ConfirmCreditedJournalEntryWithDate } from '../common/modals/confirmCre
 import { AuthService } from '@app/authService';
 import { theme, THEMES } from 'src/themes/theme';
 import { FeaturePermissionService } from '@app/featurePermissionService';
-import { bankRoutes } from './bankRoutes';
 
 @Component({
     selector: 'uni-bank-component',
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
+        <section class="alert warn bank-error-alert" *ngIf="showDowntimeError"> <i class="material-icons">info_outline</i> Zdata vil ta ned sitt system for planlagt vedlikehold mellom kl 18 og 20 i kveld. Banktjenestene i våre systemer vil derfor være utilgjengelig i dette tidsrommet. </section>
         <section class="ticker-overview">
 
             <section class="overview-ticker-section">
@@ -94,7 +97,8 @@ import { bankRoutes } from './bankRoutes';
                     [ticker]="selectedTicker"
                     [actionOverrides]="actionOverrides"
                     [columnOverrides]="columnOverrides"
-                    (rowSelectionChange)="onRowSelectionChanged($event)">
+                    (rowSelectionChange)="onRowSelectionChanged($event)"
+                    (tickerDataLoaded)="tickerdataHasLoaded($event)">
                 </uni-ticker-container>
             </section>
         </section>
@@ -115,7 +119,10 @@ export class BankComponent {
     hasAccessToAutobank: boolean;
     hasActiveAgreement: boolean;
     filter: string = '';
+    storedHash: string = '';
     showNoMatchInfo: boolean = false;
+    showDowntimeError = moment().format('DD.MM.YYYY.HH') < moment('11.11.2020.20', 'DD.MM.YYYY.HH').format('DD.MM.YYYY.HH')
+        && theme.theme !== THEMES.EXT02;
     failedFiles: any[] = [];
     tickerGroups: TickerGroup[];
     selectedTicker: Ticker;
@@ -287,7 +294,8 @@ export class BankComponent {
         private statisticsService: StatisticsService,
         private authService: AuthService,
         private brunoOnboardingService: BrunoOnboardingService,
-        private userRoleService: UserRoleService
+        private userRoleService: UserRoleService,
+        private supplierInvoiceService: SupplierInvoiceService
     ) {
         if (this.featurePermissionService.canShowUiFeature('ui.bank.journaling-rules')) {
             this.actionOverrides.push({
@@ -375,6 +383,13 @@ export class BankComponent {
         });
     }
 
+    tickerdataHasLoaded(event) {
+        if (this.selectedTicker.Code === 'payment_list' && this.filter === 'not_paid' &&
+            this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())) {
+            this.getHash();
+        }
+    }
+
     private checkBrunoOnboardingState() {
         if (!this.toolbarconfig) {
             return;
@@ -445,7 +460,25 @@ export class BankComponent {
                     return;
                 }
 
-                this.canEdit = !params['filter'] || params['filter'] === 'not_payed';
+                if (params['hashValue'] && params['batchID']) {
+                    const options: IModalOptions = {
+                        data: {
+                            batchID: +params['batchID'],
+                            hashValue: params['hashValue']
+                        },
+                        closeOnClickOutside: false
+                    };
+
+                    this.modalService.open(BankIDPaymentModal, options).onClose.subscribe((response) => {
+                        if (response) {
+                            this.tickerContainer.getFilterCounts();
+                            this.tickerContainer.mainTicker.reloadData();
+                        }
+                        this.router.navigate(['.'], { relativeTo: this.route, queryParams: { code: tickerCode, filter: this.filter } });
+                    });
+                }
+
+                this.canEdit = !params['filter'] || params['filter'] === 'not_paid';
                 this.showNoMatchInfo = params['filter'] === 'incomming_without_match';
 
                 if (!this.selectedTicker || this.selectedTicker.Code !== ticker.Code || this.filter !== params['filter']) {
@@ -456,7 +489,7 @@ export class BankComponent {
                     this.cdr.markForCheck();
                 }
                 this.updateTab();
-                this.filter = params['filter'];
+                this.filter = params['filter'] || (tickerCode === 'bank_list' ? 'bank_list' : 'not_paid');
             });
         });
     }
@@ -476,6 +509,26 @@ export class BankComponent {
                 active: true
             });
         }
+    }
+
+    getHash() {
+        const filter = this.getCurrentFilterString();
+        const expand = this.selectedTicker.Expand;
+
+        this.paymentService.getHashForPayments(filter, expand).subscribe(hash => this.storedHash = hash);
+    }
+
+    private generateHashForSelectedPayments(rows) {
+        let string = '';
+        rows.forEach((row) => {
+            string += row.Amount.toFixed(2) + ';'
+            + row.PaymentAmountCurrency.toFixed(2) + ';'
+            + row.CurrencyCodeID.toString() + ';'
+            + row.ToBankAccountAccountNumber + ';'
+            + row.IBAN + '|';
+        });
+
+        return this.supplierInvoiceService.MD5(string);
     }
 
     public getContextMenu() {
@@ -514,6 +567,19 @@ export class BankComponent {
         }
 
         return items;
+    }
+
+    private getCurrentFilterString() {
+        let filterString = this.tickerContainer.mainTicker.table.getFilterString();
+        const filter: TickerFilter = this.tickerContainer.mainTicker.ticker.Filters.find(x => x.Code === this.filter);
+
+        filter.FilterGroups[0]['FieldFilters'].forEach(x => {
+            filterString = filterString.length
+                ? filterString + ' and ' + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value']
+                : filterString + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value'];
+        });
+
+        return filterString;
     }
 
     public navigateToTicker(ticker: Ticker) {
@@ -808,16 +874,6 @@ export class BankComponent {
                 const errorMessages = response.filter(r => r.statusCode === 3);
 
                 if (errorMessages.length) {
-                    // This code will be implemented later when added delete on whole batches instead on just one payment
-                    // const errorMessage =
-                    //     (errorMessages.length !== response.length)
-                    //     ? errorMessages.length + ' av ' + response.length + 'betalinger'
-                    //     : (errorMessages.length === 1)
-                    //     ?  'Betalingen'
-                    //     : 'Alle betalingene';
-
-                    // this.toastService.addToast('Noen kanselleringer feilet', ToastType.bad, 10,
-                    // errorMessage + '  kunne ikke kanselleres. Se logg for detaljer.');
                     const errorMessage = errorMessages[0].errorMessage + ' ' + errorMessages[0].exception;
                     this.toastService.addToast('Kansellering feilet', ToastType.bad, 15, errorMessage);
                 } else {
@@ -1207,7 +1263,7 @@ export class BankComponent {
         this.toastService.addToast(customerPayment ? 'Innbetalingsjobb startet' : 'Utbetalingsjobb startet', ToastType.good, 5,
             'Avhengig av pågang og størrelse på oppgaven kan dette ta litt tid. Vennligst sjekk igjen om litt.');
         this.paymentBatchService.waitUntilJobCompleted(jobID).subscribe(jobResponse => {
-            if (jobResponse && !jobResponse.HasError && jobResponse.Result === null) {
+            if (jobResponse && jobResponse?.State !== 'Failed' && jobResponse.Result === null) {
                 this.toastService.addToast(customerPayment ? 'Innbetalingjobb er fullført' : 'Utbetalingsjobb er fullført',
                     ToastType.good, 10, customerPayment
                     ? `<a href="/#/bank/ticker?code=bank_list&filter=incomming_and_journaled">Se detaljer</a>`
@@ -1313,8 +1369,10 @@ export class BankComponent {
             this.cdr.markForCheck();
             return;
         }
-        // temp workarround for ext02 until bankid is implemented
-        if ((isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) && count) {
+        const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
+        if (!isManualPayment && this.hasActiveAgreement && theme.theme === THEMES.EXT02 && isWhiteListed) {
+            this.payDirectly(doneHandler, true);
+        } else if ((isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) && count) {
             this.paymentService.createPaymentBatchForAll().subscribe((result) => {
                 if (result && result.ProgressUrl) {
                     // runs as hangfire job (decided by back-end)
@@ -1566,27 +1624,41 @@ export class BankComponent {
                         row._isDirty = true;
                         this.tickerContainer.mainTicker.table.updateRow(row._originalIndex, row);
                     });
-                    this.payInternal(this.rows, doneHandler, isManualPayment);
+
+                    const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
+                    if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
+                        this.payDirectly(doneHandler);
+                    } else {
+                        this.payInternal(this.rows, doneHandler, isManualPayment);
+                    }
+
                 } else {
                     doneHandler('Lagring og utbetaling avbrutt');
                 }
             });
         } else {
-            const modal = this.modalService.open(UniConfirmModalV2, {
-                header: 'Bekreft utbetaling',
-                message: `Er du sikker på at du vil utbetale de valgte ${this.rows.length} radene?`,
-                buttonLabels: { accept: 'Lagre og send til utbetaling', reject: 'Avbryt' }
-            });
+            const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
+            if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
+                this.payDirectly(doneHandler);
+            } else {
+                const modal = this.modalService.open(UniConfirmModalV2, {
+                    header: 'Bekreft utbetaling',
+                    message: `Er du sikker på at du vil utbetale de valgte ${this.rows.length} radene?`,
+                    buttonLabels: { accept: 'Lagre og send til utbetaling', reject: 'Avbryt' }
+                });
 
-            modal.onClose.subscribe((response) => {
-                if (response !== ConfirmActions.ACCEPT) {
-                    doneHandler('Lagring og utbetaling avbrutt');
-                    return;
-                }
-                this.payInternal(this.rows, doneHandler, isManualPayment);
-            });
+                modal.onClose.subscribe((response) => {
+                    if (response !== ConfirmActions.ACCEPT) {
+                        doneHandler('Lagring og utbetaling avbrutt');
+                        return;
+                    }
+                    this.payInternal(this.rows, doneHandler, isManualPayment);
+                });
+            }
         }
     }
+
+
 
     private groupBy(list, keyGetter): any {
         const map = new Map();
@@ -1600,6 +1672,22 @@ export class BankComponent {
             }
         });
         return map;
+    }
+
+    payDirectly(doneHandler, isAll: boolean = false) {
+        const data = {
+            paymentIDs : this.rows.map(row => row.ID),
+            hash: this.generateHashForSelectedPayments(this.rows),
+            hashFromAllPayments: this.storedHash,
+            filter: this.getCurrentFilterString(),
+            expand: this.selectedTicker.Expand,
+            amount: this.rows?.length ? this.rows.map(row => row.PaymentAmountCurrency).reduce((a, b) => a + b) : 0,
+            isAll
+        };
+
+        this.modalService.open(PreapprovedPaymentsModal, { data }).onClose.subscribe((response) => {
+            doneHandler('');
+        })
     }
 
     private payInternal(selectedRows: Array<Payment>, doneHandler: (status: string) => any, isManualPayment: boolean) {

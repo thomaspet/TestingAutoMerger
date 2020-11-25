@@ -144,6 +144,7 @@ export class BalanceReport implements OnInit {
         project.Property = 'ProjectID';
         project.FieldType = FieldType.DROPDOWN;
         project.Label = 'Prosjekt';
+        project.FeaturePermission = 'ui.dimensions';
         project.Legend = 'Filter';
         project.FieldSet = 1;
         project.Placeholder = 'Projekt';
@@ -160,6 +161,7 @@ export class BalanceReport implements OnInit {
         department.Property = 'DepartmentID';
         department.FieldType = FieldType.DROPDOWN;
         department.Label = 'Avdeling';
+        department.FeaturePermission = 'ui.dimensions';
         department.Legend = 'Filter';
         department.FieldSet = 1;
         department.Options = {

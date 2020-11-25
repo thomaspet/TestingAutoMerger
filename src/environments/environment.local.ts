@@ -27,12 +27,6 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    ID_PORTEN: {
-        authority: 'https://oidc-ver2.difi.no/idporten-oidc-provider/',
-        client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d',
-    },
-
-    RAYGUN_API_KEY: '',
     APP_INSIGHTS_KEY: '',
 
     RECAPTCHA_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',

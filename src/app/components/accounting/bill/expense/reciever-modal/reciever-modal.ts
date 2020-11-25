@@ -4,7 +4,8 @@ import {
     AddressService,
     SupplierService,
     NumberSeriesTypeService,
-    AccountService
+    AccountService,
+    CompanySettingsService
 } from '@app/services/services';
 import {FieldType, Address} from '@uni-entities';
 import {
@@ -34,7 +35,8 @@ export class RecieverModal implements IUniModal {
     types: any[] = [];
     busy: boolean = true;
     errorMsg: string = '';
-    missingNumberseriesInfoText = this.getMissingNumberseriesInfoText();
+    ansatteNumberSeries: number = 2910;
+    missingNumberseriesInfoText: string = "";
     dataLoaded: boolean = false;
     isDirty = false;
     isEdit: boolean = false;
@@ -48,7 +50,8 @@ export class RecieverModal implements IUniModal {
         private addressService: AddressService,
         private supplierService: SupplierService,
         private numberSeriesTypeService: NumberSeriesTypeService,
-        private accountService: AccountService
+        private accountService: AccountService,
+        private companySettings: CompanySettingsService,
     ) {}
 
     ngOnInit() {
@@ -70,20 +73,24 @@ export class RecieverModal implements IUniModal {
                 this.supplierService.GetNewEntity(['Info']),
                 this.statisticsService.GetAllUnwrapped(
                     `model=numberseries&select=ID as ID,Name as Name,Comment as Comment` +
-                    `&filter=Disabled eq 'false' and numberseriestype.entitytype eq 'supplier' and startswith(mainaccount.accountnumber,'29')` +
+                    `&filter=Disabled eq 'false' and numberseriestype.entitytype eq 'supplier' and ( startswith(mainaccount.accountnumber,'29') or startswith(mainaccount.accountnumber,'206') )` +
                     // ` and Name ne 'Ansatte'` +  ||||  Uncomment this to keep testing automatic new numberseries
-                    `&expand=NumberseriesType,MainAccount`)
-            ).subscribe(([supplier, numberseries]) => {
+                    `&expand=NumberseriesType,MainAccount`),
+                this.companySettings.getCompanySettings(),
+            ).subscribe(([supplier, numberseries, settings]: [Supplier, any, any]) => {
+                this.ansatteNumberSeries = settings.CompanyTypeID === 2 ? 2060 : 2910;
+
                 this.types = numberseries || [];
                 this.dataLoaded = true;
 
                 // If only one type, fill it in
-                if (this.types.length === 1) {
+                if (this.types.length >= 1) {
                     supplier.SubAccountNumberSeriesID = this.types[0].ID;
                 }
 
                 this.supplier$.next(supplier);
                 this.fields$.next(this.getFormFields());
+                this.missingNumberseriesInfoText = this.getMissingNumberseriesInfoText()
                 this.busy = false;
             }, err => {
                 this.close();
@@ -99,7 +106,7 @@ export class RecieverModal implements IUniModal {
     getMissingNumberseriesInfoText(): string {
         return theme.theme === THEMES.SR
         ? 'Du har ikke noe oppsett for mottaker i nummerserier. Hvis du trykker på "Opprett mottaker", vil systemet opprette en nummerserie i ledig serie, koble til konto "2910 - Gjeld til ansatte" og slå på PostPost på denne kontoen.'
-        : 'Det vil bli opprettet en egen regnskapskonto for Gjeld til ansatte (2910). Denne blir utlignet i det du registerer betalingen til den ansatte.';
+        : `Det vil bli opprettet en egen regnskapskonto for Gjeld til ansatte (${this.ansatteNumberSeries}). Denne blir utlignet i det du registerer betalingen til den ansatte.`;
     }
 
     close() {
@@ -227,7 +234,7 @@ export class RecieverModal implements IUniModal {
                             // DO something
                         }
                         // Get account for set at MainAccount on numberseries + need to check/update UsePostPost later
-                        this.accountService.GetAll(`filter=AccountNumber eq 2910`).subscribe((accounts) => {
+                        this.accountService.GetAll(`filter=AccountNumber eq ${this.ansatteNumberSeries}`).subscribe((accounts) => {
                             if (accounts && accounts.length) {
                                 const account = accounts[0];
                                 const body =  {
@@ -297,7 +304,7 @@ export class RecieverModal implements IUniModal {
                     linkProperty: 'ID',
                     storeResultInProperty: 'Info.DefaultBankAccount',
                     storeIdInProperty: 'Info.DefaultBankAccountID',
-                    editor: (bankaccount: BankAccount) => {
+                    editor: (bankaccount: BankAccount) => {                        
                         if ((bankaccount && !bankaccount.ID) || !bankaccount) {
                             bankaccount = bankaccount || new BankAccount();
                             bankaccount['_createguid'] = this.statisticsService.getNewGuid();

@@ -354,6 +354,12 @@ export class UniBankSettings {
                     uniSearchConfig: this.uniSearchAccountConfig.generateOnlyMainAccountsConfig(),
                     valueProperty: 'ID'
                 }
+            },
+            {
+                EntityType: 'CompanySettings',
+                Property: 'OnlyJournalMatchedPayments',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Bokfør kun innbetalinger som matcher'
             }
         ]);
 
@@ -484,14 +490,17 @@ export class UniBankSettings {
             };
         });
 
-        config.contextmenu = [
-            {
-                label: this.companySettings.HasAutobank ? 'Avslutt kobling mot bank' : 'Bestill kobling mot bank',
-                action: () => this.companySettings.HasAutobank ?
-                    this.cancelBrunoIntegration() : this.startBrunoOnboarding(),
-                disabled: () => false
-            }
-        ];
+        // Only show context menu when in ext02 environment
+        if (theme.theme === THEMES.EXT02) {
+            config.contextmenu = [
+                {
+                    label: this.companySettings.HasAutobank ? 'Avslutt kobling mot bank' : 'Bestill kobling mot bank',
+                    action: () => this.companySettings.HasAutobank ?
+                        this.cancelBrunoIntegration() : this.startBrunoOnboarding(),
+                    disabled: () => false
+                }
+            ];
+        }
 
         return config;
     }

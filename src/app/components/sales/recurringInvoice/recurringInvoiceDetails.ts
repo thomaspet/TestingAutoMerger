@@ -63,6 +63,7 @@ import {TradeItemTable} from '../common/tradeItemTable';
 
 import {StatusCode} from '../salesHelper/salesEnums';
 import {TofHelper} from '../salesHelper/tofHelper';
+import {theme, THEMES} from "src/themes/theme";
 import {TradeItemHelper, ISummaryLine} from '../salesHelper/tradeItemHelper';
 import {UniRecurringInvoiceLogModal} from './recurringInvoiceLogModal';
 
@@ -1127,7 +1128,10 @@ export class UniRecurringInvoice implements OnInit {
             : undefined;
 
         if (this.itemsSummaryData) {
-            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData);
+            const vatMandatoryEXT02 = theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true;
+            this.summaryLines = this.tradeItemHelper.getSummaryLines(items, this.itemsSummaryData, vatMandatoryEXT02);
+        } else {
+            this.summaryLines = [];
         }
 
         if (this.currencyCodeID && this.currencyExchangeRate) {

@@ -141,7 +141,7 @@
     </button>
 
     <uni-context-menu
-        *ngIf="contextmenu || config?.contextmenu"
+        *ngIf="contextmenu || config?.contextmenu?.length"
         [actions]="contextmenu || config.contextmenu"
         [hideDisabled]="config?.hideDisabledActions">
     </uni-context-menu>

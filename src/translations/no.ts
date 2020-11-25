@@ -82,7 +82,7 @@ export const NO = {
             'MULTIPLE_USE_MSG1': 'Flere leverandørfaktura knyttet til filen, viser siste',
             'MULTIPLE_USE_MSG2': 'Filen du vil bruke er knyttet til en leverandørfaktura. Henter fakturaen nå. Om dette ikke stemmer kan du slette filen fra leverandørfakturaen og gå tilbake til innboksen og starte på nytt med riktig fil.',
             'SMART_BOOKING_2': 'Kontoforslag basert på bokføringer gjort på denne leverandøren i UniEconomy',
-            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i UniEconomy på levernadører i samme bransje som valgt leverandør på din faktura.',
+            'SMART_BOOKING_3': 'Kontoforslag basert på bokføringer gjort i UniEconomy på leverandører i samme bransje som valgt leverandør på din faktura.',
         },
         POSTPOST: {
             'ALL_WITH_OPEN': 'Alle med åpne poster',
@@ -268,7 +268,7 @@ export const NO = {
         'FETCH_BR_REG_INFOTEXT': 'Du kan også hente opplysninger fra brønnøysundregistrene',
         'FETCH_FROM_BR_REG': 'Hent fra brreg',
 
-        'BANK_INFOTEXT': 'Definer akseptabelt beløp for differanse for å bokføre, og konto for føringer av gebyr',
+        'BANK_INFOTEXT': 'Definer akseptabelt beløp for differanse for å bokføre, og konto for føringer av gebyr. Huk av "Bokfør kun innbetalinger som matcher" om du ønsker at kun innbetalinger som matcher med salgsfaktura blir bokført, alle andre innbetalinger vil bli ignorert',
         'BANK_ACCOUNTS_INFOTEXT': 'Sett opp kontoer for bruk i systemet. Dersom lønnskonto ikke er fylt ut vil lønn bruke driftskonto ved utbetaling av lønn. Du kan sette opp flere kontoer, men valgt konto vil bli brukt som default av systemet.',
         'REM_ACCOUNTS_INFOTEXT': 'Mellomkontoer for innbetaling, utbetaling og lønn',
         'COMPANY_EMAIL_INFOTEXT': 'Aktiver epostaddresse for mottak av innkommende faktura. Velg mellom firmanavn og organisasjonsnummer i epostaddressen. E-poster som kommer til denne addressen vil vises direkte i systemets innboks. Ved endring av e-postaddresse, lagre ny e-post med "Endre e-postaddresse"-knappen.',
@@ -329,6 +329,8 @@ export const NO = {
             DATE: {
                 'INFO_TEXT': 'Det er viktig at det gamle regnskapet er ferdigstilt og avstemt på en gitt dato, og at du velger siste dato i regnskapet fra tidligere system når du legger inn inngående balanse. Hvis du for eksempel starter å bruke {appName} 1.september, henter du ut saldobalanse for 31. august',
                 'DATE_LABEL': 'Hva er den første dagen du skal føre regnskap i {appName}?',
+                'DATE_SUB_TEXT_1': 'Bilaget vil bli bokført {date}',
+                'DATE_SUB_TEXT_2': 'Datoen vil alltid være siste dag i forrige måned!'
             },
             LIST: {
                 'INFO_TEXT': 'Fyll inn dataene fra saldobalanse-rapporten fra ditt gamle system. Sjekk at differansen på saldoen går i null i rapporten. Gjør den ikke det må du gå tilbake og finne ut hva som er feil og korrigere det i ditt gamle system. Når rapporten er korrekt legger du tallene inn her. Det er viktig at alle tallene du legger inn stemmer overens med de i rapporten, bruk samme fortegn som i rapporten. Når differansen er 0,00 kan du gå videre og registrere åpne poster på kunder og leverandører om du har dette',
@@ -418,7 +420,7 @@ export const NO = {
         'BUDGET': 'Budsjett',
         'OPEN_POST': 'Åpne poster',
         'VAT_MESSAGE': 'MVA-melding',
-        'BALANCE_SEARCH': 'Saldobalanse hovedbok',
+        'BALANCE_SEARCH': 'Saldobalanse',
         'SEARCH_JOURNALENTRY': 'Søk på bilag',
         'SEARCH_ACCOUNT': 'Søk på konto',
         'SUPPLIER': 'Leverandør',

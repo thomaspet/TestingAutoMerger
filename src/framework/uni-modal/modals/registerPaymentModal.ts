@@ -4,7 +4,8 @@ import {
     CompanySettings,
     LocalDate,
     InvoicePaymentData,
-    Payment
+    Payment,
+    BankAccount
 } from '../../../app/unientities';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { ErrorService } from '@app/services/common/errorService';
@@ -26,6 +27,8 @@ import {BehaviorSubject} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal/modalService';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
+import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 
 @Component({
     selector: 'uni-register-payment-modal',
@@ -71,7 +74,7 @@ export class UniRegisterPaymentModal implements IUniModal {
     private isMainCurrency: boolean;
     private paymentCurrencyExchangeRate: number;
     isRegisterButtonDisabled: boolean = false;
-    accounts: any[] = [];
+    accounts: BankAccount[] = [];
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -80,14 +83,14 @@ export class UniRegisterPaymentModal implements IUniModal {
         private toastService: ToastService,
         private uniSearchAccountConfig: UniSearchAccountConfig,
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private statisticsService: StatisticsService
+        private statisticsService: StatisticsService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
+        private uniAccountTypePipe: UniAccountTypePipe,
     ) {}
 
     public ngOnInit() {
         this.config = this.options.modalConfig;
         const paymentData = this.options.data || {};
-
-        this.accounts = paymentData._accounts || [];
 
         if (this.config.entityName === 'CustomerInvoice' || this.config.entityName === 'SupplierInvoice' ||
             this.config.entityName === 'JournalEntryLine') {
@@ -101,10 +104,12 @@ export class UniRegisterPaymentModal implements IUniModal {
             'AgioLossAccount',
             'BankChargeAccount',
             'BaseCurrencyCode',
-            'CompanyBankAccount'
+            'CompanyBankAccount',
+            'BankAccounts'
         ]).subscribe(
             (settings: CompanySettings) => {
                 this.companySettings = settings;
+                this.accounts = settings.BankAccounts;
                 this.isMainCurrency = settings.BaseCurrencyCodeID === paymentData.CurrencyCodeID;
                 this.formFields$.next(this.getFormFields());
 
@@ -412,9 +417,14 @@ export class UniRegisterPaymentModal implements IUniModal {
                     valueProperty: 'ID',
                     template: (item) => {
                         return item?.Label
-                        ? (item.AccountNumber + ' - ' + item.Label)
-                        : item?.Bank ? (item.AccountNumber + ' - ' + item.Bank.Name)
-                        : item?.BankName ? (item.AccountNumber + ' - ' + item.BankName)  : '';
+                            ? (item.Label + ' - ' + this.uniAccountNumberPipe.transform(item?.AccountNumber))
+                            : item?.BankAccountType
+                                ? (this.uniAccountTypePipe.transform(item.BankAccountType)
+                                    + ' - '
+                                    + this.uniAccountNumberPipe.transform(item?.AccountNumber))
+                                : item?.AccountNumber
+                                    ? this.uniAccountNumberPipe.transform(item.AccountNumber)
+                                    : '';
                     },
                     debounceTime: 200,
                     hideDeleteButton: true,

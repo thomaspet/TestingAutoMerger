@@ -7,4 +7,12 @@
     [model]="model$"
     (changeEvent)="stateService.setDate($event['date'].currentValue)">
 </uni-form>
+<section>
+    <p>
+        {{'SETTINGS.INCOMING_BALANCE.DATE.DATE_SUB_TEXT_1~' + (stateService.date$ | async | date: 'dd.MM.yyyy' ) | translate}}
+    </p>
+    <p>
+        {{'SETTINGS.INCOMING_BALANCE.DATE.DATE_SUB_TEXT_2' | translate}}
+    </p>
+</section>
 <uni-incoming-balance-wizard-navigation [currentTab]="'date'"></uni-incoming-balance-wizard-navigation>

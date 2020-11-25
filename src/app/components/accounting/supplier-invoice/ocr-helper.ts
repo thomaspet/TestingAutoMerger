@@ -6,9 +6,10 @@ import {
     BankService,
     BankAccountService,
     UniFilesService,
+    EHFService,
 } from '@app/services/services';
 import {OcrValuables, IOcrServiceResult} from '@app/models/accounting/ocr';
-import {SupplierInvoice, LocalDate, Supplier, BankAccount, BusinessRelation} from '@uni-entities';
+import {SupplierInvoice, LocalDate, Supplier, File, BankAccount, BusinessRelation} from '@uni-entities';
 import {Observable, of} from 'rxjs';
 import {safeDec} from '@app/components/common/utils/utils';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
@@ -31,6 +32,7 @@ export class OCRHelperClass {
         private statisticsService: StatisticsService,
         private modalService: UniModalService,
         private bankService: BankService,
+        private ehfService: EHFService,
         private bankAccountService: BankAccountService,
     ) {}
 
@@ -49,7 +51,7 @@ export class OCRHelperClass {
                 invoice.PaymentDueDate = ocrData.PaymentDueDate ? getLocalDate(ocrData.PaymentDueDate) : new LocalDate(new Date());
 
                 if (ocrData.Orgno && !ignoreSupplier) {
-                    return this.getOrCreateSupplier(ocrData).pipe(
+                    return this.getOrCreateSupplier(ocrData, invoice).pipe(
                         catchError(err => {
                             console.error(err);
                             return of(null);
@@ -81,10 +83,10 @@ export class OCRHelperClass {
         return this.uniFilesService.getOcrStatistics();
     }
 
-    private getOrCreateSupplier(ocrData: OcrValuables): Observable<Supplier> {
+    private getOrCreateSupplier(ocrData: OcrValuables, invoice: SupplierInvoice): Observable<Supplier> {
         const orgNumber = ocrData.Orgno;
 
-        if (!ocrData) {
+        if (!ocrData && !invoice) {
             return of(null);
         }
 
@@ -93,22 +95,37 @@ export class OCRHelperClass {
             `model=Supplier&select=ID as ID,StatusCode as StatusCode&filter=StatusCode ne 90001 and contains(OrgNumber,'${orgNumber}')`
         ).pipe(switchMap(res => {
             const existingSupplier = res && res[0];
-
             if (existingSupplier?.ID) {
                 // If supplier exists already we return that one
                 return this.getSupplier(existingSupplier.ID, ocrData);
             } else {
-                // If not we try creating it with data from br-reg
-                return this.getBrRegData(ocrData.Orgno).pipe(switchMap(brRegData => {
-                    // Ask user if they want to create the supplier
-                    return this.confirmSupplierCreation(brRegData).pipe(switchMap(canCreate => {
+                if (!invoice.SupplierID && invoice.Supplier) { 
+                    if (invoice.Supplier?.Info?.BankAccounts && invoice.Supplier.Info.DefaultBankAccount) {
+                        invoice.Supplier.Info.BankAccounts = invoice.Supplier.Info.BankAccounts.filter(b =>
+                            (b?.AccountNumber !== invoice.Supplier.Info.DefaultBankAccount.AccountNumber) ||
+                            (b?.IBAN !== invoice.Supplier.Info.DefaultBankAccount.IBAN)
+                        );
+                    }
+                    return this.confirmSupplierCreation(null, invoice).pipe(switchMap(canCreate => {
                         if (canCreate) {
-                            return this.createSupplier(ocrData, brRegData);
+                            return this.createEHFSupplier(invoice.Supplier);
                         } else {
                             return of(null);
                         }
                     }));
-                }));
+                } else {
+                    // If not we try creating it with data from br-reg
+                    return this.getBrRegData(ocrData.Orgno).pipe(switchMap(brRegData => {
+                        // Ask user if they want to create the supplier
+                        return this.confirmSupplierCreation(brRegData).pipe(switchMap(canCreate => {
+                            if (canCreate) {
+                                return this.createSupplier(ocrData, brRegData);
+                            } else {
+                                return of(null);
+                            }
+                        }));
+                    }));
+                }   
             }
         }));
     }
@@ -141,6 +158,12 @@ export class OCRHelperClass {
         return this.supplierInvoiceService.fetch(
             'business-relations/?action=search-data-hotel&searchText=' + orgNumber
         ).pipe(map(res => res && res.Data && res.Data.entries && res.Data.entries[0]));
+    }
+
+    private createEHFSupplier(supplier) {
+        return this.supplierService.Post(supplier).pipe(
+            switchMap(savedSupplier => this.supplierService.Get(savedSupplier.ID, this.supplierExpandOptions))
+        );
     }
 
     private createSupplier(ocrData: OcrValuables, brRegData): Observable<Supplier> {
@@ -198,16 +221,27 @@ export class OCRHelperClass {
         );
     }
 
-    private confirmSupplierCreation(brRegData): Observable<boolean> {
+    private confirmSupplierCreation(brRegData, invoice?): Observable<boolean> {
 
-        if (!brRegData) {
+        if (!brRegData && !invoice) {
             return of(false);
         }
-        const supplierInfo = `${brRegData.forretningsadr || ''} ${brRegData.forradrpostnr || ''} `
+        let supplierInfo;
+        let title;
+
+        if (invoice) {
+            title = `Opprette ny leverandør '${invoice.InvoiceReceiverName}' ?`;
+            supplierInfo = `${invoice.InvoiceAddressLine1 || ''} ${invoice.InvoicePostalCode || ''} ${invoice.InvoiceCity || ''}.`
+                + ` Organisasjonsnr: ${invoice.Supplier.OrgNumber}`;
+        } else {
+            title = `Opprette ny leverandør '${brRegData.navn}' ?`;
+            supplierInfo = `${brRegData.forretningsadr || ''} ${brRegData.forradrpostnr || ''} `
             + `${brRegData.forradrpoststed || ''}. Organisasjonsnr: ${brRegData.orgnr}`;
+        }
+        
 
         return this.modalService.confirm({
-            header: `Opprette ny leverandør ${brRegData.navn}?`,
+            header: title,
             message: supplierInfo,
             buttonLabels: {
                 accept: 'Opprett leverandør',
@@ -238,6 +272,66 @@ export class OCRHelperClass {
                 );
             } else {
                 return of(null);
+            }
+        }));
+    }
+
+    runEHFParse(file: File, ignoreSupplier: boolean): Observable<SupplierInvoice> {
+        return this.ehfService.GetAction(null, 'parse', `fileID=${file.ID}`).pipe(
+            switchMap((invoice: SupplierInvoice) => {
+                return this.handleEHF(invoice, ignoreSupplier);
+        }));
+    }
+
+   handleEHF(invoice: SupplierInvoice, ignoreSupplier: boolean): Observable<SupplierInvoice> {
+        const handler = invoice.BankAccount && !invoice.BankAccount.AccountNumber && invoice.BankAccount.IBAN
+            ? this.bankService.validateIBANUpsertBank(invoice.BankAccount.IBAN)
+            : Observable.of(null);
+        return handler.pipe(switchMap((bankaccount: BankAccount) => {
+            if (bankaccount) {
+                invoice.BankAccount.AccountNumber = bankaccount.AccountNumber;
+                invoice.BankAccount.BankID = bankaccount.Bank.ID;
+                invoice.Supplier.Info.BankAccounts.forEach(b => {
+                    if (b.IBAN === bankaccount.IBAN) {
+                        b = invoice.BankAccount;
+                        if (invoice?.Supplier?.Info?.DefaultBankAccount?.IBAN === bankaccount.IBAN) {
+                            invoice.Supplier.Info.DefaultBankAccount = b;
+                        }
+                    }
+                });
+            }
+
+            const ocrData = <OcrValuables>{
+                Orgno: invoice?.Supplier?.OrgNumber,
+                BankAccount: invoice?.BankAccount?.AccountNumber
+            };
+
+            if (ignoreSupplier) {
+                invoice.Supplier = null;
+                invoice.SupplierID = null;
+                return of(invoice);
+            } else {
+                return this.getOrCreateSupplier(ocrData, invoice).pipe(
+                    catchError(err => {
+                        console.error(err);
+                        return of(null);
+                    }),
+                    switchMap((supplier: Supplier) => {
+                        if (supplier) {
+                            invoice.SupplierID = supplier.ID;
+                            invoice.Supplier = supplier;
+
+                            const account = (supplier.Info.BankAccounts || []).find(acc => acc.AccountNumber === ocrData.BankAccount);
+                            invoice.BankAccount = account || null;
+                            invoice.BankAccountID = account?.ID || null;
+                        } else {
+                            invoice.SupplierID = null;
+                            invoice.Supplier = null;
+                        }
+
+                        return of(invoice);
+                    })
+                );
             }
         }));
     }

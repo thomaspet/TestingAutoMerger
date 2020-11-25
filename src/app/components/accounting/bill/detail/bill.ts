@@ -2058,8 +2058,12 @@ export class BillView implements OnInit, AfterViewInit {
             return;
         }
 
+        const financialDate = this.companySettings.BookCustomerInvoiceOnDeliveryDate
+                ? this.current.getValue().DeliveryDate
+                : this.current.getValue().InvoiceDate;
+
         this.journalEntryManual.journalEntryProfessional.startSmartBooking(orgNumber, showToastIfNotRan,
-            this.current.getValue().TaxInclusiveAmountCurrency).then((value: any) => {
+            this.current.getValue().TaxInclusiveAmountCurrency, financialDate).then((value: any) => {
             if (value.msg) {
                 if (this.smartBookingSettings.showNotification) {
                     this.toast.addToast('Smart bokføring', value.type, 10, value.msg);
@@ -2564,7 +2568,7 @@ export class BillView implements OnInit, AfterViewInit {
                             finalize(() => done('Bokført'))
                         ).subscribe(canBeAnAsset => {
                             if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(current);
+                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                             }
                         });
                     } else {
@@ -2581,7 +2585,7 @@ export class BillView implements OnInit, AfterViewInit {
                         .pipe(finalize(() => done('ok')))
                         .subscribe(canBeAnAsset => {
                             if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(current);
+                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                             }
                         });
                 }, (err) => {
@@ -2641,11 +2645,10 @@ export class BillView implements OnInit, AfterViewInit {
                                         .pipe(finalize(() => done('ok')))
                                         .subscribe(canBeAnAsset => {
                                             if (canBeAnAsset) {
-                                                this.assetsService.openRegisterModal(current);
+                                                this.assetsService.openRegisterModal(current).take(1).subscribe();
                                             }
                                         });
-                                }
-                                else {
+                                } else {
                                     done(!result.cancelled ? 'Godkjent og bokført' : '');
                                 }
                             });
@@ -2682,7 +2685,7 @@ export class BillView implements OnInit, AfterViewInit {
                                             .pipe(finalize(() => done(result ? 'Godkjent, bokført og til betaling' : '')))
                                             .subscribe(canBeAnAsset => {
                                                 if (canBeAnAsset) {
-                                                    this.assetsService.openRegisterModal(current);
+                                                    this.assetsService.openRegisterModal(current).take(1).subscribe();
                                                 }
                                             });
                                     });
@@ -2712,7 +2715,7 @@ export class BillView implements OnInit, AfterViewInit {
                                 done(result ? 'Bokført og til betaling' : '');
                                 this.itCanBeAnAsset(current).subscribe(canBeAnAsset => {
                                     if (canBeAnAsset) {
-                                        this.assetsService.openRegisterModal(current);
+                                        this.assetsService.openRegisterModal(current).take(1).subscribe();
                                     }
                                 });
                             }
@@ -2763,8 +2766,6 @@ export class BillView implements OnInit, AfterViewInit {
             paymentData.Amount = Math.max(paymentData.Amount -= this.sumOfPayments.Amount, 0);
         }
 
-        paymentData['_accounts'] = this.companySettings.BankAccounts
-            .filter(acc => acc.BankAccountType.toLowerCase() === 'company' || acc.BankAccountType.toLowerCase() === 'companysettings');
         paymentData['FromBankAccountID'] = this.companySettings.CompanyBankAccountID;
 
         const modal = this.modalService.open(UniRegisterPaymentModal, {
@@ -2817,7 +2818,7 @@ export class BillView implements OnInit, AfterViewInit {
         const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
         const vd = current.InvoiceDate;
 
-        this.updateJournalEntryManualDates(fd, vd);
+        this.setMissingJournalEntryManualDates(fd, vd);
 
         // Hadde det vært bedre å disable aksjon Bokføring? Eller tar det for lang tid når man bygger menyen?
         if (this.validationMessage && this.validationMessage.Level === ValidationLevel.Error) {
@@ -3284,6 +3285,18 @@ export class BillView implements OnInit, AfterViewInit {
         }
     }
 
+    private setMissingJournalEntryManualDates(financialDate: LocalDate, vatDate: LocalDate) {
+        if (this.journalEntryManual) {
+            let lines = this.journalEntryManual.getJournalEntryData();
+            lines = lines.map(line => {
+                line.VatDate = line.VatDate || vatDate;
+                line.FinancialDate = line.FinancialDate || financialDate;
+                return line;
+            });
+            this.journalEntryManual.setJournalEntryData(lines);
+        }
+    }
+
     public onDetailsTabClick(index: number) {
         // Check lock status when activating the details tab to avoid
         if (index === 0) {
@@ -3650,8 +3663,7 @@ export class BillView implements OnInit, AfterViewInit {
 
         const fd = this.companySettings.BookCustomerInvoiceOnDeliveryDate ? current.DeliveryDate : current.InvoiceDate;
         const vd = current.InvoiceDate;
-
-        this.updateJournalEntryManualDates(fd, vd);
+        this.setMissingJournalEntryManualDates(fd, vd);
 
         if (!current.JournalEntry) {
             current.JournalEntry = new JournalEntry();
@@ -3682,6 +3694,7 @@ export class BillView implements OnInit, AfterViewInit {
                     draft.FinancialDate = line.FinancialDate;
                     draft.VatDate = line.VatDate;
                     draft.Dimensions = line.Dimensions;
+                    draft.CustomerOrderID = line.CustomerOrderID;
 
                     if (draft.Dimensions && !draft.Dimensions.ID) {
                         draft.Dimensions._createguid = draft.Dimensions._createguid || this.journalEntryService.getNewGuid();

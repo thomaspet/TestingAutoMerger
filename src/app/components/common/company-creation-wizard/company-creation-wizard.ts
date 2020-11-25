@@ -3,18 +3,25 @@ import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {AuthService} from '@app/authService';
-import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService, ElsaCustomersService} from '@app/services/services';
+import {ModulusService, InitService, ErrorService, CompanyService, ElsaContractService, ElsaCustomersService, ElsaAgreementService} from '@app/services/services';
 import {map} from 'rxjs/operators';
 import {get} from 'lodash';
 import {forkJoin} from 'rxjs';
 import {THEMES, theme} from 'src/themes/theme';
 import {ElsaContractType, ElsaContract} from '@app/models/elsa-models';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 
 enum STEPS {
     CONTRACT_TYPE,
     COMPANY_STEP1,
     COMPANY_STEP2,
     CONTRACT_ACTIVATION,
+}
+
+enum TaxMandatoryType {
+    NotTaxMandatory = 1,
+    FutureTaxMandatory = 2,
+    TaxMandatory = 3,
 }
 
 @Component({
@@ -36,6 +43,7 @@ export class CompanyCreationWizard {
     contract: ElsaContract;
     contractTypes: ElsaContractType[];
     selectedContractType: number;
+    taxType = TaxMandatoryType;
 
     step1Form = new FormGroup({
         CompanyName: new FormControl('', Validators.required),
@@ -50,7 +58,7 @@ export class CompanyCreationWizard {
     step2Form = new FormGroup({
         // AccountNumber added in constructor (needs env check)
         TemplateIncludeSalary: new FormControl(undefined, Validators.required),
-        TemplateIncludeVat: new FormControl(undefined, Validators.required),
+        TaxMandatoryType: new FormControl(undefined, Validators.required),
     });
 
     isEnk: boolean;
@@ -63,6 +71,8 @@ export class CompanyCreationWizard {
 
     priceListLink: string;
 
+    contractAgreementExists: boolean;
+
     constructor(
         private authService: AuthService,
         private http: HttpClient,
@@ -72,6 +82,8 @@ export class CompanyCreationWizard {
         private companyService: CompanyService,
         private elsaContractService: ElsaContractService,
         private elsaCustomerService: ElsaCustomersService,
+        private elsaAgreementService: ElsaAgreementService,
+        private toastService: ToastService,
     ) {
         this.autocompleteOptions = {
             canClearValue: false,
@@ -104,9 +116,11 @@ export class CompanyCreationWizard {
             } else {
                 forkJoin([
                     this.elsaContractService.getAll(),
-                    this.elsaContractService.getCustomContractTypes()
+                    this.elsaContractService.getCustomContractTypes(),
+                    this.elsaAgreementService.getContractAgreement()
                 ]).subscribe(
-                    ([contracts, contractTypes]) => {
+                    ([contracts, contractTypes, agreement]) => {
+                        this.contractAgreementExists = !!agreement?.DownloadUrl?.length;
                         this.contract = contracts?.find(c => c.ID === this.contractID);
                         this.contractTypes = contractTypes || [];
                         this.currentStep = this.contractTypes.length ? STEPS.CONTRACT_TYPE : STEPS.COMPANY_STEP1;
@@ -199,15 +213,33 @@ export class CompanyCreationWizard {
     step2FormSubmit() {
         this.step2Form.markAllAsTouched();
         if (this.step2Form.valid) {
-            if (this.includeContractActivation && !this.contractActivated) {
-                const companyData = this.step1Form.value;
-                this.orgNumber = companyData.OrganizationNumber;
-                this.companyName = companyData.CompanyName;
-
-                this.currentStep = STEPS.CONTRACT_ACTIVATION;
+            if (this.step2Form.controls['AccountNumber']) {
+                this.initService.getBicFromAccountNumber(this.step2Form.get('AccountNumber').value).subscribe(bic => {
+                    if (bic && bic === this.authService.publicSettings?.BIC) {
+                        this.step2FormSubmitNextStep();
+                    } else {
+                        this.toastService.addToast('Kontonummer', ToastType.info, 5, 'Kontoen må være en DNB konto');
+                        return;
+                    }
+                }, err => {
+                        this.toastService.addToast('Kontonummer', ToastType.info, 5, 'Ugyldig kontonummer');
+                        return;
+                });
             } else {
-                this.createCompany();
+                this.step2FormSubmitNextStep();
             }
+        }
+    }
+
+    step2FormSubmitNextStep() {
+        if (this.includeContractActivation && !this.contractActivated) {
+            const companyData = this.step1Form.value;
+            this.orgNumber = companyData.OrganizationNumber;
+            this.companyName = companyData.CompanyName;
+
+            this.currentStep = STEPS.CONTRACT_ACTIVATION;
+        } else {
+            this.createCompany();
         }
     }
 
@@ -223,7 +255,10 @@ export class CompanyCreationWizard {
         this.busyCreatingCompany = true;
         this.companyCreationFailed = false;
 
-        const includeVat = this.step2Form.value?.TemplateIncludeVat;
+        const taxType = step2FormDetails.TaxMandatoryType;
+        const includeVat = taxType === this.taxType.TaxMandatory;
+        companyDetails.TaxMandatoryType = taxType;
+
         const includeSalary = this.step2Form.value?.TemplateIncludeSalary;
 
         this.initService.getCompanyTemplate(this.isEnk, includeVat, includeSalary).subscribe(template => {

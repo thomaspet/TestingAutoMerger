@@ -1,7 +1,7 @@
 import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {Router, NavigationEnd} from '@angular/router';
-import {AuthService} from './authService';
+import {AuthService, IAuthDetails} from './authService';
 import {UniHttp} from '../framework/core/http/http';
 import {ErrorService, StatisticsService, BrunoOnboardingService, ElsaCustomersService, CelebrusService} from './services/services';
 import {ToastService, ToastTime, ToastType} from '../framework/uniToast/toastService';
@@ -27,6 +27,7 @@ import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 import {theme, THEMES} from 'src/themes/theme';
 import {Logger} from '@uni-framework/core/logger';
+import * as moment from 'moment';
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -44,6 +45,9 @@ export class App {
     isPendingApproval: boolean;
     isBankCustomer: boolean;
     bankName: string;
+    licenseExpired: boolean;
+    expiredEntity: string;
+    supportPageUrl: string;
 
     constructor(
         private titleService: Title,
@@ -89,23 +93,25 @@ export class App {
             if (this.isAuthenticated) {
                 this.toastService.clear();
 
-                const contractType = authDetails.user.License.ContractType.TypeName;
+                this.supportPageUrl = this.authService.publicSettings?.SupportPageUrl;
+                if (this.hasAnyExpiredLicense(authDetails)) {
+                    return;
+                }
 
                 if (theme.theme === THEMES.SR && authDetails.user.License.Company.StatusCode === LicenseEntityStatus.Pending) {
-                    this.elsaCustomerService.get(authDetails.user.License.Company.ContractID)
+                    this.elsaCustomerService.getByContractID(authDetails.user.License.Company.ContractID)
                     .subscribe(customer => {
-                        if (!customer.IsBankCustomer) {
+                        if (!customer?.IsBankCustomer) {
                             this.bankName = this.authService.publicSettings?.BankName || 'SpareBank 1';
                         }
-                        this.isBankCustomer = customer.IsBankCustomer;
+                        this.isBankCustomer = !!customer?.IsBankCustomer;
                     }, err => console.error(err));
                     this.isPendingApproval = true;
                     return;
                 }
 
                 const shouldShowLicenseDialog = !this.licenseAgreementModalOpen
-                    && theme.theme !== THEMES.SR
-                    && contractType !== 'Demo'
+                    && !authDetails.isDemo
                     && !this.hasAcceptedCustomerLicense(authDetails.user);
 
                 if (shouldShowLicenseDialog) {
@@ -130,7 +136,6 @@ export class App {
                 if (theme.theme !== THEMES.EXT02 && !this.userlicenseModalOpen && !this.hasAcceptedUserLicense(authDetails.user)) {
                     this.showUserLicenseModal();
                 }
-
 
                 if (theme.theme === THEMES.EXT02 && !authDetails.activeCompany.IsTest) {
                     this.brunoOnboardingService.getAgreement().subscribe((agreement: BankIntegrationAgreement) => {
@@ -163,6 +168,36 @@ export class App {
                 this.checkForInitRoute();
             }
         });
+    }
+
+    private hasAnyExpiredLicense(authDetails: IAuthDetails): boolean {
+        if (!authDetails.hasActiveContract) {
+            if (authDetails.isDemo) {
+                this.router.navigateByUrl('/contract-activation');
+                // it's expired, but we don't want to block an expired demo
+                this.licenseExpired = false;
+                return false;
+            } else {
+                this.expiredEntity = 'lisensen';
+                this.licenseExpired = true;
+                return true;
+            }
+        }
+
+        if (!authDetails.hasActiveUserLicense) {
+            this.expiredEntity = 'brukerlisensen';
+            this.licenseExpired = true;
+            return true;
+        }
+
+        if (!authDetails.hasActiveCompanyLicense) {
+            this.expiredEntity = 'selskapslisensen';
+            this.licenseExpired = true;
+            return true;
+        }
+
+        this.licenseExpired = false;
+        return false;
     }
 
     private checkForInitRoute() {

@@ -3,7 +3,7 @@ export const environment = {
     usePKCE: false,
 
     // Identity Server Settings
-    authority: 'https://login.unieconomy.no',
+    authority: 'https://login.dnbregnskap.dnb.no',
     client_id: '0ca1ea2f-faf1-876e-f76c-d0028407cdb0',
     post_logout_redirect_uri: '',
 
@@ -29,11 +29,6 @@ export const environment = {
         ALTINN: '/api/altinn/'
     },
 
-    ID_PORTEN: {
-        authority: '',
-        client_id: '',
-    },
-    RAYGUN_API_KEY: '1tnHZpbXK2cDlXzAGCMZsA',
     APP_INSIGHTS_KEY: '737d53ee-c350-4110-8737-677a4e8569c4',
 
     RECAPTCHA_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',

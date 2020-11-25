@@ -16,6 +16,7 @@ import {
     ElsaPurchaseService,
     ElsaProductService,
 } from '@app/services/services';
+import { theme, THEMES } from 'src/themes/theme';
 
 interface UserRoleGroup {
     label: string;
@@ -173,7 +174,7 @@ export class UserDetails {
                 this.userRoles = this.setAssignmentMetadata(res[1] || []);
                 this.products = res[2];
                 this.purchases = res[3];
-                this.companyHasAutobank = !!res[4];
+                this.companyHasAutobank = !!res[4] || theme.theme === THEMES.SR;
 
                 this.userRoleGroups = this.getGroupedUserRoles(this.userRoles);
                 this.initUserActions();

@@ -65,7 +65,7 @@
     </section>
 
     <section class="uni-container" *ngIf="tabIndex === 1">
-        <div style="display: flex; align-items: center; padding: .5rem 1rem !important;">
+        <div style="display: flex; align-items: center; padding: .5rem 1rem">
             <h2 style="margin: 0; font-size: 1.2rem; margin-right: .5rem; font: 500 15px var(--font-family); color: rgba(0,0,0,.75);"> Transaksjoner for datoutvalg: </h2>
             <uni-date-selector class="uni-period-selector-trigger-button" [toDate]="toDate" [fromDate]="fromDate" (dateChange)="periodChange($event)"> </uni-date-selector>
             <uni-select
@@ -74,8 +74,9 @@
                 [value]="currentDateField.label"
                 (valueChange)="onDateForSelectionChange($event)">
             </uni-select>
-        </div>
 
+            <button (click)="toExcel()" class="accounting-reports-button">Eksporter til excel</button>
+        </div>
         <ag-grid-wrapper
             [resource]="transactionsLookupFunction"
             [columnSumResolver]="columnSumResolver"

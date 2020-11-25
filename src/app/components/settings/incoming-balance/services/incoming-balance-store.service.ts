@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { JournalEntryTypes } from '@app/services/accounting/journal-entry-type.service';
 import { Account, JournalEntry, JournalEntryLineDraft, LocalDate } from '@uni-entities';
+import * as moment from 'moment';
 import { BehaviorSubject, combineLatest, forkJoin, Observable, of } from 'rxjs';
 import { distinctUntilChanged, filter, finalize, map, switchMap, take, tap } from 'rxjs/operators';
 import { IIncomingBalanceMainAccount, IIncomingBalanceMainAccountInfo, IncomingBalanceHttpService, IncomingBalanceSubAccount } from './incoming-balance-http.service';
@@ -37,7 +38,7 @@ export class IncomingBalanceStoreService {
             distinctUntilChanged(),
         );
 
-    private dateSubject$: BehaviorSubject<LocalDate> = new BehaviorSubject(new LocalDate());
+    private dateSubject$: BehaviorSubject<LocalDate> = new BehaviorSubject(this.GenerateFinancialDate());
     public date$ = this.dateSubject$.asObservable();
 
     private isSavingSubject$: BehaviorSubject<boolean> = new BehaviorSubject(false);
@@ -70,18 +71,30 @@ export class IncomingBalanceStoreService {
 
 
     public setDate(date: LocalDate) {
-        this.dateSubject$.next(date);
+        const financialDate = this.GenerateFinancialDate(date);
+        this.dateSubject$.next(financialDate);
         this.journalLinesSubject$.next(
             this.journalLinesSubject$
                 .getValue()
                 .map(line => ({
                     ...line,
                     _isDirty: true,
-                    FinancialDate: date,
-                    VatDate: date,
-                    RegisteredDate: date
+                    FinancialDate: financialDate,
+                    VatDate: financialDate,
                 }))
         );
+    }
+
+    public GenerateFinancialDate(date?: LocalDate) {
+        return date
+            ? new LocalDate(moment(date).subtract(1, 'month').endOf('month').toString())
+            : new LocalDate(moment(new LocalDate()).subtract(1, 'month').endOf('month').toString());
+    }
+
+    public GenerateDisplayDate(date?: LocalDate) {
+        return date
+            ? new LocalDate(moment(date).add(1, 'day').toString())
+            : new LocalDate(moment(new LocalDate()).startOf('month').toString());
     }
 
     //#region IncomingBalanceLine CRUD
@@ -97,7 +110,6 @@ export class IncomingBalanceStoreService {
                     AccountID: balanceLine.Account?.ID,
                     SubAccountID: balanceLine.SubAccount?.ID,
                     FinancialDate: date,
-                    RegisteredDate: date,
                     VatDate: date,
                     AmountCurrency: 0,
                 })),
@@ -240,6 +252,8 @@ export class IncomingBalanceStoreService {
                             JournalEntryNumber: null,
                             JournalEntryNumberNumeric: null,
                             StatusCode: null,
+                            PeriodID: null,
+                            VatPeriodID: null,
                         }));
                     return this.saveChangesAsDraft(null, cleanLines);
                 }),
@@ -302,7 +316,7 @@ export class IncomingBalanceStoreService {
                             <IIncomingBalanceLine[]>journalEntry?.DraftLines || []
                         )
                         .map((line: any) => ({...line, _source: this.getSource(line)})) || [];
-                    this.dateSubject$.next(lines[0]?.FinancialDate || new LocalDate());
+                    this.dateSubject$.next(lines[0]?.FinancialDate || this.GenerateFinancialDate());
                     this.journalLinesSubject$.next(lines);
                     if (journalEntry) {
                         this.journalEntrySubject$.next({...journalEntry, Lines: [], DraftLines: []});

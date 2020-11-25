@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { UniMath } from '@uni-framework/core/uniMath';
 import { combineLatest, Observable, of } from 'rxjs';
 import { debounceTime, map, switchMap, take } from 'rxjs/operators';
 import { IncomingBalanceLineSource, balanceLineSources, IIncomingBalanceLine, IncomingBalanceStoreService } from '../../../services/incoming-balance-store.service';
@@ -58,7 +59,7 @@ export class IncomingBalanceDiffService {
     }
 
     private sumUp(lines: IIncomingBalanceLine[]) {
-        return lines.reduce((acc, curr) => acc + (curr.Amount || 0), 0);
+        return UniMath.round(lines.reduce((acc, curr) => acc + (curr.Amount || 0), 0));
     }
 
 }

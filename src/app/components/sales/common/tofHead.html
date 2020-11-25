@@ -97,6 +97,7 @@
                 [entityID]="data?.ID"
                 [canSendEHF]="canSendEHF"
                 [tooltip]="'Maks total vedleggstørrelse er 30MB for e-post og 50MB for EHF'"
+                [showInfoBox]="true"
                 (selectedFileSize)="onSelectedFileSize($event)">
             </uni-attachments>
         </section>

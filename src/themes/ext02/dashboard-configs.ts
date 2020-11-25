@@ -9,10 +9,10 @@ export const DASHBOARD_CONFIGS = {
                     'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
 
                     'INVOICED',
-                    'UNPAID_BILLS',
+                    'BRUNO_ACCOUNTING_SERVICES',
 
                     'OPERATING_PROFITS',
-                    'BRUNO_ACCOUNTING_SERVICES',
+                    'UNPAID_BILLS',
                 ];
             } else {
                 return [
@@ -20,12 +20,10 @@ export const DASHBOARD_CONFIGS = {
                     'REMINDER_WIDGET_WITH_PUBLIC_DUEDATES',
 
                     'INVOICED',
-                    'UNPAID_BILLS',
+                    'BRUNO_ACCOUNTING_SERVICES',
 
                     'OPERATING_PROFITS',
-
-                    // Removed until we have a link for "chat med regnskapsfører"
-                    // 'BRUNO_ACCOUNTING_SERVICES',
+                    'UNPAID_BILLS',
 
                     'LIQUIDITY',
                     'UNPAID',

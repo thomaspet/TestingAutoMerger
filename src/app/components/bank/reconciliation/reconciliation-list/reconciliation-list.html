@@ -25,7 +25,7 @@
                     <tr *ngFor="let account of bankAccounts">
                         <td> {{ account.AccountNumber }} </td>
                         <td>
-                            {{ account.AccountName }}
+                            {{ account?.Label }}
                         </td>
                         <td>
                             <a [ngClass]="account.count ? 'recwork' : ( account.total ? 'recdone' : 'recstart')" href="/#/bank/reconciliationmatch?accountid={{account.AccountID}}">

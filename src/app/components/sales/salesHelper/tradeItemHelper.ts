@@ -483,7 +483,7 @@ export class TradeItemHelper  {
     }
 
 
-    public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
+    public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary, showVat: boolean = true): ISummaryLine[] {
         const summaryLines: ISummaryLine[] = [];
 
         // if (sums.SumTotalExVat) {
@@ -508,10 +508,12 @@ export class TradeItemHelper  {
             // });
         }
 
-        summaryLines.push({
-            label: 'Mva ' + (vatPercentText || ''),
-            value: sums.SumVatCurrency ? this.numberFormat.asMoney(sums.SumVatCurrency) : 0
-        });
+        if (showVat || sums.SumVatCurrency > 0) {
+            summaryLines.push({
+                label: 'Mva ' + (vatPercentText || ''),
+                value: sums.SumVatCurrency ? this.numberFormat.asMoney(sums.SumVatCurrency) : 0
+            });
+        }
 
         if (sums.DecimalRoundingCurrency &&
             ((this.round(sums.DecimalRoundingCurrency, 2) > 0.00) || (this.round(sums.DecimalRoundingCurrency, 2) < 0.00))) {
@@ -572,11 +574,13 @@ export class TradeItemHelper  {
                 sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? (item.SumTotalExVatCurrency || 0) : 0;
                 sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? (item.SumTotalExVatCurrency || 0) : 0;
             });
-
-            let roundedAmount = this.round(sum.SumTotalIncVat, decimals);
+            
+            let sign = sum.SumTotalIncVat < 0 ? -1 : 1;
+            let roundedAmount = this.round(Math.abs(sum.SumTotalIncVat), decimals) * sign;
             sum.DecimalRounding = roundedAmount - sum.SumTotalIncVat;
 
-            roundedAmount = this.round(sum.SumTotalIncVatCurrency, decimals);
+            sign = sum.SumTotalIncVatCurrency < 0 ? -1 : 1;
+            roundedAmount = this.round(Math.abs(sum.SumTotalIncVatCurrency), decimals) * sign;
             sum.DecimalRoundingCurrency = roundedAmount - sum.SumTotalIncVatCurrency;
             sum.SumTotalIncVatCurrency = roundedAmount;
 

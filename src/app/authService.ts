@@ -17,6 +17,8 @@ export interface IAuthDetails {
     activeCompany: Company;
     user: UserDto;
     hasActiveContract: boolean;
+    hasActiveUserLicense?: boolean;
+    hasActiveCompanyLicense?: boolean;
     isDemo?: boolean;
 }
 
@@ -146,6 +148,8 @@ export class AuthService {
                 activeCompany: undefined,
                 user: undefined,
                 hasActiveContract: false,
+                hasActiveUserLicense: false,
+                hasActiveCompanyLicense: false,
             });
 
             this.clearAuthAndGotoLogin();
@@ -185,11 +189,18 @@ export class AuthService {
             }
         }
 
-        // #chat-container is added by boost, so it wont show up
-        // if you do a project wide search for it. Dont remove this :)
-        const boostChat = document.getElementById('chat-container');
-        if (boostChat) {
-            boostChat.style.visibility = visible ? 'hidden' : 'visible';
+        // #chat-container is added by boost, #launcher is added by zendesk.
+        // They wont show up if you do a project wide search for them. Dont remove this :)
+        const chatBot = document.getElementById('chat-container') ?? document.getElementById('launcher');
+        if (chatBot) {
+            // if authenticated, we go by the spinners visibility, else we just hide
+            this.isAuthenticated().then(isAuthenticated => {
+                if (isAuthenticated) {
+                    chatBot.style.visibility = visible ? 'hidden' : 'visible';
+                } else {
+                    chatBot.style.visibility = 'hidden';
+                }
+            });
         }
     }
 
@@ -290,7 +301,7 @@ export class AuthService {
     private getForcedRedirect(authDetails: IAuthDetails) {
         const permissions = authDetails.user['Permissions'] || [];
 
-        if (authDetails.user && !authDetails.hasActiveContract) {
+        if (authDetails.user && authDetails.isDemo && !authDetails.hasActiveContract) {
             return 'contract-activation';
         }
 
@@ -344,7 +355,9 @@ export class AuthService {
                 token: this.jwt,
                 activeCompany: this.activeCompany,
                 user: user,
-                hasActiveContract: !this.isTrialExpired(contract),
+                hasActiveContract: !this.isContractExpired(contract),
+                hasActiveUserLicense: !this.isUserLicenseExpired(user),
+                hasActiveCompanyLicense: !this.isCompanyLicenseExpired(user),
                 isDemo: contract.TypeName === 'Demo',
             };
 
@@ -398,6 +411,8 @@ export class AuthService {
                     activeCompany: undefined,
                     user: undefined,
                     hasActiveContract: false,
+                    hasActiveUserLicense: false,
+                    hasActiveCompanyLicense: false,
                 });
 
                 this.idsLogout();
@@ -532,17 +547,28 @@ export class AuthService {
         return 'ui_' + urlParts.join('_');
     }
 
-    private isTrialExpired(contract: ContractLicenseType): boolean {
-        if (contract.TypeName === 'Demo' && contract.TrialExpiration) {
-            const daysRemaining = moment(contract.TrialExpiration).diff(
-                moment(),
-                'days'
-            );
-            if (daysRemaining > 0) {
-                return false;
-            } else {
-                return true;
-            }
+    private isContractExpired(contract: ContractLicenseType): boolean {
+        const trialExpiration = moment(contract.TrialExpiration);
+        if (trialExpiration.isValid() && trialExpiration.isBefore(moment(), 'day')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private isUserLicenseExpired(user: UserDto): boolean {
+        const userLicenseEndDate = moment(user.License.UserLicenseEndDate);
+        if (userLicenseEndDate.isValid() && userLicenseEndDate.isBefore(moment(), 'day')) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private isCompanyLicenseExpired(user: UserDto): boolean {
+        const companyLicenseEndDate = moment(user.License.Company.EndDate);
+        if (companyLicenseEndDate.isValid() && companyLicenseEndDate.isBefore(moment(), 'day')) {
+            return true;
         }
 
         return false;

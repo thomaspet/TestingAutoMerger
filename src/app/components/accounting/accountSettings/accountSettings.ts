@@ -15,6 +15,7 @@ import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissio
 import { DisclaimerModal } from '@app/components/import-central/modals/disclaimer/disclaimer-modal';
 import { environment } from 'src/environments/environment';
 import { Router } from '@angular/router';
+import { theme, THEMES } from 'src/themes/theme';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
@@ -41,12 +42,7 @@ export class AccountSettings {
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',
-        contextmenu: [
-            {
-                label: 'Synkroniser kontoplan NS4102',
-                action: () => this.SynchronizeNS4102()
-            },
-        ]
+        contextmenu: []
     };
 
     constructor(
@@ -65,6 +61,13 @@ export class AccountSettings {
             name: 'Kontoplan', url: '/accounting/accountsettings',
             moduleID: UniModules.Accountsettings, active: true
         });
+
+        if (theme.theme !== THEMES.EXT02) {
+            this.toolbarconfig.contextmenu.push({
+                label: 'Synkroniser kontoplan NS4102',
+                action: () => this.SynchronizeNS4102()
+            });
+        }
 
         if (this.featurePermissionService.canShowUiFeature('ui.accountsettings-add-and-import')) {
             this.toolbarconfig.navigation = {

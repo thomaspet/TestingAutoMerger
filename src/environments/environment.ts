@@ -41,7 +41,6 @@ export const environment = {
         // client_id: '2ee9c621-0a55-4b1c-a1a1-1065c4e80b2d', // http://localhost:3000/
     },
 
-    RAYGUN_API_KEY: 'N+W68kn/cIAm0QW4DdH6NQ==',
     APP_INSIGHTS_KEY: '790678cc-71eb-4852-aff2-f5a2a4e60359',
 
     RECAPTCHA_KEY: '6LdMqT0UAAAAAEqsKmTCjEUcCnic_htqpjkmry2d',

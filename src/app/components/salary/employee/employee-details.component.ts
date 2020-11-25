@@ -553,8 +553,10 @@ export class EmployeeDetailsComponent extends UniView implements OnDestroy {
 
     public newEmployee(): void {
         this.employeeService.get(0).subscribe((emp: Employee) => {
-            this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then(x => {
-                if (x) {
+            this.router.navigateByUrl(this.url + emp.ID + '/personal-details').then((canNavigate: boolean) => {
+                if (canNavigate) {
+                    this.categories = undefined;
+                    this.categoryFilter = [];
                     this.employee = emp;
                 }
             });
