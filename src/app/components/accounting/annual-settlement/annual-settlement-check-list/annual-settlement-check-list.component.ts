@@ -58,16 +58,17 @@ export class AnnualSettlementCheckListComponent {
     initOptions() {
         this.options = this.options.map((op: any) => {
             if (this.checkList[op.property]) {
-                op.check = this.checkList[op.property];
+                op.checked = this.checkList[op.property];
             }
             return op;
         });
     }
 
-    updateOption(option) {
+    updateOption(option, value) {
         if (option.property) {
-            this.checkList[option.property] = option.check;
-            this.annualSettlement.AnnualSettlementCheckList[option.property] = option.check;
+            option.checked = value.checked;
+            this.checkList[option.property] = value.checked;
+            this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
         }
     }
     ngOnDestroy() {

@@ -88,3 +88,40 @@ body
         top: var(--navbar-height)
         width: 100%
         height: 5.5rem
+
+//Jorge comment: added at first time in annual-settlement check-list component, I guess that would be standard
+.page-navigation
+    display: flex
+    align-items: center
+    justify-content: flex-start
+    & > i
+        width: pxToRem(20px)
+        height: pxToRem(20px)
+    h5
+        font-weight: 600
+        font-size: pxToRem(22px)
+        line-height: pxToRem(35.2px)
+        margin: 0 pxToRem(10px)
+    h4
+        margin-left: auto
+        font-weight: 700
+        font-size: pxToRem(24px)
+        line-height: pxToRem(38.4px)
+        letter-spacing: pxToRem(0.25px)
+    .page-navigation-button
+        border-radius: pxToRem(4px)
+        border: 1px solid #CCCCCC
+        color: var(--primary)
+        padding: pxToRem(16px)
+        display: flex
+        align-items: center
+        justify-items: center
+        &:active, &:focus, &:focus-within
+            text-decoration: none
+        & > i
+            width: pxToRem(16px)
+            height: pxToRem(16px)
+            color: var(--primary)
+            position: relative
+            bottom: 4px
+            right: 3px

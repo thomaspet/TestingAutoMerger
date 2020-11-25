@@ -40,41 +40,6 @@ annual-settlement-check-list-component
         margin-right: 50px
     .last
         margin-bottom: 3rem
-    .header
-        display: flex
-        align-items: center
-        justify-content: flex-start
-        a
-            border-radius: pxToRem(4px)
-            border: 1px solid #CCCCCC
-            color: var(--primary)
-            padding: pxToRem(16px)
-            display: flex
-            align-items: center
-            justify-items: center
-            &:active
-                text-decoration: none
-        a > i
-            width: pxToRem(16px)
-            height: pxToRem(16px)
-            color: var(--primary)
-            position: relative
-            bottom: 4px
-            right: 3px
-        & > i
-            width: pxToRem(20px)
-            height: pxToRem(20px)
-        h5
-            font-weight: 600
-            font-size: pxToRem(22px)
-            line-height: pxToRem(35.2px)
-            margin: 0 pxToRem(10px)
-        h4
-            margin-left: auto
-            font-weight: 700
-            font-size: pxToRem(24px)
-            line-height: pxToRem(38.4px)
-            letter-spacing: pxToRem(0.25px)
     .alert.info
         &.warn
             background: var(--alert-info)
@@ -126,6 +91,14 @@ uni-step
             margin-right: pxToRem(21px)
             display: flex
             justify-content: center
+            mat-checkbox
+                &.mat-checkbox-checked .mat-checkbox-background
+                    background-color: var(--checkbox-checked-background-good) !important
+                    border: #fff
+                .mat-checkbox-checkmark .mat-checkbox-checkmark-path
+                    stroke: var(--checkbox-checked-color-good) !important
+                    stroke-width: 3px
+
             button
                 border: 1px solid var(--link-color)
                 background: var(--dropdown-select-background)
@@ -137,7 +110,9 @@ uni-step
                     position: relative
                     right: pxToRem(2px)
                     bottom: pxToRem(1px)
-
+                i.material-icons
+                    right: pxToRem(4px)
+                    bottom: pxToRem(3px)
         .step-content
             h6
                 font-weight: 600

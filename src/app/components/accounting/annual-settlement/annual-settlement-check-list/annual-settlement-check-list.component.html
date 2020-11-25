@@ -2,8 +2,8 @@
     [annualSettlement]="annualSettlement"
 ></annual-settlement-check-list-toolbar-component>
 <section class="container-fluid uni-grid-container">
-    <section class="row header">
-        <a href="#/accounting/annual-settlement">
+    <section class="row header page-navigation">
+        <a href="#/accounting/annual-settlement" class="page-navigation-button">
             <i class="material-icons">keyboard_backspace</i>
         </a>
         <h5>
@@ -26,20 +26,13 @@
             <i class="material-icons close" (click)="showInfoBox = false">close</i>
         </section>
         <uni-stepper>
-            <uni-step *ngFor="let option of options" [step]="option" [class.checked]="option?.check">
+            <uni-step *ngFor="let option of options" [step]="option" [class.checked]="option?.checked">
                 <ng-template #stepButtonTemplate let-item="item">
-                    <i class="material-icons"
-                       style="color:#78E178; width:27px; height: 27px; cursor:pointer; font-size:27px;user-select: none"
-                       *ngIf="option?.check"
-                       (click)="option.check=false; updateOption(option)">check_circle</i>
-                    <i style="border:2px solid black;
-                       width:27px; height: 27px; border-radius: 50%; cursor:pointer;user-select: none"
-                       *ngIf="!option?.check"
-                       (click)="option.check=true; updateOption(option)">&nbsp;</i>
+                    <mat-checkbox [ngModel]="option?.checked" (change)="updateOption(option, $event)"></mat-checkbox>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
                     <h6>{{item.title}}</h6>
-                    <article [innerHTML]="item.text" *ngIf="!item?.check"></article>
+                    <article [innerHTML]="item.text" *ngIf="!item?.checked"></article>
                 </ng-template>
             </uni-step>
         </uni-stepper>
