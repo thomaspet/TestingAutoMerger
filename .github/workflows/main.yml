@@ -29,4 +29,4 @@ jobs:
         
       # Runs a single command using the runners shell
       - name: Run a one-line script
-        run: echo "ref ${{github.ref}} rep ${{github.repository}} base ${{github.base_ref}} head ${{github.head_ref}}"
+        run: echo ${{github.ref}} | sed "s/refs\/head\//"
