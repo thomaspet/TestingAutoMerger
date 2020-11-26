@@ -25,6 +25,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
+      - run: cat $GITHUB_EVENT_PATH
+        
       # Runs a single command using the runners shell
       - name: Run a one-line script
         run: echo "ref ${{github.ref}} rep ${{github.repository}} base ${{github.base_ref}} head ${{github.head_ref}}"
