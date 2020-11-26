@@ -1,6 +1,6 @@
 <ng-container *ngIf="contractTypes?.length">
     <a #trigger tabindex="-1">
-        <span *ngIf="currentType">Demo: {{currentType.Label}}</span>
+        <span *ngIf="currentType">{{isSupportUser ? 'Support: ' : 'Demo: '}} {{currentType.Label}}</span>
         <span *ngIf="!currentType">Test produktpakke</span>
 
         <i class="material-icons">expand_more</i>
@@ -9,7 +9,7 @@
     <dropdown-menu [trigger]="trigger" minWidth="8rem">
         <ng-template>
             <section *ngFor="let type of contractTypes" (click)="onContractTypeSelected(type)" class="dropdown-menu-item">
-                Demo: {{type.Label}}
+                {{isSupportUser ? 'Support: ' : 'Demo: '}} {{type.Label}}
             </section>
         </ng-template>
     </dropdown-menu>

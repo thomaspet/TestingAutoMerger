@@ -1,54 +1,72 @@
 <section class="wrapper">
-    <img *ngIf="illustration && selectedCompanyType != 'company'" [src]="illustration">
-
-    <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
-        <small class="alert warn">
-            Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
-        </small>
-        <a routerLink="/init/sign-up">Gå til registrering</a>
-    </section>
-
-    <ng-container *ngIf="!missingContract">
-        <!-- If the user already have an active contract we only offer company creation -->
-        <company-creation-wizard
-            *ngIf="hasActiveContract"
-            [contractID]="contractID"
-            [includeContractActivation]="false">
-        </company-creation-wizard>
-
-        <ng-container *ngIf="!hasActiveContract">
-            <ng-container *ngIf="!selectedCompanyType">
-                <ng-container *ngIf="contractID">
-                    <section *ngFor="let option of registrationOptions" class="registration-card authentication-component">
-                        <h1>{{option.header}}</h1>
-
-                        <section class="content">
-                            <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
-                            <section *ngFor="let text of option.textSections" [innerHTML]="text"></section>
-                        </section>
-
-                        <section class="footer">
-                            <section class="footer-text" *ngIf="option.footerText">{{option.footerText}}</section>
-
-                            <button *ngFor="let button of option.buttons" [ngClass]="button.class || 'secondary'" (click)="button.action()">
-                                {{button.label}}
-                            </button>
-                        </section>
-                    </section>
-                </ng-container>
-            </ng-container>
-
-            <init-new-demo
-                *ngIf="selectedCompanyType === 'demo'"
-                [contractID]="contractID">
-            </init-new-demo>
-
+    <ng-container *ngIf="!busyCreatingCompany && !busy">
+        <img *ngIf="illustration && selectedCompanyType != 'company'" [src]="illustration">
+    
+        <section *ngIf="missingContract" class="authentication-component" style="text-align: center; margin-bottom: auto">
+            <small class="alert warn">
+                Det ser ut som du mangler lisens på {{appName}}. Vennligst gå til registrering for å prøve gratis.
+            </small>
+            <a routerLink="/init/sign-up">Gå til registrering</a>
+        </section>
+    
+        <ng-container *ngIf="!missingContract">
+            <!-- If the user already have an active contract we only offer company creation -->
             <company-creation-wizard
-                *ngIf="selectedCompanyType === 'company'"
+                *ngIf="hasActiveContract"
                 [contractID]="contractID"
-                [createDemoCompany]="isTest"
-                [includeContractActivation]="!isTest">
+                [includeContractActivation]="false">
             </company-creation-wizard>
+    
+            <ng-container *ngIf="!hasActiveContract">
+                <ng-container *ngIf="!selectedCompanyType">
+                    <ng-container *ngIf="contractID">
+                        <section *ngFor="let option of registrationOptions" class="registration-card authentication-component">
+                            <h1>{{option.header}}</h1>
+    
+                            <section class="content">
+                                <section *ngIf="option.priceTag" class="price-tag">{{option.priceTag}}</section>
+                                <section *ngFor="let text of option.textSections" [innerHTML]="text"></section>
+                            </section>
+    
+                            <section class="footer">
+                                <section class="footer-text" *ngIf="option.footerText">{{option.footerText}}</section>
+    
+                                <button *ngFor="let button of option.buttons" [ngClass]="button.class || 'secondary'" (click)="button.action()">
+                                    {{button.label}}
+                                </button>
+                            </section>
+                        </section>
+                    </ng-container>
+                </ng-container>
+    
+                <init-new-demo
+                    *ngIf="selectedCompanyType === 'demo'"
+                    [contractID]="contractID">
+                </init-new-demo>
+    
+                <company-creation-wizard
+                    *ngIf="selectedCompanyType === 'company'"
+                    [contractID]="contractID"
+                    [createDemoCompany]="isTest"
+                    [includeContractActivation]="!isTest">
+                </company-creation-wizard>
+            </ng-container>
         </ng-container>
     </ng-container>
+
+    <section *ngIf="busyCreatingCompany && !busy" class="uni-card shadow">
+        <section class="uni-card-content">
+            <h1>
+                <mat-spinner class="c2a" [diameter]="24"></mat-spinner>
+                Registrerer selskap
+            </h1>
+    
+            <p>
+                Vi setter nå opp systemet med innstillinger og data du trenger for å komme i gang.
+                <br>Denne prosessen kan ta litt tid.
+                <br><br>Du vil bli logget på selskapet så snart det er klart til bruk.
+            </p>
+        </section>
+    </section>
+    
 </section>

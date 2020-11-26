@@ -285,7 +285,8 @@ export class AssetsService extends BizHttp<Asset>{
     }
 
     getUseAsset() {
-        return this.GetAction(null, 'get-use-asset');
+        return this.GetAction(null, 'get-use-asset')
+            .pipe(map(useAsset => useAsset === false ? false : true));
     }
 
     setUseAsset(use: boolean) {

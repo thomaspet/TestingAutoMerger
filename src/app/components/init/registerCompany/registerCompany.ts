@@ -3,7 +3,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 
 import {AuthService} from '@app/authService';
 import {CompanySettings, Contract} from '@uni-entities';
-import {ElsaContractService, ErrorService} from '@app/services/services';
+import {CompanyService, ElsaContractService, ErrorService, InitService, JobTicketService} from '@app/services/services';
 import {Subscription, forkJoin} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
 
@@ -48,6 +48,9 @@ export class RegisterCompany {
 
     hasActiveContract: boolean;
 
+    jobCompanyName: string;
+    busyCreatingCompany: boolean;
+
     @HostBinding('style.background') background = theme.init.background || '#fff';
     @HostBinding('class.ext02') usingExt02Theme = theme.theme === THEMES.EXT02;
 
@@ -56,10 +59,26 @@ export class RegisterCompany {
         private route: ActivatedRoute,
         private authService: AuthService,
         private errorService: ErrorService,
-        private elsaContractService: ElsaContractService
+        private elsaContractService: ElsaContractService,
+        private jobTicketService: JobTicketService,
+        private initService: InitService,
+        private companyService: CompanyService,
     ) {
         this.tokenSubscription = this.authService.token$.subscribe(token => {
             if (token) {
+                this.busy = true;
+                this.jobTicketService.getJobTicketCompany().subscribe(res => {
+                    if (res?.length) {
+                        this.jobCompanyName = res[0].CompanyName;
+                        this.busy = false;
+                        this.checkCompanyCreationStatus(this.jobCompanyName);
+                        return;
+                    }
+                    this.busy = false;
+                },
+                    err => this.busy = false
+                );
+
                 this.init();
 
                 if (!this.routeSubscription) {
@@ -101,6 +120,27 @@ export class RegisterCompany {
             }
 
         }, err => this.errorService.handle(err));
+    }
+
+    private checkCompanyCreationStatus(companyName: string) {
+        this.busyCreatingCompany = true;
+        this.initService.getCompanies().subscribe(
+            companies => {
+                const nameLowerCase = companyName.toLowerCase();
+                const company = (companies || []).find(c => {
+                    return (c.Name || '').toLowerCase().includes(nameLowerCase);
+                });
+
+                if (company) {
+                    this.busyCreatingCompany = false;
+                    this.companyService.invalidateCache();
+                    this.authService.setActiveCompany(company, '/');
+                } else {
+                    setTimeout(() => this.checkCompanyCreationStatus(companyName), 3000);
+                }
+            },
+            () => setTimeout(() => this.checkCompanyCreationStatus(companyName), 3000)
+        );
     }
 
     // tslint:disable
