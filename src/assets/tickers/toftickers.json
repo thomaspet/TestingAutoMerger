@@ -116,7 +116,8 @@
             "Format": "NumberPositiveNegative",
             "Width": "120px",
             "FilterOperator": "gt",
-            "SumColumn": true
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Sum inkl. mva",
@@ -137,11 +138,12 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Sum inkl. mva [BASECURRENCY]",
-            "Field": "TaxInclusiveAmount",
+            "Header": "Kreditert",
+            "Field": "CreditedAmountCurrency",
             "Format": "NumberPositiveNegative",
-            "DefaultHidden": true,
-            "SumColumn": true
+            "Width": "120px",
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Sum eks. mva [BASECURRENCY]",
@@ -180,7 +182,7 @@
         {
             "Header": "Hovedselger",
             "Field": "DefaultSeller.Name",
-            "DefaultHidden": false
+            "DefaultHidden": true
         },
         {
             "Header": "Purrestatus",
@@ -191,6 +193,13 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "125px"
+        },
+        {
+            "Header": "Sum inkl. mva [BASECURRENCY]",
+            "Field": "TaxInclusiveAmount",
+            "Format": "NumberPositiveNegative",
+            "DefaultHidden": true,
+            "SumColumn": true
         },
         {
             "Header": "Utskrift",
@@ -212,7 +221,8 @@
             "Alias": "SharingStatusCode",
             "Format": "SharingStatus",
             "width": "40px",
-            "FilterSelectConfigKey": "SharingStatusCode"
+            "FilterSelectConfigKey": "SharingStatusCode",
+            "DefaultHidden": true
         },
         {
             "Header": "Fakturaliste",
@@ -234,6 +244,14 @@
             "DisplayInContextMenu": true,
             "ExecuteWithoutSelection": true,
             "DisplayInActionBar": false
+        },
+        {
+            "Name": "Gå til purring",
+            "Code": "reminders",
+            "Type": "goto",
+            "ExecuteWithMultipleSelections": true,
+            "ExecuteWithoutSelection": true,
+            "DisplayInActionBar": true
         },
         {
             "Name": "Eksporter",
@@ -318,24 +336,6 @@
             ]
         },
         {
-            "Name": "Mine",
-            "Code": "my_invoices",
-            "UseAllCriterias": true,
-            "FilterGroups": [
-                {
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "CreatedBy",
-                            "Operator": "eq",
-                            "Value": ":currentuserid"
-                        }
-                    ]
-                }
-            ],
-            "featurePermission": "ui.sales.invoice-list.my_invoices"
-        },
-        {
             "Name": "Kladd",
             "Code": "my_draft_invoices",
             "UseAllCriterias": false,
@@ -358,13 +358,18 @@
             ]
         },
         {
-            "Name": "Fakturert",
+            "Name": "Ikke forfalt",
             "Code": "invoiced_invoices",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {
                     "UseAllCriterias": true,
                     "FieldFilters": [
+                        {
+                            "Field": "datediff('day',PaymentDueDate,getdate())",
+                            "Operator": "eq",
+                            "Value": "0"
+                        },
                         {
                             "Field": "StatusCode",
                             "Operator": "gt",
@@ -433,47 +438,6 @@
             ]
         },
         {
-            "Name": "Purret",
-            "Code": "invoices_reminded",
-            "featurePermission": "ui.debt-collection",
-            "UseAllCriterias": true,
-            "FilterGroups": [
-                {
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "CollectorStatusCode",
-                            "Operator": "eq",
-                            "Value": "42501"
-                        },
-                        {
-                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",
-                            "Operator": "ne",
-                            "Value": "0"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Name": "Sendt til inkasso",
-            "Code": "invoices_sentforcollection",
-            "featurePermission": "ui.debt-collection",
-            "UseAllCriterias": true,
-            "FilterGroups": [
-                {
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "CollectorStatusCode",
-                            "Operator": "eq",
-                            "Value": "42502"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
             "Name": "Betalt",
             "Code": "paid_invoices",
             "UseAllCriterias": true,
@@ -497,7 +461,7 @@
         },
         {
             "Name": "Kreditert",
-            "Code": "fullyCredited_invoices",
+            "Code": "Credited_invoices",
             "UseAllCriterias": true,
             "FilterGroups": [
                 {
@@ -1011,23 +975,6 @@
                             "Field": "StatusCode",
                             "Operator": "ne",
                             "Value": "40101"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "Name": "Mine",
-            "Code": "my_quotes",
-            "UseAllCriterias": true,
-            "FilterGroups": [
-                {
-                    "UseAllCriterias": true,
-                    "FieldFilters": [
-                        {
-                            "Field": "CreatedBy",
-                            "Operator": "eq",
-                            "Value": ":currentuserid"
                         }
                     ]
                 }
