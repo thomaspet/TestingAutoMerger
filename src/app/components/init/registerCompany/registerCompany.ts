@@ -170,11 +170,6 @@ export class RegisterCompany {
                         label: 'Start demo med fiktiv bedrift',
                         class: 'secondary',
                         action: () => this.router.navigateByUrl('/init/register-company?type=demo')
-                    },
-                    {
-                        label: 'Start demo med din bedrift',
-                        class: 'c2a',
-                        action: () => this.router.navigateByUrl('/init/register-company?type=company&isTest=true')
                     }
                 ]
             },
