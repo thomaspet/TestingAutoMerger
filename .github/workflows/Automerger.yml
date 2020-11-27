@@ -1,28 +1,45 @@
-name: CI-RC-Down
-
+name: Automerger
 on:
   push:
-    branches: [ RC ]
+    branches:
+      - pilot
+      - master
+      - RC
+      - RC-[0-9]+
 
 jobs:
     check-conflicts:
         runs-on: ubuntu-latest
-        env:
-          HEAD: RC
-          BASE: develop
         outputs: 
             conflicts: ${{ steps.check.outputs.conflicts }}
+            HEAD: ${{ steps.head.outputs.head }}
+            BASE: ${{ steps.base.outputs.base }}
         steps:
           - uses: actions/checkout@master
             with:
               fetch-depth: 0
+
+          - name: Get name of head
+            id: head
+            run: |
+              echo ::set-output name=head::$(echo ${{ github.ref }} | sed "s/refs\/heads\///")
+
+          - name: Set base from head
+            id: base
+            run: |
+              if [ ${{ steps.head.outputs.head }} == "pilot" ] || [ ${{ steps.head.outputs.head }} == "master" ]; then
+                echo ::set-output name=base::RC
+              else
+                echo ::set-output name=base::develop
+              fi
+
           - name: Check for conflicts
             run: |
              git config user.email ${{ github.actor }}@users.noreply.github.com
              git config user.name ${{ github.actor }}
-             git fetch origin ${{ env.BASE }}
-             git checkout ${{ env.BASE }}
-             git merge ${{ env.HEAD }} & exit 0
+             git fetch origin ${{ steps.base.outputs.base }}
+             git checkout ${{ steps.base.outputs.base }}
+             git merge ${{ steps.head.outputs.head }} & exit 0
 
           - name: Save amount of conflicts
             id: check
@@ -31,8 +48,6 @@ jobs:
     merge:
         runs-on: ubuntu-latest
         env:
-          HEAD: RC
-          BASE: develop
           PATOWNER: frodet
         needs: check-conflicts
         if: needs.check-conflicts.outputs.conflicts == 0
@@ -46,19 +61,17 @@ jobs:
             env: 
               remote: https://${{env.PATOWNER}}:${{secrets.GITHUBACTIONREPOKEY}}@github.com/${{github.repository}}.git
             run: |
-              git config remote.origin.url ${{env.remote}}
+              git config remote.origin.url ${{ env.remote }}
               git config user.email ${{ github.actor }}@users.noreply.github.com
               git config user.name ${{ github.actor }}
-              git fetch
-              git checkout ${{ env.BASE }}
-              git merge origin/${{ env.HEAD }} --no-ff
-              git push origin ${{ env.BASE }}
+              git fetch origin ${{ needs.check-conflicts.outputs.BASE }}
+              git fetch origin ${{ needs.check-conflicts.outputs.HEAD }}
+              git checkout ${{ needs.check-conflicts.outputs.BASE }}
+              git merge origin/${{ needs.check-conflicts.outputs.HEAD }} --no-ff
+              git push origin ${{ needs.check-conflicts.outputs.BASE }}
 
     pull-request:
       runs-on: ubuntu-latest
-      env:
-          HEAD: RC
-          BASE: develop
       needs: check-conflicts
       if: needs.check-conflicts.outputs.conflicts > 0
       steps:
@@ -72,18 +85,18 @@ jobs:
 
         - name: Create PR branch name
           id: prbranch
-          run: echo "::set-output name=branch_name::Automerge_${{ env.HEAD }}_${{ github.actor }}_${{ steps.date.outputs.date }}"
+          run: echo "::set-output name=branch_name::Automerge_${{ needs.check-conflicts.outputs.HEAD }}_${{ github.actor }}_${{ steps.date.outputs.date }}"
         - name: Open pull request
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           run: |
             git config user.email ${{ github.actor }}@users.noreply.github.com
             git config user.name ${{ github.actor }}
-            git fetch origin ${{ env.HEAD }}
-            git checkout ${{ env.HEAD }}
+            git fetch origin ${{ needs.check-conflicts.outputs.HEAD }}
+            git checkout ${{ needs.check-conflicts.outputs.HEAD }}
             git checkout -b ${{ steps.prbranch.outputs.branch_name }}
             git push origin ${{ steps.prbranch.outputs.branch_name }}
-            gh pr create --head ${{ steps.prbranch.outputs.branch_name }} --base ${{ env.BASE }} \
-              --title "[AutoDownMerge] Merge conflict between ${{ env.HEAD }} and ${{ env.BASE }}" \
-              --body "Conflict in automatic downmerge.\nPlease manually fix conflict." \
+            gh pr create --head ${{ steps.prbranch.outputs.branch_name }} --base ${{ needs.check-conflicts.outputs.BASE }} \
+              --title "[AutoDownMerge] Merge conflict between ${{ needs.check-conflicts.outputs.HEAD }} and ${{ needs.check-conflicts.outputs.BASE }}" \
+              --body "Conflict in automatic downmerge. Please manually fix conflict." \
               -a ${{ github.actor }}
