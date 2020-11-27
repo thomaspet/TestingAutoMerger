@@ -11,8 +11,9 @@ export class PaymentService extends BizHttp<Payment> {
     // THIS IS A LIST CREATED FOR TESTING PREAPPROVED PAYMENTS WITH BANKID..
     whitelistedCompanyKeys = [
         'dba624ee-d722-4cab-9fa1-2e62ee88cdc2',
-        '35e5d3ed-e594-4215-9a5d-7557294e0423',
-        '535dc5b8-a065-45e7-af3f-d19cb847b69e',
+        '35e5d3ed-e594-4215-9a5d-7557294e0423', // Local
+        '535dc5b8-a065-45e7-af3f-d19cb847b69e', // Dennis
+        '98257887-d459-4a93-a63d-c6645d0f2120' // Test Tonje-Forhåndsgodkjente betalinger
     ];
 
     constructor(http: UniHttp) {

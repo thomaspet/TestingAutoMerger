@@ -12,6 +12,7 @@ import { DisclaimerModal } from '@app/components/import-central/modals/disclaime
 import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissionModel';
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'product-list',
@@ -163,7 +164,7 @@ export class ProductList {
     }
 
     private importLogs() {
-        this.router.navigate(['/import/log', { id: TemplateType.Product }])
+        this.router.navigate(['/import/log', { id: TemplateType.Product }]);
     }
 
     private openProductImportModal() {
@@ -175,12 +176,14 @@ export class ProductList {
                     type: 'Product',
                     entity: TemplateType.Product,
                     conditionalStatement: '',
-                    formatStatement: ImportStatement.ProductFormatStatement,
+                    formatStatement: (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG)
+                        ? ''
+                        : ImportStatement.ProductFormatStatement,
                     downloadStatement: ImportStatement.ProductDownloadStatement,
                     downloadTemplateUrl: this.productTemplateUrl,
                     hasTemplateAccess: this.productPermissions.hasTemplateAccess,
                     isExternal: true
                 }
             });
-    };
+    }
 }
