@@ -13,6 +13,7 @@ import { TravelModule } from './travel/travel.module';
 import { VariablePayrollsModule } from './variable-payrolls/variable-payrolls.module';
 import { WageTypeModule } from './wage-type/wage-type.module';
 import { SalarySharedModule } from './shared/salary-shared.module';
+import { IncomeReportsModule } from './income-reports/income-reports.module';
 
 @NgModule({
     imports: [
@@ -27,6 +28,7 @@ import { SalarySharedModule } from './shared/salary-shared.module';
         VariablePayrollsModule,
         WageTypeModule,
         SalarySharedModule,
+        IncomeReportsModule,
         RouterModule.forChild(salaryRoutes),
 
     ],

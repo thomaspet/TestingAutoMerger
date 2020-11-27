@@ -1,0 +1,27 @@
+<income-reports-list-toolbar (actionEvent)="onActionEvent($event)"></income-reports-list-toolbar>
+<section class="application">
+    <income-reports-list-tab
+        (tabsReady)="onTabsReady($event)"
+        (activeTabChange)="onActiveTabChange($event)">
+    </income-reports-list-tab>
+    <ag-grid-wrapper class="borders" style="height: 60vh"
+        *ngIf="tabHasIncomeReports; else emptyIncomeReports"
+        [resource]="lookupFunction"
+        [config]="tableConfig">
+    </ag-grid-wrapper>    
+    <ng-template #emptyIncomeReports>
+        <section class="uni-container">
+            <article>
+                <h1>Du har ingen inntektsmeldinger</h1>
+                <p>
+                    Capicola pancetta bresaola flank short ribs t-bone. Shoulder strip steak corned beef tri-tip short loin. 
+                    Prosciutto andouille shank, spare ribs short loin brisket chuck. Short loin landjaeger chuck flank tri-tip spare ribs ground round porchetta kevin tail. 
+                    Turducken turkey beef ribs picanha swine chislic tri-tip short ribs spare ribs rump prosciutto frankfurter corned beef. 
+                    Alcatra leberkas ball tip pork chislic, boudin pork loin.</p>
+            </article>
+            <article>
+                <img [src]="imageUrl" alt="empty incomereport"/>
+            </article>
+        </section>
+    </ng-template>
+</section>

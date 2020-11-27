@@ -43,6 +43,7 @@ export const EN = {
         'SALARY': 'Salary',
         'PAYROLL': 'Payroll',
         'AMELDING': 'A-Melding',
+        'INCOMEREPORTS': 'Income reports',
         'BALANCE': 'Balance',
         'ADDITIONAL_INFORMATION': 'Additional information',
         'ANNUAL_ASSIGNMENT': 'Annual assignment to income recipient',
