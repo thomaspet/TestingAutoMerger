@@ -18,6 +18,7 @@ export class AnnualSettlementCheckListComponent {
     showInfoBox = true;
     showMvaBox = true;
     annualSettlement;
+    nextOption = 0;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -61,6 +62,7 @@ export class AnnualSettlementCheckListComponent {
             }
             return op;
         });
+        this.setNextOption(this.options);
     }
 
     updateOption(option, value) {
@@ -69,7 +71,22 @@ export class AnnualSettlementCheckListComponent {
             this.checkList[option.property] = value.checked;
             this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
         }
+        this.setNextOption(this.options);
     }
+
+    setNextOption(_options) {
+        let stopLooking = false;
+        _options.forEach((op: any, index: number) => {
+            if (!op.checked && !stopLooking) {
+                stopLooking = true;
+                this.nextOption = index;
+            }
+        });
+        if (stopLooking === false) {
+            this.nextOption = _options.length;
+        }
+    }
+
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();

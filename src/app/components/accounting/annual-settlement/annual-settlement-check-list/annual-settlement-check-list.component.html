@@ -26,9 +26,15 @@
             <i class="material-icons close" (click)="showInfoBox = false">close</i>
         </section>
         <uni-stepper>
-            <uni-step *ngFor="let option of options" [step]="option" [class.checked]="option?.checked">
+            <uni-step *ngFor="let option of options; let i = index" [step]="option" [class.checked]="option?.checked"
+                [class.disabled] = "(nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
+                                    || (nextOption === options.length && i < options.length - 1)">
                 <ng-template #stepButtonTemplate let-item="item">
-                    <mat-checkbox [ngModel]="option?.checked" (change)="updateOption(option, $event)"></mat-checkbox>
+                    <mat-checkbox [ngModel]="option?.checked"
+                                  (change)="updateOption(option, $event)"
+                                  [disabled]="(nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
+                                                || (nextOption === options.length && i < options.length - 1)"
+                    ></mat-checkbox>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
                     <h6>{{item.title}}</h6>
