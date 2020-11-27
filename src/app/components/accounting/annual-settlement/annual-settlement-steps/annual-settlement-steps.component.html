@@ -1,15 +1,21 @@
 <uni-stepper>
     <uni-step *ngFor="let step of steps" [step]="step" [class.disabled]="!step?._enabled">
         <ng-template #stepButtonTemplate let-item="item">
-            <button>
+            <button [class.checked]="step._icon === 'check_circle'">
+                <i class="material-icons step-status--checked" *ngIf="step._icon === 'check_circle'">{{step._icon}}</i>
                 <i class="material-icons" *ngIf="step._icon === 'edit'">{{step._icon}}</i>
-                <i *ngIf="step._icon !== 'edit'">{{step._icon}}</i>
+                <i *ngIf="step._icon !== 'edit' && step._icon !== 'check_circle'">{{step._icon}}</i>
             </button>
         </ng-template>
         <ng-template #stepCardTemplate let-item="item">
             <h6>{{item.title}}</h6>
             <article>{{item.text}}</article>
-            <button class="c2a" (click)="runAction(item)" [disabled]="!item?._enabled">{{item.buttonText}}</button>
+            <button [class.c2a]="item._icon !== 'check_circle'"
+                    [class.tertiary]="item._icon === 'check_circle'"
+                    (click)="runAction(item)"
+                    [disabled]="!item?._enabled">
+                {{item.buttonText}}
+            </button>
         </ng-template>
     </uni-step>
 </uni-stepper>

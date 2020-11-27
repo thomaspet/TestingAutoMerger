@@ -72,7 +72,8 @@ annual-settlement-check-list-component
             right: 20px
             color: var(--scale1)
             cursor: pointer
-
+uni-stepper
+    width: 100%
 uni-step
     &.checked
         h6
@@ -107,12 +108,20 @@ uni-step
                 background: var(--dropdown-select-background)
                 border-radius: 50%
                 padding: pxToRem(8px)
+                &.checked
+                    border: 0
+                    background: none
+                    i.material-icons
+                        color: var(--checkbox-checked-background-good)
+                        font-size: 2.1rem
+                        bottom: 0.7rem !important
                 i
                     height: pxToRem(20px)
                     width: pxToRem(20px)
                     position: relative
                     right: pxToRem(2px)
                     bottom: pxToRem(1px)
+
                 i.material-icons
                     right: pxToRem(4px)
                     bottom: pxToRem(3px)
@@ -134,3 +143,13 @@ uni-step
                 padding: pxToRem(12px) pxToRem(16px)
                 border: 1px solid var(--button-c2a)
                 min-width: pxToRem(194px)
+                &.tertiary
+                    padding: 0
+                    border: 0
+                    min-width: 0
+                    color: var(--link-color) !important
+
+@media screen and (min-width: 1300px)
+    uni-step .step-container .step-status button i.material-icons
+        right: pxToRem(1.5) !important
+        bottom: pxToRem(1.5) !important

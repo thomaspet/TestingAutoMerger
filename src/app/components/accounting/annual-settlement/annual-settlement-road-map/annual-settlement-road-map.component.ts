@@ -107,7 +107,11 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
         return _steps.map((step, index) => {
             switch (index) {
                 case 0:
-                    step._icon = currentAS.StatusCode >= 36100 ? 'edit' : index + 1;
+                    step._icon = currentAS.StatusCode === 36100
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36105
+                            ? 'check_circle'
+                            : index + 1;
                     return step;
                 case 1:
                     step._icon = currentAS.StatusCode >= 36105 ? 'edit' : index + 1;

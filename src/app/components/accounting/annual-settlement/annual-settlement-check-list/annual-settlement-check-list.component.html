@@ -38,6 +38,6 @@
         </uni-stepper>
     </section>
     <section class="row last" style="justify-content: flex-end">
-        <button (click)="completeCheckListStep()">Sjekkliste fullført</button>
+        <button (click)="completeCheckListStep()" [disabled]="annualSettlement?.StatusCode > 3600">Sjekkliste fullført</button>
     </section>
 </section>
