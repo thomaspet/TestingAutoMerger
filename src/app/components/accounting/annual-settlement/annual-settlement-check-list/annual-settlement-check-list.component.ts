@@ -21,7 +21,7 @@ export class AnnualSettlementCheckListComponent {
     constructor(
         private router: Router,
         private route: ActivatedRoute,
-        private service: AnnualSettlementService,
+        private annualSettlementService: AnnualSettlementService,
         private tabService: TabService) {}
     ngOnInit() {
         this.route.params.pipe(
@@ -29,9 +29,9 @@ export class AnnualSettlementCheckListComponent {
             map((params) => params.id)
         ).subscribe(id => {
             this.addTab(id);
-            this.service.getAnnualSettlement(id).pipe(
+            this.annualSettlementService.getAnnualSettlement(id).pipe(
                 tap(as => this.annualSettlement = as),
-                switchMap(as => this.service.checkList(as)),
+                switchMap(as => this.annualSettlementService.checkList(as)),
                 catchError(error => {
                     console.log(error);
                     return throwError(error);
@@ -49,10 +49,9 @@ export class AnnualSettlementCheckListComponent {
         });
     }
     completeCheckListStep() {
-        this.service.Transition(this.annualSettlement.ID, this.annualSettlement, '1-to-step-2' )
-            .subscribe(result => {
-                this.router.navigateByUrl('accounting/annualsettlement');
-            });
+        this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+            this.router.navigateByUrl('accounting/annualsettlement');
+        });
     }
 
     initOptions() {

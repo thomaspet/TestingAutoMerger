@@ -85,4 +85,8 @@ export class AnnualSettlementService extends BizHttp<any> {
                 map(() => checkList)
             );
     }
+
+    moveFromStep1ToStep2(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'OneToStepTwo' );
+    }
 }
