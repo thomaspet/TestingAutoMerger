@@ -60,19 +60,19 @@ export enum ImportJobName {
 }
 
 export enum ImportStatement {
-    ProductFormatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'70\'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode \'1\' vil få feil pris)',
+    ProductFormatStatement = `Importen støtter også Uni standard format (*.txt, rectype '70'). For bruk til import fra Uni økonomi V3.(NB! Salgskonto på varen setter mva-kode. Importen håndterer bare priser med eks.mva, varer med mva-kode '1' vil få feil pris)`,
     ProductDownloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.',
 
-    CustomerFormatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'30\'). For bruk til import fra Uni økonomi V3.',
+    CustomerFormatStatement = `Importen støtter også Uni standard format (*.txt, rectype '30'). For bruk til import fra Uni økonomi V3.`,
     CustomerDownloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.',
 
-    SupplierFormatStatement = 'Importen støtter også Uni standard format (*.txt, rectype \'40\'). For bruk til import fra Uni økonomi V3.',
+    SupplierFormatStatement = `Importen støtter også Uni standard format (*.txt, rectype '40'). For bruk til import fra Uni økonomi V3.`,
     SupplierDownloadStatement = 'Last ned excel mal for bruk til import fra eksterne system',
 
     MainLedgerConditionalStatement = 'Importen støtter kontoplan med nummer mellom 1000 - 8999, kontoer utenfor denne serien blir ignorert.',
-    MainLedgerFormatStatement = 'Importen støtter også Uni standard format (*.txt, rectype ‘20’). For bruk til import fra Uni økonomi V3.',
+    MainLedgerFormatStatement = `Importen støtter også Uni standard format (*.txt, rectype '20'). For bruk til import fra Uni økonomi V3.`,
     MainLedgerDownloadStatement = 'Last ned excel mal for bruk til import fra eksterne system.',
 
-    OrderConditionalStatement = 'Hvis ordrenr. fra fil eksisterer i UE fra før så vil importen gi nye ordrenr. basert på neste ledige.',
-    OrderFormatStatement = 'Importen støtter også Uni standard formatet (*.txt, rectype \'85\',\'86\')',
+    OrderConditionalStatement = 'Hvis ordrenr. fra fil eksisterer i systemet fra før så vil importen gi nye ordrenr. basert på neste ledige.',
+    OrderFormatStatement = `Importen støtter også Uni standard formatet (*.txt, rectype '85','86')`,
 }

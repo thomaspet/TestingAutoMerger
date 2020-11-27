@@ -12,6 +12,7 @@ import { ImportCardModel } from '@app/models/import-central/ImportCardModel';
 import { ImportVoucherModal } from '../modals/custom-component-modals/imports/voucher/import-voucher-modal';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { ImportOrderModal } from '../modals/custom-component-modals/imports/order/import-order-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
   selector: 'import-central-page',
@@ -33,7 +34,7 @@ export class ImportCentralPage implements OnInit {
     saft: new ImportSaftUIPermission(),
     voucher: new ImportUIPermission(),
     order: new ImportUIPermission(),
-  }
+  };
 
   constructor(
     private router: Router,
@@ -170,36 +171,34 @@ export class ImportCentralPage implements OnInit {
     this.router.navigate(['/import/log', { id: type }]);
   }
 
-  //checks with disclaimer agreement
+  // checks with disclaimer agreement
   public openImportTemplateModal(templateType: TemplateType) {
     if (templateType !== TemplateType.Saft) {
-    this.userService.getCurrentUser().subscribe(res => {
-      if (res) {
-        if (res.HasAgreedToImportDisclaimer) {
-          this.openImportModal(templateType);
+      this.userService.getCurrentUser().subscribe(res => {
+        if (res) {
+          if (res.HasAgreedToImportDisclaimer) {
+            this.openImportModal(templateType);
+          } else {
+            this.modalService.open(DisclaimerModal)
+              .onClose.subscribe((val) => {
+                if (val) {
+                  this.openImportModal(templateType);
+                }
+              });
+          }
         }
-        else {
-          this.modalService.open(DisclaimerModal)
-            .onClose.subscribe((val) => {
-              if (val) {
-                this.openImportModal(templateType);
-              }
-            });
+      },
+        err => this.errorService.handle('En feil oppstod, vennligst prøv igjen senere')
+      );
+    } else {
+      this.router.navigate(['admin', 'jobs'], {
+        queryParams: {
+          tab: 'saft-t'
         }
-      }
-    },
-      err => this.errorService.handle('En feil oppstod, vennligst prøv igjen senere')
-    );
-  } else {
-    this.router.navigate(['admin', 'jobs'], {
-      queryParams: {
-        tab: 'saft-t'
-      }
-    });
-  }
+      });
+    }
   }
 
-  //
   public openImportModal(templateType: TemplateType) {
     let header, jobName, type, templateUrl, conditionalStatement, formatStatement, downloadStatement = '';
     switch (templateType) {
@@ -207,40 +206,40 @@ export class ImportCentralPage implements OnInit {
         header = 'Importer produkter';
         jobName = ImportJobName.Product;
         type = 'Produkter';
-        formatStatement = ImportStatement.ProductFormatStatement;
+        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.ProductFormatStatement;
         downloadStatement = ImportStatement.ProductDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
         break;
       case TemplateType.Customer:
         header = 'Importer kunder';
         jobName = ImportJobName.Customer;
         type = 'Kunder';
-        formatStatement = ImportStatement.CustomerFormatStatement;
+        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.CustomerFormatStatement;
         downloadStatement = ImportStatement.CustomerDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER;
         break;
       case TemplateType.Supplier:
         header = 'Importer leverandører';
         jobName = ImportJobName.Supplier;
         type = 'Leverandører';
-        formatStatement = ImportStatement.SupplierFormatStatement;
+        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.SupplierFormatStatement;
         downloadStatement = ImportStatement.SupplierDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER;
         break;
       case TemplateType.MainLedger:
         header = 'Importer kontoplan';
         jobName = ImportJobName.MainLedger;
         type = 'Kontoplan';
         conditionalStatement = ImportStatement.MainLedgerConditionalStatement;
-        formatStatement = ImportStatement.MainLedgerFormatStatement;
+        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.MainLedgerFormatStatement;
         downloadStatement = ImportStatement.MainLedgerDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER;
         break;
       case TemplateType.Payroll:
         header = 'Importer lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'lønnsposter';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL;
         break;
       case TemplateType.Saft:
         header = 'Importer SAF-T';
@@ -251,15 +250,15 @@ export class ImportCentralPage implements OnInit {
         header = 'Importer bilag';
         jobName = ImportJobName.Voucher;
         type = 'bilag';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER;
         break;
       case TemplateType.Order:
         header = 'Importer Order';
         jobName = ImportJobName.Order;
         type = 'Order';
         conditionalStatement = ImportStatement.OrderConditionalStatement;
-        formatStatement = ImportStatement.OrderFormatStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.ORDER
+        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.OrderFormatStatement;
+        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.ORDER;
         break;
       default:
         header = '';
@@ -281,8 +280,7 @@ export class ImportCentralPage implements OnInit {
             downloadTemplateUrl: templateUrl
           }
         });
-    }
-    else if (templateType === TemplateType.Order) {
+    } else if (templateType === TemplateType.Order) {
       this.modalService.open(ImportOrderModal,
         {
           header: header,
@@ -323,35 +321,35 @@ export class ImportCentralPage implements OnInit {
         break;
       case TemplateType.Customer:
         header = 'Kunde Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.CUSTOMER, EntityType: templateType, FileName: 'CustomerTemplateWithData', Permisions: this.uiPermission.customer, downloadButton: downloadButton };
         break;
       case TemplateType.Supplier:
         header = 'Leverandør Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.SUPPLIER, EntityType: templateType, FileName: 'SupplierTemplateWithData', Permisions: this.uiPermission.supplier, downloadButton: downloadButton };
         break;
       case TemplateType.MainLedger:
         header = 'Kontoplan Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.MAIN_LEDGER, EntityType: templateType, FileName: 'MainLedgerTemplateWithData', Permisions: this.uiPermission.ledger, downloadButton: downloadButton };
         break;
       case TemplateType.Payroll:
         header = 'Lønnsposter Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'PayrollTemplateWithData', Permisions: this.uiPermission.payroll, downloadButton: downloadButton };
         break;
       case TemplateType.Saft:
         header = 'SAF-T eksport';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton: 'Eksporter SAF-T' }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.PAYROLL, EntityType: templateType, FileName: 'SaftExportedFile', Permisions: this.uiPermission.saft, downloadButton: 'Eksporter SAF-T' };
         break;
       case TemplateType.Voucher:
         header = 'Bilag Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.VOUCHER, EntityType: templateType, FileName: 'VoucherExportedFile', Permisions: this.uiPermission.voucher, downloadButton: downloadButton };
         break;
       case TemplateType.Order:
         header = 'Ordre Eksportmal';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.ORDER, EntityType: templateType, FileName: 'OrderExportedFile', Permisions: this.uiPermission.order, downloadButton: downloadButton }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: this.templateUrls.ORDER, EntityType: templateType, FileName: 'OrderExportedFile', Permisions: this.uiPermission.order, downloadButton: downloadButton };
         break;
       default:
         header = '';
-        data = { StandardUniFormat: '', StandardizedExcelFormat: '' }
+        data = { StandardUniFormat: '', StandardizedExcelFormat: '' };
         break;
     }
     if (templateType !== TemplateType.Saft) {
