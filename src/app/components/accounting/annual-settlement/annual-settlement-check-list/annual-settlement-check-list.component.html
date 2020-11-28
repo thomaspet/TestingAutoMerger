@@ -25,10 +25,11 @@
             </article>
             <i class="material-icons close" (click)="showInfoBox = false">close</i>
         </section>
-        <uni-stepper>
-            <uni-step *ngFor="let option of options; let i = index" [step]="option" [class.checked]="option?.checked"
-                [class.disabled] = "(nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
-                                    || (nextOption === options.length && i < options.length - 1)">
+        <uni-custom-list>
+            <uni-custom-list-item *ngFor="let option of options; let i = index" [step]="option"
+                    [class.checked]="option?.checked"
+                    [class.disabled] = "(nextOption < options.length && i !== nextOption - 1 && i !== nextOption)
+                                        || (nextOption === options.length && i < options.length - 1)">
                 <ng-template #stepButtonTemplate let-item="item">
                     <mat-checkbox [ngModel]="option?.checked"
                                   (change)="updateOption(option, $event)"
@@ -37,13 +38,16 @@
                     ></mat-checkbox>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
-                    <h6>{{item.title}}</h6>
-                    <article [innerHTML]="item.text" *ngIf="!item?.checked"></article>
+                    <h6 class="custom-list-item-title">{{item.title}}</h6>
+                    <article
+                        class="custom-list-item-content"
+                        [innerHTML]="item.text" *ngIf="!item?.checked"
+                    ></article>
                 </ng-template>
-            </uni-step>
-        </uni-stepper>
+            </uni-custom-list-item>
+        </uni-custom-list>
     </section>
-    <section class="row last" style="justify-content: flex-end">
+    <section class="row last justify-content-end">
         <button (click)="completeCheckListStep()" [disabled]="annualSettlement?.StatusCode > 3600">Sjekkliste fullført</button>
     </section>
 </section>

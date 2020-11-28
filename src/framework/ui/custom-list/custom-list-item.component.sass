@@ -1,0 +1,45 @@
+uni-custom-list
+    &.disabled
+        *
+            opacity: 0.85
+    .custom-list-item-container
+        display: flex
+        background: #fff
+        padding: 1.325rem
+        align-items: start
+        border-radius: 0.56rem
+        border: 1px solid var(--border-color)
+        margin-bottom: 1.5rem
+        .custom-list-item-status
+            margin-right: 1.325rem
+            display: flex
+            justify-content: center
+        .custom-list-item-content
+            .custom-list-item-title
+                font-weight: 600
+                font-size: 1.125rem
+                line-height: 1.8rem
+                letter-spacing: 0.009rem
+                font-family: 'Montserrat', sans-serif
+                margin: 0 0 0.9375rem 0
+            .custom-list-item-body
+                font-weight: 400
+                font-size: 0.9375rem
+                line-height: 1.5rem
+                letter-spacing: 0.009rem
+                margin: 0 0 0.9375rem 0
+            .custom-list-item-button
+                padding: 0.75rem 1rem
+                border: 1px solid var(--button-c2a)
+                min-width: 12.125rem
+                &.tertiary
+                    padding: 0
+                    border: 0
+                    min-width: 0
+                    color: var(--link-color) !important
+
+@media screen and (min-width: 1300px)
+    uni-custom-list .custom-list-item-container .custom-list-item-status
+        .custom-list-item-status-step i.material-icons
+            right: 0.09375rem !important
+            bottom: 0.09375rem !important

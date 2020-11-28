@@ -45,8 +45,8 @@ import {AutoFocusDirective} from './autofocus.directive';
 import {UniFileUpload} from '@uni-framework/ui/uni-file-upload/uniFileUpload';
 import {SimpleTable} from './ui/simple-table/simple-table';
 import {UniOptionsListComponent} from '@uni-framework/ui/options-list/options-list.component';
-import {UniStepperComponent} from '@uni-framework/ui/stepper/stepper.component';
-import {UniStepComponent} from '@uni-framework/ui/stepper/step.component';
+import {UniCustomListComponent} from '@uni-framework/ui/custom-list/custom-list.component';
+import {UniCustomListItemComponent} from '@uni-framework/ui/custom-list/custom-list-item.component';
 
 @NgModule({
     imports: [
@@ -88,8 +88,8 @@ import {UniStepComponent} from '@uni-framework/ui/stepper/step.component';
         UniFileUpload,
         SimpleTable,
         UniOptionsListComponent,
-        UniStepperComponent,
-        UniStepComponent,
+        UniCustomListComponent,
+        UniCustomListItemComponent,
         ...MODALS
     ],
     providers: [
@@ -139,8 +139,8 @@ import {UniStepComponent} from '@uni-framework/ui/stepper/step.component';
         UniFileUpload,
         SimpleTable,
         UniOptionsListComponent,
-        UniStepperComponent,
-        UniStepComponent,
+        UniCustomListComponent,
+        UniCustomListItemComponent,
     ]
 })
 export class UniFrameworkModule {}

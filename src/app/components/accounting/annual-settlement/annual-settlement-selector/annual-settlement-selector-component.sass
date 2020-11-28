@@ -1,0 +1,23 @@
+annual-settlement-selector-component
+    uni-options-list-component
+        display: flex
+        span
+            margin: 0 pxToRem(20px) 0 0
+            font-weight: 700
+            font-size: pxToRem(16px)
+            line-height: pxToRem(24px)
+        span:first-of-type
+            margin-left: 0
+        span:last-of-type
+            margin-right: 0
+@media screen and (max-width: 1000px)
+    annual-settlement-selector-component
+        uni-options-list-component
+            span
+                display: inline-block
+@media screen and (max-width: 560px)
+    annual-settlement-selector-component
+        uni-options-list-component
+            span
+                display: block
+                margin: 10px 0

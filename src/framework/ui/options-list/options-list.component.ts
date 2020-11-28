@@ -1,4 +1,4 @@
-import {Component, ContentChild, EventEmitter, Input, Output, TemplateRef} from '@angular/core';
+import {ChangeDetectionStrategy, Component, ContentChild, EventEmitter, Input, Output, TemplateRef, ViewEncapsulation} from '@angular/core';
 
 @Component({
     selector: 'uni-options-list-component',
@@ -9,7 +9,9 @@ import {Component, ContentChild, EventEmitter, Input, Output, TemplateRef} from 
                 <ng-container *ngTemplateOutlet="optionTemplate;context:{item:option}"></ng-container>
             </span>
         </ng-container>
-    `
+    `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    encapsulation: ViewEncapsulation.None
 })
 export class UniOptionsListComponent {
     @Input() options: any[];

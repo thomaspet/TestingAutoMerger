@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {switchMap, tap} from 'rxjs/operators';
@@ -9,7 +9,10 @@ import {Router} from '@angular/router';
 
 @Component({
     selector: 'annual-settlement-road-map-component',
-    templateUrl: './annual-settlement-road-map.component.html'
+    templateUrl: './annual-settlement-road-map.component.html',
+    styleUrls: ['./annual-settlement-road-map.component.sass'],
+    encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnnualSettlementRoadMapComponent implements OnInit {
     annualSettlements$: Observable<any>;
