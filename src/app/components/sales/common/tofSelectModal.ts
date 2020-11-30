@@ -173,6 +173,12 @@ export class UniTofSelectModal implements IUniModal {
             case '42004':
                 statusText = 'Betalt';
                 break;
+            case '42006':
+                statusText = 'Kreditert';
+                break;
+            case '42007':
+                statusText = 'Delkreditert';
+                break;
             case '42501':
                 statusText = 'Purret';
                 break;

@@ -30,7 +30,9 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         // { Code: StatusCodeCustomerInvoice.Reminded, Text: 'Purret'}, // TODO: Add when available from backend
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt' },
         { Code: StatusCodeCustomerInvoice.Sold, Text: 'Solgt' },
-        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' }
+        { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt' },
+        { Code: StatusCodeCustomerInvoice.Credited, Text: 'Kreditert' },
+        { Code: StatusCodeCustomerInvoice.PartlyCredited, Text: 'Delkreditert' }
     ];
 
     public statusTypesCredit: Array<any> = [
@@ -38,6 +40,8 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
         { Code: StatusCodeCustomerInvoice.Invoiced, Text: 'Fakturert(Kreditnota)' },
         { Code: StatusCodeCustomerInvoice.PartlyPaid, Text: 'Delbetalt(Kreditnota)' },
         { Code: StatusCodeCustomerInvoice.Paid, Text: 'Betalt(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.Credited, Text: 'Kreditert(Kreditnota)' },
+        { Code: StatusCodeCustomerInvoice.PartlyCredited, Text: 'Delkreditert(Kreditnota)' }
     ];
 
     public actionOverrides: Array<ITickerActionOverride> = [

@@ -9,6 +9,7 @@ import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissio
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'supplier-list',
@@ -79,8 +80,7 @@ export class SupplierList {
             if (res) {
                 if (res.HasAgreedToImportDisclaimer) {
                     this.openSupplierImportModal();
-                }
-                else {
+                } else {
                     this.modalService.open(DisclaimerModal)
                         .onClose.subscribe((val) => {
                             if (val) {
@@ -94,7 +94,7 @@ export class SupplierList {
     }
 
     private importLogs() {
-        this.router.navigate(['/import/log', { id: TemplateType.Supplier }])
+        this.router.navigate(['/import/log', { id: TemplateType.Supplier }]);
     }
 
     private openSupplierImportModal() {
@@ -106,7 +106,9 @@ export class SupplierList {
                     type: 'Supplier',
                     entity: TemplateType.Supplier,
                     conditionalStatement: '',
-                    formatStatement: ImportStatement.SupplierFormatStatement,
+                    formatStatement: (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG)
+                        ? ''
+                        : ImportStatement.SupplierFormatStatement,
                     downloadStatement: ImportStatement.SupplierDownloadStatement,
                     downloadTemplateUrl: this.supplierTemplateUrl,
                     hasTemplateAccess: this.supplierPermissions.hasTemplateAccess,

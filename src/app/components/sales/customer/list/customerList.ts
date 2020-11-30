@@ -17,6 +17,7 @@ import { ImportUIPermission } from '@app/models/import-central/ImportUIPermissio
 import { ImportJobName, TemplateType, ImportStatement } from '@app/models/import-central/ImportDialogModel';
 import { ImportTemplateModal } from '@app/components/import-central/modals/import-template/import-template-modal';
 import {CustomerEditModal} from '../../../common/modals/customer-edit-modal/customer-edit-modal';
+import {theme, THEMES} from 'src/themes/theme';
 
 @Component({
     selector: 'customer-list',
@@ -176,7 +177,7 @@ export class CustomerList implements OnInit {
     }
 
     private importLogs() {
-        this.router.navigate(['/import/log', { id: TemplateType.Customer }])
+        this.router.navigate(['/import/log', { id: TemplateType.Customer }]);
     }
 
     private openCustomerImportModal() {
@@ -189,7 +190,9 @@ export class CustomerList implements OnInit {
                     entity: TemplateType.Customer,
                     downloadTemplateUrl: this.customerTemplateUrl,
                     conditionalStatement: '',
-                    formatStatement: ImportStatement.CustomerFormatStatement,
+                    formatStatement: (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG)
+                        ? ''
+                        : ImportStatement.CustomerFormatStatement,
                     downloadStatement: ImportStatement.CustomerDownloadStatement,
                     hasTemplateAccess: this.customerPermissions.hasTemplateAccess,
                     isExternal: true
