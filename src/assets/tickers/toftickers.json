@@ -153,13 +153,6 @@
             "SumColumn": true
         },
         {
-            "Header": "Restsum [BASECURRENCY]",
-            "Field": "RestAmount",
-            "Format": "NumberPositiveNegative",
-            "DefaultHidden": true,
-            "SumColumn": true
-        },
-        {
             "Header": "Kreditert [BASECURRENCY]",
             "Field": "CreditedAmount",
             "Format": "NumberPositiveNegative",
@@ -193,6 +186,12 @@
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "125px"
+        },
+        {
+            "Header": "Restsum [BASECURRENCY]",
+            "Field": "RestAmount",
+            "Format": "NumberPositiveNegative",
+            "SumColumn": true
         },
         {
             "Header": "Sum inkl. mva [BASECURRENCY]",
