@@ -367,8 +367,8 @@
                     "FieldFilters": [
                         {
                             "Field": "datediff('day',PaymentDueDate,getdate())",
-                            "Operator": "eq",
-                            "Value": "0"
+                            "Operator": "lt",
+                            "Value": "1"
                         },
                         {
                             "Field": "StatusCode",
