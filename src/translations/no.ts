@@ -436,6 +436,7 @@ export const NO = {
         'SALARY': 'Lønn',
         'PAYROLL': 'Lønnsavregning',
         'AMELDING': 'A-melding',
+        'INCOMEREPORTS': 'Inntektsmelding',        
         'BALANCE': 'Saldo',
         'ADDITIONAL_INFORMATION': 'Tilleggsopplysninger',
         'ANNUAL_ASSIGNMENT': 'Årsoppgave til inntektsmottaker',

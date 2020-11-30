@@ -361,6 +361,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
+                        name: 'NAVBAR.INCOMEREPORTS',
+                        url: '/salary/incomereports',
+                        moduleID: UniModules.Amelding,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.BALANCE',
                         url: '/salary/salarybalances',
                         moduleID: UniModules.Salarybalances,
