@@ -17,6 +17,9 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
         private errorService: ErrorService,
     ) {
         super(http);
+        this.relativeURL = IncomeReportData.RelativeUrl;
+        this.entityType = IncomeReportData.EntityType;
+
     }
 
     public getIncomeReportsCountByType(code?: number | null) {
@@ -56,7 +59,7 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
             }
         }
         if (!params.get('orderby')) {
-            params = params.set('orderby', 'ID desc');
+            params = params.set('orderby', 'CreatedAt desc');
         }
         params = params.set('model', 'incomereportdata');
         params = params.set('select',
@@ -75,13 +78,7 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
     }
 
     public getIncomeReport(id: number): Observable<any> {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint(`income-reports/${id} `)
-            .send()
-            .map(response => response.body);
-
+        return super.Get(id);
     }
 
     public createIncomeReport(type: YtelseKodeliste, employmentId?: number): Observable<any> {

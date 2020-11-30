@@ -15,7 +15,6 @@ import { IncomeReportsActions } from '../income-reports.actions';
     `
 })
 export class IncomeReportsListToolbar {
-    @Output() actionEvent: EventEmitter<any> = new EventEmitter<any>();
 
     saveActions: IUniSaveAction[];
     toolbarconfig: IToolbarConfig = {

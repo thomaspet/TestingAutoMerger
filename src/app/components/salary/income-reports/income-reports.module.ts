@@ -9,7 +9,7 @@ import { IncomeReportsListToolbar } from './income-reports-list/income-reports-l
 import { IncomeReportsListComponent } from './income-reports-list/income-reports-list.component';
 import { incomeReportsRoutes } from './income-reports.routes';
 import { IncomeReportsActions } from './income-reports.actions';
-import { IncomeReportsService } from '@app/services/salary/incomeReport/incomeReportsService';
+import { IncomeReportsService } from '@app/components/salary/income-reports/shared-services/incomeReportsService';
 
 @NgModule({
     imports: [

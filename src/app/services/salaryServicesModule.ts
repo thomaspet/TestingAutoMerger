@@ -15,7 +15,7 @@ import {SalaryBalanceLineService} from './salary/salarybalance/salaryBalanceLine
 import {TravelService} from './salary/travel/travelService';
 import {SalarybalanceTemplateService} from './salary/salarybalanceTemplate/salarybalanceTemplateService';
 import {EmployeeLanguageService} from './salary/employee/employee-language.service';
-import {IncomeReportsService} from './salary/incomeReport/incomeReportsService';
+import {IncomeReportsService} from '../components/salary/income-reports/shared-services/incomeReportsService';
 
 export * from './salary/basicAmount/basicAmountService';
 export * from './salary/companySalary/companySalaryService';
@@ -33,7 +33,7 @@ export * from './salary/salarybalance/salaryBalanceLineService';
 export * from './salary/travel/travelService';
 export * from './salary/salarybalanceTemplate/salarybalanceTemplateService';
 export * from './salary/employee/employee-language.service';
-export * from './salary/incomeReport/incomeReportsService';
+export * from '../components/salary/income-reports/shared-services/incomeReportsService';
 
 
 @NgModule({})
@@ -57,8 +57,7 @@ export class SalaryServicesModule {
                 SalaryBalanceLineService,
                 TravelService,
                 SalarybalanceTemplateService,
-                EmployeeLanguageService,
-                IncomeReportsService
+                EmployeeLanguageService
             ]
         };
     }

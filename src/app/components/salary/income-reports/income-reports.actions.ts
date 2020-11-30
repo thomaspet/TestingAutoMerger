@@ -1,10 +1,9 @@
 import { HttpParams } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { IncomeReportsService } from '@app/services/salary/incomeReport/incomeReportsService';
+import { IncomeReportsService } from '@app/components/salary/income-reports/shared-services/incomeReportsService';
 import { StatusCodeIncomeReport } from '@uni-entities';
 import { forkJoin } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Injectable()
 export class IncomeReportsActions {
@@ -19,7 +18,7 @@ constructor(
             this.incomeReportsService.getIncomeReportsCountByType(StatusCodeIncomeReport.Sendt),
             this.incomeReportsService.getIncomeReportsCountByType(49003),
             this.incomeReportsService.getIncomeReportsCountByType()
-        ]).pipe(take(1));
+        ]);
     }
 
     navigateToNewIncomeReport() {
@@ -27,7 +26,7 @@ constructor(
     }
 
     loadIncomeReports(incomeReportStatus = '', params: HttpParams) {
-        return this.incomeReportsService.getIncomeReports(incomeReportStatus, params).pipe(take(1));
+        return this.incomeReportsService.getIncomeReports(incomeReportStatus, params);
 
     }
 }

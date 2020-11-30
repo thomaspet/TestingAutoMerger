@@ -32,28 +32,20 @@ export class IncomeReportsListComponent {
         private router: Router,
         private route: ActivatedRoute,
         private incomeReportsActions: IncomeReportsActions
-    ) {
+    ) {}
+
+    ngOnInit(): void {
         this.tableConfig = this.createIncomeReportsTableConfig();
         this.route.queryParams.pipe(takeUntil(this.onDestroy$))
         .subscribe(params => this.lookupFunction = (httpParams: HttpParams) => {
             this.currentIncomeReportTab = params.incomereportstatus;
             return this.incomeReportsActions.loadIncomeReports(params.incomereportstatus, httpParams);
         });
-
-    }
-
-    ngOnInit(): void {
     }
 
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
-    }
-
-    onActionEvent(action) {
-        if (action?.result) {
-            this.table.refreshTableData();
-        }
     }
 
     onTabsReady(tabs) {
