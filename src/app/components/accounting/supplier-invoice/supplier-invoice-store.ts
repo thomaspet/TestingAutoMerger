@@ -384,6 +384,11 @@ export class SupplierInvoiceStore {
             }
         } else if (field === 'VatType') {
             line.VatTypeID = value?.ID || null;
+        } else if (field === 'AmountCurrency' && line.AmountCurrency) {
+            // When typed into simple journal entry line form with a comma, change to . before parsefloat to avoid rounding and errors
+            if (line.AmountCurrency.toString().indexOf(',') !== -1) {
+                line.AmountCurrency = parseFloat(line.AmountCurrency.toString().replace(' ', '').replace(',', '.'))
+            }
         }
 
         // recalc
