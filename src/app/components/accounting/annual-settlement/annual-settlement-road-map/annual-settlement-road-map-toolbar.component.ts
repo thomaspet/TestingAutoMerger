@@ -4,10 +4,15 @@ import {IToolbarConfig} from '@app/components/common/toolbar/toolbar';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 
 @Component({
-    selector: 'annual-settlement-toolbar-component',
-    templateUrl: './annual-settlement-toolbar.component.html'
+    selector: 'annual-settlement-road-map-toolbar-component',
+    template: `
+        <uni-toolbar
+            [config]="toolbarconfig"
+            [saveactions]="saveActions"
+        ></uni-toolbar>
+    `
 })
-export class AnnualSettlementToolbarComponent {
+export class AnnualSettlementRoadMapToolbarComponent {
     saveActions: IUniSaveAction[];
     toolbarconfig: IToolbarConfig = {
         title: 'Årsavslutning'

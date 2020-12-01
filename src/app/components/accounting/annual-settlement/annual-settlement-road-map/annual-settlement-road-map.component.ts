@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation} from '@an
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {switchMap, tap} from 'rxjs/operators';
-import steps from '../annual-settlement-steps-data';
+import steps from '../annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
@@ -94,6 +94,11 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     };
                     return step;
                 case 1:
+                    step.action = () => {
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/reconcile`
+                        );
+                    };
                     return step;
                 case 2:
                     return step;

@@ -3,6 +3,14 @@ import {BizHttp, UniHttp} from '@uni-framework/core/http';
 import {of} from 'rxjs';
 import {map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../../environments/environment';
+import {annualSettlementRoutes} from '@app/components/accounting/annual-settlement/annual-settlement.routes';
+import {HttpClient} from '@angular/common/http';
+
+export enum StatusCodeReconcile {
+    NotBegun = 36000,
+    InProgress = 36005,
+    Completed = 36010
+}
 
 @Injectable()
 export class AnnualSettlementService extends BizHttp<any> {
@@ -10,9 +18,11 @@ export class AnnualSettlementService extends BizHttp<any> {
     public relativeURL = 'annualsettlement';
     protected entityType = 'AnnualSettlement';
     baseUrl = environment.BASE_URL + environment.API_DOMAINS.BUSINESS;
+    httpClient: HttpClient;
 
     constructor(protected http: UniHttp) {
         super(http);
+        this.httpClient = this.http.http;
     }
 
     getAnnualSettlements() {
@@ -20,7 +30,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     getAnnualSettlement(id) {
-        return this.Get(id, ['AnnualSettlementCheckList']);
+        return this.Get(id, ['AnnualSettlementCheckList', 'Reconcile', 'Reconcile.Account']);
     }
 
     createFinancialYear(year: number) {
@@ -31,7 +41,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     checkMvaMelding(financialYear) {
-        return this.http.http.get(
+        return this.httpClient.get(
             this.baseUrl + 'vatreports?action=validate-vatreports-for-financialyear&financialYear=' + financialYear
         ).pipe(
             map((result: any[]) => (result && result.length === 0))
@@ -88,5 +98,12 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     moveFromStep1ToStep2(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'OneToStepTwo' );
+    }
+
+    startReconcile(annualSettlement) {
+        if (annualSettlement.StatusCode === StatusCodeReconcile.NotBegun) {
+            return this.httpClient.get(this.baseUrl + 'reconcile?action=begin-reconcile');
+        }
+        return of(annualSettlement);
     }
 }
