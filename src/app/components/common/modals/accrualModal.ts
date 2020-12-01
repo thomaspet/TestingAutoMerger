@@ -55,20 +55,26 @@ import { of } from 'rxjs/observable/of';
                         </tr>
                         <tr *ngFor="let period of currentFinancialYearPeriods; let i = index">
                             <td>{{period.Name}}</td>
-                            <td align="center"><input type="checkbox" tabindex="10"
-                                (click)="setSingleAccrualPeriod(period.No,1)"
-                                [(ngModel)]="allCheckboxValues[i].period1"
-                                [disabled]="allCheckBoxEnabledValues[i].period1"/>
+                            <td align="center">
+                                <mat-checkbox
+                                    (change)="setSingleAccrualPeriod(period.No,1)"
+                                    [checked]="allCheckboxValues[i].period1"
+                                    [disabled]="allCheckBoxEnabledValues[i].period1">
+                                </mat-checkbox>
                             </td>
-                            <td align="center"><input type="checkbox" tabindex="10"
-                                (click)="setSingleAccrualPeriod(period.No,2)"
-                                [(ngModel)]="allCheckboxValues[i].period2"
-                                [disabled]="allCheckBoxEnabledValues[i].period2"/>
+                            <td align="center">
+                                <mat-checkbox
+                                    (change)="setSingleAccrualPeriod(period.No,2)"
+                                    [checked]="allCheckboxValues[i].period2"
+                                    [disabled]="allCheckBoxEnabledValues[i].period2">
+                                </mat-checkbox>
                             </td>
-                            <td align="center"><input type="checkbox" tabindex="10"
-                                (click)="setSingleAccrualPeriod(period.No,3)"
-                                [(ngModel)]="allCheckboxValues[i].period3"
-                                [disabled]="allCheckBoxEnabledValues[i].period3"/>
+                            <td align="center">
+                                <mat-checkbox
+                                    (change)="setSingleAccrualPeriod(period.No,3)"
+                                    [checked]="allCheckboxValues[i].period3"
+                                    [disabled]="allCheckBoxEnabledValues[i].period3">
+                                </mat-checkbox>
                             </td>
                             <td></td>
                         </tr>
@@ -122,6 +128,7 @@ export class AccrualModal implements IUniModal {
     private lastClickedPeriodNo: number = 0;
     private lastClickedYear: number = 0;
     public lockedDateSelected: boolean = false;
+    private isJournalEntry: boolean = false;
 
     private allCheckboxValues: any = [
         {period1: false, period2: false, period3: false},
@@ -235,7 +242,8 @@ export class AccrualModal implements IUniModal {
             ap3.PeriodNo = ap2.PeriodNo + 1;
         }
 
-        accrualPeriods = [ ap1, ap2, ap3 ];
+        accrualPeriods = [ap1, ap2, ap3];
+        accrualPeriods.forEach(period => period['_createguid'] = createGuid());
         return accrualPeriods;
     }
 
@@ -266,6 +274,7 @@ export class AccrualModal implements IUniModal {
         this.lockDate = this.options.data.AccountingLockedDate;
         let accrual = this.options.data.accrual;
         this.companySettings = this.options.data.companySettings;
+        this.isJournalEntry = this.options.data.isJournalEntry;
         const accrualAmount = this.options.data.accrualAmount;
         const accrualStartDate = this.options.data.accrualStartDate;
         const journalEntryLineDraft = this.options.data.journalEntryLineDraft;
@@ -281,6 +290,7 @@ export class AccrualModal implements IUniModal {
         if (!accrual) {
             accrual = new Accrual();
             accrual.AccrualJournalEntryMode = 0;
+            accrual['_createguid'] = createGuid();
 
             if (!journalEntryLineDraft) {
                 accrual.AccrualAmount = accrualAmount;
@@ -296,10 +306,10 @@ export class AccrualModal implements IUniModal {
                     accrual['_periodYears'] =
                         [accrualStartDate.year, accrualStartDate.year + 1, accrualStartDate.year + 2];
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
-                    accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
+                    accrual['_periodAmount'] = parseFloat(accrual.Periods[0].Amount).toFixed(2);
                 }
             } else {
-                accrual.AccrualAmount = journalEntryLineDraft.Amount;
+                accrual.AccrualAmount = accrualAmount;
                 const startYear: number = journalEntryLineDraft.FinancialDate.year;
 
                 const startPeriod: number = journalEntryLineDraft.FinancialDate.month;
@@ -310,7 +320,7 @@ export class AccrualModal implements IUniModal {
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = journalEntryLineDraft.FinancialDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
-                    accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
+                    accrual['_periodAmount'] = parseFloat(accrual.Periods[0].Amount).toFixed(2);
                 }
             }
         } else {
@@ -336,7 +346,7 @@ export class AccrualModal implements IUniModal {
                     accrual['_periodYears'] = [startYear, startYear + 1, startYear + 2];
                     accrual['_financialDate'] = journalEntryLineDraft.FinancialDate;
                     accrual['_numberOfPeriods'] = accrual.Periods.length;
-                    accrual['_periodAmount'] = accrual.Periods[0].Amount.toFixed(2);
+                    accrual['_periodAmount'] = parseFloat(accrual.Periods[0].Amount).toFixed(2);
                 } else if (accrualStartDate) {
                     let startYear: number;
                     if (accrual.Periods.length > 0) {
@@ -365,7 +375,7 @@ export class AccrualModal implements IUniModal {
         // changing BalanceAccountID on model to localStorage so that your newest selected
         // value becomes standard value on accrualModal initialization
         let key = document.querySelector('uni-bill') ? 'InvoiceBalanceAccountID' : 'BillBalanceAccountID';
-        if (document.querySelector('journalentries')) {
+        if (document.querySelector('journalentries') || this.isJournalEntry) {
             key = 'JournalEntriesBalanceAccount';
         }
         this.modalConfig.model.BalanceAccountID = this.browserStorageService.getItem(key);
@@ -463,7 +473,7 @@ export class AccrualModal implements IUniModal {
             let periodeAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig();
             let promises = [];
             const uniBillElement = document.querySelector('uni-bill');
-            const journalEntryElement = document.querySelector('journalentries');
+            const journalEntryElement = document.querySelector('journalentries') || this.isJournalEntry;
 
             if (this.companySettings && this.companySettings['DefaultAccrualAccountID']) {
                 periodeAccountConfig = this.uniSearchAccountConfig.generate17XXAccountsConfig(false, null, null, this.companySettings['DefaultAccrualAccountID']);
@@ -929,7 +939,7 @@ export class AccrualModal implements IUniModal {
                 LineBreak: true,
                 Sectionheader: 'Periodiseringskonto',
                 Section: 1,
-                Hidden: !!document.querySelector('uni-bill') || !!document.querySelector('journalentries'),
+                Hidden: !!document.querySelector('uni-bill') || !!document.querySelector('journalentries') || this.isJournalEntry,
                 Options: {
                     uniSearchConfig: this.uniSearchAccountConfig.generate17XXAccountsConfig(),
                     valueProperty: 'ID'

@@ -56,11 +56,11 @@ export class UniBankReconciliationList {
         this.bankService.getBankAccountsForReconciliation()
             .finally( () => this.busy = false )
             .subscribe(accounts => {
-            this.bankAccounts = accounts.map(acc => {
+                this.bankAccounts = accounts.map(acc => {
                 acc.count = acc.total - acc.closed;
                 acc.Account = {
                     AccountNumber: acc.AccountAccountNumber,
-                    AccountName: acc.AccountName
+                    AccountName: acc.AccountName,
                 };
                 return acc;
             }).sort((a, b) => {

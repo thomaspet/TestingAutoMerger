@@ -23,7 +23,7 @@
             Kun for testing
         </section>
 
-        <demo-package-selector *ngIf="showDemoPackageSelector"></demo-package-selector>
+        <demo-package-selector *ngIf="showDemoPackageSelector" [isSupportUser]="isSupportUser"></demo-package-selector>
         <support-access-indicator></support-access-indicator>
     </section>
 
@@ -115,5 +115,4 @@
 
 <section *ngIf="hasActiveContract && !deativateFunctions" class="tab-strip" [ngClass]="'sidebar-' + sidebarState">
     <uni-tabstrip></uni-tabstrip>
-
 </section>

@@ -50,10 +50,8 @@ export interface IUploadConfig {
         </ag-grid-wrapper>
 
         <section class="attachments-infobox" *ngIf="showInfoBox">
-            <section>
-                <span>Markerte vedlegg sendes ut til kunden som vedlegg til faktura.</span><br>
-                <span>Umarkerte vedlegg lagres som intern dokumentasjon på fakturabilaget, og blir ikke distribuert til kunden.</span>
-            </section>
+            <span>Markerte vedlegg sendes ut til kunden som vedlegg til faktura.</span><br>
+            <span>Umarkerte vedlegg lagres som intern dokumentasjon på fakturabilaget, og blir ikke distribuert til kunden.</span>
         </section>
     `,
 })

@@ -3,13 +3,13 @@
     <uni-chat-box *ngFor="let chatbox of (chatBoxService.businessObjects | async)" [businessObject]="chatbox"></uni-chat-box>
 </section>
 
-<uni-navbar [deativateFunctions]="isPendingApproval" class="no-print" *ngIf="isAuthenticated && !isOnInitRoute"></uni-navbar>
+<uni-navbar [deativateFunctions]="isPendingApproval || licenseExpired" class="no-print" *ngIf="isAuthenticated && !isOnInitRoute"></uni-navbar>
 
 <section id="page-container" [ngClass]="'sidebar-' + (navbarService.sidebarState$ | async)">
-    <uni-sidebar *ngIf="isAuthenticated && !isOnInitRoute && !isPendingApproval"></uni-sidebar>
+    <uni-sidebar *ngIf="isAuthenticated && !isOnInitRoute && !isPendingApproval && !licenseExpired"></uni-sidebar>
 
-    <section class="locked-company-container" *ngIf="isPendingApproval">
-        <section>
+    <section class="locked-container" *ngIf="isPendingApproval && !licenseExpired">
+        <section class="company-lock">
             <h3>Avventer {{isBankCustomer ? 'signering av dokumenter' : 'etablering av kundeforhold'}}</h3>
             <span *ngIf="isBankCustomer">
                 For å ta i bruk fullverdig versjon av SpareBank 1 Regnskap må nødvendige avtaledokumenter være signert.
@@ -28,7 +28,17 @@
         </section>
     </section>
 
-    <main id="page-content-container" *ngIf="!isPendingApproval">
+    <section class="locked-container" *ngIf="licenseExpired">
+        <section class="license-lock">
+            <span>
+                Sluttdato på {{expiredEntity}} har passert. 
+                Om du fortsatt ønsker å benytte systemet, 
+                må du kontakte <a [href]="supportPageUrl" target="_blank">support</a>.
+            </span>
+        </section>
+    </section>
+
+    <main id="page-content-container" *ngIf="!isPendingApproval && !licenseExpired">
         <router-outlet></router-outlet>
     </main>
 </section>

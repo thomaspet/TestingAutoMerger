@@ -159,9 +159,7 @@ export class ProductPurchases implements OnInit {
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
             activationModal = {modal: UniActivateInvoicePrintModal};
         } else if (name === 'ehf' && !this.ehfService.isEHFIncomingActivated()) {
-            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
-        } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
-            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
+            activationModal = {modal: UniActivateAPModal};
         } else if (
             name === 'ocr-scan'
             && !this.companySettings.UseOcrInterpretation

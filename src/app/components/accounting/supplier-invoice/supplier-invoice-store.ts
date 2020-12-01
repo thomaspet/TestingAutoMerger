@@ -78,6 +78,7 @@ export class SupplierInvoiceStore {
     bankAccounts: any[] = [];
     selectedBankAccount;
     url = theme.theme === THEMES.SR ? '/accounting/supplier-invoice/' : '/accounting/bills/';
+    invoiceID: number = 0;
 
     constructor(
         private router: Router,
@@ -94,7 +95,7 @@ export class SupplierInvoiceStore {
         private vatTypeService: VatTypeService,
         private companySettingsService: CompanySettingsService,
         private errorService: ErrorService,
-        private toastService: ToastService,
+        public toastService: ToastService,
         private modalService: UniModalService,
         private bankService: BankService,
         private currencyCodeService: CurrencyCodeService,
@@ -104,7 +105,9 @@ export class SupplierInvoiceStore {
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
+        this.invoiceID = invoiceID;
         this.currentMode = currentMode;
+
         Observable.forkJoin(
             [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
@@ -119,11 +122,11 @@ export class SupplierInvoiceStore {
             const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
             this.selectedBankAccount = defaultAccount || accounts[0];
 
-            this.loadInvoice(invoiceID);
+            this.loadInvoice(invoiceID, false);
         });
     }
 
-    loadInvoice(id?, checkAsset: boolean = false) {
+    loadInvoice(id?, checkAsset: boolean = false, action: ActionOnReload = 0) {
         const expands =  [
             'Supplier.Info.BankAccounts',
             'BankAccount',
@@ -141,7 +144,7 @@ export class SupplierInvoiceStore {
 
                 if (invoice.JournalEntryID) {
                     obs.push(this.journalEntryService.Get(invoice.JournalEntryID, [
-                        'DraftLines.Account',
+                        'DraftLines.Account', 'DraftLines.Accrual.Periods'
                     ]));
                 }
 
@@ -195,9 +198,27 @@ export class SupplierInvoiceStore {
             this.initDataLoaded$.next(true);
 
             if (checkAsset) {
-                this.itCanBeAnAsset(this.invoice$.value).subscribe((res) => {
-                    if (res) {
-                        this.assetsService.openRegisterModal(this.invoice$.value);
+                this.itCanBeAnAsset(this.invoice$.value).subscribe((canBeAsset) => {
+                    if (canBeAsset) {
+                        this.assetsService.openRegisterModal(this.invoice$.value).take(1).subscribe((response: ConfirmActions) => {
+                            if (action && response !== ConfirmActions.ACCEPT) {
+                                this.openJournaledAndPaidModal(action).subscribe((res) => {
+                                    if (res === ConfirmActions.ACCEPT) {
+                                        this.router.navigateByUrl('/accounting/bills/0');
+                                    } else if (res === ConfirmActions.REJECT &&
+                                        (action === ActionOnReload.SentToPaymentList
+                                            || action === ActionOnReload.JournaledAndSentToPaymentList)) {
+                                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
+                                    } else if (action > 0 && action < 3) {
+                                        this.itCanBeAnAsset(this.invoice$.value).subscribe(canBeAnAsset => {
+                                            if (canBeAnAsset) {
+                                                this.assetsService.openRegisterModal(this.invoice$.value);
+                                            }
+                                        });
+                                    }
+                                });
+                            }
+                        });
                     }
                 });
             }
@@ -232,14 +253,16 @@ export class SupplierInvoiceStore {
                 }
             };
 
-            if (this.initDataLoaded$.value) {
-                run();
-            } else {
-                this.initDataLoaded$.take(2).subscribe(res => {
-                    if (res) {
-                        run();
-                    }
-                });
+            if (!this.invoiceID) {
+                if (this.initDataLoaded$.value) {
+                    run();
+                } else {
+                    this.initDataLoaded$.take(2).subscribe(res => {
+                        if (res) {
+                            run();
+                        }
+                    });
+                }
             }
         }
     }
@@ -309,7 +332,7 @@ export class SupplierInvoiceStore {
             title: 'Et lite øyeblikk',
             message: 'Vi tolker vedlegget, og legger automatisk inn de verdiene som systemet gjenkjenner.'
         });
-        this.ocrHelper.runEHFParse(file).subscribe(invoice => {
+        this.ocrHelper.runEHFParse(file, this.currentMode === PaymentMode.PrepaidByEmployee).subscribe(invoice => {
             invoice.JournalEntry = invoice.JournalEntry || <JournalEntry>{ ID: 0, DraftLines: [] };
             this.invoice$.next(invoice);
 
@@ -355,7 +378,7 @@ export class SupplierInvoiceStore {
             invoice.PaymentDueDate = new LocalDate(moment(invoice.InvoiceDate).add('d', 14).toDate());
             invoice.DeliveryDate = invoice.InvoiceDate;
 
-            this.updateDatesOnJournalEntryLines(invoice.InvoiceDate);
+            this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
         } else if (field.toLowerCase().includes('dimension') && !invoice.DefaultDimensions.ID) {
             invoice.DefaultDimensions._createguid = this.supplierInvoiceService.getNewGuid();
         } else if (field === 'Supplier' && invoice.TaxInclusiveAmountCurrency && !invoice.ID) {
@@ -384,14 +407,22 @@ export class SupplierInvoiceStore {
             }
         } else if (field === 'VatType') {
             line.VatTypeID = value?.ID || null;
-        } else if (field === 'AmountCurrency' && line.AmountCurrency) {
+        } else if (field === 'AmountCurrency') {
+            
+            if (!line?.AmountCurrency || isNaN(line.AmountCurrency)) {
+                line.AmountCurrency = 0;
+            }
+
             // When typed into simple journal entry line form with a comma, change to . before parsefloat to avoid rounding and errors
             if (line.AmountCurrency.toString().indexOf(',') !== -1) {
                 line.AmountCurrency = parseFloat(line.AmountCurrency.toString().replace(' ', '').replace(',', '.'))
             }
+            
+            if (isNaN(line.AmountCurrency)) {
+                line.AmountCurrency = 0;
+            }
+            line.Amount = line.AmountCurrency;
         }
-
-        // recalc
 
         lines[index] = line;
         this.journalEntryLines$.next(lines);
@@ -411,9 +442,11 @@ export class SupplierInvoiceStore {
             const overrideVatCodes = ['3', '31', '32', '33'];
             const overrideVatCodesNone = ['1', '11', '12', '13'];
 
-            if (overrideVatCodes.indexOf(vatType.VatCode) !== -1) {
+            vatType = this.vatTypes.find(x => x.ID === ID);
+
+            if (overrideVatCodes.indexOf(vatType?.VatCode) !== -1) {
                 vatType = this.vatTypes.find(x => x.VatCode === '6');
-            } else if (overrideVatCodesNone.indexOf(vatType.VatCode) !== -1) {
+            } else if (overrideVatCodesNone.indexOf(vatType?.VatCode) !== -1) {
                 vatType = this.vatTypes.find(x => x.VatCode === '0');
             }
         } else {
@@ -473,10 +506,10 @@ export class SupplierInvoiceStore {
     }
 
     // Update dates on all lines when dates are altered on head
-    private updateDatesOnJournalEntryLines(date) {
+    private updateDatesOnJournalEntryLines(date: string) {
         const lines = this.journalEntryLines$.value.map(line => {
-            line.VatDate = date;
-            line.FinancialDate = date;
+            line.VatDate = new LocalDate(date);
+            line.FinancialDate = new LocalDate(date);
             return line;
         });
 
@@ -512,10 +545,18 @@ export class SupplierInvoiceStore {
     saveChanges(): Observable<SupplierInvoice> {
         const invoice = this.invoice$.value;
 
+        if (invoice.DefaultDimensions) {
+            invoice.DefaultDimensions.Project = null;
+            invoice.DefaultDimensions.Department = null;
+        }
+
+        // When in expense view, update journal entry line dates based on invoice date before saving
+        this.updateDatesOnJournalEntryLines(moment(invoice.InvoiceDate).toString());
+
         // Lets get journal-lines and map dimensions from the head
         invoice.JournalEntry.DraftLines = this.journalEntryLines$.value.map(line => {
             line.Dimensions = invoice.DefaultDimensions;
-            line.AmountCurrency = parseFloat((line.AmountCurrency + '').replace(',', '.'))
+            line.AmountCurrency = parseFloat((line.AmountCurrency + '').replace(',', '.'));
             return line;
         });
 
@@ -577,7 +618,7 @@ export class SupplierInvoiceStore {
 
                 // TODO: use message / error
                 if (result.account) {
-                    this.updateJournalEntryLine(0, 'Account', result.account);
+                    this.updateJournalEntryLine(0, 'Account', result.account, true);
                     this.updateJournalEntryLine(0, 'Description', this.getDescription());
                 }
                 setTimeout(() => {
@@ -634,7 +675,7 @@ export class SupplierInvoiceStore {
             BankChargeAmount: 0,
             CurrencyCodeID: invoice.CurrencyCodeID,
             CurrencyExchangeRate: 0,
-            PaymentDate: invoice.InvoiceDate,
+            PaymentDate: invoice.PaymentDueDate || invoice.InvoiceDate,
             AgioAccountID: 0,
             BankChargeAccountID: this.companySettings.BankChargeAccountID,
             AgioAmount: 0,
@@ -659,27 +700,10 @@ export class SupplierInvoiceStore {
             }
 
             if (response <= ActionOnReload.SentToPaymentList) {
-                this.loadInvoice(this.invoice$.value.ID);
-                this.openJournaledAndPaidModal(response).subscribe((res) => {
-                    if (res === ConfirmActions.ACCEPT) {
-                        this.router.navigateByUrl('/accounting/bills/0');
-                    } else if (res === ConfirmActions.REJECT &&
-                        (response === ActionOnReload.SentToPaymentList || response === ActionOnReload.JournaledAndSentToPaymentList)) {
-                        this.router.navigateByUrl('/bank/ticker?code=payment_list');
-                    } else if (response > 0 && response < 3) {
-                        const current = this.invoice$.value;
-                        this.itCanBeAnAsset(current).pipe(
-                            finalize(() => done('Bokført'))
-                        ).subscribe(canBeAnAsset => {
-                            if (canBeAnAsset) {
-                                this.assetsService.openRegisterModal(this.invoice$.value);
-                            }
-                        });
-                    }
-                });
+                this.loadInvoice(this.invoice$.value.ID, true, response);
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
-                this.loadInvoice(this.invoice$.value.ID);
+                this.loadInvoice(this.invoice$.value.ID, true);
                 done('Faktura ble bokført med kunne ikke sende til betaling');
             } else {
                 done('Betaling avbrutt');
@@ -852,6 +876,10 @@ export class SupplierInvoiceStore {
         }));
     }
 
+    restoreSupplierInvoice(ID: number) {
+        return this.supplierInvoiceService.restore(ID);
+    }
+
     creditSupplierInvoice(ID?: number, fetchedPayments?: any[]) {
 
         const invoiceID = ID || this.invoice$?.value?.ID;
@@ -953,14 +981,25 @@ export class SupplierInvoiceStore {
         });
     }
 
-    assignInvoice() {
+    assignInvoice(reAssign: boolean = false, done: any) {
         return this.modalService.open(BillAssignmentModal, {
             closeOnClickOutside: false
-        }).onClose.pipe(switchMap(details => {
-            return of (details);
-        }), catchError(err => {
-            return of(null);
-        }));
+        }).onClose.subscribe((details) => {
+            if (details) {
+                const obs = reAssign
+                    ? this.supplierInvoiceService.reAssign(this.invoice$.value.ID, details)
+                    : this.supplierInvoiceService.assign(this.invoice$.value.ID, details);
+
+                obs.subscribe(res => {
+                    this.loadInvoice(this.invoice$.value.ID);
+                    done('Faktura tildelt');
+                }, err => {
+                    done();
+                });
+            } else {
+                done();
+            }
+        });
     }
 
     approveOrRejectInvoice(key: string, done) {
@@ -983,7 +1022,7 @@ export class SupplierInvoiceStore {
     getSystemBankAccounts() {
         return this.statisticsService.GetAll('model=bankaccount&select=ID as ID,AccountID as AccountID'
         + ',BankAccountType as BankAccountType,Account.AccountNumber as AccountNumber'
-        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name'
+        + ',Account.AccountName as AccountName,AccountNumber as BankAccountNumber,Bank.Name,Label as Label'
         + ',casewhen(companysettingsid gt 0 and id eq companysettings.companybankaccountid,1,0) as IsDefault'
         + '&filter=companysettingsid gt 0&expand=bank,account'
         + '&join=bankaccount.id eq companysettings.CompanyBankAccountID'
@@ -1006,25 +1045,20 @@ export class SupplierInvoiceStore {
 
     mapDimensions(current: SupplierInvoice, info: any): SupplierInvoice {
 
-        const dimension = <any>{};
-
         if (info.DepartmentNumber) {
-            dimension.Department = {
+            current.DefaultDimensions.Department = <any>{
                 DepartmentName: info.DepartmentName,
                 DepartmentNumber: info.DepartmentNumber
             };
         }
 
         if (info.ProjectNumber) {
-            dimension.Project = {
+            current.DefaultDimensions.Project = <any>{
                 ProjectName: info.ProjectName,
                 ProjectNumber: info.ProjectNumber
             };
         }
 
-        // Custom dimensions
-
-        current.DefaultDimensions = dimension;
         return current;
     }
 
@@ -1039,13 +1073,13 @@ export class SupplierInvoiceStore {
                         accept: 'Registrer ny utgift',
                         reject: 'Lukk'
                     },
-                    message: `Regningen er bokført i regnskapet ditt og sendt til banken. Husk å logge inn i nettbanken og godkjenn utbetalingen.`
+                    message: `Regningen er bokført i regnskapet ditt og sendt til banken hvor den vil bli betalt på forfallsdato.`
                 };
 
                 break;
             case ActionOnReload.JournaledAndSentToPaymentList:
                 options = {
-                    header: 'Bokført og sendt til betaling',
+                    header: 'Bokført og lagt til betalingsliste',
                     footerCls: 'center',
                     buttonLabels: {
                         accept: 'Registrer ny utgift',

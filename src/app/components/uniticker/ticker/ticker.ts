@@ -87,6 +87,8 @@ export class UniTicker {
     @Output() public rowSelectionChange: EventEmitter<any> = new EventEmitter();
     @Output() public contextMenuItemsChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public editModeToggled: EventEmitter<boolean> = new EventEmitter();
+    @Output() public tickerDataLoaded: EventEmitter<any> = new EventEmitter();
+    
 
     @ViewChild(AgGridWrapper) public table: AgGridWrapper;
 
@@ -223,6 +225,10 @@ export class UniTicker {
         }
 
         this.cdr.markForCheck();
+    }
+
+    public dataLoaded(event) {
+        this.tickerDataLoaded.emit(event);
     }
 
     public getGroupingData() {

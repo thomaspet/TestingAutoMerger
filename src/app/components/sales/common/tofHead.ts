@@ -16,6 +16,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {AccountMandatoryDimensionService} from '@app/services/services';
 import {THEMES, theme} from 'src/themes/theme';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {AuthService} from '@app/authService';
 
 const MAXFILESIZEEMAIL: number = 1024 * 1024 * 30;
 
@@ -56,7 +57,8 @@ export class TofHead implements OnChanges {
 
     constructor (
         private accountMandatoryDimensionService: AccountMandatoryDimensionService,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
@@ -72,8 +74,10 @@ export class TofHead implements OnChanges {
             {name: 'Utsendelse', value: 'distribution', featurePermission: 'ui.distribution'}
         ];
 
-        // Remove "Betingelser og levering" in the bruno version
-        if (theme.theme === THEMES.EXT02) {
+        // Remove "Betingelser og levering" in the bruno version, keep in Complete contracttype
+        const user = this.authService.currentUser;
+        const contractType = user.License?.ContractType?.TypeName;
+        if (theme.theme === THEMES.EXT02 && contractType?.toLowerCase() !== 'complete') {
             this.tabs.splice(1, 1);
         }
 

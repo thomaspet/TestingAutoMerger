@@ -1,24 +1,24 @@
-import {Component, Input, ViewChild} from '@angular/core';
-import {HttpParams} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
-import {PeriodFilter, PeriodFilterHelper} from '../periodFilter/periodFilter';
+import { Component, Input, ViewChild } from '@angular/core';
+import { HttpParams } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { PeriodFilter, PeriodFilterHelper } from '../periodFilter/periodFilter';
 import {
     UniTableColumn,
     UniTableConfig,
     UniTableColumnType,
     ICellClickEvent
 } from '../../../../../framework/ui/unitable/index';
-import {UniSearch} from '@uni-framework/ui/unisearch/UniSearch';
-import {JournalEntry} from '../../../../unientities';
-import {ImageModal} from '../../../common/modals/ImageModal';
-import {UniModalService} from '../../../../../framework/uni-modal';
-import {IToolbarConfig} from './../../../common/toolbar/toolbar';
-import {BehaviorSubject} from 'rxjs';
-import {FinancialYear, Account} from '../../../../unientities';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
-import {UniSearchAccountConfig} from '../../../../services/common/uniSearchConfig/uniSearchAccountConfig';
-import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
+import { UniSearch } from '@uni-framework/ui/unisearch/UniSearch';
+import { JournalEntry } from '../../../../unientities';
+import { ImageModal } from '../../../common/modals/ImageModal';
+import { UniModalService } from '../../../../../framework/uni-modal';
+import { IToolbarConfig } from './../../../common/toolbar/toolbar';
+import { BehaviorSubject } from 'rxjs';
+import { FinancialYear, Account } from '../../../../unientities';
+import { ToastService, ToastType } from '../../../../../framework/uniToast/toastService';
+import { UniSearchAccountConfig } from '../../../../services/common/uniSearchConfig/uniSearchAccountConfig';
+import { TabService, UniModules } from '../../../layout/navbar/tabstrip/tabService';
 import {
     StatisticsService,
     DimensionService,
@@ -27,12 +27,14 @@ import {
     AccountService,
     PageStateService
 } from '../../../../services/services';
-import {YearModal, IChangeYear} from '../../../layout/navbar/company-dropdown/yearModal';
-import {IUniTab} from '@uni-framework/uni-tabs';
+import { YearModal, IChangeYear } from '../../../layout/navbar/company-dropdown/yearModal';
+import { IUniTab } from '@uni-framework/uni-tabs';
 import * as moment from 'moment';
 import { ProjectService } from '@app/services/common/projectService';
 import { DepartmentService } from '@app/services/common/departmentService';
 import { resultBalanceFilter } from '@app/components/accounting/accountingreports/filter.form';
+
+import { saveAs } from 'file-saver';
 
 const PAPERCLIP = '📎'; // It might look empty in your editor, but this is the unicode paperclip
 
@@ -67,7 +69,7 @@ export class AccountDetailsReport {
     includeIncomingBalanceInDistributionReport$: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     transactionsLookupFunction: (urlParams: HttpParams) => any;
-    columnSumResolver: (urlParams: HttpParams) => Observable<{[field: string]: number}>;
+    columnSumResolver: (urlParams: HttpParams) => Observable<{ [field: string]: number }>;
     doTurnDistributionAmounts$: BehaviorSubject<boolean> = new BehaviorSubject(false);
     accountNumber: number;
     tabIndex: number = 0;
@@ -128,7 +130,7 @@ export class AccountDetailsReport {
         private periodFilterHelper: PeriodFilterHelper
     ) {
         this.config = {
-            close: () => {},
+            close: () => { },
             modalMode: false,
             accountID: 0,
             isSubAccount: false,
@@ -193,30 +195,30 @@ export class AccountDetailsReport {
                 };
 
                 this.accountService.searchAccounts(accountParam ? 'AccountNumber eq ' + accountParam : 'Visible eq 1', 1)
-                .subscribe(data => {
-                    // Failcheck if routeparam is wrong / no account found. Just route to same view without params..
-                    if ((!data || !data.length) && accountParam) {
-                        this.router.navigateByUrl('/accounting/accountquery');
-                        return;
-                    }
-                    const account = data[0];
-                    this.setAccountConfig(account);
-                    this.updateToolbar();
-                    this.addTab();
+                    .subscribe(data => {
+                        // Failcheck if routeparam is wrong / no account found. Just route to same view without params..
+                        if ((!data || !data.length) && accountParam) {
+                            this.router.navigateByUrl('/accounting/accountquery');
+                            return;
+                        }
+                        const account = data[0];
+                        this.setAccountConfig(account);
+                        this.updateToolbar();
+                        this.addTab();
 
-                    this.transactionsLookupFunction = (urlParams: HttpParams) =>
-                        this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                        this.transactionsLookupFunction = (urlParams: HttpParams) =>
+                            this.getTableData(urlParams).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-                    this.columnSumResolver = (urlParams: HttpParams) =>
-                        this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                        this.columnSumResolver = (urlParams: HttpParams) =>
+                            this.getTableData(urlParams, true).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
 
-                    this.searchConfig.initialItem$.next(account);
-                    if (this.searchElement) {
-                        this.searchElement.focus();
-                    }
+                        this.searchConfig.initialItem$.next(account);
+                        if (this.searchElement) {
+                            this.searchElement.focus();
+                        }
 
-                    this.loadData();
-                });
+                        this.loadData();
+                    });
 
             });
         } else {
@@ -395,7 +397,7 @@ export class AccountDetailsReport {
         this.subAccountIDs = this.config.isSubAccount ? [this.config.accountID] : null;
 
         if (this.config.dimensionType && this.config.dimensionId) {
-             this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.config.dimensionType);
+            this.dimensionEntityName = DimensionService.getEntityNameFromDimensionType(this.config.dimensionType);
         } else {
             this.dimensionEntityName = null;
         }
@@ -404,13 +406,24 @@ export class AccountDetailsReport {
     }
 
     private getTableData(urlParams: HttpParams, isSum: boolean = false) {
+        const params = this.getUrlParams(urlParams, isSum);
+        if (isSum) {
+            return this.statisticsService.GetAllByHttpParams(params)
+                .map(res => res.body)
+                .map(res => (res.Data && res.Data[0]) || []);
+        } else {
+            return this.statisticsService.GetAllByHttpParams(params);
+        }
+    }
+
+    private getUrlParams(urlParams: HttpParams, isSum: boolean = false) {
         urlParams = urlParams || new HttpParams();
         const filtersFromUniTable = urlParams.get('filter');
         const filters = filtersFromUniTable ? [filtersFromUniTable] : [];
 
 
         if (this.config.isSubAccount) {
-        filters.push(`JournalEntryLine.SubAccountID eq ${this.config.accountID}`);
+            filters.push(`JournalEntryLine.SubAccountID eq ${this.config.accountID}`);
         } else {
             filters.push(`JournalEntryLine.AccountID eq ${this.config.accountID}`);
         }
@@ -435,9 +448,7 @@ export class AccountDetailsReport {
             urlParams = urlParams.delete('join');
             urlParams = urlParams.delete('orderby');
 
-            return this.statisticsService.GetAllByHttpParams(urlParams)
-                .map(res => res.body)
-                .map(res => (res.Data && res.Data[0]) || []);
+            return urlParams;
         } else {
             const select = [
                 'ID as ID',
@@ -465,9 +476,9 @@ export class AccountDetailsReport {
             urlParams = urlParams.set('select', select);
             urlParams = urlParams.set('join', 'JournalEntryLine.JournalEntryID eq FileEntityLink.EntityID');
             urlParams = urlParams.set('orderby', urlParams.get('orderby') || 'JournalEntryID desc');
-
-            return this.statisticsService.GetAllByHttpParams(urlParams);
+            return urlParams;
         }
+
     }
 
     private setupLookupTransactions() {
@@ -504,7 +515,7 @@ export class AccountDetailsReport {
                     return url += numberAndYear[1];
                 } else {
                     const year = row.JournalEntryLineFinancialDate ? moment(row.JournalEntryLineFinancialDate).year() : moment().year();
-                    return  url += year;
+                    return url += year;
                 }
             });
         }
@@ -537,12 +548,16 @@ export class AccountDetailsReport {
                 .setVisible(false),
             new UniTableColumn('Department.Name', 'Avdeling', UniTableColumnType.Text)
                 .setFilterOperator('contains')
-                .setTemplate(line => { return line.DepartmentDepartmentNumber
-                    ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : ''; }),
+                .setTemplate(line => {
+                    return line.DepartmentDepartmentNumber
+                        ? line.DepartmentDepartmentNumber + ': ' + line.DepartmentName : '';
+                }),
             new UniTableColumn('Project.Name', 'Prosjekt', UniTableColumnType.Text)
                 .setFilterOperator('contains')
-                .setTemplate(line => { return line.ProjectProjectNumber
-                    ? line.ProjectProjectNumber + ': ' + line.ProjectName : ''; }),
+                .setTemplate(line => {
+                    return line.ProjectProjectNumber
+                        ? line.ProjectProjectNumber + ': ' + line.ProjectName : '';
+                }),
             new UniTableColumn('ID', PAPERCLIP, UniTableColumnType.Text)
                 .setTemplate(line => line.Attachments ? PAPERCLIP : '')
                 .setWidth('40px')
@@ -600,7 +615,7 @@ export class AccountDetailsReport {
         this.addTab();
     }
 
-    private getYearComboSelection(curYear): string[]     {
+    private getYearComboSelection(curYear): string[] {
         curYear = parseInt(curYear, 10);
         return [
             `${curYear - 1}`,
@@ -627,12 +642,12 @@ export class AccountDetailsReport {
         }
     }
 
-    public openYearModal()  {
-        this.modalService.open(YearModal, { data: { year: this.activeYear }}).onClose
+    public openYearModal() {
+        this.modalService.open(YearModal, { data: { year: this.activeYear } }).onClose
             .subscribe((val: IChangeYear) => {
-            if (val && val.year && (typeof val.year === 'number')) {
-                this.onYearDropdownChange(val.year);
-            }
+                if (val && val.year && (typeof val.year === 'number')) {
+                    this.onYearDropdownChange(val.year);
+                }
             }, (err) => this.errorService.handle(err));
     }
 
@@ -646,5 +661,28 @@ export class AccountDetailsReport {
 
     public onFilterChange(change) {
         this.filter = _.cloneDeep(this.filter$.getValue());
+    }
+
+    public toExcel(urlParams: HttpParams) {
+        const params = this.getUrlParams(urlParams, false);
+        this.statisticsService.GetExportedExcelFileFromUrlParams(params)
+            .subscribe((result) => {
+                let filename = '';
+                // Get filename with filetype from headers
+                if (result.headers) {
+                    const fromHeader = result.headers.get('content-disposition');
+                    if (fromHeader) {
+                        filename = fromHeader.split('=')[1];
+                    }
+                }
+
+                if (!filename || filename === '') {
+                    filename = 'exportaccountdetails.xlsx';
+                }
+
+                const blob = new Blob([result.body], { type: 'text/csv' });
+                // download file so the user can open it
+                saveAs(blob, filename);
+            }, err => this.errorService.handle(err));
     }
 }

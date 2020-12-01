@@ -3,7 +3,7 @@ export const environment = {
     usePKCE: false,
 
     // Identity Server Settings
-    authority: 'https://login.unieconomy.no',
+    authority: 'https://login.dnbregnskap.dnb.no',
     client_id: '0ca1ea2f-faf1-876e-f76c-d0028407cdb0',
     post_logout_redirect_uri: '',
 

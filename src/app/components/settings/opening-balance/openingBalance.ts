@@ -26,7 +26,7 @@ export class OpeningBalanceComponent {
         {
             label: `Lagre og Bokfør`,
             action: (done) => this.saveAndPost().pipe(
-                switchMap((posts => this.modalService.open(GoToPostModal,{data: {postNumber: posts[0].JournalEntryNumber}}).onClose)),
+                switchMap((posts => this.modalService.open(GoToPostModal, {data: {postNumber: posts[0].JournalEntryNumber}}).onClose)),
             ).subscribe((result: any) => {
                 done('Lagret og bokført');
                 this.disableSaveButton();
@@ -48,7 +48,7 @@ export class OpeningBalanceComponent {
     dateform = [
         {
             Property: 'financialDate',
-            Label: 'Dato for ingående balanse',
+            Label: 'Dato for inngående balanse',
             FieldType: FieldType.LOCAL_DATE_PICKER,
         }
     ];

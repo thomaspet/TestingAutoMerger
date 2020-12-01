@@ -176,7 +176,7 @@ export class DetailsFormExpense {
             + `&select=ID as AccountID,supplier.suppliernumber as AccountNumber,info.Name as AccountName`
             + ',DefaultBankAccount.ID as BankAccountID,DefaultBankAccount.AccountNumber as BankAccountNumber'
             + ',info.ID as BusinessRelationID,SupplierID as SupplierID'
-            + `&filter=supplierid gt 0 and startswith(ref.accountnumber,'29')`
+            + `&filter=supplierid gt 0 and ( startswith(ref.accountnumber,'29') or startswith(ref.accountnumber,'206') )`
             + ` and ${filter}`
             + `&join=account.accountid eq account.id as ref&expand=supplier.info.defaultbankaccount`;
 

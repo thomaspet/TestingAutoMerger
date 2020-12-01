@@ -119,4 +119,12 @@ export class InitService {
             );
     }
 
+    getBicFromAccountNumber(accountNumber: string) {
+        return this.uniHttp
+            .asGET()
+            .usingInitDomain()
+            .withEndPoint('bic-from-bankaccount?accountNumber=' + accountNumber)
+            .send()
+            .pipe(map(res => res.body));
+    }
 }

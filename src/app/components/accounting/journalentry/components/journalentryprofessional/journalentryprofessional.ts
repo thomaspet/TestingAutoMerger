@@ -544,7 +544,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return row;
     }
 
-    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0 ) {
+    public startSmartBooking(orgNumber: any, showToastIfNotRan: boolean, amount: number = 0, date? ) {
         const returnValue: any = {
             type: ToastType.warn
         };
@@ -608,6 +608,8 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     this.journalEntryLines[0].AmountCurrency = amount;
                                     this.journalEntryLines[0].DebitAccount = match;
                                     this.journalEntryLines[0].DebitAccountID = match.ID;
+                                    this.journalEntryLines[0].VatDate = date;
+                                    this.journalEntryLines[0].FinancialDate = date;
                                     this.journalEntryLines[0]['_updateDescription'] = true;
                                     if (match.VatTypeID) {
                                         this.journalEntryLines[0].DebitVatTypeID = match.VatTypeID;
@@ -623,7 +625,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                         Description: '',
                                         FileIDs: [],
                                         Amount: amount,
-                                        AmountCurrency: amount
+                                        AmountCurrency: amount,
+                                        VatDate: date,
+                                        FinancialDate: date
                                     };
                                     if (match.VatTypeID) {
                                         newLine.DebitVatTypeID = match.VatTypeID;
@@ -651,7 +655,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                                     ? 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort på' +
                                         ' denne leverandøren i UniEconomy'
                                     : 'Kontoforslag på konteringslinje er lagt til basert på bokføringer gjort i UniEconomy' +
-                                        ' på levernadører i samme bransje som valgt leverandør på din faktura.';
+                                        ' på leverandører i samme bransje som valgt leverandør på din faktura.';
 
                                 this.journalEntryLines = [].concat(this.journalEntryLines);
                                 this.dataChanged.emit(this.journalEntryLines);
@@ -778,9 +782,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             } else {
                 rowModel.DebitVatType = null;
             }
-
-            this.setDebitVatTypeProperties(rowModel);
-            this.setVatDeductionPercent(rowModel);
+            rowModel = this.calculateNetAmountAndNetAmountCurrency(this.setVatDeductionPercent(this.setDebitVatTypeProperties(rowModel)));
         } else {
             rowModel.DebitAccountID = null;
             rowModel.DebitVatType = null;
@@ -1416,9 +1418,9 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 };
             }
         });
-
         const debitVatTypeCol = new UniTableColumn('DebitVatType', 'MVA', UniTableColumnType.Lookup)
             .setDisplayField('DebitVatType.VatCode')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setWidth('8%')
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
@@ -1443,7 +1445,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const creditAccountCol = new UniTableColumn('CreditAccount', 'Kredit', UniTableColumnType.Lookup)
             .setDisplayField('CreditAccount.AccountNumber')
@@ -1472,6 +1474,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         const creditVatTypeCol = new UniTableColumn('CreditVatType', 'MVA', UniTableColumnType.Lookup)
             .setWidth('8%')
+            .setVisible(theme.theme === THEMES.EXT02 ? this.companySettings.TaxMandatoryType === 3 : true)
             .setSkipOnEnterKeyNavigation(true)
             .setTemplate((rowModel) => {
                 if (rowModel.CreditVatType) {
@@ -1495,7 +1498,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
                 },
                 groupConfig: this.groupConfig
             })
-            .setEditable(x => this.companySettings.TaxMandatoryType === 3);
+            .setEditable(this.companySettings.TaxMandatoryType === 3);
 
         const deductionPercentCol = new UniTableColumn('VatDeductionPercent', 'Fradrag %', UniTableColumnType.Number)
             .setWidth('90px')

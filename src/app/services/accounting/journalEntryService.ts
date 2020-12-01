@@ -1097,11 +1097,20 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 + `and SourceEntityName eq 'JournalEntry' and JournalEntry.ID eq ${journalEntryID}`
                 + `&join=Tracelink.SourceInstanceId eq JournalEntry.ID and `
                 + `Tracelink.DestinationInstanceId eq Payment.ID`
-                + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`)
+                + `&select=Tracelink.DestinationInstanceId as PaymentId,Payment.StatusCode as StatusCode`),
+
+            this.statisticsService.GetAll(`model=JournalEntryLineDraft&select=id,`
+                + `casewhen(pp1.JournalEntryLine2ID gt 0,pp1.JournalEntryLine2ID,pp2.JournalEntryLine1ID) `
+                + `as PostPostJournalEntryLineID&filter=statuscode eq 34001 and JournalEntryID eq ${journalEntryID} `
+                + `and (journalentryline.statuscode eq 31002 or journalentryline.statuscode eq 31003)`
+                + `&join=journalentrylinedraft.id eq journalentryline.journalentrylinedraftid `
+                + `and journalentryline.id eq postpost.JournalEntryLine1ID as pp1 `
+                + `and journalentryline.id eq postpost.JournalEntryLine2ID as pp2`)
         ).map(responses => {
             const draftLines: Array<JournalEntryLineDraft> = responses[0];
             const fileList: Array<any> = responses[1].Data ? responses[1].Data : [];
             const paymentIDs: Array<any> = responses[2].Data ? responses[2].Data : [];
+            const postPostIDs: Array<any>  = responses[3].Data ? responses[3].Data : [];
 
             const journalEntryDataObjects: Array<JournalEntryData> = [];
             if (singleRowMode) {
@@ -1115,7 +1124,10 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
                 // map journalentrydraftlines to journalentrydata objects - these are easier to work for the
                 // components, because this is the way the user wants to see the data
                 draftLines.forEach(line => {
-                    let jed = journalEntryDataObjects.find(
+                        line.PostPostJournalEntryLineID = postPostIDs?.find(
+                            x => x.JournalEntryLineDraftID === line.ID)?.PostPostJournalEntryLineID;
+
+                            let jed = journalEntryDataObjects.find(
                     x => x.JournalEntryID === line.JournalEntryID
                             && x.FinancialDate === line.FinancialDate
                             && x.Amount === line.Amount * -1
@@ -1963,4 +1975,3 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
         + `&filter=ID gt 5`).map(data => data.Data);
     }
 }
-

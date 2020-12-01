@@ -40,6 +40,8 @@ export class UniTickerContainer {
     @Output() public urlParamsChange: EventEmitter<ParamMap> = new EventEmitter();
     @Output() public rowSelectionChange: EventEmitter<any[]> = new EventEmitter();
     @Output() public rowSelected: EventEmitter<any> = new EventEmitter();
+    @Output() public tickerDataLoaded: EventEmitter<any> = new EventEmitter();
+    
     public showSubTickers: boolean;
     public filters: TickerFilter[];
     public selectedFilter: TickerFilter;
@@ -95,6 +97,10 @@ export class UniTickerContainer {
                 this.getFilterCounts();
             }
         }
+    }
+
+    public dataLoaded(event) {
+        this.tickerDataLoaded.emit(event);
     }
 
     public ngAfterViewInit() {

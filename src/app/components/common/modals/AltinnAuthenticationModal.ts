@@ -7,6 +7,7 @@ import {AltinnAuthenticationService, ErrorService} from '../../../services/servi
 import {AltinnAuthenticationData} from '../../../models/AltinnAuthenticationData';
 import {KeyCodes} from '../../../services/common/keyCodes';
 import {BehaviorSubject} from 'rxjs';
+import {theme, THEMES} from 'src/themes/theme';
 
 enum LoginState {
     UsernameAndPasswordAndPinType,
@@ -32,7 +33,7 @@ enum LoginState {
                 </article>
 
                 <footer [attr.aria-busy]="busy">
-                    <a class="pull-left" href="https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn" target="_blank">Hjelp til innlogging</a>
+                    <a class="pull-left" [href]="helpUrl" target="_blank">Hjelp til innlogging</a>
                     <button (click)="close()">Avbryt</button>
                     <button (click)="submitUsernameAndPasswordAndPinType()" class="good">OK</button>
                 </footer>
@@ -79,6 +80,7 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     public usernameAndPasswordFormFields$: BehaviorSubject<UniFieldLayout[]>
         = new BehaviorSubject(this.createUsernameAndPasswordForm());
     public pinFormFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject(this.createPinForm());
+    public helpUrl: string;
     private errorStatuses: number[] = [1, 2, 3, 4, 5, 6];
     private userSubmittedUsernameAndPasswordAndPinType: EventEmitter<AltinnAuthenticationData> =
         new EventEmitter<AltinnAuthenticationData>();
@@ -96,7 +98,11 @@ export class AltinnAuthenticationModal implements OnInit, IUniModal {
     constructor(
         private altinnAuthService: AltinnAuthenticationService,
         private errorService: ErrorService
-    ) {}
+    ) {
+        this.helpUrl = theme.theme !== THEMES.EXT02
+            ? "https://help.unieconomy.no/lonn/problemer-med-paalogging-ved-henting-av-tilbakemelding/skattekort-fra-altinn"
+            : "https://hjelp.dnbregnskap.dnb.no/no/article/integrasjon-med-altinn-1llaxg1/"
+    }
 
     public ngOnInit() {
         this.handleAuthentication()

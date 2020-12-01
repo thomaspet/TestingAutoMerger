@@ -10,6 +10,7 @@ import { PaymentMode } from '@app/services/bank/bankjournalmodels';
 import { theme, THEMES } from 'src/themes/theme';
 import { FinancialYearService } from '@app/services/services';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import { SupplierInvoice } from '@uni-entities';
 
 @Component({
     selector: 'supplier-invoice-expense',
@@ -50,6 +51,10 @@ export class SupplierInvoiceExpense {
         this.onDestroy$.next();
         this.onDestroy$.complete();
         this.store.selectedFile = null;
+        this.store.invoiceID = 0;
+        this.store.invoice$.next(<SupplierInvoice>{});
+        this.store.startupFileID$.next(null);
+        this.store.initDataLoaded$.next(false); 
     }
 
     setUpSaveActions() {
