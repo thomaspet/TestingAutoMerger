@@ -1099,7 +1099,7 @@ export class InvoiceDetails implements OnInit {
 
         this.invoiceItems = invoice.Items.sort((a, b) => a.SortIndex - b.SortIndex);
         this.invoice = invoice;
-
+        
         this.recalcItemSums(invoice.Items);
         this.updateCurrency(invoice, true);
 
@@ -1774,6 +1774,7 @@ export class InvoiceDetails implements OnInit {
 
     private copyInvoice(invoice: CustomerInvoice): CustomerInvoice {
         this.invoiceID = 0;
+        this.currentCustomer = invoice.Customer;
         invoice.ID = 0;
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;
