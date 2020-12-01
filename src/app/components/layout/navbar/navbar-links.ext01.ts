@@ -363,7 +363,7 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.INCOMEREPORTS',
                         url: '/salary/incomereports',
-                        moduleID: UniModules.Amelding,
+                        moduleID: UniModules.IncomeReports,
                         activeInSidebar: true
                     },
                     {
