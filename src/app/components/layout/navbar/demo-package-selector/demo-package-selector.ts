@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, Input} from '@angular/core';
 import {AuthService} from '@app/authService';
 import {ElsaContractService} from '@app/services/services';
 import {ElsaContractType} from '@app/models';
@@ -12,6 +12,7 @@ import {FeaturePermissionService} from '@app/featurePermissionService';
     styleUrls: ['./demo-package-selector.sass']
 })
 export class DemoPackageSelector {
+    @Input() isSupportUser: boolean;
     expanded: boolean;
 
     currentType: ElsaContractType;

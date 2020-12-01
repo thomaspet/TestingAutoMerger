@@ -30,7 +30,7 @@
             </section>
 
         </section>
-        <section *ngIf="isAdmin" class="info-field">
+        <section *ngIf="isAdmin && lisenceAgreementUrl?.length" class="info-field">
             <strong>Lisensavtalen</strong>
             <span>
                 <a [href]="lisenceAgreementUrl" target="_blank" rel="noopener noreferrer">

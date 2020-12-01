@@ -87,7 +87,6 @@ export class CompanyBankAccountEdit {
             this.bankService.GetAll(null, ['Address,Email,Phone']),
             this.elsaContractService.getCurrentContractType(this.authService.currentUser.License?.ContractType?.TypeName)
         ]).subscribe(([banks, contracttype]) => {
-            this.bankAccount['BankList'] = banks;
             if (this.bankAccount.BankID && !this.bankAccount.Bank) {
                 this.bankAccount.Bank = banks.find(x => x.ID === this.bankAccount.BankID);
             }
@@ -272,7 +271,7 @@ export class CompanyBankAccountEdit {
 
     private checkIsAccountNumberAlreadyRegistered(account: BankAccount, currentValue: string) {
         this.setBusy.emit(true);
-        const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.warn);
+        const toastSearchBankAccount = this.toastService.addToast('Henter informasjon om konto, vennligst vent', ToastType.info);
         this.accountAndIBANSearch(currentValue).subscribe((error) => {
             this.setBusy.emit(false);
             this.toastService.removeToast(toastSearchBankAccount);
@@ -283,6 +282,10 @@ export class CompanyBankAccountEdit {
             }
 
             this.errorMsg = '';
+
+            if (!account?.AccountNumber) {
+                return;
+            }
 
             this.isAccountNumberAlreadyRegistered(account).subscribe(res2 => {
                 if (res2.Data.length > 0) {
@@ -336,7 +339,6 @@ export class CompanyBankAccountEdit {
                         account.IBAN = null;
                         account.Bank = null;
                         account.BankID = null;
-                        account['BankList'] = [];
 
                         this.formModel$.next(account);
                         this.validAccount = false;
@@ -347,9 +349,7 @@ export class CompanyBankAccountEdit {
                     account.IBAN = res.IBAN;
                     account.Bank = res.Bank;
                     account.BankID = res.Bank.ID;
-                    if (!account['BankList'].find(x => x.ID === res.Bank.ID)) {
-                        account['BankList'].push(res.Bank);
-                    }
+
                     this.formModel$.next(account);
                     this.validAccount = true;
                 }
@@ -399,25 +399,10 @@ export class CompanyBankAccountEdit {
             },
             {
                 EntityType: 'Bank',
-                Property: 'BankID',
-                FieldType: FieldType.DROPDOWN,
-                ReadOnly: true,
-                Label: 'Navn på bank',
-                Options: {
-                    source: this.bankAccount['BankList'],
-                    valueProperty: 'ID',
-                    template: (item) => item?.Name,
-                    debounceTime: 200
-                },
-                Hidden: theme.theme === THEMES.EXT02
-            },
-            {
-                EntityType: 'Bank',
                 Property: 'Bank.Name',
                 FieldType: FieldType.TEXT,
                 ReadOnly: true,
-                Label: 'Navn på bank',
-                Hidden: theme.theme !== THEMES.EXT02
+                Label: 'Navn på bank'
             },
             {
                 EntityType: 'BankAccount',

@@ -87,8 +87,8 @@ export class StageGroup {
             if (y) {
                 group = BankUtil.createGuid();
                 if (y.IsBankEntry === x.IsBankEntry) {
-                    list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : 0, x.IsBankEntry ? 0 : x.ID, group));
-                    list.push(this.newMatch(y.TagSum, y.IsBankEntry ? y.ID : 0, y.IsBankEntry ? 0 : y.ID, group));
+                    list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : 0, x.IsBankEntry ? 0 : x.ID, group, x.SubAccountID, x.SubAccountName));
+                    list.push(this.newMatch(y.TagSum, y.IsBankEntry ? y.ID : 0, y.IsBankEntry ? 0 : y.ID, group, y.SubAccountID, y.SubAccountName));
                 } else {
                     list.push(this.newMatch(x.TagSum, x.IsBankEntry ? x.ID : y.ID, y.IsBankEntry ? x.ID : y.ID, group,
                         x.SubAccountID || y.SubAccountID,

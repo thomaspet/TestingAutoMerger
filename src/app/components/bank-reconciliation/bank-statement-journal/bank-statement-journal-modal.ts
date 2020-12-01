@@ -208,12 +208,23 @@ export class BankStatementJournalModal implements IUniModal {
     public onEditChange(event) {
         if (event.field && event.rowModel && event.newValue) {
             event.rowModel = this.session.setValue(event.field, event.newValue, event.originalIndex, event.rowModel) || event.rowModel;
+
+            if (event.field === 'VatType') {
+                this.session.items[event.originalIndex]['_removedVat'] = false;
+                event.rowModel = this.session.setValue('_removedVat', false, event.originalIndex);
+            }
+
             this.ValidateTableData();
             return event.rowModel;
         } else if (event.field) {
             this.session.items[event.originalIndex][event.field] = event.newValue;
+
+            if (event.field === 'VatType' && !event.newValue) {
+                this.session.items[event.originalIndex] = this.session.setValue('_removedVat', true, event.originalIndex);
+            }
+
             this.ValidateTableData();
-            return;
+            return this.session.items[event.originalIndex];
         }
         this.autorunRuleLines = [];
     }
@@ -249,6 +260,7 @@ export class BankStatementJournalModal implements IUniModal {
                 .setWidth('6rem').setVisible(false),
 
             new UniTableColumn('files', 'Vedlegg', UniTableColumnType.Attachment)
+                .setSkipOnEnterKeyNavigation(true)
                 .setOptions({
                     addFromInboxHandler: () => this.modalService.open(FileFromInboxModal).onClose,
                     previewHandler: (fileID) => {

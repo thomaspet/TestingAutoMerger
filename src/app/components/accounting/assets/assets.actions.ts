@@ -170,12 +170,14 @@ export class AssetsActions {
     }
 
     save(asset?: Asset) {
+        let isListView = false;
         if (!asset) {
             asset = this.store.currentAsset;
         }
         let source = of(asset);
         if (asset['AccountAccountName']) { // save from table
             source = this.getAsset(asset.ID);
+            isListView = true;
         }
         return source.pipe(
             take(1),
@@ -203,10 +205,10 @@ export class AssetsActions {
                         return {..._asset};
                     }),
                     tap(_asset => {
-                        if (result !== ConfirmActions.CANCEL) {
+                        if (result !== ConfirmActions.CANCEL && result !== ConfirmActions.REJECT) {
                             const assetsDoNotShowModalIDs: number[] = this.browserStorageService
                                 .getItemFromCompany('assetsDoNotShowModalIDs') || [];
-                            if (_asset.ID && !assetsDoNotShowModalIDs.includes(_asset.ID)) {
+                            if (_asset.ID && !assetsDoNotShowModalIDs.includes(_asset.ID) && !isListView) {
                                 assetsDoNotShowModalIDs.push(_asset.ID);
                             }
                             this.browserStorageService.setItemOnCompany('assetsDoNotShowModalIDs', assetsDoNotShowModalIDs);
@@ -290,8 +292,7 @@ export class AssetsActions {
             });
         }
         if (changes['PurchaseDate']) {
-            if (changes['PurchaseDate'].currentValue < changes['PurchaseDate'].previousValue &&
-                currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
+            if (currentAsset.DepreciationStartDate && currentAsset.AssetGroupCode && currentAsset.AssetGroupCode !== 'X') {
                 const asset = this.store.currentAsset;
                 if (asset.Lifetime) {
                     const options: IModalOptions = {

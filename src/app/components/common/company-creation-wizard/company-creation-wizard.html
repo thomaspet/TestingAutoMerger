@@ -1,138 +1,145 @@
 <ng-container *ngIf="!busyCreatingCompany">
-    <!-- Contract type selection -->
-    <section class="contract-types" *ngIf="currentStep === STEPS.CONTRACT_TYPE">
-        <a *ngIf="priceListLink" class="price-list-link" [href]="priceListLink" target="_blank">
-            <i class="material-icons">launch</i>
-            Se flere priser
-        </a>
-        <section class="contract-type-grid">
-            <contract-type-card
-                *ngFor="let contractType of contractTypes"
-                [contractType]="contractType"
-                [recommended]="contractType.Name === 'Plus' && isBrunoEnv"
-                (selected)="onContractTypeSelected(contractType)">
-            </contract-type-card>
-        </section>
-
-        <contract-types-comparison></contract-types-comparison>
+    <section *ngIf="contractAgreementExists === false" class="missing-agreement alert warn">
+        Systemet mangler oppsett for lisensavtale. Vennligst kontakt systemansvarlig.
     </section>
 
-
-    <!-- Company form part 1 -->
-    <section *ngIf="currentStep === STEPS.COMPANY_STEP1" class="uni-card shadow">
-        <section class="uni-card-content">
-            <h1>Selskapsinformasjon</h1>
-
-            <autocomplete
-                [options]="autocompleteOptions"
-                (valueChange)="onBrRegCompanyChange($event)">
-            </autocomplete>
-
-            <section *ngIf="companyCreationFailed" class="alert bad">
-                Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
+    <ng-container *ngIf="contractAgreementExists">
+        <!-- Contract type selection -->
+        <section class="contract-types" *ngIf="currentStep === STEPS.CONTRACT_TYPE">
+            <a *ngIf="priceListLink" class="price-list-link" [href]="priceListLink" target="_blank">
+                <i class="material-icons">launch</i>
+                Se flere priser
+            </a>
+            <section class="contract-type-grid">
+                <contract-type-card
+                    *ngFor="let contractType of contractTypes"
+                    [contractType]="contractType"
+                    [recommended]="contractType.Name === 'Plus' && isBrunoEnv"
+                    (selected)="onContractTypeSelected(contractType)">
+                </contract-type-card>
             </section>
-
-            <form [formGroup]="step1Form">
-                <label #companyNameInput class="uni-label">
-                    <span>Firmanavn</span>
-                    <input type="text" formControlName="CompanyName">
-                </label>
-
-                <label class="uni-label">
-                    <span>Organisasjonsnummer</span>
-                    <input type="text" formControlName="OrganizationNumber">
-                </label>
-
-                <label class="uni-label">
-                    <span>Adresse</span>
-                    <input type="text" formControlName="Address">
-                </label>
-
-                <section class="input-row">
-                    <label class="uni-label">
-                        <span>Postnummer</span>
-                        <input type="text" formControlName="PostalCode">
-                    </label>
-
-                    <label class="uni-label">
-                        <span>Poststed</span>
-                        <input type="text" formControlName="City">
-                    </label>
+    
+            <contract-types-comparison></contract-types-comparison>
+        </section>
+    
+    
+        <!-- Company form part 1 -->
+        <section *ngIf="currentStep === STEPS.COMPANY_STEP1" class="uni-card shadow">
+            <section class="uni-card-content">
+                <h1>Selskapsinformasjon</h1>
+    
+                <autocomplete
+                    [options]="autocompleteOptions"
+                    (valueChange)="onBrRegCompanyChange($event)">
+                </autocomplete>
+    
+                <section *ngIf="companyCreationFailed" class="alert bad">
+                    Selskapsoppretting feilet. Vennligst sjekk at detaljene er korrekt og prøv på nytt.
                 </section>
-            </form>
-        </section>
-
-        <section class="uni-card-footer">
-            <button class="secondary pull-left"
-                *ngIf="includeContractActivation && contractTypes?.length"
-                (click)="currentStep = STEPS.CONTRACT_TYPE">
-                Tilbake
-            </button>
-
-            <button class="c2a" (click)="step1FormSubmit()" (keydown.tab)="$event.preventDefault()">
-                Neste
-            </button>
-        </section>
-    </section>
-
-    <!-- Company form part 2 -->
-    <section *ngIf="currentStep === STEPS.COMPANY_STEP2" class="uni-card shadow">
-        <section class="uni-card-content">
-            <h1>Selskapsinnstillinger</h1>
-
-            <form [formGroup]="step2Form" uniAutoFocus>
-                <label *ngIf="step2Form.controls['AccountNumber']" class="uni-label">
-                    <span>Driftskonto</span>
-                    <input type="text" formControlName="AccountNumber">
-                    <section *ngIf="isBrunoEnv" class="alert good bruno-account-alert">
-                        <i class="material-icons">info_outline</i>
-                        <span>Kontoen må være en DNB konto</span>
+    
+                <form [formGroup]="step1Form">
+                    <label #companyNameInput class="uni-label">
+                        <span>Firmanavn</span>
+                        <input type="text" formControlName="CompanyName">
+                    </label>
+    
+                    <label class="uni-label">
+                        <span>Organisasjonsnummer</span>
+                        <input type="text" formControlName="OrganizationNumber">
+                    </label>
+    
+                    <label class="uni-label">
+                        <span>Adresse</span>
+                        <input type="text" formControlName="Address">
+                    </label>
+    
+                    <section class="input-row">
+                        <label class="uni-label">
+                            <span>Postnummer</span>
+                            <input type="text" formControlName="PostalCode">
+                        </label>
+    
+                        <label class="uni-label">
+                            <span>Poststed</span>
+                            <input type="text" formControlName="City">
+                        </label>
                     </section>
-                </label>
-
-                <label class="uni-label">
-                    <span>Skal selskapet betale moms?</span>
-                    <mat-radio-group class="horizontal" formControlName="TemplateIncludeVat">
-                        <mat-radio-button [value]="true">Ja</mat-radio-button>
-                        <mat-radio-button [value]="false">Nei</mat-radio-button>
-                    </mat-radio-group>
-                </label>
-
-                <label class="uni-label">
-                    <span>Skal selskapet ha ansatte?</span>
-                    <mat-radio-group class="horizontal" formControlName="TemplateIncludeSalary">
-                        <mat-radio-button [value]="true">Ja</mat-radio-button>
-                        <mat-radio-button [value]="false">Nei</mat-radio-button>
-                    </mat-radio-group>
-                </label>
-            </form>
+                </form>
+            </section>
+    
+            <section class="uni-card-footer">
+                <button class="secondary pull-left"
+                    *ngIf="includeContractActivation && contractTypes?.length"
+                    (click)="currentStep = STEPS.CONTRACT_TYPE">
+                    Tilbake
+                </button>
+    
+                <button class="c2a" (click)="step1FormSubmit()" (keydown.tab)="$event.preventDefault()">
+                    Neste
+                </button>
+            </section>
         </section>
-
-        <section class="uni-card-footer">
-            <button class="secondary pull-left" (click)="currentStep = STEPS.COMPANY_STEP1">
-                Tilbake
-            </button>
-
-            <button class="c2a"
-                [disabled]="!step2Form.valid"
-                (click)="step2FormSubmit()"
-                (keydown.tab)="$event.preventDefault()">
-                {{includeContractActivation && !contractActivated ? 'Neste' : 'Opprett selskap'}}
-            </button>
+    
+        <!-- Company form part 2 -->
+        <section *ngIf="currentStep === STEPS.COMPANY_STEP2" class="uni-card shadow">
+            <section class="uni-card-content">
+                <h1>Selskapsinnstillinger</h1>
+    
+                <form [formGroup]="step2Form" uniAutoFocus>
+                    <label *ngIf="step2Form.controls['AccountNumber']" class="uni-label">
+                        <span>Driftskonto</span>
+                        <input type="text" formControlName="AccountNumber">
+                        <section *ngIf="isBrunoEnv" class="alert good bruno-account-alert">
+                            <i class="material-icons">info_outline</i>
+                            <span>Kontoen må være en DNB konto</span>
+                        </section>
+                    </label>
+    
+                    <label class="uni-label">
+                        <span>Skal selskapet betale moms?</span>
+                        <mat-radio-group class="horizontal" formControlName="TemplateIncludeVat">
+                            <mat-radio-button [value]="true">Ja</mat-radio-button>
+                            <mat-radio-button [value]="false">Nei</mat-radio-button>
+                        </mat-radio-group>
+                    </label>
+    
+                    <label class="uni-label">
+                        <span>Skal selskapet ha ansatte?</span>
+                        <mat-radio-group class="horizontal" formControlName="TemplateIncludeSalary">
+                            <mat-radio-button [value]="true">Ja</mat-radio-button>
+                            <mat-radio-button [value]="false">Nei</mat-radio-button>
+                        </mat-radio-group>
+                    </label>
+                </form>
+            </section>
+    
+            <section class="uni-card-footer">
+                <button class="secondary pull-left" (click)="currentStep = STEPS.COMPANY_STEP1">
+                    Tilbake
+                </button>
+    
+                <button class="c2a"
+                    [disabled]="!step2Form.valid"
+                    (click)="step2FormSubmit()"
+                    (keydown.tab)="$event.preventDefault()">
+                    {{includeContractActivation && !contractActivated ? 'Neste' : 'Opprett selskap'}}
+                </button>
+            </section>
         </section>
-    </section>
+    
+        <!-- Contract activation -->
+        <contract-activation-wizard
+            *ngIf="currentStep === STEPS.CONTRACT_ACTIVATION"
+            [contractID]="contractID"
+            [companyName]="companyName"
+            [orgNumber]="orgNumber"
+            [contractType]="selectedContractType"
+            [customer]="contract.Customer"
+            (contractActivated)="onContractActivated()"
+            (back)="currentStep = STEPS.COMPANY_STEP2">
+        </contract-activation-wizard>
+    </ng-container>
 
-    <!-- Contract activation -->
-    <contract-activation-wizard
-        *ngIf="currentStep === STEPS.CONTRACT_ACTIVATION"
-        [contractID]="contractID"
-        [companyName]="companyName"
-        [orgNumber]="orgNumber"
-        [contractType]="selectedContractType"
-        [customer]="contract.Customer"
-        (contractActivated)="onContractActivated()"
-        (back)="currentStep = STEPS.COMPANY_STEP2">
-    </contract-activation-wizard>
 </ng-container>
 
 <section *ngIf="busyCreatingCompany" class="uni-card shadow">

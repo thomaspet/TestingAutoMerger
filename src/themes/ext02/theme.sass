@@ -19,11 +19,6 @@
     src: url(/themes/ext02/DNB-Bold.woff2) format("woff2")
     font-weight: bold
 
-$theme-has-good-btn: false
-$btn-inversed-hover-state: true
-$secondary-btn-grey-border: false
-$hide-input-outline: true
-
 body
     --font-family: DNB, arial, sans-serif
     --body-background: #f8f8f8
@@ -116,19 +111,38 @@ body
 
     --secondary-btn-border-width: 1px
     --secondary-btn-focus-border-width: 2px
+    --secondary-btn-border-color: currentColor
+
+    --tertiary-c2a-hover: #005959
+    --tertiary-bad-hover: #D63731
 
     --button-c2a: #008484
-    --button-c2a-hover: #005959
+    --button-c2a-hover: #fff
+    --button-c2a-text: #fff
+    --button-c2a-text-hover: #005959
+    --button-c2a-border: #008484
+    --button-c2a-border-hover: #005959
 
     --button-good: #008484
-    --button-good-hover: #005959
+    --button-good-hover: #fff
+    --button-good-text: #fff
+    --button-good-text-hover: #005959
+    --button-good-border: #008484
+    --button-good-border-hover: #005959
 
     --button-bad: #D63731
-    --button-bad-hover: #DC223E
+    --button-bad-hover: #fff
+    --button-bad-text: #fff
+    --button-bad-text-hover: #DC223E
+    --button-bad-border: #D63731
+    --button-bad-border-hover: #D63731
 
     --button-warn: #fdbb31
-    --button-warn-hover: #fdbb31
-    --button-warn-text-color: #00343e
+    --button-warn-hover: #fff
+    --button-warn-text: #00343e
+    --button-warn-text-hover: #00343e
+    --button-warn-border: #fdbb31
+    --button-warn-border-hover: #fdbb31
 
     // Dropdown menus
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
@@ -212,16 +226,3 @@ body
 
     --chat-header-background: #007272
     --panel-header-background: #D2F0E9
-
-    widget
-        --primary: #007272
-        --primary-soft: #D2F0E9
-
-        --secondary: #A5E1D2
-        --secondary-soft: #E9F8F4
-
-        --warn: #FDBB31
-        --warn-soft: #FBF6EC
-
-        --bad: #DC2A2A
-        --bad-soft: #FDEEEE

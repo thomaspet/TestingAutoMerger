@@ -137,14 +137,6 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Kreditert",
-            "Field": "CreditedAmountCurrency",
-            "Format": "NumberPositiveNegative",
-            "Width": "120px",
-            "DefaultHidden": true,
-            "SumColumn": true
-        },
-        {
             "Header": "Sum inkl. mva [BASECURRENCY]",
             "Field": "TaxInclusiveAmount",
             "Format": "NumberPositiveNegative",

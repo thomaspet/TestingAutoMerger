@@ -1,9 +1,7 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
 import {FormGroup, FormControl, Validators} from '@angular/forms';
 import {theme, THEMES} from 'src/themes/theme';
-import {ElsaContractService, ErrorService} from '@app/services/services';
-
-import {environment} from 'src/environments/environment';
+import {ElsaAgreementService, ElsaContractService, ErrorService} from '@app/services/services';
 import {ElsaCustomer} from '@app/models';
 import {AuthService} from '@app/authService';
 
@@ -28,7 +26,7 @@ export class ContractActivationWizard {
     bankName: string;
     headerText = theme.theme === THEMES.SR ? 'Bestill Bank+Regnskap' : 'Kontaktinformasjon';
     submitButtonText = theme.theme === THEMES.SR ? 'Bestill' : 'Aktiver kundeforhold';
-    lisenceAgreementUrl = environment.LICENSE_AGREEMENT_URL;
+    lisenceAgreementUrl: string;
 
     customerDetailsForm = new FormGroup({
         ContactPerson: new FormControl('', Validators.required),
@@ -40,8 +38,13 @@ export class ContractActivationWizard {
     constructor(
         private errorService: ErrorService,
         private elsaContractService: ElsaContractService,
+        private elsaAgreementService: ElsaAgreementService,
         private authService: AuthService,
     ) {
+        this.elsaAgreementService.getContractAgreement().subscribe(agreement => {
+            this.lisenceAgreementUrl = agreement?.DownloadUrl || '';
+        });
+
         if (theme.theme === THEMES.SR) {
             this.customerDetailsForm.addControl('PersonalNumber', new FormControl('', Validators.required));
             this.customerDetailsForm.addControl('IsBankCustomer', new FormControl(false));

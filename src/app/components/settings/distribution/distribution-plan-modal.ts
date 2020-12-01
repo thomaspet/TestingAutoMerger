@@ -1,6 +1,6 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {Router} from '@angular/router';
-import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
+import {ConfirmActions, IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {
     DistributionPlanService,
@@ -24,6 +24,7 @@ import {theme, THEMES} from 'src/themes/theme';
 
 import * as _ from 'lodash';
 import { Observable } from 'rxjs';
+import {ElsaAgreementStatus, ElsaPurchase} from '@app/models';
 
 export enum TypeStatusCode {
     InActive = null,
@@ -139,8 +140,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 } else {
                     item = this.purchases.find(p => p.ProductName.toLowerCase() === 'ehf_out');
                     if (item) {
-                        type.StatusCode = this.ehfService.isEHFOutActivated(this.companySettings)
-                            ? TypeStatusCode.Ready : TypeStatusCode.NeedsActivation;
+                        type.StatusCode = TypeStatusCode.Ready;
                     }
                     type['ProductName'] = 'EHF_OUT';
                     break;
@@ -153,6 +153,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 }
                 type['ProductName'] = 'INVOICEPRINT';
                 break;
+            case 'AvtaleGiro + efaktura':
             case 'Efaktura':
                 item = this.purchases.find(p => p.ProductName.toLowerCase().includes('efakturab2c'));
                 if (item) {
@@ -175,8 +176,8 @@ export class DistributionPlanModal implements OnInit, IUniModal {
                 break;
 
             case 'AvtaleGiro':
-            case 'AvtaleGiro + efaktura':
-                type.StatusCode = TypeStatusCode.ContinueMarkedPlace;
+                type.StatusCode = TypeStatusCode.Ready;
+                break;
         }
         // If null, set to 30003 = buy
         type.StatusCode = type.StatusCode || TypeStatusCode.NeedsPurchase;
@@ -278,7 +279,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
         this.indexAndID = [index, type.ID];
         switch (type.ID) {
             case 1:  // EHF_OUT
-                this.activateProduct(type, UniActivateAPModal);
+                this.activateProduct(type, null);
                 break;
             case 3:  // FAKTURAPRINT
                 this.activateProduct(type, UniActivateInvoicePrintModal);
@@ -329,11 +330,7 @@ export class DistributionPlanModal implements OnInit, IUniModal {
     }
 
     openActivateModal(modal: any) {
-        let options = {};
-        if (modal === UniActivateAPModal) {
-            options = {data: {isOutgoing: true}};
-        }
-        this.modalService.open(modal, options).onClose.subscribe((status) => {
+        this.modalService.open(modal).onClose.subscribe(() => {
             this.refreshDataAndTypes();
         }, err => this.errorService.handle(err));
     }
@@ -341,22 +338,50 @@ export class DistributionPlanModal implements OnInit, IUniModal {
     private purhcaseItem(type, modal?) {
         this.elsaProductService.FindProductByName(type.ProductName).subscribe(product => {
             if (product) {
-                this.elsaPurchasesService.massUpdate([{ID: 0, ProductID: product.ID}]).subscribe(() => {
-                    if (modal) {
-                        this.openActivateModal(modal);
-                    } else {
-                        this.refreshDataAndTypes();
-                    }
-                }, err => {
-                    this.toast.addToast('Noe gikk galt ved kjøp.', ToastType.warn, 10, 'Gå til markedsplassen for å kjøpe produktet.');
-                    this.busy = false;
-                });
+                const purchase: ElsaPurchase = {
+                    ID: null,
+                    ProductID: product.ID
+                };
+
+                if (!modal && product.ProductAgreement?.AgreementStatus === ElsaAgreementStatus.Active) {
+                    this.modalService.confirm({
+                        header: product.ProductAgreement.Name,
+                        message: product.ProductAgreement.AgreementText,
+                        isMarkdown: true,
+                        class: 'medium',
+                        buttonLabels: {
+                            accept: 'Aksepter',
+                            cancel: 'Tilbake'
+                        }
+                    }).onClose.subscribe(response => {
+                        if (response === ConfirmActions.ACCEPT) {
+                            this.purchaseProduct(purchase);
+                        } else {
+                            this.busy = false;
+                        }
+                    });
+                } else {
+                    this.purchaseProduct(purchase, modal);
+                }
             } else {
                 this.busy = false;
                 this.toast.addToast('Klarte ikke finne produktet');
             }
         });
 
+    }
+
+    private purchaseProduct(purchase: ElsaPurchase, modal?) {
+        this.elsaPurchasesService.massUpdate([purchase]).subscribe(() => {
+            if (modal) {
+                this.openActivateModal(modal);
+            } else {
+                this.refreshDataAndTypes();
+            }
+        }, err => {
+            this.toast.addToast('Noe gikk galt ved kjøp.', ToastType.warn, 10, 'Gå til markedsplassen for å kjøpe produktet.');
+            this.busy = false;
+        });
     }
 
     private filterElementTypes(type: string, elementTypes: DistributionPlanElementType[]) {

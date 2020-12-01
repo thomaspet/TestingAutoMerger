@@ -31,7 +31,6 @@ import {
 
 import {CompanySettings} from '@uni-entities';
 import {ActivationEnum, ElsaPurchase} from '@app/models';
-// import {IUniTab} from '@uni-framework/uni-tabs';
 import {theme, THEMES} from 'src/themes/theme';
 import {ChangeContractTypeModal} from './change-contract-type-modal/change-contract-type-modal';
 
@@ -48,8 +47,6 @@ interface ActivationModal {
 export class MarketplaceModules implements AfterViewInit {
     modules: ElsaProduct[];
     extensions: ElsaProduct[];
-    // filteredExtensions: ElsaProduct[];
-    // tabs: IUniTab[];
 
     private canPurchaseProducts: boolean;
     private companySettings: CompanySettings;
@@ -145,21 +142,11 @@ export class MarketplaceModules implements AfterViewInit {
                 this.autobankAgreements = autobankAgreeements || [];
 
                 this.modules = (products || []).filter(p => p.ProductType === ElsaProductType.Module && !p.IsMandatoryProduct);
-
-                this.extensions = products
-                    .filter(p => p.ProductType === ElsaProductType.Extension && !p.IsMandatoryProduct)
-                    .map(extension => {
-                        this.setActivationFunction(extension);
-                        return extension;
-                    });
+                this.extensions = products.filter(p => p.ProductType === ElsaProductType.Extension && !p.IsMandatoryProduct);
 
                 this.setPurchaseInfo(purchases);
-                this.canPurchaseProducts = canPurchaseProducts;
 
-                // const tabs = this.modules.map(m => ({name: m.Label, value: m.Name}));
-                // tabs.unshift({ name: 'Alle', value: null });
-                // this.tabs = tabs;
-                // this.onTabChange(this.tabs[0]);
+                this.canPurchaseProducts = canPurchaseProducts;
 
                 // Check queryParams if we should open a specific product dialog immediately
                 this.route.queryParamMap.subscribe(paramMap => {
@@ -191,6 +178,7 @@ export class MarketplaceModules implements AfterViewInit {
 
         this.extensions = this.extensions.map(extension => {
             extension['_isBought'] = purchases.some(p => p.ProductID === extension.ID);
+            this.setActivationFunction(extension);
             return extension;
         });
     }
@@ -202,9 +190,7 @@ export class MarketplaceModules implements AfterViewInit {
         if (name === 'invoiceprint' && !this.ehfService.isInvoicePrintActivated()) {
             activationModal = {modal: UniActivateInvoicePrintModal};
         } else if (name === 'ehf' && !this.ehfService.isEHFIncomingActivated()) {
-            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: false}}};
-        } else if (name === 'ehf_out' && !this.ehfService.isEHFOutActivated()) {
-            activationModal = {modal: UniActivateAPModal, options: {data: {isOutgoing: true}}};
+            activationModal = {modal: UniActivateAPModal};
         } else if (
             name === 'ocr-scan'
             && !this.companySettings.UseOcrInterpretation
@@ -247,16 +233,6 @@ export class MarketplaceModules implements AfterViewInit {
             }
         });
     }
-
-    // onTabChange(tab: IUniTab) {
-    //     if (tab.value) {
-    //         this.filteredExtensions = this.extensions.filter(extension => {
-    //             return extension.ParentProducts.some(pName => pName === tab.value);
-    //         });
-    //     } else {
-    //         this.filteredExtensions = this.extensions;
-    //     }
-    // }
 
     priceText(module: ElsaProduct): string {
         return this.elsaProductService.ProductTypeToPriceText(module);

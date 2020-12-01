@@ -24,7 +24,7 @@ export class UniInit {
     ) {
         this.router.events.pipe(takeUntil(this.onDestroy$)).subscribe(event => {
             if (event instanceof NavigationEnd) {
-                this.showTryForFree = theme.theme !== THEMES.UE && theme.theme !== THEMES.EXT02 && !event.url.includes('sign-up');
+                this.showTryForFree = theme.theme !== THEMES.UE && !event.url.includes('sign-up');
             }
         });
 

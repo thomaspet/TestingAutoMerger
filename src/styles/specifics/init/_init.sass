@@ -131,7 +131,7 @@ uni-password-guide
                     // color: var(--color-good)
                     content: '✓'
 
-.locked-company-container
+.locked-container
     position: absolute
     height: 100%
     width: 100%
@@ -140,8 +140,12 @@ uni-password-guide
     display: flex
     justify-content: center
 
-    section
+    .company-lock
         width: 40rem
+    .license-lock
+        width: fit-content
+
+    section
         display: flex
         flex-direction: column
         background-color: white

@@ -13,7 +13,8 @@ import {
     AccountVisibilityGroupService,
     CompanyAccountingSettingsService,
     JournalEntryLineDraftService,
-    JournalEntryTypes
+    JournalEntryTypes,
+    AccountService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSearchAccountConfig';
@@ -100,6 +101,7 @@ export class UniCompanyAccountingView {
     ];
 
     constructor (
+        private accountService: AccountService,
         private companySettingsService: CompanySettingsService,
         private companyAccountingSettingsService: CompanyAccountingSettingsService,
         private periodeSeriesService: PeriodSeriesService,
@@ -256,7 +258,7 @@ export class UniCompanyAccountingView {
     }
 
     private openActivateAPModal() {
-        this.modalService.open(UniActivateAPModal, {data: {isOutgoing: false}}).onClose.subscribe((status) => {
+        this.modalService.open(UniActivateAPModal).onClose.subscribe((status) => {
             if (status !== 0) {
                 this.companySettingsService.Get(1).subscribe(settings => {
                     const company = this.companySettings$.getValue();

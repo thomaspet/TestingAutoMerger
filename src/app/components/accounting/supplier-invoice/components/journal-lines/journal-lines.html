@@ -15,7 +15,7 @@
         </section>
 
         <!-- Input for type of supplier invoice  -->
-        <section class="input-grid smaller" *ngIf="currentMode === 3">
+        <section class="input-grid" *ngIf="currentMode === 3">
             <label class="uni-label label-above">
                 <span>Hvilke kjøp er dette?</span>
                 <uni-select
@@ -62,19 +62,40 @@
                     </label>
 
                     <label class="uni-label label-above">
-                        <span>Beløp</span>
+                        <span>
+                            Beløp
+                            <span *ngIf="line.Accrual && !line.Accrual?.Deleted" class="amount-accrual" (click)="openAccrualModal(line, idx)">
+                                Periodisert
+                            </span>
+                        </span>
                         <input class="number-input-fields" [(ngModel)]="line.AmountCurrency" (change)="store.updateJournalEntryLine(idx, 'AmountCurrency', line.AmountCurrency)" (blur)="blurHandler($event)" type="text">
                     </label>
 
-                    <label class="uni-label label-above">
-                        <span>MVA</span>
-                        <uni-select
-                            [config]="selectConfig"
-                            [items]="filteredVatTypes"
-                            [value]="line.VatType"
-                            (valueChange)="onVatTypeChange($event, idx)">
-                        </uni-select>
-                    </label>
+                    <section class="label-context-menu-container">
+                        <label class="uni-label label-above">
+                            <span>MVA</span>
+                            <uni-select
+                                [readonly]="mvaSelectDisabled"
+                                [config]="selectConfig"
+                                [items]="filteredVatTypes"
+                                [value]="line.VatType"
+                                (valueChange)="onVatTypeChange($event, idx)">
+                            </uni-select>
+                        </label>
+                        <section class="line-context-menu">
+                            <i #toggle class="material-icons" role="button">more_horiz</i>
+                            <dropdown-menu [trigger]="toggle" (click)="$event.stopPropagation()">
+                                <ng-template>
+                                    <a class="dropdown-menu-item"
+                                        *ngFor="let item of listActions"
+                                        (click)="item.action(line, idx)"
+                                    >
+                                        {{item.label}}
+                                    </a>
+                                </ng-template>
+                            </dropdown-menu>
+                        </section>
+                    </section>
                 </section>
             </section>
         </ng-container>

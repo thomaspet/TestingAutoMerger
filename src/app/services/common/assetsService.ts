@@ -285,7 +285,8 @@ export class AssetsService extends BizHttp<Asset>{
     }
 
     getUseAsset() {
-        return this.GetAction(null, 'get-use-asset');
+        return this.GetAction(null, 'get-use-asset')
+            .pipe(map(useAsset => useAsset === false ? false : true));
     }
 
     setUseAsset(use: boolean) {
@@ -301,8 +302,8 @@ export class AssetsService extends BizHttp<Asset>{
         }
         return of(true);
     }
-    openRegisterModal(supplierInvoice: SupplierInvoice) {
-        this.getUseAsset().subscribe(useAsset => {
+    openRegisterModal(supplierInvoice: SupplierInvoice): Observable<any> {
+        return this.getUseAsset().pipe(switchMap((useAsset) => {
             if (useAsset) {
                 const result$ = new Subject();
                 this.modalService.open(RegisterAssetModal, {}).onClose.take(1).subscribe(result => {
@@ -319,8 +320,10 @@ export class AssetsService extends BizHttp<Asset>{
 
                 });
                 return result$.asObservable();
+            } else {
+                return of(false);
             }
-        });
+        }));
     }
 
     linkFile(ID, fileID) {

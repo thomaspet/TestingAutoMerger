@@ -16,6 +16,7 @@
         [columnOverrides]="columnOverrides"
         (rowSelected)="onRowSelected($event)"
         (editModeToggled)="editModeChanged($event)"
+        (tickerDataLoaded)="dataLoaded($event)"
         (rowSelectionChange)="rowSelectionChange.emit($event)">
     </uni-ticker>
 

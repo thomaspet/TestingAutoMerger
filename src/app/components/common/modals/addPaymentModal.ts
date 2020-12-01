@@ -29,6 +29,7 @@ import {UniSearchAccountConfig} from '../../../services/common/uniSearchConfig/u
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import { CompanySettingsService } from '@app/services/common/companySettingsService';
 import { PaymentCodeService } from '@app/services/accounting/paymentCodeService';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 
 @Component({
     selector: 'add-payment-modal',
@@ -86,6 +87,7 @@ export class AddPaymentModal implements IUniModal {
         private toastService: ToastService,
         private companySettingsService: CompanySettingsService,
         private paymentCodeService: PaymentCodeService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
     ) {}
 
     public ngOnInit() {
@@ -113,6 +115,13 @@ export class AddPaymentModal implements IUniModal {
             this.paymentCodeService.GetAll(null)
         ).subscribe(data => {
             this.fromBankAccountsList = data[0];
+            this.fromBankAccountsList.forEach(account => {
+                account['_displayValue'] = account.Label
+                    ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                    : account.BankAccountType
+                        ? this.getAccountType(account.BankAccountType) + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                        : this.uniAccountNumberPipe.transform(account.AccountNumber);
+            });
             this.config.model['ToBankAccountsList'] = this.options.data.customerBankAccounts || data[1];
             this.paymentCodes = data[2];
             this.fields$.next(this.getFields());
@@ -267,7 +276,23 @@ export class AddPaymentModal implements IUniModal {
         };
     }
 
-
+    private getAccountType(type: string): string {
+        switch (type.toLowerCase()) {
+            case 'company':
+            case 'companysettings':
+                return 'Drift';
+            case 'tax':
+                return 'Skatt';
+            case 'salary':
+                return 'Lønn';
+            case 'credit':
+                return 'Kredittkort';
+            case 'international':
+                return 'Utenlandsbetaling';
+            default:
+                return '';
+        }
+    }
 
     private getFields() {
         // TODO get it from the API and move these to backend migrations
@@ -291,7 +316,7 @@ export class AddPaymentModal implements IUniModal {
                 Options: {
                     source: this.fromBankAccountsList,
                     valueProperty: 'ID',
-                    displayProperty: 'AccountNumber',
+                    displayProperty: '_displayValue',
                     debounceTime: 200
                 }
             },

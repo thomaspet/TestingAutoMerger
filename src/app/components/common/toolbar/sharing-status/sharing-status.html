@@ -7,7 +7,7 @@
 
     <section class="status-history">
         <section *ngFor="let entry of sharingHistory" class="status-entry">
-            <span class="date">{{(entry.SharingCreatedAt || entry.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
+            <span class="date">{{(entry.SharingCreatedAt || entry.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:mm'}}</span>
             <span class="text">{{getSharingText(entry)}}</span>
             <span class="status">{{getSharingStatus(entry)}}</span>
         </section>

@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Aktiver EHF {{isOutgoing ? 'sending' : 'mottak'}}</header>
+    <header>Aktiver EHF mottak</header>
     <article>
         <section *ngIf="busy" class="modal-spinner">
             <mat-spinner class="c2a"></mat-spinner>
@@ -14,7 +14,7 @@
         <section *ngIf="terms" class="terms-checkbox">
             <mat-checkbox [(ngModel)]="termsAgreed">
                 <span class="checkbox-label" (click)="$event.preventDefault()">
-                    Jeg har lest og forstått <a (click)="$event.preventDefault(); confirmTerms()">avtalen</a>
+                    Jeg har lest og godtar <a (click)="$event.preventDefault(); confirmTerms()">avtalen</a>.
                 </span>
             </mat-checkbox>
         </section>

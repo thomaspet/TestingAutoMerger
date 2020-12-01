@@ -27,6 +27,7 @@ export class UniNavbar {
     isSrEnvironment = theme.theme === THEMES.SR;
 
     showDemoPackageSelector: boolean;
+    isSupportUser: boolean;
 
     user: User;
     licenseRole: string;
@@ -60,8 +61,10 @@ export class UniNavbar {
                 this.isTemplateCompany = auth.activeCompany.IsTemplate;
                 this.isTestCompany = auth.activeCompany.IsTest;
                 this.isDemo = auth.isDemo;
+                this.isSupportUser = auth.user.License.UserType?.TypeName === 'Support';
 
-                this.showDemoPackageSelector = auth.isDemo && (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR);
+                this.showDemoPackageSelector =
+                    (auth.isDemo || this.isSupportUser) && (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR);
 
                 if (auth.isDemo) {
                     const contract = (auth.user.License && auth.user.License.ContractType) || <ContractLicenseType> {};

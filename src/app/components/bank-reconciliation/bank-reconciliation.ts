@@ -13,10 +13,11 @@ import {JournalEntryFromAccountModal} from './journal-entry-from-account-modal/j
 import {BankStatementJournalModal} from './bank-statement-journal/bank-statement-journal-modal';
 import {BankStatementSettings} from './bank-statement-settings/bank-statement-settings';
 import * as moment from 'moment';
-import {Observable, of} from 'rxjs';
+import {Observable, of, throwError} from 'rxjs';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import {ManualBankStatementRegisterModal} from './manual-bankstatement-register-modal/manual-bankstatement-register-modal';
+import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 
 @Component({
     selector: 'bank-reconciliation',
@@ -55,6 +56,7 @@ export class BankReconciliation {
         private pageStateService: PageStateService,
         private toastService: ToastService,
         private permissionService: FeaturePermissionService,
+        private uniAccountNumberPipe: UniAccountNumberPipe,
     ) {
         tabService.addTab({
             url: '/bank/reconciliationmatch',
@@ -133,6 +135,15 @@ export class BankReconciliation {
                 accounts => {
                     this.bankAccounts = accounts || [];
                     if (this.bankAccounts.length) {
+                        this.bankAccounts.forEach(account => {
+                            account['_displayValue'] = account.Label
+                                ? account.Label + ' - ' + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                                : account.BankAccountType
+                                    ? this.getAccountType(account.BankAccountType)
+                                        + ' - '
+                                        + this.uniAccountNumberPipe.transform(account.AccountNumber)
+                                    : this.uniAccountNumberPipe.transform(account.AccountNumber);
+                        });
 
                         this.selectedBankAccount = this.bankAccounts[0];
 
@@ -352,13 +363,19 @@ export class BankReconciliation {
                 if (this.session.journalEntryMode !== JournalEntryListMode.Original) {
                     // If one of the matches is on same side, dont allow it in SubAccount view!
                     if (response.filter(res => !res.BankStatementEntryID || !res.JournalEntryLineID).length) {
-                        const link = `<a href="/#/accounting/postpost?register=${this.session.journalEntryMode === 1 ? 'customer' : 'supplier'}&name=&search=&postsearch=&tabindex=0&maintabindex=0">gå til Utestående</a>`;
-
-                        this.toastService.addToast('Avstemming avbrutt', ToastType.warn, 15,
-                        `Kan ikke matche poster på samme side når du ser ${this.session.journalEntryMode === 1 ? 'kunde' : 'leverandør'}poster på høyresiden. `
-                        + `Trykk på regnskap for å matche bankposter, eller ${link} for å postpost-anmerke`);
-                        this.session.preparing = false;
-                        this.reset();
+                        this.prepAndSendPostPost(response).subscribe(res => {
+                            this.toastService.addToast('Rader lukket', ToastType.good, 5, 'Poster lukket på ' + (this.session.journalEntryMode === 1 ? 'kunde: ' : 'leverandør: ') + response[0].SubAccountName);
+                            this.session.preparing = false;
+                            this.session.closedGroups = [];
+                        }, err => {
+                            if (err.message && err.header) {
+                                this.toastService.addToast(err.header, ToastType.warn, 8, err.message);
+                            } else {
+                                this.errorHandler.handleError(err);
+                            }
+                            this.reset();
+                            this.session.preparing = false;
+                        })
                     } else {
                         this.openJournalAndPostpostModal(response);
                     }
@@ -370,6 +387,36 @@ export class BankReconciliation {
                 this.session.preparing = false;
             }
         });
+    }
+
+    prepAndSendPostPost(data): Observable<any> {
+       
+        if (data.length !== 2) {
+            const link = `<a href="/#/accounting/postpost?register=${this.session.journalEntryMode === 1 ? 'customer' : 'supplier'}&name=${data[0]?.SubAccountName}&search=&postsearch=&tabindex=0&maintabindex=0">gå til Utestående</a>`;
+            return throwError( { header: 'Kan ikke lukke poster', message: 'Støtter kun lukking av 2 poster. For avansert postpostavmerking ' + link } ); 
+        }
+        const supplierAccountID = data[0].SubAccountID;
+
+        if (!supplierAccountID) {
+            return throwError( { header: 'Ugyldige markeringer', message: 'Mangler ' + (this.session.journalEntryMode === 1 ? 'kundenummer' : 'leverandørnummer') +  '. Prøv å hente data på nytt'} ); 
+        }
+
+        if ((new Set(data.map(d => d.SubAccountID))).size !== 1) {
+            return throwError( { header: 'Ugyldige markeringer', message: 'Kan ikke lukke poster fra forskjellige ' + (this.session.journalEntryMode === 1 ? 'kunder' : 'leverandører') } );  
+        }
+
+        const pair = [{
+            JournalEntryLineId1: data[0].JournalEntryLineID,
+            JournalEntryLineId2: data[1].JournalEntryLineID
+        }];
+
+        return this.statisticsService.GetHttp()
+            .usingBusinessDomain()
+            .asPOST()
+            .withBody(pair)
+            .withEndPoint('postposts?action=markposts')
+            .send()
+            .map(response => response.body);
     }
 
     openJournalAndPostpostModal(matches) {
@@ -493,5 +540,23 @@ export class BankReconciliation {
             }
             return Observable.of(confirm !== ConfirmActions.CANCEL);
         });
+    }
+
+    private getAccountType(type: string): string {
+        switch (type.toLowerCase()) {
+            case 'company':
+            case 'companysettings':
+                return 'Drift';
+            case 'tax':
+                return 'Skatt';
+            case 'salary':
+                return 'Lønn';
+            case 'credit':
+                return 'Kredittkort';
+            case 'international':
+                return 'Utenlandsbetaling';
+            default:
+                return '';
+        }
     }
 }

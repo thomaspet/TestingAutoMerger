@@ -483,7 +483,7 @@ export class TradeItemHelper  {
     }
 
 
-    public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary): ISummaryLine[] {
+    public getSummaryLines(items: any[], sums: TradeHeaderCalculationSummary, showVat: boolean = true): ISummaryLine[] {
         const summaryLines: ISummaryLine[] = [];
 
         // if (sums.SumTotalExVat) {
@@ -508,10 +508,12 @@ export class TradeItemHelper  {
             // });
         }
 
-        summaryLines.push({
-            label: 'Mva ' + (vatPercentText || ''),
-            value: sums.SumVatCurrency ? this.numberFormat.asMoney(sums.SumVatCurrency) : 0
-        });
+        if (showVat || sums.SumVatCurrency > 0) {
+            summaryLines.push({
+                label: 'Mva ' + (vatPercentText || ''),
+                value: sums.SumVatCurrency ? this.numberFormat.asMoney(sums.SumVatCurrency) : 0
+            });
+        }
 
         if (sums.DecimalRoundingCurrency &&
             ((this.round(sums.DecimalRoundingCurrency, 2) > 0.00) || (this.round(sums.DecimalRoundingCurrency, 2) < 0.00))) {

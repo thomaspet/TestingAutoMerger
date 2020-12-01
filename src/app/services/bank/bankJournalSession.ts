@@ -255,14 +255,18 @@ export class BankJournalSession {
                 if (item.Debet) {
                     const debet = this.convertToJournalEntry(item);
                     debet.AccountID = item.Debet.ID;
-                    if (item.DebetVatTypeID !== undefined) { debet.VatTypeID = item.DebetVatTypeID; }
+                    if (item.DebetVatTypeID !== undefined && !item['_removedVat']) {
+                        debet.VatTypeID = item.DebetVatTypeID;
+                    }
                     entry.DraftLines.push(debet);
                     balance = BankUtil.safeAdd(balance, debet.Amount);
                 }
                 if (item.Credit) {
                     const credit = this.convertToJournalEntry(item);
                     credit.AccountID = item.Credit.ID;
-                    if (item.CreditVatTypeID !== undefined) { credit.VatTypeID = item.CreditVatTypeID; }
+                    if (item.CreditVatTypeID !== undefined && !item['_removedVat']) {
+                        credit.VatTypeID = item.CreditVatTypeID;
+                    }
                     credit.Amount = -item.Amount;
                     entry.DraftLines.push(credit);
                     balance = BankUtil.safeAdd(balance, credit.Amount);
@@ -404,6 +408,9 @@ export class BankJournalSession {
                 }
                 this.setVatType(match, newValue.ID);
                 break;
+            case '_removedVat':
+                match['_removedVat'] = newValue;
+                break;
             default:
                 return row;
         }
@@ -505,6 +512,7 @@ export class BankJournalSession {
             item.CreditVatTypeID = vatTypeID;
             item['_setbydebet'] = false;
         }
+        item['_removedVat'] = !vatTypeID;
         item.VatType = setVatType;
     }
 

@@ -16,7 +16,7 @@
         </section>
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">
-                <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:MM'}}</span>
+                <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:mm'}}</span>
                 <span class="text">{{getSharingText(sharing)}}</span>
                 <span class="status">{{getSharingStatus(sharing)}}</span>
             </section>
@@ -34,7 +34,7 @@
                     <section class="dropdown-menu-item"
                         *ngFor="let option of sendingOptions"
                         (click)="selectedOption = option">
-                        {{option.label}}
+                        {{ option.label }}
                         <small *ngIf="option.small" style="padding-left: .5rem">{{option.small}}</small>
                     </section>
                 </ng-template>

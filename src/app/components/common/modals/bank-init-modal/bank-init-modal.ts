@@ -162,7 +162,7 @@ export class BankInitModal implements IUniModal, OnInit {
     checkNextStepValid() {
         switch (this.steps) {
             case 1:
-                this.isNextStepValid = !!this.companySettings$.value.CompanyBankAccountID;
+                this.isNextStepValid = !!this.companySettings$.value?.CompanyBankAccountID;
                 break;
             default:
                 this.isNextStepValid = true;

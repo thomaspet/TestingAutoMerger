@@ -11,7 +11,8 @@ import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/stat
 import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/components/common/toolbar/toolbar';
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
 import * as moment from 'moment';
-import { UniModalService, ConfirmActions } from '@uni-framework/uni-modal';
+import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/uni-modal';
+import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 
 declare const ResizeObserver;
@@ -55,9 +56,33 @@ export class SupplierInvoiceView {
         ).subscribe(params => {
             this.store.fileIDs$.next([]);
             const invoiceID = +params.get('id');
-            this.store.init(invoiceID);
+
+            this.store.init(invoiceID, 0);
             this.hasChanges = false;
             this.paymentStatusIndicator = null;
+
+            const batchID = this.activeRoute.snapshot.queryParamMap.get('batchID');
+            const hashValue = this.activeRoute.snapshot.queryParamMap.get('hashValue');
+
+            if (batchID && hashValue) {
+                const options: IModalOptions = {
+                    data: {
+                        batchID: batchID,
+                        hashValue: hashValue
+                    },
+                    closeOnClickOutside: false
+                };
+
+                this.modalService.open(BankIDPaymentModal, options).onClose.subscribe((response) => {
+                    if (response) {
+                        this.store.changes$.next(true);
+                        this.store.loadInvoice(invoiceID);
+                    } else {
+                        this.store.toastService.addToast('Betalingsbunt allerede sendt til betaling', 3, 5);
+                    }
+                    this.router.navigate(['.'], { relativeTo: this.activeRoute, queryParams: {} });
+                });
+            }
 
             if (!invoiceID) {
                 const fileID = +this.activeRoute.snapshot.queryParamMap.get('fileid');
@@ -89,6 +114,10 @@ export class SupplierInvoiceView {
         this.onDestroy$.next();
         this.onDestroy$.complete();
         this.store.selectedFile = null;
+        this.store.invoiceID = 0;
+        this.store.invoice$.next(<SupplierInvoice>{});
+        this.store.startupFileID$.next(null);
+        this.store.initDataLoaded$.next(false);
     }
 
     private syncFormAndAttachmentsHeight() {
@@ -138,23 +167,20 @@ export class SupplierInvoiceView {
             {
                 label: 'Tildel',
                 action: (done) => {
-                    this.store.assignInvoice().subscribe(details => {
-                        if (details) {
-                            const ID = this.store.invoice$.value.ID;
-                            this.supplierInvoiceService.assign(ID, details).subscribe(res => {
-                                this.store.loadInvoice(ID);
-                                done('Faktura tildelt');
-                            }, err => {
-                                done();
-                            });
-                        } else {
-                            done();
-                        }
-                    });
+                    this.store.assignInvoice(false, done);
                 },
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.Draft
             },
+            {
+                label: 'Tildel på nytt',
+                action: (done) => {
+                    this.store.assignInvoice(true, done);
+                },
+                disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
+                || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
+            },
+
             {
                 label: 'Godkjenn',
                 action: (done) => {
@@ -171,6 +197,7 @@ export class SupplierInvoiceView {
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
             },
+            
             {
                 label: 'Bokfør og betal',
                 action: (done) => {
@@ -249,6 +276,17 @@ export class SupplierInvoiceView {
                 },
                 main: true,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled
+            },
+            {
+                label: 'Gjenopprett',
+                action: (done) => {
+                    this.store.restoreSupplierInvoice(invoice.ID).subscribe(res => {
+                        done();
+                        this.store.loadInvoice(invoice.ID);
+                    }, err => this.errorService.handle(err))
+                },
+                main: false,
+                disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Rejected
             },
         ];
     }
