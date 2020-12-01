@@ -389,6 +389,12 @@ export class SupplierInvoiceStore {
             if (line.AmountCurrency.toString().indexOf(',') !== -1) {
                 line.AmountCurrency = parseFloat(line.AmountCurrency.toString().replace(' ', '').replace(',', '.'))
             }
+            line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
+        } else if (field === 'AmountCurrency') {
+            if (!line?.AmountCurrency || isNaN(line.AmountCurrency)) {
+                line.AmountCurrency = 0;
+            }
+            line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
         }
 
         // recalc
