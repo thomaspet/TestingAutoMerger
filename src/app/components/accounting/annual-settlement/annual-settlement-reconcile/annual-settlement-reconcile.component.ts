@@ -31,7 +31,7 @@ export class AnnualSettlementReconcileComponent {
             this.addTab(id);
             this.annualSettlementService.getAnnualSettlement(id).pipe(
                 switchMap(as => {
-                    if (as.Reconcile.StatusCode === 3600) {
+                    if (as.Reconcile.StatusCode === 36000) {
                         return this.annualSettlementService.startReconcile(as);
                     }
                     return of(as);

@@ -30,7 +30,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     getAnnualSettlement(id) {
-        return this.Get(id, ['AnnualSettlementCheckList', 'Reconcile', 'Reconcile.Account']);
+        return this.Get(id, ['AnnualSettlementCheckList', 'Reconcile', 'Reconcile.Accounts']);
     }
 
     createFinancialYear(year: number) {
@@ -101,8 +101,9 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     startReconcile(annualSettlement) {
-        if (annualSettlement.StatusCode === StatusCodeReconcile.NotBegun) {
-            return this.httpClient.get(this.baseUrl + 'reconcile?action=begin-reconcile');
+        if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
+            return this.httpClient
+                .post(this.baseUrl + `reconcile/${annualSettlement.Reconcile.ID}?action=begin-reconcile`, null);
         }
         return of(annualSettlement);
     }

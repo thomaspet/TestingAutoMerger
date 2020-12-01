@@ -56,7 +56,7 @@ export class AnnualSettlementCheckListComponent {
     }
     completeCheckListStep() {
         this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
-            this.router.navigateByUrl('/accounting/annualsettlement');
+            this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
 
