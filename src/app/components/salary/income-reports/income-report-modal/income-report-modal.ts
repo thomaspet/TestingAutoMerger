@@ -48,6 +48,7 @@ export class IncomeReportModal implements IUniModal, OnInit {
         this.isNewIncomeReport = !incomereport;
         this.initNewIncomeReport();
         if (incomereport) {
+            incomereport.Report.Skjemainnhold.aarsakTilInnsending = 'Endring';
             this.employeeChange(incomereport.Employment.EmployeeID);
             this.incomereport$.next(incomereport);
         } else {
@@ -85,20 +86,31 @@ export class IncomeReportModal implements IUniModal, OnInit {
             this.toastService.addToast('Mangler data', ToastType.bad, ToastTime.medium, 'Må velge både arbeidsforhold og ytelse');
         } else {
             const ytelse = YtelseKodeliste[incomereport.Type];
-            this.incomeReportsService.createIncomeReport(ytelse, incomereport.EmploymentID)
-                .subscribe(res => {
-                    this.incomeReportsService.Post(res).subscribe(createdreport => {
-                        if (createdreport.ID) {
-                            this.onClose.emit(createdreport);
-                        }
-                    });
+            if (incomereport.ID > 0) {
+                incomereport.ID = 0;
+                this.incomeReportsService.Post(incomereport).subscribe(createdreport => {
+                    if (createdreport.ID) {
+                        this.onClose.emit(createdreport);
+                    }
                 });
+
+            } else {
+                this.incomeReportsService.createIncomeReport(ytelse, incomereport.EmploymentID)
+                    .subscribe(res => {
+                        res.Report.Skjemainnhold.aarsakTilInnsending = 'Ny';
+                        this.incomeReportsService.Post(res).subscribe(createdreport => {
+                            if (createdreport.ID) {
+                                this.onClose.emit(createdreport);
+                            }
+                        });
+                    });
+            }
         }
     }
 
     onChangeEvent(changes: SimpleChanges) {
-        if (changes['EmployeeID']) {
-            const empId = changes['EmployeeID'].currentValue;
+        if (changes['Employment.EmployeeID']) {
+            const empId = changes['Employment.EmployeeID'].currentValue;
             this.employeeChange(empId);
         }
 
