@@ -1,6 +1,79 @@
 <annual-settlement-reconcile-toolbar-component
     [annualSettlement]="annualSettlement"
 ></annual-settlement-reconcile-toolbar-component>
-<ag-grid-wrapper
-    [resource]="annualSettlement?.Reconcile"
-></ag-grid-wrapper>
+<section class="application">
+    <section class="uni-card">
+        <section class="uni-card-content">
+            <h2>Avstem balansen</h2>
+            <section class="custom-table">
+                <div class="custom-table-cell header-cell">
+                    Konto
+                </div>
+                <div class="custom-table-cell header-cell">
+                    Kontonavn
+                </div>
+                <div class="custom-table-cell header-cell right-content">
+                    Saldo i regnskapet
+                </div>
+                <div class="custom-table-cell header-cell right-content">
+                    Din saldo
+                </div>
+                <div class="custom-table-cell header-cell center-content">
+
+                </div>
+                <div class="custom-table-cell header-cell center-content">
+                    Godkjent
+                </div>
+                <div class="custom-table-cell header-cell center-content">
+                    <i class="material-icons-outlined">chat_bubble_outline</i>
+                </div>
+                <ng-container *ngFor="let account of annualSettlement?.Reconcile?.Accounts; let i = index">
+                    <div class="custom-table-cell"
+                        [class.odd-cell]="(i+1) % 2 === 1"
+                        [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        {{account.AccountNumber}}
+                    </div>
+                    <div class="custom-table-cell"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        {{account.AccountName}}
+                    </div>
+                    <div class="custom-table-cell right-content"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        {{account.CompanyAmount}}
+                    </div>
+                    <div class="custom-table-cell right-content"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        <input type="text" />
+                    </div>
+                    <div class="custom-table-cell center-content"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        <button class="mat-primary">{{account.CompanyAmount}}</button>
+                    </div>
+                    <div class="custom-table-cell center-content"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        <mat-checkbox [(ngModel)]="account.Approved"></mat-checkbox>
+                    </div>
+                    <div class="custom-table-cell center-content"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
+                    >
+                        <i class="material-icons-outlined">
+                            {{account.Comment ? 'mark_chat_read' : 'chat_bubble_outline'}}
+                        </i>
+                    </div>
+                </ng-container>
+            </section>
+        </section>
+    </section>
+</section>

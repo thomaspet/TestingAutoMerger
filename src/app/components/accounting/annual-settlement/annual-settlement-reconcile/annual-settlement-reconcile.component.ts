@@ -4,7 +4,45 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {of, Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+
+const addMockData = (annualSettlement) => {
+    annualSettlement.Reconcile.Accounts = [
+        {
+            AccountNumber: 1000,
+            AccountName: 'Account 1000',
+            CompanyAmount: 20000,
+            MyAmount: 0,
+            Approved: false,
+            Comment: null
+        },
+        {
+            AccountNumber: 1500,
+            AccountName: 'Account 1500',
+            CompanyAmount: 50000,
+            MyAmount: 0,
+            Approved: false,
+            Comment: null
+        },
+        {
+            AccountNumber: 1000,
+            AccountName: 'Account 1000',
+            CompanyAmount: 20000,
+            MyAmount: 0,
+            Approved: false,
+            Comment: null
+        },
+        {
+            AccountNumber: 1500,
+            AccountName: 'Account 1500',
+            CompanyAmount: 50000,
+            MyAmount: 0,
+            Approved: false,
+            Comment: null
+        }
+    ];
+};
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -15,6 +53,8 @@ import {UniTableColumn, UniTableConfig} from '@uni-framework/ui/unitable';
 })
 export class AnnualSettlementReconcileComponent {
     annualSettlement: any;
+    config;
+    accounts$ = new BehaviorSubject([]);
     onDestroy$ = new Subject();
     constructor(
         private router: Router,
@@ -34,10 +74,14 @@ export class AnnualSettlementReconcileComponent {
                     if (as.Reconcile.StatusCode === 36000) {
                         return this.annualSettlementService.startReconcile(as);
                     }
+                    addMockData(as);
                     return of(as);
                 })
             ).subscribe((as => {
-                console.log(as);
+                this.annualSettlement = as;
+                this.config = this.generateReconcileTable();
+                this.accounts$.next(this.annualSettlement.Reconcile.Accounts);
+                this.changeDetector.markForCheck();
             }));
         });
     }
@@ -50,13 +94,14 @@ export class AnnualSettlementReconcileComponent {
 
     private generateReconcileTable() {
         const cols = [
-            new UniTableColumn('Konto', 'AccountNumber'),
-            new UniTableColumn('Kontonavn', 'AccountName'),
-            new UniTableColumn('Saldo i rengskapet', 'AccountName'),
-            new UniTableColumn('Din saldo', 'AccountName'),
-            new UniTableColumn('', '_button'),
-            new UniTableColumn('Godkjent', '_accepted'),
-            new UniTableColumn('', '_comment'),
+            new UniTableColumn('AccountNumber', 'Konto'),
+            new UniTableColumn('AccountName', 'Kontonavn'),
+            new UniTableColumn('CompanyAmount', 'Saldo i rengskapet'),
+            new UniTableColumn('MayAmount', 'Din saldo'),
+            new UniTableColumn('_button', ' '),
+            new UniTableColumn('Approved', 'Godkjent')
+                .setType(UniTableColumnType.Checkbox),
+            new UniTableColumn('Comment', ' ')
         ];
         return new UniTableConfig('accounting.annualsettlement.reconcile', false, false)
             .setSearchable(false)
@@ -65,6 +110,7 @@ export class AnnualSettlementReconcileComponent {
     }
 
     ngOnDestroy() {
+        this.accounts$.complete();
         this.onDestroy$.next();
         this.onDestroy$.complete();
     }

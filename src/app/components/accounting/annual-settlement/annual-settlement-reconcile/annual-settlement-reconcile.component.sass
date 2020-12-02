@@ -1,0 +1,28 @@
+annual-settlement-reconcile
+    .custom-table
+        border: var(--table-border)
+        display: grid
+        grid-template-columns: 1fr 1.5fr 1fr 1fr 0.5fr 0.5fr 0.5fr
+        .custom-table-cell
+            padding: 1rem
+            display: flex
+            align-items: center
+            border-top: var(--table-border)
+            mat-checkbox
+                &.mat-checkbox-checked .mat-checkbox-background
+                    background-color: var(--checkbox-checked-background-good) !important
+                    border: #fff
+                .mat-checkbox-checkmark .mat-checkbox-checkmark-path
+                    stroke: var(--checkbox-checked-color-good) !important
+                    stroke-width: 3px
+            &.header-cell
+                background: var(--table-header-background)
+                font-weight: 600
+            &.even-cell
+                background: var(--body-background)
+            &.odd-cell
+                background: var(--table-row-odd-background)
+            &.center-content
+                justify-content: center
+            &.right-content
+                justify-content: flex-end
