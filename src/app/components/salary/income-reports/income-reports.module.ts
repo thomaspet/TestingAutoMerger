@@ -10,6 +10,8 @@ import { IncomeReportsListComponent } from './income-reports-list/income-reports
 import { incomeReportsRoutes } from './income-reports.routes';
 import { IncomeReportsActions } from './income-reports.actions';
 import { IncomeReportsService } from '@app/components/salary/income-reports/shared-services/incomeReportsService';
+import { IncomeReportModal } from './income-report-modal/income-report-modal';
+import { IncomeReportComponent } from './income-report/income-report.component';
 
 @NgModule({
     imports: [
@@ -22,7 +24,9 @@ import { IncomeReportsService } from '@app/components/salary/income-reports/shar
     declarations: [
         IncomeReportsListComponent,
         IncomeReportsListTab,
-        IncomeReportsListToolbar
+        IncomeReportsListToolbar,
+        IncomeReportModal,
+        IncomeReportComponent
     ],
     providers: [
         IncomeReportsActions,

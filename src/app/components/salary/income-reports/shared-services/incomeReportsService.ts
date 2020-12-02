@@ -65,7 +65,7 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
         params = params.set('select',
             'ID as ID,BusinessRelationInfo.Name as Name,IncomeReportData.MonthlyRefund as MonthlyRefund,' +
             'IncomeReportData.StatusCode as StatusCode,IncomeReportData.Type as Type,' +
-            'AltinnReceipt.Timestamp as SentToAltinn'
+            'AltinnReceipt.Timestamp as SentToAltinn,Employment.JobName as JobName,Employment.ID as EmploymentNo'
         );
         params = params.set('expand',
             'Employment,Employment.Employee,Employment.Employee.BusinessRelationInfo,AltinnReceipt'
