@@ -1,4 +1,10 @@
 annual-settlement-reconcile
+    .saldo-button
+        border: 1px solid var(--link-color)
+        background: var(--sidebar-active-section-header-background)
+    .page-navigation
+        margin: 0
+        margin-bottom: 1rem
     .custom-table
         border: var(--table-border)
         display: grid
@@ -26,3 +32,7 @@ annual-settlement-reconcile
                 justify-content: center
             &.right-content
                 justify-content: flex-end
+@media screen and (min-width: 1600px)
+    annual-settlement-reconcile
+        .application
+            padding: 1rem 10rem

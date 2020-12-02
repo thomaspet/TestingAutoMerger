@@ -18,6 +18,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     public relativeURL = 'annualsettlement';
     protected entityType = 'AnnualSettlement';
     baseUrl = environment.BASE_URL + environment.API_DOMAINS.BUSINESS;
+    statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     httpClient: HttpClient;
 
     constructor(protected http: UniHttp) {
@@ -30,7 +31,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     getAnnualSettlement(id) {
-        return this.Get(id, ['AnnualSettlementCheckList', 'Reconcile', 'Reconcile.Accounts']);
+        return this.Get(id, ['AnnualSettlementCheckList', 'Reconcile', 'Reconcile.Account']);
     }
 
     createFinancialYear(year: number) {
@@ -73,15 +74,6 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     checkList(as) {
-        // MVA Melding - isVatReportOK - api/biz/vatreports?action=validate-vatreports-for-financialyear&financialYear=<year>
-        // Salary - IsAmeldingOK - api/biz/ameling?action=validate-periods
-        // Last year - AreAllPreviousYearsEndedAndBalances - annualsettlement/get-account-balance?fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=2019
-        // Stocks-capital - IsSharedCapitalOK - annualsettlement/get-account-balance?fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=2019
-        // Appendix - IsAllJournalsDone - ???
-        // Customer Invoices - IsAllCustomersInvoicesPaid - ???
-        // Supplier Invoices IsAllSupplierInvoicesPaid - ???
-        // Items/Products - ??? - ???
-        // Assets - ???
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
@@ -103,8 +95,59 @@ export class AnnualSettlementService extends BizHttp<any> {
     startReconcile(annualSettlement) {
         if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
             return this.httpClient
-                .post(this.baseUrl + `reconcile/${annualSettlement.Reconcile.ID}?action=begin-reconcile`, null);
+                .post(this.baseUrl + `reconcile/${annualSettlement.Reconcile.ID}?action=BeginReconcile`, null)
+                .pipe(switchMap(() => this.addAccountsToReconcile(annualSettlement.Reconcile.ID)));
         }
-        return of(annualSettlement);
+        return this.addAccountsToReconcile(annualSettlement.Reconcile.ID);
+    }
+
+    addAccountsToReconcile(reconcileID) {
+        return this.httpClient.put(this.baseUrl + `reconcile?action=AddAccountsToReconcile&reconcileID=${reconcileID}`, null);
+    }
+
+    getReconcileAccountsData(reconcile) {
+        return this.httpClient.get(this.statisticsUrl
+            + '?model=ReconcileAccount'
+            + '&select=Account.ID as AccountID,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,sum(JournalEntryLine.Amount) as TotalAmount'
+            + '&filter=ReconcileAccount.ReconcileID eq ' + reconcile.ID
+            + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
+            + '\' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
+            + '&groupby=ReconcileAccount.AccountID'
+            + '&join=ReconcileAccount.AccountID eq Account.ID and ReconcileAccount.AccountID eq JournalEntryLine.AccountID'
+        ).pipe(map((response: any) => response.Data));
+    }
+
+    getAnnualSettlementWithReconcile(annualSettlementID) {
+        let annualSettlement = null;
+        return this.getAnnualSettlement(annualSettlementID).pipe(
+            tap((as) => annualSettlement = as),
+            switchMap(as => {
+                let source$ = null;
+                if (as.Reconcile.StatusCode === 36000) {
+                    source$ = this.startReconcile(as);
+                } else {
+                    source$ = this.addAccountsToReconcile(as.Reconcile.ID);
+
+                }
+                return source$;
+            }),
+            map(reconcile => {
+                annualSettlement.Reconcile = reconcile;
+                return annualSettlement;
+            }),
+            switchMap((_as: any) => this.getReconcileAccountsData(_as.Reconcile)),
+            map(accountsInfo => {
+                accountsInfo.forEach(info => {
+                    const reconcileAccount = annualSettlement.Reconcile.Accounts
+                        .find(acc => acc.AccountID === info.AccountID);
+                    if (reconcileAccount) {
+                        reconcileAccount._AccountName = info.AccountName;
+                        reconcileAccount._AccountNumber = info.AccountNumber;
+                        reconcileAccount._TotalAmount = info.TotalAmount
+                    }
+                });
+                return annualSettlement;
+            })
+        );
     }
 }

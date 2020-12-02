@@ -4,7 +4,12 @@
 <section class="application">
     <section class="uni-card">
         <section class="uni-card-content">
-            <h2>Avstem balansen</h2>
+            <section class="row header page-navigation">
+                <a href="#/accounting/annual-settlement" class="page-navigation-button">
+                    <i class="material-icons">keyboard_backspace</i>
+                </a>
+                <h5>Avstem balansen</h5>
+            </section>
             <section class="custom-table">
                 <div class="custom-table-cell header-cell">
                     Konto
@@ -29,40 +34,40 @@
                 </div>
                 <ng-container *ngFor="let account of annualSettlement?.Reconcile?.Accounts; let i = index">
                     <div class="custom-table-cell"
-                        [class.odd-cell]="(i+1) % 2 === 1"
-                        [class.even-cell]="(i+1) % 2 === 0"
+                         [class.odd-cell]="(i+1) % 2 === 1"
+                         [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        {{account.AccountNumber}}
+                        {{account._AccountNumber}}
                     </div>
                     <div class="custom-table-cell"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        {{account.AccountName}}
+                        {{account._AccountName}}
                     </div>
                     <div class="custom-table-cell right-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        {{account.CompanyAmount}}
+                        {{account._TotalAmount | uninumberformat:'money'}}
                     </div>
                     <div class="custom-table-cell right-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <input type="text" />
+                        <input type="text" [(ngModel)]="account.Balance"/>
                     </div>
                     <div class="custom-table-cell center-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <button class="mat-primary">{{account.CompanyAmount}}</button>
+                        <button class="saldo-button">{{account._TotalAmount | uninumberformat:'money'}}</button>
                     </div>
                     <div class="custom-table-cell center-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <mat-checkbox [(ngModel)]="account.Approved"></mat-checkbox>
+                        <mat-checkbox [(ngModel)]="account.IsApproved"></mat-checkbox>
                     </div>
                     <div class="custom-table-cell center-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
