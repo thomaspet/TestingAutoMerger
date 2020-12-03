@@ -1,0 +1,9 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions">
+</uni-toolbar>
+
+<section class="application">
+    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
+    <router-outlet></router-outlet>
+</section>

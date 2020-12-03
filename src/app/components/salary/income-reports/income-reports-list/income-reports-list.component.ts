@@ -78,7 +78,7 @@ export class IncomeReportsListComponent {
         .setColumns(
             [
                 new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false)
-                    .setLinkClick(rowModel => this.router.navigateByUrl(`/salary/incomereports/incomereport/${rowModel.ID}`)),
+                    .setLinkClick(rowModel => this.router.navigateByUrl(`/salary/incomereports/${rowModel.ID}`)),
                 new UniTableColumn('BusinessRelationInfo.Name', 'Ansatt', UniTableColumnType.Link, false).setAlias('Name'),
                 new UniTableColumn('AltinnReceipt.Timestamp', 'Innsendt', UniTableColumnType.LocalDate, false).setWidth(100).setAlias('SentToAltinn'),
                 new UniTableColumn('Type', 'Type', UniTableColumnType.Text, false).setWidth(100),
@@ -92,7 +92,9 @@ export class IncomeReportsListComponent {
                         default : return '';
                     }
                 }),
-                new UniTableColumn('MonthlyRefund', 'Mnd ref beløp', UniTableColumnType.Money, false).setWidth(100)
+                new UniTableColumn('MonthlyRefund', 'Mnd ref beløp', UniTableColumnType.Money, false).setWidth(100),
+                new UniTableColumn('Employment.ID', 'Arbeidsforhold', UniTableColumnType.Text, false).setWidth(100)
+                    .setTemplate((item) => `${item.EmploymentNo} ${item.JobName}`).setVisible(false)
             ]
        );
 

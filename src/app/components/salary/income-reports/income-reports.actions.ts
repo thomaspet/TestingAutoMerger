@@ -2,7 +2,7 @@ import { HttpParams } from '@angular/common/http';
 import { Injectable, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IncomeReportsService } from '@app/components/salary/income-reports/shared-services/incomeReportsService';
-import { StatusCodeIncomeReport } from '@uni-entities';
+import { IncomeReportData, StatusCodeIncomeReport } from '@uni-entities';
 import { forkJoin } from 'rxjs';
 
 @Injectable()
@@ -22,11 +22,15 @@ constructor(
     }
 
     navigateToNewIncomeReport() {
-        return this.router.navigateByUrl('/salary/incomereports/incomereport/0');
+        return this.router.navigateByUrl('/salary/incomereports/0');
     }
 
     loadIncomeReports(incomeReportStatus = '', params: HttpParams) {
         return this.incomeReportsService.getIncomeReports(incomeReportStatus, params);
 
+    }
+
+    save(incomereportdata?: IncomeReportData) {
+        return this.incomeReportsService.Put(incomereportdata.ID, incomereportdata);
     }
 }

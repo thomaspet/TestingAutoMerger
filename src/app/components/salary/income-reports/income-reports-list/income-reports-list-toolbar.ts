@@ -40,7 +40,7 @@ export class IncomeReportsListToolbar {
     private setSaveActions() {
         this.saveActions = [{
             label: 'Ny inntektsmelding',
-            action: () => this.incomeReportsActions.navigateToNewIncomeReport()
+            action: (done) => this.incomeReportsActions.navigateToNewIncomeReport()
         }];
     }
 }
