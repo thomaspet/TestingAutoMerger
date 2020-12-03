@@ -1,11 +1,7 @@
 <section class="uni-modal">
     <header>Inntektsmelding {{ isNewIncomeReport ? '(ny)' : '(endring)' }}</header>
 
-    <article>
-        <section *ngIf="busy" class="modal-spinner">
-            <mat-spinner class="c2a"></mat-spinner>
-        </section>
-
+    <article [attr.aria-busy]="busy">
         <uni-form
             [model]="incomereport$"
             [fields]="fields$"

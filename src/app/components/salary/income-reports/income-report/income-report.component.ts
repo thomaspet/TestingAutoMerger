@@ -51,20 +51,19 @@ export class IncomeReportComponent implements OnInit {
             takeUntil(this.onDestroy$),
             map(parentParams => safeInt(parentParams.id))
         ).subscribe((id) => {
-            if (id === 0) {
-                this.modalService.open(IncomeReportModal).onClose.subscribe(incomereportdata => {
-                    if (incomereportdata) {
-                        this.router.navigateByUrl('/salary/incomereports/' + incomereportdata.ID);
-                    }
-                });
-            } else {
+            // if (id === 0) {
+            //     this.modalService.open(IncomeReportModal).onClose.subscribe(incomereportdata => {
+            //         if (incomereportdata) {
+            //             this.router.navigateByUrl('/salary/incomereports/' + incomereportdata.ID);
+            //         }
+            //     });
+            // } else {
                 this.incomeReportService.Get(id, ['Employment', 'Employment.Employee', 'AltinnReceipt']).subscribe(incomereport => {
                     this.incomereportdata = incomereport;
                     this.addTab(this.incomereportdata);
                     this.setToolbarConfig(this.incomereportdata);
                 });
-
-            }
+            // }
         }, error => this.errorService.handle(error));
     }
 
@@ -103,7 +102,6 @@ export class IncomeReportComponent implements OnInit {
                 done();
             }),
             main: true
-            // disabled: !this.IsDirty
         },
         {
             label: 'Opprett endring',
