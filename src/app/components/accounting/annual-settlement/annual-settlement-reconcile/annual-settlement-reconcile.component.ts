@@ -1,49 +1,11 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
-import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {map, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {of, Subject} from 'rxjs';
+import {Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {tap} from 'rxjs/internal/operators/tap';
-
-const addMockData = (annualSettlement) => {
-    annualSettlement.Reconcile.Accounts = [
-        {
-            AccountNumber: 1000,
-            AccountName: 'Account 1000',
-            CompanyAmount: 20000,
-            MyAmount: 0,
-            Approved: false,
-            Comment: null
-        },
-        {
-            AccountNumber: 1500,
-            AccountName: 'Account 1500',
-            CompanyAmount: 50000,
-            MyAmount: 0,
-            Approved: false,
-            Comment: null
-        },
-        {
-            AccountNumber: 1000,
-            AccountName: 'Account 1000',
-            CompanyAmount: 20000,
-            MyAmount: 0,
-            Approved: false,
-            Comment: null
-        },
-        {
-            AccountNumber: 1500,
-            AccountName: 'Account 1500',
-            CompanyAmount: 50000,
-            MyAmount: 0,
-            Approved: false,
-            Comment: null
-        }
-    ];
-};
+import {ICommentModalResult} from '@uni-framework/uni-modal/modals/comment-modal/comment-modal.component';
+import {UniMath} from '@uni-framework/core/uniMath';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -80,6 +42,32 @@ export class AnnualSettlementReconcileComponent {
         this.tabService.addTab({
             name: 'Årsavslutning Reconcile', url: `/accounting/annual-settlement/${id}/reconcile`,
             moduleID: UniModules.Accountsettings, active: true
+        });
+    }
+    updateBalanceFromButton(account) {
+        account.Balance = account._TotalAmount;
+        account.IsApproved = true;
+        this.changeDetector.markForCheck();
+    }
+    updateBalance(account) {
+        account.Balance = account.Balance.replace(',', '.').replace(' ', '');
+        account.Balance = UniMath.useFirstTwoDecimals(parseFloat(account.Balance));
+        if (account.Balance !== account._LastBalance) {
+            account._LastBalance = account.Balance;
+            if (account.Balance === account._TotalAmount) {
+                this.updateBalanceFromButton(account);
+                return;
+            }
+            account.IsApproved = false;
+            this.callOpenModalForComment(account);
+        }
+    }
+    callOpenModalForComment(account) {
+        this.annualSettlementService.openModalForComment(account.Comment).subscribe((result: ICommentModalResult) => {
+            if (result) {
+                account.Comment = result.comment;
+                this.changeDetector.markForCheck();
+            }
         });
     }
     ngOnDestroy() {

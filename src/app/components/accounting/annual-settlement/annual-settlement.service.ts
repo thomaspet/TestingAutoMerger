@@ -1,10 +1,11 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, UniHttp} from '@uni-framework/core/http';
-import {of} from 'rxjs';
 import {map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../../environments/environment';
-import {annualSettlementRoutes} from '@app/components/accounting/annual-settlement/annual-settlement.routes';
 import {HttpClient} from '@angular/common/http';
+import {UniModalService} from '@uni-framework/uni-modal/modalService';
+import {ConfirmActions} from '@uni-framework/uni-modal';
+import {of} from 'rxjs/observable/of';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -21,7 +22,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     httpClient: HttpClient;
 
-    constructor(protected http: UniHttp) {
+    constructor(protected http: UniHttp, private modalService: UniModalService) {
         super(http);
         this.httpClient = this.http.http;
     }
@@ -59,7 +60,8 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     checkLastyear(financialYear) {
         return this.http.http.get(
-            this.baseUrl + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + financialYear
+            this.baseUrl +
+            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + financialYear
         ).pipe(
             map((result: number) => result > -1 && result < 1)
         );
@@ -67,7 +69,8 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     checkStocksCapital(financialYear) {
         return this.http.http.get(
-            this.baseUrl + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + financialYear
+            this.baseUrl
+            + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + financialYear
         ).pipe(
             map((result: number) => result < 30000)
         );
@@ -108,7 +111,8 @@ export class AnnualSettlementService extends BizHttp<any> {
     getReconcileAccountsData(reconcile) {
         return this.httpClient.get(this.statisticsUrl
             + '?model=ReconcileAccount'
-            + '&select=Account.ID as AccountID,Account.AccountName as AccountName,Account.AccountNumber as AccountNumber,sum(JournalEntryLine.Amount) as TotalAmount'
+            + '&select=Account.ID as AccountID,Account.AccountName as AccountName,'
+            + 'Account.AccountNumber as AccountNumber,sum(JournalEntryLine.Amount) as TotalAmount'
             + '&filter=ReconcileAccount.ReconcileID eq ' + reconcile.ID
             + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
             + '\' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
@@ -122,7 +126,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.getAnnualSettlement(annualSettlementID).pipe(
             tap((as) => annualSettlement = as),
             switchMap(as => {
-                let source$ = null;
+                let source$;
                 if (as.Reconcile.StatusCode === 36000) {
                     source$ = this.startReconcile(as);
                 } else {
@@ -143,11 +147,38 @@ export class AnnualSettlementService extends BizHttp<any> {
                     if (reconcileAccount) {
                         reconcileAccount._AccountName = info.AccountName;
                         reconcileAccount._AccountNumber = info.AccountNumber;
-                        reconcileAccount._TotalAmount = info.TotalAmount
+                        reconcileAccount._TotalAmount = info.TotalAmount;
+                        reconcileAccount._LastBalance = reconcileAccount.Balance;
                     }
                 });
                 return annualSettlement;
             })
         );
+    }
+
+    openModalForComment(initialComment) {
+        const data = {
+            header:         'Du har fått en differanse',
+            description:    `Du har lagt inn en annen saldo på denne kontoen enn saldo som er registrert i regnskapet.
+                             Skriv en kommentar som beskriver hvorfor.`,
+            placeholder:    'Skriv inn kommentaren din',
+            comment:         initialComment
+        };
+        if (initialComment) {
+            return this.modalService.confirm({
+                header: 'Oppdater kommentaren',
+                message: 'Vil du oppdatere den siste kommentaren din?'
+            }).onClose.pipe(
+                switchMap((result: ConfirmActions) => {
+                    if (result === ConfirmActions.ACCEPT) {
+                        return this.modalService.openCommentModal({data: data}).onClose;
+                    } else {
+                        return of({action: result, comment: initialComment});
+                    }
+                })
+            );
+        } else {
+            return this.modalService.openCommentModal({data: data}).onClose;
+        }
     }
 }

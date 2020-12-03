@@ -1,0 +1,13 @@
+<section role="dialog" class="uni-redesign uni-modal uni-comment-modal" style="width: 60vw;">
+    <header>{{options?.data.header || 'Skriv en kommentar'}}</header>
+    <article>
+        <p *ngif="options?.data.description">
+            {{options?.data.description}}
+        </p>
+        <textarea [(ngModel)]="comment"></textarea>
+    </article>
+    <footer>
+        <button class="secondary" (click)="cancel()">Avbryt</button>
+        <button class="c2a" (click)="accept()">Godkjenne</button>
+    </footer>
+</section>

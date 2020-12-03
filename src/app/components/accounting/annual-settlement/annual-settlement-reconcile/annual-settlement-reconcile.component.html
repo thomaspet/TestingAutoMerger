@@ -55,13 +55,18 @@
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <input type="text" [(ngModel)]="account.Balance"/>
+                        <input type="text" [(ngModel)]="account.Balance" (blur)="updateBalance(account)"/>
                     </div>
                     <div class="custom-table-cell center-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <button class="saldo-button">{{account._TotalAmount | uninumberformat:'money'}}</button>
+                        <button class="saldo-button"
+                                [attr.aria-hidden]="account.Balance ===  account._TotalAmount"
+                                (click)="updateBalanceFromButton(account)"
+                        >
+                            {{account._TotalAmount | uninumberformat:'money'}}
+                        </button>
                     </div>
                     <div class="custom-table-cell center-content"
                          [class.odd-cell]="(i+1) % 2 === 1"
@@ -73,8 +78,22 @@
                          [class.odd-cell]="(i+1) % 2 === 1"
                          [class.even-cell]="(i+1) % 2 === 0"
                     >
-                        <i class="material-icons-outlined">
-                            {{account.Comment ? 'mark_chat_read' : 'chat_bubble_outline'}}
+                        <i class="material-icons-outlined"
+                           *ngIf="!account.Comment && (account.Balance === 0 || account.Balance === account._TotalAmount)"
+                        >
+                            chat_bubble_outline
+                        </i>
+                        <i class="material-icons-outlined"
+                           *ngIf="!account.Comment && (account.Balance !== 0 && account.Balance !== account._TotalAmount)"
+                        >
+                            mark_chat_unread
+                        </i>
+                        <i class="material-icons-outlined"
+                           *ngIf="account.Comment"
+                           [attr.title]="account.Comment"
+                           (click)="callOpenModalForComment(account)"
+                        >
+                            mark_chat_read
                         </i>
                     </div>
                 </ng-container>

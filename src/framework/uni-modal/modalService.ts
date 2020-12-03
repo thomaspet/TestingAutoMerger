@@ -12,6 +12,7 @@ import {UniConfirmModalV2} from './modals/confirmModal';
 import {Observable, fromEvent, Subscription, of} from 'rxjs';
 import {ConfirmActions, IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
 import {take, timeout, switchMap, catchError, filter} from 'rxjs/operators';
+import {CommentModalComponent} from '@uni-framework/uni-modal/modals/comment-modal/comment-modal.component';
 
 @Injectable()
 export class UniModalService {
@@ -123,6 +124,10 @@ export class UniModalService {
 
         const componentRef = this.createModal(UniConfirmModalV2, options);
         return componentRef.instance;
+    }
+
+    public openCommentModal(options: IModalOptions) {
+        return this.open(CommentModalComponent, options);
     }
 
     public onModalClosed(componentRef: ComponentRef<IUniModal>): void {

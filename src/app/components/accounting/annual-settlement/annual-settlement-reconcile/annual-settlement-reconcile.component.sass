@@ -2,6 +2,8 @@ annual-settlement-reconcile
     .saldo-button
         border: 1px solid var(--link-color)
         background: var(--sidebar-active-section-header-background)
+        &[aria-hidden=true]
+            display: none
     .page-navigation
         margin: 0
         margin-bottom: 1rem
@@ -32,6 +34,8 @@ annual-settlement-reconcile
                 justify-content: center
             &.right-content
                 justify-content: flex-end
+            .material-icons-outlined
+                cursor: pointer
 @media screen and (min-width: 1600px)
     annual-settlement-reconcile
         .application
