@@ -174,7 +174,7 @@ export class App {
     private hasAnyExpiredLicense(authDetails: IAuthDetails): boolean {
 
         // temporary: this makes sure we only block non UE environments
-        const isNotUE = theme.themes !== THEMES.UE;
+        const isNotUE = theme.theme !== THEMES.UE;
 
         if (!authDetails.hasActiveContract) {
             if (authDetails.isDemo) {
