@@ -178,7 +178,7 @@ export class BalanceSearch implements OnInit {
         const Debet = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}' and amount ge 0,amount,0))`;
         const Credit = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}' and amount lt 0,amount,0))`;
         const DebitCreditChange = `sum(casewhen(financialdate ge '${fromDt}' and financialdate le '${toDt}',amount,0))`;
-        const Balance = `sum(casewhen((period.accountyear lt ${endYear} and account.accountnumber lt 3000) or financialdate le '${toDt}',amount,0))`;
+        const Balance = `sum(casewhen((period.accountyear le ${endYear} and account.accountnumber lt 3000) or (financialdate le '${toDt}' and period.accountyear eq ${endYear}),amount,0))`;
 
         // Find the searchvalue
         const splitted = filters[0].split(`'`);
