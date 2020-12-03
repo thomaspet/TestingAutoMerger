@@ -19,11 +19,6 @@
     src: url(/assets/fonts/MuseoSansRounded-700.woff2) format("woff2")
     font-weight: bold
 
-$theme-has-good-btn: true
-$btn-inversed-hover-state: false
-$secondary-btn-grey-border: true
-$hide-input-outline: false
-
 body
     --font-family: MuseoSans, arial, sans-serif
     --body-background: #f4f4f4
@@ -93,9 +88,9 @@ body
 
     // Inputs
     --input-border-width: 1px
-    --input-border-width-focus: 1px
+    --input-border-width-focus: 2px
     --input-border-color: var(--border-color)
-    --input-border-color-focus: var(--border-color)
+    --input-border-color-focus: #000
     --input-icon-color: var(--text-color)
     --input-color: var(--text-color)
     --input-radius: 4px
@@ -116,25 +111,44 @@ body
 
     --secondary-btn-border-width: 2px
     --secondary-btn-focus-border-width: 2px
+    --secondary-btn-border-color: #ccc
+
+    --tertiary-c2a-hover: #0063b4
+    --tertiary-bad-hover: #D90000
 
     --button-c2a: #0071cd
     --button-c2a-hover: #0063b4
+    --button-c2a-text: #fff
+    --button-c2a-text-hover: #fff
+    --button-c2a-border: #0071cd
+    --button-c2a-border-hover: #0063b4
 
     --button-good: #008A00
     --button-good-hover: #007100
+    --button-good-text: #fff
+    --button-good-text-hover: #fff
+    --button-good-border: #008A00
+    --button-good-border-hover: #007100
 
     --button-bad: #E60000
     --button-bad-hover: #D90000
+    --button-bad-text: #fff
+    --button-bad-text-hover: #fff
+    --button-bad-border: #E60000
+    --button-bad-border-hover: #D90000
 
     --button-warn: #FF9100
     --button-warn-hover: #F28400
+    --button-warn-text: #fff
+    --button-warn-text-hover: #fff
+    --button-warn-border: #FF9100
+    --button-warn-border-hover: #F28400
 
 
     // Dropdown menus
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
     --dropdown-select-background: #DFF1F9
     --dropdown-select-color: #0071cd
-    --dropdown-footer-color: #E8F1F9
 
 
     // Tables

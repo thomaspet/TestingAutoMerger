@@ -42,8 +42,8 @@ export type TaxRequestOption = 'ALL_EMPS_WITHOUT_ENDDATE'
 export class AltinnIntegrationService extends BizHttp<Altinn> {
 
     public languages: any = [
-        { ID: '1044' || null, text: 'Norsk(bokmål)' },
-        { ID: '2068', text: 'Norsk(nynorsk)' },
+        { ID: '1044' || null, text: 'Norsk (bokmål)' },
+        { ID: '2068', text: 'Norsk (nynorsk)' },
         { ID: '1033', text: 'English' },
         { ID: '1083', text: 'Samisk' },
     ];

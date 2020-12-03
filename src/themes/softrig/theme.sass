@@ -47,8 +47,8 @@ body
     --toolbar-header-color: var(--color-c2a-dark)
     --toolbar-icon-color: #00c8eb
 
-    --toolbar-button-border: 2px solid var(--border-color)
-    --toolbar-button-color: #78e178
+    --toolbar-button-border: inset 0 0 0 1px var(--border-color)
+    --toolbar-button-border-focus: inset 0 0 0 1px var(--color-c2a)
 
     --button-radius: 4px
     --section-radius: 3px
@@ -61,17 +61,49 @@ body
     --color-warn: #ffe164
     --color-warn-light: #ffe164
 
+    // Buttons
+    --button-radius: 3px
+    --button-font-size: 15px
+
+    --button-primary-font-weight: 600
+    --button-secondary-font-weight: 500
+    --button-tertiary-font-weight: 500
+
+    --secondary-btn-border-width: 2px
+    --secondary-btn-focus-border-width: 2px
+    --secondary-btn-border-color: #ccc
+
+    --tertiary-c2a-hover: #00aacd
+    --tertiary-bad-hover: #b23e3e
+
     --button-c2a: #00c8eb
     --button-c2a-hover: #00aacd
+    --button-c2a-text: #fff
+    --button-c2a-text-hover: #fff
+    --button-c2a-border: #00c8eb
+    --button-c2a-border-hover: #00aacd
 
     --button-good: #00c8eb
     --button-good-hover: #00aacd
+    --button-good-text: #fff
+    --button-good-text-hover: #fff
+    --button-good-border: #00c8eb
+    --button-good-border-hover: #00aacd
 
     --button-bad: #ff5a5a
     --button-bad-hover: #b23e3e
+    --button-bad-text: #fff
+    --button-bad-text-hover: #fff
+    --button-bad-border: #ff5a5a
+    --button-bad-border-hover: #b23e3e
 
-    --button-warn: #ffe164
-    --button-warn-hover: #b29d46
+    --button-bad: #ffe164
+    --button-bad-hover: #b29d46
+    --button-bad-text: #fff
+    --button-bad-text-hover: #fff
+    --button-bad-border: #ffe164
+    --button-bad-border-hover: #b29d46
+
 
     --dropdown-shadow: 0 5px 4px 2px rgba(140, 150, 169, 0.1)
     --dropdown-select-background: #f8f8f8
@@ -81,8 +113,6 @@ body
     --checkbox-checked-color: #00c8eb
     --checkbox-checked-background: #fff
     --checkbox-checked-border: 1px solid #00c8eb
-    --checkbox-checked-color-good: #fff
-    --checkbox-checked-background-good: #78E178
 
     --table-header-background: #E1E1E1
     --table-header-color: #000
@@ -142,13 +172,10 @@ body
 //------------------should be replaced with additional var options later-----------------------
 button
     color: #000 !important
-    font-weight: 600 !important
     &.secondary
         color: #000 !important
-        font-weight: 500 !important
 
 //--------------------------overriding the login.sass, feels hacky------------------------------
-
 .login-container
     button.c2a
         font-family: 'Montserrat', sans-serif !important
@@ -161,7 +188,6 @@ button
     margin-top: 2rem
 
 //-----------------------------end the login and init part---------------------------------------
-
 .tab-strip
     span
         font-weight: 600

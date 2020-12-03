@@ -2,6 +2,7 @@ import {Component, Output, EventEmitter} from '@angular/core';
 import {IUniModal, ConfirmActions} from '../interfaces';
 import {ElsaAgreementService} from '@app/services/services';
 import * as marked from 'marked';
+import {environment} from 'src/environments/environment';
 
 @Component({
     selector: 'user-license-agreement-modal',
@@ -79,15 +80,23 @@ export class UserLicenseAgreementModal implements IUniModal {
     }
 
     public reject() {
-        const confirmed = confirm('Dersom du ikke godtar lisensen blir du logget ut av applikasjonen.');
-        if (confirmed) {
+        if (environment.useProdMode) {
+            const confirmed = confirm('Dersom du ikke godtar lisensen blir du logget ut av applikasjonen.');
+            if (confirmed) {
+                this.onClose.emit(ConfirmActions.REJECT);
+            }
+        } else {
             this.onClose.emit(ConfirmActions.REJECT);
         }
     }
 
     public ok() {
-        const confirmed = confirm('Du vil nå bli logget ut av applikasjonen.');
-        if (confirmed) {
+        if (environment.useProdMode) {
+            const confirmed = confirm('Du vil nå bli logget ut av applikasjonen.');
+            if (confirmed) {
+                this.onClose.emit(ConfirmActions.REJECT);
+            }
+        } else {
             this.onClose.emit(ConfirmActions.REJECT);
         }
     }

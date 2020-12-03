@@ -3,8 +3,7 @@ export const TABLE_COLUMN_OVERRIDES = {
         { field: 'JournalEntry.JournalEntryNumber', visible: true },
         { field: 'Customer.CustomerNumber', visible: false },
         { field: 'CustomerInvoice.TaxInclusiveAmount', visible: true },
-        { field: `getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)`, visible: false },
-        { field: 'CustomerInvoice.CreditedAmountCurrency', visible: true, index: 99 },
+        { field: `getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)`, visible: false }
     ],
     'uniTicker.bank_list': [
         { field: 'CurrencyCode.Code', visible: true },

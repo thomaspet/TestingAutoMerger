@@ -1,7 +1,11 @@
 import {UniModules} from './tabstrip/tabService';
 import {INavbarLinkSection} from './navbar-links-common';
+import {theme, THEMES} from 'src/themes/theme';
 
-export const NAVBAR_LINKS: INavbarLinkSection[] = [
+import {NAVBAR_LINKS as ext01_navbar} from './navbar-links.ext01';
+import {NAVBAR_LINKS as ext02_navbar} from './navbar-links.ext02';
+
+let defaultNavbarLinks: INavbarLinkSection[] = [
     // NØKKELTALL
     {
         name: 'NAVBAR.KPI',
@@ -393,6 +397,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Amelding,
                         activeInSidebar: true
                     },
+                    // {
+                    //     name: 'NAVBAR.INCOMEREPORTS',
+                    //     url: '/salary/incomereports',
+                    //     moduleID: UniModules.IncomeReports,
+                    //     activeInSidebar: true
+                    // },
                     {
                         name: 'NAVBAR.BALANCE',
                         url: '/salary/salarybalances',
@@ -636,3 +646,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
         linkGroups: []
     },
 ];
+
+switch (theme.theme) {
+    case THEMES.SR:
+        defaultNavbarLinks = ext01_navbar;
+        break;
+    case THEMES.EXT02:
+        defaultNavbarLinks = ext02_navbar;
+        break;
+}
+export let NAVBAR_LINKS = defaultNavbarLinks;

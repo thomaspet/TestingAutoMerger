@@ -6,7 +6,11 @@ export * from './themes-enum';
 
 // TODO: create interface and type all theme consts
 
-export const theme = {
+import {theme as ext01} from './theme.ext01';
+import {theme as ext02} from './theme.ext02';
+import {theme as softrig} from './theme.softrig';
+
+const defaultTheme = {
     theme: THEMES.UE,
     appName: 'Uni Economy',
     appProvider: 'Uni Micro',
@@ -87,3 +91,18 @@ export const theme = {
         calendar: 'date_range'
     }
 };
+
+export const allThemes = {
+    list: [ 
+        defaultTheme, 
+        ext01, 
+        ext02, 
+        softrig 
+    ],
+    names: ['ue', 'ext01', 'ext02', 'softrig'],
+    currentThemeName: 'ue',
+    currentTheme: undefined
+}
+const index = allThemes.names.indexOf(allThemes.currentThemeName);
+allThemes.currentTheme = allThemes.list[index >=0 ? index : 0];
+export let theme = allThemes.currentTheme;

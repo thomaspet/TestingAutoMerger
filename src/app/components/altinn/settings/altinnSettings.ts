@@ -24,7 +24,7 @@ class AltinnExtended extends Altinn {
 
 })
 export class AltinnSettings implements OnInit {
-    public formConfig$: BehaviorSubject<any>= new BehaviorSubject({});
+    public formConfig$: BehaviorSubject<any> = new BehaviorSubject({});
     public fields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
     public altinn$: BehaviorSubject<AltinnExtended> = new BehaviorSubject(null);
     public busy: boolean;
@@ -76,10 +76,10 @@ export class AltinnSettings implements OnInit {
         })
         .subscribe((res) => {
             if (res === true)  {
-                this.loginErr = 'Testen kommuniserte med AltInn ';
+                this.loginErr = 'Testen kommuniserte med Altinn ';
                 this.toast.addToast('Sjekk', ToastType.good, ToastTime.medium, this.loginErr);
             } else {
-                this.loginErr = 'Test av kommunikasjon med AltInn feilet';
+                this.loginErr = 'Test av kommunikasjon med Altinn feilet';
                  this.toast.addToast('Sjekk', ToastType.bad, ToastTime.medium, this.loginErr);
             }
             this.onlyOnce = false;
@@ -89,12 +89,13 @@ export class AltinnSettings implements OnInit {
     }
 
     private getData() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this._altinnService
                 .GetAll('')
                 .switchMap((altinn: AltinnExtended[]) =>
                     altinn.length ? Observable.of(altinn[0]) : this._altinnService.GetNewEntity([], 'altinn')),
-            this._altinnService.getLayout()).subscribe((response: [AltinnExtended, any]) => {
+            this._altinnService.getLayout()
+        ]).subscribe((response: [AltinnExtended, any]) => {
                 const [altinn, layout] = response;
                 this.altinn$.next(altinn);
                 this.fields$.next(this.prepareLayout(layout.Fields, altinn));

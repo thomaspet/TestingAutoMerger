@@ -14,6 +14,10 @@
             <i class="material-icons-outlined">info</i>
             <span>Denne fakturaen er allerede markert som betalt</span>
         </section>
+        <section *ngIf="invoice?.StatusCode === 42006" class="alert info">
+            <i class="material-icons-outlined">info</i>
+            <span>Denne fakturaen er allerede markert som kreditert</span>
+        </section>
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">
                 <span class="date">{{(sharing.SharingCreatedAt || sharing.SharingUpdatedAt) | date: 'dd.MM.yyyy HH:mm'}}</span>

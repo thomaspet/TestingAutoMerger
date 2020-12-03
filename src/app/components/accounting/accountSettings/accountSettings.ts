@@ -255,7 +255,7 @@ export class AccountSettings {
     }
 
     private importLogs() {
-        this.router.navigate(['/import/log', { id: TemplateType.MainLedger }])
+        this.router.navigate(['/import/log', { id: TemplateType.MainLedger }]);
     }
 
     private openImportModal(done = () => { }) {
@@ -285,12 +285,14 @@ export class AccountSettings {
                     type: 'MainLedger',
                     entity: TemplateType.MainLedger,
                     conditionalStatement: ImportStatement.MainLedgerConditionalStatement,
-                    formatStatement: ImportStatement.MainLedgerFormatStatement,
+                    formatStatement: (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG)
+                        ? ''
+                        : ImportStatement.MainLedgerFormatStatement,
                     downloadStatement: ImportStatement.MainLedgerDownloadStatement,
                     downloadTemplateUrl: this.mainLedgerTemplateUrl,
                     hasTemplateAccess: this.ledgerPermissions.hasTemplateAccess,
                     isExternal: true
                 }
             });
-    };
+    }
 }

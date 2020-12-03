@@ -738,6 +738,10 @@ export class UniTicker {
                         });
                     }, err => this.errorService.handle(err)
                 );
+            } else if (actionType === 'goto') {
+                if (action.Code === 'reminders') {
+                    this.router.navigateByUrl('/sales/reminders/ready');
+                }
             } else {
                 this.uniTickerService
                     .executeAction(

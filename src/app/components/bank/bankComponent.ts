@@ -65,7 +65,6 @@ import { FeaturePermissionService } from '@app/featurePermissionService';
     selector: 'uni-bank-component',
     template: `
         <uni-toolbar [config]="toolbarconfig" [saveactions]="actions"></uni-toolbar>
-        <section class="alert warn bank-error-alert" *ngIf="showDowntimeError"> <i class="material-icons">info_outline</i> Zdata vil ta ned sitt system for planlagt vedlikehold mellom kl 18 og 20 i kveld. Banktjenestene i våre systemer vil derfor være utilgjengelig i dette tidsrommet. </section>
         <section class="ticker-overview">
 
             <section class="overview-ticker-section">
@@ -121,8 +120,6 @@ export class BankComponent {
     filter: string = '';
     storedHash: string = '';
     showNoMatchInfo: boolean = false;
-    showDowntimeError = moment().format('DD.MM.YYYY.HH') < moment('11.11.2020.20', 'DD.MM.YYYY.HH').format('DD.MM.YYYY.HH')
-        && theme.theme !== THEMES.EXT02;
     failedFiles: any[] = [];
     tickerGroups: TickerGroup[];
     selectedTicker: Ticker;
