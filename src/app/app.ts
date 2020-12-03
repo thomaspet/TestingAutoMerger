@@ -172,6 +172,10 @@ export class App {
     }
 
     private hasAnyExpiredLicense(authDetails: IAuthDetails): boolean {
+
+        // temporary: this makes sure we only block non UE environments
+        const isNotUE = theme.themes !== THEMES.UE;
+
         if (!authDetails.hasActiveContract) {
             if (authDetails.isDemo) {
                 this.router.navigateByUrl('/contract-activation');
@@ -180,21 +184,21 @@ export class App {
                 return false;
             } else {
                 this.expiredEntity = 'lisensen';
-                this.licenseExpired = true;
-                return true;
+                this.licenseExpired = isNotUE; // true;
+                return isNotUE; // true;
             }
         }
 
         if (!authDetails.hasActiveUserLicense) {
             this.expiredEntity = 'brukerlisensen';
-            this.licenseExpired = true;
-            return true;
+            this.licenseExpired = isNotUE; // true;
+            return isNotUE; // true;
         }
 
         if (!authDetails.hasActiveCompanyLicense) {
             this.expiredEntity = 'selskapslisensen';
-            this.licenseExpired = true;
-            return true;
+            this.licenseExpired = isNotUE; // true;
+            return isNotUE; // true;
         }
 
         this.licenseExpired = false;
