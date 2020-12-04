@@ -99,7 +99,9 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
     }
     moveFromStep2ToStep3(annualSettlement) {
-        return this.Transition(annualSettlement.ID, annualSettlement, 'TwoToStepThree' );
+        return this.completeReconcile(annualSettlement).pipe(
+            switchMap(() => this.Transition(annualSettlement.ID, annualSettlement, 'TwoToStepThree' ))
+        );
     }
     startReconcile(annualSettlement) {
         if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
@@ -109,7 +111,13 @@ export class AnnualSettlementService extends BizHttp<any> {
         }
         return this.addAccountsToReconcile(annualSettlement.Reconcile.ID);
     }
-
+    completeReconcile(annualSettlement) {
+        if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.InProgress) {
+            return this.httpClient
+                .post(this.baseUrl + `reconcile/${annualSettlement.Reconcile.ID}?action=CompleteReconcile`, null);
+        }
+        return of(null);
+    }
     addAccountsToReconcile(reconcileID) {
         return this.httpClient.put(this.baseUrl + `reconcile?action=AddAccountsToReconcile&reconcileID=${reconcileID}`, null);
     }
