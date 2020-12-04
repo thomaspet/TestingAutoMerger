@@ -1,7 +1,7 @@
 <section role="dialog" class="uni-redesign uni-modal uni-comment-modal" style="width: 60vw;">
     <header>{{options?.data.header || 'Skriv en kommentar'}}</header>
     <article>
-        <p *ngif="options?.data.description">
+        <p *ngIf="options?.data.description">
             {{options?.data.description}}
         </p>
         <textarea [(ngModel)]="comment"></textarea>
