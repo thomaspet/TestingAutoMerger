@@ -649,6 +649,7 @@ let defaultNavbarLinks: INavbarLinkSection[] = [
 
 switch (theme.theme) {
     case THEMES.SR:
+    case THEMES.SOFTRIG:
         defaultNavbarLinks = ext01_navbar;
         break;
     case THEMES.EXT02:
