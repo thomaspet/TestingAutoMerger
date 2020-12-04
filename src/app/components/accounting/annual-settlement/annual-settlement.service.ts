@@ -6,6 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal';
 import {of} from 'rxjs/observable/of';
+import * as _ from 'lodash';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -94,6 +95,9 @@ export class AnnualSettlementService extends BizHttp<any> {
     moveFromStep1ToStep2(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'OneToStepTwo' );
     }
+    moveFromStep5ToStep6(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
+    }
 
     startReconcile(annualSettlement) {
         if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
@@ -151,6 +155,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                         reconcileAccount._LastBalance = reconcileAccount.Balance;
                     }
                 });
+                annualSettlement.Reconcile.Accounts = _.orderBy(annualSettlement.Reconcile.Accounts, ['_AccountNumber'],['asc']);
                 return annualSettlement;
             })
         );

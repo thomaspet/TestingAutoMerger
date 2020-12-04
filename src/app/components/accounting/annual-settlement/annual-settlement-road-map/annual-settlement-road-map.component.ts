@@ -4,7 +4,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {switchMap, tap} from 'rxjs/operators';
 import steps from '../annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
 
 @Component({
@@ -105,6 +105,12 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 3:
                     return step;
                 case 4:
+                case 1:
+                    step.action = () => {
+                        this.annualSettlementService.moveFromStep5ToStep6(currentAS).subscribe(() => {
+                            this.toast.addToast('Lever til Altinn kjørt!', ToastType.good, ToastTime.short);
+                        });
+                    };
                     return step;
                 default:
                     return step;
