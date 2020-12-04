@@ -36,12 +36,12 @@ import {AuthService} from '@app/authService';
                     Lisensinformasjon
                 </a>
 
-                <!-- <a class="dropdown-menu-item" (click)="openChatBotWithSupport()" *ngIf="isSrEnvironment">
+                <a class="dropdown-menu-item" (click)="openChatBotWithSupport()" *ngIf="showBoostChat">
                     Opprett supportsak
-                </a> -->
+                </a>
 
-                <!-- ChatBot support (above) is disabled temporarily, this is its replacement -->
-                <a *ngIf="supportPageUrl && isSrEnvironment" class="dropdown-menu-item" [href]="supportPageUrl" target="_blank">
+                <!-- ChatBot support (above) is disabled for SB1 banks other than SR, show this instead -->
+                <a *ngIf="supportPageUrl && isSrEnvironment && !showBoostChat" class="dropdown-menu-item" [href]="supportPageUrl" target="_blank">
                     Opprett supportsak
                 </a>
 
@@ -65,12 +65,16 @@ export class UniTabstripHelp {
     isSrEnvironment = theme.theme === THEMES.SR;
     isBrunoEnvironment = theme.theme === THEMES.EXT02;
 
-    showBoostChat = false; // theme.theme === THEMES.SR; // || theme.theme === THEMES.EXT02;
+    showBoostChat = false; // theme.theme === THEMES.SR;
 
     helpdeskUrl: string;
     supportPageUrl: string;
 
     constructor(private modalService: UniModalService, private authService: AuthService) {
+        // use BIC to differentiate between the SB1 banks. Boost is only ready for SR as of now
+        if (this.isSrEnvironment && this.authService.publicSettings?.BIC === 'SPRONO22') {
+            this.showBoostChat = true;
+        }
         // every else-if can be removed when we're sure every environment has set HelpDeskUrl in Elsa
         if (this.authService.publicSettings?.HelpDeskUrl) {
             this.helpdeskUrl = this.authService.publicSettings.HelpDeskUrl;
