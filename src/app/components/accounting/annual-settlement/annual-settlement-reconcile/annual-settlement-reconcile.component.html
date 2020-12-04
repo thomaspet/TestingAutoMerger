@@ -2,6 +2,17 @@
     [annualSettlement]="annualSettlement"
 ></annual-settlement-reconcile-toolbar-component>
 <section class="application">
+    <section class="row">
+        <section class="as-alert info" *ngIf="showInfoBox">
+            <i class="material-icons info">info</i>
+            <article class="info-text">
+                <h6>{{infoContent.title}}</h6>
+                <section [innerHTML]="infoContent.text">
+                </section>
+            </article>
+            <i class="material-icons close" (click)="showInfoBox = false">close</i>
+        </section>
+    </section>
     <section class="uni-card">
         <section class="uni-card-content">
             <section class="row header page-navigation">
@@ -97,6 +108,9 @@
                         </i>
                     </div>
                 </ng-container>
+            </section>
+            <section class="custom-table-footer flex-row justify-content-end padding-top-bottom" style="display:flex; padding: 1rem 0">
+                <button (click)="completeReconcile()">Fullfør avstemmingen</button>
             </section>
         </section>
     </section>

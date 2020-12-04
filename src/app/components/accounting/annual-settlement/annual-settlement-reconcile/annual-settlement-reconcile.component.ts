@@ -19,6 +19,27 @@ export class AnnualSettlementReconcileComponent {
     annualSettlement: any;
     config;
     onDestroy$ = new Subject();
+    showInfoBox = true;
+    infoContent = {
+        title: 'Slik bruker du sjekkelisten',
+        text: `
+            <p>
+                Her vil du få en oversikt over alle dine balansekontoer som inneholder en saldo. Disse må du sjekke at stemmer med saldoen
+                som står på dine årsoppgaver knyttet til de ulike områdene/kontoene.
+            </p>
+            <p>
+                Om din saldo er den samme som i regnskaper klikker du bare på knappen med regnskapssaldoen på høyre side av registreringsfeltet
+                og summen vil bli fylt inn og kontoen vil bli satt til kontrollert.
+            </p>
+            <p>
+                Har du en differanse på en eller flere kontoer må du legge ved en kommentar som forklarer hvorfor dette er tilfelle.
+                Når det er gjort må du manuelt sette kontoen til “Godkjent”.
+            </p>
+            <p>
+                Når alle kontoene er kontrollert klikker du “Fullfør avstemming” og du kan gå videre i årsavslutningen.
+            </p>
+        `
+    };
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -70,6 +91,11 @@ export class AnnualSettlementReconcileComponent {
                 account.Comment = result.comment;
                 this.changeDetector.markForCheck();
             }
+        });
+    }
+    completeReconcile() {
+        this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement).subscribe(() => {
+            this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
     ngOnDestroy() {

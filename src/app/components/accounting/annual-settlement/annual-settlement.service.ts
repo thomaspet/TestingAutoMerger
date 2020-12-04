@@ -98,7 +98,9 @@ export class AnnualSettlementService extends BizHttp<any> {
     moveFromStep5ToStep6(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
     }
-
+    moveFromStep2ToStep3(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'TwoToStepThree' );
+    }
     startReconcile(annualSettlement) {
         if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
             return this.httpClient
