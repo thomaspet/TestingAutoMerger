@@ -17,7 +17,8 @@
                     [class.c2a]="item._icon !== 'check_circle'"
                     [class.tertiary]="item._icon === 'check_circle'"
                     (click)="runAction(item)"
-                    [disabled]="!item?._enabled">
+                    [disabled]="false//!item?._enabled"
+            >
                 {{item.buttonText}}
             </button>
         </ng-template>
