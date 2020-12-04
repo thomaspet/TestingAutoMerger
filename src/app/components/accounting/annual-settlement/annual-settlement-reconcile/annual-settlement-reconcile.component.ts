@@ -7,6 +7,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {ICommentModalResult} from '@uni-framework/uni-modal/modals/comment-modal/comment-modal.component';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -45,6 +46,7 @@ export class AnnualSettlementReconcileComponent {
         private route: ActivatedRoute,
         private annualSettlementService: AnnualSettlementService,
         private tabService: TabService,
+        private toast: ToastService,
         private changeDetector: ChangeDetectorRef) {}
 
     ngOnInit() {
@@ -95,6 +97,7 @@ export class AnnualSettlementReconcileComponent {
     }
     completeReconcile() {
         this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement).subscribe(() => {
+            this.toast.addToast('Avstem balansen completed', ToastType.good, ToastTime.short);
             this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
