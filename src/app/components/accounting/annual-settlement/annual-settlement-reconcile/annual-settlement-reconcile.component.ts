@@ -6,6 +6,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ICommentModalResult} from '@uni-framework/uni-modal/modals/comment-modal/comment-modal.component';
 import {UniMath} from '@uni-framework/core/uniMath';
+import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -26,6 +27,7 @@ export class AnnualSettlementReconcileComponent {
         private changeDetector: ChangeDetectorRef) {}
 
     ngOnInit() {
+        this.config = this.generateReconcileTableConfig();
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
@@ -50,7 +52,7 @@ export class AnnualSettlementReconcileComponent {
         this.changeDetector.markForCheck();
     }
     updateBalance(account) {
-        account.Balance = account.Balance.replace(',', '.').replace(' ', '');
+        account.Balance = (account.Balance + '').replace(',', '.').replace(' ', '');
         account.Balance = UniMath.useFirstTwoDecimals(parseFloat(account.Balance));
         if (account.Balance !== account._LastBalance) {
             account._LastBalance = account.Balance;
@@ -74,8 +76,7 @@ export class AnnualSettlementReconcileComponent {
         this.onDestroy$.next();
         this.onDestroy$.complete();
     }
-    /*
-    private generateReconcileTable() {
+    private generateReconcileTableConfig() {
         const cols = [
             new UniTableColumn('AccountNumber', 'Konto'),
             new UniTableColumn('AccountName', 'Kontonavn'),
@@ -91,5 +92,4 @@ export class AnnualSettlementReconcileComponent {
             .setColumns(cols)
             .setColumnMenuVisible(false);
     }
-    */
 }
