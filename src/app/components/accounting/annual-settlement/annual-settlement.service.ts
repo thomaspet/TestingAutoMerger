@@ -97,6 +97,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
     moveFromStep5ToStep6(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
+        // demo - return this.httpClient.put(this.baseUrl + `taxreport/?action=send-annual&annualSettlementID=` + annualSettlement.ID, null);
     }
     moveFromStep2ToStep3(annualSettlement) {
         return this.completeReconcile(annualSettlement).pipe(

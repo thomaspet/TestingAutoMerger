@@ -108,7 +108,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 1:
                     step.action = () => {
                         this.annualSettlementService.moveFromStep5ToStep6(currentAS).subscribe(() => {
-                            this.toast.addToast('Lever til Altinn kjørt!', ToastType.good, ToastTime.short);
+                            this.toast.addToast('Skattemeldingen er levert til Altinn', ToastType.good, ToastTime.short);
                         });
                     };
                     return step;
