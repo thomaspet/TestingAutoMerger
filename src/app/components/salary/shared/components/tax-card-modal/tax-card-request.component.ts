@@ -1,13 +1,12 @@
 import {Component, ViewChild, Input, Output, EventEmitter} from '@angular/core';
 
-import {BehaviorSubject} from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
 import { Employee, EmployeeCategory, AltinnReceipt } from '@uni-entities';
 import { UniForm } from '@uni-framework/ui/uniform';
 import { AltinnIntegrationService, ErrorService, FinancialYearService, StatisticsService, TaxRequestOption, UniTranslationService } from '@app/services/services';
 import { EmployeeCategoryService } from '@app/components/salary/shared/services/category/employee-category.service';
 import { AutocompleteOptions } from '@uni-framework/ui/autocomplete/autocomplete';
 import { finalize } from 'rxjs/operators';
-
 
 interface ITaxRequestModel {
     empChoice: TaxRequestOption;
@@ -35,6 +34,7 @@ export class TaxCardRequestComponent {
 
     public empCount: number = 0;
     year: number;
+    isFutureFinancialYear: boolean;
     autocompleteOptions: AutocompleteOptions = {
         lookup: (query: string) => {
             if (query === null) {
@@ -63,10 +63,15 @@ export class TaxCardRequestComponent {
     ) {}
 
     ngOnInit() {
-        this.model$.next(
-            { empChoice: !this.employee ? 'ALL_EMPS_WITHOUT_ENDDATE' : 'SINGLE_EMP', empsAndChanged: true, categoryID: 0}
-        );
         this.year = this.financialYearService.getActiveYear();
+        this.isFutureFinancialYear = this.year > new Date().getFullYear();
+        this.model$.next(
+            {
+                empChoice: !this.employee ? 'ALL_EMPS_WITHOUT_ENDDATE' : 'SINGLE_EMP',
+                empsAndChanged: !this.isFutureFinancialYear,
+                categoryID: 0
+            }
+        );
         if (!this.employee) {
             this.setEmpsWithNoEndDate();
         }
