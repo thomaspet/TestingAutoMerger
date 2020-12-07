@@ -11,12 +11,14 @@ import {
     BankAccount,
     CompanySettings,
     CurrencyCode,
+    Department,
     Dimensions,
     InvoicePaymentData,
     JournalEntry,
     JournalEntryLineDraft,
     LocalDate,
     Payment,
+    Project,
     StatusCodeSupplierInvoice,
     Supplier,
     SupplierInvoice,
@@ -79,7 +81,6 @@ import {
     SupplierInvoiceService,
     SupplierService,
     UniFilesService,
-    UniSearchDimensionConfig,
     UserService,
     ValidationService,
     VatDeductionService
@@ -94,9 +95,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {PaymentStatus} from '@app/models/printStatus';
 import {finalize, map, tap, catchError} from 'rxjs/operators';
-import { O } from '@angular/cdk/keycodes';
 
 
 interface ITab {
@@ -250,7 +249,6 @@ export class BillView implements OnInit, AfterViewInit {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private ehfService: EHFService,
-        private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
@@ -626,24 +624,42 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 Property: 'DefaultDimensions.DepartmentID',
-                FieldType: FieldType.UNI_SEARCH,
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Avdeling',
                 Classes: 'bill-small-field',
                 Section: 0,
                 Options: {
-                    uniSearchConfig: this.uniSearchDimensionConfig.generateDepartmentConfig(this.departmentService),
-                    valueProperty: 'ID'
+                    valueProperty: 'ID',
+                    template: (dep: Department) => dep ? `${dep.DepartmentNumber} - ${dep.Name}` : '',
+                    getDefaultData: () => this.current
+                        .switchMap(model => Observable.forkJoin([ Observable.of(model), of(this.departments).take(1)]))
+                        .map((result: [SupplierInvoice, Department[]]) =>
+                            result[1].filter(p => result[0].DefaultDimensions && p.ID === result[0].DefaultDimensions.DepartmentID)),
+                    search: (query: string) => of(this.departments)
+                        .map(deps =>
+                            deps.filter(d =>
+                                d.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                d.DepartmentNumber.startsWith(query)))
                 }
             },
             {
                 Property: 'DefaultDimensions.ProjectID',
-                FieldType: FieldType.UNI_SEARCH,
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Prosjekt',
                 Classes: 'bill-small-field',
                 Section: 0,
                 Options: {
-                    uniSearchConfig: this.uniSearchDimensionConfig.generateProjectConfig(this.projectService),
-                    valueProperty: 'ID'
+                    valueProperty: 'ID',
+                    template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
+                    getDefaultData: () => this.current
+                        .switchMap(model => Observable.forkJoin(Observable.of(model), of(this.projects).take(1)))
+                        .map((result: [SupplierInvoice, Project[]]) =>
+                            result[1].filter(p => result[0].DefaultDimensions && p.ID === result[0].DefaultDimensions.ProjectID)),
+                    search: (query: string) => of(this.projects)
+                        .map(projects =>
+                            projects.filter(p =>
+                                p.Name.toLowerCase().includes(query.toLowerCase()) ||
+                                p.ProjectNumber.startsWith(query)))
                 }
             }
         ];
