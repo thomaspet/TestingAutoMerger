@@ -44,7 +44,7 @@ export class UserLicenseAgreementModal implements IUniModal {
     constructor(private elsaAgreementService: ElsaAgreementService) {
         this.errorMessage = '';
         this.busy = true;
-        this.elsaAgreementService.getUserLicenseAgreement().subscribe(agreement => {
+        this.elsaAgreementService.getByType('UserLicenseGdpr').subscribe(agreement => {
             if (agreement) {
                 if (agreement.AgreementText) {
                     this.parseMarkdown(agreement.AgreementText);

@@ -12,23 +12,27 @@
             </li>
             <li>
                 <span [class.is-active-step]="steps === 1">  </span>
-                <div [class.is-active-step]="steps === 1"> Driftkonto* </div>
+                <div [class.is-active-step]="steps === 1"> Avtalevilkår </div>
             </li>
             <li>
                 <span [class.is-active-step]="steps === 2">  </span>
-                <div [class.is-active-step]="steps === 2"> Lønnskonto </div>
+                <div [class.is-active-step]="steps === 2"> Driftkonto* </div>
             </li>
             <li>
                 <span [class.is-active-step]="steps === 3">  </span>
-                <div [class.is-active-step]="steps === 3"> Skattetrekkskonto </div>
+                <div [class.is-active-step]="steps === 3"> Lønnskonto </div>
             </li>
             <li>
                 <span [class.is-active-step]="steps === 4">  </span>
-                <div [class.is-active-step]="steps === 4"> Sikkerhet* </div>
+                <div [class.is-active-step]="steps === 4"> Skattetrekkskonto </div>
             </li>
             <li>
                 <span [class.is-active-step]="steps === 5">  </span>
-                <div [class.is-active-step]="steps === 5"> Ferdigstilling </div>
+                <div [class.is-active-step]="steps === 5"> Sikkerhet* </div>
+            </li>
+            <li>
+                <span [class.is-active-step]="steps === 6">  </span>
+                <div [class.is-active-step]="steps === 6"> Ferdigstilling </div>
             </li>
         </ul>
     </div>
@@ -45,7 +49,23 @@
             <small style="color: var(--color-bad)"> {{ errorMsg }} </small>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1">
+        <article class="uni-autobank-agreement-modal-body step1" *ngIf="steps === 1" id="step1">
+            <ng-container *ngIf="bankAgreementUrl">
+                <object [data]="bankAgreementUrl" type="application/pdf">
+                    <a [href]="bankAgreementUrl">Avtalevilkår</a>
+                </object>
+                <br>
+    
+                <mat-checkbox [(ngModel)]="hasReadAgreement">
+                    Godta vilkår og avtaler
+                </mat-checkbox>
+            </ng-container>
+            <p *ngIf="!bankAgreementUrl">
+                Fant ingen avtalevilkår. Kontakt systemansvarlig.
+            </p>
+        </article>
+
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 2" id="step2">
             <h3>Driftkonto</h3>
             <p>
                 Her velger du hvilken bankkonto som brukes som driftskonto. Denne er <strong>påkrevd</strong> for å fortsette. <br/> Om du allerede har ordnet dette, trykk Neste.
@@ -58,7 +78,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 2" id="step2">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
             <h3>Lønnskonto</h3>
             <p> Her kan du velge å sette opp egen konto for eventuelle lønnsutbetalinger. Hvis ikke du setter opp en konto her, vil systemet bruke konto satt som Driftskonto. Trykk neste for å fortsette. </p>
             <uni-form
@@ -69,7 +89,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4">
             <h3>Skattetrekkskonto</h3>
             <p> Her kan du sette opp en konto for eventuelle skattetrekk. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
             <uni-form
@@ -80,7 +100,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5">
             <h3>Sikkerhetsinnstillinger</h3>
             <p>
                 Her oppretter du et passord for autobank. Passordet brukes til å bekrefte registrerte utbetalinger i systemet. 
@@ -107,7 +127,7 @@
 
         </article>
 
-        <article class="uni-autobank-agreement-modal-body final-msg" *ngIf="steps === 5" id="step5">
+        <article class="uni-autobank-agreement-modal-body final-msg" *ngIf="steps === 6" id="step6">
             <i class="material-icons">thumb_up</i>
             <h3>Avtale opprettet </h3>
             <p>
@@ -116,18 +136,18 @@
         </article>
         <footer style="position: absolute; bottom: 2rem; width: 100%;">
             <button *ngIf="steps === 0" class="secondary pull-left" (click)="close()"> Gjennomfør senere </button>
-            <button class="secondary" *ngIf="steps > 0 && steps < 5" (click)="prev()" [disabled]="isDirty">
+            <button class="secondary" *ngIf="steps > 0 && steps < 6" (click)="prev()" [disabled]="isDirty">
                 Tilbake
             </button>
 
             <button *ngIf="isDirty" class="c2a" (click)="saveAccount()"> Lagre </button>
 
-            <button *ngIf="steps === 4" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
+            <button *ngIf="steps === 5" class="c2a" (click)="postAutobankUser()"> Opprett autobank </button>
 
             <!-- [disabled]="!dataLoaded || (isDirty && this.steps > 0) || !isNextStepValid" -->
-            <button *ngIf="steps < 4" class="c2a" (click)="next()"> Neste </button>
+            <button *ngIf="steps < 5" class="c2a" (click)="next()"> Neste </button>
 
-            <button class="c2a" *ngIf="this.steps === 5" (click)="close()"> Ferdig </button>
+            <button class="c2a" *ngIf="this.steps === 6" (click)="close()"> Ferdig </button>
         </footer>
     </div>
 </section>
