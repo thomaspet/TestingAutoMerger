@@ -1,5 +1,6 @@
 import { Component, ChangeDetectorRef } from '@angular/core';
-import { theme, THEMES } from 'src/themes/theme';
+import {AuthService} from '@app/authService';
+import {theme} from 'src/themes/theme';
 
 type ExtendedWindow = typeof window & {
     boostChatPanel: any;
@@ -27,8 +28,12 @@ export class BoostChat {
 
     boostCode: string;
     conversationId: string;
+    bankFilter: string[] = [];
 
-    constructor(private cdr: ChangeDetectorRef) {
+    constructor(
+        private cdr: ChangeDetectorRef,
+        private authService: AuthService,
+    ) {
 
         // temporary check for boost code, 'bigger than 40' should be safe since guid is 36 or 38 chars.
         if (sessionStorage.getItem('code') && sessionStorage.getItem('code').length > 40) {
@@ -36,12 +41,13 @@ export class BoostChat {
         }
 
         this.conversationId = sessionStorage.getItem('boostConversationId');
-        if (theme.theme === THEMES.SR) {
-            this.initExt01Chat();
-        }
+
+        this.bankFilter = [this.authService.publicSettings?.BIC || ''];
+
+        this.initBoostChat();
     }
 
-    initExt01Chat() {
+    initBoostChat() {
         const script = document.createElement('script');
         script.type = 'application/javascript';
         script.src = 'https://435984srpoc.boost.ai/chatPanel/chatPanel.js';
@@ -52,6 +58,7 @@ export class BoostChat {
                 conversationId: this.conversationId,
                 pace: 'fast',
                 hyperlinksTargetBlank: true,
+                filter_values: this.bankFilter
             };
 
             this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);
