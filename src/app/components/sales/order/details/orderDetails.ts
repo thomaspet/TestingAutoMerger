@@ -1091,7 +1091,7 @@ export class OrderDetails implements OnInit {
                 config.buttons.push({
                     label: 'Lagre kladd',
                     action: () => {
-                        this.order.StatusCode = StatusCodeCustomerOrder.Draft;
+                        this.order.StatusCode = this.order?.ID ? StatusCodeCustomerOrder.Draft : StatusCode.Draft;
                         return this.saveOrder();
                     }
                 });

@@ -1776,6 +1776,7 @@ export class InvoiceDetails implements OnInit {
         this.invoiceID = 0;
         this.currentCustomer = invoice.Customer;
         invoice.ID = 0;
+        invoice.AccrualID = 0;
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;
         invoice.CollectorStatusCode = null;
