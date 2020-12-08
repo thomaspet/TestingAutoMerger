@@ -10,13 +10,13 @@ export default [
         buttonText: 'Avstem balansen'
     },
     {
-        title: 'Veiviser til årsegnskapet',
+        title: 'Veiviser til årsregnskapet',
         text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i årsregnskapet.',
         buttonText: 'Start'
     },
     {
         title: 'Veiviser til skattemeldingen/ligningsoppgaven',
-        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i skattemeldingen/lingningsoppgaven.',
+        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i skattemeldingen/ligningsoppgaven.',
         buttonText: 'Start veiviser'
     },
     {
