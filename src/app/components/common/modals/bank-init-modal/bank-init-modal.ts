@@ -1,12 +1,21 @@
 import {Component, Input, Output, EventEmitter, OnInit} from '@angular/core';
 import {IModalOptions, IUniModal, UniModalService, UniBankAccountModal} from '@uni-framework/uni-modal';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {CompanySettingsService, BankService, ElsaPurchaseService, ElsaProductService, ErrorService, ElsaContractService} from '@app/services/services';
+import {
+    CompanySettingsService,
+    BankService,
+    ElsaPurchaseService,
+    ElsaProductService,
+    ErrorService,
+    ElsaContractService,
+    ElsaAgreementService,
+} from '@app/services/services';
 import {CompanySettings, BankAccount} from '@app/unientities';
 import {FieldType, UserDto} from '@uni-entities';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, forkJoin} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {CompanyBankAccountModal} from '../bank-account-modal/company-bank-account-modal';
+import {SafeResourceUrl, DomSanitizer} from '@angular/platform-browser';
 
 @Component({
     selector: 'bank-init-modal',
@@ -64,6 +73,8 @@ export class BankInitModal implements IUniModal, OnInit {
     fields$ = new BehaviorSubject([]);
     bankName: string;
     forceSameBank = false;
+    bankAgreementUrl: SafeResourceUrl;
+    hasReadAgreement = false;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -75,12 +86,14 @@ export class BankInitModal implements IUniModal, OnInit {
         private errorService: ErrorService,
         private authService: AuthService,
         private elsaContractService: ElsaContractService,
+        private elsaAgreementService: ElsaAgreementService,
+        private sanitizer: DomSanitizer,
     ) {}
 
     ngOnInit() {
         if (!this.options.data || !this.options.data.cs || !this.options.data.cs.OrganizationNumber) {
             this.errorMsg = '*Mangler organisasjonsnummer. Du må gå til firmaoppsett og ' +
-            'registrer dette før du kan koble sammen bank og regnskap.';
+            'registrere dette før du kan koble sammen bank og regnskap.';
             this.isNextStepValid = false;
             return;
         }
@@ -89,8 +102,13 @@ export class BankInitModal implements IUniModal, OnInit {
         this.currentUser = this.options.data.user;
         this.payload.Phone = this.currentUser.PhoneNumber;
 
-        this.elsaContractService.getCurrentContractType(this.currentUser.License?.ContractType?.TypeName)
-            .subscribe(contracttype => this.forceSameBank = !!contracttype?.ForceSameBank);
+        forkJoin([
+            this.elsaContractService.getCurrentContractType(this.currentUser.License?.ContractType?.TypeName),
+            this.elsaAgreementService.getByType('Bank')
+        ]).subscribe(([contracttype, agreement]) => {
+            this.forceSameBank = !!contracttype?.ForceSameBank;
+            this.bankAgreementUrl = this.sanitizer.bypassSecurityTrustResourceUrl(agreement?.DownloadUrl);
+        });
 
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
             this.hasBoughtAutobank = !!response;
@@ -130,7 +148,6 @@ export class BankInitModal implements IUniModal, OnInit {
         .subscribe(companySettings => {
             this.companySettings = companySettings;
             this.companySettings$.next(companySettings);
-            this.checkNextStepValid();
             this.dataLoaded = true;
             this.busy = false;
         }, err => {
@@ -140,33 +157,35 @@ export class BankInitModal implements IUniModal, OnInit {
     }
 
     next() {
+        if (!this.checkNextStepValid()) {
+            return;
+        }
         this.steps++;
         this.errorMsg = '';
-        if (this.steps >= 1 && this.steps <= 3) {
+        if (this.steps >= 2 && this.steps <= 4) {
             this.fields$.next(this.setUpUniForm());
         }
-
-        this.checkNextStepValid();
     }
 
     prev() {
         this.steps--;
         this.errorMsg = '';
-        this.isNextStepValid = true;
 
-        if (this.steps >= 1 && this.steps <= 3) {
+        if (this.steps >= 2 && this.steps <= 4) {
             this.fields$.next(this.setUpUniForm());
         }
     }
 
-    checkNextStepValid() {
+    checkNextStepValid(): boolean {
         switch (this.steps) {
+            case 0:
+                return this.isNextStepValid;
             case 1:
-                this.isNextStepValid = !!this.companySettings$.value?.CompanyBankAccountID;
-                break;
+                return this.hasReadAgreement;
+            case 2:
+                return !!this.companySettings$.value?.CompanyBankAccountID;
             default:
-                this.isNextStepValid = true;
-                break;
+                return true;
         }
     }
 

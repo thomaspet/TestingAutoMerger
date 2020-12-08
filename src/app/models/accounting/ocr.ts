@@ -39,6 +39,7 @@ export interface IOcrValuables {
     Amount: string;
     InvoiceNumber: string;
     SupplierID: number;
+    Requisition: string;
 }
 
 export class OcrValuables {
@@ -53,6 +54,7 @@ export class OcrValuables {
     public InvoiceNumber: string = '';
     public Amount: number = 0;
     public SupplierID: number = 0;
+    public Requisition:string = ''
     // tslint:enable
 
     private _report: IOcrServiceResult;
@@ -83,6 +85,7 @@ export class OcrValuables {
             this.PaymentDueDate =  this.getProposedValue(props, OcrPropertyType.DueDate);
             this.TaxInclusiveAmount = this.getProposedValue(props, OcrPropertyType.TotalAmount);
             this.InvoiceNumber = this.getProposedValue(props, OcrPropertyType.InvoiceNumber);
+            this.Requisition = this.getProposedValue(props, OcrPropertyType.Requisition);
             this.Amount = +this.TaxInclusiveAmount;
         }
     }
@@ -106,5 +109,6 @@ export enum OcrPropertyType {
     InvoiceNumber = 5,
     TotalAmount = 6,
     InvoiceDate = 7,
-    DueDate = 8
+    DueDate = 8,
+    Requisition = 10
 }

@@ -6,12 +6,13 @@ import {
     UserService,
     ErrorService,
     CompanySettingsService,
-    BankService
+    BankService,
+    ElsaAgreementService
 } from '@app/services/services';
 import {Observable} from 'rxjs';
 import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
 import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
-
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
     selector: 'uni-autobank-agreement-modal',
@@ -91,14 +92,19 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                 </article>
 
                 <article *ngIf="steps === 2" class="uni-autobank-agreement-modal-body" id="step2">
-                    <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf#zoom=100" type="application/pdf">
-                        <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
-                    </object>
-                    <br>
+                    <ng-container *ngIf="bankAgreementUrl">
+                        <object [data]="bankAgreementUrl" type="application/pdf">
+                            <a [href]="bankAgreementUrl">Avtalevilkår</a>
+                        </object>
+                        <br>
 
-                    <mat-checkbox [(ngModel)]="haveReadAgreement">
-                        Godta vilkår og avtaler
-                    </mat-checkbox>
+                        <mat-checkbox [(ngModel)]="hasReadAgreement">
+                            Godta vilkår og avtaler
+                        </mat-checkbox>
+                    </ng-container>
+                    <p *ngIf="!bankAgreementUrl">
+                        Fant ingen avtalevilkår. Kontakt systemansvarlig.
+                    </p>
                 </article>
 
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3"
@@ -230,6 +236,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     private accounts: any[] = [];
     agreements: any[] = [];
+    bankAgreementUrl: SafeResourceUrl;
 
     usedBanks: string[] = [];
     buttonLock: boolean = false;
@@ -269,13 +276,15 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     formModel$: BehaviorSubject<AutoBankAgreementDetails> = new BehaviorSubject(null);
     formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    haveReadAgreement = false;
+    hasReadAgreement = false;
 
     constructor(
         private userService: UserService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private bankService: BankService
+        private bankService: BankService,
+        private elsaAgreementService: ElsaAgreementService,
+        private sanitizer: DomSanitizer,
     ) { }
 
     public ngOnInit() {
@@ -284,12 +293,13 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.agreements = this.options.data.agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
         }
 
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.companySettingsService.Get(1, ['BankAccounts.Bank', 'BankAccounts.Account']),
-            this.userService.getCurrentUser()
-        ).subscribe((res) => {
+            this.userService.getCurrentUser(),
+            this.elsaAgreementService.getByType('Bank')
+        ]).subscribe(([settings, user, elsaAgreement]) => {
 
-            this.companySettings = res[0];
+            this.companySettings = settings;
             this.accounts = [];
 
             // Filter out the accounts of banks already in use
@@ -316,9 +326,12 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 this.noAccounts = true;
             }
 
-            this.agreementDetails.Orgnr = res[0].OrganizationNumber;
-            this.agreementDetails.Phone = res[1].PhoneNumber;
-            this.agreementDetails.Email = res[1].Email;
+            this.agreementDetails.Orgnr = settings.OrganizationNumber;
+            this.agreementDetails.Phone = user.PhoneNumber;
+            this.agreementDetails.Email = user.Email;
+
+            this.bankAgreementUrl = this.sanitizer.bypassSecurityTrustResourceUrl(elsaAgreement?.DownloadUrl);
+
             this.steps = 0;
 
             this.formModel$.next(this.agreementDetails);
@@ -383,7 +396,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         }
 
         // Bank agreement step
-        if (this.steps === 2 && !this.haveReadAgreement) {
+        if (this.steps === 2 && !this.hasReadAgreement) {
             return;
         }
 

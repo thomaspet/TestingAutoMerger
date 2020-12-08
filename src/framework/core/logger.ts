@@ -1,23 +1,13 @@
 import { Injectable } from '@angular/core';
-import * as raygun from 'raygun4js';
-import { RAYGUN_API_KEY } from 'src/environments/raygun';
 import { APP_METADATA } from 'src/environments/metadata';
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import { environment } from 'src/environments/environment';
 
 @Injectable()
 export class Logger {
-    private raygunEnabled: boolean;
     appInsights: ApplicationInsights;
 
-    constructor() {
-        if (RAYGUN_API_KEY) {
-            raygun('apiKey', RAYGUN_API_KEY);
-            raygun('setVersion', APP_METADATA.GIT_REVISION);
-            raygun('enableCrashReporting', false); // we control what's logged
-
-            this.raygunEnabled = true;
-        }
+    constructor() {        
         this.appInsights = new ApplicationInsights({
             config: {
                 instrumentationKey: environment.APP_INSIGHTS_KEY,
@@ -46,12 +36,7 @@ export class Logger {
     }
 
     logError(err: any, severityLevel?: number) {
-        const error = err instanceof Error ? err : new Error(err);
-        if (this.raygunEnabled) {
-            try {
-                raygun('send', { error: error });
-            } catch (e) { }
-        }
+        const error = err instanceof Error ? err : new Error(err);        
         this.appInsights.trackException({ exception: error, severityLevel: severityLevel });
     }
 
