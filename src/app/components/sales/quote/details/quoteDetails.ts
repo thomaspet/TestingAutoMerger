@@ -1025,7 +1025,7 @@ export class QuoteDetails implements OnInit {
                 config.buttons.push({
                     label: 'Lagre kladd',
                     action: () => {
-                        this.quote.StatusCode = StatusCode.Draft;
+                        this.quote.StatusCode = this.quote?.ID ? StatusCodeCustomerQuote.Draft : StatusCode.Draft;
                         return this.saveQuote();
                     }
                 });
