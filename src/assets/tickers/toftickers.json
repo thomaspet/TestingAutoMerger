@@ -536,6 +536,11 @@
                             "Field": "InvoiceType",
                             "Operator": "eq",
                             "Value": "1"
+                        },
+                        {
+                            "Field": "CreditedAmount",
+                            "Operator": "ne",
+                            "Value": "0"
                         }
                     ]
                 },
