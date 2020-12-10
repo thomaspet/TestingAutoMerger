@@ -32,8 +32,7 @@ export enum UniTableColumnType {
     Checkbox = 15,
     Attachment = 16,
     Button = 17,
-    Icon = 18,
-    PermanentInput = 19
+    Icon = 18
 }
 
 export enum UniTableColumnSortMode {

@@ -973,12 +973,17 @@ export class AgGridWrapper {
                 agCol.cellRenderer = CellRenderer.getIconColumn(col);
             }
 
-            if (col.type === UniTableColumnType.PermanentInput) {
-                agCol.cellRenderer = CellRenderer.getPermanentInput(col);
-            }
-
             if (col?.options?.headerIconResolver) {
                 agCol.headerComponent = CellRenderer.getIconHeader(col?.options?.headerIconResolver);
+            }
+
+            if (col.type === UniTableColumnType.Custom) {
+                if (col.options.cellRenderer) {
+                    agCol.cellRenderer = col.options.cellRenderer(col);
+                }
+                if (col.options.headerComponent) {
+                    agCol.cellRenderer = col.options.headerComponent(col);
+                }
             }
 
             agCol.colId = col.field;

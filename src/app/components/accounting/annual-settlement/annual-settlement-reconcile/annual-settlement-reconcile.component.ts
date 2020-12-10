@@ -9,6 +9,7 @@ import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastS
 import {NumberFormat} from '@app/services/common/numberFormatService';
 import {ConfirmActions, ICommentModalResult} from '@uni-framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {inputCellRenderer} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/input-cell-renderer';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -70,7 +71,7 @@ export class AnnualSettlementReconcileComponent {
     ngAfterViewInit() {
         setTimeout(() => {
             (<HTMLElement>document.querySelector('input[tabIndex="100"]')).focus();
-        }, 200);
+        }, 300);
     }
     private addTab(id: number) {
         this.tabService.addTab({
@@ -117,10 +118,11 @@ export class AnnualSettlementReconcileComponent {
                 .setWidth('10rem'),
             new UniTableColumn('_TotalAmount', 'Saldo i rengskapet', UniTableColumnType.Money)
                 .setEditable(false),
-            new UniTableColumn('Balance', 'Din saldo', UniTableColumnType.PermanentInput)
+            new UniTableColumn('Balance', 'Din saldo', UniTableColumnType.Custom)
                 .setEditable(false)
                 .setAlignment('right')
                 .setOptions({
+                    cellRenderer: inputCellRenderer,
                     type: UniTableColumnType.Money,
                     textAlignment: 'right',
                     onChange: (value, row) => {

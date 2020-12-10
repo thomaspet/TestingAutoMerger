@@ -1,7 +1,5 @@
 import {ICellRendererParams} from 'ag-grid-community';
-import {UniTableColumn, UniTableColumnType} from '../../unitable/config/unitableColumn';
-import {safeDec} from '@app/components/common/utils/utils';
-import {KeyCodes} from '@app/services/common/keyCodes';
+import {UniTableColumn} from '../../unitable/config/unitableColumn';
 
 let config;
 
@@ -161,41 +159,6 @@ export class CellRenderer {
             element.title = options?.titleResolver(row) || '';
             element.onclick = () => {
                 options.onClick(row);
-            };
-            return element;
-        };
-    }
-
-    static getPermanentInput(col: UniTableColumn) {
-        return function(params: ICellRendererParams) {
-            const options = col.options || {};
-            const row = params.node.data;
-            const element = document.createElement('input');
-            element.type = 'text';
-            element.tabIndex = params.rowIndex + 100;
-            if (options.textAlignment) {
-                element.classList.add(`align-${options.textAlignment}`);
-            }
-            const valueAsNumber = safeDec(row[col.field || options.valueProperty]) || 0;
-            element.value = valueAsNumber.toFixed(2).replace('.', ',');
-            element.onblur = () => {
-                let parsedValue = 0;
-                if (options.type === UniTableColumnType.Money) {
-                    parsedValue = element.value ? safeDec(element.value) : 0;
-                    element.value = parsedValue ? parsedValue.toFixed(2).replace('.', ',') : '0';
-                }
-                options.onChange(parsedValue, row);
-            };
-            element.onkeydown = (event) => {
-                if (event.key === 'Tab') {
-                    const increment = event.shiftKey ? -1 : 1;
-                    const el: HTMLElement = document.querySelector(`input[tabIndex="${element.tabIndex + increment}"]`);
-                    setTimeout(() => {
-                       if (el) {
-                           el.focus();
-                       }
-                    }, 200);
-                }
             };
             return element;
         };
