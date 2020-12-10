@@ -495,6 +495,40 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             }
         ]
     },
+
+    // PROSJEKT
+    {
+        name: 'NAVBAR.PROJECT_BETA',
+        url: '/dimensions',
+        icon: 'project',
+        megaMenuGroupIndex: 1,
+        linkGroups: [{
+            name: '',
+            links: [
+                {
+                    name: 'NAVBAR.PROJECT',
+                    url: '/dimensions/projects/overview',
+                    moduleID: UniModules.Projects,
+                    activeInSidebar: true,
+                    isSuperSearchComponent: true,
+                    moduleName: 'Project',
+                    prefix: ['prosjekt'],
+                    selects: [
+                        {key: 'ID', isNumeric: true},
+                        {key: 'ProjectNumber', isNumeric: false},
+                        {key: 'Name', isNumeric: false}
+                    ]
+                },
+                {
+                    name: 'NAVBAR.HOURS',
+                    url: '/dimensions/projects/hours',
+                    moduleID: UniModules.Projects,
+                    activeInSidebar: true
+                },
+            ]
+        }]
+    },
+
     // ALTINN
     {
         name: 'Altinn',
@@ -521,6 +555,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             }
         ]
     },
+
+    // ANNET
     {
         name: 'NAVBAR.OTHER',
         url: '',
@@ -585,6 +621,8 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
             },
         ]
     },
+
+    // MARKEDSPLASS
     {
         name: 'NAVBAR.MARKETPLACE',
         url: '/marketplace',
