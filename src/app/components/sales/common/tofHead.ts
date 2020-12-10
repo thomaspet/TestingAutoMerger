@@ -42,7 +42,6 @@ export class TofHead implements OnChanges {
     @Input() distributionPlans: any[];
     @Input() paymentInfoTypes: any[];
     @Input() currentUser: User;
-    @Input() canSendEHF: boolean = false;
     @Input() distributions: any[] = [];
 
     @Output() dataChange = new EventEmitter();

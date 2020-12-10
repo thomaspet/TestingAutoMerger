@@ -127,7 +127,6 @@ export class OrderDetails implements OnInit {
     paymentInfoTypes: any[];
     distributionPlans: any[];
     reports: any[];
-    canSendEHF: boolean = false;
     hoursOnOrderCount: number = 0;
     nonTransferredHoursOnOrderCount: number = 0;
     private transferredWorkItemIDs: number[] = [];
@@ -292,13 +291,6 @@ export class OrderDetails implements OnInit {
                             this.contacts = [];
                         }
                         this.companySettings = res[1];
-
-                        this.canSendEHF = this.companySettings.APActivated
-                            && this.companySettings.APOutgoing
-                            && this.companySettings.APOutgoing.some(format => {
-                            return format.Name === 'EHF INVOICE 2.0';
-                        });
-
                         this.currencyCodes = res[2];
                         this.projects = res[3];
                         this.sellers = res[4];
