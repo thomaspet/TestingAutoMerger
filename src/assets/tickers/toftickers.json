@@ -336,6 +336,24 @@
                 }
             ]
         },
+        {	
+            "Name": "Mine",	
+            "Code": "my_invoices",	
+            "UseAllCriterias": true,	
+            "FilterGroups": [	
+                {	
+                    "UseAllCriterias": true,	
+                    "FieldFilters": [	
+                        {	
+                            "Field": "CreatedBy",	
+                            "Operator": "eq",	
+                            "Value": ":currentuserid"	
+                        }	
+                    ]	
+                }	
+            ],	
+            "featurePermission": "ui.sales.invoice-list.my_invoices"	
+        },
         {
             "Name": "Kladd",
             "Code": "my_draft_invoices",
@@ -437,6 +455,47 @@
                     ]
                 }
             ]
+        },
+        {	
+            "Name": "Purret",	
+            "Code": "invoices_reminded",	
+            "featurePermission": "ui.debt-collection",	
+            "UseAllCriterias": true,	
+            "FilterGroups": [	
+                {	
+                    "UseAllCriterias": true,	
+                    "FieldFilters": [	
+                        {	
+                            "Field": "CollectorStatusCode",	
+                            "Operator": "eq",	
+                            "Value": "42501"	
+                        },	
+                        {	
+                            "Field": "add(TaxInclusiveAmount, CreditedAmount)",	
+                            "Operator": "ne",	
+                            "Value": "0"	
+                        }	
+                    ]	
+                }	
+            ]	
+        },	
+        {	
+            "Name": "Sendt til inkasso",	
+            "Code": "invoices_sentforcollection",	
+            "featurePermission": "ui.debt-collection",	
+            "UseAllCriterias": true,	
+            "FilterGroups": [	
+                {	
+                    "UseAllCriterias": true,	
+                    "FieldFilters": [	
+                        {	
+                            "Field": "CollectorStatusCode",	
+                            "Operator": "eq",	
+                            "Value": "42502"	
+                        }	
+                    ]	
+                }	
+            ]	
         },
         {
             "Name": "Betalt",

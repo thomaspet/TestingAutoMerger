@@ -36,7 +36,9 @@ import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
 import {QuickFilter} from '@uni-framework/ui/unitable';
+import { theme, THEMES } from 'src/themes/theme';
 import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
+
 
 @Injectable()
 export class UniTickerService {
@@ -354,6 +356,24 @@ export class UniTickerService {
     public getTickers(): Promise<Ticker[]> {
         return this.loadTickerCache()
             .then(() => {
+                this.tickers = this.tickers.map(t => {​​​​
+
+                    // Kind of dirty hack to remove filters from supplier invoice and customer invoice list based on company settings value
+
+                    if (t.Code.includes('invoice_list') && theme.theme === THEMES.EXT02) {
+                        t.Filters = t.Filters.map(f => {
+
+                            if (f.Code === 'invoices_reminded' || f.Code === 'invoices_sentforcollection' || f.Code === 'my_invoices') {​​​​
+                                f.hidden = true;
+                            }​​​​
+                            return f;
+                        });
+                    }​​​​
+
+                    return t;
+
+                }​​​​);
+
                 return this.tickers;
             });
     }
@@ -1328,6 +1348,7 @@ export class TickerFilter {
     public CurrentCount?: number;
     public IsMultiRowSelect: boolean = false;
     public featurePermission?: string;
+    public hidden?: boolean;
 }
 
 export class TickerAction {
