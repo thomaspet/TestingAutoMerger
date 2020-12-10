@@ -1,10 +1,10 @@
 <section role="dialog" class="uni-modal">
     <header>
-        Faktura {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}}
+        {{invoice?.InvoiceType === 1 ? "Kreditnota" : "Faktura"}} {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}}
     </header>
     <article>
         <p>
-            Faktura {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}} er fakturert og bokført med bilagsnummer
+            {{invoice?.InvoiceType === 1 ? "Kreditnota" : "Faktura"}} {{invoice?.InvoiceNumber || ''}} til {{invoice.CustomerName}} er fakturert og bokført med bilagsnummer
             <a [href]="journalEntryUrl">{{invoice?.JournalEntry?.JournalEntryNumber}}</a>
         </p>
         <section *ngIf="busy" class="modal-spinner">
@@ -16,7 +16,7 @@
         </section>
         <section *ngIf="invoice?.StatusCode === 42006" class="alert info">
             <i class="material-icons-outlined">info</i>
-            <span>Denne fakturaen er allerede markert som kreditert</span>
+            <span>Denne kreditnotaen er allerede markert som kreditert</span>
         </section>
         <section *ngIf="previousSharings?.length" class="alert warn previous-sharings">
             <section *ngFor="let sharing of previousSharings" class="sharing">

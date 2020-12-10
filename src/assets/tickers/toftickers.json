@@ -23,8 +23,7 @@
             "Field": "JournalEntry.JournalEntryNumber",
             "Type": "link",
             "ExternalModel": "JournalEntry",
-            "LinkNavigationProperty": "JournalEntryID",
-            "DefaultHidden": true
+            "LinkNavigationProperty": "JournalEntryID"
         },
         {
             "Header": "Kundenr.",
@@ -33,7 +32,8 @@
             "LinkNavigationProperty": "Customer.ID",
             "ExternalModel": "Customer",
             "Width": 100,
-            "FilterOperator": "startswith"
+            "FilterOperator": "startswith",
+            "DefaultHidden": true
         },
         {
             "Header": "Kundenavn",
@@ -120,24 +120,6 @@
             "DefaultHidden": true
         },
         {
-            "Header": "Sum inkl. mva",
-            "Field": "TaxInclusiveAmountCurrency",
-            "Format": "NumberPositiveNegative",
-            "Width": "120px",
-            "FilterOperator": "gt",
-            "SumColumn": true,
-            "DefaultHidden": true
-        },
-        {
-            "Header": "Rest",
-            "Field": "RestAmountCurrency",
-            "Format": "NumberPositiveNegative",
-            "Width": "120px",
-            "FilterOperator": "gt",
-            "SumColumn": true,
-            "DefaultHidden": true
-        },
-        {
             "Header": "Kreditert",
             "Field": "CreditedAmountCurrency",
             "Format": "NumberPositiveNegative",
@@ -161,13 +143,6 @@
             "SumColumn": true
         },
         {
-            "Header": "Fakturaref.",
-            "Field": "InvoiceReference.InvoiceNumber",
-            "DefaultHidden": true,
-            "Type": "link",
-            "LinkNavigationProperty": "InvoiceReferenceID"
-        },
-        {
             "Header": "Fakturatype",
             "Field": "InvoiceType",
             "Type": "dontdisplay"
@@ -183,15 +158,40 @@
             "Type": "dontdisplay"
         },
         {
+            "Header": "Fakturaref.",
+            "Field": "InvoiceReference.InvoiceNumber",
+            "Width": "100px",
+            "Type": "link",
+            "LinkNavigationProperty": "InvoiceReferenceID",
+            "DefualtShowOnlyOnGivenFilters": ["Credited_invoices"]
+        },
+        {
             "Header": "Status",
             "Field": "StatusCode",
             "Width": "125px"
         },
         {
+            "Header": "Sum inkl. mva",
+            "Field": "TaxInclusiveAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true
+        },
+        {
+            "Header": "Restsum",
+            "Field": "RestAmountCurrency",
+            "Format": "NumberPositiveNegative",
+            "Width": "120px",
+            "FilterOperator": "gt",
+            "SumColumn": true
+        },
+        {
             "Header": "Restsum [BASECURRENCY]",
             "Field": "RestAmount",
             "Format": "NumberPositiveNegative",
-            "SumColumn": true
+            "SumColumn": true,
+            "DefaultHidden": true
         },
         {
             "Header": "Sum inkl. mva [BASECURRENCY]",
@@ -206,7 +206,7 @@
             "Width": "125px",
             "DefaultHidden": true,
             "FilterSelectConfigKey": "PrintStatus"
-        },
+        },        
         {
             "Header": "Siste utsendelse",
             "Field": "getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)",
@@ -250,7 +250,9 @@
             "Type": "goto",
             "ExecuteWithMultipleSelections": true,
             "ExecuteWithoutSelection": true,
-            "DisplayInActionBar": true
+            "DisplayInActionBar": true,
+            "DisplayOnlyInFilterCode": "overdue_invoices",
+            "GoToUrlTarget": "/sales/reminders/ready"
         },
         {
             "Name": "Eksporter",
