@@ -1,43 +1,23 @@
 annual-settlement-reconcile
+    ag-grid-wrapper ag-grid-angular.editable .ag-cell + .ag-cell,
+    ag-grid-wrapper ag-grid-angular.editable .ag-header-cell + .ag-header-cell
+        border-left: 0
+    .ag-body
+        border: 1px solid var(--border-color)
     .row
         margin: 0
     .saldo-button
         border: 1px solid var(--link-color)
         background: var(--sidebar-active-section-header-background)
-        &[aria-hidden=true]
+        min-width: 7rem
+        &.hidden
             display: none
     .page-navigation
         margin: 0
         margin-bottom: 1rem
-    .custom-table
-        border: var(--table-border)
-        display: grid
-        grid-template-columns: 1fr 1.5fr 1fr 1fr 0.5fr 0.5fr 0.5fr
-        .custom-table-cell
-            padding: 1rem
-            display: flex
-            align-items: center
-            border-top: var(--table-border)
-            mat-checkbox
-                &.mat-checkbox-checked .mat-checkbox-background
-                    background-color: var(--checkbox-checked-background-good) !important
-                    border: #fff
-                .mat-checkbox-checkmark .mat-checkbox-checkmark-path
-                    stroke: var(--checkbox-checked-color-good) !important
-                    stroke-width: 3px
-            &.header-cell
-                background: var(--table-header-background)
-                font-weight: 600
-            &.even-cell
-                background: var(--body-background)
-            &.odd-cell
-                background: var(--table-row-odd-background)
-            &.center-content
-                justify-content: center
-            &.right-content
-                justify-content: flex-end
-            .material-icons-outlined
-                cursor: pointer
+    .checkbox-column
+        .material-icons-outlined.checked, .material-icons.checked
+            color: var(--checkbox-checked-background-good)
 @media screen and (min-width: 1600px)
     annual-settlement-reconcile
         .application

@@ -31,6 +31,9 @@ export enum UniTableColumnType {
     Status = 14,
     Checkbox = 15,
     Attachment = 16,
+    Button = 17,
+    Icon = 18,
+    PermanentInput = 19
 }
 
 export enum UniTableColumnSortMode {
@@ -75,6 +78,7 @@ export interface TableStatusMap {
 
 export interface TableCheckboxConfig {
     checked?: boolean | ((row) => boolean);
+    type?: string;
     onChange?: (row, checked: boolean) => void;
 }
 
