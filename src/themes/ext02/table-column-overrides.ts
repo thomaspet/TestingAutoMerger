@@ -1,8 +1,5 @@
 export const TABLE_COLUMN_OVERRIDES = {
     'uniTicker.invoice_list': [
-        { field: 'JournalEntry.JournalEntryNumber', visible: true },
-        { field: 'Customer.CustomerNumber', visible: false },
-        { field: 'CustomerInvoice.TaxInclusiveAmount', visible: true },
         { field: `getlatestsharingtype('CustomerInvoice',CustomerInvoice.ID)`, visible: false }
     ],
     'uniTicker.bank_list': [

@@ -36,6 +36,7 @@ import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
 import {QuickFilter} from '@uni-framework/ui/unitable';
+import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 
 @Injectable()
 export class UniTickerService {
@@ -591,7 +592,8 @@ export class UniTickerService {
         }
 
         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-            formattedFieldValue = this.statusCodeToText(data[column.Alias]);
+            const statusCodeText = this.statusCodeToText(data[column.Alias]); 
+            formattedFieldValue = this.statusCodeOverrides(statusCodeText, ticker.Code, data)
         }
 
         if (column.SubFields && column.SubFields.length > 0) {
@@ -726,6 +728,13 @@ export class UniTickerService {
     private statusCodeToText(statusCode: number): string {
         const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
+    }
+
+    private statusCodeOverrides(text, tickerCode, data): string {
+        if (tickerCode === 'invoice_list' && data.CustomerInvoiceInvoiceType === InvoiceTypes.CreditNote) {
+            return 'Kreditnota';
+        }
+        return text;
     }
 
     private getFieldValueInternal(column: TickerColumn, model: any): any {
@@ -1271,6 +1280,7 @@ export class TickerColumn {
     public ShowOnlyOnThisFilter?: number;
     public ExcludeFromEnvironments?: string[];
     public DefaultHiddenOnGivenFilters?: string[];
+    public DefualtShowOnlyOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
@@ -1335,6 +1345,8 @@ export class TickerAction {
     public SendParentModel?: boolean = false;
     public Options: TickerActionOptions;
     public Route?: String;
+    public GoToUrlTarget?: string;
+    public DisplayOnlyInFilterCode?: string;
 }
 
 export class TickerActionOptions {
