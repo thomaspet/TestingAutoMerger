@@ -15,7 +15,7 @@ import {
     NumberFormat,
     PageStateService,
     ReportDefinitionService,
-    AltinnAuthenticationService, UniTranslationService
+    AltinnAuthenticationService, UniTranslationService, StatisticsService
 } from '@app/services/services';
 import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
 import { AMeldingTypePickerModalComponent, IAmeldingTypeEvent } from './modals/a-melding-type-picker-modal.component';
@@ -158,6 +158,7 @@ export class AMeldingViewComponent implements OnInit {
         private altinnAuthService: AltinnAuthenticationService,
         private payrollRunService: PayrollRunService,
         private translationService: UniTranslationService,
+        private statisticsService: StatisticsService,
     ) {
         this.companySalaryService.getCompanySalary()
             .subscribe(compSalary => {
@@ -242,9 +243,9 @@ export class AMeldingViewComponent implements OnInit {
 
         // Dont get periode if periode is set as queryparams
         if (!this.currentPeriod) {
-            this.payrollRunService.getLatestSettledPeriod(1, this.activeYear)
+            this.statisticsService.GetAllUnwrapped('model=AmeldingData&select=isnull(max(period),1) as p&filter=year eq ' + this.activeYear)
                 .subscribe(period => {
-                    this.currentPeriod = period;
+                    this.currentPeriod = period[0].p;
                     this.currentMonth = moment.months()[this.currentPeriod - 1];
                     this.getSumsInPeriod();
                     this.getAMeldingForPeriod();
