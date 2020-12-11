@@ -63,7 +63,6 @@ export class UniAttachments {
     @Input() uploadConfig: IUploadConfig;
     @Input() showFileList: boolean = true;
     @Input() uploadWithoutEntity: boolean = false;
-    @Input() canSendEHF: boolean = false;
     @Input() tooltip: string;
     @Input() showInfoBox?: boolean = false;
 
@@ -175,17 +174,15 @@ export class UniAttachments {
         const activeCompany = this.authService.activeCompany;
         const data = new FormData();
 
-        if (this.canSendEHF) {
-            const invalidFileType = !this.validEHFFileTypes.some(type => {
-                const fileName = (file['name'] || '').toLowerCase();
-                return fileName.includes(type.toLowerCase());
-            });
+        const invalidFileType = !this.validEHFFileTypes.some(type => {
+            const fileName = (file['name'] || '').toLowerCase();
+            return fileName.includes(type.toLowerCase());
+        });
 
-            if (invalidFileType) {
-                this.toast.addToast('Ugyldig filtype for vedlegg', ToastType.warn, 10,
-                'Du har valgt en fil som ikke er godkjent som vedlegg for EHF, og vil ikke bli lagt til som vedlegg ' +
-                'om du velger utsendelse via EHF. Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
-            }
+        if (invalidFileType) {
+            this.toast.addToast('Ugyldig filtype for vedlegg til EHF', ToastType.warn, 10,
+            'Du har valgt en fil som ikke er godkjent som vedlegg for EHF, og vil ikke bli lagt til som vedlegg ' +
+            'om du velger utsendelse via EHF. Gyldige formater er CSV, PDF, PNG, JPG, XLSX og ODS.');
         }
 
         data.append('Token', this.authService.jwt);

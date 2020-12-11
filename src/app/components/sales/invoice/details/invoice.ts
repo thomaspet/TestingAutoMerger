@@ -148,7 +148,6 @@ export class InvoiceDetails implements OnInit {
     private currentCustomer: Customer;
     currentUser: User;
     selectConfig: any;
-    canSendEHF: boolean = false;
     customerDistributions: any;
 
     sellers: Seller[];
@@ -320,12 +319,6 @@ export class InvoiceDetails implements OnInit {
                     }
                     this.companySettings = res[3];
 
-                    this.canSendEHF = this.companySettings.APActivated
-                        && this.companySettings.APOutgoing
-                        && this.companySettings.APOutgoing.some(format => {
-                            return format.Name === 'EHF INVOICE 2.0';
-                        });
-
                     this.currencyCodes = res[4];
                     if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
@@ -419,12 +412,6 @@ export class InvoiceDetails implements OnInit {
                         invoice.CurrencyExchangeRate = 1;
                     }
 
-                    this.canSendEHF = this.companySettings.APActivated
-                        && this.companySettings.APOutgoing
-                        && this.companySettings.APOutgoing.some(format => {
-                            return format.Name === 'EHF INVOICE 2.0';
-                        });
-
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
@@ -456,9 +443,8 @@ export class InvoiceDetails implements OnInit {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
 
-                    // If the user has activated EHF, and entering an invoice in draft state,
-                    // check if the invoice has files with unsupported formats
-                    if (this.canSendEHF && invoice.StatusCode === 42001) {
+                    // If the user is entering an invoice in draft state, check if the invoice has files with unsupported formats
+                    if (invoice.StatusCode === 42001) {
                         this.customerInvoiceService.getFileList(invoice.ID).subscribe((files) => {
                             const hasMismatch = files.some(file => {
                                 const fileNameLowerCase = (file.Name || '').toLowerCase();
