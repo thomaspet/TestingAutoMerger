@@ -2203,6 +2203,87 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
+    public showAgioDialogFromPayments(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
+        const customerInvoice = journalEntryRow.CustomerInvoice;
+
+        return new Promise(resolve => {
+            const paymentData = <InvoicePaymentData> {
+                Amount: customerInvoice.RestAmount,
+                AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
+                BankChargeAmount: 0,
+                CurrencyCodeID: customerInvoice.CurrencyCodeID,
+                CurrencyExchangeRate: 0,
+                PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
+                AgioAccountID: 0,
+                BankChargeAccountID: 0,
+                AgioAmount: 0,
+                PaymentID: null,
+                DimensionsID: null
+            };
+
+            const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
+                + ` ${customerInvoice.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
+
+            const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+                header: title,
+                data: paymentData,
+                modalConfig: {
+                    entityName: CustomerInvoice.EntityType,
+                    customerID: customerInvoice.CustomerID,
+                    currencyCode: customerInvoice.CurrencyCode.Code,
+                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
+                    hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
+                }
+            });
+
+            paymentModal.onClose.subscribe(payment => {
+                if (!payment) {
+                    resolve(journalEntryRow);
+                }
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
+
+                // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
+                // the Amount that was paid in the base currency - the diff between this and what
+                // is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                journalEntryRow.Amount = paymentData.Amount;
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
+                journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
+                journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
+                    journalEntryRow.DebitAccount = null;
+                    journalEntryRow.DebitAccountID = null;
+
+
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
+                        agioRow.CustomerInvoiceID = customerInvoice.ID;
+                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+                        this.updateJournalEntryLine(journalEntryRow);
+                        resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
+                    });
+                } else {
+                    resolve(journalEntryRow);
+                }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        bankChargesRow.CustomerInvoiceID = customerInvoice.ID;
+                        resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([bankChargesRow]));
+                    });
+                }
+            });
+        });
+    }
 
     public showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
 
@@ -3178,7 +3259,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             data.CurrencyExchangeRate = 1;
             this.addJournalEntryLines([data]);
         } else {
-            this.showAgioDialog(data)
+            this.showAgioDialogFromPayments(data)
                 .then(journalEntryData => this.addJournalEntryLines([journalEntryData]));
         }
     }
