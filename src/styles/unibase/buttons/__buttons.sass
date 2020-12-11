@@ -16,7 +16,7 @@
         background-color: var(--button-#{$type}-hover)
         box-shadow: inset 0 0 0 2px var(--button-#{$type}-border-hover)
     &:before
-        border-color: #fff
+        border-color: var(--button-#{$type}-text-hover, #fff)
 
 @mixin secondary-btn-color($type)
     color: var(--button-#{$type})
