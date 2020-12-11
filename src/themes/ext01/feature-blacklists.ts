@@ -89,5 +89,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_settings_webhooks',
 
         'ui_timetracking_*',
+        'ui_accounting_balancesearch',
     ],
 };
