@@ -250,6 +250,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
+                        name: 'NAVBAR.BALANCE_SEARCH',
+                        url: '/accounting/balancesearch',
+                        moduleID: UniModules.BalanceSearch,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.RESULT_BALANCE',
                         url: '/accounting/accountingreports',
                         moduleID: UniModules.AccountingReports,
