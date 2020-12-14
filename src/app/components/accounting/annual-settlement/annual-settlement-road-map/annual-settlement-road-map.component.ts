@@ -105,11 +105,10 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 3:
                     return step;
                 case 4:
-                case 1:
                     step.action = () => {
-                        this.annualSettlementService.moveFromStep5ToStep6(currentAS).subscribe(() => {
-                            this.toast.addToast('Skattemeldingen er levert til Altinn', ToastType.good, ToastTime.short);
-                        });
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/test`
+                        );
                     };
                     return step;
                 default:

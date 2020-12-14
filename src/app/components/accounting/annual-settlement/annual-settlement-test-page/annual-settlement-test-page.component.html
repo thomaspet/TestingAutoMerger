@@ -1,0 +1,33 @@
+<section class="application">
+    <section class="row">
+        <section class="row">
+            <h2>AnnualSettlement Transitions</h2>
+        </section>
+        <section class="row">
+            <button (click)="transition(1,2)">From 1 to 2</button>
+            <button (click)="transition(2,3)">From 2 to 3</button>
+            <button (click)="transition(3,4)">From 3 to 4</button>
+            <button (click)="transition(4,5)">From 4 to 5</button>
+            <button (click)="transition(5,6)">From 5 to 6</button>
+        </section>
+    </section>
+    <section class="row">
+        <section class="row">
+            <h2>AnnualSettlement Fields</h2>
+        </section>
+        <section class="splitview">
+            <section class="splitview_list" style="max-width: 30vw;">
+                <uni-form
+                    [config]="{autofocus: true}"
+                    [fields]="formFields"
+                    [model]="annualSettlementFields"
+                ></uni-form>
+            </section>
+            <section class="splitview_detail" style="width: 50vw">
+                <pre>
+    {{annualSettlement | json}}
+                </pre>
+            </section>
+        </section>
+    </section>
+</section>

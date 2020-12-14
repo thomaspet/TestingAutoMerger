@@ -15,6 +15,7 @@ import {AnnualSettlementCheckListComponent} from '@app/components/accounting/ann
 import {AnnualSettlementCheckListToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list-toolbar.component';
 import {AnnualSettlementReconcileComponent} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/annual-settlement-reconcile.component';
 import {AnnualSettlementReconcileToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/annual-settlement-reconcile-toolbar.component';
+import {AnnualSettlementTestPageComponent} from '@app/components/accounting/annual-settlement/annual-settlement-test-page/annual-settlement-test-page.component';
 
 @NgModule({
     imports: [
@@ -33,7 +34,8 @@ import {AnnualSettlementReconcileToolbarComponent} from '@app/components/account
         AnnualSettlementCheckListComponent,
         AnnualSettlementCheckListToolbarComponent,
         AnnualSettlementReconcileComponent,
-        AnnualSettlementReconcileToolbarComponent
+        AnnualSettlementReconcileToolbarComponent,
+        AnnualSettlementTestPageComponent
     ],
     providers: [
         AnnualSettlementService
