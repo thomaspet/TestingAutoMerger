@@ -18,14 +18,14 @@
         <section class="splitview">
             <section class="splitview_list" style="max-width: 30vw;">
                 <uni-form
-                    [config]="{autofocus: true}"
+                    [config]="{autofocus: true, showLabelAbove: true}"
                     [fields]="formFields"
                     [model]="annualSettlementFields"
                 ></uni-form>
             </section>
             <section class="splitview_detail" style="width: 50vw">
                 <pre>
-    {{annualSettlement | json}}
+{{annualSettlement | json}}
                 </pre>
             </section>
         </section>
