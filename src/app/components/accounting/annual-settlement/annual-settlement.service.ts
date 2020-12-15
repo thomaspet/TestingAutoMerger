@@ -7,6 +7,7 @@ import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {ConfirmActions} from '@uni-framework/uni-modal';
 import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
+import {throwError} from 'rxjs';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -95,14 +96,28 @@ export class AnnualSettlementService extends BizHttp<any> {
     moveFromStep1ToStep2(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'OneToStepTwo' );
     }
-    moveFromStep5ToStep6(annualSettlement) {
-        return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
-        // demo - return this.httpClient.put(this.baseUrl + `taxreport/?action=send-annual&annualSettlementID=` + annualSettlement.ID, null);
-    }
     moveFromStep2ToStep3(annualSettlement) {
         return this.completeReconcile(annualSettlement).pipe(
             switchMap(() => this.Transition(annualSettlement.ID, annualSettlement, 'TwoToStepThree' ))
         );
+    }
+    moveFromStep3ToStep4(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'ThreeToStepFour' );
+    }
+    moveFromStep4ToStep5(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'FourToStepFive' );
+    }
+    moveFromStep5ToStep6(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
+    }
+    moveFromStep5ToStep7(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToComplete' );
+    }
+    moveFromStep6ToStep7(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'SixToComplete' );
+    }
+    moveFromStep6ToStep5(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'SixToStepFive' );
     }
     startReconcile(annualSettlement) {
         if (annualSettlement.Reconcile.StatusCode === StatusCodeReconcile.NotBegun) {
@@ -196,5 +211,18 @@ export class AnnualSettlementService extends BizHttp<any> {
         } else {
             return this.modalService.openCommentModal({data: data}).onClose;
         }
+    }
+    transition(annualSettlement: any, fromStep: number, toStep: number) {
+        const transitionMethod = `moveFromStep${fromStep}ToStep${toStep}`;
+        if (this[transitionMethod]) {
+            return this[transitionMethod](annualSettlement).pipe(
+                switchMap(() => this.getAnnualSettlementWithReconcile(annualSettlement.ID))
+            );
+        }
+        return throwError({
+            message: `Transition "${transitionMethod}" not valid`,
+            entity: annualSettlement,
+            method: transitionMethod
+        });
     }
 }

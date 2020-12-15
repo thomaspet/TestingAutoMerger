@@ -101,16 +101,31 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     };
                     return step;
                 case 2:
+                    step.action = () => {
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences`
+                        );
+                    };
                     return step;
                 case 3:
+                    step.action = () => {
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/disposition-including-tax`
+                        );
+                    };
                     return step;
                 case 4:
                     step.action = () => {
                         this.router.navigateByUrl(
-                            `/accounting/annual-settlement/${currentAS.ID}/test`
+                            `/accounting/annual-settlement/${currentAS.ID}/wizzard-tax-form`
                         );
                     };
-                    return step;
+                case 5:
+                    step.action = () => {
+                        this.router.navigateByUrl(
+                            `/accounting/annual-settlement/${currentAS.ID}/wizzard-annual-accounts`
+                        );
+                    };
                 default:
                     return step;
             }

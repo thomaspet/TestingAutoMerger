@@ -102,18 +102,19 @@ export class AnnualSettlementTestPageComponent {
             this.annualSettlementFields = annualSettlement.Fields;
         });
     }
-    transition(fromStep: number, toStep: number) {
-        const transitionMethod = `moveFromStep${fromStep}ToStep${toStep}`;
+
+    runTransition() {
         this.annualSettlement.Fields = this.annualSettlementFields;
-        if (this.annualSettlementService[transitionMethod]) {
-            this.annualSettlementService[transitionMethod](this.annualSettlement).subscribe(result => {
-                this.annualSettlementService.getAnnualSettlementWithReconcile(this.annualSettlement.ID)
-                    .subscribe(annualSettlement => {
-                        this.annualSettlement = annualSettlement;
-                        this.annualSettlementFields = annualSettlement.Fields;
-                    });
-            });
-        }
+        this.annualSettlementService.Put(this.annualSettlement.ID, this.annualSettlement).pipe(
+            switchMap(() => this.annualSettlementService.transition(this.annualSettlement, 3, 4))
+        ).subscribe((as: any) => {
+            this.annualSettlement = as;
+            this.annualSettlementFields = as.Fields;
+        });
+    }
+    onChange($event) {
+        this.annualSettlement.Fields = this.annualSettlementFields;
+        this.annualSettlement = Object.assign({}, this.annualSettlement);
     }
     ngOnDestroy() {
         this.onDestroy$.next();
