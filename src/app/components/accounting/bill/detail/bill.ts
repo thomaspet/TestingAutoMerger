@@ -741,58 +741,20 @@ export class BillView implements OnInit, AfterViewInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>, force: boolean) {
-
+    private runConverter(files: Array<any>) {
         if (this.companySettings.UseOcrInterpretation) {
             // user has accepted license/agreement for ocr
             this.runOcrOrEHF(files);
         } else {
-            // check for undefined or null, because this is a "tristate", so null != false here,
-            // false means that the user has rejected the agreement, while null means he/she has
-            // neither accepted or rejected it yet
-            if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                // user has not accepted license/agreement for ocr
-                this.uniFilesService.getOcrStatistics()
-                    .subscribe(res => {
-                            const countUsed = res.CountOcrDataUsed;
-
-                            if (countUsed <= 10) {
-                                // allow running OCR the first 10 times for free
-                                this.runOcrOrEHF(files);
-                            } else {
-                                this.companySettingsService.PostAction(1, 'ocr-trial-used')
-                                    .subscribe(success => {
-                                            // this is set through the ocr-trial-used, but set it in the local object as well to
-                                            // avoid displaying the same message multiple times
-                                            this.companySettings.UseOcrInterpretation = false;
-
-                                            const modal = this.modalService.open(UniConfirmModalV2, {
-                                                header: 'Fakturatolkning er ikke aktivert',
-                                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                                + ' videre må du aktivere Fakturatolk under firmainnstillinger i menyen.',
-                                                buttonLabels: {
-                                                    accept: 'Ok',
-                                                    cancel: 'Avbryt'
-                                                }
-                                            });
-                                        }, err => this.errorService.handle(err)
-                                    );
-                            }
-                        },
-                        err => this.errorService.handle(err)
-                    );
-            } else if (force) {
-                // user has deactivated license/agreement for ocr
-                const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
-                    message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
-                    buttonLabels: {
-                        accept: 'Ok',
-                        cancel: 'Avbryt'
-                    }
-                });
-            }
+            // user has deactivated license/agreement for ocr
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Fakturatolkning er ikke aktivert',
+                message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
+                buttonLabels: {
+                    accept: 'Ok',
+                    cancel: 'Avbryt'
+                }
+            });
         }
     }
 
@@ -1034,7 +996,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
-                this.runConverter(files, false);
+                this.runConverter(files);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
@@ -4170,7 +4132,7 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 label: 'Kjør tolk (OCR/EHF)',
-                action: () => { this.runConverter(this.files, true); }
+                action: () => { this.runConverter(this.files); }
             },
             {
                 label: 'Kjør smart bokføring',

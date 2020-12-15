@@ -267,7 +267,7 @@ export class SupplierInvoiceStore {
         }
     }
 
-    runOcr(force: boolean = false) {
+    runOcr() {
         const invoice = this.invoice$.value;
 
         const run = () => {
@@ -295,29 +295,9 @@ export class SupplierInvoiceStore {
         if (this.selectedFile && invoice && !invoice?.SupplierID) {
             if (this.companySettings.UseOcrInterpretation) {
                 run();
-            } else if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                this.ocrHelper.getOCRCount().subscribe((res) => {
-                    if (res?.CountOcrDataUsed <= 10) {
-                        run();
-                    } else {
-                        this.companySettingsService.PostAction(1, 'ocr-trial-used').subscribe(success => {
-                            this.companySettings.UseOcrInterpretation = false;
-
-                            this.modalService.open(UniConfirmModalV2, {
-                                header: 'Fakturatolkning er ikke aktivert',
-                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                + ' videre må du aktivere Fakturatolk under regnskapsinnstillinger.',
-                                buttonLabels: {
-                                    accept: 'OK',
-                                }
-                            });
-                        }, err => this.errorService.handle(err));
-                    }
-                });
-            } else if (force) {
+            } else {
                 this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
+                    header: 'Fakturatolkning er ikke aktivert',
                     message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolking av fakturaer',
                     buttonLabels: {
                         accept: 'OK'

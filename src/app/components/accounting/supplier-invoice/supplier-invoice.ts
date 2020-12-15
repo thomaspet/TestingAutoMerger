@@ -314,7 +314,7 @@ export class SupplierInvoiceView {
             this.toolbarconfig.contextmenu = [
                 {
                     label: 'Kjør fakturatolkning',
-                    action: () => { this.store.runOcr(true); }
+                    action: () => { this.store.runOcr(); }
                 },
                 {
                     label: 'Kjør smart bokføring',

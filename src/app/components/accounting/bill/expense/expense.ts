@@ -277,41 +277,18 @@ export class Expense implements OnInit {
     }
 
     private runConverter(files: Array<any>) {
-
         if (this.companySettings.UseOcrInterpretation) {
             // user has accepted license/agreement for ocr
             this.runOcr(files[0]);
         } else {
-            // check for undefined or null, because this is a "tristate", so null != false here,
-            // false means that the user has rejected the agreement, while null means he/she has
-            // neither accepted or rejected it yet
-            if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                // user has not accepted license/agreement for ocr
-                this.uniFilesService.getOcrStatistics().subscribe(res => {
-                    const countUsed = res.CountOcrDataUsed;
-
-                    if (countUsed <= 10) {
-                        // Run 10 times for free
-                        this.runOcr(files[0]);
-                    } else {
-                        this.companySettingsService.PostAction(1, 'ocr-trial-used').subscribe(success => {
-                            // this is set through the ocr-trial-used, but set it in the local object as well to
-                            // avoid displaying the same message multiple times
-                            this.companySettings.UseOcrInterpretation = false;
-
-                            this.modalService.open(UniConfirmModalV2, {
-                                header: 'Fakturatolkning er ikke aktivert',
-                                message: 'Du har prøvd vår tjeneste for å tolke fakturaer maskinelt 10 ganger gratis.'
-                                + 'For å bruke tjenesten videre må du aktivere Fakturatolk under Innstillinger - Firmaoppsett.',
-                                buttonLabels: {
-                                    accept: 'Ok',
-                                    cancel: 'Avbryt'
-                                }
-                            });
-                        }, err => this.errorService.handle(err));
-                    }
-                }, err => this.errorService.handle(err));
-            }
+            this.modalService.open(UniConfirmModalV2, {
+                header: 'Fakturatolkning er ikke aktivert',
+                message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
+                buttonLabels: {
+                    accept: 'Ok',
+                    cancel: 'Avbryt'
+                }
+            });
         }
     }
 
