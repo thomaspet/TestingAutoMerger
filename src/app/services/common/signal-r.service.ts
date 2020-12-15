@@ -56,8 +56,7 @@ export class SignalRService {
         this.hubConnection = new signalR.HubConnectionBuilder().withUrl(
             environment.SIGNALR_PUSHHUB_URL,
             { accessTokenFactory: () => this.authService.jwt }
-        ).withAutomaticReconnect()
-         .build();
+        ).build();
 
         this.start();
 
