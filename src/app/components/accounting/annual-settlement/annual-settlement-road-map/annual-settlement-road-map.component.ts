@@ -120,13 +120,18 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                             `/accounting/annual-settlement/${currentAS.ID}/wizzard-tax-form`
                         );
                     };
+                    return step;
                 case 5:
                     step.action = () => {
                         this.router.navigateByUrl(
                             `/accounting/annual-settlement/${currentAS.ID}/wizzard-annual-accounts`
                         );
                     };
+                    return step;
                 default:
+                    step.action = () => {
+                        this.toast.addToast('Lever til Altinn Not implemented yet');
+                    };
                     return step;
             }
         });

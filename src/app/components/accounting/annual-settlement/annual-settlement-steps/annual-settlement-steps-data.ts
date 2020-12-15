@@ -10,7 +10,12 @@ export default [
         buttonText: 'Avstem balansen'
     },
     {
-        title: 'Veiviser til årsregnskapet',
+        title: 'Avskrivninger og forskjeller',
+        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i årsregnskapet.',
+        buttonText: 'Start'
+    },
+    {
+        title: 'Beregning av skatt og disponering av resultat',
         text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i årsregnskapet.',
         buttonText: 'Start'
     },
@@ -18,6 +23,11 @@ export default [
         title: 'Veiviser til skattemeldingen/ligningsoppgaven',
         text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i skattemeldingen/ligningsoppgaven.',
         buttonText: 'Start veiviser'
+    },
+    {
+        title: 'Veiviser til årsregnskapet',
+        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i årsregnskapet.',
+        buttonText: 'Start'
     },
     {
         title: 'Lever til Altinn',

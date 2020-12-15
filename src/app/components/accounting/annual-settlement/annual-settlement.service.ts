@@ -107,6 +107,9 @@ export class AnnualSettlementService extends BizHttp<any> {
     moveFromStep4ToStep5(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'FourToStepFive' );
     }
+    moveFromStep4ToStep6(annualSettlement) {
+        return this.Transition(annualSettlement.ID, annualSettlement, 'FourToStepSix' );
+    }
     moveFromStep5ToStep6(annualSettlement) {
         return this.Transition(annualSettlement.ID, annualSettlement, 'FiveToStepSix' );
     }
