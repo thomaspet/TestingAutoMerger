@@ -2152,7 +2152,19 @@ export class InvoiceDetails implements OnInit {
                         () => { }
                     );
 
-                    this.modalService.open(UniReminderSendingModal, { data: reminders });
+                    this.modalService.open(UniReminderSendingModal, {
+                        data: {
+                            reminders: reminders.map(x => x.ID)
+                        }
+                    })
+                    .onClose.subscribe(res => {
+                        if (!res) {
+                            return;
+                        }
+
+                        this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                    });
+
                     doneCallback();
                 },
                 () => {
@@ -2181,7 +2193,18 @@ export class InvoiceDetails implements OnInit {
                     if (result === ConfirmActions.ACCEPT) {
                         sendReminder();
                     } else if (result === ConfirmActions.REJECT) {
-                        this.modalService.open(UniReminderSendingModal, { data: reminderList.Data });
+                        this.modalService.open(UniReminderSendingModal, {
+                            data: {
+                                reminders: reminderList.Data.map( x => x.CustomerInvoiceReminderID )
+                            }
+                        })
+                        .onClose.subscribe(res => {
+                            if (!res) {
+                                return;
+                            }
+
+                            this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                        });
                         doneCallback();
                     } else {
                         doneCallback();

@@ -108,6 +108,15 @@ export class ReminderSettings {
                 ReadOnly: !this.reminderSettings
                     || !this.reminderSettings.CustomerInvoiceReminderRules
                     || this.reminderSettings.CustomerInvoiceReminderRules.length < 2,
+            },
+            {
+                Property: 'UseReminderRuleTextsInEmails',
+                Label: 'Bruk tittel/beskrivelse fra purreregler som emne/tekst i e-post til kunde',
+                FieldType: FieldType.CHECKBOX,
+                Tooltip: {
+                    Text: 'Du kan angi dine egne tekster til bruk i e-post til kunden hvis du krysser av her. ' +
+                        'Tekstene hentes i så fall fra purrereglene. Alternativt brukes standardtekster'
+                }
             }
         ]);
 
