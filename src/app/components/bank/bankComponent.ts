@@ -515,9 +515,11 @@ export class BankComponent {
         this.paymentService.getHashForPayments(filter, expand).subscribe(hash => this.storedHash = hash);
     }
 
-    private generateHashForSelectedPayments(rows) {
+    private generateHashForSelectedPayments(rows: any[]) {
         let string = '';
-        rows.forEach((row) => {
+        rows.sort((a, b) => {
+            return a.ID - b.ID;
+          }).forEach((row) => {
             string += row.Amount.toFixed(2) + ';'
             + row.PaymentAmountCurrency.toFixed(2) + ';'
             + row.CurrencyCodeID.toString() + ';'
