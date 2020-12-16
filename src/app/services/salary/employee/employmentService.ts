@@ -487,7 +487,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 Section: 0,
                 Options: {
                     valueProperty: 'ID',
-                    template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
+                    template: (project: Project) => project ? `${project.ProjectNumber || ''} - ${project.Name || ''}` : '',
                     getDefaultData: () => this.employment$
                         .switchMap(model => Observable.forkJoin(Observable.of(model), this.projects$.take(1)))
                         .map((result: [Employment, Project[]]) =>
@@ -495,8 +495,7 @@ export class EmploymentService extends BizHttp<Employment> {
                     search: (query: string) => this.projects$
                         .map(projects =>
                             projects.filter(p =>
-                                p.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                p.ProjectNumber.startsWith(query)))
+                                p?.Name?.toLowerCase().includes(query.toLowerCase()) || p?.ProjectNumber?.startsWith(query)))
                 }
             },
             {
@@ -508,9 +507,7 @@ export class EmploymentService extends BizHttp<Employment> {
                 Section: 0,
                 Options: {
                     valueProperty: 'ID',
-                    template: (department: Department) => department
-                        ? `${department.DepartmentNumber} - ${department.Name}`
-                        : '',
+                    template: (department: Department) => department ? `${department.DepartmentNumber || ''} - ${department.Name || ''}` : '',
                         getDefaultData: () => this.employment$
                             .switchMap(model => Observable.forkJoin(Observable.of(model), this.departments$.take(1)))
                             .map((result: [Employment, Department[]]) =>
@@ -518,8 +515,7 @@ export class EmploymentService extends BizHttp<Employment> {
                         search: (query: string) => this.departments$
                             .map(deps =>
                                 deps.filter(dep =>
-                                    dep.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                    dep.DepartmentNumber.startsWith(query)))
+                                    dep?.Name?.toLowerCase().includes(query.toLowerCase()) || dep?.DepartmentNumber?.startsWith(query)))
                 }
             }]);
     }
