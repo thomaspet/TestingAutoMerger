@@ -94,6 +94,10 @@ export class AnnualSettlementCheckListComponent {
         }
     }
 
+    onCloseTextInfo() {
+        // will do something
+    }
+
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();

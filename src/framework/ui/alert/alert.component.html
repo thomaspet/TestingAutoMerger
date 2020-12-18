@@ -1,0 +1,10 @@
+<section class="alert {{type}}" *ngIf="isOpen">
+    <i class="material-icons info">{{icon || 'info'}}</i>
+    <article class="info-text">
+        <h2 class="title" *ngIf="title" [innerHTML]="title"></h2>
+        <p *ngIf="text" [innerHTML]="text">
+        </p>
+        <ng-content></ng-content>
+    </article>
+    <i class="material-icons close" (click)="hide()">close</i>
+</section>

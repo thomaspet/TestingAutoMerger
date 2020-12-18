@@ -15,16 +15,13 @@
         </h4>
     </section>
     <section class="row">
-        <section class="as-alert info" *ngIf="showInfoBox">
-            <i class="material-icons info">info</i>
-            <article class="info-text">
-                <h6>{{infoOption.title}}</h6>
-                <p>
-                    {{infoOption.text}}
-                </p>
-            </article>
-            <i class="material-icons close" (click)="showInfoBox = false">close</i>
-        </section>
+        <uni-alert-component
+            [icon]="'info'"
+            [isOpen]="true"
+            [text]="infoOption.text"
+            [title]="infoOption.title"
+            (close)="onCloseTextInfo()"
+        ></uni-alert-component>
         <uni-custom-list>
             <uni-custom-list-item *ngFor="let option of options; let i = index" [step]="option"
                     [class.checked]="option?.checked"

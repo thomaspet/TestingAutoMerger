@@ -47,6 +47,7 @@ import {SimpleTable} from './ui/simple-table/simple-table';
 import {UniOptionsListComponent} from '@uni-framework/ui/options-list/options-list.component';
 import {UniCustomListComponent} from '@uni-framework/ui/custom-list/custom-list.component';
 import {UniCustomListItemComponent} from '@uni-framework/ui/custom-list/custom-list-item.component';
+import {UniAlertModule} from '@uni-framework/ui/alert/alert.module';
 
 @NgModule({
     imports: [
@@ -65,7 +66,8 @@ import {UniCustomListItemComponent} from '@uni-framework/ui/custom-list/custom-l
         ComboButtonModule,
         AutocompleteModule,
         DatepickerModule,
-        UniIconModule
+        UniIconModule,
+        UniAlertModule
     ],
     declarations: [
         UniComponentLoader,
@@ -118,6 +120,7 @@ import {UniCustomListItemComponent} from '@uni-framework/ui/custom-list/custom-l
         AutocompleteModule,
         DatepickerModule,
         MonthPicker,
+        UniAlertModule,
 
         UniModal,
         UniSave,
