@@ -15,7 +15,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 })
 export class AnnualSettlementRoadMapToolbarComponent {
     @Input() annualSettlement;
-    saveActions: IUniSaveAction[];
+    saveActions: IUniSaveAction[] = [];
     toolbarconfig: IToolbarConfig = {
         title: 'Årsavslutning'
     };
@@ -28,10 +28,14 @@ export class AnnualSettlementRoadMapToolbarComponent {
                     .reset(this.annualSettlement)
                     .subscribe(done);
             },
-            label: 'Reset AnnualSettlement',
+            label: 'Reset annual settlement',
             main: true,
             disabled: false,
         });
+    }
+
+    ngOnChanges(changes) {
+        console.log(changes);
     }
 
     private addTab() {
