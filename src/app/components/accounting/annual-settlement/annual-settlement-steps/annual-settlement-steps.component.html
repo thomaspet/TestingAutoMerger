@@ -1,5 +1,9 @@
 <uni-custom-list>
-    <uni-custom-list-item *ngFor="let step of steps" [step]="step" [class.disabled]="!step?._enabled">
+    <uni-custom-list-item *ngFor="let step of steps"
+                          [step]="step"
+                          [class.disabled]="!step?._enabled"
+                          [class.currentStep]="step?._icon === 'edit'"
+    >
         <ng-template #stepButtonTemplate let-item="item">
             <span
                 class="custom-list-item-status-step"
@@ -17,7 +21,7 @@
                     [class.c2a]="item._icon !== 'check_circle'"
                     [class.tertiary]="item._icon === 'check_circle'"
                     (click)="runAction(item)"
-                    [disabled]="false//!item?._enabled"
+                    [disabled]="!item?._enabled"
             >
                 {{item.buttonText}}
             </button>

@@ -3,11 +3,7 @@ import {ChangeDetectionStrategy, Component, Input, ViewEncapsulation} from '@ang
 @Component({
     selector: 'annual-settlement-steps-component',
     templateUrl: './annual-settlement-steps.component.html',
-    styles: [`
-        annual-settlement-steps-component {
-            width: 100%;
-        }
-    `],
+    styleUrls: ['./annual-settlement-steps.component.sass'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

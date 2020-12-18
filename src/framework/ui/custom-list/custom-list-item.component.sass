@@ -1,5 +1,8 @@
-uni-custom-list
+uni-custom-list-item
     width: 100%
+    &.currentStep
+        .custom-list-item-container
+            border: 1px solid var(--link-color) !important
     &.disabled
         *
             opacity: 0.85
@@ -42,8 +45,4 @@ uni-custom-list-item.checked
     .custom-list-item-container
         .custom-list-item-title
             margin-bottom: 0
-@media screen and (min-width: 1300px)
-    uni-custom-list .custom-list-item-container .custom-list-item-status
-        .custom-list-item-status-step i.material-icons
-            right: 0.09375rem !important
-            bottom: 0.09375rem !important
+

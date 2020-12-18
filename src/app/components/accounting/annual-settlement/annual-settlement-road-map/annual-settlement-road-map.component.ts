@@ -4,7 +4,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {switchMap, tap} from 'rxjs/operators';
 import steps from '../annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
-import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
 
 @Component({
@@ -147,19 +147,35 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                             : index + 1;
                     return step;
                 case 1:
-                    step._icon = currentAS.StatusCode >= 36105 ? 'edit' : index + 1;
+                    step._icon = currentAS.StatusCode === 36105
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36110
+                            ? 'check_circle'
+                            : index + 1;
                     return step;
                 case 2:
-                    step._icon = currentAS.StatusCode >= 36110 ? 'edit' : index + 1;
+                    step._icon = currentAS.StatusCode === 36110
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36115
+                            ? 'check_circle'
+                            : index + 1;
                     return step;
                 case 3:
-                    step._icon = currentAS.StatusCode >= 36115 ? 'edit' : index + 1;
+                    step._icon = currentAS.StatusCode === 36115
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36120
+                            ? 'check_circle'
+                            : index + 1;
                     return step;
                 case 4:
-                    step._icon = currentAS.StatusCode >= 36120 ? 'edit' : index + 1;
+                    step._icon = currentAS.StatusCode === 36120
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36125
+                            ? 'check_circle'
+                            : index + 1;
                     return step;
                 default:
-                    step._icon = currentAS.StatusCode >= 36125 ? 'edit' : 'check';
+                    step._icon = 'check_circle';
                     return step;
             }
         });
