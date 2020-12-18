@@ -27,8 +27,8 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
 
     }
 
-    ngOnInit() {
-        const year = this.financialYearService.getActiveYear();
+    ngOnInit(currentYear = null) {
+        const year = currentYear || this.financialYearService.getActiveYear();
         this.annualSettlements$ = this.annualSettlementService.getAnnualSettlements().pipe(
             switchMap((as: any[]) => {
                 if (as.length === 0) {
@@ -53,6 +53,9 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 this.steps = this.enableDisableSteps(this.steps, currentAS);
                 this.steps = this.addIconsToSteps(this.steps, currentAS);
                 this.selectedAnnualSettlement$.next(currentAS || null);
+                if(currentYear) {
+                    this.toast.addToast('Annual settlement has been reset', ToastType.good);
+                }
             })
         );
     }
@@ -179,5 +182,11 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     return step;
             }
         });
+    }
+
+    onRunAction(action) {
+        if (action.name === 'reset-annualsettlement') {
+            this.ngOnInit(this.selectedAnnualSettlement$.getValue().AccountYear);
+        }
     }
 }
