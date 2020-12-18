@@ -524,7 +524,7 @@ export class BankComponent {
             + row.PaymentAmountCurrency.toFixed(2) + ';'
             + row.CurrencyCodeID.toString() + ';'
             + row.ToBankAccountAccountNumber + ';'
-            + row.IBAN + '|';
+            + (row.IBAN === null ? '' : row.IBAN) + '|';
         });
 
         return this.supplierInvoiceService.MD5(string);

@@ -75,7 +75,7 @@ export class ToPaymentModal implements IUniModal {
 
         // Checks if the current company is whitelisted for preapproved payments
         this.supportsBankIDApprove = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())
-        
+
 
         this.VALUE_ITEMS = this.getValueItems();
 
@@ -99,7 +99,7 @@ export class ToPaymentModal implements IUniModal {
             if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || theme.theme !== THEMES.EXT02) {
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
-            } 
+            }
 
             this.busy = false;
         }, err => {
@@ -168,7 +168,7 @@ export class ToPaymentModal implements IUniModal {
 
             if (this.supportsBankIDApprove) {
                 this.MD5Hash = this.generateHash();
-    
+
                 // Creates a payment for the supplier invoice
                 this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment, this.MD5Hash).subscribe(payment => {
                     // Send that batch to the bank directly
@@ -308,7 +308,7 @@ export class ToPaymentModal implements IUniModal {
             this.payment.AmountCurrency.toFixed(2) + ';' +
             this.payment.CurrencyCodeID.toString() + ';' +
             this.supplierInvoice.BankAccount.AccountNumber + ';' +
-            this.supplierInvoice.BankAccount.IBAN + '|';
+            (this.supplierInvoice.BankAccount.IBAN === null ? '' : this.supplierInvoice.BankAccount.IBAN) + '|';
         return this.supplierInvoiceService.MD5(string);
     }
 }
