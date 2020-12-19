@@ -16,6 +16,7 @@
     </section>
     <section class="row">
         <uni-alert-component
+            [type]="'info'"
             [icon]="'info'"
             [isOpen]="true"
             [text]="infoOption.text"
@@ -37,7 +38,9 @@
                     ></mat-checkbox>
                 </ng-template>
                 <ng-template #stepCardTemplate let-item="item">
-                    <h6 class="custom-list-item-title">{{item.title}}</h6>
+                    <h6 class="custom-list-item-title">
+                        {{item?.checked ? (item?.altTitle || item?.title) : item?.title}}
+                    </h6>
                     <article
                         class="custom-list-item-content"
                         [innerHTML]="item.text" *ngIf="!item?.checked"

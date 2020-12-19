@@ -6,21 +6,25 @@ export const infoOption = {
 export const options = [
     {// 1 - MVA
         title: 'En eller flere av dine MVA-meldinger er ikke fullført',
+        altTitle: 'Alle dine MVA-meldinger er fullført',
         text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a href="#/accounting/vatreport">Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsVatReportOK'
     },
     { // 2 - Lonn
         title: 'En eller flere av dine A-meldinger er ikke fullført',
+        altTitle: 'Alle dine A-meldinger er fullført',
         text: `Det er viktig at alle perioder med A-melding er sendt inn og tilbakemelding har status mottatt. <a href="#/salary/amelding?tabindex=0&periode=1">Gå til A-melding her</a> Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsAmeldingOK'
     },
     { // 3 - Tidligere ar
         title: 'Regnskapet ditt for tidligere år balanserer ikke',
+        altTitle: 'Rengskapet ditt for tidligere år balanserer',
         text: `Det er viktig at dine tidligere år er avsluttet og balanserer. Bruk <a href="#/reports?category=Accounting">Saldobalanse hovedbok</a> for å finne ut hvor differansen ligger. Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'AreAllPreviousYearsEndedAndBalances'
     },
     { // 4 - Aksjekapital
         title: 'Regnskapet ditt mangler  aksjekapital',
+        altTitle: 'Rengskapet fitt har forventet aksjekapital',
         text: `Vi finner ikke minst 30.000 kr i aksjekapital registrert i ditt regnskap. Legg inn denne verdien i <a href="#/accounting/journalentry/manual">Bokføring</a>. Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsShareCapitalOK'
     },
@@ -41,11 +45,13 @@ export const options = [
     },
     { // 8 - Varelager
         title: 'Er det bokført nedskrivninger av varer som fortsatt er på lager i år?',
+        altTitle: 'Hele punktet kan fjernes, varelager kommer under Avskrivninger og Forskjeller',
         text: 'Text has to be added.',
         property: 'IsStockOK'
     },
     { // 9 - Eiendeler
         title: 'Summen av eiendeler stemmer ikke med summen av balansekontoer for eiendeler i regnskapet',
+        altTitle: 'Summen av eiendeler stemmer med summen av balansekontoer for eiendeler i regnskapet',
         text: `Det er viktig at summen du har registrert på dine eiendeler stemmer overens med summen av balansekontoene for eiendeler i regnskapet. <a href="#/accounting/assets">Gå til Eiendeler</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsAssetsOK'
     }

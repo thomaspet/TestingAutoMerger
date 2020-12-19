@@ -1,23 +1,40 @@
 annual-settlement-reconcile
-    ag-grid-wrapper ag-grid-angular.editable .ag-cell + .ag-cell,
-    ag-grid-wrapper ag-grid-angular.editable .ag-header-cell + .ag-header-cell
-        border-left: 0
-    .ag-body
+    simple-table > table
         border: 1px solid var(--border-color)
+        .good
+            color: var(--color-good)
+        .warn
+            color: var(--color-warn)
+        .comment
+            cursor: pointer
+        .saldo-button-container,.saldo-button-header
+            padding-left: 0 !important
+            padding-right: 0 !important
+
     .row
         margin: 0
     .saldo-button
-        border: 1px solid var(--link-color)
-        background: var(--sidebar-active-section-header-background)
-        min-width: 7rem
-        &.hidden
-            display: none
+        border: 1px solid #1890FF
+        color: #1890FF !important
+        padding: 1px 8px
+        width: 60px
+        font-size: 12px
+        line-height: 20px
+        font-weight: 400
+        height: 20px
+        background: #E6F7FF
+        &.invisible
+            opacity: 0
     .page-navigation
         margin: 0
         margin-bottom: 1rem
-    .checkbox-column
-        .material-icons-outlined.checked, .material-icons.checked
-            color: var(--checkbox-checked-background-good)
+    mat-checkbox
+        &.mat-checkbox-checked .mat-checkbox-background
+            background-color: var(--checkbox-checked-background-good) !important
+            border: #fff
+        .mat-checkbox-checkmark .mat-checkbox-checkmark-path
+            stroke: var(--checkbox-checked-color-good) !important
+            stroke-width: 3px
 @media screen and (min-width: 1600px)
     annual-settlement-reconcile
         .application

@@ -198,22 +198,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             placeholder:    'Skriv inn kommentaren din',
             comment:         initialComment
         };
-        if (initialComment) {
-            return this.modalService.confirm({
-                header: 'Oppdater kommentaren',
-                message: 'Vil du oppdatere den siste kommentaren din?'
-            }).onClose.pipe(
-                switchMap((result: ConfirmActions) => {
-                    if (result === ConfirmActions.ACCEPT) {
-                        return this.modalService.openCommentModal({data: data}).onClose;
-                    } else {
-                        return of({action: result, comment: initialComment});
-                    }
-                })
-            );
-        } else {
-            return this.modalService.openCommentModal({data: data}).onClose;
-        }
+        return this.modalService.openCommentModal({data: data}).onClose;
     }
     transition(annualSettlement: any, fromStep: number, toStep: number) {
         const transitionMethod = `moveFromStep${fromStep}ToStep${toStep}`;

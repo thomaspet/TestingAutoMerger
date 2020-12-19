@@ -4,12 +4,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {UniTableColumn, UniTableColumnType, UniTableConfig} from '@uni-framework/ui/unitable';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {NumberFormat} from '@app/services/common/numberFormatService';
 import {ConfirmActions, ICommentModalResult} from '@uni-framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
-import {inputCellRenderer} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/input-cell-renderer';
+import {UniMath} from '@uni-framework/core/uniMath';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -20,7 +19,6 @@ import {inputCellRenderer} from '@app/components/accounting/annual-settlement/an
 })
 export class AnnualSettlementReconcileComponent {
     annualSettlement: any;
-    config: UniTableConfig;
     accounts$ = new BehaviorSubject([]);
     onDestroy$ = new Subject();
     showInfoBox = true;
@@ -54,7 +52,6 @@ export class AnnualSettlementReconcileComponent {
         private changeDetector: ChangeDetectorRef) {}
 
     ngOnInit() {
-        this.config = this.generateReconcileTableConfig();
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
@@ -68,11 +65,7 @@ export class AnnualSettlementReconcileComponent {
                 });
         });
     }
-    ngAfterViewInit() {
-        setTimeout(() => {
-            (<HTMLElement>document.querySelector('input[tabIndex="100"]')).focus();
-        }, 300);
-    }
+
     private addTab(id: number) {
         this.tabService.addTab({
             name: 'Årsavslutning Reconcile', url: `/accounting/annual-settlement/${id}/reconcile`,
@@ -85,11 +78,26 @@ export class AnnualSettlementReconcileComponent {
         account.IsApproved = true;
         this.setAccount(account);
     }
+    updateBalance(account) {
+        account.Balance = (account.Balance + '').replace(',', '.').replace(' ', '');
+        account.Balance = UniMath.useFirstTwoDecimals((parseFloat(account.Balance)));
+        if (account.Balance !== account._LastBalance) {
+            account._LastBalance = account.Balance;
+            if (account.Balance === account._TotalAmount) {
+                this.updateBalanceFromButton(account);
+                return;
+            }
+            account.IsApproved = account.Comment ? true : false;
+            this.setAccount(account);
+            // this.callOpenModalForComment(account, account.Balance);
+        }
+    }
     callOpenModalForComment(account, oldBalance) {
         return this.annualSettlementService.openModalForComment(account.Comment).subscribe((result: ICommentModalResult) => {
             if (result && result.action === ConfirmActions.ACCEPT) {
                 const _account = this.findAccount(account._AccountNumber);
                 _account.Comment = result.comment;
+                _account.IsApproved = true;
                 this.setAccount(_account);
             } else {
                 const _account = this.findAccount(account._AccountNumber);
@@ -107,88 +115,6 @@ export class AnnualSettlementReconcileComponent {
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
-    }
-    private generateReconcileTableConfig() {
-        const cols = [
-            new UniTableColumn('_AccountNumber', 'Konto')
-                .setEditable(false)
-                .setWidth('5rem'),
-            new UniTableColumn('_AccountName', 'Kontonavn')
-                .setEditable(false)
-                .setWidth('10rem'),
-            new UniTableColumn('_TotalAmount', 'Saldo i rengskapet', UniTableColumnType.Money)
-                .setEditable(false),
-            new UniTableColumn('Balance', 'Din saldo', UniTableColumnType.Custom)
-                .setEditable(false)
-                .setAlignment('right')
-                .setOptions({
-                    cellRenderer: inputCellRenderer,
-                    type: UniTableColumnType.Money,
-                    textAlignment: 'right',
-                    onChange: (value, row) => {
-                        const account = this.findAccount(row._AccountNumber);
-                        const balance = parseFloat(value + '');
-                        const oldBalance = account.Balance;
-                        if (balance !== account.Balance) {
-                            account.Balance = balance;
-                            this.callOpenModalForComment(account, oldBalance);
-                        }
-                    }
-                }),
-            new UniTableColumn('_button', ' ', UniTableColumnType.Button)
-                .setEditable(false)
-                .setWidth('5rem')
-                .setOptions({
-                    hiddenResolver: (row) => row.Balance ===  row._TotalAmount,
-                    buttonType: 'saldo-button',
-                    labelResolver: (row) => this.numberFormat.asMoney(row._TotalAmount),
-                    onClick: (row) => {
-                        this.updateBalanceFromButton(row);
-                    }
-                }),
-            new UniTableColumn('IsApproved', 'Godkjent')
-                .setEditable(false)
-                .setWidth('7rem')
-                .setType(UniTableColumnType.Checkbox)
-                .setCheckboxConfig({
-                    checked: (row) => row.IsApproved,
-                    onChange: (row, checked) => row.IsApproved = checked
-                }),
-            new UniTableColumn('Comment', ' ', UniTableColumnType.Icon)
-                .setAlignment('center')
-                .setWidth('2rem')
-                .setEditable(false)
-                .setOptions({
-                    headerIconResolver: () => 'chat_bubble_outline',
-                    iconResolver: (row) => {
-                        if (!row.Comment && (row.Balance === 0 || row.Balance === row._TotalAmount)) {
-                            return {
-                                text: 'chat_bubble_outline'
-                            };
-                        }
-                        if (!row.Comment && (row.Balance !== 0 && row.Balance !== row._TotalAmount)) {
-                            return {
-                                text: 'mark_chat_unread'
-                            };
-                        }
-                        if (row.Comment) {
-                            return {
-                                text: 'mark_chat_read'
-                            };
-                        }
-                    },
-                    outlined: true,
-                    titleResolver: (row) => row.Comment,
-                    onClick: (row) => {
-                        return this.callOpenModalForComment(row, row.Balance);
-                    }
-                })
-        ];
-        return new UniTableConfig('accounting.annualsettlement.reconcile', true, false)
-            .setAutoAddNewRow(false)
-            .setSearchable(false)
-            .setColumns(cols)
-            .setColumnMenuVisible(false);
     }
 
     private findAccount(accountNumber) {
