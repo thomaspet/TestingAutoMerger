@@ -630,7 +630,7 @@ export class BillView implements OnInit, AfterViewInit {
                 Section: 0,
                 Options: {
                     valueProperty: 'ID',
-                    template: (dep: Department) => dep ? `${dep.DepartmentNumber} - ${dep.Name}` : '',
+                    template: (department: Department) => department ? `${department.DepartmentNumber || ''} - ${department.Name || ''}` : '',
                     getDefaultData: () => this.current
                         .switchMap(model => Observable.forkJoin([ Observable.of(model), of(this.departments).take(1)]))
                         .map((result: [SupplierInvoice, Department[]]) =>
@@ -638,8 +638,7 @@ export class BillView implements OnInit, AfterViewInit {
                     search: (query: string) => of(this.departments)
                         .map(deps =>
                             deps.filter(d =>
-                                d.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                d.DepartmentNumber.startsWith(query)))
+                                d?.Name?.toLowerCase().includes(query.toLowerCase()) || d?.DepartmentNumber?.startsWith(query)))
                 }
             },
             {
@@ -650,7 +649,7 @@ export class BillView implements OnInit, AfterViewInit {
                 Section: 0,
                 Options: {
                     valueProperty: 'ID',
-                    template: (project: Project) => project ? `${project.ProjectNumber} - ${project.Name}` : '',
+                    template: (project: Project) => project ? `${project.ProjectNumber || ''} - ${project.Name || ''}` : '',
                     getDefaultData: () => this.current
                         .switchMap(model => Observable.forkJoin(Observable.of(model), of(this.projects).take(1)))
                         .map((result: [SupplierInvoice, Project[]]) =>
@@ -658,8 +657,7 @@ export class BillView implements OnInit, AfterViewInit {
                     search: (query: string) => of(this.projects)
                         .map(projects =>
                             projects.filter(p =>
-                                p.Name.toLowerCase().includes(query.toLowerCase()) ||
-                                p.ProjectNumber.startsWith(query)))
+                                p?.Name?.toLowerCase().includes(query.toLowerCase()) || p?.ProjectNumber?.startsWith(query)))
                 }
             }
         ];

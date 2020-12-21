@@ -42,6 +42,7 @@ import { PayrollRunLayoutService } from '@app/components/salary/payroll-run/serv
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
 import { TaxCardModal } from '@app/components/salary/shared/components/tax-card-modal/tax-card-modal.component';
 import { PayrollToPaymentModal } from '../modals/to-payment-modal/payroll-to-payment-modal';
+import { theme, THEMES } from 'src/themes/theme';
 
 const PAYROLL_RUN_KEY: string = 'payrollRun';
 const SALARY_TRANS_KEY: string = 'salaryTransactions';
@@ -1166,8 +1167,7 @@ export class PayrollRunDetailsComponent extends UniView implements OnDestroy {
     }
 
     private paymentOptions(done) {
-        // If Autobank
-        if (this.hasAutobank) {
+        if (this.hasAutobank && theme.theme === THEMES.EXT02 ) {
             const payrollData = this.payrollrun$.getValue();
 
             const options = {
