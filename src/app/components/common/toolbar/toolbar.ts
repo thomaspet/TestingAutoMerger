@@ -10,7 +10,6 @@ import {cloneDeep} from 'lodash';
 import {finalize, take} from 'rxjs/operators';
 import {ErrorService} from '@app/services/services';
 import {ToolbarSharingStatus} from './sharing-status/sharing-status';
-import { ToolbarInfoBanner } from './Info-banner/info-banner';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 export {IToolbarValidation} from './toolbar-validation/toolbar-validation';
 export {IToolbarSearchConfig} from './toolbarSearch';
@@ -49,6 +48,7 @@ export interface StatusIndicator {
     icon?: string;
     subStatuses?: {label: string, timestamp?: Date, status?: string}[];
     link?: string;
+    outlined?: boolean;
 }
 
 export interface IToolbarConfig {
