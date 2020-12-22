@@ -15,13 +15,13 @@ export class UniReminderSendingModal implements IUniModal {
 
     public hasDistributionPlan?: boolean;
 
-    private remindersWithDistributionPlan: number;
-    private remindersWithEmail: number;
-    private remindersWithPrint: number;
-    private hasPrintService: boolean;
-    private canDistributeAllRemindersUsingPlan: boolean;
+    public remindersWithDistributionPlan: number;
+    public remindersWithEmail: number;
+    public remindersWithPrint: number;
+    public hasPrintService: boolean;
+    public canDistributeAllRemindersUsingPlan: boolean;
 
-    private alreadySentCount: number;
+    public alreadySentCount: number;
 
     public sendByEmail: boolean = true;
     public sendByPrint: boolean = false;
@@ -49,6 +49,9 @@ export class UniReminderSendingModal implements IUniModal {
                 this.hasDistributionPlan = result.RemindersWithDistributionPlan > 0;
                 this.remindersWithDistributionPlan = result.RemindersWithDistributionPlan;
                 this.remindersWithEmail = result.RemindersWithEmail;
+                if (this.remindersWithEmail === 0) {
+                    this.sendByEmail = false;
+                }
                 this.remindersWithPrint = result.RemindersWithPrint;
                 this.hasPrintService = result.HasPrintService;
                 if (this.hasPrintService) {

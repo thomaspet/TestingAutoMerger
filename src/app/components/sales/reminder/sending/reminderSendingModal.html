@@ -24,15 +24,15 @@
         </div>
         <div *ngIf="!canDistributeAllRemindersUsingPlan">
             <div *ngIf="remindersWithEmail > 0">
-                <input type="checkbox" [checked]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox">
+                <input type="checkbox" [(ngModel)]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox" />
                 <label for="sendByEmail">Send til e-postadressen registrert på purringen</label>
             </div>
             <div *ngIf="hasPrintService && remindersWithPrint > 0">
-                <input type="checkbox" [checked]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox">
+                <input type="checkbox" [(ngModel)]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox" />
                 <label for="sendByPrint">Send per post til adressen registrert på purringen</label>
             </div>
             <div>
-                <input type="checkbox" id="sendToCasehandler" [checked]="sendToCasehandler" class="reminder-sending-checkbox" />
+                <input disabled="disabled" type="checkbox" id="sendToCasehandler" [(ngModel)]="sendToCasehandler" class="reminder-sending-checkbox" />
                 <label for="sendToCasehandler">Send resterende purringer til e-postadressen din, <b>{{casehandlerEmail}}</b></label>
             </div>
             <p>
@@ -58,15 +58,15 @@
         </div>
         <div *ngIf="!canDistributeAllRemindersUsingPlan">
             <div *ngIf="remindersWithEmail === reminderIds.length">
-                <input type="checkbox" [checked]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox">
+                <input type="checkbox" [(ngModel)]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox" />
                 <label for="sendByEmail">Send til e-postadressen registrert på purringen</label>
             </div>
             <div *ngIf="hasPrintService && remindersWithPrint > 0">
-                <input type="checkbox" [checked]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox">
+                <input type="checkbox" [(ngModel)]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox" />
                 <label for="sendByPrint">Send per post til adressen registrert på purringen</label>
             </div>
             <div>
-                <input type="checkbox" [checked]="sendToCasehandler" id="sendToCasehandler" class="reminder-sending-checkbox">
+                <input disabled="disabled" type="checkbox" id="sendToCasehandler" [(ngModel)]="sendToCasehandler" class="reminder-sending-checkbox" />
                 <label for="sendToCasehandler">Send purringen til e-postadressen din, <b>{{casehandlerEmail}}</b></label>
             </div>
             <p>
