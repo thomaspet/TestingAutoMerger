@@ -87,7 +87,7 @@ export class IncomeReportsListComponent {
                     switch (rowModel.StatusCode) {
                         case StatusCodeIncomeReport.Created:
                             return 'Opprettet';
-                        case StatusCodeIncomeReport.Sendt:
+                        case StatusCodeIncomeReport.Sent:
                             return 'Sendt';
                         default : return '';
                     }

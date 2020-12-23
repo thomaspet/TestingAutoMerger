@@ -39,7 +39,7 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
         switch (incomeReportStatus.toLowerCase()) {
             case 'opprettet': statusCodeFilter = 'incomereportdata.StatusCode eq ' + StatusCodeIncomeReport.Created;
                 break;
-            case 'innsendt': statusCodeFilter = 'incomereportdata.StatusCode eq ' + StatusCodeIncomeReport.Sendt;
+            case 'innsendt': statusCodeFilter = 'incomereportdata.StatusCode eq ' + StatusCodeIncomeReport.Sent;
                 break;
             case 'avvist': statusCodeFilter = 'incomereportdata.StatusCode eq ' + 49003;
                 break;

@@ -91,7 +91,8 @@ export class CompanyBankAccountEdit {
                 this.bankAccount.Bank = banks.find(x => x.ID === this.bankAccount.BankID);
             }
 
-            this.forceSameBank = !!contracttype?.ForceSameBank;
+            // dont force same bank for customer type 5 (bureau) 
+            this.forceSameBank = this.authService.currentUser.License.CustomerInfo.CustomerType !== 5 && !!contracttype?.ForceSameBank;
             this.bankName = this.authService.publicSettings?.BankName;
             this.sameBankBIC = this.authService.publicSettings?.BIC;
 

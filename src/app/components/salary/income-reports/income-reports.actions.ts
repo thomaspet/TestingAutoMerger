@@ -15,7 +15,7 @@ constructor(
     getIncomeReportCounters() {
         return forkJoin([
             this.incomeReportsService.getIncomeReportsCountByType(StatusCodeIncomeReport.Created),
-            this.incomeReportsService.getIncomeReportsCountByType(StatusCodeIncomeReport.Sendt),
+            this.incomeReportsService.getIncomeReportsCountByType(StatusCodeIncomeReport.Sent),
             this.incomeReportsService.getIncomeReportsCountByType(49003),
             this.incomeReportsService.getIncomeReportsCountByType()
         ]);
