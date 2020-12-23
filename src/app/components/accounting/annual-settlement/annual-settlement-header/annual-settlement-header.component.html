@@ -1,0 +1,22 @@
+<uni-toolbar
+    [config]="toolbarconfig"
+    [saveactions]="saveActions"
+></uni-toolbar>
+<section class="application">
+    <section class="row header page-navigation">
+        <a href="#/accounting/annual-settlement" class="page-navigation-button">
+            <i class="material-icons">keyboard_backspace</i>
+        </a>
+        <h5>
+            {{title}}
+        </h5>
+        <i *ngIf="icon"class="material-icons{{outlinedIcon ? '-outlined' : ''}}">{{icon}}</i>
+        <h4>
+            {{annualSettlement?.AccountYear}}
+        </h4>
+    </section>
+    <ng-content></ng-content>
+    <section class="row last justify-content-end">
+        <button (click)="clickCompleteButton.emit()" [disabled]="disableCompleteButton">{{completeLabel}}</button>
+    </section>
+</section>

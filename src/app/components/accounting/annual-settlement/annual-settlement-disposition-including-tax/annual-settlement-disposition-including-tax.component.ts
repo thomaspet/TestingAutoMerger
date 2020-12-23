@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
-import {map, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 
 @Component({
