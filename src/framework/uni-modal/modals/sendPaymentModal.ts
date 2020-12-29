@@ -133,7 +133,8 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     createAndSend = () => {
         let obs;
         if (this.options.data.sendAll) {
-            obs = this.paymentService.createPaymentBatchForAll();
+            const filter =  this.options.data?.filter ? '$filter=' + this.options.data.filter : '';
+            obs = this.paymentService.createPaymentBatchForAll(false, filter);
         } else {
             obs = this.paymentService.createPaymentBatch(this.model.PaymentIds, false);
         }

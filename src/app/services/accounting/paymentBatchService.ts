@@ -131,6 +131,16 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .map(response => response.body);
     }
 
+    public updateAllPaymentsToPaidAndJournalPayments(hashAndFilter: string) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`paymentbatches?action=update-all-payments-to-paid-and-journal-payments${hashAndFilter}`)
+            .send()
+            .map(response => response.body);
+    }
+
     public updatePaymentsToPaid(paymentIDs: number[]) {
         super.invalidateCache();
         return this.http
@@ -138,6 +148,16 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .usingBusinessDomain()
             .withBody(paymentIDs)
             .withEndPoint('paymentbatches?action=update-payments-to-completed')
+            .send()
+            .map(response => response.body);
+    }
+
+    public updateAllPaymentsToPaid(hashAndFilter: string) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`paymentbatches?action=update-all-payments-to-completed${hashAndFilter}`)
             .send()
             .map(response => response.body);
     }

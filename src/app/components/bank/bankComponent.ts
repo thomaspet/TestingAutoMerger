@@ -381,10 +381,7 @@ export class BankComponent {
     }
 
     tickerdataHasLoaded(event) {
-        if (this.selectedTicker.Code === 'payment_list' && this.filter === 'not_paid' &&
-            this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())) {
-            this.getHash();
-        }
+        this.getHash();
     }
 
     private checkBrunoOnboardingState() {
@@ -568,19 +565,6 @@ export class BankComponent {
         return items;
     }
 
-    private getCurrentFilterString() {
-        let filterString = this.tickerContainer.mainTicker.table.getFilterString();
-        const filter: TickerFilter = this.tickerContainer.mainTicker.ticker.Filters.find(x => x.Code === this.filter);
-
-        filter.FilterGroups[0]['FieldFilters'].forEach(x => {
-            filterString = filterString.length
-                ? filterString + ' and ' + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value']
-                : filterString + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value'];
-        });
-
-        return filterString;
-    }
-
     public navigateToTicker(ticker: Ticker) {
         this.router.navigate(['/bank/ticker'], {
             queryParams: { code: ticker.Code },
@@ -595,22 +579,21 @@ export class BankComponent {
 
     public updateSaveActions(selectedTickerCode: string) {
         this.actions = [];
+        const allRowsSelected = this?.tickerContainer?.mainTicker?.table?.allRowsSelected;
 
         if (selectedTickerCode === 'payment_list') {
-
-
             this.actions.push({
                 label: 'Send alle til betaling',
-                action: (done) => this.payAll(done, false),
-                main: this.hasActiveAgreement && this.canEdit && !this.rows.length,
-                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0
+                action: (done) => this.payAll(done, false, allRowsSelected),
+                main: this.hasActiveAgreement && this.canEdit && !this.rows.length && !allRowsSelected,
+                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected
             });
 
             this.actions.push({
                 label: 'Lag manuell betaling av alle',
-                action: (done) => this.payAll(done, true),
-                main: !this.hasActiveAgreement && this.canEdit && !this.rows.length,
-                disabled: !this.canEdit || this.rows.length > 0
+                action: (done) => this.payAll(done, true, allRowsSelected),
+                main: !this.hasActiveAgreement && this.canEdit && !this.rows.length && !allRowsSelected,
+                disabled: !this.canEdit || this.rows.length > 0 || allRowsSelected
             });
 
             this.actions.push({
@@ -626,28 +609,28 @@ export class BankComponent {
                     });
                 },
                 main: this.canEdit && !this.rows.length,
-                disabled: !this.canEdit
+                disabled: !this.canEdit || allRowsSelected
             });
 
             this.actions.push({
                 label: 'Manuell betaling',
-                action: (done) => this.pay(done, true),
-                main: this.rows.length > 0 && !this.hasActiveAgreement,
-                disabled: this.rows.length === 0 || !this.canEdit
+                action: (done) => this.pay(done, true, allRowsSelected),
+                main: (this.rows.length > 0 || allRowsSelected) && !this.hasActiveAgreement,
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.canEdit
             });
 
             this.actions.push({
                 label: 'Send til betaling',
-                action: (done) => this.pay(done, false),
-                main: this.rows.length > 0 && this.canEdit,
-                disabled: this.rows.length === 0 || !this.hasActiveAgreement || !this.canEdit
+                action: (done) => this.pay(done, false, allRowsSelected),
+                main: (this.rows.length > 0 || allRowsSelected) && this.canEdit,
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit
             });
 
             this.actions.push({
                 label: 'Slett valgte',
-                action: (done) => this.deleteSelected(done),
+                action: (done) => this.deleteSelected(done, allRowsSelected),
                 main: false,
-                disabled: this.rows.length === 0 || !this.canEdit
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.canEdit
             });
 
             this.actions.push({
@@ -661,22 +644,16 @@ export class BankComponent {
 
             this.actions.push({
                 label: 'Bokfør betaling',
-                action: (done, file) => {
-                    done('Status oppdatert');
-                    this.updatePaymentStatusToPaidAndJournaled(done);
-                },
+                action: (done) => this.updatePaymentStatusToPaidAndJournaled(done, allRowsSelected),
                 main: this.rows.length > 0 && (this.filter !== 'payed_not_journaled'),
-                disabled: this.rows.length === 0 || (this.filter === 'payed_not_journaled')
+                disabled: (this.rows.length === 0 && !allRowsSelected) || (this.filter === 'payed_not_journaled')
             });
 
             this.actions.push({
                 label: 'Endre status til bokført og betalt',
-                action: (done, file) => {
-                    done('Status oppdatert');
-                    this.updatePaymentStatusToPaid(done);
-                },
+                action: (done) => this.updatePaymentStatusToPaid(done, null, allRowsSelected),
                 main: this.rows.length > 0 && (this.filter === 'payed_not_journaled'),
-                disabled: this.rows.length === 0
+                disabled: this.rows.length === 0 && !allRowsSelected
             });
 
             if (this.failedFiles.length && this.hasAccessToAutobank) {
@@ -1021,7 +998,7 @@ export class BankComponent {
 
     }
 
-    public updatePaymentStatusToPaidAndJournaled(doneHandler: (status: string) => any) {
+    public updatePaymentStatusToPaidAndJournaled(doneHandler: (status: string) => any, allPaymentsSelected = false) {
         this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
@@ -1044,16 +1021,39 @@ export class BankComponent {
             }
         });
 
-        modal.onClose.subscribe((result) => {
-            if (result === ConfirmActions.ACCEPT) {
-                const paymentIDs: number[] = [];
-                this.rows.forEach(x => {
-                    paymentIDs.push(x.ID);
-                });
-                this.paymentBatchService.updatePaymentsToPaidAndJournalPayments(paymentIDs).subscribe(paymentResponse => {
-                    this.tickerContainer.mainTicker.reloadData(); // refresh table
-                    this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
-                });
+        const actionWhenDone = () => {
+            this.tickerContainer.mainTicker.reloadData(); // refresh table
+            doneHandler('Oppdatering av valgt betalinger er fullført');
+        };
+
+        modal.onClose.subscribe((confirmAction) => {
+            if (confirmAction === ConfirmActions.ACCEPT) {
+                if (allPaymentsSelected) { // If user selected all payments in db with current filter
+                    this.InvokeActionWithJobAsPossibleResponse(
+                        this.paymentBatchService.updateAllPaymentsToPaidAndJournalPayments(this.getParamsStringForAll()),
+                        'bokføre',
+                        (result: any, error: any) => {
+                            if (error) {
+                                doneHandler('Noe gikk galt ved oppdatering av betalinger');
+                                return;
+                            }
+                            actionWhenDone();
+                        }
+                    );
+                } else {
+                    const paymentIDs: number[] = [];
+                    this.rows.forEach(x => {
+                        paymentIDs.push(x.ID);
+                    });
+                    this.paymentBatchService.updatePaymentsToPaidAndJournalPayments(paymentIDs)
+                        .subscribe(paymentResponse => {
+                            actionWhenDone();
+                    },
+                    err => {
+                        doneHandler('Noe gikk galt ved oppdatering av betalinger');
+                        this.errorService.handle(err);
+                    });
+                }
             } else {
                 doneHandler('Status oppdatering avbrutt');
                 return;
@@ -1108,7 +1108,7 @@ export class BankComponent {
         });
     }
 
-    public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null) {
+    public updatePaymentStatusToPaid(doneHandler: (status: string) => any, data: any = null, allPaymentsSelected = false) {
         return new Promise(() => {
             const rows = data || this.tickerContainer.mainTicker.table.getSelectedRows();
             if (rows.length === 0) {
@@ -1134,16 +1134,35 @@ export class BankComponent {
                 }
             });
 
-            modal.onClose.subscribe((result) => {
-                if (result === ConfirmActions.ACCEPT) {
-                    const paymentIDs: number[] = [];
-                    rows.forEach(x => {
-                        paymentIDs.push(x.ID);
-                    });
-                    this.paymentBatchService.updatePaymentsToPaid(paymentIDs).subscribe(paymentResponse => {
-                        this.tickerContainer.mainTicker.reloadData(); // refresh table
-                        this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
-                    });
+            const actionWhenDone = () => {
+                this.tickerContainer.mainTicker.reloadData(); // refresh table
+                this.toastService.addToast('Oppdatering av valgt betalinger er fullført', ToastType.good, 3);
+                doneHandler('Status oppdatert');
+            };
+
+            modal.onClose.subscribe((conformAction) => {
+                if (conformAction === ConfirmActions.ACCEPT) {
+                    if (allPaymentsSelected) { // If user selected all payments in db with current filter
+                        this.InvokeActionWithJobAsPossibleResponse(
+                            this.paymentBatchService.updateAllPaymentsToPaid(this.getParamsStringForAll()),
+                            'bokføre',
+                            ((result: any, error: any) => {
+                                if (error) {
+                                    doneHandler('Noe gikk galt ved oppdatering av betalinger');
+                                    return;
+                                }
+                                actionWhenDone();
+                            })
+                        );
+                    } else {
+                        const paymentIDs: number[] = [];
+                        rows.forEach(x => {
+                            paymentIDs.push(x.ID);
+                        });
+                        this.paymentBatchService.updatePaymentsToPaid(paymentIDs).subscribe(paymentResponse => {
+                            actionWhenDone();
+                        });
+                    }
                 } else {
                     if (doneHandler) {
                         doneHandler('Status oppdatering avbrutt');
@@ -1152,6 +1171,19 @@ export class BankComponent {
                 }
             });
         });
+    }
+
+    private getCurrentFilterString() {
+        let filterString = this.tickerContainer.mainTicker.table.getFilterString();
+        const filter: TickerFilter = this.tickerContainer.mainTicker.ticker.Filters
+                        .find(x => x.Code === this.filter);
+
+        filter.FilterGroups[0]['FieldFilters'].forEach(x => {
+            filterString = filterString.length
+                ? filterString + ' and ' + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value']
+                : filterString + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value'];
+        });
+        return filterString;
     }
 
     public bookManual(selectedRows: any) {
@@ -1361,152 +1393,6 @@ export class BankComponent {
 
     }
 
-    private payAll(doneHandler: (status: string) => any, isManualPayment: boolean) {
-        const count: any = this.tickerContainer.mainTicker.table.dataService.totalRowCount$.getValue();
-        if (parseInt(count, 10) === 0) {
-            doneHandler('Ingen betalinger i listen. Fullført uten endringer');
-            this.cdr.markForCheck();
-            return;
-        }
-        const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
-        if (!isManualPayment && this.hasActiveAgreement && theme.theme === THEMES.EXT02 && isWhiteListed) {
-            this.payDirectly(doneHandler, true);
-        } else if ((isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) && count) {
-            this.paymentService.createPaymentBatchForAll().subscribe((result) => {
-                if (result && result.ProgressUrl) {
-                    // runs as hangfire job (decided by back-end)
-                    this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
-                        'Det opprettes en betalingsjobb og genereres en utbetalingsfil. ' +
-                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
-                    this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
-                        if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {
-                            if (isManualPayment) {
-                                this.paymentBatchService.generatePaymentFile(batchJobResponse.Result.ID).subscribe(
-                                    (startFileJob: any) => {
-                                        if (startFileJob && startFileJob.Value && startFileJob.Value.ProgressUrl) {
-                                            this.paymentBatchService.waitUntilJobCompleted(startFileJob.Value.ID).subscribe(
-                                                fileJobResponse => {
-                                                    if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
-                                                        && fileJobResponse.Result.ID > 0) {
-                                                        return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
-                                                    } else {
-                                                        this.toastService.toast({
-                                                            title: 'Generering av betalingsfil feilet',
-                                                            type: ToastType.bad,
-                                                            duration: 0,
-                                                            message: fileJobResponse.Result
-                                                        });
-
-                                                        doneHandler('');
-                                                    }
-                                                },
-                                                err => {
-                                                    this.errorService.handle(err);
-                                                    doneHandler('');
-                                                }
-                                            );
-                                        } else {
-                                            doneHandler('');
-                                        }
-                                    },
-                                    err => {
-                                        this.errorService.handle(err);
-                                        doneHandler('');
-                                    }
-                                );
-                            } else {
-                                const body = {
-                                    Code: null,
-                                    Password: null
-                                }; // body might be removed needs testing
-                                // temp workarround sendt directly to backend until bankid is working
-                                this.paymentBatchService.sendToPayment(batchJobResponse.Result.ID, body).subscribe(() => {
-                                    const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
-                                    this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
-                                    this.tickerContainer.getFilterCounts();
-                                    this.tickerContainer.mainTicker.reloadData();
-                                    doneHandler('');
-                                });
-                            }
-                        } else {
-                            this.toastService.toast({
-                                title: 'Generering av betalingsbunt feilet',
-                                type: ToastType.bad,
-                                duration: 0,
-                                message: batchJobResponse.Result
-                            });
-                            doneHandler('');
-                        }
-                    }, err => {
-                        this.errorService.handle(err);
-                        doneHandler('');
-                    });
-                } else {
-                    // runs as non hangfire job
-                    if (isManualPayment) {
-                        this.paymentBatchService.generatePaymentFile(result.ID).subscribe(
-                            (fileResult: any) => {
-                                if (fileResult && fileResult.Value && fileResult.Value.ProgressUrl) {
-                                    this.paymentBatchService.waitUntilJobCompleted(fileResult.Value.ID).subscribe(fileJobResponse => {
-                                        if (fileJobResponse && !fileJobResponse.HasError && fileJobResponse.Result
-                                            && fileJobResponse.Result.ID > 0) {
-                                            return this.DownloadFile(doneHandler, fileJobResponse.Result.ID);
-                                        } else {
-                                            this.toastService.toast({
-                                                title: 'Generering av betalingsfil feilet',
-                                                type: ToastType.bad,
-                                                duration: 0,
-                                                message: fileJobResponse.Result
-                                            });
-                                            doneHandler('');
-                                        }
-                                    });
-                                } else {
-                                    return this.DownloadFile(doneHandler, fileResult.PaymentFileID);
-                                }
-                            },
-                            err => {
-                                this.errorService.handle(err);
-                                doneHandler('');
-                            }
-                        );
-                    } else {
-                        const body = {
-                            Code: null,
-                            Password: null
-                        }; // body might be removed needs testing
-                        // temp workarround sendt directly to backend until bankid is working
-                        this.paymentBatchService.sendToPayment(result.ID, body).subscribe(() => {
-                            const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
-                            this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
-                            this.tickerContainer.getFilterCounts();
-                            this.tickerContainer.mainTicker.reloadData();
-                            doneHandler('');
-                        });
-                    }
-                }
-            }, err => {
-                this.errorService.handle(err);
-                doneHandler('');
-            });
-        } else {
-            this.modalService.open(UniSendPaymentModal, {
-                closeOnClickOutside: false,
-                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true, count: count }
-            }).onClose.subscribe((res: boolean) => {
-                if (res) {
-                    this.tickerContainer.getFilterCounts();
-                    this.tickerContainer.mainTicker.reloadData();
-                    this.tickerContainer.mainTicker.table.clearSelection();
-                    doneHandler('');
-                } else {
-                    doneHandler('Sending avbrutt.');
-                }
-            },
-                err => doneHandler('Feil ved sending av autobank'));
-        }
-    }
-
     private DownloadFile(doneHandler: (status: string) => any, fileID: number) {
         this.toastService.addToast(
             'Utbetalingsfil laget, henter fil...',
@@ -1583,7 +1469,12 @@ export class BankComponent {
         this.tickerContainer.getFilterCounts();
     }
 
-    private pay(doneHandler: (status: string) => any, isManualPayment: boolean) {
+    private pay(doneHandler: (status: string) => any, isManualPayment: boolean, allPaymentsSelected = false) {
+        if (allPaymentsSelected) {
+            this.payAll(doneHandler, isManualPayment, allPaymentsSelected);
+            return;
+        }
+
         this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
@@ -1657,7 +1548,131 @@ export class BankComponent {
         }
     }
 
+    private getParamsStringForAll(): string {
+        return `&hash=${this.storedHash}&filter=${this.getCurrentFilterString()}&expand=${this.selectedTicker.Expand}&createfile=true`;
+    }
 
+    private payAll(doneHandler: (status: string) => any, isManualPayment: boolean, allPaymentsSelected = false) {
+        const count: any = this.tickerContainer.mainTicker.table.dataService.totalRowCount$.getValue();
+        if (!allPaymentsSelected && parseInt(count, 10) === 0) {
+            doneHandler('Ingen betalinger i listen. Fullført uten endringer');
+            this.cdr.markForCheck();
+            return;
+        }
+        const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
+        if (!isManualPayment && this.hasActiveAgreement && theme.theme === THEMES.EXT02 && isWhiteListed) {
+            this.payDirectly(doneHandler, true);
+        } else if ((isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) && count) {
+            this.InvokeActionWithJobAsPossibleResponse(
+                this.paymentService.createPaymentBatchForAll(false, this.getParamsStringForAll()),
+                'Utbetaling',
+                (result, error: any) => {
+                    if (error) {
+                        doneHandler('Noe gikk galt ved betaling');
+                        return;
+                    }
+
+                    if (this.isHangfireJobResponse(result)) { // runs as hangfire job (decided by back-end)
+
+                        this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                        'Det opprettes en betalingsjobb og genereres en utbetalingsfil. ' +
+                        'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+
+                        this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
+                            if (this.verifyJobSucsess(batchJobResponse) && batchJobResponse.Result.ID > 0) {
+                                if (isManualPayment) {
+                                    this.InvokeActionWithJobAsPossibleResponse(
+                                        this.paymentBatchService.generatePaymentFile(batchJobResponse.Result.ID),
+                                        'Betalingsfil',
+                                        (paymentFile, err: any) => {
+                                            if (err) {
+                                                doneHandler('Noe gikk galt ved betaling');
+                                                return;
+                                            }
+
+                                            if (paymentFile) {
+                                                return this.DownloadFile(doneHandler, paymentFile.ID);
+                                            }
+                                        }
+                                    );
+                                } else {
+                                    const body = {
+                                        Code: null,
+                                        Password: null
+                                    }; // body might be removed needs testing
+                                    // temp workarround sendt directly to backend until bankid is working
+                                    this.paymentBatchService.sendToPayment(batchJobResponse.Result.ID, body).subscribe(() => {
+                                        const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
+                                        this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                                        this.tickerContainer.getFilterCounts();
+                                        this.tickerContainer.mainTicker.reloadData();
+                                        doneHandler('');
+                                    });
+                                }
+                            } else {
+                                this.toastService.toast({
+                                    title: 'Generering av betalingsbunt feilet',
+                                    type: ToastType.bad,
+                                    duration: 0,
+                                    message: batchJobResponse.Result
+                                });
+                                doneHandler('');
+                            }
+                        }, err => {
+                            this.errorService.handle(err);
+                            doneHandler('');
+                        });
+                    } else {
+                        // runs as non hangfire job
+                        if (isManualPayment) {
+                            this.InvokeActionWithJobAsPossibleResponse(
+                                this.paymentBatchService.generatePaymentFile(result.ID),
+                                '',
+                                (paymentFile, err: any) => {
+                                    if (err) {
+                                        doneHandler('Noe gikk galt ved betaling');
+                                        return;
+                                    }
+                                    if (paymentFile) {
+                                        return this.DownloadFile(doneHandler, paymentFile.ID);
+                                    }
+                                }
+                            );
+                        } else {
+                            const body = {
+                                Code: null,
+                                Password: null
+                            }; // body might be removed needs testing
+                            // temp workarround sendt directly to backend until bankid is working
+                            this.paymentBatchService.sendToPayment(result.ID, body).subscribe(() => {
+                                const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
+                                this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                                this.tickerContainer.getFilterCounts();
+                                this.tickerContainer.mainTicker.reloadData();
+                                doneHandler('');
+                            });
+                        }
+                    }
+                }
+            );
+
+        } else {
+            this.modalService.open(UniSendPaymentModal, {
+                closeOnClickOutside: false,
+                data: { hasTwoStage: this.companySettings.TwoStageAutobankEnabled, sendAll: true, count: count }
+            }).onClose.subscribe((res: boolean) => {
+                if (res) {
+                    this.tickerContainer.getFilterCounts();
+                    this.tickerContainer.mainTicker.reloadData();
+                    this.tickerContainer.mainTicker.table.clearSelection();
+                    doneHandler('');
+                } else {
+                    doneHandler('Sending avbrutt.');
+                }
+            },
+                err => doneHandler('Feil ved sending av autobank'));
+        }
+    }
 
     private groupBy(list, keyGetter): any {
         const map = new Map();
@@ -1806,7 +1821,7 @@ export class BankComponent {
         return true;
     }
 
-    private deleteSelected(doneHandler: (status: string) => any) {
+    private deleteSelected(doneHandler: (status: string) => any, allPaymentsSelected = false) {
         this.rows = this.tickerContainer.mainTicker.table.getSelectedRows();
         if (this.rows.length === 0) {
             this.toastService.addToast(
@@ -1825,29 +1840,112 @@ export class BankComponent {
             buttonLabels: { accept: 'Slett og krediter faktura', reject: 'Slett betaling', cancel: 'Avbryt' }
         });
 
-        modal.onClose.subscribe(result => {
-            if (result === ConfirmActions.CANCEL) {
+        const actionWhenDone = (res: any) => {
+            res.forEach(x => {
+                if (x.statusCode === 3) {
+                    this.toastService.addToast(x.errorMessage, ToastType.bad);
+                }
+            });
+            doneHandler('Betalinger slettet');
+            this.tickerContainer.mainTicker.reloadData();
+        };
+
+        modal.onClose.subscribe(confirmAction => {
+            if (confirmAction === ConfirmActions.CANCEL) {
                 doneHandler('Sletting avbrutt');
                 return;
             }
 
             const paymentIDs = this.rows.map(x => x.ID);
-            this.paymentService.ActionWithBody(null, paymentIDs, 'batch-delete-and-credit', RequestMethod.Put,
-                result === ConfirmActions.ACCEPT ? '' : 'credit=false')
-                .subscribe(res => {
-                    res.forEach(x => {
-                        if (x.statusCode === 3) {
-                            this.toastService.addToast(x.errorMessage, ToastType.bad);
+            const paramsString = (confirmAction === ConfirmActions.ACCEPT ?
+                '' : 'credit=false') + this.getParamsStringForAll();
+
+            if (allPaymentsSelected) { // If user selected all payments in db with current filter
+                this.InvokeActionWithJobAsPossibleResponse(
+                    this.paymentService.ActionWithBody(null, paymentIDs, 'batch-delete-and-credit-all', RequestMethod.Put, paramsString),
+                    'slette',
+                    ((result: any, error: any) => {
+                        if (error) {
+                            doneHandler('Noe gikk galt ved sletting av betalinger');
+                            return;
                         }
+                        if (result) {
+                            actionWhenDone(result);
+                        }
+                    })
+                );
+            } else {
+                this.paymentService.ActionWithBody(null, paymentIDs, 'batch-delete-and-credit', RequestMethod.Put,
+                    confirmAction === ConfirmActions.ACCEPT ? '' : 'credit=false')
+                        .subscribe(result => {
+                            actionWhenDone(result);
+                    }, (err) => {
+                        doneHandler('Feil ved sletting av data');
+                        this.errorService.handle(err);
                     });
-                    doneHandler('Betalinger slettet');
-                    // Refresh data after save
-                    this.tickerContainer.mainTicker.reloadData();
-                }, (err) => {
-                    doneHandler('Feil ved sletting av data');
+            }
+        });
+    }
+
+    private InvokeActionWithJobAsPossibleResponse(action, toast, doneHandler) {
+        action.subscribe(response => {
+            if (this.isHangfireJobResponse(response)) { // runs as hangfire job if true (decided by back-end)
+                
+                if (toast) {
+                    this.showPaymentJobStartedToast(toast);
+                }
+
+                this.PaymentJobIsCompleted(response?.Value?.ID ?? response.ID).subscribe(result => {
+                    
+                    doneHandler(result);
+                },
+                (err) => {
+                    doneHandler(null, err);
                     this.errorService.handle(err);
                 });
+            } else { // response is not hangfire, returned value is emited
+                doneHandler(response);
+            }
+        },
+        (err) => {
+            doneHandler(null, err);
+            this.errorService.handle(err);
         });
+    }
+
+    private isHangfireJobResponse(response: any): boolean {
+        
+        return (response && response?.Value && response?.Value?.ProgressUrl)
+            || (response && response?.ProgressUrl);
+    }
+
+    private PaymentJobIsCompleted(jobID: any): Observable<any> {
+        return new Observable(observer => {
+            this.paymentBatchService.waitUntilJobCompleted(jobID).subscribe(batchJobResponse => {
+                if (this.verifyJobSucsess(batchJobResponse)) {
+                    observer.next(batchJobResponse.Result);
+                    observer.complete();
+                } else {
+                    observer.error();
+                    observer.next();
+                    observer.complete();
+                }
+            }, (err) => {
+                observer.error(err);
+                observer.next();
+                observer.complete();
+            });
+        });
+    }
+
+    private verifyJobSucsess(jobResponse) {
+        return jobResponse && !jobResponse?.HasError && jobResponse?.Result;
+    }
+
+    private showPaymentJobStartedToast(action: string) {
+        this.toastService.addToast(`${action} betalinger startet`, ToastType.good, ToastTime.long,
+        `Det opprettes en betalingsjobb for å ${action} betalingne. ` +
+        'Avhengig av antall betaling, kan dette ta litt tid. Vennligst vent.');
     }
 
     private isJournaled(paymentID: number): Observable<any> {

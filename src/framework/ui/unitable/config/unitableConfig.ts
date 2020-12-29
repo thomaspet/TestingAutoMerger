@@ -146,6 +146,8 @@ export class UniTableConfig implements IUniTableConfig {
     public buttons: TableButton[];
     public rightAlignButtons: boolean;
 
+    public useInfobannerWhenMoreThenSelectedRowsExists: boolean;
+
     /**
      * @constructor
      * @param tableName Unique name for the table. This is used as key when saving column setup.
