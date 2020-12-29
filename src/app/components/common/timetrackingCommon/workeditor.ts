@@ -325,7 +325,7 @@ export class WorkEditor {
         const list = this.workTypes;
         const lcaseText = txt.toLowerCase();
         const sublist = list.filter((item: WorkType) => {
-            return (item.ID.toString() === txt || item.Name.toLowerCase().indexOf(lcaseText) >= 0); } );
+            return (item.ID.toString() === txt || item.Name?.toLowerCase().indexOf(lcaseText) >= 0); } );
         return Observable.from([sublist]);
     }
 
