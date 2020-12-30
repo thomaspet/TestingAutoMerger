@@ -1,10 +1,9 @@
 import {Injectable} from '@angular/core';
-import {BizHttp, UniHttp} from '@uni-framework/core/http';
+import {BizHttp, RequestMethod, UniHttp} from '@uni-framework/core/http';
 import {map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {ConfirmActions} from '@uni-framework/uni-modal';
 import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
 import {throwError} from 'rxjs';
@@ -14,6 +13,8 @@ export enum StatusCodeReconcile {
     InProgress = 36005,
     Completed = 36010
 }
+
+const journalEntryAccountNumbers = [2050, 8920, 2800, 8300, 8960, 8960, 8990, 2080, 2500, 2120, 8320, 1070, 8920];
 
 @Injectable()
 export class AnnualSettlementService extends BizHttp<any> {
@@ -215,5 +216,91 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
     reset(annualSettelment) {
         return this.Action(annualSettelment.ID, 'reset-annualsettlement');
+    }
+    getTaxAndDisposalItems(annualSettlement: any) {
+        // replace the 'of' with this action call
+        // this.Action(annualSettlement.ID, 'get-tax-calculation-and-disposal', '', RequestMethod.Get)
+        return of([
+            {
+                Item: 'Beregnet overskudd i år ',
+                Amount: 1000
+            },
+            {
+                Item: 'Underskudd fra tidligere år ',
+                Amount: 2000
+            },
+            {
+                Item: 'Grunnlag for beregning av skatt ',
+                Amount: 3000
+            },
+            {
+                Item: 'Beregnet overskudd i år ',
+                Amount: 4000
+            },
+            {
+                Item: 'Beregnet skatt ',
+                Amount: 5000
+            },
+            {
+                Item: 'Tilbakeføre fjorårets utsatte skattegordel/gjeld',
+                Amount: 6000
+            },
+            {
+                Item: 'Årets utsatte skattefordel',
+                Amount: 7000
+            },
+            {
+                Item: 'Til disponering',
+                Amount: 8000
+            },
+            {
+                Item: 'Utbytte',
+                Amount: 8000
+            },
+            {
+                Item: 'Overføring annen egenkapital'
+            },
+            {
+                Item: 'Sum disponering'
+            },
+        ]).pipe(
+            map(list => {
+                list[5]['info'] = 'tooltip text for 5';
+                list[6]['info'] = 'tooltip text for 6';
+                list[8]['editable'] = true;
+                list[8]['placeholder'] = 'Sum utbytte';
+                return [
+                    {
+                        title: 'Grunnlag for skatt',
+                        items: [list[0], list[1], list[2]]
+                    },
+                    {
+                        title: 'Til disponering',
+                        items: [list[3], list[4], list[5], list[6], list[7]]
+                    },
+                    {
+                        title: 'Utbytte',
+                        items: [list[8], list[9], list[10]]
+                    }
+                ];
+            })
+        );
+    }
+    previewAnnualSettlementJournalEntry(annualSettlement) {
+        // this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get)
+        return of(journalEntryAccountNumbers.map((accountNumber, i) => {
+            return {
+                AccountNumber: accountNumber,
+                Description: 'Description for ' + accountNumber,
+                Amount: 1000 * (i + 1)
+            };
+        }));
+    }
+    generateAnnualSettlementJournalEntry(annualSettlement) {
+        // this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
+        return of(annualSettlement);
+    }
+    getAnnualSettlementSummary(annualSettlement) {
+        this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get)
     }
 }

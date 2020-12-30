@@ -12,15 +12,14 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {AnnualSettlementGetIconPipe} from '@app/components/accounting/annual-settlement/annual-settlement-get-icon-class.pipe';
 import {AnnualSettlementStepsComponent} from '@app/components/accounting/annual-settlement/annual-settlement-steps/annual-settlement-steps.component';
 import {AnnualSettlementCheckListComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list.component';
-import {AnnualSettlementCheckListToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list-toolbar.component';
 import {AnnualSettlementReconcileComponent} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/annual-settlement-reconcile.component';
-import {AnnualSettlementReconcileToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/annual-settlement-reconcile-toolbar.component';
 import {AnnualSettlementTestPageComponent} from '@app/components/accounting/annual-settlement/annual-settlement-test-page/annual-settlement-test-page.component';
 import {AnnualSettlementWizardAnnualAccountsComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-annual-accounts/annual-settlement-wizard-annual-accounts.component';
 import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax.component';
 import {AnnualSettlementWizardTaxFormComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-tax-form/annual-settlement-wizard-tax-form.component';
-import {AnnualSettlementDispositionIncludingTaxToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax-toolbar.component';
 import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual-settlement/annual-settlement-header/annual-settlement-header.component';
+import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-summary.component';
+import {UniSummaryModal} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/summary-modal.component';
 
 @NgModule({
     imports: [
@@ -37,15 +36,14 @@ import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual
         AnnualSettlementStepsComponent,
         AnnualSettlementGetIconPipe,
         AnnualSettlementCheckListComponent,
-        AnnualSettlementCheckListToolbarComponent,
         AnnualSettlementReconcileComponent,
-        AnnualSettlementReconcileToolbarComponent,
         AnnualSettlementTestPageComponent,
         AnnualSettlementWizardAnnualAccountsComponent,
         AnnualSettlementDispositionIncludingTaxComponent,
-        AnnualSettlementDispositionIncludingTaxToolbarComponent,
         AnnualSettlementWizardTaxFormComponent,
-        AnnualSettlementHeaderComponent
+        AnnualSettlementHeaderComponent,
+        AnnualSettlementSummaryComponent,
+        UniSummaryModal
     ],
     providers: [
         AnnualSettlementService

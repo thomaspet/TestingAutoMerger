@@ -112,6 +112,16 @@ export class AnnualSettlementReconcileComponent {
             this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
+    saveAnnualSettlement(done) {
+        this.annualSettlementService
+            .Put(this.annualSettlement.ID, this.annualSettlement)
+            .subscribe((as) => {
+                if (done) {
+                    done();
+                }
+                this.annualSettlement = as;
+            });
+    }
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();

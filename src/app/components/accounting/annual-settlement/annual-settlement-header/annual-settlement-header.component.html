@@ -3,20 +3,30 @@
     [saveactions]="saveActions"
 ></uni-toolbar>
 <section class="application">
-    <section class="row header page-navigation">
+    <section class="header page-navigation">
         <a href="#/accounting/annual-settlement" class="page-navigation-button">
             <i class="material-icons">keyboard_backspace</i>
         </a>
         <h5>
-            {{title}}
+            Tilbake til oversikten
         </h5>
-        <i *ngIf="icon"class="material-icons{{outlinedIcon ? '-outlined' : ''}}">{{icon}}</i>
+        <i *ngIf="icon && !showAlert" (click)="openInfoBox()" class="material-icons{{outlinedIcon ? '-outlined' : ''}} alert-icon">
+            {{icon}}
+        </i>
         <h4>
             {{annualSettlement?.AccountYear}}
         </h4>
     </section>
+    <uni-alert-component
+        [type]="'good'"
+        [icon]="'info'"
+        [title]="alert?.title"
+        [text]="alert?.text"
+        [isOpen]="showAlert"
+        (close)="onCloseInfoAlert()"
+    ></uni-alert-component>
     <ng-content></ng-content>
-    <section class="row last justify-content-end">
+    <section class="last justify-content-end">
         <button (click)="clickCompleteButton.emit()" [disabled]="disableCompleteButton">{{completeLabel}}</button>
     </section>
 </section>

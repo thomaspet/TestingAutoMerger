@@ -34,7 +34,6 @@ export class AnnualSettlementCheckListComponent {
             takeUntil(this.onDestroy$),
             map((params) => params.id)
         ).subscribe(id => {
-            this.addTab(id);
             this.annualSettlementService.getAnnualSettlement(id).pipe(
                 tap(as => this.annualSettlement = as),
                 switchMap(as => this.annualSettlementService.checkList(as)),
@@ -48,16 +47,25 @@ export class AnnualSettlementCheckListComponent {
             });
         });
     }
-    private addTab(id: number) {
-        this.tabService.addTab({
-            name: 'Årsavslutning Check List', url: `/accounting/annual-settlement/${id}/check-list`,
-            moduleID: UniModules.Accountsettings, active: true
-        });
-    }
-    completeCheckListStep() {
+
+    completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+            if (done) {
+                done();
+            }
             this.router.navigateByUrl('/accounting/annual-settlement');
         });
+    }
+
+    saveAnnualSettlement(done) {
+        this.annualSettlementService
+            .Put(this.annualSettlement.ID, this.annualSettlement)
+            .subscribe((as) => {
+                if (done) {
+                    done();
+                }
+                this.annualSettlement = as;
+            });
     }
 
     initOptions() {
@@ -92,10 +100,6 @@ export class AnnualSettlementCheckListComponent {
         if (stopLooking === false) {
             this.nextOption = _options.length;
         }
-    }
-
-    onCloseTextInfo() {
-        // will do something
     }
 
     ngOnDestroy() {
