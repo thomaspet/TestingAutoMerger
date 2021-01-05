@@ -5,7 +5,7 @@
     [completeLabel]="'Sjekkliste fullført'"
     [icon]="'info'"
     [outlinedIcon]="false"
-    [disableCompleteButton]="annualSettlement?.StatusCode !== 36105"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36105 || !allAccountsAreApproved"
     [saveButtonLabel]="'Lagre'"
     [alert]="infoContent"
     [tabTitle]="'Avstem balansen'"
@@ -55,7 +55,7 @@
                 </td>
                 <td style="text-align: center">
                     <i *ngIf="account?.IsApproved" class="material-icons good">check_circle</i>
-                    <i *ngIf="!account?.IsApproved" class="material-icons warn">error</i>
+                    <i *ngIf="!account?.IsApproved" class="material-icons warn" [matTooltip]="warningMessage">error</i>
                 </td>
                 <td class="comment" (click)="callOpenModalForComment(account, account.Balance)">
                     <!-- add -->

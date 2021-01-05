@@ -18,10 +18,13 @@ import {UniMath} from '@uni-framework/core/uniMath';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnnualSettlementReconcileComponent {
+    warningMessage = 'Siden din saldo ikke er den samme som saldo du har i rengskapet må du legge til en kommentar som forklarer hvorfor.' +
+        ' Fullfør avstemmingen kan gjøres når alle linjer har grønt Godkjent-ikon.';
     annualSettlement: any;
     accounts$ = new BehaviorSubject([]);
     onDestroy$ = new Subject();
     showInfoBox = true;
+    allAccountsAreApproved = false;
     infoContent = {
         title: 'Slik bruker du sjekkelisten',
         text: `
@@ -77,10 +80,11 @@ export class AnnualSettlementReconcileComponent {
         account.Balance = account._TotalAmount;
         account.IsApproved = true;
         this.setAccount(account);
+        this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
     }
     updateBalance(account) {
         account.Balance = (account.Balance + '').replace(',', '.').replace(' ', '');
-        account.Balance = UniMath.useFirstTwoDecimals((parseFloat(account.Balance)));
+        account.Balance = UniMath.useFirstTwoDecimals((parseFloat(account.Balance))) || 0;
         if (account.Balance !== account._LastBalance) {
             account._LastBalance = account.Balance;
             if (account.Balance === account._TotalAmount) {
@@ -89,7 +93,7 @@ export class AnnualSettlementReconcileComponent {
             }
             account.IsApproved = account.Comment ? true : false;
             this.setAccount(account);
-            // this.callOpenModalForComment(account, account.Balance);
+            this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
         }
     }
     callOpenModalForComment(account, oldBalance) {
@@ -104,6 +108,7 @@ export class AnnualSettlementReconcileComponent {
                 _account.Balance = oldBalance;
                 this.setAccount(_account);
             }
+            this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
         });
     }
     completeReconcile() {
@@ -143,5 +148,13 @@ export class AnnualSettlementReconcileComponent {
     private setAccounts(accounts) {
         this.accounts$.next(accounts);
         this.annualSettlement.Reconcile.Accounts = accounts;
+    }
+    private checkIfAllAccountsAreApproved() {
+        return this.getAccounts().reduce((result, account) => {
+            if (result === true) {
+                return account.IsApproved;
+            }
+            return false;
+        }, true);
     }
 }
