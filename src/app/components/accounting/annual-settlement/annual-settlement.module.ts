@@ -21,6 +21,7 @@ import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual
 import {SummaryDetailComponent} from '@app/components/accounting/annual-settlement/summary-detail/summary-detail.component';
 import {AccountsSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/accounts-summary-modal.component';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
+import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/annual-settlement-summary.component';
 
 @NgModule({
     imports: [
@@ -43,6 +44,7 @@ import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settle
         AnnualSettlementDispositionIncludingTaxComponent,
         AnnualSettlementWizardTaxFormComponent,
         AnnualSettlementHeaderComponent,
+        AnnualSettlementSummaryComponent,
         SummaryDetailComponent,
         AccountsSummaryModalComponent,
         GoToAltinnModalComponent

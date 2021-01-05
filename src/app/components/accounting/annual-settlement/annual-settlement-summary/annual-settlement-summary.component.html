@@ -8,7 +8,7 @@
     [disableCompleteButton]="false"
     [alert]="infoData"
     [tabTitle]="'Årsavslutning Check List'"
-    (clickCompleteButton)="completeCheckListStep($event)"
+    (clickCompleteButton)="completeCheckListStep()"
 >
     <uni-annual-settlement-summary *ngFor="let data of summary"
                                    [title]="data.title"
