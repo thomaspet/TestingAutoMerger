@@ -34,7 +34,7 @@ import {IModalOptions} from '@uni-framework/uni-modal';
         </section>
     `
 })
-export class UniSummaryModalComponent {
+export class AccountsSummaryModalComponent {
     @Input() options: IModalOptions = {};
     @Output() onClose = new EventEmitter();
     accounts;

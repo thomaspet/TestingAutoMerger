@@ -1,13 +1,13 @@
 import {ChangeDetectionStrategy, Component, Input, ViewEncapsulation} from '@angular/core';
 
 @Component({
-    selector: 'uni-annual-settlement-summary',
-    templateUrl: './uni-annual-settlement-summary.component.html',
-    styleUrls: ['./uni-annual-settlement-summary.component.sass'],
+    selector: 'summary-detail-component',
+    templateUrl: './summary-detail.component.html',
+    styleUrls: ['./summary-detail.component.sass'],
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class UniAnnualSettlementSummaryComponent {
+export class SummaryDetailComponent {
     @Input() title: string;
     @Input() data: any;
 }

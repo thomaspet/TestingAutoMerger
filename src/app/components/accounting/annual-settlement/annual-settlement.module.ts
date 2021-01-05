@@ -18,8 +18,8 @@ import {AnnualSettlementWizardAnnualAccountsComponent} from '@app/components/acc
 import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax.component';
 import {AnnualSettlementWizardTaxFormComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-tax-form/annual-settlement-wizard-tax-form.component';
 import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual-settlement/annual-settlement-header/annual-settlement-header.component';
-import {UniAnnualSettlementSummaryComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/uni-annual-settlement-summary.component';
-import {UniSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/summary-modal.component';
+import {SummaryDetailComponent} from '@app/components/accounting/annual-settlement/summary-detail/summary-detail.component';
+import {AccountsSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/accounts-summary-modal.component';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 
 @NgModule({
@@ -43,8 +43,8 @@ import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settle
         AnnualSettlementDispositionIncludingTaxComponent,
         AnnualSettlementWizardTaxFormComponent,
         AnnualSettlementHeaderComponent,
-        UniAnnualSettlementSummaryComponent,
-        UniSummaryModalComponent,
+        SummaryDetailComponent,
+        AccountsSummaryModalComponent,
         GoToAltinnModalComponent
     ],
     providers: [
