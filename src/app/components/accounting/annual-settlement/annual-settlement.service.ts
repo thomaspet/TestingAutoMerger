@@ -7,6 +7,7 @@ import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
 import {throwError} from 'rxjs';
+import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -301,6 +302,9 @@ export class AnnualSettlementService extends BizHttp<any> {
         return of(annualSettlement);
     }
     getAnnualSettlementSummary(annualSettlement) {
-        this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get)
+        return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get);
+    }
+    openGoToAltinnModal() {
+        return this.modalService.open(GoToAltinnModalComponent);
     }
 }

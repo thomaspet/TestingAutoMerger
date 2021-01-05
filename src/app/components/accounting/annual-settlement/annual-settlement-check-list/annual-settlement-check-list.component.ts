@@ -38,7 +38,6 @@ export class AnnualSettlementCheckListComponent {
                 tap(as => this.annualSettlement = as),
                 switchMap(as => this.annualSettlementService.checkList(as)),
                 catchError(error => {
-                    console.log(error);
                     return throwError(error);
                 })
             ).subscribe(checkList => {

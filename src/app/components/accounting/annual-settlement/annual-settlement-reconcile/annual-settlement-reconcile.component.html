@@ -5,7 +5,7 @@
     [completeLabel]="'Sjekkliste fullført'"
     [icon]="'info'"
     [outlinedIcon]="false"
-    [disableCompleteButton]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36105"
     [saveButtonLabel]="'Lagre'"
     [alert]="infoContent"
     [tabTitle]="'Avstem balansen'"

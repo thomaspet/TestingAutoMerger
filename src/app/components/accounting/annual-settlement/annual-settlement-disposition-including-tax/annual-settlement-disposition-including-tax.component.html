@@ -5,7 +5,7 @@
     [completeLabel]="'Bokfør disponering'"
     [icon]="'info'"
     [outlinedIcon]="false"
-    [disableCompleteButton]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36115"
     [saveButtonLabel]="'Lagre'"
     [alert]="infoData"
     [tabTitle]="'Skatteberegning'"

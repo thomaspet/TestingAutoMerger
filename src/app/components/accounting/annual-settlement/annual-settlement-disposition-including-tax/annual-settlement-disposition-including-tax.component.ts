@@ -5,7 +5,7 @@ import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {tap} from 'rxjs/internal/operators/tap';
-import {UniSummaryModal} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/summary-modal.component';
+import {UniSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/summary-modal.component';
 import {UniModalService} from '@uni-framework/uni-modal';
 
 @Component({
@@ -57,7 +57,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
 
     openSummaryModal(doneFunction) {
         this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement).pipe(
-            switchMap(data => this.modalService.open(UniSummaryModal, {data: data}).onClose)
+            switchMap(data => this.modalService.open(UniSummaryModalComponent, {data: data}).onClose)
         ).subscribe(result => {
             doneFunction();
             if (result === true) {

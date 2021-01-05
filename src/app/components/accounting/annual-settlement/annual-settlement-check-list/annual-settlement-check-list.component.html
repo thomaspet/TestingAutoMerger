@@ -5,7 +5,7 @@
     [completeLabel]="'Sjekkliste fullført'"
     [icon]="'info'"
     [outlinedIcon]="false"
-    [disableCompleteButton]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36100"
     [saveButtonLabel]="'Lagre'"
     [alert]="infoOption"
     [tabTitle]="'Årsavslutning Check List'"

@@ -40,21 +40,25 @@ export class AnnualSettlementHeaderComponent {
     }
 
     ngOnChanges() {
+        const buttons = [];
+        if (this.saveButtonLabel) {
+            buttons.push(
+                {
+                    label: this.saveButtonLabel,
+                    action: () => this.clickSaveButton.emit()
+                }
+            );
+        }
         this.showAlert = this.isAlertOpen;
         this.toolbarconfig = Object.assign({}, {
             title: this.title,
-            buttons: [
-                {
-                    label: this.saveButtonLabel || 'Lagre',
-                    action: () => this.clickSaveButton.emit()
-                }
-            ]
+            buttons: buttons
         });
         this.saveActions = [<IUniSaveAction> {
             action: (done) => this.clickCompleteButton.emit(done),
             label: this.completeLabel || 'Fullført',
             main: true,
-            disabled: false,
+            disabled: this.disableCompleteButton,
         }];
         if (this.annualSettlement) {
             this.addTab();

@@ -1,0 +1,17 @@
+<uni-annual-settlement-header-component
+    [annualSettlement]="annualSettlement"
+    [isAlertOpen]="true"
+    [title]="'Årsoppgave - oppsummering før innsending'"
+    [completeLabel]="'Send til Altinn'"
+    [icon]="'info'"
+    [outlinedIcon]="false"
+    [disableCompleteButton]="false"
+    [alert]="infoData"
+    [tabTitle]="'Årsavslutning Check List'"
+    (clickCompleteButton)="completeCheckListStep($event)"
+>
+    <uni-annual-settlement-summary *ngFor="let data of summary"
+                                   [title]="data.title"
+                                   [data]="data.items"
+    ></uni-annual-settlement-summary>
+</uni-annual-settlement-header-component>
