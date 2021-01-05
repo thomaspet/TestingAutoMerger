@@ -36,7 +36,8 @@ import {
     VatDeduction,
     InvoicePaymentData,
     NumberSeries,
-    SupplierInvoice
+    SupplierInvoice,
+    StatusCodeCustomerOrder
 } from '../../../../../unientities';
 import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData, AccountingCostSuggestion} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
@@ -970,6 +971,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         if (rowModel.CustomerOrder) {
              rowModel.CustomerOrderID = rowModel.CustomerOrder.ID;
+             if(rowModel.CustomerOrder.StatusCode === StatusCodeCustomerOrder.Completed){
+                 this.toastService.addToast(
+                 'Advarsel',
+                 ToastType.warn,
+                 ToastTime.forever,
+                 'Denne ordre er merket som Avsluttet.'
+                 );
+             }
             if (rowModel.CustomerOrder.ProjectID) {
                 rowModel.Dimensions.Project = {
                     ID: rowModel.CustomerOrder.ProjectID,
@@ -2566,7 +2575,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
             `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
             `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
-            `&select=ID as ID,OrderNumber as OrderNumber,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `&select=ID as ID,OrderNumber as OrderNumber,StatusCode as StatusCode,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
             `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
             `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
         `filter=contains(OrderNumber, '${searchValue}') `).map(x => x.Data ? x.Data : []);
