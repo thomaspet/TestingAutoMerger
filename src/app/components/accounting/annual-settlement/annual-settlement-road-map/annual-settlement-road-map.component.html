@@ -4,14 +4,6 @@
 ></annual-settlement-road-map-toolbar-component>
 <section class="annual-settlement-container container-fluid uni-grid-container">
     <section class="row">
-        <annual-settlement-selector-component
-            [annualSettlements]="annualSettlements$ | async"
-            [selectedAnnualSettlement]="selectedAnnualSettlement$ | async"
-            (selectAnnualSettlement)="onSelectAnnualSettlement($event)"
-        >
-        </annual-settlement-selector-component>
-    </section>
-    <section class="row">
         <h4>{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h4>
     </section>
     <section class="row">
