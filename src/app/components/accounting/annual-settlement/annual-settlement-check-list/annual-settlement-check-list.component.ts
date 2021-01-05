@@ -18,11 +18,11 @@ export class AnnualSettlementCheckListComponent {
     options = options;
     infoOption = infoOption;
     check = false;
-    checkList: any;
     showInfoBox = true;
     showMvaBox = true;
     annualSettlement;
     nextOption = 0;
+    areAllOptionsChecked = false;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -35,14 +35,14 @@ export class AnnualSettlementCheckListComponent {
             map((params) => params.id)
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlement(id).pipe(
-                tap(as => this.annualSettlement = as),
-                switchMap(as => this.annualSettlementService.checkList(as)),
+                switchMap(as => this.annualSettlementService.GetAnnualSettlementWithCheckList(as)),
                 catchError(error => {
                     return throwError(error);
                 })
-            ).subscribe(checkList => {
-                this.checkList = checkList;
+            ).subscribe(as => {
+                this.annualSettlement = as;
                 this.initOptions();
+                this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
             });
         });
     }
@@ -69,22 +69,23 @@ export class AnnualSettlementCheckListComponent {
 
     initOptions() {
         this.options = this.options.map((op: any) => {
-            if (this.checkList[op.property]) {
-                op.checked = this.checkList[op.property];
+            if (this.annualSettlement.AnnualSettlementCheckList[op.property]) {
+                op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
             }
             return op;
         });
         this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
         this.changeDetector.detectChanges();
     }
 
     updateOption(option, value) {
         if (option.property) {
             option.checked = value.checked;
-            this.checkList[option.property] = value.checked;
             this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
         }
         this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
         this.changeDetector.detectChanges();
     }
 
@@ -99,6 +100,15 @@ export class AnnualSettlementCheckListComponent {
         if (stopLooking === false) {
             this.nextOption = _options.length;
         }
+    }
+
+    checkIfAreAllOptionsChecked() {
+        return this.options.reduce((result: boolean, option: any) => {
+            if (result === true) {
+                return option.checked ? true : false;
+            }
+            return false;
+        }, true);
     }
 
     ngOnDestroy() {

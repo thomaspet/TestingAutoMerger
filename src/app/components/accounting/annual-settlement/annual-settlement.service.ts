@@ -50,7 +50,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.httpClient.get(
             this.baseUrl + 'vatreports?action=validate-vatreports-for-financialyear&financialYear=' + financialYear
         ).pipe(
-            map((result: any[]) => (result && result.length === 0))
+            map((result: any[]) => !!(result && result.length === 0))
         );
     }
 
@@ -58,14 +58,14 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.http.http.get(
             this.baseUrl + 'amelding?action=validate-periods&year=' + financialYear
         ).pipe(
-            map((result: any[]) => (result && result.length === 0))
+            map((result: any[]) => !!(result && result.length === 0))
         );
     }
 
     checkLastyear(financialYear) {
         return this.http.http.get(
             this.baseUrl +
-            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + financialYear
+            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + (financialYear - 1)
         ).pipe(
             map((result: number) => result > -1 && result < 1)
         );
@@ -74,13 +74,13 @@ export class AnnualSettlementService extends BizHttp<any> {
     checkStocksCapital(financialYear) {
         return this.http.http.get(
             this.baseUrl
-            + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + financialYear
+            + 'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
         ).pipe(
             map((result: number) => result < 30000)
         );
     }
 
-    checkList(as) {
+    GetAnnualSettlementWithCheckList(as) {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
@@ -91,7 +91,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                 tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
                 tap(resultStocksCapital => checkList.IsSharedCapitalOK = resultStocksCapital),
-                map(() => checkList)
+                map(() => {
+                    const _as = Object.assign({}, as);
+                    _as.AnnualSettlementCheckList = checkList;
+                    return _as;
+                })
             );
     }
 
