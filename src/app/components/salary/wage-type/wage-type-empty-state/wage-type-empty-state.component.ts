@@ -1,5 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { WageTypeService } from '@app/services/services';
+import { ErrorService, WageTypeService } from '@app/services/services';
+import { finalize } from 'rxjs/operators';
 
 @Component({
     selector: 'uni-wage-type-empty-state',
@@ -10,7 +11,10 @@ export class WageTypeEmptyStateComponent implements OnInit {
     @Output() wagetypeUpdated: EventEmitter<any> = new EventEmitter();
     busy: boolean;
 
-    constructor(private wageTypeService: WageTypeService) { }
+    constructor(
+        private wageTypeService: WageTypeService,
+        private errorService: ErrorService,
+    ) { }
 
     ngOnInit(): void {
 
@@ -20,7 +24,13 @@ export class WageTypeEmptyStateComponent implements OnInit {
         this.busy = true;
         this.wageTypeService
             .syncWagetypes()
-            .subscribe(() => this.wagetypeUpdated.next());
+            .pipe(
+                finalize(() => this.busy = false),
+            )
+            .subscribe(
+                () => this.wagetypeUpdated.next(),
+                err => this.errorService.handle(err),
+            );
     }
 
 }
