@@ -8,7 +8,7 @@
                 {{selectedContract?.ID === contract.ID ? 'radio_button_checked' : 'radio_button_unchecked'}}
             </i>
 
-            <span>{{customer.Name}}</span>
+            <span>{{contract.Name || customer.Name}}</span>
             <span class="contract-type">
                 <span class="license-type-label">Lisenstype:</span>
                 {{contract.ContractType | elsaContractType}}

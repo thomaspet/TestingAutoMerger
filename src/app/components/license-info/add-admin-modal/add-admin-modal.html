@@ -1,5 +1,5 @@
 <section role="dialog" class="uni-modal uni-redesign">
-    <header>Legg til administratorer</header>
+    <header>{{header}}</header>
 
     <article>
         <section *ngIf="busy" class="modal-spinner">
@@ -18,7 +18,7 @@
                 <mat-list-option
                     *ngFor="let user of filteredUsers"
                     checkboxPosition="before"
-                    (click)="user._selected = !user._selected">
+                    (click)="user['_selected'] = !user['_selected']">
 
                     <section class="list-item">
                         <span>{{user.UserName}}</span>

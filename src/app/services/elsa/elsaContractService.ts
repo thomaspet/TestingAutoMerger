@@ -16,7 +16,6 @@ import {HttpClient, HttpHeaders} from '@angular/common/http';
 import {map, catchError} from 'rxjs/operators';
 import {theme, THEMES} from 'src/themes/theme';
 import {AuthService} from '@app/authService';
-import {User} from '@uni-entities';
 
 @Injectable()
 export class ElsaContractService {
@@ -104,6 +103,10 @@ export class ElsaContractService {
     changeContractType(contractType: number) {
         const url = `/api/elsa/contracts/${this.authService.contractID}/upgrade?contractType=${contractType}`;
         return this.http.put(url, null);
+    }
+
+    createContract(contract: ElsaContract) {
+        return this.http.post(this.ELSA_SERVER_URL + '/api/contracts', contract);
     }
 
     getCompanyLicenses(contractID: number): Observable<ElsaCompanyLicense[]> {

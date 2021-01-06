@@ -13,12 +13,15 @@
                     (click)="selectContract(contract)"
                     [attr.aria-selected]="contract.ID === (selectedContractID$ | async)"
                     >
-                        {{customer.Name}}
+                        {{contract.Name || customer.Name}}
                         <span class="pull-right" style="padding-left: 25px">{{contract.ContractType | elsaContractType}}</span>
                     </a>
                 </ng-container>
             </ng-template>
         </dropdown-menu>
+    </section>
+    <section *ngIf="(isAdmin$ | async) === true && isBureauCustomer">
+        <button class="c2a" (click)="openNewContractModal()">Ny klient</button>
     </section>
 </div>
 <router-outlet></router-outlet>
