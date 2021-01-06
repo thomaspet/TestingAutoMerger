@@ -58,7 +58,7 @@ export class BoostChat {
                 conversationId: this.conversationId,
                 pace: 'fast',
                 hyperlinksTargetBlank: true,
-                filter_values: this.bankFilter
+                filterValues: this.bankFilter
             };
 
             this.chatPanel = (window as ExtendedWindow).boostChatPanel(chatPanelConfiguration);
