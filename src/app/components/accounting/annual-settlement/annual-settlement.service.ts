@@ -1,19 +1,21 @@
 import {Injectable} from '@angular/core';
-import {BizHttp, UniHttp} from '@uni-framework/core/http';
+import {BizHttp, RequestMethod, UniHttp} from '@uni-framework/core/http';
 import {map, switchMap, tap} from 'rxjs/operators';
 import {environment} from '../../../../environments/environment';
 import {HttpClient} from '@angular/common/http';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {ConfirmActions} from '@uni-framework/uni-modal';
 import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
 import {throwError} from 'rxjs';
+import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
     InProgress = 36005,
     Completed = 36010
 }
+
+const journalEntryAccountNumbers = [2050, 8920, 2800, 8300, 8960, 8960, 8990, 2080, 2500, 2120, 8320, 1070, 8920];
 
 @Injectable()
 export class AnnualSettlementService extends BizHttp<any> {
@@ -48,7 +50,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.httpClient.get(
             this.baseUrl + 'vatreports?action=validate-vatreports-for-financialyear&financialYear=' + financialYear
         ).pipe(
-            map((result: any[]) => (result && result.length === 0))
+            map((result: any[]) => !!(result && result.length === 0))
         );
     }
 
@@ -56,14 +58,14 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.http.http.get(
             this.baseUrl + 'amelding?action=validate-periods&year=' + financialYear
         ).pipe(
-            map((result: any[]) => (result && result.length === 0))
+            map((result: any[]) => !!(result && result.length === 0))
         );
     }
 
     checkLastyear(financialYear) {
         return this.http.http.get(
             this.baseUrl +
-            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + financialYear
+            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=2999&toFinancialYear=' + (financialYear - 1)
         ).pipe(
             map((result: number) => result > -1 && result < 1)
         );
@@ -72,13 +74,13 @@ export class AnnualSettlementService extends BizHttp<any> {
     checkStocksCapital(financialYear) {
         return this.http.http.get(
             this.baseUrl
-            + 'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + financialYear
+            + 'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
         ).pipe(
-            map((result: number) => result < 30000)
+            map((result: number) => result <= -30000)
         );
     }
 
-    checkList(as) {
+    GetAnnualSettlementWithCheckList(as) {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
@@ -89,7 +91,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                 tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
                 tap(resultStocksCapital => checkList.IsSharedCapitalOK = resultStocksCapital),
-                map(() => checkList)
+                map(() => {
+                    const _as = Object.assign({}, as);
+                    _as.AnnualSettlementCheckList = checkList;
+                    return _as;
+                })
             );
     }
 
@@ -147,8 +153,8 @@ export class AnnualSettlementService extends BizHttp<any> {
             + '&select=Account.ID as AccountID,Account.AccountName as AccountName,'
             + 'Account.AccountNumber as AccountNumber,sum(JournalEntryLine.Amount) as TotalAmount'
             + '&filter=ReconcileAccount.ReconcileID eq ' + reconcile.ID
-            + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
-            + '\' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
+            // + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
+            + ' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
             + '&groupby=ReconcileAccount.AccountID'
             + '&join=ReconcileAccount.AccountID eq Account.ID and ReconcileAccount.AccountID eq JournalEntryLine.AccountID'
         ).pipe(map((response: any) => response.Data));
@@ -225,5 +231,52 @@ export class AnnualSettlementService extends BizHttp<any> {
             .withBody(annualSettelment)
             .send()
             .map(res => res.body);
+    }
+
+    getTaxAndDisposalItems(annualSettlement: any) {
+        return this.httpClient
+            .get(this.baseUrl + `annualsettlement?action=get-tax-calculation-and-disposal&annualsettlementID=${annualSettlement.ID}`)
+            .pipe(
+                map(list => {
+                    list[5]['info'] = 'tooltip text for 5';
+                    list[6]['info'] = 'tooltip text for 6';
+                    list[8]['editable'] = true;
+                    list[8]['placeholder'] = 'Sum utbytte';
+                    return [
+                        {
+                            title: 'Grunnlag for skatt',
+                            items: [list[0], list[1], list[2]]
+                        },
+                        {
+                            title: 'Til disponering',
+                            items: [list[3], list[4], list[5], list[6], list[7]]
+                        },
+                        {
+                            title: 'Utbytte',
+                            items: [list[8], list[9], list[10]]
+                        }
+                    ];
+                })
+            );
+    }
+    previewAnnualSettlementJournalEntry(annualSettlement) {
+        // this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get)
+        return of(journalEntryAccountNumbers.map((accountNumber, i) => {
+            return {
+                AccountNumber: accountNumber,
+                Description: 'Description for ' + accountNumber,
+                Amount: 1000 * (i + 1)
+            };
+        }));
+    }
+    generateAnnualSettlementJournalEntry(annualSettlement) {
+        // this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
+        return of(annualSettlement);
+    }
+    getAnnualSettlementSummary(annualSettlement) {
+        return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get);
+    }
+    openGoToAltinnModal() {
+        return this.modalService.open(GoToAltinnModalComponent);
     }
 }

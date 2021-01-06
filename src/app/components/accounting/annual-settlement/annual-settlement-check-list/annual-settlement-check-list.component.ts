@@ -18,11 +18,11 @@ export class AnnualSettlementCheckListComponent {
     options = options;
     infoOption = infoOption;
     check = false;
-    checkList: any;
     showInfoBox = true;
     showMvaBox = true;
     annualSettlement;
     nextOption = 0;
+    areAllOptionsChecked = false;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -34,50 +34,58 @@ export class AnnualSettlementCheckListComponent {
             takeUntil(this.onDestroy$),
             map((params) => params.id)
         ).subscribe(id => {
-            this.addTab(id);
             this.annualSettlementService.getAnnualSettlement(id).pipe(
-                tap(as => this.annualSettlement = as),
-                switchMap(as => this.annualSettlementService.checkList(as)),
+                switchMap(as => this.annualSettlementService.GetAnnualSettlementWithCheckList(as)),
                 catchError(error => {
-                    console.log(error);
                     return throwError(error);
                 })
-            ).subscribe(checkList => {
-                this.checkList = checkList;
+            ).subscribe(as => {
+                this.annualSettlement = as;
                 this.initOptions();
+                this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
             });
         });
     }
-    private addTab(id: number) {
-        this.tabService.addTab({
-            name: 'Årsavslutning Check List', url: `/accounting/annual-settlement/${id}/check-list`,
-            moduleID: UniModules.Accountsettings, active: true
-        });
-    }
-    completeCheckListStep() {
+
+    completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+            if (done) {
+                done();
+            }
             this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
 
+    saveAnnualSettlement(done) {
+        this.annualSettlementService
+            .Put(this.annualSettlement.ID, this.annualSettlement)
+            .subscribe((as) => {
+                if (done) {
+                    done();
+                }
+                this.annualSettlement = as;
+            });
+    }
+
     initOptions() {
         this.options = this.options.map((op: any) => {
-            if (this.checkList[op.property]) {
-                op.checked = this.checkList[op.property];
+            if (this.annualSettlement.AnnualSettlementCheckList[op.property]) {
+                op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
             }
             return op;
         });
         this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
         this.changeDetector.detectChanges();
     }
 
     updateOption(option, value) {
         if (option.property) {
             option.checked = value.checked;
-            this.checkList[option.property] = value.checked;
             this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
         }
         this.setNextOption(this.options);
+        this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
         this.changeDetector.detectChanges();
     }
 
@@ -94,8 +102,13 @@ export class AnnualSettlementCheckListComponent {
         }
     }
 
-    onCloseTextInfo() {
-        // will do something
+    checkIfAreAllOptionsChecked() {
+        return this.options.reduce((result: boolean, option: any) => {
+            if (result === true) {
+                return option.checked ? true : false;
+            }
+            return false;
+        }, true);
     }
 
     ngOnDestroy() {

@@ -1,0 +1,29 @@
+uni-annual-settlement-summary
+    input
+        text-align: right
+    .uni-card
+        padding: 2rem
+        .uni-card-header
+            font-weight: 600
+            padding: 0
+            min-height: 3rem
+        .uni-card-content
+            padding-bottom: 0
+            padding: 0
+    ul
+        list-style: none
+        margin: 1rem 0 0
+
+        li
+            display: flex
+            justify-content: space-between
+            margin-bottom: 1rem
+            padding: 0 1rem
+        li:last-child
+            @extend .uni-card-footer !optional
+            font-weight: 600
+            height: 3rem
+            padding: 0 1rem
+            align-items: center
+            justify-content: space-between
+            background: var(--body-background)

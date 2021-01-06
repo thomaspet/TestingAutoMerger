@@ -4,6 +4,9 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
+import {tap} from 'rxjs/internal/operators/tap';
+import {AccountsSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/accounts-summary-modal.component';
+import {UniModalService} from '@uni-framework/uni-modal';
 
 @Component({
     selector: 'annual-settlement-disposition-including-tax-component',
@@ -18,19 +21,13 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         title: 'Skatteberegning og disponering av resultat',
         text: 'Her er det virkelig lorum ipsum'
     };
-    initialCustomStatus = {
-        label: '',
-        class: '',
-        icon: 'info',
-        outlined: false
-    };
-    customStatus;
-    showInfoBox = true;
+    summary = [];
     constructor(
         private router: Router,
         private route: ActivatedRoute,
         private cd: ChangeDetectorRef,
         private toast: ToastService,
+        private modalService: UniModalService,
         private annualSettlementService: AnnualSettlementService
     ) {
     }
@@ -39,28 +36,42 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
             takeUntil(this.onDestroy$),
             map((params) => params.id)
         ).subscribe(id => {
-            this.annualSettlementService.getAnnualSettlementWithReconcile(id)
-                .subscribe((as: any) => {
-                    this.annualSettlement = as;
-                    this.customStatus = null;
-                });
+            this.annualSettlementService.getAnnualSettlementWithReconcile(id).pipe(
+                tap(as => this.annualSettlement = as),
+                switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as))
+            ).subscribe((items: any) => {
+                this.summary = items;
+            });
         });
     }
+    saveAnnualSettlement(done) {
+        this.annualSettlementService
+            .Put(this.annualSettlement.ID, this.annualSettlement)
+            .subscribe((as) => {
+                if (done) {
+                    done();
+                }
+                this.annualSettlement = as;
+            });
+    }
+
+    openSummaryModal(doneFunction) {
+        this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement).pipe(
+            switchMap(data => this.modalService.open(AccountsSummaryModalComponent, {data: data}).onClose)
+        ).subscribe(result => {
+            doneFunction();
+            if (result === true) {
+                this.runTransition(6);
+            }
+        });
+    }
+
     runTransition(toStep) {
         this.annualSettlementService.transition(this.annualSettlement, 4, toStep)
             .subscribe((as) => {
                 this.toast.addToast('Transition 4 to ' + toStep + ' ran', ToastType.good);
                 this.router.navigateByUrl('/accounting/annual-settlement');
             });
-    }
-    onCloseInfoAlert() {
-        this.customStatus = Object.assign({}, this.initialCustomStatus);
-        this.showInfoBox = false;
-        this.cd.markForCheck();
-    }
-    onClickInfoIcon() {
-        this.showInfoBox = true;
-        this.cd.markForCheck();
     }
     ngOnDestroy() {
         this.onDestroy$.next();

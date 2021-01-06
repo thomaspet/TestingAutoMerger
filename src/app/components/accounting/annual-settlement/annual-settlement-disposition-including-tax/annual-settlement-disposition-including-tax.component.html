@@ -1,34 +1,19 @@
-<annual-settlement-disposition-including-tax-toolbar-component
+<uni-annual-settlement-header-component
     [annualSettlement]="annualSettlement"
-    [initialCustomStatus]="customStatus"
-    (clickInfoIcon)="onClickInfoIcon()"
-></annual-settlement-disposition-including-tax-toolbar-component>
-<section class="row">
-    <h2><button (click)="runTransition(5)">Step 4 to Step 5</button></h2>
-</section>
-<section class="application">
-    <section class="row header page-navigation">
-        <a href="#/accounting/annual-settlement" class="page-navigation-button">
-            <i class="material-icons">keyboard_backspace</i>
-        </a>
-        <h5>
-            Tilbake til oversikten
-        </h5>
-        <h4>
-            2020
-        </h4>
-    </section>
-    <section class="row">
-        <uni-alert-component
-            [type]="'good'"
-            [icon]="'info'"
-            [title]="infoData?.title"
-            [text]="infoData?.text"
-            [isOpen]="showInfoBox"
-            (close)="onCloseInfoAlert()"
-        ></uni-alert-component>
-    </section>
-    <section class="uni-container container-fluid">
-
-    </section>
-</section>
+    [isAlertOpen]="true"
+    [title]="'Skatteberegning og disponering av resultat'"
+    [completeLabel]="'Bokfør disponering'"
+    [icon]="'info'"
+    [outlinedIcon]="false"
+    [disableCompleteButton]="annualSettlement?.StatusCode !== 36115"
+    [saveButtonLabel]="'Lagre'"
+    [alert]="infoData"
+    [tabTitle]="'Skatteberegning'"
+    (clickCompleteButton)="openSummaryModal($event)"
+    (clickSaveButton)="saveAnnualSettlement($event)"
+>
+    <summary-detail-component *ngFor="let data of summary"
+        [title]="data.title"
+        [data]="data.items"
+    ></summary-detail-component>
+</uni-annual-settlement-header-component>

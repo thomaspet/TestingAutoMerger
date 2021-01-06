@@ -1,0 +1,19 @@
+<section class="uni-card">
+    <section class="uni-card-header">
+        {{title}}
+    </section>
+    <section class="uni-card-content">
+        <ul>
+            <li *ngFor="let item of data">
+                <span class="description">
+                    {{item.Item}}
+                    <i *ngIf="item.info" class="material-icons" [matTooltip]="item.info">info</i>
+                </span>
+                <span class="ammount" *ngIf="!item.editable">{{item.Amount | uninumberformat:'money'}}</span>
+                <span class="ammount" *ngIf="item.editable">
+                    <input type="text" [(ngModel)]="item.Amount"/>
+                </span>
+            </li>
+        </ul>
+    </section>
+</section>

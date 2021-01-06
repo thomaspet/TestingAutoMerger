@@ -15,7 +15,7 @@ import {Router} from '@angular/router';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AnnualSettlementRoadMapComponent implements OnInit {
-    annualSettlements$: Observable<any>;
+    annualSettlements: any[];
     selectedAnnualSettlement$ = new BehaviorSubject(null);
     steps = steps;
     constructor(
@@ -29,7 +29,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
 
     ngOnInit(currentYear = null) {
         const year = currentYear || this.financialYearService.getActiveYear();
-        this.annualSettlements$ = this.annualSettlementService.getAnnualSettlements().pipe(
+        this.annualSettlementService.getAnnualSettlements().pipe(
             switchMap((as: any[]) => {
                 if (as.length === 0) {
                     if (year < 2020) {
@@ -53,11 +53,13 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 this.steps = this.enableDisableSteps(this.steps, currentAS);
                 this.steps = this.addIconsToSteps(this.steps, currentAS);
                 this.selectedAnnualSettlement$.next(currentAS || null);
-                if(currentYear) {
+                if (currentYear) {
                     this.toast.addToast('Annual settlement has been reset', ToastType.good);
                 }
             })
-        );
+        ).subscribe((as) => {
+            this.annualSettlements = as;
+        });
     }
     onSelectAnnualSettlement(annualSettlement) {
         this.selectedAnnualSettlement$.next(annualSettlement);
