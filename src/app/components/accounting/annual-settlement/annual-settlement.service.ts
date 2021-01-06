@@ -153,8 +153,8 @@ export class AnnualSettlementService extends BizHttp<any> {
             + '&select=Account.ID as AccountID,Account.AccountName as AccountName,'
             + 'Account.AccountNumber as AccountNumber,sum(JournalEntryLine.Amount) as TotalAmount'
             + '&filter=ReconcileAccount.ReconcileID eq ' + reconcile.ID
-            + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
-            + '\' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
+            // + ' and JournalEntryLine.FinancialDate ge \'' + reconcile.FromDate
+            + ' and JournalEntryLine.FinancialDate le  \'' + reconcile.ToDate + '\''
             + '&groupby=ReconcileAccount.AccountID'
             + '&join=ReconcileAccount.AccountID eq Account.ID and ReconcileAccount.AccountID eq JournalEntryLine.AccountID'
         ).pipe(map((response: any) => response.Data));
