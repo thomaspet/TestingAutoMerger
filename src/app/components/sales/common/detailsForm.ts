@@ -1,11 +1,13 @@
 import {Component, Input, Output, EventEmitter, SimpleChanges, ViewChild} from '@angular/core';
 import {FieldType, UniFieldLayout, UniForm} from '@uni-framework/ui/uniform';
-import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Department} from '@uni-entities';
+import {CompanySettings, Contact, CurrencyCode, LocalDate, Project, Department, CustomerInvoice} from '@uni-entities';
 import {EmailService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
 import {set, cloneDeep} from 'lodash';
 import * as moment from 'moment';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {InvoiceTypes} from '@app/models/sales/invoiceTypes';
+import {ToastService} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'tof-details-form',
@@ -42,7 +44,8 @@ export class TofDetailsForm {
 
     constructor(
         private featurePermissionService: FeaturePermissionService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private toastService: ToastService,
     ) {}
 
     ngOnInit() {
@@ -78,6 +81,18 @@ export class TofDetailsForm {
         } else if (changes['InvoiceDate'] && changes['InvoiceDate'].currentValue) {
             this.setDates(changes['InvoiceDate'].currentValue);
             this.entity = cloneDeep(this.entity);
+
+            // Warn users about year diff between InvoiceDate and DeliveryDate on credit notes
+            // If the company is set up to journal on delivery date.
+            const invoice = <CustomerInvoice> this.entity;
+            if (invoice.InvoiceType === InvoiceTypes.CreditNote && this.companySettings.BookCustomerInvoiceOnDeliveryDate) {
+                if (!moment(invoice.InvoiceDate).isSame(moment(invoice.DeliveryDate), 'year')) {
+                    this.toastService.toast({
+                        title: 'Fakturadato og leveringsdato har ulikt år',
+                        message: 'Dine salgsinnstillinger er satt opp med periodisering på leveringsdato, og du bør derfor være oppmerksom på at bokføringen skjer i riktig år.'
+                    });
+                }
+            }
         }
 
         this.entityChange.emit(this.entity);

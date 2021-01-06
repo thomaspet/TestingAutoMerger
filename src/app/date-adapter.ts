@@ -127,17 +127,9 @@ export const autocompleteDate = (
                 break;
             case 6:
                 yearSpecified = true;
-                if (input.indexOf('20') >= 2) {
-                    // input format: DMYYYY
-                    day = parseInt(input[0], 10);
-                    month = parseInt(input[1], 10) - 1;
-                    year = parseInt(input.slice(2), 10);
-                } else {
-                    // input format: DDMMYY
-                    day = parseInt(input.slice(0, 2), 10);
-                    month = parseInt(input.slice(2, 4), 10) - 1;
-                    year = parseInt(date.getFullYear().toString().substr(0, 2) + input.slice(4), 10);
-                }
+                day = parseInt(input.slice(0, 2), 10);
+                month = parseInt(input.slice(2, 4), 10) - 1;
+                year = parseInt(date.getFullYear().toString().substr(0, 2) + input.slice(4), 10);
                 break;
             case 8:
                 yearSpecified = true;
