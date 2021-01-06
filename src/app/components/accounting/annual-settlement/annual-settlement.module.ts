@@ -21,6 +21,7 @@ import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/
 import {AnnualSettlementWizardTaxFormComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-tax-form/annual-settlement-wizard-tax-form.component';
 import {AnnualSettlementDispositionIncludingTaxToolbarComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax-toolbar.component';
 import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual-settlement/annual-settlement-header/annual-settlement-header.component';
+import {AnnualSettlementWriteofDifferenceStep} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/annual-settlement-writeof-difference';
 
 @NgModule({
     imports: [
@@ -45,7 +46,8 @@ import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual
         AnnualSettlementDispositionIncludingTaxComponent,
         AnnualSettlementDispositionIncludingTaxToolbarComponent,
         AnnualSettlementWizardTaxFormComponent,
-        AnnualSettlementHeaderComponent
+        AnnualSettlementHeaderComponent,
+        AnnualSettlementWriteofDifferenceStep
     ],
     providers: [
         AnnualSettlementService

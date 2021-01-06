@@ -72,7 +72,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     step._enabled = currentAS.StatusCode >= 36105;
                     return step;
                 case 2:
-                    step._enabled = currentAS.StatusCode >= 36110;
+                    step._enabled = true; // currentAS.StatusCode >= 36110;
                     return step;
                 case 3:
                     step._enabled = currentAS.StatusCode >= 36115;

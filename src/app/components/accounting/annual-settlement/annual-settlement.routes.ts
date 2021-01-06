@@ -7,6 +7,7 @@ import {AnnualSettlementTestPageComponent} from '@app/components/accounting/annu
 import {AnnualSettlementWizardAnnualAccountsComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-annual-accounts/annual-settlement-wizard-annual-accounts.component';
 import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax.component';
 import {AnnualSettlementWizardTaxFormComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-tax-form/annual-settlement-wizard-tax-form.component';
+import {AnnualSettlementWriteofDifferenceStep} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/annual-settlement-writeof-difference';
 
 export const annualSettlementRoutes: Routes = [
     {
@@ -27,7 +28,7 @@ export const annualSettlementRoutes: Routes = [
     },
     {
         path: ':id/tax-depreciation-and-differences',
-        component: AnnualSettlementTestPageComponent,
+        component: AnnualSettlementWriteofDifferenceStep,
         canDeactivate: [CanDeactivateGuard]
     },
     {

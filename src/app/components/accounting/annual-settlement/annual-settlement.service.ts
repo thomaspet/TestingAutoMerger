@@ -216,4 +216,14 @@ export class AnnualSettlementService extends BizHttp<any> {
     reset(annualSettelment) {
         return this.Action(annualSettelment.ID, 'reset-annualsettlement');
     }
+
+    updateAnnualSettlement(annualSettelment) {
+        return this.http
+            .asPUT()
+            .withEndPoint(this.relativeURL + `/${annualSettelment.ID}`)
+            .usingBusinessDomain()
+            .withBody(annualSettelment)
+            .send()
+            .map(res => res.body);
+    }
 }

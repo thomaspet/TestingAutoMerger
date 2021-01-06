@@ -1,0 +1,239 @@
+<uni-toolbar
+	[config]="{ title: 'Avskrivninger og forskjeller' }"
+></uni-toolbar>
+
+<section class="application" style="padding: 1rem 10rem">
+
+	<section class="top-nav-container">
+		<button class="tertiary" (click)="goBack()"> <i class="material-icons">arrow_back</i> </button>
+		<p>Tilbake til oversikten</p>
+		<span>2020</span>
+	</section>
+
+	<section class="step-header-section">
+		<span class="stepper-circle-container"> {{ step }} / 7 </span>
+		<p>Eiendeler</p>
+		<span>Du har fullført {{ completedSteps }} av 7 trinn</span>
+	</section>
+
+    <uni-alert-component
+		[type]="'good'"
+		[icon]="'info'"
+		[title]="infoContent.title"
+		[text]="infoContent.text"
+		[isOpen]="true"
+	></uni-alert-component>
+
+	<section class="uni-card loading-section">
+
+		<section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+		</section>
+
+        <section class="uni-card-content" *ngIf="step === 1">
+			<section class="error-and-details-container">
+				<span class="error-section">
+					<i class="material-icons">warning</i>
+					<span> Du mangler inngående skattemessig verdi på noen av eiendelene dine. <a>Du legger dem inn her</a> </span>
+				</span>
+
+				<span style="flex: 1"></span>
+
+				<a style="font-size: 15px;">Se detaljer <i class="material-icons">expand_more</i> </a>
+			</section>
+
+			<section>
+				Table here
+			</section>
+
+		</section>
+
+		<!--  TILVIRKNINGSKONTRAKTER  -->
+
+		<section class="uni-card-content" *ngIf="step === 2" style="padding-bottom: 0;">
+
+			<section class="writeof-form-section" *ngIf="!hasProjects">
+				Du har ingen prosjekter på dette firma, så du kan hoppe over dette steget..
+			</section>
+
+			<section class="writeof-form-section" *ngIf="hasProjects">
+				<label>
+					<span>Bruker firmaet tilvirkningskontrakter</span>
+					<mat-radio-group [(ngModel)]="annualSettlement.Fields.FinnesProsjekterKey.Value" class="horizontal" style="margin: 1rem 0" (ngModelChange)="recalc()">
+						<mat-radio-button [value]="false">Nei</mat-radio-button>
+						<mat-radio-button [value]="true">Ja</mat-radio-button>
+					</mat-radio-group>
+				</label>
+
+				<label *ngIf="annualSettlement.Fields.FinnesProsjekterKey.Value" #toggle>
+					<span>Hvilke metode benytter dere?</span>
+					<uni-select
+						[items]="contractTypes"
+						[config]="yearSelectConfig"
+						[value]="ct"
+						(valueChange)="ct = $event; recalc()">
+					</uni-select>
+				</label>
+
+				<section *ngIf="ct?.value === 1 && annualSettlement.Fields.FinnesProsjekterKey.Value">
+					<label class="left-aligned-span">
+						<span>Oppgi regnskapsmessig inngående balanse på prosjektene</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Oppgi regnskapsmessig utgående balanse på prosjektene</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Angi netto avsatte inntekter/kostnader ved årets start</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Angi netto avsatte inntekter/kostnader ved årets slutt</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value" (change)="recalc()">
+					</label>
+				</section>
+
+				<section *ngIf="ct?.value === 2 && annualSettlement.Fields.FinnesProsjekterKey.Value">
+					<label class="left-aligned-span bigger">
+						<span>Oppgi inngående balanseførte kostnader på pågående/ikke fullførte prosjekter</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value" (change)="recalc()">
+					</label>
+
+					<label class="left-aligned-span bigger">
+						<span>Oppgi utgående balanseførte kostnader på pågående/ikke fullførte prosjekter</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value" (change)="recalc()">
+					</label>
+
+				</section>
+			</section>
+
+		</section>
+
+		<!--  VARELAGER  -->
+
+		<section class="uni-card-content" *ngIf="step === 3">
+
+			<section class="writeof-form-section">
+
+				<label>
+					<span>Er det bokført nedskrivninger av varer som er fortsatt på lager i år?</span>
+					<mat-radio-group [(ngModel)]="annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value" class="horizontal" style="margin: 1rem 0" (ngModelChange)="recalc()">
+						<mat-radio-button [value]="false">Nei</mat-radio-button>
+						<mat-radio-button [value]="true">Ja</mat-radio-button>
+					</mat-radio-group>
+				</label>
+
+				<section *ngIf="annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value">
+					<label class="left-aligned-span">
+						<span>Råvarer og innkjøpte halvfabrikata</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Varer under tilvirkning</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Ferdige egentilvirkede varer</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Innkjøpte varer for videresalg</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning.Value" (change)="recalc()">
+					</label>
+				</section>
+
+				<label>
+					<span>Er det bokført nedskrivninger av varer som er fortsatt på lager i fjor?</span>
+					<mat-radio-group [(ngModel)]="annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value" class="horizontal" style="margin: 1rem 0" (ngModelChange)="recalc()">
+						<mat-radio-button [value]="false">Nei</mat-radio-button>
+						<mat-radio-button [value]="true">Ja</mat-radio-button>
+					</mat-radio-group>
+				</label>
+
+				<section *ngIf="annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value">
+					<label class="left-aligned-span">
+						<span>Råvarer og innkjøpte halvfabrikata</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Varer under tilvirkning</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Ferdige egentilvirkede varer</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value" (change)="recalc()">
+					</label>
+					<label class="left-aligned-span">
+						<span>Innkjøpte varer for videresalg</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value" (change)="recalc()">
+					</label>
+				</section>
+			</section>
+
+		</section>
+
+		<!--  GEVINST OG TAP  -->
+
+		<section class="uni-card-content" *ngIf="step === 4">
+
+			<section class="writeof-form-section">
+				<span class="info-span">For å beregne om du har forskjeller mellom regnskapsmessig og skattemessig verdi på gevinst- og tapskonto må du oppgi saldo fra post 51 på RF-1217 fra fjoråret.</span>
+
+				<label class="left-aligned-span">
+					<span>Oppgi saldo på gevinst- og tapskonto 31.12.2019</span>
+					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value" (change)="recalc()">
+				</label>
+			</section>
+
+		</section>
+
+		<!--  SKATTEMESSIG VERDI PÅ AKSJER  -->
+
+		<section class="uni-card-content" *ngIf="step === 5">
+
+			<section class="writeof-form-section">
+				TABLE HERE!
+			</section>
+
+		</section>
+
+		<!--  AKKUMULERT FREMFØRT SKATTEMESSIG UNDERSKUDD  -->
+
+		<section class="uni-card-content" *ngIf="step === 6">
+
+			<section class="writeof-form-section">
+				<span class="info-span">Oppgi beløp for akkumulert skattemessig underskudd fra i fjor. Du finner dette i RF-1217 i post 130</span>
+
+				<label class="left-aligned-span">
+					<span>Oppgi saldo på gevinst- og tapskonto 31.12.2019</span>
+					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.FremforbartUnderskudd.Value" (change)="recalc()">
+				</label>
+			</section>
+
+		</section>
+
+		<!--  SUMMARY  -->
+
+		<section class="uni-card-content" *ngIf="step === 6">
+
+			<section class="writeof-form-section">
+				SUMMARY HERE
+			</section>
+
+		</section>
+
+
+		<!--  SUM SECTION BOTTOM  -->
+
+		<section class="sum-section" *ngIf="step !== 1 && step !== 7">
+			<span>Sum endring i forskjeller</span>
+			<span> {{ diffs[step - 1] | uninumberformat: 'money' }} </span>
+		</section>
+	</section>
+
+	<section class="navigation-button-container" *ngIf="!busy">
+		<button [disabled]="step <= 1" (click)="onStep(-1)" class="secondary"> Tilbake </button>
+		<button (click)="onStep(1)" class="c2a"> Lagre og gå videre </button>
+	</section>
+</section>
