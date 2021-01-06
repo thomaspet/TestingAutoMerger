@@ -10,8 +10,8 @@
     [tabTitle]="'Årsavslutning Check List'"
     (clickCompleteButton)="completeCheckListStep()"
 >
-    <uni-annual-settlement-summary *ngFor="let data of summary"
+    <summary-detail-component *ngFor="let data of summary"
                                    [title]="data.title"
                                    [data]="data.items"
-    ></uni-annual-settlement-summary>
+    ></summary-detail-component>
 </uni-annual-settlement-header-component>

@@ -45,8 +45,12 @@ export class AnnualSettlementSummaryComponent {
     }
     completeCheckListStep() {
         this.annualSettlementService.openGoToAltinnModal().onClose.subscribe(result => {
-            if (result === ConfirmActions.ACCEPT) {
-                this.router.navigateByUrl(''); // GO TO ALTINN
+            if (result === true) {
+                this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(result2 => {
+                    console.log(result2);
+                    this.toast.addToast(JSON.stringify(result2));
+                });
+                // this.router.navigateByUrl(''); // GO TO ALTINN
             }
         });
     }
