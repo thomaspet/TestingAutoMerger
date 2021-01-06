@@ -139,7 +139,9 @@ export class AnnualSettlementReconcileComponent {
     private setAccount(account) {
         const accounts = this.getAccounts();
         const index = accounts.findIndex(x => x._AccountNumber === account._AccountNumber);
-        accounts[index] = account;
+        if (index >= 0) {
+            accounts[index] = account;
+        }
         this.setAccounts(accounts);
     }
     private getAccounts() {

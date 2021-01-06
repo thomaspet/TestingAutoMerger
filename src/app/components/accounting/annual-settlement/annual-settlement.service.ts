@@ -76,7 +76,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             this.baseUrl
             + 'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
         ).pipe(
-            map((result: number) => result < 30000)
+            map((result: number) => result <= -30000)
         );
     }
 
