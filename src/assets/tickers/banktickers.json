@@ -1165,7 +1165,7 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filter": "EntityType eq 'Payment'",
+        "Filter": "EntityType eq 'Payment' and isnull(StatusLog.ToStatus,0) gt 0",
         "Columns": [
             {
                 "Header": "Dato",
@@ -1202,7 +1202,7 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filter": "EntityType eq 'Payment'",
+        "Filter": "EntityType eq 'Payment' and isnull(StatusLog.ToStatus,0) gt 0",
         "OrderBy": [
             "Payment.InvoiceNumber DESC",
             "CreatedAt DESC"
