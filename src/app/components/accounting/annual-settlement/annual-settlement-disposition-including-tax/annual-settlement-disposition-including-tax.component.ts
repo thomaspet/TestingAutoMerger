@@ -61,7 +61,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         ).subscribe(result => {
             doneFunction();
             if (result === true) {
-                this.runTransition(6);
+                this.runTransition(5);
             }
         });
     }
