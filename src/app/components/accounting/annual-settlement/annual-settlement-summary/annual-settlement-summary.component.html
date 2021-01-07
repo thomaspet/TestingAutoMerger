@@ -8,7 +8,7 @@
     [disableCompleteButton]="false"
     [alert]="infoData"
     [tabTitle]="'Årsavslutning Check List'"
-    (clickCompleteButton)="completeCheckListStep()"
+    (clickCompleteButton)="completeCheckListStep($event)"
 >
     <summary-detail-component *ngFor="let data of summary"
                                    [title]="data.title"

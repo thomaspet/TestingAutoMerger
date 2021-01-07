@@ -4,8 +4,9 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService} from '@uni-framework/uniToast/toastService';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
 import {tap} from 'rxjs/internal/operators/tap';
+import {of} from 'rxjs/observable/of';
 
 @Component({
     selector: 'annual-settlement-summary-component',
@@ -43,16 +44,18 @@ export class AnnualSettlementSummaryComponent {
             });
         });
     }
-    completeCheckListStep() {
-        this.annualSettlementService.openGoToAltinnModal().onClose.subscribe(result => {
-            if (result === true) {
-                this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(result2 => {
-                    console.log(result2);
-                    this.toast.addToast(JSON.stringify(result2));
-                });
-                // this.router.navigateByUrl(''); // GO TO ALTINN
-            }
-        });
+    completeCheckListStep(done) {
+        this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(() => {
+            this.annualSettlementService.openGoToAltinnModal().onClose.subscribe(result => {
+                if (result === true) {
+                    this.router.navigateByUrl('https://altinn.no');
+                }
+                done();
+            });
+        }, (errorResponse) => {
+            done();
+            this.toast.addToast(errorResponse.error.Message);
+        }, () => done());
     }
     ngOnDestroy() {
         this.onDestroy$.next();
