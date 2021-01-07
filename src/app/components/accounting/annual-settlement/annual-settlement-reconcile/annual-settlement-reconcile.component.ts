@@ -112,7 +112,7 @@ export class AnnualSettlementReconcileComponent {
         });
     }
     completeReconcile(done) {
-        this.annualSettlementService.Put(this.annualSettlement.ID, this.annualSettlement).pipe(
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
             switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement)),
             catchError(() => done()),
         ).subscribe(() => {
@@ -123,7 +123,7 @@ export class AnnualSettlementReconcileComponent {
     }
     saveAnnualSettlement(done) {
         this.annualSettlementService
-            .Put(this.annualSettlement.ID, this.annualSettlement)
+            .saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
                 if (done) {
                     done();

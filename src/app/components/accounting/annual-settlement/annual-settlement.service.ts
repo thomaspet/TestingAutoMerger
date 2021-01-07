@@ -8,6 +8,7 @@ import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
 import {throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -26,9 +27,15 @@ export class AnnualSettlementService extends BizHttp<any> {
     statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     httpClient: HttpClient;
 
-    constructor(protected http: UniHttp, private modalService: UniModalService) {
+    constructor(protected http: UniHttp, private modalService: UniModalService, private toast: ToastService) {
         super(http);
         this.httpClient = this.http.http;
+    }
+
+    saveAnnualSettlement(entity) {
+        return this.Put(entity.ID, entity).pipe(
+            tap(() => this.toast.addToast('Lagret', ToastType.good, ToastTime.short))
+        );
     }
 
     getAnnualSettlements() {
@@ -235,13 +242,17 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     getTaxAndDisposalItems(annualSettlement: any) {
         return this.httpClient
-            .get(this.baseUrl + `annualsettlement?action=get-tax-calculation-and-disposal&annualsettlementID=${annualSettlement.ID}`)
+            .get(this.baseUrl + `annualsettlement/${annualSettlement.ID}?action=get-tax-calculation-and-disposal`)
             .pipe(
                 map(list => {
-                    list[5]['info'] = 'tooltip text for 5';
-                    list[6]['info'] = 'tooltip text for 6';
-                    list[8]['editable'] = true;
-                    list[8]['placeholder'] = 'Sum utbytte';
+                    let slice = 1;
+                    if (list[6].Item === 'Til disponering') {
+                        slice = 0;
+                    }
+                    list[4 + slice]['info'] = 'tooltip text for 5';
+                    list[5 + slice]['info'] = 'tooltip text for 6';
+                    list[7 + slice]['editable'] = true;
+                    list[7 + slice]['placeholder'] = 'Sum utbytte';
                     return [
                         {
                             title: 'Grunnlag for skatt',
@@ -249,11 +260,16 @@ export class AnnualSettlementService extends BizHttp<any> {
                         },
                         {
                             title: 'Til disponering',
-                            items: [list[3], list[4], list[5], list[6], list[7]]
+                            items: (() => {
+                                if (slice === 1) {
+                                    return [list[3], list[4], list[5], list[6], list[7]];
+                                }
+                                return [list[3], list[4], list[5], list[6]];
+                            })()
                         },
                         {
                             title: 'Utbytte',
-                            items: [list[8], list[9], list[10]]
+                            items: [list[7 + slice], list[8 + slice], list[9 + slice]]
                         }
                     ];
                 })
