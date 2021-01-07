@@ -18,13 +18,13 @@ export const options = [
     },
     { // 3 - Tidligere ar
         title: 'Regnskapet ditt for tidligere år balanserer ikke',
-        altTitle: 'Rengskapet ditt for tidligere år balanserer',
+        altTitle: 'Regnskapet ditt for tidligere år balanserer',
         text: `Det er viktig at dine tidligere år er avsluttet og balanserer. Bruk <a href="#/reports?category=Accounting">Saldobalanse hovedbok</a> for å finne ut hvor differansen ligger. Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'AreAllPreviousYearsEndedAndBalances'
     },
     { // 4 - Aksjekapital
         title: 'Regnskapet ditt mangler  aksjekapital',
-        altTitle: 'Rengskapet fitt har forventet aksjekapital',
+        altTitle: 'Rengskapet ditt har forventet aksjekapital',
         text: `Vi finner ikke minst 30.000 kr i aksjekapital registrert i ditt regnskap. Legg inn denne verdien i <a href="#/accounting/journalentry/manual">Bokføring</a>. Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsShareCapitalOK'
     },

@@ -276,14 +276,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             );
     }
     previewAnnualSettlementJournalEntry(annualSettlement) {
-        // this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get)
-        return of(journalEntryAccountNumbers.map((accountNumber, i) => {
-            return {
-                AccountNumber: accountNumber,
-                Description: 'Description for ' + accountNumber,
-                Amount: 1000 * (i + 1)
-            };
-        }));
+        return this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get);
     }
     generateAnnualSettlementJournalEntry(annualSettlement) {
         return this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
