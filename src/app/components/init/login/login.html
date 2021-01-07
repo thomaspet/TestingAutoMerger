@@ -15,6 +15,13 @@
         <button class="c2a login-button" *ngIf="!isSb1" (click)="authService.authenticate()" [disabled]="isLoading">
             Logg inn
         </button>
+
+        <section class="operating-error-message" *ngIf="show">
+            <i class="material-icons">info_outline</i>
+            <span>
+                Vi har hatt utfordringer med dokumentvisning i formiddag. Problemet er identifisert og løst.
+            </span>
+        </section>
     </section>
 
     <section class="select-company-container" *ngIf="isAuthenticated && availableCompanies?.length">
@@ -28,4 +35,5 @@
             <small class="cmp-error-msg"> {{ companyErrorMessage }} </small>
         </section>
     </section>
+
 </section>
