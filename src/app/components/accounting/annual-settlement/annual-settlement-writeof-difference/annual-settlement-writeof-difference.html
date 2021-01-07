@@ -12,8 +12,8 @@
 
 	<section class="step-header-section">
 		<span class="stepper-circle-container"> {{ step }} / 7 </span>
-		<p>Eiendeler</p>
-		<span>Du har fullført {{ completedSteps }} av 7 trinn</span>
+		<p> {{ infoContent.title }} </p>
+		<span>Du har fullført {{ step - 1 }} av 7 trinn</span>
 	</section>
 
     <uni-alert-component
@@ -213,22 +213,46 @@
 
 		</section>
 
-		<!--  SUMMARY  -->
-
-		<section class="uni-card-content" *ngIf="step === 6">
+		<!--  CORONA PACKAGE  -->
+		<section class="uni-card-content" *ngIf="step === 7 && stepContentArray.length === 8">
 
 			<section class="writeof-form-section">
-				SUMMARY HERE
+				<span class="info-span">Informasjon om pakke for underskudd if coronaåret 2020</span>
+
+				<label class="left-aligned-span">
+					<span>Oppgi saldo på overskudd 2018</span>
+					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="overskudd2018" (change)="recalc()">
+				</label>
+
+				<label class="left-aligned-span">
+					<span>Oppgi saldo på overskudd 2019</span>
+					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="overskudd2019" (change)="recalc()">
+				</label>
+			</section>
+
+		</section>
+
+		<!--  SUMMARY  -->
+		<section class="uni-card-content" *ngIf="step === stepContentArray.length">
+
+			<section class="writeof-form-section">
+				<simple-table class="summary-table">
+					<tbody>
+						<tr *ngFor="let step of stepContentArray">
+							<td> {{ step?.summaryTitle || step?.title }} </td>
+							<td> {{ step.diff | uninumberformat: 'money' }} </td>
+						</tr>
+					</tbody>
+				</simple-table>
 			</section>
 
 		</section>
 
 
 		<!--  SUM SECTION BOTTOM  -->
-
-		<section class="sum-section" *ngIf="step !== 1 && step !== 7">
+		<section class="sum-section" *ngIf="step !== 1 && step !== stepContentArray.length">
 			<span>Sum endring i forskjeller</span>
-			<span> {{ diffs[step - 1] | uninumberformat: 'money' }} </span>
+			<span> {{ stepContentArray[step - 1].diff | uninumberformat: 'money' }} </span>
 		</section>
 	</section>
 

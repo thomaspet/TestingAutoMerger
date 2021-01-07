@@ -20,54 +20,68 @@ export class AnnualSettlementWriteofDifferenceStep {
 	busy = true;
 	onDestroy$ = new Subject();
 	annualSettlement: any;
-	step = 1;
-	completedSteps = 1;
-	// validSteps = [true, true, true, false, false, false, false];
+	step = 7;
 
-	infoContentArray = [
+	stepContentArray = [
 		{
 			title: 'Eiendeler',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Tilvirkningskontrakter',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Varelager',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Gevinst og tap',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Skattemessig verdi på aksjer',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Akkumulert fremført skattemessig underskudd',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
-				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
+		},
+
+		// This is removed if not valid for the current company
+		{
+			title: 'Coronapakke for firma med underskudd 2020',
+			text: ` <p>
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
+			diff: 0
 		},
 		{
 			title: 'Oppsummering av endringer i forskjeller',
-			text: ``
+			text: ``,
+			summaryTitle: 'Grunnlag for utsatt skatt/utsatt skattefordel'
 		}
 	];
 
-	infoContent: any = this.infoContentArray[0];
+	infoContent: any = this.stepContentArray[0];
 
 	contractTypes = [
 		{ value: 1, label: 'Løpende avregning' },
@@ -83,13 +97,13 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 	incommingProjects = null;
 	outgoingProjects = null;
-	diffs = [0, 0, 0, 0, 0, 0, 0];
 
 	yearSelectConfig = {
 		template: (item) => item.label,
 		searchable: false,
 		placeholder: 'Velg metode'
 	};
+
 	hasProjects = true;
 
 	constructor(
@@ -113,8 +127,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 			]).subscribe(([as, projectCount]) => {
 				this.annualSettlement = as;
 
-				debugger
-
 				this.annualSettlement.Fields.FinnesProsjekterKey.Value =
 					this.annualSettlement.Fields.FinnesProsjekterKey.Value === 'true';
 				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value =
@@ -130,6 +142,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 							this.ct = this.contractTypes[0];
 						}
 				}
+
+				// Check if customer has valid data for Corona pack here.. For now, just remove it
+				this.stepContentArray.splice(6, 1);
 
 				this.hasProjects = projectCount[0].count > 0;
 				this.changeDetector.markForCheck();
@@ -153,9 +168,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 	checkSaveAndContinue(direction: number) {
 
-		if (this.step === 7 && direction > 0) {
-			this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
-			this.goBack();
+		if (this.step === this.stepContentArray.length && direction > 0) {
+			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
+				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
+				this.goBack();
+			}, err => {
+				this.toastService.addToast('Informasjon lagret, men noe gikk galt', ToastType.bad, 6, 'Klarte ikke fullføre steg 3. Se gjennom data og prøv igjen');
+				this.goBack();
+			});
 		}
 
 		if (this.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey.Value) {
@@ -192,21 +212,21 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	setStepInfoContent() {
-		this.infoContent = this.infoContentArray[this.step - 1];
+		this.infoContent = this.stepContentArray[this.step - 1];
 	}
 
 	// This is called when a value on step 2 is changed
 	recalc(step: number = this.step) {
-		this.diffs[step - 1] = 0;
+		this.stepContentArray[step - 1].diff = 0;
 
 		if (this.step === 2) {
 			if (this.ct.value === 1) {
-				this.diffs[this.step - 1] = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
+				this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
 				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0)
 				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value  || 0)
 				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value  || 0);
 			} else if (this.ct.value === 2) {
-				this.diffs[this.step - 1] = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
+				this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
 				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0);
 			}
 			// this.validSteps[1] = this.ct.value != 0;
@@ -221,15 +241,15 @@ export class AnnualSettlementWriteofDifferenceStep {
 				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value  || 0)
 				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value  || 0);
 
-			this.diffs[2] = 0
+			this.stepContentArray[step - 1].diff = 0
 				+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value ? thisYear + '' : '0')
 				+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value ? lastYear + '' : '0');
 		} else if (this.step === 4) {
-			this.diffs[this.step - 1] = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value || 0);
+			this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value || 0);
 		} else if (this.step === 5) {
-			this.diffs[this.step - 1] = 0;
+			this.stepContentArray[step - 1].diff = 0;
 		} else if (this.step === 6) {
-			this.diffs[this.step - 1] = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd.Value || 0);
+			this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd.Value || 0);
 		}
 	}
 
