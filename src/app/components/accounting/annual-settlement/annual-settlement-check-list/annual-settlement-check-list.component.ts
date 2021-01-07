@@ -57,8 +57,7 @@ export class AnnualSettlementCheckListComponent {
     }
 
     saveAnnualSettlement(done) {
-        this.annualSettlementService
-            .Put(this.annualSettlement.ID, this.annualSettlement)
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
                 if (done) {
                     done();

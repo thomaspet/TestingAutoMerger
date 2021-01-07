@@ -9,7 +9,7 @@
     [saveButtonLabel]="'Lagre'"
     [alert]="infoContent"
     [tabTitle]="'Avstem balansen'"
-    (clickCompleteButton)="completeReconcile()"
+    (clickCompleteButton)="completeReconcile($event)"
     (clickSaveButton)="saveAnnualSettlement($event)"
 >
     <section class="uni-card">
