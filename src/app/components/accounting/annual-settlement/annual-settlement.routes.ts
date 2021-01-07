@@ -3,10 +3,7 @@ import {CanDeactivateGuard} from '@app/canDeactivateGuard';
 import {AnnualSettlementRoadMapComponent} from '@app/components/accounting/annual-settlement/annual-settlement-road-map/annual-settlement-road-map.component';
 import {AnnualSettlementCheckListComponent} from '@app/components/accounting/annual-settlement/annual-settlement-check-list/annual-settlement-check-list.component';
 import {AnnualSettlementReconcileComponent} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/annual-settlement-reconcile.component';
-import {AnnualSettlementTestPageComponent} from '@app/components/accounting/annual-settlement/annual-settlement-test-page/annual-settlement-test-page.component';
-import {AnnualSettlementWizardAnnualAccountsComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-annual-accounts/annual-settlement-wizard-annual-accounts.component';
 import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax.component';
-import {AnnualSettlementWizardTaxFormComponent} from '@app/components/accounting/annual-settlement/annual-settlement-wizard-tax-form/annual-settlement-wizard-tax-form.component';
 import {AnnualSettlementWriteofDifferenceStep} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/annual-settlement-writeof-difference';
 import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/annual-settlement-summary.component';
 

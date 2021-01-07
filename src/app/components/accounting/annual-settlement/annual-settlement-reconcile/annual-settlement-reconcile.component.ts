@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
-import {map, takeUntil} from 'rxjs/operators';
+import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
@@ -111,8 +111,12 @@ export class AnnualSettlementReconcileComponent {
             this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
         });
     }
-    completeReconcile() {
-        this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement).subscribe(() => {
+    completeReconcile(done) {
+        this.annualSettlementService.Put(this.annualSettlement.ID, this.annualSettlement).pipe(
+            switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement)),
+            catchError(() => done()),
+        ).subscribe(() => {
+            done();
             this.toast.addToast('Avstem balansen completed', ToastType.good, ToastTime.short);
             this.router.navigateByUrl('/accounting/annual-settlement');
         });

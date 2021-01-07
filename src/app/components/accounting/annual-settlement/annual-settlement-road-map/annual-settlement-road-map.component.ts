@@ -2,7 +2,7 @@ import {ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation} from '@an
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {switchMap, tap} from 'rxjs/operators';
-import steps from '../annual-settlement-steps/annual-settlement-steps-data';
+import steps from './annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
@@ -176,6 +176,20 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     step._icon = currentAS.StatusCode === 36120
                         ? 'edit'
                         : currentAS.StatusCode >= 36125
+                            ? 'check_circle'
+                            : index + 1;
+                    return step;
+                case 5:
+                    step._icon = currentAS.StatusCode === 36125
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36130
+                            ? 'check_circle'
+                            : index + 1;
+                    return step;
+                case 6:
+                    step._icon = currentAS.StatusCode === 36130
+                        ? 'edit'
+                        : currentAS.StatusCode >= 36135
                             ? 'check_circle'
                             : index + 1;
                     return step;
