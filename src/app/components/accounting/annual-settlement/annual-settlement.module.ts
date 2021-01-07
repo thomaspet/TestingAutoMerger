@@ -45,7 +45,7 @@ import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annua
         AnnualSettlementDispositionIncludingTaxComponent,
         AnnualSettlementWizardTaxFormComponent,
         AnnualSettlementHeaderComponent,
-        AnnualSettlementWriteofDifferenceStep
+        AnnualSettlementWriteofDifferenceStep,
         AnnualSettlementSummaryComponent,
         SummaryDetailComponent,
         AccountsSummaryModalComponent,
