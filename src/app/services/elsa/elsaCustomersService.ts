@@ -44,7 +44,7 @@ export class ElsaCustomersService {
     getAllManaged(userIdentity: string): Observable<ElsaCustomer[]> {
         let endpoint = '/api/customers?';
         const expand = `$expand=contracts($select=contracttype,id,name)`;
-        const select = '&$select=name,id';
+        const select = '&$select=name,id,customertype';
         const filter = `&$filter=managers/any(m: m/user/identity eq ${userIdentity})`;
         endpoint += expand + select + filter;
         return this.uniHttp.asGET()

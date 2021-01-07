@@ -29,6 +29,7 @@ export interface ElsaCustomer {
     IsBankCustomer: boolean;
     SignUpReferrer: string;
     ProspectID?: number;
+    CustomerType: number;
 }
 
 export interface ElsaCompanyLicense {

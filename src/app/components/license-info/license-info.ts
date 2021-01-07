@@ -56,7 +56,6 @@ export class LicenseInfo implements OnDestroy {
             }
 
             this.populateTabs();
-            this.isBureauCustomer = this.authService.currentUser.License?.CustomerInfo?.CustomerType === 5;
         }
 
         this.loadCustomers();
@@ -93,32 +92,40 @@ export class LicenseInfo implements OnDestroy {
             (customers: ElsaCustomer[]) => {
                 if (customers) {
                     this.customers = customers;
+                    this.findSelectedCustomer();
                 }
             },
             err => console.error(err),
         );
     }
 
-    selectContract(contract: ElsaContract) {
+    selectContract(contract: ElsaContract, customer: ElsaCustomer) {
         this.populateTabs();
         // if they can select a contract, then they are admin on that contract
         this.isAdmin$.next(true);
         this.selectedContractID$.next(contract.ID);
-        this.selectedCustomerID = contract.CustomerID;
+        this.selectedCustomerID = customer.ID;
+        this.isBureauCustomer = customer.CustomerType === 5;
         sessionStorage.setItem('selectedContractID', contract.ID.toString());
+    }
+
+    findSelectedCustomer() {
+        const selectedCustomer = this.customers.find(customer => {
+            return customer.Contracts?.some(contract => contract.ID === this.selectedContractID$.getValue());
+        });
+
+        this.selectedCustomerID = selectedCustomer.ID;
+        this.isBureauCustomer = selectedCustomer.CustomerType === 5;
     }
 
     openNewContractModal() {
         if (!this.selectedCustomerID) {
-            this.selectedCustomerID = this.customers.find(customer => {
-                return customer.Contracts?.some(contract => contract.ID === this.selectedContractID$.getValue());
-            })?.ID;
+            this.findSelectedCustomer();
         }
 
         this.modalService.open(NewContractModal, {
             data: {customerID: this.selectedCustomerID}
         }).onClose.subscribe((newContract: ElsaContract) => {
-            console.log(newContract);
             if (newContract) {
                 this.loadCustomers();
                 if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
@@ -136,7 +143,8 @@ export class LicenseInfo implements OnDestroy {
                     this.modalService.open(NewCompanyModal, {
                         data: {
                             contractID: newContract.ID,
-                            contractType: newContract.ContractType
+                            contractType: newContract.ContractType,
+                            isBureauCustomer: this.isBureauCustomer
                         }
                     });
                 }

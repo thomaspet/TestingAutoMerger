@@ -10,7 +10,7 @@
                     <a 
                     *ngFor="let contract of customer.Contracts" 
                     class="dropdown-menu-item" 
-                    (click)="selectContract(contract)"
+                    (click)="selectContract(contract, customer)"
                     [attr.aria-selected]="contract.ID === (selectedContractID$ | async)"
                     >
                         {{contract.Name || customer.Name}}

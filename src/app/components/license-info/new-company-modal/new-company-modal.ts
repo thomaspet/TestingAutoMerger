@@ -146,7 +146,7 @@ export class NewCompanyModal implements IUniModal {
                 IsTest: false
             };
 
-            this.initService.createCompany(body, this.options?.data?.contractType).subscribe(
+            this.initService.createCompany(body, this.options?.data?.contractType, this.options?.data?.isBureauCustomer).subscribe(
                 () => this.checkCompanyCreationStatus(body.CompanyName),
                 err => {
                     this.errorService.handle(err);
