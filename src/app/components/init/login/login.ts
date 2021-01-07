@@ -7,6 +7,7 @@ import {Router, ActivatedRoute} from '@angular/router';
 import {Company} from '@uni-entities';
 import {Subscription} from 'rxjs';
 import {theme, THEMES} from 'src/themes/theme';
+import * as moment from 'moment';
 
 @Component({
     selector: 'uni-login',
@@ -26,6 +27,8 @@ export class Login {
     backgroundHeight = theme.init.login_background_height;
     illustration = theme.theme === THEMES.SR ? undefined : theme.init.illustration;
     isSb1 = theme.theme === THEMES.SR;
+
+    show = moment('07.01.2021', 'DD-MM-YYYY').isSame(moment(new Date(), 'DD-MM-YYYY'), 'date');
 
     selectConfig: ISelectConfig = {
         displayProperty: 'Name',
