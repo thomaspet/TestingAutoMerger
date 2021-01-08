@@ -97,7 +97,16 @@ export class AnnualSettlementService extends BizHttp<any> {
         );
     }
 
-    GetAnnualSettlementWithCheckList(as) {
+    getAccountBalanceForSet(fromAccountNumber: number, toAccountNumber: number, year: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`annualsettlement?action=get-account-balance&fromAccountNumber=${fromAccountNumber}&toAccountNumber=${toAccountNumber}&toFinancialYear=${year}`)
+            .send()
+            .map(res => res.body);
+    }
+
+    getAnnualSettlementWithCheckList(as) {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(

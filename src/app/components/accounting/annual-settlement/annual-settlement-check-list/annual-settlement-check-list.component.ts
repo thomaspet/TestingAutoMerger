@@ -35,7 +35,7 @@ export class AnnualSettlementCheckListComponent {
             map((params) => params.id)
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlement(id).pipe(
-                switchMap(as => this.annualSettlementService.GetAnnualSettlementWithCheckList(as)),
+                switchMap(as => this.annualSettlementService.getAnnualSettlementWithCheckList(as)),
                 catchError(error => {
                     return throwError(error);
                 })
