@@ -81,10 +81,19 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     checkStocksCapital(financialYear) {
         return this.http.http.get(
-            this.baseUrl
-            + 'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
+            this.baseUrl +
+            'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
         ).pipe(
             map((result: number) => result <= -30000)
+        );
+    }
+
+    checkAssets(financialYear) {
+        return this.http.http.get(
+            this.baseUrl +
+            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + (financialYear - 1)
+        ).pipe(
+            map((result: number) => result > -1 && result < 1)
         );
     }
 
@@ -99,6 +108,9 @@ export class AnnualSettlementService extends BizHttp<any> {
                 tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
                 tap(resultStocksCapital => checkList.IsSharedCapitalOK = resultStocksCapital),
+                switchMap(() => this.checkAssets(as.AccountYear)),
+                tap(resultAssets => checkList.IsAssetsOK = resultAssets),
+                //
                 map(() => {
                     const _as = Object.assign({}, as);
                     _as.AnnualSettlementCheckList = checkList;
@@ -198,7 +210,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                         reconcileAccount._LastBalance = reconcileAccount.Balance;
                     }
                 });
-                annualSettlement.Reconcile.Accounts = _.orderBy(annualSettlement.Reconcile.Accounts, ['_AccountNumber'],['asc']);
+                annualSettlement.Reconcile.Accounts = _.orderBy(annualSettlement.Reconcile.Accounts, ['_AccountNumber'], ['asc']);
                 return annualSettlement;
             })
         );
@@ -280,7 +292,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get);
     }
     generateAnnualSettlementJournalEntry(annualSettlement) {
-        return this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
+        return this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get);
     }
     getAnnualSettlementSummary(annualSettlement) {
         return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get).pipe(
