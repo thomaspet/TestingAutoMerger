@@ -12,7 +12,10 @@
     (clickCompleteButton)="completeCheckListStep($event)"
     (clickSaveButton)="saveAnnualSettlement($event)"
 >
-    <uni-custom-list>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <uni-custom-list *ngIf="!busy">
         <uni-custom-list-item *ngFor="let option of options; let i = index" [step]="option"
                               [class.checked]="option?.checked"
                               [class.disabled] = "annualSettlement?.StatusCode > 36100

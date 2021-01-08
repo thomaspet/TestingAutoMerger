@@ -10,8 +10,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
     selector: 'annual-settlement-check-list-component',
     templateUrl: './annual-settlement-check-list.component.html',
     styleUrls: ['./annual-settlement-check-list.component.sass'],
-    encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush
+    encapsulation: ViewEncapsulation.None
 })
 export class AnnualSettlementCheckListComponent {
     onDestroy$ = new Subject();
@@ -23,6 +22,7 @@ export class AnnualSettlementCheckListComponent {
     annualSettlement;
     nextOption = 0;
     areAllOptionsChecked = false;
+    busy = false;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -30,20 +30,19 @@ export class AnnualSettlementCheckListComponent {
         private tabService: TabService,
         private changeDetector: ChangeDetectorRef) {}
     ngOnInit() {
+        this.busy = true;
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlement(id).pipe(
                 switchMap(as => this.annualSettlementService.getAnnualSettlementWithCheckList(as)),
-                catchError(error => {
-                    return throwError(error);
-                })
             ).subscribe(as => {
                 this.annualSettlement = as;
                 this.initOptions();
                 this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
-            });
+                this.busy = false;
+            }, () => this.busy = false, () => this.busy = false);
         });
     }
 
@@ -57,13 +56,15 @@ export class AnnualSettlementCheckListComponent {
     }
 
     saveAnnualSettlement(done) {
+        this.busy = true;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
                 if (done) {
                     done();
                 }
                 this.annualSettlement = as;
-            });
+                this.busy = false;
+            }, () => this.busy = false, () => this.busy = false);
     }
 
     initOptions() {

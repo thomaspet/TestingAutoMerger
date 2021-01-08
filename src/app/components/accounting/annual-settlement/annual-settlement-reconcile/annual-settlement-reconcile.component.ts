@@ -25,6 +25,7 @@ export class AnnualSettlementReconcileComponent {
     onDestroy$ = new Subject();
     showInfoBox = true;
     allAccountsAreApproved = false;
+    busy = false;
     infoContent = {
         title: 'Slik bruker du sjekkelisten',
         text: `
@@ -55,6 +56,7 @@ export class AnnualSettlementReconcileComponent {
         private changeDetector: ChangeDetectorRef) {}
 
     ngOnInit() {
+        this.busy = true;
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
@@ -64,9 +66,10 @@ export class AnnualSettlementReconcileComponent {
                 .subscribe((as: any) => {
                     this.annualSettlement = as;
                     this.setAccounts(this.annualSettlement.Reconcile.Accounts);
+                    this.busy = false;
                     this.changeDetector.markForCheck();
-                });
-        });
+                }, () => this.busy = false, () => this.busy = false);
+        }, () => this.busy = false, () => this.busy = false);
     }
 
     private addTab(id: number) {
@@ -116,7 +119,9 @@ export class AnnualSettlementReconcileComponent {
             switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement)),
             catchError(() => done()),
         ).subscribe(() => {
-            done();
+            if (done) {
+                done();
+            }
             this.toast.addToast('Avstem balansen completed', ToastType.good, ToastTime.short);
             this.router.navigateByUrl('/accounting/annual-settlement');
         });

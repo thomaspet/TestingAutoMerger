@@ -18,6 +18,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     annualSettlements: any[];
     selectedAnnualSettlement$ = new BehaviorSubject(null);
     steps = steps;
+    busy = false;
     constructor(
         private annualSettlementService: AnnualSettlementService,
         private financialYearService: FinancialYearService,
@@ -28,6 +29,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     }
 
     ngOnInit(currentYear = null) {
+        this.busy = true;
         const year = currentYear || this.financialYearService.getActiveYear();
         this.annualSettlementService.getAnnualSettlements().pipe(
             switchMap((as: any[]) => {
@@ -59,7 +61,8 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
             })
         ).subscribe((as) => {
             this.annualSettlements = as;
-        });
+            this.busy = false;
+        }, () => this.busy = false, () => this.busy = false);
     }
     onSelectAnnualSettlement(annualSettlement) {
         this.selectedAnnualSettlement$.next(annualSettlement);

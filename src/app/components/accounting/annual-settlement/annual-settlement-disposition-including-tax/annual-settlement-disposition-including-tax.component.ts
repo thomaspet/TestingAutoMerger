@@ -22,6 +22,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         text: 'Her er det virkelig lorum ipsum'
     };
     summary = [];
+    busy = false;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -32,6 +33,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     ) {
     }
     ngOnInit() {
+        this.busy = true;
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
@@ -41,8 +43,8 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
                 switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as))
             ).subscribe((items: any) => {
                 this.summary = items;
-            });
-        });
+            }, () => this.busy = false, () => this.busy = false);
+        }, () => this.busy = false, () => this.busy = false);
     }
     saveAnnualSettlement(done) {
         this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item === 'Utbytte').Amount;

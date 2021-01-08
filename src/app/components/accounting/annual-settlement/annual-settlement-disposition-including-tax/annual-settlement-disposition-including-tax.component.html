@@ -12,8 +12,13 @@
     (clickCompleteButton)="openSummaryModal($event)"
     (clickSaveButton)="saveAnnualSettlement($event)"
 >
-    <summary-detail-component *ngFor="let data of summary"
-        [title]="data.title"
-        [data]="data.items"
-    ></summary-detail-component>
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <ng-container *ngIf="!busy">
+        <summary-detail-component *ngFor="let data of summary"
+            [title]="data.title"
+            [data]="data.items"
+        ></summary-detail-component>
+    </ng-container>
 </uni-annual-settlement-header-component>
