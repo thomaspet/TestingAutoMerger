@@ -148,16 +148,16 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 				debugger
 
-				this.annualSettlement.Fields.FinnesProsjekterKey.Value =
-					this.annualSettlement.Fields.FinnesProsjekterKey.Value === 'true';
-				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value =
-					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value === 'true';
-				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value =
-					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value === 'true';
+				this.annualSettlement.Fields.FinnesProsjekterKey =
+					this.annualSettlement.Fields.FinnesProsjekterKey === 'true';
+				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor =
+					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor === 'true';
+				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager =
+					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager === 'true';
 
-				if (this.annualSettlement.Fields.FinnesProsjekterKey.Value) {
-					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value &&
-						!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value) {
+				if (this.annualSettlement.Fields.FinnesProsjekterKey) {
+					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret &&
+						!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig) {
 							this.ct = this.contractTypes[1];
 						} else {
 							this.ct = this.contractTypes[0];
@@ -218,26 +218,26 @@ export class AnnualSettlementWriteofDifferenceStep {
 			});
 		}
 
-		if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey.Value) {
+		if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey) {
 			if (this.ct.value === 2) {
-				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value = null;
-				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value = null;
+				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret = null;
+				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig = null;
 			}
 		}
 
 		if (this.infoContent.step === 3) {
-			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value) {
-				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning.Value = null;
+			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager) {
+				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning = null;
+				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning = null;
+				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning = null;
+				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning = null;
 			}
 
-			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value) {
-				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value = null;
-				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value = null;
+			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor) {
+				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret = null;
+				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret = null;
+				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret = null;
+				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret = null;
 			}
 		}
 
@@ -262,42 +262,42 @@ export class AnnualSettlementWriteofDifferenceStep {
 		switch (this.infoContent.step) {
 			case 1:
 				if (this.ct.value === 1) {
-					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value  || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value  || 0);
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret  || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig  || 0);
 				} else if (this.ct.value === 2) {
-					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0);
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0);
 				}
 				break;
 
 			case 2:
-				const thisYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning.Value  || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning.Value  || 0);
+				const thisYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning  || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning  || 0);
 
-				const lastYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret.Value || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value  || 0)
-					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value  || 0);
+				const lastYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret  || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret  || 0);
 
 					this.infoContent.diff = 0
-					+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value ? thisYear + '' : '0')
-					- parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value ? lastYear + '' : '0');
+					+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager ? thisYear + '' : '0')
+					- parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor ? lastYear + '' : '0');
 
 				break;
 			
 			case 3:
-				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value || 0);
+				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret || 0);
 				break;
 			case 4:
 				// NOT READY
 				this.infoContent.diff = 0;
 				break;
 			case 5: 
-				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd.Value || 0);
+				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd || 0);
 				break;
 		}
 
