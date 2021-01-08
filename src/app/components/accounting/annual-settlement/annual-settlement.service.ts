@@ -33,6 +33,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     saveAnnualSettlement(entity) {
+        entity.AnnualSettlementJSONData = JSON.stringify(entity.Fields);
         return this.Put(entity.ID, entity).pipe(
             tap(() => this.toast.addToast('Lagret', ToastType.good, ToastTime.short))
         );
