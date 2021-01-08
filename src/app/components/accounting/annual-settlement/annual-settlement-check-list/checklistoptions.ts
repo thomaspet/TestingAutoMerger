@@ -39,16 +39,16 @@ export const options = [
         property: 'IsAllCustomerInvoicesPaid'
     },
     { // 7 - Leverandorfaktura
-        title: 'Er alle regninger og kvitteringer lastet opp og bokført i regnskapet',
+        title: 'Er alle regninger og kvitteringer lastet opp og bokført i regnskapet?',
         text: 'Har du registrert alle regninger som du har mottatt i 2020? Har du bokført utbetalinger for 2020? Alle regninger som er mottatt i 2020 må bokføres og utbetalinger registreres i systemet.',
         property: 'IsAllSupplierInvoicesPaid'
     },
-    { // 8 - Varelager
-        title: 'Er det bokført nedskrivninger av varer som fortsatt er på lager i år?',
-        altTitle: 'Hele punktet kan fjernes, varelager kommer under Avskrivninger og Forskjeller',
-        text: 'Text has to be added.',
-        property: 'IsStockOK'
-    },
+    // { // 8 - Varelager
+    //     title: 'Er det bokført nedskrivninger av varer som fortsatt er på lager i år?',
+    //     altTitle: 'Hele punktet kan fjernes, varelager kommer under Avskrivninger og Forskjeller',
+    //     text: 'Text has to be added.',
+    //     property: 'IsStockOK'
+    // },
     { // 9 - Eiendeler
         title: 'Summen av eiendeler stemmer ikke med summen av balansekontoer for eiendeler i regnskapet',
         altTitle: 'Summen av eiendeler stemmer med summen av balansekontoer for eiendeler i regnskapet',
