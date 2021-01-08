@@ -220,9 +220,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                     }
                 });
                 annualSettlement.Reconcile.Accounts = _.orderBy(annualSettlement.Reconcile.Accounts, ['_AccountNumber'], ['asc']);
-                annualSettlement.Reconcile.Accounts = annualSettlement.Reconcile.Accounts.filter(acc => {
-                    return acc.Balance > 0;
-                });
+                annualSettlement.Reconcile.Accounts = annualSettlement.Reconcile.Accounts.filter(acc => acc.Balance !== 0);
                 return annualSettlement;
             })
         );
