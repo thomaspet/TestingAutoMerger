@@ -213,39 +213,39 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.goBack();
 				return;
 			});
-		}
-
-		if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey) {
-			if (this.ct.value === 2) {
-				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret = null;
-				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig = null;
+		} else {
+			if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey) {
+				if (this.ct.value === 2) {
+					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret = null;
+					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig = null;
+				}
 			}
-		}
-
-		if (this.infoContent.step === 3) {
-			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager) {
-				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning = null;
-				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning = null;
-				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning = null;
-				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning = null;
+	
+			if (this.infoContent.step === 3) {
+				if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager) {
+					this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning = null;
+					this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning = null;
+					this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning = null;
+					this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning = null;
+				}
+	
+				if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor) {
+					this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret = null;
+					this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret = null;
+					this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret = null;
+					this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret = null;
+				}
 			}
-
-			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor) {
-				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret = null;
-				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret = null;
-				this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret = null;
-				this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret = null;
-			}
+	
+			this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
+				this.step += direction;
+				this.setStepInfoContent();
+				this.recalc();
+				this.busy = false;
+			}, err => {
+				this.busy = false;
+			});
 		}
-
-		this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
-			this.step += direction;
-			this.setStepInfoContent();
-			this.recalc();
-			this.busy = false;
-		}, err => {
-			this.busy = false;
-		});
 	}
 
 	setStepInfoContent() {
