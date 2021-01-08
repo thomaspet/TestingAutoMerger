@@ -115,11 +115,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 		placeholder: 'Velg metode'
 	};
 
-	accountCount2Query = `model=JournalEntryLine&select=count(ID) as count&expand=Account`
-	+ `&filter=( Account.Accountnumber ge '1300' and Account.AccountNumber le '1319') or `
-	+ `( Account.Accountnumber ge '1350' and Account.AccountNumber le '1399') or `
-	+ `( Account.Accountnumber ge '1800' and Account.AccountNumber le '1899') or `;
-
 	constructor(
 		private router: Router,
 		private route: ActivatedRoute,
@@ -128,7 +123,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 		private changeDetector: ChangeDetectorRef,
 		private errorService: ErrorService,
 		private toastService: ToastService
-	) {	}
+	) {	
+		this.infoContent = this.stepContentArray[0];
+	}
 
 	ngOnInit() {
         this.route.params.pipe(
