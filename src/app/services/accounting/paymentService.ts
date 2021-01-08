@@ -66,18 +66,18 @@ export class PaymentService extends BizHttp<Payment> {
             case 44001:
                 return 'Opprettet';
             case 44002:
-                return theme.theme === THEMES.EXT02 ? 'mottat av bank' : 'Overført bank';
+                return theme.theme === THEMES.EXT02 ? 'Mottatt av bank' : 'Overført bank';
             case 44003:
             case 44012:
                 return 'Feilet';
             case 44004:
                 return 'Fullført';
             case 44005:
-                return theme.theme === THEMES.EXT02 ? 'sendes til bank' : 'Fil overført - avventer bankstatus';
+                return theme.theme === THEMES.EXT02 ? 'Betalingsfil generert' : 'Fil overført - avventer bankstatus';
             case 44006:
                 return 'Betalt';
             case 44007:
-                return 'Fil mottatt av zdata';
+                return theme.theme === THEMES.EXT02 ? 'Sendes til bank' : 'Fil mottatt av zdata';
             case 44008:
                 return 'I bankens forfallsregister';
             case 44009:
