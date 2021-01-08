@@ -33,6 +33,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     saveAnnualSettlement(entity) {
+        entity.AnnualSettlementJSONData = JSON.stringify(entity.Fields);
         return this.Put(entity.ID, entity).pipe(
             tap(() => this.toast.addToast('Lagret', ToastType.good, ToastTime.short))
         );
@@ -285,21 +286,30 @@ export class AnnualSettlementService extends BizHttp<any> {
             );
     }
     previewAnnualSettlementJournalEntry(annualSettlement) {
-        // this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get)
-        return of(journalEntryAccountNumbers.map((accountNumber, i) => {
-            return {
-                AccountNumber: accountNumber,
-                Description: 'Description for ' + accountNumber,
-                Amount: 1000 * (i + 1)
-            };
-        }));
+        return this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get);
     }
     generateAnnualSettlementJournalEntry(annualSettlement) {
-        // this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
-        return of(annualSettlement);
+        return this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get)
     }
     getAnnualSettlementSummary(annualSettlement) {
-        return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get);
+        return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get).pipe(
+            map(list => {
+                return [
+                    {
+                        title: 'Skattepliktig inntekt',
+                        items: [list[0], list[1], list[2], list[3]]
+                    },
+                    {
+                        title: 'Skattekostnad',
+                        items: [list[4], list[5], list[6]]
+                    },
+                    {
+                        title: 'Betalbar skatt',
+                        items: [list[7], list[8], list[9]]
+                    }
+                ];
+            })
+        );
     }
     openGoToAltinnModal() {
         return this.modalService.open(GoToAltinnModalComponent);
