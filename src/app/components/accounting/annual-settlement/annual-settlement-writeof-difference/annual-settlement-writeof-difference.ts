@@ -203,7 +203,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 	checkSaveAndContinue(direction: number) {
 
-		if (this.step === this.stepContentArray.length && direction > 0) {
+		if (this.infoContent.step === 7 && direction > 0) {
 			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
 				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
 				this.goBack();
