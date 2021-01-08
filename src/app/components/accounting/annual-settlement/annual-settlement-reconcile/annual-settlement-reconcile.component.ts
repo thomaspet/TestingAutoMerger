@@ -67,6 +67,7 @@ export class AnnualSettlementReconcileComponent {
                     this.annualSettlement = as;
                     this.setAccounts(this.annualSettlement.Reconcile.Accounts);
                     this.busy = false;
+                    this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
                     this.changeDetector.markForCheck();
                 }, () => this.busy = false, () => this.busy = false);
         }, () => this.busy = false, () => this.busy = false);
