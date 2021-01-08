@@ -1,7 +1,9 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ErrorService, StatisticsService } from '@app/services/services';
+import { BusinessRelation } from '@uni-entities';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
+import * as moment from 'moment';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { AnnualSettlementService } from '../annual-settlement.service';
@@ -20,7 +22,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	busy = true;
 	onDestroy$ = new Subject();
 	annualSettlement: any;
-	step = 7;
+	step = 0;
 
 	stepContentArray = [
 		{
@@ -28,42 +30,48 @@ export class AnnualSettlementWriteofDifferenceStep {
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 0
 		},
 		{
 			title: 'Tilvirkningskontrakter',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 1
 		},
 		{
 			title: 'Varelager',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 2
 		},
 		{
 			title: 'Gevinst og tap',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 3
 		},
 		{
 			title: 'Skattemessig verdi på aksjer',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 4
 		},
 		{
 			title: 'Akkumulert fremført skattemessig underskudd',
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 5
 		},
 
 		// This is removed if not valid for the current company
@@ -72,11 +80,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 			text: ` <p>
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
-			diff: 0
+			diff: 0,
+			step: 6
 		},
 		{
 			title: 'Oppsummering av endringer i forskjeller',
 			text: ``,
+			diff: 0,
+			step: 7,
 			summaryTitle: 'Grunnlag for utsatt skatt/utsatt skattefordel'
 		}
 	];
@@ -104,7 +115,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 		placeholder: 'Velg metode'
 	};
 
-	hasProjects = true;
+	accountCount2Query = `model=JournalEntryLine&select=count(ID) as count&expand=Account`
+	+ `&filter=( Account.Accountnumber ge '1300' and Account.AccountNumber le '1319') or `
+	+ `( Account.Accountnumber ge '1350' and Account.AccountNumber le '1399') or `
+	+ `( Account.Accountnumber ge '1800' and Account.AccountNumber le '1899') or `;
 
 	constructor(
 		private router: Router,
@@ -123,9 +137,16 @@ export class AnnualSettlementWriteofDifferenceStep {
         ).subscribe(id => {
 			Observable.forkJoin([
 				this.annualSettlementService.getAnnualSettlement(id),
-				this.statisticsService.GetAllUnwrapped(`model=Project&select=count(ID) as count`)
-			]).subscribe(([as, projectCount]) => {
+				this.statisticsService.GetAllUnwrapped(`model=Project&select=count(ID) as count`),
+				this.annualSettlementService.getAccountBalanceForSet(1400, 1489, new Date().getFullYear() - 1),
+
+				this.annualSettlementService.getAccountBalanceForSet(1300, 1319, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1)
+			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4]) => {
 				this.annualSettlement = as;
+
+				debugger
 
 				this.annualSettlement.Fields.FinnesProsjekterKey.Value =
 					this.annualSettlement.Fields.FinnesProsjekterKey.Value === 'true';
@@ -143,10 +164,27 @@ export class AnnualSettlementWriteofDifferenceStep {
 						}
 				}
 
-				// Check if customer has valid data for Corona pack here.. For now, just remove it
-				this.stepContentArray.splice(6, 1);
+				if (projectCount[0].count <= 0) {
+					const index = this.stepContentArray.findIndex(step => step.step === 1);
+					this.stepContentArray.splice(index, 1);
+				}
 
-				this.hasProjects = projectCount[0].count > 0;
+				if (!balance1) {
+					const index = this.stepContentArray.findIndex(step => step.step === 2);
+					this.stepContentArray.splice(index, 1);
+				}
+
+				if (!balance2 && !balance3 && balance4) {
+					const index = this.stepContentArray.findIndex(step => step.step === 4);
+					this.stepContentArray.splice(index, 1);
+				}
+
+				// Check if customer has valid data for Corona pack here.. For now, just remove it
+				if (true) {
+					const index = this.stepContentArray.findIndex(step => step.step === 6);
+					this.stepContentArray.splice(index, 1);
+				}
+
 				this.changeDetector.markForCheck();
 				this.busy = false;
 			}, err => {
@@ -172,20 +210,22 @@ export class AnnualSettlementWriteofDifferenceStep {
 			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
 				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
 				this.goBack();
+				return;
 			}, err => {
 				this.toastService.addToast('Informasjon lagret, men noe gikk galt', ToastType.bad, 6, 'Klarte ikke fullføre steg 3. Se gjennom data og prøv igjen');
 				this.goBack();
+				return;
 			});
 		}
 
-		if (this.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey.Value) {
+		if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey.Value) {
 			if (this.ct.value === 2) {
 				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value = null;
 				this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value = null;
 			}
 		}
 
-		if (this.step === 3) {
+		if (this.infoContent.step === 3) {
 			if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value) {
 				this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value = null;
 				this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value = null;
@@ -212,45 +252,61 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	setStepInfoContent() {
-		this.infoContent = this.stepContentArray[this.step - 1];
+		this.infoContent = this.stepContentArray[this.step];
 	}
 
 	// This is called when a value on step 2 is changed
 	recalc(step: number = this.step) {
-		this.stepContentArray[step - 1].diff = 0;
+		this.infoContent.diff = 0;
 
-		if (this.step === 2) {
-			if (this.ct.value === 1) {
-				this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value  || 0)
-				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value  || 0);
-			} else if (this.ct.value === 2) {
-				this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0);
-			}
-			// this.validSteps[1] = this.ct.value != 0;
-		} else if (this.step === 3) {
-			const thisYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning.Value  || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning.Value  || 0);
+		switch (this.infoContent.step) {
+			case 1:
+				if (this.ct.value === 1) {
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret.Value  || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig.Value  || 0);
+				} else if (this.ct.value === 2) {
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt.Value || 0);
+				}
+				break;
 
-			const lastYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret.Value || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value  || 0)
-				+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value  || 0);
+			case 2:
+				const thisYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning.Value  || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivning.Value  || 0);
 
-			this.stepContentArray[step - 1].diff = 0
-				+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value ? thisYear + '' : '0')
-				+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value ? lastYear + '' : '0');
-		} else if (this.step === 4) {
-			this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value || 0);
-		} else if (this.step === 5) {
-			this.stepContentArray[step - 1].diff = 0;
-		} else if (this.step === 6) {
-			this.stepContentArray[step - 1].diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd.Value || 0);
+				const lastYear = parseFloat(this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivningFjoraret.Value || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret.Value  || 0)
+					+ parseFloat(this.annualSettlement.Fields.LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret.Value  || 0);
+
+					this.infoContent.diff = 0
+					+ parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager.Value ? thisYear + '' : '0')
+					- parseFloat(this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLagerIFjor.Value ? lastYear + '' : '0');
+
+				break;
+			
+			case 3:
+				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret.Value || 0);
+				break;
+			case 4:
+				// NOT READY
+				this.infoContent.diff = 0;
+				break;
+			case 5: 
+				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd.Value || 0);
+				break;
 		}
+
+		this.stepContentArray[this.stepContentArray.length - 1].diff = this.stepContentArray
+			.map((step) => {
+				if (step.step !== 7) {
+					return step.diff;
+				} 
+			}).reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
 	}
 
 	goBack() {
