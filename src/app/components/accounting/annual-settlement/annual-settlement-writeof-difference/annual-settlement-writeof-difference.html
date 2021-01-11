@@ -42,7 +42,7 @@
 				<a style="font-size: 15px;" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
 			</section>
 
-			<section>
+			<section class="assets-table-section">
 
 				<!-- DETAILS TABLE START -->
 				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets">
@@ -84,7 +84,7 @@
 							<th>Forskjeller</th>
 							<th class="align-right">Inngående balanse</th>
 							<th class="align-right">Utgående balanse</th>
-							<th>Endring</th>
+							<th class="align-right">Endring</th>
 						</tr>
 					</thead>
 
@@ -107,7 +107,7 @@
 							<td>Sum endring i forskjeller</td>
 							<td class="align-right"> {{ (annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) | uninumberformat: 'money' }} </td>
 							<td class="align-right"> {{ (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig) | uninumberformat: 'money' }} </td>
-							<td> {{ ((annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) - (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig)) | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ ((annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) - (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig)) | uninumberformat: 'money' }} </td>
 						</tr>
 					</tbody>
 				</simple-table>
@@ -298,11 +298,11 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 7">
 
 			<section class="writeof-form-section">
-				<simple-table class="summary-table">
+				<simple-table class="annual-settlement-table">
 					<tbody>
 						<tr *ngFor="let step of stepContentArray">
 							<td> {{ step?.summaryTitle || step?.title }} </td>
-							<td> {{ step.diff | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ step.diff | uninumberformat: 'money' }} </td>
 						</tr>
 					</tbody>
 				</simple-table>
