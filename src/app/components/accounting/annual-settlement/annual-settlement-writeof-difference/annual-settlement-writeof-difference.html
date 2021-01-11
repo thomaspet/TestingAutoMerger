@@ -30,20 +30,87 @@
             <mat-spinner class="c2a"></mat-spinner>
 		</section>
 
-        <section class="uni-card-content" *ngIf="infoContent.step === 0">
+        <section class="uni-card-content" *ngIf="infoContent.step === 0 && annualSettlement">
 			<section class="error-and-details-container">
 				<span class="error-section">
 					<i class="material-icons">warning</i>
-					<span> Du mangler inngående skattemessig verdi på noen av eiendelene dine. <a>Du legger dem inn her</a> </span>
+					<span> Du mangler inngående skattemessig verdi på noen av eiendelene dine. <a (click)="openEditModal()">Du legger dem inn her</a> </span>
 				</span>
 
 				<span style="flex: 1"></span>
 
-				<a style="font-size: 15px;">Se detaljer <i class="material-icons">expand_more</i> </a>
+				<a style="font-size: 15px;" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
 			</section>
 
 			<section>
-				Table here
+
+				<!-- DETAILS TABLE START -->
+				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets">
+					<thead>
+						<tr>
+							<th>Saldogruppe</th>
+							<th>Avskr. %</th>
+							<th class="align-right">Saldogrunnlag 01.01.{{annualSettlement.AccountYear}}</th>
+							<th class="align-right">Endring i året</th>
+							<th class="align-right">Skattemessig avskrivning</th>
+							<th class="align-right">UB skattemessig verdi</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr *ngFor="let group of accountGroups">
+							<td> </td>
+							<td> </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+						</tr>
+
+						<tr>
+							<td colspan="2">Skattemessig verdi på eiendeler</td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+						</tr>
+					</tbody>
+				</simple-table>
+				<!-- DETAILS TABLE END -->
+
+				<simple-table class="annual-settlement-table">
+					<thead>
+						<tr>
+							<th>Forskjeller</th>
+							<th class="align-right">Inngående balanse</th>
+							<th class="align-right">Utgående balanse</th>
+							<th>Endring</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr>
+							<td>Den regnskapsmessige verdien av dine eiendeler</td>
+							<td class="align-right"> {{ annualSettlement.Fields.DriftsmidlerFjoraret | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ annualSettlement.Fields.Driftsmidler | uninumberformat: 'money' }} </td>
+							<td> </td>
+						</tr>
+
+						<tr>
+							<td>Den skattemessige verdien av dine eiendeler</td>
+							<td class="align-right"> {{ annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ annualSettlement.Fields.DriftsmidlerSkattemessig | uninumberformat: 'money' }} </td>
+							<td> </td>
+						</tr>
+
+						<tr>
+							<td>Sum endring i forskjeller</td>
+							<td class="align-right"> {{ (annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig) | uninumberformat: 'money' }} </td>
+							<td> {{ ((annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) - (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig)) | uninumberformat: 'money' }} </td>
+						</tr>
+					</tbody>
+				</simple-table>
 			</section>
 
 		</section>
@@ -252,7 +319,7 @@
 	</section>
 
 	<section class="navigation-button-container" *ngIf="!busy">
-		<button [disabled]="step <= 1" (click)="onStep(-1)" class="secondary"> Tilbake </button>
+		<button [disabled]="step <= 0" (click)="onStep(-1)" class="secondary"> Tilbake </button>
 		<button (click)="onStep(1)" class="c2a"> Lagre og gå videre </button>
 	</section>
 </section>
