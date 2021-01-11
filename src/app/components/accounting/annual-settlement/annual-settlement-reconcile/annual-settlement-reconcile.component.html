@@ -12,7 +12,10 @@
     (clickCompleteButton)="completeReconcile($event)"
     (clickSaveButton)="saveAnnualSettlement($event)"
 >
-    <section class="uni-card">
+    <section *ngIf="busy" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <section class="uni-card" *ngIf="!busy">
         <simple-table>
             <thead>
             <tr>

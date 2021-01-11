@@ -22,6 +22,7 @@ export class AnnualSettlementSummaryComponent {
         text: 'Her får du en oppsummering av tallene som vil sendes til Altinn. Det er viktig at du logger deg inn i Altinn og kontrollerer at Skattemeldingen RF-1028 med tilhørende underskjemaer er korrekt. Du kan gjøre justeringer direkte i Altinn dersom du har behov for det. '
     };
     summary = [];
+    busy = false;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -32,6 +33,7 @@ export class AnnualSettlementSummaryComponent {
     ) {
     }
     ngOnInit() {
+        this.busy = true;
         this.route.params.pipe(
             takeUntil(this.onDestroy$),
             map((params) => params.id)
@@ -41,8 +43,9 @@ export class AnnualSettlementSummaryComponent {
                 switchMap((as) => this.annualSettlementService.getAnnualSettlementSummary(as))
             ).subscribe((items: any) => {
                 this.summary = items;
-            });
-        });
+                this.busy = false;
+            }, () => this.busy = false, () => this.busy = false);
+        }, () => this.busy = false, () => this.busy = false);
     }
     completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(() => {
