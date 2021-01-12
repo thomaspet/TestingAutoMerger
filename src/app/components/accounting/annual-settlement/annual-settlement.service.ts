@@ -82,7 +82,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     checkStocksCapital(financialYear) {
         return this.http.http.get(
             this.baseUrl +
-            'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear - 1)
+            'annualsettlement?action=get-account-balance&fromAccountNumber=2000&toAccountNumber=2000&toFinancialYear=' + (financialYear)
         ).pipe(
             map((result: number) => result <= -30000)
         );
@@ -91,7 +91,7 @@ export class AnnualSettlementService extends BizHttp<any> {
     checkAssets(financialYear) {
         return this.http.http.get(
             this.baseUrl +
-            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + (financialYear - 1)
+            'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + (financialYear)
         ).pipe(
             map((result: number) => result > -1 && result < 1)
         );
@@ -125,7 +125,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                 switchMap(() => this.checkLastyear(as.AccountYear)),
                 tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
-                tap(resultStocksCapital => checkList.IsSharedCapitalOK = resultStocksCapital),
+                tap(resultStocksCapital => checkList.IsShareCapitalOK = resultStocksCapital),
                 switchMap(() => this.checkAssets(as.AccountYear)),
                 tap(resultAssets => checkList.IsAssetsOK = resultAssets),
                 //
