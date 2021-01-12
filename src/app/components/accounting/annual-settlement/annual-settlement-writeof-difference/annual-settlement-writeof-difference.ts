@@ -2,11 +2,13 @@ import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ErrorService, StatisticsService } from '@app/services/services';
 import { BusinessRelation } from '@uni-entities';
+import { UniModalService } from '@uni-framework/uni-modal';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { AnnualSettlementService } from '../annual-settlement.service';
+import {AssetsEditModal} from './assets-edit-modal';
 
 @Component({
 	selector: 'writeof-difference',
@@ -73,8 +75,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 			diff: 0,
 			step: 5
 		},
-
-		// This is removed if not valid for the current company
 		{
 			title: 'Coronapakke for firma med underskudd 2020',
 			text: ` <p>
@@ -122,7 +122,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 		private annualSettlementService: AnnualSettlementService,
 		private changeDetector: ChangeDetectorRef,
 		private errorService: ErrorService,
-		private toastService: ToastService
+		private toastService: ToastService,
+		private modalService: UniModalService
 	) {	
 		this.infoContent = this.stepContentArray[0];
 	}
@@ -139,11 +140,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 				this.annualSettlementService.getAccountBalanceForSet(1300, 1319, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
-				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1)
+				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1),
+				// this.annualSettlementService.getAssetTaxbasedIBDetails(id)
 			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4]) => {
 				this.annualSettlement = as;
-
-				debugger
 
 				this.annualSettlement.Fields.FinnesProsjekterKey =
 					this.annualSettlement.Fields.FinnesProsjekterKey === 'true';
@@ -199,6 +199,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 			this.step += direction;
 			this.setStepInfoContent();
 		}
+	}
+
+	openEditModal() {
+		this.modalService.open(AssetsEditModal).onClose.subscribe(() => {
+			
+		})
 	}
 
 	checkSaveAndContinue(direction: number) {

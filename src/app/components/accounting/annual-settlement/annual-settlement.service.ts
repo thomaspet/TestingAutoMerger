@@ -106,6 +106,15 @@ export class AnnualSettlementService extends BizHttp<any> {
             .map(res => res.body);
     }
 
+    getAssetTaxbasedIBDetails(id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`annualsettlement/${id}?action=get-asset-taxbased-IB-details`)
+            .send()
+            .map(res => res.body);
+    }
+
     getAnnualSettlementWithCheckList(as) {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)

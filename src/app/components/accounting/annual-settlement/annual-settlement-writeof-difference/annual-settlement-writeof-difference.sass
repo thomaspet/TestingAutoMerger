@@ -66,6 +66,24 @@
 	p
 		flex: 1
 
+.assets-table-section
+	.annual-settlement-table
+		margin-top: 2rem
+
+.annual-settlement-table
+	font-size: 14px
+
+	thead > tr > th
+		background-color: var(--alert-info)
+
+	tbody
+		tr:last-of-type
+			font-weight: 500
+			background-color: #ededed
+
+	.align-right
+		text-align: right
+
 .error-and-details-container
 	display: flex
 	.error-section
@@ -87,16 +105,20 @@
 	.info-span
 		display: block
 		margin-bottom: 2rem
+		font-size: 14px
 	label
 		display: flex
 		flex-direction: column
 		margin-bottom: 2rem
 
+		&:last-of-type
+			margin-bottom: 0
+
 		uni-select
 			width: 22rem
 
 		span
-			font-size: 15px
+			font-size: 14px
 			font-weight: 500
 
 		&.left-aligned-span
@@ -113,17 +135,7 @@
 				width: 14rem
 				height: 54px
 				text-align: center
-				font-size: 15px
-
-	.summary-table
-		tr > td
-			&:last-of-type
-				text-align: right
-
-		tr:last-of-type
-			font-weight: 500
-			background-color: var(--alert-info)
-
+				font-size: 14px
 
 .sum-section
 	display: flex
@@ -131,7 +143,7 @@
 	border-top: 1px solid var(--border-color)
 
 	span
-		font-size: 15px
+		font-size: 14px
 		font-weight: 500
 
 		&:first-of-type
