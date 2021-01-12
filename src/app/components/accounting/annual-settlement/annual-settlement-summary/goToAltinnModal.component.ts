@@ -10,7 +10,7 @@ import {IModalOptions} from '@uni-framework/uni-modal';
                 <header>Årsoppgjøret er levert i Altinn</header>
                 <section class="alert warn">
                     <i class="material-icons">report_problem</i>
-                    <article>Du må logge seg inn i Altinn for å kontrollere at dataene som er sendt inn er korrekt.</article>
+                    <article>Du må logge deg inn i Altinn for å kontrollere at dataene som er sendt inn er korrekt.</article>
                 </section>
             </article>
             <footer>
