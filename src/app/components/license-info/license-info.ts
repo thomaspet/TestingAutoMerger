@@ -72,13 +72,24 @@ export class LicenseInfo implements OnDestroy {
         if (this.tabs?.length) {
             return;
         }
-        this.tabs = [
-            {name: 'Detaljer', path: 'details'},
-            {name: 'Selskaper', path: 'companies'},
-            {name: 'Brukere', path: 'users'},
-            // {name: 'Estimert forbruk', path: 'billing'},
-            // {name: 'Forbrukshistorikk', path: 'history'},
-        ];
+
+        // temporary code
+        if (this.authService.currentUser.License?.ContractType?.TypeID === 11) { // bureau
+            this.tabs = [
+                {name: 'Detaljer', path: 'details'},
+                {name: 'Selskaper', path: 'companies'},
+                {name: 'Brukere', path: 'users'},
+                {name: 'Estimert forbruk', path: 'billing'},
+                {name: 'Forbrukshistorikk', path: 'history'},
+            ];
+        } else {
+            this.tabs = [
+                {name: 'Detaljer', path: 'details'},
+                {name: 'Selskaper', path: 'companies'},
+                {name: 'Brukere', path: 'users'},
+            ];
+        }
+        // end temporary
     }
 
     ngOnDestroy() {
