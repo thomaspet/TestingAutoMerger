@@ -149,7 +149,11 @@ export class SupplierInvoiceStore {
                 }
 
                 return Observable.forkJoin(obs).pipe(map(res => {
-                    this.invoicePayments = res[0].concat(res[1]);
+                    let bankPayments = res[0];
+                    let registeredPayments = res[1];
+                    this.invoicePayments = bankPayments.concat(registeredPayments).filter(
+                        payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+                    );
                     invoice.JournalEntry = res[2];
                     return invoice;
                 }));

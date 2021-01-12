@@ -26,6 +26,12 @@ import { FeaturePermissionService } from '@app/featurePermissionService';
 import { IContextMenuItem, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { BrunoBankOffboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
+import {AuthService} from '@app/authService';
+
+interface RGBValues {
+    rgb: boolean;
+    status: string;
+}
 
 @Component({
     selector: 'bank-settings',
@@ -51,7 +57,12 @@ export class UniBankSettings {
         'BankAccounts.Bank',
         'BankAccounts.Account',
     ];
+    RGBValues: RGBValues = {
+        rgb:  false,
+        status: ''
+    };
 
+    RGBFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     bankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     autobankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     remitteringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -59,6 +70,7 @@ export class UniBankSettings {
 
     companySalary$ = new BehaviorSubject<CompanySalary>(null);
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    RGB$ = new BehaviorSubject<RGBValues>(null);
     companySettings: CompanySettings;
     agreements: any[];
 
@@ -66,7 +78,6 @@ export class UniBankSettings {
     tabs: IUniTab[] = [
         {name: 'Bankkontoer'},
         {name: 'Bankinnstillinger'}
-
     ];
     bankAccountQuery = 'model=BankAccount&filter=CompanySettingsID eq 1&join=BankAccount.ID eq Payment.FromBankAccountID&select=ID as ID,count(Payment.ID) as count';
 
@@ -98,6 +109,7 @@ export class UniBankSettings {
         private brunoOnboardingService: BrunoOnboardingService,
         private paymentBatchService: PaymentBatchService,
         private toast: ToastService,
+        private authService: AuthService
     ) {}
 
     ngOnInit() {
@@ -113,12 +125,14 @@ export class UniBankSettings {
     }
 
     ngOnDestroy() {
+        this.RGBFields$.complete();
         this.bankFields$.complete();
         this.autobankFields$.complete();
         this.remitteringFields$.complete();
         this.remitteringFields$2.complete();
         this.companySalary$.complete();
         this.companySettings$.complete();
+        this.RGB$.complete();
     }
 
     loadAccountsDataAndInit() {
@@ -130,6 +144,9 @@ export class UniBankSettings {
         ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
 
             this.agreements = agreements;
+            this.setRGBValues(agreements);
+            this.RGB$.next(this.RGBValues);
+
             companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account, agreements));
 
             // This should always be ordered the same way..
@@ -161,6 +178,25 @@ export class UniBankSettings {
        });
     }
 
+    setRGBValues(agreements: any[]) {
+        const preApprovedBankPayments = agreements[0]?.PreApprovedBankPayments;
+
+        this.RGBValues.rgb = preApprovedBankPayments !== 700000;
+
+        if (preApprovedBankPayments !== null) {
+            switch (preApprovedBankPayments) {
+                case 700003: {
+                    this.RGBValues.status = 'Venter på godkjenning';
+                    break;
+                }
+                case 700005: {
+                    this.RGBValues.status = 'Aktiv';
+                    break;
+                }
+            }
+        }
+    }
+
     setAsDirty() {
         const cs = this.companySettings$.getValue();
         cs['_isDirty'] = true;
@@ -177,6 +213,8 @@ export class UniBankSettings {
 
         const companySettings = this.companySettings$.getValue();
         const companySalary = this.companySalary$.getValue();
+
+        this.orderRGB();
 
         return new Promise(res => {
             if (!companySettings.CompanyBankAccountID && !companySettings.CompanyBankAccount) {
@@ -264,6 +302,31 @@ export class UniBankSettings {
         });
     }
 
+    orderRGB() {
+        const rgbValues = this.RGB$.getValue();
+        const bankID = this.agreements[0].BankAccount.BankID;
+
+        // Box is checked, order RGB
+        if (rgbValues.rgb && rgbValues.status === '') {
+            if (this.isExt02Environment) {
+                let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
+                const userID = this.authService.currentUser?.BankIntegrationUserName;
+
+                if (userID) {
+                    url += '&userid=' + userID;
+                }
+
+                window.open(url);
+            }
+            this.bankService.orderPreApprovedBankPayments(bankID);
+        }
+
+        // Box is unchecked, cancell RGB
+        /* if (!rgbValues.rgb && rgbValues.status !== '') {
+            this.bankService.orderPreApprovedBankPayments(bankID, true);
+        }*/
+    }
+
     canDeactivate(): boolean | Observable<boolean> {
         if ((!this.companySalary$.getValue() || !this.companySettings$.getValue())
         || (!this.companySalary$.getValue()['_isDirty'] && !this.companySettings$.getValue()['_isDirty'])) {
@@ -338,6 +401,21 @@ export class UniBankSettings {
     }
 
     createFormFields() {
+        this.RGBFields$.next([
+            <any>{
+                EntityType: 'RGBValues',
+                Property: 'rgb',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Regnskapsgodkjente betalinger'
+            },
+            {
+                EntityType: 'RGBValues',
+                Property: 'status',
+                FieldType: FieldType.STATIC_TEXT,
+                Label: 'Status:',
+                Hidden: this.RGBValues.status === ''
+            }
+        ]);
         this.bankFields$.next([
             <any>{
                 EntityType: 'CompanySettings',

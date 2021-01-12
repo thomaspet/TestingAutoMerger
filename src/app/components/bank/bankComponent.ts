@@ -1,7 +1,7 @@
 import { Component, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { IToolbarConfig } from '../common/toolbar/toolbar';
-import { IUniSaveAction } from '../../../framework/save/save';
+import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router, ActivatedRoute } from '@angular/router';
 import {
     Ticker,
@@ -9,7 +9,7 @@ import {
     ITickerActionOverride,
     ITickerColumnOverride,
     TickerFilter
-} from '../../services/common/uniTickerService';
+} from '@app/services/common/uniTickerService';
 import { TabService, UniModules } from '../layout/navbar/tabstrip/tabService';
 import { UniTickerContainer } from '../uniticker/tickerContainer/tickerContainer';
 import {
@@ -22,15 +22,16 @@ import {
     EntityForFileUpload,
     IModalOptions,
     UniConfirmModalWithCheckbox,
-    PreapprovedPaymentsModal
-} from '../../../framework/uni-modal';
+    PreapprovedPaymentsModal,
+    ConfirmTwoFactorModal,
+} from '@uni-framework/uni-modal';
 import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {
     UniBankListModal,
     MatchSubAccountManualModal,
     MatchMainAccountModal,
 } from './modals';
-import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement } from '../../unientities';
+import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments } from '../../unientities';
 import { saveAs } from 'file-saver';
 import { UniPaymentEditModal } from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -49,7 +50,7 @@ import {
     UserRoleService,
     SupplierInvoiceService,
 } from '../../services/services';
-import { ToastService, ToastType, ToastTime } from '../../../framework/uniToast/toastService';
+import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
 import { RequestMethod } from '@uni-framework/core/http';
 import { BookPaymentManualModal } from '@app/components/common/modals/bookPaymentManual';
@@ -60,6 +61,10 @@ import { ConfirmCreditedJournalEntryWithDate } from '../common/modals/confirmCre
 import { AuthService } from '@app/authService';
 import { theme, THEMES } from 'src/themes/theme';
 import { FeaturePermissionService } from '@app/featurePermissionService';
+import { BankAgreementServiceProvider } from '@uni-models/autobank-models';
+import { UniNumberFormatPipe } from '@uni-framework/pipes/uniNumberFormatPipe';
+
+const APPROVEINBANK = 'Regnskapsgodkjente utbetalinger er ikke aktivert og utbetalingene må dermed godkjennes i banken.';
 
 @Component({
     selector: 'uni-bank-component',
@@ -115,6 +120,8 @@ export class BankComponent {
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
     private isAdmin: boolean;
+    private useTwoFactor: boolean;
+    private isZDataV3: boolean;
     hasAccessToAutobank: boolean;
     hasActiveAgreement: boolean;
     filter: string = '';
@@ -137,7 +144,8 @@ export class BankComponent {
         },
         {
             Code: 'download_file',
-            ExecuteActionHandler: (selectedRows) => this.downloadIncommingPaymentFile(selectedRows)
+            ExecuteActionHandler: (selectedRows) => this.downloadIncommingPaymentFile(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => !selectedRow.PaymentFileID
         },
         {
             Code: 'download_payment_file',
@@ -227,6 +235,11 @@ export class BankComponent {
             Code: 'credit_journal_entry',
             ExecuteActionHandler: (selectedRows) => this.creditJournalEntry(selectedRows),
             CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode !== 44018 || !selectedRow.JournalEntryID
+        },
+        {
+            Code: 'approve_batch',
+            ExecuteActionHandler: (selectedRows) => this.approveBatch(selectedRows),
+            CheckActionIsDisabled: (selectedRow) => selectedRow.PaymentStatusCode < 45010 && selectedRow.PaymentStatusCode > 45011
         }
     ];
 
@@ -292,7 +305,8 @@ export class BankComponent {
         private authService: AuthService,
         private brunoOnboardingService: BrunoOnboardingService,
         private userRoleService: UserRoleService,
-        private supplierInvoiceService: SupplierInvoiceService
+        private supplierInvoiceService: SupplierInvoiceService,
+        private numberformat: UniNumberFormatPipe
     ) {
         if (this.featurePermissionService.canShowUiFeature('ui.bank.journaling-rules')) {
             this.actionOverrides.push({
@@ -329,6 +343,7 @@ export class BankComponent {
                                 if (agreements && agreements.length) {
                                     this.agreements = agreements;
                                     this.hasAccessToAutobank = true;
+                                    this.checkZDataV3();
                                     this.initiateBank();
                                 } else {
                                     this.modalService.open(BankInitModal, {
@@ -365,6 +380,7 @@ export class BankComponent {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
                                     this.unfilteredAgreements = agreements;
                                     this.agreements = agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
+                                    this.checkZDataV3();
                                     this.initiateBank();
                                 });
                             } else {
@@ -378,6 +394,18 @@ export class BankComponent {
                 });
             }
         });
+    }
+
+    private checkZDataV3()
+    {
+        this.useTwoFactor = this.agreements.some(a => 
+            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+            a.StatusCode === StatusCodeBankIntegrationAgreement.Active && a.PreApprovedBankPayments === PreApprovedBankPayments.Active
+        );
+        this.isZDataV3 = this.agreements.some(a =>
+            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+            a.StatusCode === StatusCodeBankIntegrationAgreement.Active
+        );
     }
 
     tickerdataHasLoaded(event) {
@@ -928,6 +956,26 @@ export class BankComponent {
         });
     }
 
+    public approveBatch(selectedRows: any) {
+        return new Promise(() => {
+            const row = selectedRows[0];
+            const modal = this.modalService.open(ConfirmTwoFactorModal, {
+                header: 'Godkjenn utbetaling'
+            });
+
+            modal.onClose.subscribe((result) => {
+                if (result === ConfirmActions.ACCEPT) {
+                    this.paymentBatchService.approveBatch(row.ID).subscribe(paymentResponse => {
+                        this.tickerContainer.mainTicker.reloadData(); // refresh table
+                        this.toastService.addToast('Godkjenning er fullført', ToastType.good, 3);
+                    });
+                } else if (result === ConfirmActions.REJECT) {
+                    this.toastService.addToast('Godkjenning avvist', ToastType.bad, 15);
+                }
+            });
+        });
+    }
+
     public revertBatch(selectedRows: any) {
         return new Promise(() => {
             const row = selectedRows[0];
@@ -1337,7 +1385,7 @@ export class BankComponent {
             this.modalService.open(UniSendPaymentModal, {
                 data: {
                     PaymentBatchID: row[0].ID,
-                    hasTwoStage: this.companySettings.TwoStageAutobankEnabled
+                    hasTwoStage: true //this.companySettings.TwoStageAutobankEnabled
                 }
             });
         });
@@ -1518,7 +1566,10 @@ export class BankComponent {
                     const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
                     if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
                         this.payDirectly(doneHandler);
-                    } else {
+                    } else if (!isManualPayment && this.useTwoFactor) {
+                        this.payWithTwoFactor(doneHandler);
+                    }
+                    else {
                         this.payInternal(this.rows, doneHandler, isManualPayment);
                     }
 
@@ -1530,6 +1581,8 @@ export class BankComponent {
             const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
             if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
                 this.payDirectly(doneHandler);
+            } else if (!isManualPayment && this.useTwoFactor) {
+                this.payWithTwoFactor(doneHandler);
             } else {
                 const modal = this.modalService.open(UniConfirmModalV2, {
                     header: 'Bekreft utbetaling',
@@ -1602,7 +1655,8 @@ export class BankComponent {
                                     }; // body might be removed needs testing
                                     // temp workarround sendt directly to backend until bankid is working
                                     this.paymentBatchService.sendToPayment(batchJobResponse.Result.ID, body).subscribe(() => {
-                                        const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
+                                        const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`
+                                                          + (!this.useTwoFactor ? ' ' + APPROVEINBANK : '');
                                         this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
                                         this.tickerContainer.getFilterCounts();
                                         this.tickerContainer.mainTicker.reloadData();
@@ -1645,7 +1699,8 @@ export class BankComponent {
                             }; // body might be removed needs testing
                             // temp workarround sendt directly to backend until bankid is working
                             this.paymentBatchService.sendToPayment(result.ID, body).subscribe(() => {
-                                const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
+                                const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`
+                                                  + (!this.useTwoFactor ? ' ' + APPROVEINBANK : '');
                                 this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
                                 this.tickerContainer.getFilterCounts();
                                 this.tickerContainer.mainTicker.reloadData();
@@ -1688,6 +1743,104 @@ export class BankComponent {
         return map;
     }
 
+    payWithTwoFactor(doneHandler, isAll: boolean = false) {
+        const data = {
+            paymentIDs : this.rows.map(row => row.ID),
+            filter: this.getCurrentFilterString(),
+            expand: this.selectedTicker.Expand,
+            amount: this.rows?.length ? this.rows.map(row => row.PaymentAmountCurrency).reduce((a, b) => a + b) : 0,
+            isAll
+        };
+
+        if (isAll && (!data.filter || !data.expand)) {
+            doneHandler();
+            return;
+        }
+
+        // Create paymentbatch
+        const obs = isAll 
+        ? this.paymentService.createPaymentBatchForAll()
+        : this.paymentService.createPaymentBatch(data.paymentIDs, false);
+
+        obs.subscribe((result) => {
+            if (result?.ProgressUrl) {
+                // runs as hangfire job (decided by back-end)
+                this.toastService.addToast('Utbetaling startet', ToastType.good, ToastTime.long,
+                    'Det opprettes en betalingsjobb før to-faktor godkjenning. ' +
+                    'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
+                this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
+                    if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {                       
+                        this.askTwoFactorAndSendToPayment(doneHandler, data, batchJobResponse.Result.ID, batchJobResponse.Result.HashValue);
+                    } else {
+                        this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
+                            batchJobResponse.Result);
+                        doneHandler();
+                    }
+                });
+            } else {
+                this.askTwoFactorAndSendToPayment(doneHandler, data, result.ID, result.HashValue);
+            }
+        }, err => this.errorService.handle(err));       
+    }
+
+    askTwoFactorAndSendToPayment(doneHandler, data, paymentBatchID, hashValue)
+    {
+        // finish and refresh
+        const finish = () => {
+            this.tickerContainer.getFilterCounts();
+            this.tickerContainer.mainTicker.reloadData();
+            this.tickerContainer.mainTicker.table.clearSelection();
+            doneHandler();
+        }
+
+        // sendToPayment
+        const afterTwoFactor = () => {
+            // Needed body with hash
+            const body = {
+                HashValue: hashValue
+            };
+
+            this.paymentBatchService.sendToPayment(paymentBatchID, body).subscribe(() => {
+                const toastString = `Betalingsbunt med ${ data.isAll ? 'alle' : data.paymentIDs.length} `
+                    + `utbetalinger er opprettet og sendt til bank`;
+    
+                this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
+                finish();
+            }, err => {
+                this.toastService.addToast('Kunne ikke sende til bank', ToastType.warn, 15,
+                    'Vi har opprettet betalingsbunt, men klarte ikke sende den til bank. Betalingene er '
+                    + 'flyttet til Under behandling fanen. Gå til Utbetalingsbunter for tilbakestille bunt og '
+                    + 'behandle betalinger igjen, eller prøve å sende den på nytt.'
+                    + (err?.error?.Message ? ' ' + err.error.Message : ''));
+                finish();
+            });
+        }
+
+        // Verify 2FA with HashValue as reference
+        this.modalService.open(ConfirmTwoFactorModal, {
+            header: 'Godkjenn betalinger med to-faktor',
+            buttonLabels: {
+                accept: 'Godkjenn og betal',
+                cancel: 'Avbryt'
+            },
+            data: { 
+                reference: hashValue
+            },    
+            message: data.isAll
+                ? 'Godkjenn og send alle betalinger'
+                : `Send ${data.paymentIDs?.length} betalinger med totalsum på <strong>${this.numberformat.transform(data.amount, 'money')}</strong> til bank og godkjenn med to-faktor`
+        }).onClose.subscribe((result) => {
+            if (result === ConfirmActions.ACCEPT) {
+                afterTwoFactor();
+            } else if (result === ConfirmActions.REJECT) {
+                this.toastService.addToast('To-faktor avvist', ToastType.warn, 15);
+                finish();
+            } else {
+                finish();
+            }
+        }); 
+    }
+
     payDirectly(doneHandler, isAll: boolean = false) {
         const data = {
             paymentIDs : this.rows.map(row => row.ID),
@@ -1711,7 +1864,7 @@ export class BankComponent {
         });
 
         // User selected manual payment or temp workarround until bankid is implemented for ext02
-        if (isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) {
+        if (isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02) || this.isZDataV3) {
             // Create action to generate batch for n paymetns
             this.paymentService.createPaymentBatch(paymentIDs, isManualPayment)
                 .subscribe((paymentBatch: PaymentBatch) => {
@@ -1746,7 +1899,8 @@ export class BankComponent {
                         }; // check if body this one can be removed
                         // temp workarround sendt directly to backend until bankid is working
                         this.paymentBatchService.sendToPayment(paymentBatch.ID, body).subscribe(() => {
-                            const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank`;
+                            const toastString = `Betalingsbunt med alle utbetalinger er opprettet og sendt til bank.`
+                                + (this.isZDataV3 ? ' Regnskapsgodkjente utbetalinger er ikke aktivert og må dermed godkjennes i banken.' :'');
                             this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
                             this.tickerContainer.getFilterCounts();
                             this.tickerContainer.mainTicker.reloadData();

@@ -90,6 +90,23 @@ export class UserService extends BizHttp<User> {
             .send();
     }
 
+    public sendUserCodeChallenge(reference: string = '') {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`users?action=user-code-challenge&reference=` + reference)
+            .send();
+    }
+
+    public verifyUserCodeChallenge(code: string, reference: string = '') {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`users?action=verify-code-challenge&reference=` + reference)
+            .withBody(code)
+            .send();
+    }
+
     public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {
         if (GUIDs.length === 0) {
             return Observable.of([]);

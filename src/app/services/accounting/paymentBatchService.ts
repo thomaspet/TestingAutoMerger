@@ -81,6 +81,12 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             return 'Fullført';
         } else if (statusCode === 45010) {
             return 'Transit til bank';
+        } else if (statusCode === 45011) {
+            return 'Klar for godkjenning';
+        } else if (statusCode === 45012) {
+            return 'Godkjent';
+        } else if (statusCode === 45013) {
+            return 'Avvist';
         } else if (statusCode === 45014) {
             return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
         }
@@ -170,5 +176,13 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withEndPoint('bank-agreements?action=auth-code')
             .send()
             .map(response => response.body);
+    }
+
+    public approveBatch(paymentBatchID: number): Observable<any> {
+        return super.PutAction(null, 'approve', `ID=${paymentBatchID}`);
+    }
+
+    public dismissBatch(paymentBatchID: number): Observable<any> {
+        return super.PutAction(null, 'dismiss', `ID=${paymentBatchID}`);
     }
 }

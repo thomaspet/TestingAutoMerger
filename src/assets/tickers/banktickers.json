@@ -954,9 +954,23 @@
                 "Field": "StatusCode",
                 "FilterOperator": "contains",
                 "DefaultHidden": false
+            },
+            {
+                "Header": "Utbetalingsfil",
+                "Field": "PaymentFileID",
+                "Alias": "PaymentFileID",
+                "Type": "dontdisplay"
             }
         ],
         "Actions": [
+            {
+                "Name": "Godkjenn",
+                "Code": "approve_batch",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
             {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_file",

@@ -162,7 +162,7 @@ export class BankInitModal implements IUniModal, OnInit {
         }
         this.steps++;
         this.errorMsg = '';
-        if (this.steps >= 2 && this.steps <= 4) {
+        if (this.steps >= 2 && this.steps <= 5) {
             this.fields$.next(this.setUpUniForm());
         }
     }
@@ -171,7 +171,7 @@ export class BankInitModal implements IUniModal, OnInit {
         this.steps--;
         this.errorMsg = '';
 
-        if (this.steps >= 2 && this.steps <= 4) {
+        if (this.steps >= 2 && this.steps <= 5) {
             this.fields$.next(this.setUpUniForm());
         }
     }
@@ -182,7 +182,7 @@ export class BankInitModal implements IUniModal, OnInit {
                 return this.isNextStepValid;
             case 1:
                 return this.hasReadAgreement;
-            case 2:
+            case 3:
                 return !!this.companySettings$.value?.CompanyBankAccountID;
             default:
                 return true;
@@ -281,7 +281,7 @@ export class BankInitModal implements IUniModal, OnInit {
     }
 
     setUpUniForm() {
-        const accountType = this.accounts[this.steps - 1];
+        const accountType = this.accounts[this.steps - 3];
         return [
             {
                 EntityType: 'Supplier',
