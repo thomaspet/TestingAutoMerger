@@ -7,6 +7,7 @@
     [outlinedIcon]="false"
     [disableCompleteButton]="annualSettlement?.StatusCode !== 36105 || !allAccountsAreApproved"
     [saveButtonLabel]="'Lagre'"
+    [disableSaveButton]="annualSettlement?.StatusCode !== 36105"
     [alert]="infoContent"
     [tabTitle]="'Avstem balansen'"
     (clickCompleteButton)="completeReconcile($event)"
@@ -44,13 +45,14 @@
                 <td style="text-align: right">
                     <input type="text"
                            style="text-align: right"
+                           [disabled]="annualSettlement?.StatusCode !== 36105"
                            [(ngModel)]="account.Balance"
                            (blur)="updateBalance(account)"/>
                 </td>
                 <td class="saldo-button-container">
                     <button class="saldo-button"
-                            [class.invisible]="account.Balance === account._TotalAmount"
-                            [disabled]="account.Balance === account._TotalAmount"
+                            [class.invisible]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
+                            [disabled]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
                             (click)="updateBalanceFromButton(account)"
                     >
                         {{account._TotalAmount | uninumberformat: 'money'}}

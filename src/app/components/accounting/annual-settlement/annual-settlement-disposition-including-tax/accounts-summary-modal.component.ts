@@ -15,14 +15,14 @@ import {IModalOptions} from '@uni-framework/uni-modal';
                         <tr>
                             <th>Konto</th>
                             <th>Kontonavn</th>
-                            <th>Sum</th>
+                            <th style="text-align: right">Sum</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let account of accounts">
                             <td>{{account.AccountNumber}}</td>
                             <td>{{account.Description}}</td>
-                            <td>{{account.Amount}}</td>
+                            <td style="text-align: right">{{account.Amount | uninumberformat:'money'}}</td>
                         </tr>
                     </tbody>
                 </simple-table>
@@ -42,6 +42,6 @@ export class AccountsSummaryModalComponent {
     }
 
     ngOnInit() {
-        this.accounts = this.options.data || [];
+        this.accounts = (this.options.data && this.options.data.DraftLines) || [];
     }
 }

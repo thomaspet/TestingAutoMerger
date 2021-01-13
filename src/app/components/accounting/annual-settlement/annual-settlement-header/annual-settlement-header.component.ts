@@ -24,6 +24,7 @@ export class AnnualSettlementHeaderComponent {
     @Input() completeLabel: string;
     @Input() isAlertOpen: boolean;
     @Input() disableCompleteButton: boolean;
+    @Input() disableSaveButton: boolean;
     @Input() alert: IAlertData;
     @Input() tabTitle: string;
     @Output() clickSaveButton = new EventEmitter<any>(true);
@@ -45,7 +46,8 @@ export class AnnualSettlementHeaderComponent {
             buttons.push(
                 {
                     label: this.saveButtonLabel,
-                    action: () => this.clickSaveButton.emit()
+                    action: () => this.clickSaveButton.emit(),
+                    disabled: this.disableSaveButton
                 }
             );
         }
