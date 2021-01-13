@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { SendEmail } from '../../../../models/sendEmail';
 import { IUniSaveAction } from '../../../../../framework/save/save';
 import { Observable, of } from 'rxjs';
-import { LocalDate, CustomerInvoiceReminder, ReportDefinition } from '../../../../unientities';
+import { LocalDate, CustomerInvoiceReminder, ReportDefinition, CompanySettings } from '../../../../unientities';
 import { UniModalService, ConfirmActions, UniPreviewModal } from '../../../../../framework/uni-modal';
 import { BehaviorSubject } from 'rxjs';
 import { AgGridWrapper } from '@uni-framework/ui/ag-grid/ag-grid-wrapper';
@@ -27,7 +27,7 @@ import {
     INumberFormat,
     ITableFilter
 } from '../../../../../framework/ui/unitable/index';
-import { UniReminderSendingMethodModal } from './reminderSendingMethodModal';
+import { UniReminderSendingModal } from './reminderSendingModal';
 import { List } from 'immutable';
 import { catchError } from 'rxjs/operators';
 
@@ -80,19 +80,17 @@ export class ReminderSending implements OnInit {
         + '&expand=CustomerInvoice,CustomerInvoice.Customer.Info.DefaultEmail,CurrencyCode'
         + '&filter='
         + 'isnull(statuscode,0) ne 42104 and (customerinvoice.collectorstatuscode ne 42505 or '
-        + 'isnull(customerinvoice.collectorstatuscode,0) eq 0) ';
+        + 'isnull(customerinvoice.collectorstatuscode,0) eq 0) '
+        + '&orderby=RunNumber DESC,CustomerInvoice.InvoiceNumber';
 
     currentRunNumber: number = 0;
-    private distributeEntityType: string = 'Models.Sales.CustomerInvoiceReminder';
-
-    public reportId: number;
-    public report: ReportDefinition;
 
     searchParams$: BehaviorSubject<any> = new BehaviorSubject({});
     config$: BehaviorSubject<any> = new BehaviorSubject({});
     fields$: BehaviorSubject<any[]> = new BehaviorSubject([]);
 
     saveactions: IUniSaveAction[] = null;
+    companySettings: CompanySettings;
 
     debtCollectionProductPurchased = false;
 
@@ -133,38 +131,25 @@ export class ReminderSending implements OnInit {
         // get DefaultCustomerInvoiceReminderReportID from companysettings or fallback to getting report named 'Purring'
         this.companySettingsService.getCompanySettings()
             .subscribe(companySettings => {
-                if (companySettings.DefaultCustomerInvoiceReminderReportID) {
-                    this.reportDefinitionService.getReportByID(companySettings.DefaultCustomerInvoiceReminderReportID).subscribe(rd => {
-                        this.report = rd;
-                        this.reportId = companySettings.DefaultCustomerInvoiceReminderReportID;
-
-                        this.setupSaveActions();
-                    });
-                } else {
-                    this.reportDefinitionService.getReportByName('Purring').subscribe(rd => {
-                        this.report = rd;
-                        this.reportId = rd.ID;
-
-                        this.setupSaveActions();
-                    });
-                }
+                this.companySettings = companySettings;
+                this.setupSaveActions();
             });
     }
 
     setupSaveActions() {
         this.saveactions = [
             {
-                label: 'Utsendelse',
+                label: 'Send purringer',
                 action: (done) => this.debtCollectionProductPurchased ?
                                     this.showProductPurchaseToast(done)
                                     : this.distributeReminders(done),
                 main: true,
-                disabled: !this.remindersAll || !this.report
+                disabled: !this.remindersAll
             },
             {
                 label: 'Slett valgte',
                 action: (done) => this.debtCollectionProductPurchased ? this.showProductPurchaseToast(done) : this.deleteReminders(done),
-                disabled: !this.remindersAll || !this.report
+                disabled: !this.remindersAll
             }
         ];
     }
@@ -202,11 +187,11 @@ export class ReminderSending implements OnInit {
                         this.toastService.addToast('Purringer slettet', ToastType.good, 5);
                         done('Purringer slettet');
 
-                        this.loadAll();
+                        this.updateReminderList();
                     },
                     err => {
                         done('Feil ved sletting av purringer');
-                        this.loadAll();
+                        this.updateReminderList();
                         this.errorService.handle(err);
                     }
                 );
@@ -228,96 +213,29 @@ export class ReminderSending implements OnInit {
             done('Sending avbrutt');
             return;
         }
-        let selectedWithDistribution = '';
-        let selectedWithoutDistribution = [];
+
         const selectedIDs = [];
-        let selectedIDsString = '';
         selected.forEach((item) => {
             selectedIDs.push(item.ID);
-            selectedIDsString += item.ID + ',';
-        })
-        this.reportService.getEntitiesWithDistribution(selectedIDsString.slice(0, -1), this.distributeEntityType).subscribe((ids: List<number>) => {
-            selectedIDs.forEach((id) => {
-                if (ids.indexOf(id) > -1) {
-                    selectedWithDistribution += id + ',';
-                } else {
-                    selectedWithoutDistribution.push(selected.find(x => x.ID == id));
-                }
-            });
-            if (selectedWithDistribution.length > 0) {
-                this.doDistribute(done, selectedWithDistribution.slice(0, -1));
-                done('Purringer sendt');
-            }
-            if (selectedWithoutDistribution.length > 0) {
-                this.openSendMethodModal(selectedWithoutDistribution, done);
-            }
         });
+
+        this.openSendMethodModal(selectedIDs, done);
     }
 
-    private doDistribute(done, ids) {
-        this.reportService.distributeList(ids, this.distributeEntityType).subscribe(() => {
-            this.toastService.addToast(
-                'Purring(er) er lagt i kø for utsendelse',
-                ToastType.good,
-                ToastTime.short);
-            done;
-        }, err => {
-            this.errorService.handle(err);
-            done;
-        });
-    }
+    openSendMethodModal(selected: CustomReminder[], done) {
+        this.modalService.open(UniReminderSendingModal, {
+            data: { reminders: selected }
+        }).onClose.subscribe(res => {
+            if (!res) {
+                done('Utsendelse av purringer ble avbrutt');
+                return;
+            }
 
-    /*
-    printonly = false -> sendEmail to selected in email list, sendPrint to selected in print list
-    printonly = true -> sendPrint to all selected
-    */
-    private sendReminders(done: (message: string) => void, printonly, selected = []) {
-        if (selected.length === 0) {
-            selected = this.getSelected();
-        }
-        if (selected.length === 0) {
-            this.toastService.addToast(
-                'Ingen rader er valgt',
-                ToastType.bad,
-                10,
-                'Vennligst velg hvilke purringer du vil sende, eller kryss av for alle'
-            );
-            done('Sending avbrutt');
-            return;
-        }
-
-        if (printonly) {
-            done('Utskrift av purringer');
-            this.sendPrint(true, selected);
-        } else {
             done('Purringer sendes');
-            const selectedEmail = selected.filter(reminder => !!reminder.EmailAddress);
-            const selectedPrint = selected.filter(reminder => selectedEmail.indexOf(reminder) < 0);
-            this.sendEmail(done, selectedEmail);
-            this.sendPrint(false, selectedPrint);
-        }
-    }
+            this.toastService.addToast('Purringer sendes', ToastType.good, ToastTime.short);
 
-    loadAll(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            Observable.forkJoin([
-                this.reminderService.GetAll(
-                    'orderby=CustomerInvoiceID desc,ReminderNumber desc'
-                )
-            ]).subscribe((res) => {
-                const reminders = res[0];
-
-                if (reminders.length === 0) {
-                    resolve(false);
-                } else {
-                    this.updateReminderList();
-                    resolve(true);
-                }
-            }, (err) => {
-                resolve(false);
-            });
-        }
-        );
+            this.updateReminderList();
+        });
     }
 
     updateReminderList(reminders?) {
@@ -351,93 +269,6 @@ export class ReminderSending implements OnInit {
 
     getSelected() {
         return this.table && this.table.getSelectedRows() || [];
-    }
-
-    getSelectedEmail() {
-        return this.getSelected().filter(reminder => !!reminder.EmailAddress);
-    }
-
-    getSelectedPrint() {
-        return this.getSelected().filter(reminder => !reminder.EmailAddress);
-    }
-
-    sendEmail(doneHandler?, emailReminders = []) {
-        if (emailReminders.length === 0) {
-            emailReminders = this.getSelectedEmail();
-        }
-
-        if (emailReminders.length === 0) { return; }
-
-        this.reminderService.sendAction(emailReminders.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll(); // Kan skippes..?
-
-            emailReminders.forEach(reminder => {
-                const email = new SendEmail();
-                email.Format = 'pdf';
-                email.EmailAddress = reminder.EmailAddress;
-                email.EntityType = 'CustomerInvoiceReminder';
-                email.EntityID = reminder.ID;
-                email.Subject = `Purring fakturanr. ${reminder.InvoiceNumber}`;
-                email.Message = `Vedlagt finner du purring ${reminder.ReminderNumber} for faktura ${reminder.InvoiceNumber}`;
-
-                const parameters = [
-                    { Name: 'CustomerInvoiceID', value: reminder.InvoiceID },
-                    { Name: 'ReminderNumber', value: reminder.ReminderNumber }
-                ];
-
-                this.emailService.sendEmailWithReportAttachment(
-                    'Models.Sales.CustomerInvoiceReminder', this.reportId, email, parameters
-                )
-                .then(msg => { if (doneHandler) doneHandler(msg); })
-                .catch(msg => { if (doneHandler) doneHandler(msg); });
-            });
-        });
-    }
-
-    sendPrint(all: boolean, printReminders: CustomReminder[] = []) {
-        if (printReminders.length === 0) {
-            printReminders = all ? this.getSelected() : this.getSelectedPrint();
-        }
-
-        if (printReminders.length === 0) { return; }
-        this.reminderService.sendAction(printReminders.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll(); // Er det nødvendig å hente data etter Print? Ingen data er endret. Valgte rader blir u-valgt, det er vel den eneste forskjellen
-
-            if (this.report) {
-                const invoiceFilterParam = printReminders.map(reminder => 'CustomerInvoice.ID eq ' + reminder.InvoiceID).join(' or ');
-                const reminderNumberParam = printReminders.map(reminder => reminder.ReminderNumber).reduce((a, b) => a > b ? a : b);
-                this.report['parameters'] = [
-                    { Name: 'CustomerInvoiceID', value: 0 },
-                    { Name: 'ReminderFilter', value: invoiceFilterParam },
-                    { Name: 'ReminderNumber', value: reminderNumberParam }
-                ];
-
-                this.modalService.open(UniPreviewModal, {
-                    data: this.report
-                });
-            }
-        });
-    }
-
-    sendInvoicePrint(done?: (message: string) => void, selected?: CustomReminder[]) {
-        if (!selected) {
-            selected = this.getSelected();
-            if (selected.length === 0) {
-                this.toastService.addToast(
-                    'Ingen rader er valgt',
-                    ToastType.bad,
-                    ToastTime.medium,
-                    'Vennligst velg hvilke purringer du vil sende til print, eller kryss av for alle'
-                );
-
-                if (done) { done('Sending avbrutt'); }
-                return;
-            }
-        }
-        if (done) { done('Sender purringer til print'); }
-        this.reminderService.sendInvoicePrintAction(selected.map(reminder => reminder.ID)).subscribe(() => {
-            this.loadAll(); // Kan skippes..?
-        });
     }
 
     private setupReminderTable() {
@@ -557,24 +388,6 @@ export class ReminderSending implements OnInit {
         });
     }
 
-    openSendMethodModal(selected: CustomReminder[], done) {
-        this.modalService.open(UniReminderSendingMethodModal, {
-            data: { reminders: selected }
-        }).onClose.subscribe(res => {
-            if (!res) {
-                done('Utsendelse av purringer ble avbrutt');
-                return;
-            }
-            if (res === 'SendEmailPrint') {
-                this.sendReminders(done, false, selected);
-            } else if (res === 'SendPrint') {
-                this.sendReminders(done, true, selected);
-            } else if (res === 'SendInvoicePrint') {
-                this.sendInvoicePrint(done, selected);
-            }
-        });
-    }
-
     showProductPurchaseToast(done) {
         this.toastService.addToast('Standard purrefunksjonalitet deaktivert',
             ToastType.info,
@@ -585,8 +398,12 @@ export class ReminderSending implements OnInit {
     }
 
     private openReport(reminder: any) {
-        this.reportDefinitionService
-            .getReportByName('Purring')
+        // get the report to used based on CompanySettings or name
+        const reportDefinitionQuery = this.companySettings.DefaultCustomerInvoiceReminderReportID ?
+            this.reportDefinitionService.Get(this.companySettings.DefaultCustomerInvoiceReminderReportID)
+            : this.reportDefinitionService.getReportByName('Purring');
+
+        reportDefinitionQuery
             .catch((err, obs) => this.errorService.handleRxCatch(err, obs))
             .subscribe((report) => {
                 report.parameters = [

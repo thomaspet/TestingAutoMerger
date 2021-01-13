@@ -397,6 +397,12 @@ let defaultNavbarLinks: INavbarLinkSection[] = [
                         moduleID: UniModules.Amelding,
                         activeInSidebar: true
                     },
+                    // {
+                    //     name: 'NAVBAR.INCOMEREPORTS',
+                    //     url: '/salary/incomereports',
+                    //     moduleID: UniModules.IncomeReports,
+                    //     activeInSidebar: true
+                    // },
                     {
                         name: 'NAVBAR.BALANCE',
                         url: '/salary/salarybalances',
@@ -643,6 +649,7 @@ let defaultNavbarLinks: INavbarLinkSection[] = [
 
 switch (theme.theme) {
     case THEMES.SR:
+    case THEMES.SOFTRIG:
         defaultNavbarLinks = ext01_navbar;
         break;
     case THEMES.EXT02:

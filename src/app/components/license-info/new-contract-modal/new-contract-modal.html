@@ -1,0 +1,35 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Opprett ny klient</header>
+
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section class="alert info">
+            <i class="material-icons">info_outline</i>
+            Her oppretter du ny klient av regnskapsbyrået ditt. Hver klient kan ha flere selskaper.
+        </section>
+
+        <label class="uni-label">
+            <span>Navn*</span>
+            <input type="text" [(ngModel)]="contractName" required>
+        </label>
+
+        <label class="uni-label">
+            <span>Lisenstype</span>
+            <uni-select
+                [config]="config"
+                [items]="contractTypes"
+                [value]="selectedContractType"
+                (valueChange)="contractTypeChange($event)">
+            </uni-select>
+        </label>
+        
+    </article>
+
+    <footer class="center">
+        <button (click)="onClose.emit()">Avbryt</button>
+        <button class="c2a" (click)="createContract()" [disabled]="busy || !contractName?.length">Lagre</button>
+    </footer>
+</section>

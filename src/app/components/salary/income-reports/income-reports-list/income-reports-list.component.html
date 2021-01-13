@@ -1,0 +1,26 @@
+<income-reports-list-toolbar></income-reports-list-toolbar>
+<section class="application">
+    <income-reports-list-tab
+        (tabsReady)="onTabsReady($event)"
+        (activeTabChange)="onActiveTabChange($event)">
+    </income-reports-list-tab>
+    <ag-grid-wrapper class="borders" style="height: 60vh"
+        *ngIf="tabHasIncomeReports; else emptyIncomeReports"
+        [resource]="lookupFunction"
+        [config]="tableConfig">
+    </ag-grid-wrapper>    
+    <ng-template #emptyIncomeReports>
+        <section class="uni-container">
+            <article>
+                <h1>Du har ingen inntektsmeldinger:</h1>
+                <p>
+                    Her kan det sendes inntektsmeldinger direkte til NAV via altinn. 
+                    Er det satt opp systemkobling for selskapet mot altinn kan du sende inn inntektsmelding. 
+                    Vi tilbyr å sende inntektsmelding for Sykepenger, Foreldrepenger, Pleiepenger, Opplæringspenger, Omsorgspenger og Svangerskapspenger.</p>
+            </article>
+            <article>
+                <img [src]="imageUrl" alt="empty incomereport"/>
+            </article>
+        </section>
+    </ng-template>
+</section>

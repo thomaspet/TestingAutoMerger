@@ -55,7 +55,7 @@ export class SalaryServicesModule {
                 SalaryBalanceLineService,
                 TravelService,
                 SalarybalanceTemplateService,
-                EmployeeLanguageService,
+                EmployeeLanguageService
             ]
         };
     }

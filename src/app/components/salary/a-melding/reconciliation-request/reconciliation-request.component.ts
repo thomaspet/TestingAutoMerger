@@ -39,7 +39,7 @@ export class ReconciliationRequestComponent implements OnInit {
         const ret = new A06Options();
         ret.FromPeriod = Maaned.Item01;
         ret.ToPeriod = Maaned.Item12;
-        ret.ReportType = ReportType.regnearkOdsV2;
+        ret.ReportType = ReportType.regnearkOdsV2_2;
         return ret;
     }
 

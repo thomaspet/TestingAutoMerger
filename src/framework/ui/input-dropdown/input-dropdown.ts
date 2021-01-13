@@ -64,7 +64,7 @@ export class InputDropdownMenu {
 
         this.sizeConfig = {
             minWidth: refRect.width || '10rem',
-            maxHeight: '45rem'
+            maxHeight: '100%'
         };
 
         this.overlayRef.updateSize(this.sizeConfig);

@@ -23,6 +23,7 @@ import { routes as SalarybalanceTemplateRoutes } from './salary-balance-template
 import { SalaryBalanceListContainerComponent } from './balance/salary-balance-list-container/salary-balance-list-container.component';
 import { CategoryDetailComponent } from './category/category-details/category-details.component';
 import { SalaryBalanceDetailsContainerComponent } from './balance/salary-balance-details-container/salary-balance-details-container.component';
+import { IncomeReportsModule } from './income-reports/income-reports.module';
 
 export const salaryRoutes: Routes = [
     {
@@ -52,6 +53,10 @@ export const salaryRoutes: Routes = [
     {
         path: 'amelding',
         loadChildren: () => import('./a-melding/a-melding.module').then(m => m.AMeldingModule)
+    },
+    {
+        path: 'incomereports',
+        loadChildren: () => import('./income-reports/income-reports.module').then(m => m.IncomeReportsModule)
     },
     {
         path: 'employeecategories',

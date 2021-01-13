@@ -9,6 +9,13 @@ export interface ITableFilter {
     isDate?: boolean;
 }
 
+export interface IOptionBanner {
+    visible?: boolean;
+    text?: string;
+    link?: string;
+    action: () => void;
+}
+
 export interface ISavedSearch {
     name: string;
     filters: ITableFilter[];

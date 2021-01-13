@@ -60,6 +60,8 @@ export class TofHelper {
                     entity,
                     addresses.find(addr => addr.ID === customer.Info.InvoiceAddressID)
                 );
+            } else {
+                this.addressService.addressToInvoice(entity, null);
             }
 
             if (customer.Info.ShippingAddressID) {
@@ -67,6 +69,8 @@ export class TofHelper {
                     entity,
                     addresses.find(addr => addr.ID === customer.Info.ShippingAddressID)
                 );
+            } else {
+                this.addressService.addressToShipping(entity,null);
             }
 
             // Only change currencycode when new customer is selected and it has a CurrencyCodeID

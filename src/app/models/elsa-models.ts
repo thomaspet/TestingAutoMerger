@@ -21,6 +21,7 @@ export interface ElsaCustomer {
     ContactPerson: string;
     ContactEmail: string;
     ContactPhone: string;
+    CustomerRoamingUsers?: any[];
     Managers?: any[];
     Contracts?: ElsaContract[];
     CompanyTypeID?: number;
@@ -28,6 +29,7 @@ export interface ElsaCustomer {
     IsBankCustomer: boolean;
     SignUpReferrer: string;
     ProspectID?: number;
+    CustomerType: number;
 }
 
 export interface ElsaCompanyLicense {
@@ -74,6 +76,7 @@ export interface ElsaContract {
     Limit: number;
     AgreementAcceptances: any[];
     TwoFactorEnabled?: boolean;
+    Name: string;
 }
 
 export interface ElsaContractType {
