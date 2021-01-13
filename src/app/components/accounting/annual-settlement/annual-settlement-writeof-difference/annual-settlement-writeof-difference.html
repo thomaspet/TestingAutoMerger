@@ -39,13 +39,13 @@
 
 				<span style="flex: 1"></span>
 
-				<a style="font-size: 15px;" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
+				<a style="font-size: 15px;" *ngIf="assetsDetails?.length" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
 			</section>
 
 			<section class="assets-table-section">
 
 				<!-- DETAILS TABLE START -->
-				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets">
+				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets && assetsDetails?.length">
 					<thead>
 						<tr>
 							<th>Saldogruppe</th>
@@ -255,7 +255,40 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 4">
 
 			<section class="writeof-form-section">
-				TABLE HERE!
+				<simple-table class="annual-settlement-table"                                                                                                                                  >
+					<thead>
+						<tr>
+							<th>Konto</th>
+							<th>Navn</th>
+							<th class="align-right">Regnskapsmessig IB</th>
+							<th class="align-right">Regnskapsmessig UB</th>
+							<th class="align-right">Skattemessig IB</th>
+							<th class="align-right">Skattemessig UB</th>
+							<th> </th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr *ngFor="let account of stockAccounts">
+							<td> </td>
+							<td> </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td> <i class="material-icons">more_horiz</i> </td>
+						</tr>
+
+						<tr>
+							<td colspan="2">Skattemessig verdi på eiendeler</td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td class="align-right">  </td>
+							<td></td>
+						</tr>
+					</tbody>
+				</simple-table>
 			</section>
 
 		</section>

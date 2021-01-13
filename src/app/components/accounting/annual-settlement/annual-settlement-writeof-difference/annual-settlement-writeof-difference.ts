@@ -109,6 +109,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 	incommingProjects = null;
 	outgoingProjects = null;
 
+	assetsDetails = [];
+
+	stockAccounts = [];
+
 	yearSelectConfig = {
 		template: (item) => item.label,
 		searchable: false,
@@ -141,9 +145,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.annualSettlementService.getAccountBalanceForSet(1300, 1319, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1),
-				// this.annualSettlementService.getAssetTaxbasedIBDetails(id)
-			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4]) => {
+				this.annualSettlementService.getAssetTaxbasedIBDetails(id),
+				this.annualSettlementService.getStockAccountsIBAndUB(),
+
+				this.annualSettlementService.getAssetAndGroups(id)
+			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts]) => {
 				this.annualSettlement = as;
+				this.assetsDetails = details;
+				this.stockAccounts = stockAccounts;
 
 				this.annualSettlement.Fields.FinnesProsjekterKey =
 					this.annualSettlement.Fields.FinnesProsjekterKey === 'true';
@@ -166,12 +175,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.stepContentArray.splice(index, 1);
 				}
 
-				if (!balance1) {
+				if (parseFloat(balance1)) {
 					const index = this.stepContentArray.findIndex(step => step.step === 2);
 					this.stepContentArray.splice(index, 1);
 				}
 
-				if (!balance2 && !balance3 && balance4) {
+				if (!(parseFloat(balance2) || parseFloat(balance3) || parseFloat(balance4))) {
 					const index = this.stepContentArray.findIndex(step => step.step === 4);
 					this.stepContentArray.splice(index, 1);
 				}
