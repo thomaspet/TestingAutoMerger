@@ -20,7 +20,7 @@ import {IModalOptions} from '@uni-framework/uni-modal';
                     </thead>
                     <tbody>
                         <tr *ngFor="let account of accounts">
-                            <td>{{account.AccountNumber}}</td>
+                            <td>{{account?.Account?.AccountNumber}}</td>
                             <td>{{account.Description}}</td>
                             <td style="text-align: right">{{account.Amount | uninumberformat:'money'}}</td>
                         </tr>
