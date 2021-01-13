@@ -31,7 +31,7 @@ import {
     MatchSubAccountManualModal,
     MatchMainAccountModal,
 } from './modals';
-import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments } from '../../unientities';
+import { Payment, PaymentBatch, LocalDate, CompanySettings, BankIntegrationAgreement, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, UserDto } from '../../unientities';
 import { saveAs } from 'file-saver';
 import { UniPaymentEditModal } from './modals/paymentEditModal';
 import { AddPaymentModal } from '@app/components/common/modals/addPaymentModal';
@@ -120,6 +120,7 @@ export class BankComponent {
     private companySettings: CompanySettings;
     private isAutobankAdmin: boolean;
     private isAdmin: boolean;
+    private user: UserDto;
     private useTwoFactor: boolean;
     private isZDataV3: boolean;
     hasAccessToAutobank: boolean;
@@ -330,6 +331,7 @@ export class BankComponent {
                 this.router.navigateByUrl('/contract-activation');
                 return;
             } else {
+                this.user = auth.user;
                 Observable.forkJoin([
                     this.companySettingsService.getCompanySettings(['TaxBankAccount']),
                     this.userRoleService.hasAdminRole(this.authService.currentUser.ID)
@@ -614,7 +616,7 @@ export class BankComponent {
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false, allRowsSelected),
                 main: this.hasActiveAgreement && this.canEdit && !this.rows.length && !allRowsSelected,
-                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected
+                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected || !this.user?.BankIntegrationUserName
             });
 
             this.actions.push({
@@ -651,7 +653,7 @@ export class BankComponent {
                 label: 'Send til betaling',
                 action: (done) => this.pay(done, false, allRowsSelected),
                 main: (this.rows.length > 0 || allRowsSelected) && this.canEdit,
-                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit || !this.user?.BankIntegrationUserName
             });
 
             this.actions.push({

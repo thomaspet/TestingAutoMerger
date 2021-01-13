@@ -47,6 +47,8 @@ export class UserSettingsModal implements IUniModal {
         this.user = this.options.data || {};
         this.epostButtonClicked = false;
 
+        this.showResetAutobankPassword = this.showResetAutobankPassword && !!this.user?.BankIntegrationUserName;
+
         this.authService.loadCurrentSession().subscribe((session) => {
             this.busy = false;
             let authPhoneCountryCode, authPhone;

@@ -1,6 +1,6 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {SupplierInvoiceStore} from './supplier-invoice-store';
-import {SupplierInvoice, StatusCodeSupplierInvoice} from '@uni-entities';
+import {SupplierInvoice, StatusCodeSupplierInvoice, UserDto} from '@uni-entities';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, of, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
@@ -14,6 +14,7 @@ import * as moment from 'moment';
 import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/uni-modal';
 import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import { AuthService } from '@app/authService';
 
 declare const ResizeObserver;
 
@@ -36,6 +37,7 @@ export class SupplierInvoiceView {
     subHeads: IToolbarSubhead[] = [];
     commentsConfig: ICommentsConfig;
     paymentStatusIndicator;
+    private user: UserDto;
 
     constructor(
         public store: SupplierInvoiceStore,
@@ -46,10 +48,15 @@ export class SupplierInvoiceView {
         private supplierInvoiceService: SupplierInvoiceService,
         private modalService: UniModalService,
         private paymentService: PaymentService,
-        private featurePermissionService: FeaturePermissionService
+        private featurePermissionService: FeaturePermissionService,
+        private authService: AuthService
     ) {
         this.store.changes$.subscribe((change) => this.updateSaveActions(change));
         this.store.invoice$.subscribe((invoice) => this.updateToolbar(invoice || {} ));
+
+        this.authService.authentication$.take(1).subscribe(auth => {
+            this.user = auth.user;
+        });
 
         this.activeRoute.paramMap.pipe(
             takeUntil(this.onDestroy$)
@@ -197,7 +204,7 @@ export class SupplierInvoiceView {
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
             },
-            
+
             {
                 label: 'Bokfør og betal',
                 action: (done) => {
@@ -236,7 +243,8 @@ export class SupplierInvoiceView {
                     && invoice.PaymentStatus <= 30109 ) && hasAutobank,
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
-                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113 || !hasAutobank
+                    || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113
+                    || !hasAutobank || !this.user.BankIntegrationUserName
             },
             {
                 label: 'Merk som betalt',
