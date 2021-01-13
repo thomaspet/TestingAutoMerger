@@ -1225,6 +1225,12 @@ export class BankComponent {
 
     private getCurrentFilterString() {
         let filterString = this.tickerContainer.mainTicker.table.getFilterString();
+
+        // avoids invalid filterString format on some filter tabs
+        if (filterString.includes('isnull(StatusCode,0)')) {
+            filterString = filterString.replace('isnull(StatusCode,0)', 'StatusCode');
+        }
+
         const filter: TickerFilter = this.tickerContainer.mainTicker.ticker.Filters
                         .find(x => x.Code === this.filter);
 
