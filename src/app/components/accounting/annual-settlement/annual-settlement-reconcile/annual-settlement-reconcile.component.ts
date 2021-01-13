@@ -101,8 +101,14 @@ export class AnnualSettlementReconcileComponent {
         }
     }
     callOpenModalForComment(account, oldBalance) {
+        if (this.annualSettlement?.StatusCode !== 36105) {
+            return;
+        }
         return this.annualSettlementService.openModalForComment(account.Comment).subscribe((result: ICommentModalResult) => {
             if (result && result.action === ConfirmActions.ACCEPT) {
+                if (!result.comment) {
+                    return;
+                }
                 const _account = this.findAccount(account._AccountNumber);
                 _account.Comment = result.comment;
                 _account.IsApproved = true;

@@ -63,7 +63,9 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
             switchMap(() => this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement)),
             switchMap(data => this.modalService.open(AccountsSummaryModalComponent, {data: data}).onClose)
         ).subscribe(result => {
-            doneFunction();
+            if (doneFunction) {
+                doneFunction();
+            }
             if (result === true) {
                 this.runTransition(5);
             }

@@ -29,6 +29,7 @@ export interface ToolbarButton {
     class?: string;
     action: () => any | Observable<any>;
     tooltip?: string;
+    disabled?: boolean
 }
 
 export interface ToolbarDropdownButton {
