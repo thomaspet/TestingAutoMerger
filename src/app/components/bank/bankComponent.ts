@@ -363,7 +363,7 @@ export class BankComponent {
                             this.failedFiles = result[0];
                             this.hasAccessToAutobank = !!result[1];
 
-                            if (!this.hasAccessToAutobank) {
+                            if (this.hasAccessToAutobank) {
                                 this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
                                     this.unfilteredAgreements = agreements;
                                     this.agreements = agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
