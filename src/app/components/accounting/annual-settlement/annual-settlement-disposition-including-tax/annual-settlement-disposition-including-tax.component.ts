@@ -62,7 +62,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     }
 
     openSummaryModal(doneFunction) {
-        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item === 'Utbytte').Amount;
+        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item.startsWith('Utbytte').Amount);
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
             switchMap(() => this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement)),
             switchMap(data => this.modalService.open(AccountsSummaryModalComponent, {data: data}).onClose)
