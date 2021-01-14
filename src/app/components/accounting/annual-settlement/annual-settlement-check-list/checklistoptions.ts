@@ -24,7 +24,7 @@ export const options = [
     },
     { // 4 - Aksjekapital
         title: 'Regnskapet ditt mangler  aksjekapital',
-        altTitle: 'Rengskapet ditt har forventet aksjekapital',
+        altTitle: 'Regnskapet ditt har forventet aksjekapital',
         text: `Vi finner ikke minst 30.000 kr i aksjekapital registrert i ditt regnskap. Legg inn denne verdien i <a href="#/accounting/journalentry/manual">Bokføring</a>. Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
         property: 'IsShareCapitalOK'
     },

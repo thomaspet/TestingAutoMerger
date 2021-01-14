@@ -35,7 +35,7 @@ export const annualSettlementRoutes: Routes = [
         canDeactivate: [CanDeactivateGuard]
     },
     {
-        path: ':id/wizzard-tax-form',
+        path: ':id/summary',
         component: AnnualSettlementSummaryComponent,
         canDeactivate: [CanDeactivateGuard]
     },

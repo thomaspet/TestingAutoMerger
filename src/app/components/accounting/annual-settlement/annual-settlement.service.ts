@@ -6,7 +6,7 @@ import {HttpClient} from '@angular/common/http';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import {of} from 'rxjs/observable/of';
 import * as _ from 'lodash';
-import {throwError} from 'rxjs';
+import {forkJoin, throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
@@ -87,13 +87,31 @@ export class AnnualSettlementService extends BizHttp<any> {
             map((result: number) => result <= -30000)
         );
     }
-
     checkAssets(financialYear) {
+        return forkJoin([
+            this.checkAssetsAccountBalance(financialYear),
+            this.checkAssetsIncomingFinancialValue(financialYear)
+        ]).pipe(
+            map(([
+                    assetsAccountBalanceResult,
+                    checkAssetsIncomingFinancialValueResult
+                 ]) => {
+                return Math.abs(<number>assetsAccountBalanceResult) >= 1
+                    && checkAssetsIncomingFinancialValueResult === assetsAccountBalanceResult;
+            })
+        );
+    }
+    checkAssetsIncomingFinancialValue(financialYear) {
+        return this.http.http.get(
+            this.baseUrl +
+            'asset?action=get-assets-incoming-financial-value&year=' + (financialYear)
+        );
+    }
+
+    checkAssetsAccountBalance(financialYear) {
         return this.http.http.get(
             this.baseUrl +
             'annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + (financialYear)
-        ).pipe(
-            map((result: number) => result > -1 || result < 1)
         );
     }
 
