@@ -23,6 +23,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     };
     summary = [];
     busy = false;
+    maxDividendAmount = 0;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -40,7 +41,10 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlementWithReconcile(id).pipe(
                 tap(as => this.annualSettlement = as),
-                switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as))
+                switchMap((as) => this.annualSettlementService.getMaxDividendAmount(as)),
+                tap(result => this.maxDividendAmount = result),
+                map(maxDividend => this.annualSettlement),
+                switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as, this.maxDividendAmount))
             ).subscribe((items: any) => {
                 this.summary = items;
             }, () => this.busy = false, () => this.busy = false);
@@ -78,6 +82,17 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
                 this.toast.addToast('Transition 4 to ' + toStep + ' ran', ToastType.good);
                 this.router.navigateByUrl('/accounting/annual-settlement');
             });
+    }
+    onChangeSummaryLine(event) {
+        this.recalculateSummary();
+    }
+    recalculateSummary() {
+        const data = this.summary[2].items;
+        const dividend = data.find(it => it.Item === 'Utbytte');
+        const sum = data.find(it => it.Item === 'Sum disponering');
+        const ownCapital = data.find(it => it.Item === 'Overføring annen egenkapital');
+        ownCapital.Amount = sum.Amount - dividend.Amount;
+        this.summary = [...this.summary];
     }
     ngOnDestroy() {
         this.onDestroy$.next();

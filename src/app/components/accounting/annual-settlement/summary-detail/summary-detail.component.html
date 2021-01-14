@@ -11,7 +11,7 @@
                 </span>
                 <span class="ammount" *ngIf="!item.editable">{{item.Amount | uninumberformat:'money'}}</span>
                 <span class="ammount" *ngIf="item.editable">
-                    <input type="text" [(ngModel)]="item.Amount"/>
+                    <input #input type="number" [(ngModel)]="item.Amount" (blur)="onItemChange(item, input.value)"/>
                 </span>
             </li>
         </ul>
