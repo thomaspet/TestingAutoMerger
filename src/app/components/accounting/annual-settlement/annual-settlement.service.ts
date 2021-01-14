@@ -16,7 +16,7 @@ export enum StatusCodeReconcile {
     Completed = 36010
 }
 
-const journalEntryAccountNumbers = [2050, 8920, 2800, 8300, 8960, 8960, 8990, 2080, 2500, 2120, 8320, 1070, 8920];
+// const journalEntryAccountNumbers = [2050, 8920, 2800, 8300, 8960, 8960, 8990, 2080, 2500, 2120, 8320, 1070, 8920];
 
 @Injectable()
 export class AnnualSettlementService extends BizHttp<any> {

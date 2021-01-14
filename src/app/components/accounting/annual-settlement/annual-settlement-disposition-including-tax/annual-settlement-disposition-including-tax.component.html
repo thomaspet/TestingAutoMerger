@@ -19,6 +19,7 @@
         <summary-detail-component *ngFor="let data of summary"
             [title]="data.title"
             [data]="data.items"
+            (changeSummaryLine)="onChangeSummaryLine($event)"
         ></summary-detail-component>
     </ng-container>
 </uni-annual-settlement-header-component>

@@ -79,6 +79,17 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
                 this.router.navigateByUrl('/accounting/annual-settlement');
             });
     }
+    onChangeSummaryLine(event) {
+        this.recalculateSummary();
+    }
+    recalculateSummary() {
+        const data = this.summary[2].items;
+        const dividend = data.find(it => it.Item === 'Utbytte');
+        const sum = data.find(it => it.Item === 'Sum disponering');
+        const ownCapital = data.find(it => it.Item === 'Overføring annen egenkapital');
+        ownCapital.Amount = sum.Amount - dividend.Amount;
+        this.summary = [...this.summary];
+    }
     ngOnDestroy() {
         this.onDestroy$.next();
         this.onDestroy$.complete();
