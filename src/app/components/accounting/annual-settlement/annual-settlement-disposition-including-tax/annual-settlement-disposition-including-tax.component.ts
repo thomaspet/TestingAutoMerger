@@ -23,6 +23,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     };
     summary = [];
     busy = false;
+    maxDividendAmount = 0;
     constructor(
         private router: Router,
         private route: ActivatedRoute,
@@ -40,7 +41,10 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlementWithReconcile(id).pipe(
                 tap(as => this.annualSettlement = as),
-                switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as))
+                switchMap((as) => this.annualSettlementService.getMaxDividendAmount(as)),
+                tap(result => this.maxDividendAmount = result),
+                map(maxDividend => this.annualSettlement),
+                switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as, this.maxDividendAmount))
             ).subscribe((items: any) => {
                 this.summary = items;
             }, () => this.busy = false, () => this.busy = false);

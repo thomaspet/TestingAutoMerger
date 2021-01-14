@@ -9,6 +9,7 @@ import * as _ from 'lodash';
 import {forkJoin, throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {UniNumberFormatPipe} from '@uni-framework/pipes/uniNumberFormatPipe';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -27,7 +28,11 @@ export class AnnualSettlementService extends BizHttp<any> {
     statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     httpClient: HttpClient;
 
-    constructor(protected http: UniHttp, private modalService: UniModalService, private toast: ToastService) {
+    constructor(
+        protected http: UniHttp,
+        private modalService: UniModalService,
+        private toast: ToastService,
+        private numberPipe: UniNumberFormatPipe) {
         super(http);
         this.httpClient = this.http.http;
     }
@@ -96,15 +101,14 @@ export class AnnualSettlementService extends BizHttp<any> {
                     assetsAccountBalanceResult,
                     checkAssetsIncomingFinancialValueResult
                  ]) => {
-                return Math.abs(<number>assetsAccountBalanceResult) >= 1
-                    && checkAssetsIncomingFinancialValueResult === assetsAccountBalanceResult;
+                return Math.abs(<number>checkAssetsIncomingFinancialValueResult) === Math.abs(<number>assetsAccountBalanceResult);
             })
         );
     }
     checkAssetsIncomingFinancialValue(financialYear) {
         return this.http.http.get(
             this.baseUrl +
-            'asset?action=get-assets-incoming-financial-value&year=' + (financialYear)
+            'assets?action=get-assets-incoming-financial-value&year=' + (financialYear)
         );
     }
 
@@ -290,7 +294,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             .map(res => res.body);
     }
 
-    getTaxAndDisposalItems(annualSettlement: any) {
+    getTaxAndDisposalItems(annualSettlement: any, maxDividendAmount: number) {
         return this.httpClient
             .get(this.baseUrl + `annualsettlement/${annualSettlement.ID}?action=get-tax-calculation-and-disposal`)
             .pipe(
@@ -303,6 +307,8 @@ export class AnnualSettlementService extends BizHttp<any> {
                     list[5 + slice]['info'] = 'tooltip text for 6';
                     list[7 + slice]['editable'] = true;
                     list[7 + slice]['placeholder'] = 'Sum utbytte';
+                    list[7 + slice]['Item'] += '(Du kan masksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
+                        + 'i utbytte dete året)';
                     return [
                         {
                             title: 'Grunnlag for skatt',
@@ -324,6 +330,9 @@ export class AnnualSettlementService extends BizHttp<any> {
                     ];
                 })
             );
+    }
+    getMaxDividendAmount(annualSettlement) {
+        return this.Action(annualSettlement.ID, 'calculate-max-dividend-amount', '', RequestMethod.Get);
     }
     previewAnnualSettlementJournalEntry(annualSettlement) {
         return this.Action(annualSettlement.ID, 'preview-annualsettlement-journalentry', '', RequestMethod.Get);
