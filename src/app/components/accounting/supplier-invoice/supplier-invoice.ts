@@ -15,7 +15,7 @@ import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/un
 import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import { AuthService } from '@app/authService';
-import { theme, THEMES } from 'src/themes/theme.ext01';
+import { theme, THEMES } from 'src/themes/theme';
 
 declare const ResizeObserver;
 
