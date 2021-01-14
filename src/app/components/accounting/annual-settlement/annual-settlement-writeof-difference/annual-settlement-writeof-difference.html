@@ -45,12 +45,12 @@
 			<section class="assets-table-section">
 
 				<!-- DETAILS TABLE START -->
-				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets && assetsDetails?.length">
+				<simple-table class="annual-settlement-table" style="margin-bottom: 3rem;" *ngIf="showDetailsOnAssets && assetsDetails?.length">
 					<thead>
 						<tr>
 							<th>Saldogruppe</th>
 							<th>Avskr. %</th>
-							<th class="align-right">Saldogrunnlag 01.01.{{annualSettlement.AccountYear}}</th>
+							<th class="align-right">Saldogrunnlag 01.01.2020</th>
 							<th class="align-right">Endring i året</th>
 							<th class="align-right">Skattemessig avskrivning</th>
 							<th class="align-right">UB skattemessig verdi</th>
@@ -58,13 +58,13 @@
 					</thead>
 
 					<tbody>
-						<tr *ngFor="let group of accountGroups">
-							<td> </td>
-							<td> </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
+						<tr *ngFor="let group of assetsDetails">
+							<td> {{ group.GroupCode }} </td>
+							<td> {{ group.DepreciationRate }}% </td>
+							<td class="align-right"> {{ group.Value }} </td>
+							<td class="align-right"> {{ group.Movement }} </td>
+							<td class="align-right"> {{ group.TaxbasedDepreciation }}  </td>
+							<td class="align-right"> {{ group.TaxBasedUB }} </td>
 						</tr>
 
 						<tr>
@@ -255,40 +255,10 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 4">
 
 			<section class="writeof-form-section">
-				<simple-table class="annual-settlement-table"                                                                                                                                  >
-					<thead>
-						<tr>
-							<th>Konto</th>
-							<th>Navn</th>
-							<th class="align-right">Regnskapsmessig IB</th>
-							<th class="align-right">Regnskapsmessig UB</th>
-							<th class="align-right">Skattemessig IB</th>
-							<th class="align-right">Skattemessig UB</th>
-							<th> </th>
-						</tr>
-					</thead>
-
-					<tbody>
-						<tr *ngFor="let account of stockAccounts">
-							<td> </td>
-							<td> </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td> <i class="material-icons">more_horiz</i> </td>
-						</tr>
-
-						<tr>
-							<td colspan="2">Skattemessig verdi på eiendeler</td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td></td>
-						</tr>
-					</tbody>
-				</simple-table>
+				<ag-grid-wrapper
+                    [resource]="stockAccounts"
+                    [config]="tableConfig">
+                </ag-grid-wrapper>
 			</section>
 
 		</section>

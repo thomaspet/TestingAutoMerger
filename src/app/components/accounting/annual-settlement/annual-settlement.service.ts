@@ -133,6 +133,16 @@ export class AnnualSettlementService extends BizHttp<any> {
             .map(res => res.body);
     }
 
+    updateTaxbasedIB(body: any) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(body)
+            .withEndPoint(`annualsettlement?action=update-taxbased-IB`)
+            .send()
+            .map(res => res.body);
+    }
+
     getAssetTaxbasedIBDetails(id: number) {
         return this.http
             .asGET()
