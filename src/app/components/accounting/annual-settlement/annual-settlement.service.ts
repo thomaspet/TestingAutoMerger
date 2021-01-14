@@ -173,12 +173,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                 switchMap(() => this.checkAmelding(as.AccountYear)),
                 tap(resultAmelding => checkList.IsAmeldingOK = resultAmelding),
                 switchMap(() => this.checkLastyear(as.AccountYear)),
-                tap(resultAmelding => checkList.AreAllPreviousYearsEndedAndBalances = resultAmelding),
+                tap(resultLastYear => checkList.AreAllPreviousYearsEndedAndBalances = resultLastYear),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
                 tap(resultStocksCapital => checkList.IsShareCapitalOK = resultStocksCapital),
                 switchMap(() => this.checkAssets(as.AccountYear)),
                 tap(resultAssets => checkList.IsAssetsOK = resultAssets),
-                //
                 map(() => {
                     const _as = Object.assign({}, as);
                     _as.AnnualSettlementCheckList = checkList;

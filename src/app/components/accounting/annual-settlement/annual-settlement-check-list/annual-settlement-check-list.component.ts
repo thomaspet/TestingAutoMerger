@@ -1,10 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {Subject, throwError} from 'rxjs';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {infoOption, options} from './checklistoptions';
-import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'annual-settlement-check-list-component',
@@ -28,6 +29,7 @@ export class AnnualSettlementCheckListComponent {
         private route: ActivatedRoute,
         private annualSettlementService: AnnualSettlementService,
         private tabService: TabService,
+        private toast: ToastService,
         private changeDetector: ChangeDetectorRef) {}
     ngOnInit() {
         this.busy = true;
@@ -42,7 +44,10 @@ export class AnnualSettlementCheckListComponent {
                 this.initOptions();
                 this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
                 this.busy = false;
-            }, () => this.busy = false, () => this.busy = false);
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
         });
     }
 
@@ -64,7 +69,10 @@ export class AnnualSettlementCheckListComponent {
                 }
                 this.annualSettlement = as;
                 this.busy = false;
-            }, () => this.busy = false, () => this.busy = false);
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
     }
 
     initOptions() {
