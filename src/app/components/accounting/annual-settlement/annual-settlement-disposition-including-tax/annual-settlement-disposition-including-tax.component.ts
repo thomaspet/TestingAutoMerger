@@ -88,7 +88,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     }
     recalculateSummary() {
         const data = this.summary[2].items;
-        const dividend = data.find(it => it.Item === 'Utbytte');
+        const dividend = data.find(it => <string>(it.Item).startsWith('Utbytte'));
         const sum = data.find(it => it.Item === 'Sum disponering');
         const ownCapital = data.find(it => it.Item === 'Overføring annen egenkapital');
         ownCapital.Amount = sum.Amount - dividend.Amount;
