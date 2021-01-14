@@ -1,7 +1,7 @@
 import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {Subject} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ToastService} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
@@ -44,8 +44,14 @@ export class AnnualSettlementSummaryComponent {
             ).subscribe((items: any) => {
                 this.summary = items;
                 this.busy = false;
-            }, () => this.busy = false, () => this.busy = false);
-        }, () => this.busy = false, () => this.busy = false);
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
+        }, (err) => {
+            this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+            this.busy = false;
+        }, () => this.busy = false);
     }
     completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(() => {

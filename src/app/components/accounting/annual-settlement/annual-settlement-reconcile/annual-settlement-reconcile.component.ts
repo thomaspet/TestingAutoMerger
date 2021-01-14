@@ -70,7 +70,10 @@ export class AnnualSettlementReconcileComponent {
                     this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
                     this.changeDetector.markForCheck();
                 }, () => this.busy = false, () => this.busy = false);
-        }, () => this.busy = false, () => this.busy = false);
+        }, (err) => {
+            this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+            this.busy = false;
+        }, () => this.busy = false);
     }
 
     private addTab(id: number) {

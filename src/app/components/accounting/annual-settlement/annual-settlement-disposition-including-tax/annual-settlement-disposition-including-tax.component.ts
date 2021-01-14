@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ActivatedRoute, Router} from '@angular/router';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {tap} from 'rxjs/internal/operators/tap';
@@ -47,8 +47,14 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
                 switchMap((as) => this.annualSettlementService.getTaxAndDisposalItems(as, this.maxDividendAmount))
             ).subscribe((items: any) => {
                 this.summary = items;
-            }, () => this.busy = false, () => this.busy = false);
-        }, () => this.busy = false, () => this.busy = false);
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
+        }, (err) => {
+            this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+            this.busy = false;
+        }, () => this.busy = false);
     }
     saveAnnualSettlement(done) {
         this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item === 'Utbytte').Amount;
