@@ -15,6 +15,7 @@ import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/un
 import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import { AuthService } from '@app/authService';
+import { theme, THEMES } from 'src/themes/theme';
 
 declare const ResizeObserver;
 
@@ -244,7 +245,7 @@ export class SupplierInvoiceView {
                 disabled: !invoice?.ID || invoice?.StatusCode !== StatusCodeSupplierInvoice.Journaled || changes
                     || invoice.PaymentStatus === 30110 || invoice.PaymentStatus === 30111
                     || invoice.PaymentStatus === 30112 || invoice.PaymentStatus === 30113
-                    || !hasAutobank || !this.user.BankIntegrationUserName
+                    || !hasAutobank || (theme.theme !== THEMES.EXT02 && !this.user.BankIntegrationUserName)
             },
             {
                 label: 'Merk som betalt',
