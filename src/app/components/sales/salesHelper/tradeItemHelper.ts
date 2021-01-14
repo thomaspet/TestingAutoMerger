@@ -302,6 +302,8 @@ export class TradeItemHelper  {
         rowModel.ProductID = product.ID;
         rowModel.ItemText = product.Name;
         rowModel.Unit = product.Unit;
+        rowModel.PriceExVatCurrency = product.PriceExVat;
+        rowModel.PriceIncVatCurrency = product.PriceIncVat;
 
         // Set recurring invoice item defaults when selecting item..
         rowModel.PricingSource = 0;
