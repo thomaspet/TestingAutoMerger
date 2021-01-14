@@ -26,6 +26,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	onDestroy$ = new Subject();
 	annualSettlement: any;
 	step = 0;
+	sumLine: any = {};
 	tableConfig: UniTableConfig;
 
 	stepContentArray = [
@@ -151,7 +152,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.annualSettlementService.getStockAccountsIBAndUB()
 			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts]) => {
 				this.annualSettlement = as;
-				this.assetsDetails = details;
+				this.assetsDetails = this.getFormattedDetailsData(details);
 				this.stockAccounts = stockAccounts;
 
 				this.annualSettlement.Fields.FinnesProsjekterKey =
@@ -212,12 +213,27 @@ export class AnnualSettlementWriteofDifferenceStep {
 		}
 	}
 
+	getFormattedDetailsData(data: any[]): any[] {
+		if (!data.length) {
+			return [];
+		}
+
+		this.sumLine = {
+			Value: data.map(a => a.Value || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			Movement: data.map(a => a.Movement || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			TaxbasedDepreciation: data.map(a => a.TaxbasedDepreciation || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			TaxBasedUB: data.map(a => a.TaxBasedUB || 0).reduce((a, b) => (a || 0) + (b || 0))
+		}
+
+		return data.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 });
+	}
+
 	openEditModal() {
 		this.modalService.open(AssetsEditModal, { data: { ID: this.annualSettlement.ID } }).onClose.subscribe((hasSavedChanges: boolean) => {
 			if (hasSavedChanges) {
 				this.busy = true;
 				this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID).subscribe((data) => {
-					this.assetsDetails = data;
+					this.assetsDetails = this.getFormattedDetailsData(data);
 					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
 					this.busy = false;
 				}, err => {
@@ -232,7 +248,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	setUpTable() {
-        this.tableConfig = new UniTableConfig('acconting.annualsettlement.editassetsmodal', true, false, 20)
+        this.tableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', true, false, 20)
         .setAutoAddNewRow(false)
         .setColumns([
             new UniTableColumn('GroupCode', 'Saldogruppe', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
