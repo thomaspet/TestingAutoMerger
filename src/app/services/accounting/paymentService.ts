@@ -15,7 +15,9 @@ export class PaymentService extends BizHttp<Payment> {
         '535dc5b8-a065-45e7-af3f-d19cb847b69e', // Dennis
         '98257887-d459-4a93-a63d-c6645d0f2120', // Test Tonje-Forhåndsgodkjente betalinger
         'c49a7801-4e02-45a2-9b04-d7f539898daa', // dennis as at rc env
-        '4daba3c3-e10d-496b-93b0-aff468c0bc9b' // ØIESTAD CONSULT prod
+        '4daba3c3-e10d-496b-93b0-aff468c0bc9b',
+        '035deeda-5551-4ba5-8dd7-06388a17676a',
+        '5a3dc8a9-9a87-4908-90b4-a6fd46068d46'
     ];
 
     constructor(http: UniHttp) {
