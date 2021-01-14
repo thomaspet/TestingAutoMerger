@@ -39,18 +39,18 @@
 
 				<span style="flex: 1"></span>
 
-				<a style="font-size: 15px;" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
+				<a style="font-size: 15px;" *ngIf="assetsDetails?.length" (click)="showDetailsOnAssets = !showDetailsOnAssets"> {{ showDetailsOnAssets ? 'Skjul' : 'Se' }} detaljer <i class="material-icons"> {{ showDetailsOnAssets ? 'expand_less' : 'expand_more' }} </i> </a>
 			</section>
 
 			<section class="assets-table-section">
 
 				<!-- DETAILS TABLE START -->
-				<simple-table class="annual-settlement-table" *ngIf="showDetailsOnAssets">
+				<simple-table class="annual-settlement-table" style="margin-bottom: 3rem;" *ngIf="showDetailsOnAssets && assetsDetails?.length">
 					<thead>
 						<tr>
 							<th>Saldogruppe</th>
 							<th>Avskr. %</th>
-							<th class="align-right">Saldogrunnlag 01.01.{{annualSettlement.AccountYear}}</th>
+							<th class="align-right">Saldogrunnlag 01.01.2020</th>
 							<th class="align-right">Endring i året</th>
 							<th class="align-right">Skattemessig avskrivning</th>
 							<th class="align-right">UB skattemessig verdi</th>
@@ -58,13 +58,13 @@
 					</thead>
 
 					<tbody>
-						<tr *ngFor="let group of accountGroups">
-							<td> </td>
-							<td> </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
-							<td class="align-right">  </td>
+						<tr *ngFor="let group of assetsDetails">
+							<td> {{ group.GroupCode }} </td>
+							<td> {{ group.DepreciationRate }}% </td>
+							<td class="align-right"> {{ group.Value }} </td>
+							<td class="align-right"> {{ group.Movement }} </td>
+							<td class="align-right"> {{ group.TaxbasedDepreciation }}  </td>
+							<td class="align-right"> {{ group.TaxBasedUB }} </td>
 						</tr>
 
 						<tr>
@@ -255,7 +255,10 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 4">
 
 			<section class="writeof-form-section">
-				TABLE HERE!
+				<ag-grid-wrapper
+                    [resource]="stockAccounts"
+                    [config]="tableConfig">
+                </ag-grid-wrapper>
 			</section>
 
 		</section>

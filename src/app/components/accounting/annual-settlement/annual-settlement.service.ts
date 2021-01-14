@@ -128,11 +128,39 @@ export class AnnualSettlementService extends BizHttp<any> {
             .map(res => res.body);
     }
 
+    getAssetAndGroups(id: number) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`annualsettlement/${id}?action=get-asset-and-groups`)
+            .send()
+            .map(res => res.body);
+    }
+
+    updateTaxbasedIB(body: any) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withBody(body)
+            .withEndPoint(`annualsettlement?action=update-taxbased-IB`)
+            .send()
+            .map(res => res.body);
+    }
+
     getAssetTaxbasedIBDetails(id: number) {
         return this.http
             .asGET()
             .usingBusinessDomain()
             .withEndPoint(`annualsettlement/${id}?action=get-asset-taxbased-IB-details`)
+            .send()
+            .map(res => res.body);
+    }
+
+    getStockAccountsIBAndUB() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`annualsettlement?action=get-stock-accounts-IB-and-UB&year=2020`)
             .send()
             .map(res => res.body);
     }

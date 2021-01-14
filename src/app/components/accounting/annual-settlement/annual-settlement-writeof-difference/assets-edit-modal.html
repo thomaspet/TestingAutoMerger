@@ -15,13 +15,16 @@
             </section>
 
             <section>
-                Table comes HERE
+                <ag-grid-wrapper
+                    [resource]="groups"
+                    [config]="tableConfig">
+                </ag-grid-wrapper>
             </section>
         </section>
     </article>
 
     <footer>
         <button class="secondary pull-right" (click)="close()">Lukk</button>
-        <button class="c2a" (click)="close()">Velg</button>
+        <button class="c2a" (click)="save()">Lagre</button>
     </footer>
 </section>

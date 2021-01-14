@@ -2,6 +2,7 @@ import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ErrorService, StatisticsService } from '@app/services/services';
 import { BusinessRelation } from '@uni-entities';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import * as moment from 'moment';
@@ -25,6 +26,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	onDestroy$ = new Subject();
 	annualSettlement: any;
 	step = 0;
+	tableConfig: UniTableConfig;
 
 	stepContentArray = [
 		{
@@ -109,6 +111,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 	incommingProjects = null;
 	outgoingProjects = null;
 
+	assetsDetails = [];
+
+	stockAccounts = [];
+
 	yearSelectConfig = {
 		template: (item) => item.label,
 		searchable: false,
@@ -141,9 +147,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.annualSettlementService.getAccountBalanceForSet(1300, 1319, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1),
-				// this.annualSettlementService.getAssetTaxbasedIBDetails(id)
-			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4]) => {
+				this.annualSettlementService.getAssetTaxbasedIBDetails(id),
+				this.annualSettlementService.getStockAccountsIBAndUB()
+			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts]) => {
 				this.annualSettlement = as;
+				this.assetsDetails = details;
+				this.stockAccounts = stockAccounts;
 
 				this.annualSettlement.Fields.FinnesProsjekterKey =
 					this.annualSettlement.Fields.FinnesProsjekterKey === 'true';
@@ -166,14 +175,16 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.stepContentArray.splice(index, 1);
 				}
 
-				if (!balance1) {
+				if (parseFloat(balance1)) {
 					const index = this.stepContentArray.findIndex(step => step.step === 2);
 					this.stepContentArray.splice(index, 1);
 				}
 
-				if (!balance2 && !balance3 && balance4) {
+				if (!(parseFloat(balance2) || parseFloat(balance3) || parseFloat(balance4))) {
 					const index = this.stepContentArray.findIndex(step => step.step === 4);
 					this.stepContentArray.splice(index, 1);
+				} else {
+					this.setUpTable();
 				}
 
 				// Check if customer has valid data for Corona pack here.. For now, just remove it
@@ -202,10 +213,36 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	openEditModal() {
-		this.modalService.open(AssetsEditModal).onClose.subscribe(() => {
-			
+		this.modalService.open(AssetsEditModal, { data: { ID: this.annualSettlement.ID } }).onClose.subscribe((hasSavedChanges: boolean) => {
+			if (hasSavedChanges) {
+				this.busy = true;
+				this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID).subscribe((data) => {
+					this.assetsDetails = data;
+					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
+					this.busy = false;
+				}, err => {
+					this.errorService.handle(err);
+					this.toastService.addToast('Lagret, men kunne ikke hente data på nytt', ToastType.warn, 5, 
+						'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret, men noe gikk galt da vi skulle hente oppdatert data. Prøv å oppdater bilde, eller gå tilbake il oversikten og start igjen');
+					this.busy = false;
+				})
+
+			}
 		})
 	}
+
+	setUpTable() {
+        this.tableConfig = new UniTableConfig('acconting.annualsettlement.editassetsmodal', true, false, 20)
+        .setAutoAddNewRow(false)
+        .setColumns([
+            new UniTableColumn('GroupCode', 'Saldogruppe', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
+            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setEditable(false),
+			new UniTableColumn('Value', 'Regnskapsmessig IB', UniTableColumnType.Money).setEditable(false),
+			new UniTableColumn('Value', 'Regnskapsmessig UB', UniTableColumnType.Money).setEditable(false),
+			new UniTableColumn('Value', 'Skattemessig IB', UniTableColumnType.Money),
+			new UniTableColumn('Value', 'Skattemessig UB', UniTableColumnType.Money)
+        ]);
+    }
 
 	checkSaveAndContinue(direction: number) {
 
