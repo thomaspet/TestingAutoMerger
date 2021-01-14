@@ -125,7 +125,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 4:
                     step.action = () => {
                         this.router.navigateByUrl(
-                            `/accounting/annual-settlement/${currentAS.ID}/wizzard-tax-form`
+                            `/accounting/annual-settlement/${currentAS.ID}/summary`
                         );
                     };
                     return step;
