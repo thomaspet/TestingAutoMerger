@@ -1,11 +1,11 @@
-<annual-settlement-road-map-toolbar-component
+<annual-settlement-road-map-toolbar-component *ngIf="(selectedAnnualSettlement$ | async)"
     [annualSettlement]="selectedAnnualSettlement$ | async"
     (runAction)="onRunAction($event)"
 ></annual-settlement-road-map-toolbar-component>
 <section *ngIf="busy" class="modal-spinner">
     <mat-spinner class="c2a"></mat-spinner>
 </section>
-<section *ngIf="!busy" class="annual-settlement-container container-fluid uni-grid-container">
+<section *ngIf="!busy && (selectedAnnualSettlement$ | async)" class="annual-settlement-container container-fluid uni-grid-container">
     <section class="row">
         <h4>{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h4>
     </section>

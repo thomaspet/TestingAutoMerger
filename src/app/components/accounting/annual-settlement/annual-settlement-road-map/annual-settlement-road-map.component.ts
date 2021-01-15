@@ -31,6 +31,12 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     ngOnInit(currentYear = null) {
         this.busy = true;
         const year = currentYear || this.financialYearService.getActiveYear();
+        const calendarYear = new Date().getFullYear();
+        if (year < 2020 || year >= calendarYear) {
+            this.toast.addToast(`You can not create an annual settlement less than 2020 or greater than ${calendarYear - 1}`);
+            this.busy = false;
+            return;
+        }
         this.annualSettlementService.getAnnualSettlements().pipe(
             switchMap((as: any[]) => {
                 if (as.length === 0) {
