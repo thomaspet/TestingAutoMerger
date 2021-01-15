@@ -110,9 +110,9 @@
 
 						<tr>
 							<td>Sum endring i forskjeller</td>
-							<td class="align-right"> {{ (annualSettlement.Fields.DriftsmidlerFjoraret, annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret)  }} </td>
-							<td class="align-right"> {{ (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig) | uninumberformat: 'money' }} </td>
-							<td class="align-right"> {{ ((annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) - (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig)) | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.sumIn | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.sumOut | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.change | uninumberformat: 'money' }} </td>
 						</tr>
 					</tbody>
 				</simple-table>
@@ -122,7 +122,7 @@
 
 		<!--  TILVIRKNINGSKONTRAKTER  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 1" style="padding-bottom: 0;">
+		<section class="uni-card-content" *ngIf="infoContent.step === 1">
 			<section class="writeof-form-section">
 				<label>
 					<span>Bruker firmaet tilvirkningskontrakter</span>

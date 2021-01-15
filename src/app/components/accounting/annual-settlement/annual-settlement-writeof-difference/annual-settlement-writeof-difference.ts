@@ -26,6 +26,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 	onDestroy$ = new Subject();
 	annualSettlement: any;
 	step = 0;
+
+	sumLineStep1 = { sumIn: 0, sumOut: 0, change: 0 };
 	sumLine: any = {};
 	tableConfig: UniTableConfig;
 
@@ -135,7 +137,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		private toastService: ToastService,
 		private modalService: UniModalService
 	) {	
-		this.infoContent = this.stepContentArray[0];
+		// this.infoContent = this.stepContentArray[0];
 	}
 
 	ngOnInit() {
@@ -157,7 +159,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts, groups]) => {
 				this.annualSettlement = as;
 				this.assetsDetails = this.getFormattedDetailsData(details);
-				this.stockAccounts = stockAccounts;
+				this.stockAccounts = stockAccounts.map(account => {
+					account._taxIB = account.IB;
+					account._taxUB = account.UB;
+					return account;
+				});
+
 				this.groups = groups;
 
 				this.checkMissingTaxData();
@@ -200,6 +207,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
+
+				this.recalc();
 
 				this.changeDetector.markForCheck();
 				this.busy = false;
@@ -251,6 +260,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				]).subscribe(([data, groups]) => {
 					this.assetsDetails = this.getFormattedDetailsData(data);
 					this.groups = groups;
+					this.recalc();
 					this.checkMissingTaxData();
 					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
 					this.busy = false;
@@ -269,12 +279,12 @@ export class AnnualSettlementWriteofDifferenceStep {
         this.tableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', true, false, 20)
         .setAutoAddNewRow(false)
         .setColumns([
-            new UniTableColumn('GroupCode', 'Saldogruppe', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
-            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setEditable(false),
-			new UniTableColumn('Value', 'Regnskapsmessig IB', UniTableColumnType.Money).setEditable(false),
-			new UniTableColumn('Value', 'Regnskapsmessig UB', UniTableColumnType.Money).setEditable(false),
-			new UniTableColumn('Value', 'Skattemessig IB', UniTableColumnType.Money),
-			new UniTableColumn('Value', 'Skattemessig UB', UniTableColumnType.Money)
+            new UniTableColumn('AccountNumber', 'Konto', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
+            new UniTableColumn('AccountName', 'Navn', UniTableColumnType.Text).setEditable(false),
+			new UniTableColumn('IB', 'Regnskapsmessig IB', UniTableColumnType.Money).setEditable(false),
+			new UniTableColumn('UB', 'Regnskapsmessig UB', UniTableColumnType.Money).setEditable(false),
+			new UniTableColumn('_taxIB', 'Skattemessig IB', UniTableColumnType.Money),
+			new UniTableColumn('_taxUB', 'Skattemessig UB', UniTableColumnType.Money)
         ]);
     }
 
@@ -327,6 +337,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 	setStepInfoContent() {
 		this.infoContent = this.stepContentArray[this.step];
+		this.recalc();
 	}
 
 	// This is called when a value on step 2 is changed
@@ -334,6 +345,11 @@ export class AnnualSettlementWriteofDifferenceStep {
 		this.infoContent.diff = 0;
 
 		switch (this.infoContent.step) {
+			case 0:
+				this.sumLineStep1.sumIn = parseFloat(this.annualSettlement.Fields.DriftsmidlerFjoraret) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret);
+				this.sumLineStep1.sumOut = parseFloat(this.annualSettlement.Fields.Driftsmidler) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessig);;
+				this.sumLineStep1.change = this.sumLineStep1.sumIn - this.sumLineStep1.sumOut;
+				break;
 			case 1:
 				if (this.ct.value === 1) {
 					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0)
