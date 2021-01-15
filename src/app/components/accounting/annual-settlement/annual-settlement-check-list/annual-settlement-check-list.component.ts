@@ -1,10 +1,11 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {catchError, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {Subject, throwError} from 'rxjs';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {Subject} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {infoOption, options} from './checklistoptions';
-import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
+import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'annual-settlement-check-list-component',
@@ -28,6 +29,7 @@ export class AnnualSettlementCheckListComponent {
         private route: ActivatedRoute,
         private annualSettlementService: AnnualSettlementService,
         private tabService: TabService,
+        private toast: ToastService,
         private changeDetector: ChangeDetectorRef) {}
     ngOnInit() {
         this.busy = true;
@@ -42,16 +44,24 @@ export class AnnualSettlementCheckListComponent {
                 this.initOptions();
                 this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
                 this.busy = false;
-            }, () => this.busy = false, () => this.busy = false);
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => this.busy = false);
         });
     }
 
     completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+            this.router.navigateByUrl('/accounting/annual-settlement');
+        }, (err) => {
+            console.log(err);
+            const message = err && err.error && err.error.Messages && err.error.Messages.length > 0 && err.error.Messages[0].Message;
+            this.toast.addToast('Error in Transition', ToastType.warn, ToastTime.medium, err.message + ' - ' + message);
+        }, () => {
             if (done) {
                 done();
             }
-            this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
 
@@ -59,19 +69,22 @@ export class AnnualSettlementCheckListComponent {
         this.busy = true;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
+                this.annualSettlement = as;
+                this.busy = false;
+            }, (err) => {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                this.busy = false;
+            }, () => {
                 if (done) {
                     done();
                 }
-                this.annualSettlement = as;
                 this.busy = false;
-            }, () => this.busy = false, () => this.busy = false);
+            });
     }
 
     initOptions() {
         this.options = this.options.map((op: any) => {
-            if (this.annualSettlement.AnnualSettlementCheckList[op.property]) {
-                op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
-            }
+            op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
             return op;
         });
         this.setNextOption(this.options);
