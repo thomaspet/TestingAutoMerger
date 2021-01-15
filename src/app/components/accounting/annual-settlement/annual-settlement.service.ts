@@ -193,15 +193,36 @@ export class AnnualSettlementService extends BizHttp<any> {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
-                tap(resultMvaMelding => checkList.IsMvaMeldingOK = resultMvaMelding),
+                tap(resultMvaMelding => {
+                    checkList.IsMvaMeldingOK = checkList.IsMvaMeldingOK === null || checkList.IsMvaMeldingOK === undefined
+                        ? resultMvaMelding
+                        : checkList.IsMvaMeldingOK;
+                }),
                 switchMap(() => this.checkAmelding(as.AccountYear)),
-                tap(resultAmelding => checkList.IsAmeldingOK = resultAmelding),
+                tap(resultAmelding => {
+                    checkList.IsAmeldingOK = checkList.IsAmeldingOK === null || checkList.IsAmeldingOK === undefined
+                        ? resultAmelding
+                        : checkList.IsAmeldingOK;
+                }),
                 switchMap(() => this.checkLastyear(as.AccountYear)),
-                tap(resultLastYear => checkList.AreAllPreviousYearsEndedAndBalances = resultLastYear),
+                tap(resultLastYear => {
+                    checkList.AreAllPreviousYearsEndedAndBalances = (checkList.AreAllPreviousYearsEndedAndBalances === null
+                    || checkList.AreAllPreviousYearsEndedAndBalances === undefined)
+                        ? resultLastYear
+                        : checkList.AreAllPreviousYearsEndedAndBalances;
+                }),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
-                tap(resultStocksCapital => checkList.IsShareCapitalOK = resultStocksCapital),
+                tap(resultStocksCapital => {
+                    checkList.IsShareCapitalOK = checkList.IsShareCapitalOK === null || checkList.IsShareCapitalOK === undefined
+                        ? resultStocksCapital
+                        : checkList.IsShareCapitalOK;
+                }),
                 switchMap(() => this.checkAssets(as.AccountYear)),
-                tap(resultAssets => checkList.IsAssetsOK = resultAssets),
+                tap(resultAssets => {
+                    checkList.IsAssetsOK = checkList.IsAssetsOK === null || checkList.IsAssetsOK === undefined
+                        ? resultAssets
+                        : checkList.IsAssetsOK;
+                }),
                 map(() => {
                     const _as = Object.assign({}, as);
                     _as.AnnualSettlementCheckList = checkList;
