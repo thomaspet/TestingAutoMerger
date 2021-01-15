@@ -87,11 +87,11 @@ export class InitService {
         );
     }
 
-    createCompany(body, contractType?: number) {
+    createCompany(body, contractType?: number, isBureauCustomer = false) {
         let endpoint = 'create-company';
 
-        // set to pending if SR, not test and not bureau
-        if (theme.theme === THEMES.SR && !(body?.IsTest) && contractType !== 11) {
+        // set to pending if SR, not test, not bureau contract and not bureau customer
+        if (theme.theme === THEMES.SR && !(body?.IsTest) && contractType !== 11 && !isBureauCustomer) {
             endpoint += '?licenseStatus=3';
         }
 

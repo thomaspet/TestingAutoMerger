@@ -44,6 +44,7 @@ import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService, UniPreviewModal} from '../../../../framework/uni-modal';
 import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
+import { theme, THEMES } from 'src/themes/theme';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -54,7 +55,6 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
-import {theme, THEMES} from 'src/themes/theme';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -1410,6 +1410,11 @@ export class UniTicker {
         }
 
         config.isGroupingTicker = this.groupingIsOn;
+
+        if (this.ticker.Code === 'payment_list') {
+            config.useInfobannerWhenMoreThenSelectedRowsExists = true;
+        }
+
         return config;
     }
 

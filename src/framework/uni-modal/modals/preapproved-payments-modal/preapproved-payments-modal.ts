@@ -35,8 +35,7 @@ export class PreapprovedPaymentsModal implements OnInit, IUniModal {
 
     sendPayments() {
         this.busy = true;
-        const test = this.getParamsStringForAll();
-        const obs = this.isAll 
+        const obs = this.isAll
         ? this.paymentService.createPaymentBatchForAll(false, this.getParamsStringForAll()) 
         : this.paymentService.createPaymentBatchWithHash(this.paymentIDs, this.hash, window.location.href);
 
@@ -44,14 +43,13 @@ export class PreapprovedPaymentsModal implements OnInit, IUniModal {
             const startSign = window.location.href.indexOf('?') >= 0 ? '&' : '?';
             const redirecturl = window.location.href + `${startSign}hashValue=${paymentBatch.HashValue}&batchID=${paymentBatch.ID}`;
 
-            let bankIDURL = environment.authority + `/bankid?clientid=${environment.client_id}&securityHash=${paymentBatch.HashValue}&redirecturl=${encodeURIComponent(redirecturl)}`
+            const bankIDURL = environment.authority + `/bankid?clientid=${environment.client_id}&securityHash=${paymentBatch.HashValue}&redirecturl=${encodeURIComponent(redirecturl)}`;
             window.location.href = bankIDURL;
             this.busy = false;
-        }
+        };
 
         // Send that batch to the bank directly
         obs.subscribe((result: any) => {
-            
             if (result?.ProgressUrl) {
                 this.paymentService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
                     if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {

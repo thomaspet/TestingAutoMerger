@@ -27,7 +27,8 @@ import {
     User,
     UserRole,
     ValidationLevel,
-    VatDeduction
+    VatDeduction,
+    StatusCodeCustomerOrder
 } from '@uni-entities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -173,7 +174,7 @@ export class BillView implements OnInit, AfterViewInit {
     public orgNumber: string;
     autocompleteOptions: any;
     public journalEntryManual: JournalEntryManual;
-
+    public customerOrderData: any;
     public loadingFiles: boolean;
 
     private supplierExpandOptions: Array<string> = [
@@ -739,58 +740,20 @@ export class BillView implements OnInit, AfterViewInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>, force: boolean) {
-
+    private runConverter(files: Array<any>) {
         if (this.companySettings.UseOcrInterpretation) {
             // user has accepted license/agreement for ocr
             this.runOcrOrEHF(files);
         } else {
-            // check for undefined or null, because this is a "tristate", so null != false here,
-            // false means that the user has rejected the agreement, while null means he/she has
-            // neither accepted or rejected it yet
-            if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                // user has not accepted license/agreement for ocr
-                this.uniFilesService.getOcrStatistics()
-                    .subscribe(res => {
-                            const countUsed = res.CountOcrDataUsed;
-
-                            if (countUsed <= 10) {
-                                // allow running OCR the first 10 times for free
-                                this.runOcrOrEHF(files);
-                            } else {
-                                this.companySettingsService.PostAction(1, 'ocr-trial-used')
-                                    .subscribe(success => {
-                                            // this is set through the ocr-trial-used, but set it in the local object as well to
-                                            // avoid displaying the same message multiple times
-                                            this.companySettings.UseOcrInterpretation = false;
-
-                                            const modal = this.modalService.open(UniConfirmModalV2, {
-                                                header: 'Fakturatolkning er ikke aktivert',
-                                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                                + ' videre må du aktivere Fakturatolk under firmainnstillinger i menyen.',
-                                                buttonLabels: {
-                                                    accept: 'Ok',
-                                                    cancel: 'Avbryt'
-                                                }
-                                            });
-                                        }, err => this.errorService.handle(err)
-                                    );
-                            }
-                        },
-                        err => this.errorService.handle(err)
-                    );
-            } else if (force) {
-                // user has deactivated license/agreement for ocr
-                const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
-                    message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
-                    buttonLabels: {
-                        accept: 'Ok',
-                        cancel: 'Avbryt'
-                    }
-                });
-            }
+            // user has deactivated license/agreement for ocr
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Fakturatolkning er ikke aktivert',
+                message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
+                buttonLabels: {
+                    accept: 'Ok',
+                    cancel: 'Avbryt'
+                }
+            });
         }
     }
 
@@ -1032,7 +995,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
-                this.runConverter(files, false);
+                this.runConverter(files);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
@@ -1158,6 +1121,10 @@ export class BillView implements OnInit, AfterViewInit {
         }
         if (ocr.PaymentDueDate) {
             current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
+        }
+
+        if (ocr.Requisition && !isNaN(parseFloat(ocr.Requisition))) {
+            this.setCustomerOrder(ocr.Requisition);
         }
 
         this.current.next(current);
@@ -3223,6 +3190,50 @@ export class BillView implements OnInit, AfterViewInit {
                 }
             });
 
+            if (this.ocrData && this.customerOrderData) {
+                const customerOrder = this.customerOrderData;
+                line.CustomerOrderID = customerOrder.ID;
+                line.CustomerOrder = customerOrder;
+                if(line.CustomerOrder.StatusCode === StatusCodeCustomerOrder.Completed){
+                    this.toast.addToast(
+                        'Advarsel',
+                        ToastType.warn,
+                        ToastTime.forever,
+                        'Denne ordre er merket som Avsluttet.'
+                        );
+                }
+                if (!line.Dimensions.Project && customerOrder.ProjectID) {
+                    line.Dimensions.Project = {
+                        ID: customerOrder.ProjectID,
+                        Name: customerOrder.ProjectName,
+                        ProjectNumber: customerOrder.ProjectNumber
+                    };
+                    line.Dimensions.ProjectID = customerOrder.ProjectID;
+                }
+
+                if (!line.Dimensions.Department && customerOrder.DepartmentID) {
+                    line.Dimensions.Department = {
+                        ID: customerOrder.DepartmentID,
+                        Name: customerOrder.DepartmentName,
+                        DepartmentNumber: customerOrder.DepartmentNumber
+                    };
+                    line.Dimensions.DepartmentID = customerOrder.DepartmentID;
+                }
+
+                this.customDimensions.forEach((dimension) => {
+                    if (!line.Dimensions['Dimension' + dimension.Dimension]
+                        && customerOrder[`Dimension${dimension.Dimension}ID`]) {
+
+                        line.Dimensions['Dimension' + dimension.Dimension] = {
+                            ID: customerOrder[`Dimension${dimension.Dimension}ID`],
+                            Name: customerOrder[`Dimension${dimension.Dimension}Name`],
+                            Number: customerOrder[`Dimension${dimension.Dimension}Number`]
+                        };
+                        line.Dimensions['Dimension' + dimension.Dimension + 'ID'] = customerOrder[`Dimension${dimension.Dimension}ID`];
+                    }
+                });
+            }
+
             if (!line.Amount && !line.AmountCurrency) {
                 line.AmountCurrency = UniMath.round(this.sumRemainder);
                 line.Amount = UniMath.round(line.AmountCurrency * (line.CurrencyExchangeRate || 1), 2);
@@ -4168,7 +4179,7 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 label: 'Kjør tolk (OCR/EHF)',
-                action: () => { this.runConverter(this.files, true); }
+                action: () => { this.runConverter(this.files); }
             },
             {
                 label: 'Kjør smart bokføring',
@@ -4453,5 +4464,23 @@ export class BillView implements OnInit, AfterViewInit {
             );
         }
         return of(false);
+    }
+
+    private customerOrderSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
+            `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
+            `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
+            `&select=ID as ID,OrderNumber as OrderNumber,StatusCode as StatusCode,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
+            `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
+            `filter=OrderNumber eq '${searchValue}'`).map(x => x.Data ? x.Data : []);
+    }
+
+    private setCustomerOrder(orderNumber) {
+        if (orderNumber) {
+            this.customerOrderSearch(orderNumber).subscribe(res => {
+                this.customerOrderData = res[0];
+            });
+        }
     }
 }

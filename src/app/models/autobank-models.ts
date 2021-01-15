@@ -20,5 +20,6 @@ export interface AutoBankAgreementDetails {
 export enum BankAgreementServiceProvider {
     ZData = 1,
     Bruno = 2,
-    Mock = 3
+    Mock = 3,
+    ZdataV3 = 4
 }

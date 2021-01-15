@@ -28,6 +28,7 @@ export class UniNavbar {
 
     showDemoPackageSelector: boolean;
     isSupportUser: boolean;
+    isRoamingUser: boolean;
 
     user: User;
     licenseRole: string;
@@ -62,9 +63,11 @@ export class UniNavbar {
                 this.isTestCompany = auth.activeCompany.IsTest;
                 this.isDemo = auth.isDemo;
                 this.isSupportUser = auth.user.License.UserType?.TypeName === 'Support';
+                this.isRoamingUser = auth.user.License.CustomerInfo.IsRoamingUser;
 
-                this.showDemoPackageSelector =
-                    (auth.isDemo || this.isSupportUser) && (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR);
+                this.showDemoPackageSelector = 
+                    (auth.isDemo || this.isSupportUser || this.isRoamingUser)
+                    && (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR);
 
                 if (auth.isDemo) {
                     const contract = (auth.user.License && auth.user.License.ContractType) || <ContractLicenseType> {};

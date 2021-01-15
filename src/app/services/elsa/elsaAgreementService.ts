@@ -42,9 +42,8 @@ export class ElsaAgreementService {
             .pipe(map(agreements => agreements[0]));
     }
 
-    // this should, in theory, only be used once per (brand new) user, no need to cache it
-    getUserLicenseAgreement(): Observable<ElsaAgreement> {
-        const endpoint = `/api/agreements?$filter=agreementtype eq 'UserLicenseGdpr' and agreementstatus eq 'Active'`;
+    getByType(type: string): Observable<ElsaAgreement> {
+        const endpoint = `/api/agreements?$filter=agreementtype eq '${type}' and agreementstatus eq 'Active'`;
         return this.http.get<ElsaAgreement>(this.ELSA_SERVER_URL + endpoint)
             .pipe(map(agreements => agreements[0]));
     }

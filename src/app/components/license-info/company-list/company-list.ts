@@ -185,7 +185,8 @@ export class CompanyList {
             this.modalService.open(NewCompanyModal, {
                 data: {
                     contractID: this.contractID,
-                    contractType: this.contractType
+                    contractType: this.contractType,
+                    isBureauCustomer: this.licenseInfo.isBureauCustomer
                 }
             });
         }

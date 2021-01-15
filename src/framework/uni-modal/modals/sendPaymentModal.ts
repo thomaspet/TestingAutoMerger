@@ -133,7 +133,8 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
     createAndSend = () => {
         let obs;
         if (this.options.data.sendAll) {
-            obs = this.paymentService.createPaymentBatchForAll();
+            const filter =  this.options.data?.filter ? '$filter=' + this.options.data.filter : '';
+            obs = this.paymentService.createPaymentBatchForAll(false, filter);
         } else {
             obs = this.paymentService.createPaymentBatch(this.model.PaymentIds, false);
         }
@@ -175,7 +176,8 @@ export class UniSendPaymentModal implements IUniModal, OnInit {
                     this.toastService.addToast('Kunne ikke sende til bank', ToastType.warn, 15,
                         'Vi har opprettet betalingsbunt, men klarte ikke sende den til bank. Betalingene er '
                         + 'flyttet til Under behandling fanen. Gå til Utbetalingsbunter for tilbakestille bunt og '
-                        + 'behandle betalinger igjen, eller prøve å sende den på nytt.');
+                        + 'behandle betalinger igjen, eller prøve å sende den på nytt.'
+                        + (err?.error?.Message ? ' ' + err.error.Message : ''));
                     this.onClose.emit(true);
                 });
             }

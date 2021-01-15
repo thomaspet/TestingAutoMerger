@@ -329,6 +329,18 @@ export class AuthService {
         return safeUrl || '';
     }
 
+    refreshToken() {
+        return this.userManager.signinSilent().then(user => {
+            this.id_token = user.id_token;
+            this.jwt = user.access_token;
+            this.token$.next(this.jwt);
+            this.storage.saveOnUser('jwt', this.jwt);
+            return true;
+        }).catch(() => {
+            return false;
+        });
+    }
+
     loadCurrentSession(): Observable<IAuthDetails> {
         const url = (
             environment.BASE_URL +

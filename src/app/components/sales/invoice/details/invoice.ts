@@ -639,7 +639,9 @@ export class InvoiceDetails implements OnInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
+            if (this.accountsWithMandatoryDimensionsIsUsed
+                && invoice.CustomerID
+                && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
@@ -1085,7 +1087,7 @@ export class InvoiceDetails implements OnInit {
 
         this.invoiceItems = invoice.Items.sort((a, b) => a.SortIndex - b.SortIndex);
         this.invoice = invoice;
-        
+
         this.recalcItemSums(invoice.Items);
         this.updateCurrency(invoice, true);
 
@@ -1622,7 +1624,11 @@ export class InvoiceDetails implements OnInit {
         });
 
         if (this.aprilaOption.hasPermission && this.invoice.InvoiceType === InvoiceTypes.Invoice) {
-            if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
+            if (this.invoiceID === 0 ||
+                (this.invoice &&
+                    (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft)
+                )
+            ) {
                 this.saveActions.push({
                     label: 'Selg til Aprila',
                     action: (done) => this.sellInvoiceToAprila(done),
@@ -2008,8 +2014,8 @@ export class InvoiceDetails implements OnInit {
                             this.errorService.handle(err);
                             if (isCreditNote) {
                                 const isAprilaInvoice = this.invoice.InvoiceReference &&
-                                    this.invoice.InvoiceReference["CustomValues"] &&
-                                    this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
+                                    this.invoice.InvoiceReference['CustomValues'] &&
+                                    this.invoice.InvoiceReference['CustomValues'].CustomAprilaReferenceID;
                                 if (isAprilaInvoice) {
                                     this.openAprilaCreditNoteModal('ERROR');
                                 }
@@ -2152,7 +2158,19 @@ export class InvoiceDetails implements OnInit {
                         () => { }
                     );
 
-                    this.modalService.open(UniReminderSendingModal, { data: reminders });
+                    this.modalService.open(UniReminderSendingModal, {
+                        data: {
+                            reminders: reminders.map(x => x.ID)
+                        }
+                    })
+                    .onClose.subscribe(res => {
+                        if (!res) {
+                            return;
+                        }
+
+                        this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                    });
+
                     doneCallback();
                 },
                 () => {
@@ -2181,7 +2199,18 @@ export class InvoiceDetails implements OnInit {
                     if (result === ConfirmActions.ACCEPT) {
                         sendReminder();
                     } else if (result === ConfirmActions.REJECT) {
-                        this.modalService.open(UniReminderSendingModal, { data: reminderList.Data });
+                        this.modalService.open(UniReminderSendingModal, {
+                            data: {
+                                reminders: reminderList.Data.map( x => x.CustomerInvoiceReminderID )
+                            }
+                        })
+                        .onClose.subscribe(res => {
+                            if (!res) {
+                                return;
+                            }
+
+                            this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                        });
                         doneCallback();
                     } else {
                         doneCallback();
@@ -2194,7 +2223,9 @@ export class InvoiceDetails implements OnInit {
     }
 
     private creditInvoice(done) {
-        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
+        // set up the function to actually create the creditnote to reuse later in this function
+        // (depending on user feedback if the invoice is e.g. already paid)
+        const createCreditNoteFunc = () => this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
             (data) => {
                 done('Kreditkladd opprettet');
                 this.router.navigateByUrl('/sales/invoices/' + data.ID);
@@ -2204,6 +2235,47 @@ export class InvoiceDetails implements OnInit {
                 this.errorService.handle(err);
             }
         );
+
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Credited
+            || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyCredited) {
+            this.modalService.confirm({
+                header: `Fakturaen er allerede ${(this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyCredited ? 'del' : '')}kreditert!`,
+                message: 'Normalt vil man ikke kreditere en faktura som allerede er kreditert. ' +
+                'Det vil ikke være mulig å kreditere mer enn det opprinnelige beløpet på fakturaen.<br/><br/>' +
+                'Vennligst bekreft at du likevel vil opprette en ny kreditnota for denne fakturaen',
+                buttonLabels: {
+                    accept: 'Opprett kreditnota likevel',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    createCreditNoteFunc();
+                } else {
+                    done();
+                }
+            });
+        } else if (this.invoice.RestAmount !== this.invoice.TaxInclusiveAmount &&
+            (this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
+                || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid)) {
+            this.modalService.confirm({
+                header: 'Innbetalinger er registrert på fakturaen',
+                message: 'Hvis fakturaen krediteres vil innbetalinger koblet til fakturaen markeres som åpne poster i kundereskontroen.<br/><br/> ' +
+                'Fra kundereskontroen vil du kunne betale tilbake dette til kunden, eller koble det mot en annen åpen post',
+                buttonLabels: {
+                    accept: 'Opprett kreditnota likevel',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    createCreditNoteFunc();
+                } else {
+                    done();
+                }
+            });
+        } else {
+            //
+            createCreditNoteFunc();
+        }
     }
 
     private payInvoice(done) {

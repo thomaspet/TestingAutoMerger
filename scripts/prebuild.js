@@ -2,21 +2,9 @@ const path = require('path');
 const colors = require('colors/safe');
 const fs = require('fs');
 
-console.log(colors.green('\nGenerating app metadata and raygun setup'));
+console.log(colors.green('\nGenerating app metadata'));
 
 const project_root = path.resolve(__dirname, '..');
-
-// Write raygun api key to file
-const raygunApiKey = `export const RAYGUN_API_KEY = '${(process.env.RAYGUN_API_KEY || '').trim()}';`;
-const raygunFilePath = path.join(project_root, 'src/environments/raygun.ts');
-
-fs.writeFile(raygunFilePath, raygunApiKey, { flat: 'w' }, function (err) {
-    if (err) {
-        return console.log(colors.red(err));
-    }
-
-    console.log(colors.cyan('> Done generating raygun setup'));
-});
 
 // Write metadata file
 const metadata = `

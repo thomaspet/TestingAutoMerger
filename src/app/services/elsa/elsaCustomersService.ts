@@ -43,8 +43,8 @@ export class ElsaCustomersService {
 
     getAllManaged(userIdentity: string): Observable<ElsaCustomer[]> {
         let endpoint = '/api/customers?';
-        const expand = `$expand=contracts($select=contracttype,id)`;
-        const select = '&$select=name,id';
+        const expand = `$expand=contracts($select=contracttype,id,name)`;
+        const select = '&$select=name,id,customertype';
         const filter = `&$filter=managers/any(m: m/user/identity eq ${userIdentity})`;
         endpoint += expand + select + filter;
         return this.uniHttp.asGET()
@@ -75,6 +75,23 @@ export class ElsaCustomersService {
         return this.uniHttp.asDELETE()
             .usingElsaDomain()
             .withEndPoint(`/api/customers/${customerID}/customer-access/${id}`)
+            .send()
+            .map(res => res.body);
+    }
+
+    addRoamingUser(customerID: number, email: string) {
+        return this.uniHttp.asPOST()
+            .usingElsaDomain()
+            .withEndPoint(`/api/customers/${customerID}/roaming-user`)
+            .withBody(email)
+            .send()
+            .map(res => res.body);
+    }
+
+    removeRoamingUser(customerID: number, id: number) {
+        return this.uniHttp.asDELETE()
+            .usingElsaDomain()
+            .withEndPoint(`/api/customers/${customerID}/roaming-user/${id}`)
             .send()
             .map(res => res.body);
     }

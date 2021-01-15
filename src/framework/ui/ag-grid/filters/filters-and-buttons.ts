@@ -14,7 +14,7 @@ import * as moment from 'moment';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { UniTableConfig, UniTableColumn, UniTableColumnType, QuickFilter } from '@uni-framework/ui/unitable';
 import { AdvancedFilters } from './advanced-filters/advanced-filters';
-import { ITableFilter, ISavedSearch } from '../interfaces';
+import { ITableFilter, ISavedSearch, IOptionBanner } from '../interfaces';
 import { TableUtils } from '../services/table-utils';
 
 @Component({
@@ -28,6 +28,7 @@ export class TableFiltersAndButtons {
     @Input() columns: UniTableColumn[];
     @Input() filters: ITableFilter[];
     @Input() quickFilters: QuickFilter[];
+    @Input() optionBanner: IOptionBanner;
 
     @Output() filtersChange: EventEmitter<any> = new EventEmitter();
 
