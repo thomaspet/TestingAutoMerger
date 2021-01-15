@@ -53,10 +53,15 @@ export class AnnualSettlementCheckListComponent {
 
     completeCheckListStep(done) {
         this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+            this.router.navigateByUrl('/accounting/annual-settlement');
+        }, (err) => {
+            console.log(err);
+            const message = err && err.error && err.error.Messages && err.error.Messages.length > 0 && err.error.Messages[0].Message;
+            this.toast.addToast('Error in Transition', ToastType.warn, ToastTime.medium, err.message + ' - ' + message);
+        }, () => {
             if (done) {
                 done();
             }
-            this.router.navigateByUrl('/accounting/annual-settlement');
         });
     }
 
@@ -64,22 +69,22 @@ export class AnnualSettlementCheckListComponent {
         this.busy = true;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
-                if (done) {
-                    done();
-                }
                 this.annualSettlement = as;
                 this.busy = false;
             }, (err) => {
                 this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
                 this.busy = false;
-            }, () => this.busy = false);
+            }, () => {
+                if (done) {
+                    done();
+                }
+                this.busy = false;
+            });
     }
 
     initOptions() {
         this.options = this.options.map((op: any) => {
-            if (this.annualSettlement.AnnualSettlementCheckList[op.property]) {
-                op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
-            }
+            op.checked = this.annualSettlement.AnnualSettlementCheckList[op.property];
             return op;
         });
         this.setNextOption(this.options);
