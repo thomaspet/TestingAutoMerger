@@ -610,13 +610,13 @@ export class BankComponent {
     public updateSaveActions(selectedTickerCode: string) {
         this.actions = [];
         const allRowsSelected = this?.tickerContainer?.mainTicker?.table?.allRowsSelected;
-
+        const hasBankUserName = theme.theme !== THEMES.EXT02 ? !!this.user?.BankIntegrationUserName : true;
         if (selectedTickerCode === 'payment_list') {
             this.actions.push({
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false, allRowsSelected),
                 main: this.hasActiveAgreement && this.canEdit && !this.rows.length && !allRowsSelected,
-                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected || !this.user?.BankIntegrationUserName
+                disabled: !this.canEdit || !this.hasActiveAgreement || this.rows.length > 0 || allRowsSelected || !hasBankUserName
             });
 
             this.actions.push({
@@ -653,7 +653,7 @@ export class BankComponent {
                 label: 'Send til betaling',
                 action: (done) => this.pay(done, false, allRowsSelected),
                 main: (this.rows.length > 0 || allRowsSelected) && this.canEdit,
-                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit || !this.user?.BankIntegrationUserName
+                disabled: (this.rows.length === 0 && !allRowsSelected) || !this.hasActiveAgreement || !this.canEdit || !hasBankUserName
             });
 
             this.actions.push({
