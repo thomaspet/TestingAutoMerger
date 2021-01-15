@@ -112,6 +112,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 	incommingProjects = null;
 	outgoingProjects = null;
 
+	groups = [];
+	missingTaxData = true;
+
 	assetsDetails = [];
 
 	stockAccounts = [];
@@ -149,11 +152,15 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1),
 				this.annualSettlementService.getAssetTaxbasedIBDetails(id),
-				this.annualSettlementService.getStockAccountsIBAndUB()
-			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts]) => {
+				this.annualSettlementService.getStockAccountsIBAndUB(),
+				this.annualSettlementService.getAssetAndGroups(id)
+			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts, groups]) => {
 				this.annualSettlement = as;
 				this.assetsDetails = this.getFormattedDetailsData(details);
 				this.stockAccounts = stockAccounts;
+				this.groups = groups;
+
+				this.checkMissingTaxData();
 
 				this.annualSettlement.Fields.FinnesProsjekterKey =
 					this.annualSettlement.Fields.FinnesProsjekterKey === 'true';
@@ -228,12 +235,23 @@ export class AnnualSettlementWriteofDifferenceStep {
 		return data.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 });
 	}
 
+	checkMissingTaxData() {
+		// REMOVE COMMENT WHEN FIXED
+		// this.missingTaxData = !!this.groups.filter(g => !g.Value || !g.ID).length;
+		this.missingTaxData = false;
+	}
+
 	openEditModal() {
-		this.modalService.open(AssetsEditModal, { data: { ID: this.annualSettlement.ID } }).onClose.subscribe((hasSavedChanges: boolean) => {
+		this.modalService.open(AssetsEditModal, { data: { groups: this.groups } }).onClose.subscribe((hasSavedChanges: boolean) => {
 			if (hasSavedChanges) {
 				this.busy = true;
-				this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID).subscribe((data) => {
+				Observable.forkJoin([
+					this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID),
+					this.annualSettlementService.getAssetAndGroups(this.annualSettlement.ID)
+				]).subscribe(([data, groups]) => {
 					this.assetsDetails = this.getFormattedDetailsData(data);
+					this.groups = groups;
+					this.checkMissingTaxData();
 					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
 					this.busy = false;
 				}, err => {
