@@ -33,12 +33,9 @@ export class AssetsEditModal implements IUniModal {
     ) {}
 
     ngOnInit() {
-        this.annualSettlementService.getAssetAndGroups(this.options.data.ID).subscribe(groups => {
-            this.groups = groups.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 });
-            console.log(groups);
-            this.setUpTable();
-            this.busy = false;
-        });
+        this.groups = [...this.options.data.groups.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 })];
+        this.setUpTable();
+        this.busy = false;
     }
 
     setUpTable() {
@@ -57,20 +54,18 @@ export class AssetsEditModal implements IUniModal {
         const linesToSave = this.groups.filter(group => group._isDirty);
 
         if (!linesToSave.length) {
-            this.onClose.emit(false);
+            this.close();
         }
 
         this.busy = true;
 
-        const queries = [];
-
-        linesToSave.forEach(line => {
-            queries.push(this.annualSettlementService.updateTaxbasedIB(line));
-        })
-
-        Observable.forkJoin(queries).subscribe(() => {
+        this.annualSettlementService.updateTaxbasedIB(linesToSave).subscribe((updatedGroups) => {
             this.busy = false;
+            this.groups = updatedGroups;
             this.onClose.emit(true);
+        }, err => {
+            this.errorService.handle(err);
+            this.busy = false;
         });
     }
 

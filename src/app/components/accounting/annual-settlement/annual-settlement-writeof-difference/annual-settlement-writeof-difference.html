@@ -32,9 +32,14 @@
 
         <section class="uni-card-content" *ngIf="infoContent.step === 0 && annualSettlement">
 			<section class="error-and-details-container">
-				<span class="error-section">
+				<span class="error-section" *ngIf="missingTaxData">
 					<i class="material-icons">warning</i>
 					<span> Du mangler inngående skattemessig verdi på noen av eiendelene dine. <a (click)="openEditModal()">Du legger dem inn her</a> </span>
+				</span>
+
+				<span class="error-section info-section" *ngIf="!missingTaxData">
+					<i class="material-icons">info</i>
+					<span> <a (click)="openEditModal()">Klikk her for å redigere inngående skattemessig verdi på eiendeler</a> </span>
 				</span>
 
 				<span style="flex: 1"></span>
@@ -105,9 +110,9 @@
 
 						<tr>
 							<td>Sum endring i forskjeller</td>
-							<td class="align-right"> {{ (annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) | uninumberformat: 'money' }} </td>
-							<td class="align-right"> {{ (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig) | uninumberformat: 'money' }} </td>
-							<td class="align-right"> {{ ((annualSettlement.Fields.DriftsmidlerFjoraret - annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret) - (annualSettlement.Fields.Driftsmidler - annualSettlement.Fields.DriftsmidlerSkattemessig)) | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.sumIn | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.sumOut | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLineStep1.change | uninumberformat: 'money' }} </td>
 						</tr>
 					</tbody>
 				</simple-table>
@@ -117,7 +122,7 @@
 
 		<!--  TILVIRKNINGSKONTRAKTER  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 1" style="padding-bottom: 0;">
+		<section class="uni-card-content" *ngIf="infoContent.step === 1">
 			<section class="writeof-form-section">
 				<label>
 					<span>Bruker firmaet tilvirkningskontrakter</span>
@@ -271,7 +276,7 @@
 				<span class="info-span">Oppgi beløp for akkumulert skattemessig underskudd fra i fjor. Du finner dette i RF-1217 i post 130</span>
 
 				<label class="left-aligned-span">
-					<span>Oppgi saldo på gevinst- og tapskonto 31.12.2019</span>
+					<span>Akkumulert fremførbart skattemessig underskudd</span>
 					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.FremforbartUnderskudd" (change)="recalc()">
 				</label>
 			</section>
@@ -323,6 +328,6 @@
 
 	<section class="navigation-button-container" *ngIf="!busy">
 		<button [disabled]="step <= 0" (click)="onStep(-1)" class="secondary"> Tilbake </button>
-		<button (click)="onStep(1)" class="c2a"> Lagre og gå videre </button>
+		<button (click)="onStep(1)" [disabled]="missingTaxData" class="c2a"> Lagre og gå videre </button>
 	</section>
 </section>
