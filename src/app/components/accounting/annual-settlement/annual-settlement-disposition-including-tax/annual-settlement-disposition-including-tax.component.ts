@@ -83,8 +83,10 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     }
 
     runTransition(toStep) {
+        this.busy = true;
         this.annualSettlementService.transition(this.annualSettlement, 4, toStep)
             .subscribe((as) => {
+                this.busy = false;
                 this.toast.addToast('Transition 4 to ' + toStep + ' ran', ToastType.good);
                 this.router.navigateByUrl('/accounting/annual-settlement');
             });
