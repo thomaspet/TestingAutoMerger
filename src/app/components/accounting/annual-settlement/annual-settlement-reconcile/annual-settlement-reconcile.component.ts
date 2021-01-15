@@ -91,7 +91,7 @@ export class AnnualSettlementReconcileComponent {
     }
     updateBalance(account) {
         account.Balance = (account.Balance + '').replace(',', '.').replace(' ', '');
-        account.Balance = UniMath.useFirstTwoDecimals((parseFloat(account.Balance))) || 0;
+        account.Balance = UniMath.round(parseFloat(account.Balance).toFixed(2)) || 0;
         if (account.Balance !== account._LastBalance) {
             account._LastBalance = account.Balance;
             if (account.Balance === account._TotalAmount) {
