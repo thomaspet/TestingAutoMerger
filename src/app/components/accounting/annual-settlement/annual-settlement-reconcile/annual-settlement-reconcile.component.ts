@@ -126,14 +126,22 @@ export class AnnualSettlementReconcileComponent {
     }
     completeReconcile(done) {
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
-            switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement)),
-            catchError(() => done()),
+            switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement))
         ).subscribe(() => {
             if (done) {
                 done();
             }
             this.toast.addToast('Avstem balansen completed', ToastType.good, ToastTime.short);
             this.router.navigateByUrl('/accounting/annual-settlement');
+        }, (err) => {
+            if (done) {
+                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
+                done();
+            }
+        }, () => {
+            if (done) {
+                done();
+            }
         });
     }
     saveAnnualSettlement(done) {

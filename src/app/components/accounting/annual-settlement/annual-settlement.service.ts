@@ -286,7 +286,8 @@ export class AnnualSettlementService extends BizHttp<any> {
             .asPUT()
             .usingBusinessDomain()
             .withEndPoint(`reconcile?action=AddAccountsToReconcile&reconcileID=${reconcileID}`)
-            .send();
+            .send()
+            .pipe(map(res => res.body));
     }
 
     getReconcileAccountsData(reconcile) {

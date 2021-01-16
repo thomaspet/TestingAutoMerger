@@ -59,12 +59,20 @@ export class AnnualSettlementSummaryComponent {
                 if (result === true) {
                     this.router.navigateByUrl('https://altinn.no');
                 }
-                done();
+                if (done) {
+                    done();
+                }
             });
         }, (errorResponse) => {
-            done();
+            if (done) {
+                done();
+            }
             this.toast.addToast(errorResponse.error.Message);
-        }, () => done());
+        }, () => {
+            if (done) {
+                done();
+            }
+        });
     }
     ngOnDestroy() {
         this.onDestroy$.next();
