@@ -37,13 +37,11 @@ export const PLUS_PACKAGE_BLACKLIST = {
         'ui_assignments_*',
         'ui_admin_flow',
         'ui_admin_jobs',
-        'ui_settings_teams',
         'ui_approval-rules',
 
         'ui_accounting_budget',
         'ui_accounting_costallocation',
 
-        'ui_sales_recurringinvoice',
         'ui_sales_sellers',
     ],
 };
@@ -82,10 +80,12 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_batch-invoices',
 
         'ui_sales_productgroups',
+        'ui_sales_recurringinvoice',
 
         'ui_sales_reminders_*',
         'ui_dimensions_*',
         'ui_settings_dimension',
+        'ui_settings_teams',
 
         'ui_import',
         'ui_settings_webhooks',
