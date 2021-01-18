@@ -400,8 +400,8 @@ export class AnnualSettlementService extends BizHttp<any> {
                     list[5 + slice]['info'] = 'tooltip text for 6';
                     list[7 + slice]['editable'] = true;
                     list[7 + slice]['placeholder'] = 'Sum utbytte';
-                    list[7 + slice]['Item'] += ' (Du kan masksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
-                        + ' i utbytte dete året)';
+                    list[7 + slice]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
+                        + ' i utbytte dette året)';
                     return [
                         {
                             title: 'Grunnlag for skatt',
