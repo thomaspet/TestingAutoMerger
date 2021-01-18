@@ -83,9 +83,6 @@ export class ToPaymentModal implements IUniModal {
 
         this.supplierInvoice['_mainAccount'] = this.supplierInvoice['_mainAccount'] || this.accounts[0];
 
-        // Checks if the current company is whitelisted for preapproved payments
-        this.supportsBankIDApprove = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())
-        
         this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
             this.supplierInvoice?.JournalEntry?.DraftLines.filter(line => line.AmountCurrency > 0).forEach(line => {
                 line.Amount = line.AmountCurrency * line.CurrencyExchangeRate;
@@ -103,21 +100,21 @@ export class ToPaymentModal implements IUniModal {
                 this.total.net += net;
             }
 
-            this.useTwoFactor = agreements.some(a => 
-                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+            this.useTwoFactor = agreements.some(a =>
+                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
                 a.StatusCode === StatusCodeBankIntegrationAgreement.Active && a.PreApprovedBankPayments === PreApprovedBankPayments.Active
             );
 
             this.isZDataV3 = agreements.some(a =>
-                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
                 a.StatusCode === StatusCodeBankIntegrationAgreement.Active
             );
 
             this.VALUE_ITEMS = this.getValueItems();
             this.userRoleService.GetAll(`filter=userid eq ${this.authService.currentUser.ID}`).subscribe(roles => {
                 let hasBankPaymentRole = roles.some(r => r.SharedRoleName === 'Bank.Payment');
-                if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || !hasBankPaymentRole ||
-                    (!this.isZDataV3 && theme.theme !== THEMES.EXT02)) {
+                if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 ||
+                (!hasBankPaymentRole && theme.theme !== THEMES.EXT02) || (!this.isZDataV3 && theme.theme !== THEMES.EXT02)) {
                     this.VALUE_ITEMS[0].disabled = true;
                     this.valueItemSelected(this.VALUE_ITEMS[1]);
                 }

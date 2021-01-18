@@ -123,6 +123,7 @@ export class BankComponent {
     private user: UserDto;
     private useTwoFactor: boolean;
     private isZDataV3: boolean;
+    private hasBrunoRGB: boolean;
     hasAccessToAutobank: boolean;
     hasActiveAgreement: boolean;
     filter: string = '';
@@ -363,6 +364,7 @@ export class BankComponent {
                                 }
                             } else if (theme.theme === THEMES.EXT02) {
                                 this.agreements = (agreements || []).filter(agreement => agreement.IsOutgoing);
+                                this.checkHasBrunoRGB();
                                 this.checkBrunoOnboardingState();
                                 this.initiateBank();
                             }
@@ -400,13 +402,20 @@ export class BankComponent {
 
     private checkZDataV3()
     {
-        this.useTwoFactor = this.agreements.some(a => 
-            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+        this.useTwoFactor = this.agreements.some(a =>
+            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
             a.StatusCode === StatusCodeBankIntegrationAgreement.Active && a.PreApprovedBankPayments === PreApprovedBankPayments.Active
         );
         this.isZDataV3 = this.agreements.some(a =>
-            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 && 
+            a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
             a.StatusCode === StatusCodeBankIntegrationAgreement.Active
+        );
+    }
+
+    private checkHasBrunoRGB() {
+        this.hasBrunoRGB = !!this.agreements?.some(a =>
+            a.ServiceProvider === BankAgreementServiceProvider.Bruno &&
+            a.StatusCode === StatusCodeBankIntegrationAgreement.Active && a.PreApprovedBankPayments === PreApprovedBankPayments.Active
         );
     }
 
@@ -612,6 +621,7 @@ export class BankComponent {
         const allRowsSelected = this?.tickerContainer?.mainTicker?.table?.allRowsSelected;
         const hasBankUserName = theme.theme !== THEMES.EXT02 ? !!this.user?.BankIntegrationUserName : true;
         if (selectedTickerCode === 'payment_list') {
+            const hasBankUserName = theme.theme !== THEMES.EXT02 ? !!this.user?.BankIntegrationUserName : true;
             this.actions.push({
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false, allRowsSelected),
@@ -1571,8 +1581,7 @@ export class BankComponent {
                         this.tickerContainer.mainTicker.table.updateRow(row._originalIndex, row);
                     });
 
-                    const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
-                    if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
+                    if (!isManualPayment && this.hasBrunoRGB) {
                         this.payDirectly(doneHandler);
                     } else if (!isManualPayment && this.useTwoFactor) {
                         this.payWithTwoFactor(doneHandler);
@@ -1586,8 +1595,7 @@ export class BankComponent {
                 }
             });
         } else {
-            const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
-            if (!isManualPayment && theme.theme === THEMES.EXT02 && isWhiteListed) {
+            if (!isManualPayment && this.hasBrunoRGB) {
                 this.payDirectly(doneHandler);
             } else if (!isManualPayment && this.useTwoFactor) {
                 this.payWithTwoFactor(doneHandler);
@@ -1620,8 +1628,7 @@ export class BankComponent {
             this.cdr.markForCheck();
             return;
         }
-        const isWhiteListed = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey());
-        if (!isManualPayment && this.hasActiveAgreement && theme.theme === THEMES.EXT02 && isWhiteListed) {
+        if (!isManualPayment && this.hasBrunoRGB) {
             this.payDirectly(doneHandler, true);
         } else if ((isManualPayment || (this.hasActiveAgreement && theme.theme === THEMES.EXT02)) && count) {
             this.InvokeActionWithJobAsPossibleResponse(
@@ -1766,7 +1773,7 @@ export class BankComponent {
         }
 
         // Create paymentbatch
-        const obs = isAll 
+        const obs = isAll
         ? this.paymentService.createPaymentBatchForAll()
         : this.paymentService.createPaymentBatch(data.paymentIDs, false);
 
@@ -1777,7 +1784,7 @@ export class BankComponent {
                     'Det opprettes en betalingsjobb før to-faktor godkjenning. ' +
                     'Avhengig av antall betalinger, kan dette ta litt tid. Vennligst vent.');
                 this.paymentBatchService.waitUntilJobCompleted(result.ID).subscribe(batchJobResponse => {
-                    if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {                       
+                    if (batchJobResponse && !batchJobResponse.HasError && batchJobResponse.Result && batchJobResponse.Result.ID > 0) {
                         this.askTwoFactorAndSendToPayment(doneHandler, data, batchJobResponse.Result.ID, batchJobResponse.Result.HashValue);
                     } else {
                         this.toastService.addToast('Generering av betalingsbunt feilet', ToastType.bad, 0,
@@ -1788,7 +1795,7 @@ export class BankComponent {
             } else {
                 this.askTwoFactorAndSendToPayment(doneHandler, data, result.ID, result.HashValue);
             }
-        }, err => this.errorService.handle(err));       
+        }, err => this.errorService.handle(err));
     }
 
     askTwoFactorAndSendToPayment(doneHandler, data, paymentBatchID, hashValue)
@@ -1811,7 +1818,7 @@ export class BankComponent {
             this.paymentBatchService.sendToPayment(paymentBatchID, body).subscribe(() => {
                 const toastString = `Betalingsbunt med ${ data.isAll ? 'alle' : data.paymentIDs.length} `
                     + `utbetalinger er opprettet og sendt til bank`;
-    
+
                 this.toastService.addToast('Sendt til bank', ToastType.good, 8, toastString);
                 finish();
             }, err => {
@@ -1831,9 +1838,9 @@ export class BankComponent {
                 accept: 'Godkjenn og betal',
                 cancel: 'Avbryt'
             },
-            data: { 
+            data: {
                 reference: hashValue
-            },    
+            },
             message: data.isAll
                 ? 'Godkjenn og send alle betalinger'
                 : `Send ${data.paymentIDs?.length} betalinger med totalsum på <strong>${this.numberformat.transform(data.amount, 'money')}</strong> til bank og godkjenn med to-faktor`
@@ -1846,7 +1853,7 @@ export class BankComponent {
             } else {
                 finish();
             }
-        }); 
+        });
     }
 
     payDirectly(doneHandler, isAll: boolean = false) {
@@ -2052,13 +2059,13 @@ export class BankComponent {
     private InvokeActionWithJobAsPossibleResponse(action, toast, doneHandler) {
         action.subscribe(response => {
             if (this.isHangfireJobResponse(response)) { // runs as hangfire job if true (decided by back-end)
-                
+
                 if (toast) {
                     this.showPaymentJobStartedToast(toast);
                 }
 
                 this.PaymentJobIsCompleted(response?.Value?.ID ?? response.ID).subscribe(result => {
-                    
+
                     doneHandler(result);
                 },
                 (err) => {
@@ -2076,7 +2083,7 @@ export class BankComponent {
     }
 
     private isHangfireJobResponse(response: any): boolean {
-        
+
         return (response && response?.Value && response?.Value?.ProgressUrl)
             || (response && response?.ProgressUrl);
     }
