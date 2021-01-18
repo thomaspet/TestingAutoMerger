@@ -67,8 +67,7 @@
         </label>
         <label class="uni-label label-left">
             <span>Med MVA-kode</span>
-            <mat-checkbox [(ngModel)]="isVatEnabled" [disabled]="fileType === txtType"
-                (click)="$event.stopPropagation()">
+            <mat-checkbox [(ngModel)]="isVatEnabled" (click)="$event.stopPropagation()">
             </mat-checkbox>
         </label>
         <label class="uni-label label-left" *ngIf="selectedOption.type === post">
