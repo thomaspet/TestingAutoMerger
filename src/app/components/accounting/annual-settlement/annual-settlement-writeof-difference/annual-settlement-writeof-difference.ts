@@ -325,6 +325,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		if (this.infoContent.step === 4) {
 			this.infoContent.diff = parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdi || 0) - parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret || 0);
 		}
+		this.stockAccounts = [...this.stockAccounts];
 	}
 
 	checkSaveAndContinue(direction: number) {
@@ -366,7 +367,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 			this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
 				this.step += direction;
 				this.setStepInfoContent();
-				this.recalc();
 				this.busy = false;
 			}, err => {
 				this.busy = false;
@@ -420,6 +420,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 			
 			case 3:
 				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret || 0);
+				break;
+			case 4:
+				this.recalcTaxSums();
 				break;
 			case 5: 
 				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd || 0);
