@@ -549,13 +549,13 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         name: 'Oversikt',
                         url: '/altinn/overview',
                         moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: false
+                        activeInSidebar: true
                     },
                     {
                         name: 'Innstillinger',
                         url: '/altinn/settings',
                         moduleID: UniModules.AltinnOverview,
-                        activeInSidebar: false
+                        activeInSidebar: true
                     }
                 ]
             }
