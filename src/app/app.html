@@ -1,4 +1,6 @@
 <uni-toast-list></uni-toast-list>
+<api-status></api-status>
+
 <section *ngIf="isAuthenticated && !isOnInitRoute" class="chatboxes">
     <uni-chat-box *ngFor="let chatbox of (chatBoxService.businessObjects | async)" [businessObject]="chatbox"></uni-chat-box>
 </section>

@@ -1,0 +1,38 @@
+\:host
+    position: fixed
+    bottom: 1.5rem
+    right: 1.5rem
+    z-index: 999
+
+.api-status-container
+    background: #fff
+    border: 1px solid var(--border-color)
+    box-shadow: 0 11px 15px -7px rgba(0, 0, 0, 0.1), 0 24px 38px 3px rgba(0, 0, 0, 0.1), 0 9px 46px 8px rgba(0, 0, 0, 0.1)
+    border-radius: var(--section-radius)
+    width: 25rem
+
+    .header
+        display: flex
+        align-items: center
+        font-weight: 500
+        padding: .25rem .5rem .25rem 1rem
+        border-bottom: 1px solid var(--border-color)
+        button
+            margin-left: auto
+
+    ul.api-status-list
+        list-style: none
+        padding: 1.5rem 1rem
+        margin: 0
+        overflow: auto
+        max-height: 50vh
+
+        .api-status-item
+            display: flex
+            section
+                display: flex
+                flex-direction: column
+                margin-left: 1rem
+
+            & + .api-status-item
+                margin-top: 1.5rem
