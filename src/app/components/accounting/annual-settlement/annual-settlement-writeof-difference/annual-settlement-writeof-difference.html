@@ -66,18 +66,18 @@
 						<tr *ngFor="let group of assetsDetails">
 							<td> {{ group.GroupCode }} </td>
 							<td> {{ group.DepreciationRate }}% </td>
-							<td class="align-right"> {{ group.Value }} </td>
-							<td class="align-right"> {{ group.Movement }} </td>
-							<td class="align-right"> {{ group.TaxbasedDepreciation }}  </td>
-							<td class="align-right"> {{ group.TaxBasedUB }} </td>
+							<td class="align-right"> {{ group.Value | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ group.Movement | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ group.TaxbasedDepreciation | uninumberformat: 'money' }}  </td>
+							<td class="align-right"> {{ group.TaxBasedUB | uninumberformat: 'money' }} </td>
 						</tr>
 
 						<tr>
 							<td colspan="2">Skattemessig verdi på eiendeler</td>
-							<td class="align-right"> {{ sumLine.Value }} </td>
-							<td class="align-right"> {{ sumLine.Movement }} </td>
-							<td class="align-right"> {{ sumLine.TaxbasedDepreciation }}  </td>
-							<td class="align-right"> {{ sumLine.TaxBasedUB }} </td>
+							<td class="align-right"> {{ sumLine.Value | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLine.Movement | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLine.TaxbasedDepreciation | uninumberformat: 'money' }}  </td>
+							<td class="align-right"> {{ sumLine.TaxBasedUB | uninumberformat: 'money' }} </td>
 						</tr>
 					</tbody>
 				</simple-table>

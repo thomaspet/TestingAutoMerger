@@ -165,6 +165,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 					return account;
 				});
 
+				this.stockAccounts.push({});
+				this.recalcTaxSums();
+
 				this.groups = groups;
 
 				this.checkMissingTaxData();
@@ -284,9 +287,46 @@ export class AnnualSettlementWriteofDifferenceStep {
 			new UniTableColumn('IB', 'Regnskapsmessig IB', UniTableColumnType.Money).setEditable(false),
 			new UniTableColumn('UB', 'Regnskapsmessig UB', UniTableColumnType.Money).setEditable(false),
 			new UniTableColumn('_taxIB', 'Skattemessig IB', UniTableColumnType.Money),
-			new UniTableColumn('_taxUB', 'Skattemessig UB', UniTableColumnType.Money)
-        ]);
-    }
+			new UniTableColumn('_taxUB', 'Skattemessig UB', UniTableColumnType.Money)])
+		.setChangeCallback((event) => {
+			this.stockAccounts[event.originalIndex] = event.rowModel;
+			this.recalcTaxSums();
+		})
+		.setIsRowReadOnly((row) => row._name === 'SUMLINEROW')
+		.setConditionalRowCls((row) => row._name === 'SUMLINEROW' ? 'sum-line-background' : '');
+	}
+	
+	recalcTaxSums() {
+
+		this.stockAccounts.pop();
+
+		this.annualSettlement._IBTotal = 0;
+		this.annualSettlement._UBTotal = 0;
+		this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret = 0;
+		this.annualSettlement.Fields.AksjerMvSkattemessigVerdi = 0;
+
+		this.stockAccounts.forEach((account) => {
+			this.annualSettlement._IBTotal += account.IB;
+			this.annualSettlement._UBTotal += account.UB;
+			this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret += account._taxIB;
+			this.annualSettlement.Fields.AksjerMvSkattemessigVerdi  += account._taxUB;	
+		})
+
+		this.stockAccounts.push({
+			AccountNumber: null,
+			AccountName: '',
+			IB: this.annualSettlement._IBTotal,
+			UB: this.annualSettlement._UBTotal,
+			_taxIB: this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret,
+			_taxUB: this.annualSettlement.Fields.AksjerMvSkattemessigVerdi,
+			_name: 'SUMLINEROW'
+		});
+
+		if (this.infoContent.step === 4) {
+			this.infoContent.diff = parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdi || 0) - parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret || 0);
+		}
+		this.stockAccounts = [...this.stockAccounts];
+	}
 
 	checkSaveAndContinue(direction: number) {
 
@@ -327,7 +367,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 			this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
 				this.step += direction;
 				this.setStepInfoContent();
-				this.recalc();
 				this.busy = false;
 			}, err => {
 				this.busy = false;
@@ -346,8 +385,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 		switch (this.infoContent.step) {
 			case 0:
-				this.sumLineStep1.sumIn = parseFloat(this.annualSettlement.Fields.DriftsmidlerFjoraret) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret);
-				this.sumLineStep1.sumOut = parseFloat(this.annualSettlement.Fields.Driftsmidler) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessig);;
+				this.sumLineStep1.sumIn = parseFloat(this.annualSettlement.Fields.DriftsmidlerFjoraret || 0) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret || 0);
+				this.sumLineStep1.sumOut = parseFloat(this.annualSettlement.Fields.Driftsmidler || 0) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessig || 0);;
 				this.sumLineStep1.change = this.sumLineStep1.sumIn - this.sumLineStep1.sumOut;
 				break;
 			case 1:
@@ -383,8 +422,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.GevinstTapskontoSaldoFjoraret || 0);
 				break;
 			case 4:
-				// NOT READY
-				this.infoContent.diff = 0;
+				this.recalcTaxSums();
 				break;
 			case 5: 
 				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd || 0);
