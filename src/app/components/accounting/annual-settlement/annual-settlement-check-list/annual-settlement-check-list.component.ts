@@ -52,7 +52,9 @@ export class AnnualSettlementCheckListComponent {
     }
 
     completeCheckListStep(done) {
-        this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement).subscribe(result => {
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
+            switchMap(() => this.annualSettlementService.moveFromStep1ToStep2(this.annualSettlement))
+        ).subscribe(() => {
             this.router.navigateByUrl('/accounting/annual-settlement');
         }, (err) => {
             const message = err && err.error && err.error.Messages && err.error.Messages.length > 0 && err.error.Messages[0].Message;

@@ -105,7 +105,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             .send()
             .pipe(
                 map(res => res.body),
-                map((result: number) => Math.abs(result) >= 30000)
+                map((result: number) => result <= -30000)
             );
     }
     checkAssets(financialYear) {
@@ -117,7 +117,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                     assetsAccountBalanceResult,
                     checkAssetsIncomingFinancialValueResult
                  ]) => {
-                return Math.abs(<number>checkAssetsIncomingFinancialValueResult) === Math.abs(<number>assetsAccountBalanceResult);
+                return <number>checkAssetsIncomingFinancialValueResult === <number>assetsAccountBalanceResult;
             })
         );
     }
