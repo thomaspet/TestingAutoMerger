@@ -2,11 +2,12 @@ import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {Subject} from 'rxjs';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
+import {UniModalService} from '@uni-framework/uni-modal';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {tap} from 'rxjs/internal/operators/tap';
 import {of} from 'rxjs/observable/of';
+import {AuthService} from '@app/authService';
 
 @Component({
     selector: 'annual-settlement-summary-component',
@@ -29,6 +30,7 @@ export class AnnualSettlementSummaryComponent {
         private cd: ChangeDetectorRef,
         private toast: ToastService,
         private modalService: UniModalService,
+        private authService: AuthService,
         private annualSettlementService: AnnualSettlementService
     ) {
     }
@@ -54,7 +56,24 @@ export class AnnualSettlementSummaryComponent {
         }, () => this.busy = false);
     }
     completeCheckListStep(done) {
-        this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement).subscribe(() => {
+        const data = {
+            UtfyllerNaringsoppgave: 'Foretak',
+            KontaktpersonNavn: this.authService.currentUser.DisplayName,
+            KontaktpersonEPost: this.authService.currentUser.Email
+        };
+        this.annualSettlementService.openContactModal(this.annualSettlement, data).pipe(
+            switchMap((as) => {
+                if (!as) {
+                    return of(null);
+                }
+                return this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
+                    switchMap(() => this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement))
+                );
+            })
+        ).subscribe((as) => {
+            if (!as) {
+                return;
+            }
             this.annualSettlementService.openGoToAltinnModal().onClose.subscribe(result => {
                 if (result === true) {
                     this.router.navigateByUrl('https://altinn.no');

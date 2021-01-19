@@ -456,4 +456,15 @@ export class AnnualSettlementService extends BizHttp<any> {
     openGoToAltinnModal() {
         return this.modalService.open(GoToAltinnModalComponent);
     }
+    openContactModal(annualSettlement, data) {
+        return this.modalService.open(GoToAltinnModalComponent).onClose.pipe(
+            map(result => {
+                if (result) {
+                    annualSettlement.Fields = Object.assign(annualSettlement.Fields, data);
+                    return annualSettlement;
+                }
+                else return null;
+            })
+        );
+    }
 }
