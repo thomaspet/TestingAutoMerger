@@ -1,0 +1,21 @@
+<section *ngIf="!hidden && statuses?.length" class="api-status-container">
+    <section class="header">
+        Driftsmeldinger
+        <button class="icon-button" (click)="hidden = true">
+            <i class="material-icons">close</i>
+        </button>
+    </section>
+
+    <ul class="api-status-list">
+        <section *ngFor="let status of statuses" class="api-status-item">
+            <i *ngIf="status.Type === 0" class="material-icons color-bad">report_problem</i>
+            <i *ngIf="status.Type === 1" class="material-icons color-warn">error</i>
+            <i *ngIf="status.Type === 2" class="material-icons color-c2a">info</i>
+
+            <section>
+                <strong>{{status.Service}}</strong>
+                <span>{{status.Message}}</span>
+            </section>
+        </section>
+    </ul>
+</section>
