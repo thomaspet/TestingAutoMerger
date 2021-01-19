@@ -125,7 +125,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.http
             .asGET()
                 .usingBusinessDomain()
-                .withEndPoint('assets?action=get-assets-incoming-financial-value&year=' + (financialYear))
+                .withEndPoint('assets?action=get-assets-incoming-financial-value&year=' + (financialYear + 1))
                 .send()
             .pipe(
                 map(res => res.body)
