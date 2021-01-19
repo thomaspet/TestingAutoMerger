@@ -160,6 +160,9 @@ export class Signup {
                 () => {
                     this.step2Successful = true;
                     this.headerText = 'Brukerregistrering fullført';
+                    if (theme.theme === THEMES.EXT02) {
+                        this.celebrusService.useDataLayer('productView', null, [this.getCelebrusObject('step2', 'signup-completed')]);
+                    }
                 },
                 err => {
                     this.busy = false;
@@ -180,6 +183,14 @@ export class Signup {
                     }
                 }
             );
+    }
+
+    authenticateAfterSignup() {
+        if (theme.theme === THEMES.EXT02) {
+            this.celebrusService.useDataLayer('productView', null,
+                [this.getCelebrusObject('step3', 'login-clicked-after-signup')]);
+        }
+        this.authService.authenticate();
     }
 
     public validateConfirmationCode(code) {
