@@ -112,12 +112,6 @@ export class TradeItemHelper  {
         const newRow = event.rowModel;
         newRow.SumVat = newRow.SumVat || 0;
         newRow.SumVatCurrency = newRow.SumVatCurrency || 0;
-        if (!newRow.PriceIncVatCurrency) {
-            this.calculatePriceIncVat(event.rowModel, currencyExchangeRate);
-        }
-        if (!newRow.PriceExVatCurrency) {
-            this.calculatePriceExVat(event.rowModel, currencyExchangeRate);
-        }
 
         // if not currencyExchangeRate has been defined from the parent component, assume no
         // currency is select - i.e. the currency amounts will be the same as the base currency
@@ -345,33 +339,17 @@ export class TradeItemHelper  {
             rowModel.Account = product.Account;
         }
 
-        // if vat is not used/not defined, set PriceIncVat to PriceExVat
 
-        if (!rowModel.VatType || rowModel.VatType.VatPercent === 0) {
-            rowModel.PriceExVat = product.PriceExVat;
-            rowModel.PriceIncVat = product.PriceExVat;
-        } else {
-            rowModel.PriceExVat = product.PriceExVat;
+        if (product.CalculateGrossPriceBasedOnNetPrice) {
             rowModel.PriceIncVat = product.PriceIncVat;
-            this.calculatePriceIncVat(rowModel, currencyExchangeRate);
+            rowModel.PriceIncVatCurrency = this.round(rowModel.PriceIncVat / currencyExchangeRate, 4);
             this.calculatePriceExVat(rowModel, currencyExchangeRate);
-        }
-
-        if (currencyExchangeRate !== 1) {
-
-            rowModel.PriceExVatCurrency = this.round(rowModel.PriceExVat / currencyExchangeRate, 4);
-
-            const vatPercent = rowModel.VatType ? rowModel.VatType.VatPercent || 0 : 0;
-            const priceExVatCurrency = rowModel['PriceExVatCurrency'] || 0;
-            const taxPercentage = (100 + vatPercent) / 100;
-            const price = priceExVatCurrency * taxPercentage;
-            rowModel.PriceIncVatCurrency = this.round(price, 4);
-            rowModel.PriceIncVat = rowModel.PriceExVatCurrency * currencyExchangeRate;
-
         } else {
-            rowModel.PriceExVatCurrency = rowModel.PriceExVat;
-            rowModel.PriceIncVatCurrency = rowModel.PriceIncVat;
+            rowModel.PriceExVat = product.PriceExVat;
+            rowModel.PriceExVatCurrency = this.round(product.PriceExVat / currencyExchangeRate, 4);
+            this.calculatePriceIncVat(rowModel, currencyExchangeRate);
         }
+
         rowModel.PriceSetByUser = false;
 
         if (!rowModel.Dimensions) {
