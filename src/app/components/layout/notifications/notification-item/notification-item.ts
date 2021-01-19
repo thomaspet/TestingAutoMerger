@@ -1,7 +1,6 @@
 import {Component, Input, ChangeDetectionStrategy} from '@angular/core';
 import {Notification} from '@uni-entities';
 import * as moment from 'moment';
-import { isNullOrUndefined } from 'util';
 import { EntitytypeTranslationPipe } from '@uni-framework/pipes/entitytype-translation.pipe';
 
 @Component({
@@ -55,7 +54,7 @@ export class NotificationItem {
                 this.notificationType = 'reminder';
                 this.icon = 'alarm';
                 this.notificationText = this.notification.Message;
-                if (isNullOrUndefined(this.notification.Message)) {
+                if (!this.notification.Message) {
                     this.notificationText = 'Faktura er klar til inkasso';
                 }
             } else if (entityType === 'ApiKey') {
@@ -67,7 +66,7 @@ export class NotificationItem {
             }
 
             // All Contract varsler (iallefall i dev) er feilmeldinger, som ikke er relevante for brukeren.
-            if (isNullOrUndefined(this.notificationText) && !isNullOrUndefined(this.notification.Message)
+            if (!this.notificationText && this.notification.Message
                 && this.notification.EntityType !== 'Contract') {
                 this.notificationText = this.notification.Message;
             }

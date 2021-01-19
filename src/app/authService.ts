@@ -6,9 +6,7 @@ import {map, take, tap} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {Company, UserDto, ContractLicenseType} from './unientities';
 import {ReplaySubject} from 'rxjs';
-import 'rxjs/add/operator/map';
 import {UserManager, WebStorageStateStore} from 'oidc-client';
-import {THEMES, theme} from 'src/themes/theme';
 
 import * as moment from 'moment';
 import {FeaturePermissionService} from './featurePermissionService';

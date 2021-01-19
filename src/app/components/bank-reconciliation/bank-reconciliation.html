@@ -27,9 +27,11 @@
 
                     <dropdown-menu [trigger]="toggle">
                         <ng-template>
-                            <span *ngFor="let bankAccount of bankAccounts" (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
+                            <section class="dropdown-menu-item"
+                                *ngFor="let bankAccount of bankAccounts"
+                                (click)="selectedBankAccount = bankAccount; onBankPeriodChange()">
                                 {{ bankAccount['_displayValue'] }}
-                            </span>
+                            </section>
                         </ng-template>
                     </dropdown-menu>
 
@@ -163,7 +165,7 @@
 </section>
 
 <closed-reconciliations
-    class="ontop"
+    style="z-index: 999;"
     *ngIf="closedGroupDetailsVisible"
     [item]="selectedClosedItem"
     (close)="sideMenuClose($event)">

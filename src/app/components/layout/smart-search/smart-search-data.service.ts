@@ -1,9 +1,8 @@
-import {Injectable, Injector} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {NavbarLinkService} from '../navbar/navbar-link-service';
 import {Observable} from 'rxjs';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/debounceTime';
-import * as _ from 'lodash';
+import {cloneDeep} from 'lodash';
+
 import {UniModalService, ConfirmActions, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniReportParamsModal} from '../../reports/modals/parameter/reportParamModal';
 import {UserSettingsModal} from '../navbar/user-dropdown/user-settings-modal';
@@ -289,7 +288,7 @@ export class SmartSearchDataService {
 
     getNewShortcutListInit(query: string) {
         // Create array of predefined shortcuts and filter based on query
-        let filteredShortCuts = _.cloneDeep(this.shortcuts);
+        let filteredShortCuts = cloneDeep(this.shortcuts);
         filteredShortCuts = filteredShortCuts.filter(res => res.shortcutName.toLowerCase().includes(query));
 
         filteredShortCuts.forEach(res => {
@@ -311,7 +310,7 @@ export class SmartSearchDataService {
     }
 
     getHelpAndUserItems(query: string) {
-        const all = _.cloneDeep(this.helpAndUserItems);
+        const all = cloneDeep(this.helpAndUserItems);
         if (query.toLowerCase() === 'hjelp') {
              all.unshift({
                 type: 'header',

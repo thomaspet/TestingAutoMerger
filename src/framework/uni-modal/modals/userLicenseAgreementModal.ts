@@ -1,7 +1,7 @@
 import {Component, Output, EventEmitter} from '@angular/core';
 import {IUniModal, ConfirmActions} from '../interfaces';
 import {ElsaAgreementService} from '@app/services/services';
-import * as marked from 'marked';
+import {parse} from 'marked';
 import {environment} from 'src/environments/environment';
 
 @Component({
@@ -65,7 +65,7 @@ export class UserLicenseAgreementModal implements IUniModal {
     parseMarkdown(agreementText: string) {
         try {
             const decoded = decodeURI(agreementText);
-            this.agreementMarkdown = marked.parse(decoded) || '';
+            this.agreementMarkdown = parse(decoded) || '';
         } catch (e) {
             console.error(e);
         }

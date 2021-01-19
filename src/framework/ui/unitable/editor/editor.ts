@@ -13,10 +13,9 @@ import {
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
 import {UniTableColumnType} from '../config/unitableColumn';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/fromPromise';
+import {from, Observable} from 'rxjs';
 import * as Immutable from 'immutable';
-import {LocalDate} from '../../../../app/unientities';
+import {LocalDate} from '@uni-entities';
 
 export interface IEditorChangeEvent {
     rowModel: any;
@@ -140,7 +139,7 @@ export class UnitableEditor {
 
         if (value && value.then && typeof value.then === 'function') {
             // Value is a promise
-            valueObservable =  Observable.fromPromise(value);
+            valueObservable =  from(value);
         } else if (value && value.subscribe && typeof value.subscribe === 'function') {
             // Value is an observable
             valueObservable = value;

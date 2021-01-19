@@ -1,12 +1,11 @@
 import {Injectable} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import 'rxjs/add/operator/concatMap';
+import {map} from 'rxjs/operators';
+import {cloneDeep} from 'lodash';
 
 import {UniHttp} from './http';
 import {RequestMethod} from './request-method';
-import {map} from 'rxjs/operators';
-import {cloneDeep} from 'lodash';
 
 export interface IHttpCacheStore<T> {
     [hash: number]: IHttpCacheEntry<T>;
