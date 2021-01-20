@@ -53,7 +53,10 @@
 
     <section class="info-card">
         <section class="info-field">
-            <strong>Kontaktperson</strong>
+            <strong>
+                Kontaktperson
+                <i *ngIf="isAdmin" (click)="editContactInfo()" class="material-icons edit">edit</i>
+            </strong>
             <span>
                 {{customer?.ContactPerson || '-'}}
                 <a href="mailto:{{customer?.ContactEmail}}">{{customer?.ContactEmail || '-'}}</a>
