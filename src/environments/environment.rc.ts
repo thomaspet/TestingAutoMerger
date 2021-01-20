@@ -3,7 +3,7 @@ export const environment = {
     usePKCE: false,
 
     // Identity Server Settings
-    authority: 'https://test-login.unieconomy.no',
+    authority: 'https://test-login.softrig.com',
     client_id: 'f522f1f4-7734-4930-6ecc-d308ca7135ec',
     post_logout_redirect_uri: '/#/login',
 
