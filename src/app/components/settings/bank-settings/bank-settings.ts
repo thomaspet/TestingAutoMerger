@@ -304,7 +304,7 @@ export class UniBankSettings {
 
     orderRGB() {
         const rgbValues = this.RGB$.getValue();
-        const bankID = this.agreements[0].BankAccount.BankID;
+        const bankID = this.agreements[0]?.BankAccount?.BankID;
 
         // Box is checked, order RGB
         if (rgbValues.rgb && rgbValues.status === '') {
