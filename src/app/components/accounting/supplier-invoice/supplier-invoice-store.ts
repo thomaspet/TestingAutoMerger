@@ -13,6 +13,8 @@ import {
     Payment,
     File,
     InvoicePaymentData,
+    StatusCodeBankIntegrationAgreement,
+    PreApprovedBankPayments,
 } from '@uni-entities';
 import {
     SupplierInvoiceService,
@@ -28,7 +30,7 @@ import {
     BankService,
     CurrencyCodeService,
     PaymentMode,
-    StatisticsService, AccountService, AssetsService
+    StatisticsService, AccountService, AssetsService, PaymentBatchService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap, finalize} from 'rxjs/operators';
@@ -70,6 +72,7 @@ export class SupplierInvoiceStore {
     smartBookingResult: ISmartBookingResult = {};
     invoicePayments: Array<Payment> = [];
     initDataLoaded$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    supportsBankIDApprove: boolean;
 
     vatTypes = [];
     currencyCodes = [];
@@ -101,7 +104,8 @@ export class SupplierInvoiceStore {
         private currencyCodeService: CurrencyCodeService,
         private statisticsService: StatisticsService,
         private accountService: AccountService,
-        private assetsService: AssetsService
+        private assetsService: AssetsService,
+        private paymentBatchService: PaymentBatchService
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
@@ -112,12 +116,18 @@ export class SupplierInvoiceStore {
             [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
             this.currencyCodeService.GetAll(),
-            this.getSystemBankAccounts()]
-        ).subscribe(([companySettings, types, codes, accounts]) => {
+            this.getSystemBankAccounts(),
+            this.paymentBatchService.checkAutoBankAgreement()]
+        ).subscribe(([companySettings, types, codes, accounts, agreements]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
             this.currencyCodes = codes;
             this.bankAccounts = accounts;
+            this.supportsBankIDApprove = !!agreements?.some(a =>
+                a.StatusCode === StatusCodeBankIntegrationAgreement.Active &&
+                a.PreApprovedBankPayments === PreApprovedBankPayments.Active
+            );
+
 
             const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
             this.selectedBankAccount = defaultAccount || accounts[0];
@@ -149,7 +159,11 @@ export class SupplierInvoiceStore {
                 }
 
                 return Observable.forkJoin(obs).pipe(map(res => {
-                    this.invoicePayments = res[0].concat(res[1]);
+                    let bankPayments = res[0];
+                    let registeredPayments = res[1];
+                    this.invoicePayments = bankPayments.concat(registeredPayments).filter(
+                        payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+                    );
                     invoice.JournalEntry = res[2];
                     return invoice;
                 }));
@@ -267,7 +281,7 @@ export class SupplierInvoiceStore {
         }
     }
 
-    runOcr(force: boolean = false) {
+    runOcr() {
         const invoice = this.invoice$.value;
 
         const run = () => {
@@ -295,29 +309,9 @@ export class SupplierInvoiceStore {
         if (this.selectedFile && invoice && !invoice?.SupplierID) {
             if (this.companySettings.UseOcrInterpretation) {
                 run();
-            } else if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                this.ocrHelper.getOCRCount().subscribe((res) => {
-                    if (res?.CountOcrDataUsed <= 10) {
-                        run();
-                    } else {
-                        this.companySettingsService.PostAction(1, 'ocr-trial-used').subscribe(success => {
-                            this.companySettings.UseOcrInterpretation = false;
-
-                            this.modalService.open(UniConfirmModalV2, {
-                                header: 'Fakturatolkning er ikke aktivert',
-                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                + ' videre må du aktivere Fakturatolk under regnskapsinnstillinger.',
-                                buttonLabels: {
-                                    accept: 'OK',
-                                }
-                            });
-                        }, err => this.errorService.handle(err));
-                    }
-                });
-            } else if (force) {
+            } else {
                 this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
+                    header: 'Fakturatolkning er ikke aktivert',
                     message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolking av fakturaer',
                     buttonLabels: {
                         accept: 'OK'
@@ -685,7 +679,8 @@ export class SupplierInvoiceStore {
                 supplierInvoice: invoice,
                 onlyToPayment: isOnlyPayment,
                 accounts: this.bankAccounts,
-                payment: paymentData
+                payment: paymentData,
+                supportsBankIDApprove: this.supportsBankIDApprove
             }
         };
 

@@ -14,6 +14,15 @@
             "customWebpackConfig": {
               "path": "./webpack.config.js"
             },
+            "allowedCommonJsDependencies": [
+              "lodash",
+              "chart.js",
+              "file-saver",
+              "chartjs-plugin-datalabels",
+              "chartjs-plugin-doughnutlabel",
+              "ag-grid-angular",
+              "moment/locale/nb"
+           ],
             "aot": false,
             "outputPath": "dist",
             "index": "src/index.html",
@@ -59,13 +68,11 @@
               "optimization": true,
               "buildOptimizer": false,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false
@@ -81,13 +88,11 @@
               "optimization": true,
               "buildOptimizer": false,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -109,13 +114,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "extractCss": true,
+              "sourceMap": false,
               "namedChunks": true,
               "vendorChunk": true
             },
@@ -130,13 +129,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "extractCss": true,
+              "sourceMap": false,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -160,7 +153,6 @@
               "sourceMap": false,
               "showCircularDependencies": false,
               "extractLicenses": false,
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true
             },
@@ -175,13 +167,11 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -203,13 +193,11 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -231,13 +219,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "extractCss": true,
+              "sourceMap": false,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -258,13 +240,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "extractCss": true,
+              "sourceMap": false,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -285,13 +261,11 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -313,13 +287,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
-              "sourceMap": {
-                "scripts": true,
-                "styles": false,
-                "vendor": false
-              },
-              "extractCss": true,
+              "sourceMap": false,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -334,9 +302,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -357,13 +323,11 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -422,13 +386,11 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -481,9 +443,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -538,13 +498,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -602,13 +560,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -666,13 +622,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -718,13 +672,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -764,9 +716,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -819,9 +769,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -862,9 +810,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -905,9 +851,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": false,
               "extractLicenses": true,
               "vendorChunk": false,
@@ -966,13 +910,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -1030,13 +972,11 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {
                 "scripts": true,
                 "styles": false,
                 "vendor": false
               },
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -1089,9 +1029,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": { "scripts": true, "styles": false, "vendor": false },
-              "extractCss": true,
               "namedChunks": false,
               "vendorChunk": false,
               "fileReplacements": [
@@ -1147,9 +1085,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": { "scripts": true, "styles": false, "vendor": false },
-              "extractCss": true,
               "namedChunks": false,
               "vendorChunk": false,
               "fileReplacements": [
@@ -1205,9 +1141,7 @@
               "optimization": true,
               "buildOptimizer": true,
               "outputHashing": "all",
-              "evalSourceMap": true,
               "sourceMap": { "scripts": true, "styles": false, "vendor": false },
-              "extractCss": true,
               "namedChunks": false,
               "vendorChunk": false,
               "fileReplacements": [
@@ -1259,9 +1193,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -1317,9 +1249,7 @@
               "optimization": false,
               "buildOptimizer": false,
               "outputHashing": "none",
-              "evalSourceMap": true,
               "sourceMap": {"scripts": true, "styles": false, "vendor": false},
-              "extractCss": true,
               "namedChunks": true,
               "vendorChunk": true,
               "fileReplacements": [
@@ -1397,7 +1327,6 @@
               "buildOptimizer": false,
               "outputHashing": "none",
               "sourceMap": false,
-              "extractCss": true,
               "namedChunks": false,
               "vendorChunk": true
             }
@@ -1406,10 +1335,7 @@
         "serve": {
           "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "economy-frontend:build",
-            "customWebpackConfig": {
-              "path": "./webpack.config.js"
-            }
+            "browserTarget": "economy-frontend:build"
           },
           "configurations": {
             "dev-serve": {
@@ -1460,20 +1386,19 @@
           }
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular-builders/custom-webpack:extract-i18n",
           "options": {
             "browserTarget": "economy-frontend:build"
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular-builders/custom-webpack:karma",
           "options": {
             "main": "src/test.ts",
             "karmaConfig": "./karma.conf.js",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.spec.json",
             "scripts": [
-              "src/raygun-setup.js"
             ],
             "styles": [
               "src/styles.sass",
@@ -1536,7 +1461,7 @@
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "uni",
-      "styleext": "sass"
+      "style": "sass"
     },
     "@schematics/angular:directive": {
       "prefix": "uni"

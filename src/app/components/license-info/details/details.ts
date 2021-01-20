@@ -5,7 +5,6 @@ import { UniModalService } from '@uni-framework/uni-modal';
 import { AddAdminModal } from '../add-admin-modal/add-admin-modal';
 import { ElsaCompanyLicense } from '@app/models';
 import { cloneDeep } from 'lodash';
-import { environment } from 'src/environments/environment';
 import { LicenseInfo } from '../license-info';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
@@ -21,15 +20,23 @@ export class LicenseDetails {
     contractID: number;
     customer;
     filteredManagers: any[];
+    filteredRoamingUsers: any[];
     filterValue: string;
     lisenceAgreementUrl: string;
 
     isAdmin: boolean;
 
-    columns = [
+    showManagerList = true;
+    managerColumns = [
         { header: 'Navn', field: 'User.Name' },
         { header: 'Epost', field: 'User.Email' },
         { header: 'Telefon', field: 'User.Phone' },
+    ];
+
+    roamingColumns = [
+        { header: 'Navn', field: 'UserName' },
+        { header: 'Epost', field: 'Email' },
+        { header: 'Lagt til av', field: 'CreatedByEmail' },
     ];
 
     mainCompany: ElsaCompanyLicense;
@@ -37,7 +44,8 @@ export class LicenseDetails {
     mainCompanyEditMode: boolean;
     twoFactorEnabled: boolean;
     companyLicenses: ElsaCompanyLicense[];
-    contextMenu;
+    managerContextMenu: any[];
+    roamingContextMenu: any[];
 
     constructor(
         private authService: AuthService,
@@ -68,18 +76,23 @@ export class LicenseDetails {
 
     loadData() {
         forkJoin([
-            this.elsaCustomerService.getByContractID(this.contractID, 'Managers'),
+            this.elsaCustomerService.getByContractID(this.contractID, 'Managers,CustomerRoamingUsers'),
             this.elsaAgreementService.getContractAgreement()
         ]).subscribe(
             ([customer, agreement]) => {
                 this.customer = customer;
                 this.lisenceAgreementUrl = agreement?.DownloadUrl || '';
-                this.filterManagers();
+                this.filter();
 
                 if (this.isAdmin) {
-                    this.contextMenu = [{
+                    this.managerContextMenu = [{
                         label: 'Fjern som administrator',
                         action: (manager) => this.removeAdmin(manager)
+                    }];
+
+                    this.roamingContextMenu = [{
+                        label: 'Fjern som regnskapsfører',
+                        action: (roamingUser) => this.removeRoamingUser(roamingUser)
                     }];
 
                     this.elsaContractService.getCompanyLicenses(this.contractID).subscribe(
@@ -122,12 +135,13 @@ export class LicenseDetails {
         this.mainCompanyEditMode = false;
     }
 
-    addAdmin() {
+    addToList() {
         this.modalService.open(AddAdminModal, {
-            header: 'Legg til administrator',
+            header: `Legg til ${this.showManagerList ? 'administratorer' : 'regnskapsførere'}`,
             data: {
                 customer: this.customer,
-                contractID: this.contractID
+                contractID: this.contractID,
+                addAdmin: this.showManagerList
             },
         }).onClose.subscribe(changes => {
             if (changes) {
@@ -143,6 +157,13 @@ export class LicenseDetails {
         );
     }
 
+    removeRoamingUser(roamingUser) {
+        this.elsaCustomerService.removeRoamingUser(this.customer.ID, roamingUser.ID).subscribe(
+            () => this.loadData(),
+            err => this.errorService.handle(err)
+        );
+    }
+
     editContactInfo() {
         this.modalService.open(EditContactInfoModal, {
             data: {customer: this.customer}
@@ -153,7 +174,7 @@ export class LicenseDetails {
         });
     }
 
-    filterManagers() {
+    filter() {
         const filterValue = (this.filterValue || '').toLowerCase();
         if (this.filterValue) {
             this.filteredManagers = (this.customer.Managers || []).filter(manager => {
@@ -161,8 +182,13 @@ export class LicenseDetails {
                     || (manager.User.Email || '').toLowerCase().includes(filterValue)
                     || (manager.User.Phone || '').toLowerCase().includes(filterValue);
             });
+            this.filteredRoamingUsers = (this.customer.CustomerRoamingUsers || []).filter(roamingUser => {
+                return (roamingUser.UserName || '').toLowerCase().includes(filterValue)
+                    || (roamingUser.Email || '').toLowerCase().includes(filterValue);
+            });
         } else {
             this.filteredManagers = this.customer.Managers || [];
+            this.filteredRoamingUsers = this.customer.CustomerRoamingUsers || [];
         }
     }
 

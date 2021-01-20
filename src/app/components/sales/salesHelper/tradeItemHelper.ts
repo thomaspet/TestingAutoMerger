@@ -552,7 +552,7 @@ export class TradeItemHelper  {
                 sum.SumVatBasisCurrency += item.SumVatCurrency !== 0 ? (item.SumTotalExVatCurrency || 0) : 0;
                 sum.SumNoVatBasisCurrency += item.SumVatCurrency === 0 ? (item.SumTotalExVatCurrency || 0) : 0;
             });
-            
+
             let sign = sum.SumTotalIncVat < 0 ? -1 : 1;
             let roundedAmount = this.round(Math.abs(sum.SumTotalIncVat), decimals) * sign;
             sum.DecimalRounding = roundedAmount - sum.SumTotalIncVat;

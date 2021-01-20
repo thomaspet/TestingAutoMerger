@@ -19,6 +19,34 @@
     </ng-container>
 
     <ng-container *ngIf="activeIndex === 1">
+        <!-- RGB -->
+        <section class="row from-row">
+            <section class="col-md-4">
+                <section class="form-info-section">
+                    <h1> Regnskapsgodkjente betalinger  </h1>
+                    <p>
+                        Ved å aktivere regnskapsgodkjente betalinger kan du godkjenne betalingene direkte i regnskapssystemet,
+                        du vil da slippe å logge inn i nettbanken for å godkjenne betalingen.
+                        For at banken skal kunne kjenne til hvilken bruker som har godkjent betalingen og autorisere betalingen,
+                        må bruker identifisere seg med BankID ved bruk av regnskapsgodkjente betalinger.
+                    </p>
+                </section>
+            </section>
+
+            <section class="col-md-8">
+                <section class="uni-card">
+                    <section class="uni-card-content">
+                        <uni-form
+                            [config]="{showLabelAbove: true, autoFocus: true}"
+                            [fields]="RGBFields$"
+                            [model]="RGB$"
+                            (changeEvent)="setAsDirty()">
+                        </uni-form>
+                    </section>
+                </section>
+            </section>
+        </section>
+
         <!-- BANKINNSTILLINGER -->
         <section class="row form-row">
             <section class="col-md-4">

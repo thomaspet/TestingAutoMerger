@@ -1,8 +1,8 @@
-import {Component, Output, EventEmitter, Input} from '@angular/core';
-import {GrantAccessData} from './grant-access-modal';
-import {JobServerMassInviteInput, JobService} from '@app/services/admin/jobs/jobService';
+import {Component, Input} from '@angular/core';
+import {JobService} from '@app/services/admin/jobs/jobService';
 import {ErrorService} from '@app/services/common/errorService';
-import {Observable} from 'rxjs';
+import {of, throwError} from 'rxjs';
+import {switchMap} from 'rxjs/operators';
 
 @Component({
     selector: 'receipt-for-bulk-access',
@@ -23,18 +23,15 @@ export class ReceiptForBulkAccess {
     ngAfterViewInit() {
         this.scrollContainer = document.getElementById('scrollContainer');
 
-        this.jobService.getJobRunUntilNull('MassInviteBureau', this.hangfireID)
-            .switchMap(logs => {
-                return logs.Exception
-                    ? Observable.throw(logs.Exception)
-                    : Observable.of(logs);
-            })
-            .subscribe(logs => {
-                this.messages = logs.Progress.map(p => p.Progress).reverse();
+        this.jobService.getJobRunUntilNull('MassInviteBureau', this.hangfireID).pipe(
+            switchMap(log => log.Exception ? throwError(log.Exception) : of(log))
+        ).subscribe(
+            log => {
+                this.messages = log.Progress.map(p => p.Progress).reverse();
                 this.scrollToBottom();
             },
-                err => this.errorService.handle(err),
-            );
+            err => this.errorService.handle(err),
+        );
     }
 
     scrollToBottom() {

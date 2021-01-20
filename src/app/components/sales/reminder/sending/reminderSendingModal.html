@@ -1,0 +1,81 @@
+<section class="uni-modal">
+    <header>Send purring{{reminderIds?.length > 1 ? 'er' : ''}}</header>
+    <section *ngIf="hasDistributionPlan === undefined" class="modal-spinner">
+        <mat-spinner class="c2a"></mat-spinner>
+    </section>
+    <article *ngIf="reminderIds?.length > 1 && hasDistributionPlan !== undefined">
+        <div *ngIf="alreadySentCount > 0" class="reminder-sending-already-sent">
+            OBS! {{alreadySentCount}} av purringene er allerede markert som sendt! De vil sendes på ny hvis du fortsetter!
+        </div>
+        <div *ngIf="hasDistributionPlan">
+            Purringene vil sendes ut basert på utsendelsesplanen som er lagt inn under Innstillinger.<br/><br/>
+
+            <div *ngIf="canDistributeAllRemindersUsingPlan === null">
+                Hvis det <i>mangler</i> informasjon på noen av purringene/kundene for å sende via utsendelsesplanen har du følgende valg:<br/><br/>
+            </div>
+            <div *ngIf="canDistributeAllRemindersUsingPlan !== null && !canDistributeAllRemindersUsingPlan">
+                Det mangler informasjon på noen av purringene/kundene for å sende via utsendelsesplanen. For disse purringene har du følgende valg:<br/><br/>
+            </div>
+        </div>
+        <div *ngIf="!hasDistributionPlan">
+            Du har ikke satt opp noen utsendelsesplan for purringer. Dette kan gjøres under Innstillinger \\ Utsendelse.<br/><br/>
+
+            Du har derfor følgende valg for å sende ut purringene:<br/><br/>
+        </div>
+        <div *ngIf="!canDistributeAllRemindersUsingPlan">
+            <div *ngIf="remindersWithEmail > 0">
+                <input type="checkbox" [(ngModel)]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox" />
+                <label for="sendByEmail">Send til e-postadressen registrert på purringen</label>
+            </div>
+            <div *ngIf="hasPrintService && remindersWithPrint > 0">
+                <input type="checkbox" [(ngModel)]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox" />
+                <label for="sendByPrint">Send per post til adressen registrert på purringen</label>
+            </div>
+            <div>
+                <input disabled="disabled" type="checkbox" id="sendToCasehandler" [(ngModel)]="sendToCasehandler" class="reminder-sending-checkbox" />
+                <label for="sendToCasehandler">Send resterende purringer til e-postadressen din, <b>{{casehandlerEmail}}</b></label>
+            </div>
+            <p>
+                <small>Hvis du krysser av flere alternativer vil den første som er mulig benyttes basert på informasjon på purringen.</small>
+            </p>
+        </div>
+    </article>
+    <article *ngIf="reminderIds?.length === 1 && hasDistributionPlan !== undefined">
+        <div *ngIf="alreadySentCount > 0" class="reminder-sending-already-sent">
+            OBS! Purringen er allerede markert som sendt! Den vil sendes på ny hvis du fortsetter!
+        </div>
+        <div *ngIf="hasDistributionPlan && canDistributeAllRemindersUsingPlan">
+            Purringen vil sendes ut basert på utsendelsesplanen som er lagt inn under Innstillinger.
+        </div>
+        <div *ngIf="!hasDistributionPlan">
+            Det er ikke satt opp noen utsendelsesplan for purringer. Dette kan gjøres under Innstillinger \\ Utsendelse.<br/><br/>
+            Du har følgende valg for å sende ut purringen:<br/><br/>
+        </div>
+        <div *ngIf="hasDistributionPlan && !canDistributeAllRemindersUsingPlan">
+            Det er ikke registrert nok informasjon på kunden/fakturaen for å sende ut purringen via utsendelsesplanen.<br/><br/>
+
+            Du har derfor følgende valg for å sende ut purringen:<br/><br/>
+        </div>
+        <div *ngIf="!canDistributeAllRemindersUsingPlan">
+            <div *ngIf="remindersWithEmail === reminderIds.length">
+                <input type="checkbox" [(ngModel)]="sendByEmail" id="sendByEmail" class="reminder-sending-checkbox" />
+                <label for="sendByEmail">Send til e-postadressen registrert på purringen</label>
+            </div>
+            <div *ngIf="hasPrintService && remindersWithPrint > 0">
+                <input type="checkbox" [(ngModel)]="sendByPrint" id="sendByPrint" class="reminder-sending-checkbox" />
+                <label for="sendByPrint">Send per post til adressen registrert på purringen</label>
+            </div>
+            <div>
+                <input disabled="disabled" type="checkbox" id="sendToCasehandler" [(ngModel)]="sendToCasehandler" class="reminder-sending-checkbox" />
+                <label for="sendToCasehandler">Send purringen til e-postadressen din, <b>{{casehandlerEmail}}</b></label>
+            </div>
+            <p>
+                <small>Hvis du krysser av flere alternativer vil den første som er mulig benyttes basert på informasjon på purringen.</small>
+            </p>
+        </div>
+    </article>
+    <footer>
+        <button class="secondary pull-left" (click)="onClose.emit()">Lukk</button>
+        <button class="c2a" (click)="send()">Send purring{{reminderIds?.length > 1 ? 'er' : ''}} nå</button>
+    </footer>
+</section>

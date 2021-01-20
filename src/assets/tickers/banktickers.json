@@ -954,9 +954,23 @@
                 "Field": "StatusCode",
                 "FilterOperator": "contains",
                 "DefaultHidden": false
+            },
+            {
+                "Header": "Utbetalingsfil",
+                "Field": "PaymentFileID",
+                "Alias": "PaymentFileID",
+                "Type": "dontdisplay"
             }
         ],
         "Actions": [
+            {
+                "Name": "Godkjenn",
+                "Code": "approve_batch",
+                "ExecuteWithMultipleSelections": false,
+                "DisplayInContextMenu": true,
+                "DisplayInActionBar": false,
+                "NeedsActionOverride": true
+            },
             {
                 "Name": "Last ned betalingsfil",
                 "Code": "download_file",
@@ -1165,7 +1179,7 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filter": "EntityType eq 'Payment'",
+        "Filter": "EntityType eq 'Payment' and isnull(StatusLog.ToStatus,0) gt 0",
         "Columns": [
             {
                 "Header": "Dato",
@@ -1202,7 +1216,7 @@
             "Operator": "eq",
             "Value": "ID"
         },
-        "Filter": "EntityType eq 'Payment'",
+        "Filter": "EntityType eq 'Payment' and isnull(StatusLog.ToStatus,0) gt 0",
         "OrderBy": [
             "Payment.InvoiceNumber DESC",
             "CreatedAt DESC"

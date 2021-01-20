@@ -1,0 +1,22 @@
+<section class="uni-modal">
+    <header>Inntektsmelding {{ isNewIncomeReport ? '(ny)' : '(endring)' }}</header>
+
+    <article [attr.aria-busy]="busy">
+        <uni-form
+            [model]="incomereport$"
+            [fields]="fields$"
+            [config]="config$"
+            (changeEvent)="onChangeEvent($event)">
+        </uni-form>
+    </article>
+
+    <footer>
+        <button (click)="onClose.emit()" class="secondary">
+            Avbryt
+        </button>
+
+        <button (click)="createIncomeReport()" class="c2a" (keydown.tab)="$event.preventDefault()">
+            Lag inntektsmelding
+        </button>
+    </footer>
+</section>

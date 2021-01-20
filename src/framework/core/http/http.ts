@@ -1,7 +1,6 @@
 ﻿import {Injectable} from '@angular/core';
 import {HttpClient, HttpParams, HttpHeaders} from '@angular/common/http';
 import {Observable, throwError} from 'rxjs';
-import 'rxjs/add/operator/catch';
 
 import {environment} from 'src/environments/environment';
 import {RequestMethod} from './request-method';
