@@ -53,7 +53,6 @@ export class NewContractModal implements IUniModal {
         contract.Name = this.contractName;
         contract.ContractType = this.selectedContractType.ContractType;
         contract.CustomerID = this.options.data.customerID;
-        console.log(contract);
         this.elsaContractService.createContract(contract).subscribe(
             newContract => {
                 this.busy = false;

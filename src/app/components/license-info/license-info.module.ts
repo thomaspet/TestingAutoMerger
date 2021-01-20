@@ -27,6 +27,7 @@ import {NewCompanyModal} from './new-company-modal/new-company-modal';
 import {ExportBillingModal} from './export-billing-modal/export-billing-modal';
 import {LicenseInfoGuard} from './license-info.guard';
 import {NewContractModal} from './new-contract-modal/new-contract-modal';
+import {EditContactInfoModal} from './edit-contactinfo-modal/edit-contactinfo-modal';
 
 @NgModule({
     imports: [
@@ -69,6 +70,7 @@ import {NewContractModal} from './new-contract-modal/new-contract-modal';
         SettlementsModal,
         ExportBillingModal,
         NewContractModal,
+        EditContactInfoModal,
     ],
     providers: [
         LicenseInfoGuard,
