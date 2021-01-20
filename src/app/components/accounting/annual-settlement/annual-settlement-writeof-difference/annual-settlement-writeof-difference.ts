@@ -93,7 +93,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 			text: ``,
 			diff: 0,
 			step: 7,
-			summaryTitle: 'Grunnlag for utsatt skatt/utsatt skattefordel'
+			summaryTitle: 'Endring i grunnlag for utsatt skatt/utsatt skattefordel'
 		}
 	];
 
@@ -259,10 +259,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.busy = true;
 				Observable.forkJoin([
 					this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID),
-					this.annualSettlementService.getAssetAndGroups(this.annualSettlement.ID)
-				]).subscribe(([data, groups]) => {
+					this.annualSettlementService.getAssetAndGroups(this.annualSettlement.ID),
+					this.annualSettlementService.getAnnualSettlement(this.annualSettlement.ID),
+				]).subscribe(([data, groups, as]) => {
 					this.assetsDetails = this.getFormattedDetailsData(data);
 					this.groups = groups;
+					this.annualSettlement = as;
 					this.recalc();
 					this.checkMissingTaxData();
 					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
@@ -300,14 +302,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 		this.stockAccounts.pop();
 
-		this.annualSettlement._IBTotal = 0;
-		this.annualSettlement._UBTotal = 0;
+		this.annualSettlement.Fields.AksjerMvFjoraret = 0;
+		this.annualSettlement.Fields.AksjerMv = 0;
 		this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret = 0;
 		this.annualSettlement.Fields.AksjerMvSkattemessigVerdi = 0;
 
 		this.stockAccounts.forEach((account) => {
-			this.annualSettlement._IBTotal += account.IB;
-			this.annualSettlement._UBTotal += account.UB;
+			this.annualSettlement.Fields.AksjerMvFjoraret += account.IB;
+			this.annualSettlement.Fields.AksjerMv += account.UB;
 			this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret += account._taxIB;
 			this.annualSettlement.Fields.AksjerMvSkattemessigVerdi  += account._taxUB;	
 		})
@@ -315,15 +317,16 @@ export class AnnualSettlementWriteofDifferenceStep {
 		this.stockAccounts.push({
 			AccountNumber: null,
 			AccountName: '',
-			IB: this.annualSettlement._IBTotal,
-			UB: this.annualSettlement._UBTotal,
+			IB: this.annualSettlement.Fields.AksjerMvFjoraret,
+			UB: this.annualSettlement.Fields.AksjerMv,
 			_taxIB: this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret,
 			_taxUB: this.annualSettlement.Fields.AksjerMvSkattemessigVerdi,
 			_name: 'SUMLINEROW'
 		});
 
 		if (this.infoContent.step === 4) {
-			this.infoContent.diff = parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdi || 0) - parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret || 0);
+			this.infoContent.diff = (parseFloat(this.annualSettlement.Fields.AksjerMvFjoraret || 0) - parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdiFjoraret || 0) - 
+			(parseFloat(this.annualSettlement.Fields.AksjerMv || 0) - parseFloat(this.annualSettlement.Fields.AksjerMvSkattemessigVerdi || 0)));
 		}
 		this.stockAccounts = [...this.stockAccounts];
 	}
