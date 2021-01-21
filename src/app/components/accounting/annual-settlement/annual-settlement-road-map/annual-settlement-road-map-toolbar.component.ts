@@ -23,21 +23,23 @@ export class AnnualSettlementRoadMapToolbarComponent {
 
     constructor(private service: AnnualSettlementService, private tabService: TabService) {
         this.addTab();
-        this.saveActions.push(<IUniSaveAction> {
-            action: (done) => {
-                this.service
-                    .reset(this.annualSettlement)
-                    .subscribe(() => {
-                        this.runAction.emit({
-                            name: 'reset-annualsettlement'
+        if (this.annualSettlement?.ID) {
+            this.saveActions.push(<IUniSaveAction>{
+                action: (done) => {
+                    this.service
+                        .reset(this.annualSettlement)
+                        .subscribe(() => {
+                            this.runAction.emit({
+                                name: 'reset-annualsettlement'
+                            });
+                            done();
                         });
-                        done();
-                    });
-            },
-            label: 'Reset annual settlement',
-            main: true,
-            disabled: false,
-        });
+                },
+                label: 'Reset annual settlement',
+                main: true,
+                disabled: false,
+            });
+        }
     }
 
     private addTab() {

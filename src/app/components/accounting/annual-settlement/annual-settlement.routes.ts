@@ -38,10 +38,5 @@ export const annualSettlementRoutes: Routes = [
         path: ':id/summary',
         component: AnnualSettlementSummaryComponent,
         canDeactivate: [CanDeactivateGuard]
-    },
-    {
-        path: ':id/wizzard-annual-accounts',
-        component: AnnualSettlementSummaryComponent,
-        canDeactivate: [CanDeactivateGuard]
     }
 ];

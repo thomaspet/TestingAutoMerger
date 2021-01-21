@@ -6,6 +6,7 @@ import steps from './annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
 
 @Component({
     selector: 'annual-settlement-road-map-component',
@@ -19,25 +20,34 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     selectedAnnualSettlement$ = new BehaviorSubject(null);
     steps = steps;
     busy = false;
+    annualSettlementAllowedByYear = true;
+    annualSettlementAllowedByType = true;
+    currentYear;
     constructor(
         private annualSettlementService: AnnualSettlementService,
         private financialYearService: FinancialYearService,
         private toast: ToastService,
-        private router: Router
+        private router: Router,
+        private companySettingsService: CompanySettingsService
     ) {
 
     }
 
     ngOnInit(currentYear = null) {
         this.busy = true;
-        const year = currentYear || this.financialYearService.getActiveYear();
+        this.currentYear = this.financialYearService.getActiveYear();
+        const year = currentYear || this.currentYear;
         const calendarYear = new Date().getFullYear();
         if (year < 2020 || year >= calendarYear) {
             this.toast.addToast(`You can not create an annual settlement less than 2020 or greater than ${calendarYear - 1}`);
             this.busy = false;
+            this.annualSettlementAllowedByYear = false;
+            this.selectedAnnualSettlement$.next({
+                ID: 0
+            });
             return;
         }
-        this.annualSettlementService.getAnnualSettlements().pipe(
+        const annualSettlementSource$ = this.annualSettlementService.getAnnualSettlements().pipe(
             switchMap((as: any[]) => {
                 if (as.length === 0) {
                     if (year < 2020) {
@@ -64,6 +74,25 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 if (currentYear) {
                     this.toast.addToast('Annual settlement has been reset', ToastType.good);
                 }
+            })
+        );
+        this.companySettingsService.getCompanySettings().pipe(
+            switchMap((settings) => {
+                if ([1, 6, 26, 38].includes(settings.CompanyTypeID)) {
+                    return annualSettlementSource$;
+                } else {
+                    return null;
+                }
+            }),
+            tap((result) => {
+                if (result === null) {
+                    this.annualSettlementAllowedByType = false;
+                } else {
+                    this.annualSettlementAllowedByType = true;
+                }
+                this.selectedAnnualSettlement$.next({
+                    ID: 0
+                });
             })
         ).subscribe((as) => {
             this.annualSettlements = as;

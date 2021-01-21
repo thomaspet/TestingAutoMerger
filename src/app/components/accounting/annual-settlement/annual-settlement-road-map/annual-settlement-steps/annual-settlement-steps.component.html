@@ -11,7 +11,7 @@
             >
                 <i class="material-icons step-status--checked" *ngIf="step._icon === 'check_circle'">{{step._icon}}</i>
                 <i class="material-icons" *ngIf="step._icon === 'edit'">{{step._icon}}</i>
-                <i *ngIf="step._icon !== 'edit' && step._icon !== 'check_circle'">{{step._icon}}</i>
+                <i class="step-number"*ngIf="step._icon !== 'edit' && step._icon !== 'check_circle'">{{step._icon}}</i>
             </span>
         </ng-template>
         <ng-template #stepCardTemplate let-item="item">
