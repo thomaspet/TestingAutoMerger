@@ -62,7 +62,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Eiendeler',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 0
@@ -70,7 +70,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Tilvirkningskontrakter',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 1
@@ -78,7 +78,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Varelager',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 2
@@ -86,7 +86,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Gevinst og tap',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 3
@@ -94,7 +94,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Skattemessig verdi på aksjer',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 4
@@ -102,7 +102,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Akkumulert fremført skattemessig underskudd',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 5
@@ -110,7 +110,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		{
 			title: 'Coronapakke for firma med underskudd 2020',
 			text: ` <p>
-				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
+				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
 			step: 6,
