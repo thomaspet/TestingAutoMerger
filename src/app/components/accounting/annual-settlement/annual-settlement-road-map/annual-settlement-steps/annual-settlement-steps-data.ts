@@ -21,17 +21,12 @@ export default [
     },
     {
         title: 'Veiviser til skattemeldingen/ligningsoppgaven',
-        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i skattemeldingen/ligningsoppgaven.',
+        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i skattemeldingen/ligningsoppgaven, og levere det i Altinn.',
         buttonText: 'Start veiviser'
     },
     {
         title: 'Veiviser til årsregnskapet',
-        text: 'Vi har laget en veiviser som hjelper deg å få riktige tall inn i årsregnskapet.',
+        text: 'Mulighet for å levere årsregnskapet vil bli tilgjengelig i løpet av noen uker.',
         buttonText: 'Start'
-    },
-    {
-        title: 'Lever til Altinn',
-        text: 'Noe tekst om levering av næringsoppgaven til Altinn.',
-        buttonText: 'Lever til  Altinn'
-    },
+    }
 ];

@@ -5,7 +5,32 @@
 <section *ngIf="busy" class="modal-spinner">
     <mat-spinner class="c2a"></mat-spinner>
 </section>
-<section *ngIf="!busy && (selectedAnnualSettlement$ | async)" class="annual-settlement-container container-fluid uni-grid-container">
+<section class="application container-fluid error-list" *ngIf="!annualSettlementAllowedByYear || !annualSettlementAllowedByType" >
+    <section *ngIf="!annualSettlementAllowedByYear && annualSettlementAllowedByType" class="uni-container">
+        <article>
+            <h2>Du har ikke muligheten til å årsavslutte regnskapsåret du står nå.</h2>
+            <p>
+                Kun år {{currentYear}} er klar for årsavslutning.
+            </p>
+            <p>
+                Velg regnskapsår 2020 i nedtrekksmenyen der du velger firma.
+            </p>
+        </article>
+        <article class="with-image">
+            <img src="themes/annual-settlement-not-allowed.svg" alt="annual settlement not allowed for year {{currentYear}}"/>
+        </article>
+    </section>
+    <section *ngIf="!annualSettlementAllowedByType" class="uni-container">
+        <article>
+            <h2>Årsavslutning er ikke tilgjengelig for din firmatype</h2>
+            <p>Årsavslutning er kun tilgjengelig for firmatypene AS, ASA, Stiftelse og NUF.</p>
+        </article>
+        <article class="with-image">
+            <img src="themes/annual-settlement-not-allowed.svg" alt="annual settlement not allowed for current company type"/>
+        </article>
+    </section>
+</section>
+<section *ngIf="!busy && (selectedAnnualSettlement$ | async) && annualSettlementAllowedByYear && annualSettlementAllowedByType" class="annual-settlement-container container-fluid uni-grid-container">
     <section class="row">
         <h4>{{(selectedAnnualSettlement$ | async)?.AccountYear}}</h4>
     </section>
