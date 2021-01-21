@@ -20,7 +20,7 @@
 
     <ng-container *ngIf="activeIndex === 1">
         <!-- RGB -->
-        <section class="row from-row">
+        <section class="row from-row" *ngIf="isPreApprovedPaymentsServiceProvider">
             <section class="col-md-4">
                 <section class="form-info-section">
                     <h1> Regnskapsgodkjente betalinger  </h1>
@@ -40,7 +40,7 @@
                             [config]="{showLabelAbove: true, autoFocus: true}"
                             [fields]="RGBFields$"
                             [model]="RGB$"
-                            (changeEvent)="setAsDirty()">
+                            (changeEvent)="setRGBAsDirty()">
                         </uni-form>
                     </section>
                 </section>
