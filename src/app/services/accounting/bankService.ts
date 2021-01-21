@@ -343,6 +343,16 @@ export class BankService extends BizHttp<Bank> {
             .map(response => response.body);
     }
 
+    public updateBankIntegrationAgreement(agreementID: number, agreement: any) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`bank-agreements/${agreementID}`)
+            .withBody(agreement)
+            .send()
+            .map(response => response.body);
+    }
+
     deleteAgreement(agreement: BankIntegrationAgreement) {
         return this.http.asDELETE()
             .usingBusinessDomain()
