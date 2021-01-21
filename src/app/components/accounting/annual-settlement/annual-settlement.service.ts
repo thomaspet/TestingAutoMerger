@@ -424,6 +424,9 @@ export class AnnualSettlementService extends BizHttp<any> {
                 })
             );
     }
+    getResult(id) {
+        return this.Action(id, 'calculate-result', '', RequestMethod.Get);
+    }
     getMaxDividendAmount(annualSettlement) {
         return this.Action(annualSettlement.ID, 'calculate-max-dividend-amount', '', RequestMethod.Get);
     }

@@ -1,6 +1,6 @@
 {
     "/api": {
-        "target": "http://kistufell:81",
+        "target": "http://localhost:29077",
         "secure": false,
         "changeOrigin": true
     }
