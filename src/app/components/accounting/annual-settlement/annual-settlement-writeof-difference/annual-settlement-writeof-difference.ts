@@ -164,9 +164,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		private errorService: ErrorService,
 		private toastService: ToastService,
 		private modalService: UniModalService
-	) {	
-		// this.infoContent = this.stepContentArray[0];
-	}
+	) {	}
 
 	ngOnInit() {
         this.route.params.pipe(
@@ -218,12 +216,11 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager === 'true';
 
 				if (this.annualSettlement.Fields.FinnesProsjekterKey) {
-					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret &&
-						!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig) {
-							this.ct = this.contractTypes[1];
-						} else {
-							this.ct = this.contractTypes[0];
-						}
+					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt) {
+						this.ct = this.contractTypes[1];
+					} else {
+						this.ct = this.contractTypes[0];
+					}
 				}
 
 				if (projectCount[0].count <= 0) {
@@ -244,7 +241,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				}
 
 				// Corona feedback
-				if (parseFloat(result) < 0) {
+				if (parseFloat(result) > 0) {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
@@ -382,14 +379,13 @@ export class AnnualSettlementWriteofDifferenceStep {
 				return;
 			});
 		} else {
-			if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey) {
+			if (this.infoContent.step === 1 && this.annualSettlement.Fields.FinnesProsjekterKey) {
 				if (this.ct.value === 2) {
-					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret = null;
-					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig = null;
+					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt = null;
 				}
 			}
 	
-			if (this.infoContent.step === 3) {
+			if (this.infoContent.step === 2) {
 				if (!this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager) {
 					this.annualSettlement.Fields.LagerbeholdningRavarerHalvfabrikataNedskrivning = null;
 					this.annualSettlement.Fields.LagerbeholdningVarerIArbeidNedskrivning = null;
@@ -432,13 +428,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 				break;
 			case 1:
 				if (this.ct.value === 1) {
-					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret  || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig  || 0);
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0);
 				} else if (this.ct.value === 2) {
-					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0)
-					+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0);
+					this.infoContent.diff = 0;
 				}
 				break;
 
