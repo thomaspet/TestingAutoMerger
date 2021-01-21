@@ -243,8 +243,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.inventoryFields = this.inventoryFields.filter(f => f.visible);
 				}
 
-				// Check if customer has valid data for Corona pack here.. For now, just remove it
-				if (parseFloat(result) > 0) {
+				// Corona feedback
+				if (parseFloat(result) < 0) {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
