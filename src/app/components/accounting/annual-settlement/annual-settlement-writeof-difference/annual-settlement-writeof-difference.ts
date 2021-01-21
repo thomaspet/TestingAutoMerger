@@ -31,6 +31,33 @@ export class AnnualSettlementWriteofDifferenceStep {
 	sumLine: any = {};
 	tableConfig: UniTableConfig;
 
+	inventoryFields = [
+		{ 
+			label: 'Råvarer og innkjøpte halvfabrikata', 
+			field: 'LagerbeholdningRavarerHalvfabrikataNedskrivning', 
+			fieldLastYear: 'LagerbeholdningRavarerHalvfabrikataNedskrivningFjoraret', 
+			visible: true 
+		},
+		{ 
+			label: 'Varer under tilvirkning', 
+			field: 'LagerbeholdningVarerIArbeidNedskrivning', 
+			fieldLastYear: 'LagerbeholdningVarerIArbeidNedskrivningFjoraret', 
+			visible: true
+		},
+		{ 
+			label: 'Ferdige egentilvirkede varer', 
+			field: 'LagerbeholdningFerdigEgentilvirkedeVarerNedskrivning', 
+			fieldLastYear: 'LagerbeholdningFerdigEgentilvirkedeVarerNedskrivningFjoraret', 
+			visible: true
+		},
+		{ 
+			label: 'Innkjøpte varer for videresalg', 
+			field: 'LagerbeholdningInnkjopteVarerVideresalgNedskrivning', 
+			fieldLastYear: 'LagerbeholdningInnkjopteVarerVideresalgNedskrivningFjoraret', 
+			visible: true
+		}
+	]
+
 	stepContentArray = [
 		{
 			title: 'Eiendeler',
@@ -86,7 +113,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnader til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere i år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
-			step: 6
+			step: 6,
+			summaryTitle: 'Sum positiv alminnelig inntekt'
 		},
 		{
 			title: 'Oppsummering av endringer i forskjeller',
@@ -148,25 +176,35 @@ export class AnnualSettlementWriteofDifferenceStep {
 			Observable.forkJoin([
 				this.annualSettlementService.getAnnualSettlement(id),
 				this.statisticsService.GetAllUnwrapped(`model=Project&select=count(ID) as count`),
-				this.annualSettlementService.getAccountBalanceForSet(1400, 1489, new Date().getFullYear() - 1),
 
-				this.annualSettlementService.getAccountBalanceForSet(1300, 1319, new Date().getFullYear() - 1),
-				this.annualSettlementService.getAccountBalanceForSet(1350, 1399, new Date().getFullYear() - 1),
-				this.annualSettlementService.getAccountBalanceForSet(1800, 1899, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1400, 1419, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1420, 1439, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1440, 1459, new Date().getFullYear() - 1),
+				this.annualSettlementService.getAccountBalanceForSet(1460, 1489, new Date().getFullYear() - 1),
+
 				this.annualSettlementService.getAssetTaxbasedIBDetails(id),
 				this.annualSettlementService.getStockAccountsIBAndUB(),
-				this.annualSettlementService.getAssetAndGroups(id)
-			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts, groups]) => {
+				this.annualSettlementService.getAssetAndGroups(id),
+				this.annualSettlementService.getResult(id)
+			]).subscribe(([as, projectCount, balance1, balance2, balance3, balance4, details, stockAccounts, groups, result]) => {
 				this.annualSettlement = as;
 				this.assetsDetails = this.getFormattedDetailsData(details);
-				this.stockAccounts = stockAccounts.map(account => {
-					account._taxIB = account.IB;
-					account._taxUB = account.UB;
-					return account;
-				});
 
-				this.stockAccounts.push({});
-				this.recalcTaxSums();
+				if (stockAccounts.length) {
+					this.stockAccounts = stockAccounts.map(account => {
+						account._taxIB = account.IB;
+						account._taxUB = account.UB;
+						return account;
+					});
+	
+					this.stockAccounts.push({});
+					this.recalcTaxSums();
+
+					this.setUpTable();
+				} else {
+					const index = this.stepContentArray.findIndex(step => step.step === 4);
+					this.stepContentArray.splice(index, 1);
+				}
 
 				this.groups = groups;
 
@@ -193,20 +231,20 @@ export class AnnualSettlementWriteofDifferenceStep {
 					this.stepContentArray.splice(index, 1);
 				}
 
-				if (parseFloat(balance1)) {
+				if (!parseFloat(balance1) && !parseFloat(balance2) && !parseFloat(balance3) && !parseFloat(balance4)) {
 					const index = this.stepContentArray.findIndex(step => step.step === 2);
 					this.stepContentArray.splice(index, 1);
-				}
-
-				if (!(parseFloat(balance2) || parseFloat(balance3) || parseFloat(balance4))) {
-					const index = this.stepContentArray.findIndex(step => step.step === 4);
-					this.stepContentArray.splice(index, 1);
 				} else {
-					this.setUpTable();
+					this.inventoryFields[0].visible = !!parseFloat(balance1);
+					this.inventoryFields[1].visible = !!parseFloat(balance2);
+					this.inventoryFields[2].visible = !!parseFloat(balance3);
+					this.inventoryFields[3].visible = !!parseFloat(balance4);
+
+					this.inventoryFields = this.inventoryFields.filter(f => f.visible);
 				}
 
 				// Check if customer has valid data for Corona pack here.. For now, just remove it
-				if (true) {
+				if (parseFloat(result) > 0) {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
@@ -382,8 +420,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 		this.recalc();
 	}
 
-	// This is called when a value on step 2 is changed
-	recalc(step: number = this.step) {
+	recalc() {
 		this.infoContent.diff = 0;
 
 		switch (this.infoContent.step) {
@@ -391,6 +428,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.sumLineStep1.sumIn = parseFloat(this.annualSettlement.Fields.DriftsmidlerFjoraret || 0) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret || 0);
 				this.sumLineStep1.sumOut = parseFloat(this.annualSettlement.Fields.Driftsmidler || 0) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessig || 0);;
 				this.sumLineStep1.change = this.sumLineStep1.sumIn - this.sumLineStep1.sumOut;
+				this.infoContent.diff = this.sumLineStep1.change;
 				break;
 			case 1:
 				if (this.ct.value === 1) {
@@ -429,6 +467,11 @@ export class AnnualSettlementWriteofDifferenceStep {
 				break;
 			case 5: 
 				this.infoContent.diff = parseFloat(this.annualSettlement.Fields.FremforbartUnderskudd || 0);
+				break;
+			case 6: 
+				const twoYearsAgo = parseFloat(this.annualSettlement.Fields.CompanyProfit2018 || 0) > 0 ? parseFloat(this.annualSettlement.Fields.CompanyProfit2018 || 0) : 0;
+				const oneYearAgo = parseFloat(this.annualSettlement.Fields.CompanyProfit2019 || 0) > 0 ? parseFloat(this.annualSettlement.Fields.CompanyProfit2019 || 0) : 0;
+				this.infoContent.diff = twoYearsAgo + oneYearAgo;
 				break;
 		}
 
