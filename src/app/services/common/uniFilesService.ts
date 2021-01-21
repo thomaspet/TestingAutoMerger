@@ -81,8 +81,8 @@ export class UniFilesService {
         });
     }
 
-    runOcr(id: string): Observable<any> {
-        return this.http.get(this.uniFilesBaseUrl + '/api/ocr/analyze?id=' + id, {
+    runOcr(id: string, forceNewAnalysis: boolean = false): Observable<any> {
+        return this.http.get(this.uniFilesBaseUrl + '/api/ocr/analyze?forceNewAnalysis=' + forceNewAnalysis + '&id=' + id, {
             observe: 'body',
             headers: {
                 'Key': this.activeCompany.Key
@@ -108,6 +108,22 @@ export class UniFilesService {
             () => {},
             () => {}
         );
+    }
+
+    public removeUsedTemplate(supplierOrgNo, bankAccountNumber): Observable<any> {
+        const params = [];
+        if (supplierOrgNo) {
+            params.push('organizationNumber=' + supplierOrgNo);
+        }
+        if (bankAccountNumber) {
+            params.push('bankAccountNumber=' + bankAccountNumber);
+        }
+
+        return this.http.post(this.uniFilesBaseUrl + '/api/ocr/removeusedtemplate?' + params.join('&'), null, {
+            headers: {
+                'Key': this.activeCompany.Key
+            }
+        });
     }
 
     public splitFileMultiple(

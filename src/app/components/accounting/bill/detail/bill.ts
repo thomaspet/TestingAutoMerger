@@ -740,15 +740,15 @@ export class BillView implements OnInit, AfterViewInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>) {
+    private runConverter(files: Array<any>, forceNewAnalysis: boolean) {
         if (this.companySettings.UseOcrInterpretation) {
             // user has accepted license/agreement for ocr
-            this.runOcrOrEHF(files);
+            this.runOcrOrEHF(files, forceNewAnalysis);
         } else {
             // user has deactivated license/agreement for ocr
             const modal = this.modalService.open(UniConfirmModalV2, {
                 header: 'Fakturatolkning er ikke aktivert',
-                message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
+                message: 'Vennligst aktiver fakturatolkning i Markedsplassen for å benytte tolkning av fakturaer',
                 buttonLabels: {
                     accept: 'Ok',
                     cancel: 'Avbryt'
@@ -757,11 +757,11 @@ export class BillView implements OnInit, AfterViewInit {
         }
     }
 
-    private runOcrOrEHF(files: Array<any>) {
+    private runOcrOrEHF(files: Array<any>, forceNewAnalysis: boolean = false) {
         if (files && files.length > 0) {
             const file = this.uniImage.getCurrentFile() || files[0];
             if (this.supplierInvoiceService.isOCR(file)) {
-                this.runOcr(file);
+                this.runOcr(file, forceNewAnalysis);
             } else if (this.supplierInvoiceService.isEHF(file)) {
                 this.runEHF(file);
             }
@@ -995,7 +995,7 @@ export class BillView implements OnInit, AfterViewInit {
                 this.hasUploaded = true;
             }
             if (!this.hasValidSupplier()) {
-                this.runConverter(files);
+                this.runConverter(files, false);
             }
             if (!current.ID) {
                 this.unlinkedFiles = files.map(file => file.ID);
@@ -1035,9 +1035,9 @@ export class BillView implements OnInit, AfterViewInit {
         return (current && current.SupplierID) ? true : false;
     }
 
-    private runOcr(file: any) {
+    private runOcr(file: any, force: boolean) {
         this.userMsg('Kjører fakturatolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
-        this.uniFilesService.runOcr(file.StorageReference)
+        this.uniFilesService.runOcr(file.StorageReference, force)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
@@ -4179,7 +4179,7 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 label: 'Kjør tolk (OCR/EHF)',
-                action: () => { this.runConverter(this.files); }
+                action: () => { this.runConverter(this.files, true); }
             },
             {
                 label: 'Kjør smart bokføring',
@@ -4190,6 +4190,28 @@ export class BillView implements OnInit, AfterViewInit {
                 action: () => { this.openSmartBookingSettingsModal(); }
             }
         ];
+
+        const bankAccountNumber = invoice.BankAccount ? invoice.BankAccount.AccountNumber : null;
+        const orgNo = invoice.Supplier ? invoice.Supplier.OrgNumber : null;
+
+        if (bankAccountNumber || orgNo) {
+            this.contextMenuItems.push(
+            {
+                label: 'Tilbakestill regler for OCR tolkning',
+                action: () => {
+                    this.uniFilesService.removeUsedTemplate(orgNo, bankAccountNumber)
+                        .subscribe(res => {
+                            this.toast.addToast(
+                                'Tolkningsregler for leverandørens fakturaer er nå tilbakestilt',
+                                ToastType.good,
+                                ToastTime.medium,
+                                'Du kan tolke dokumentet på ny ved å velge "Kjør tolk (OCR/EHF)" i menyen. Korriger eventuelle feil i tolkningen, så vil reglene oppdateres når du lagrer');
+                        }, err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
+
         this.toolbarConfig = {
             title: invoice && invoice.ID
                 ? `Leverandørfaktura ${invoice.InvoiceNumber || 'kladd'}`
