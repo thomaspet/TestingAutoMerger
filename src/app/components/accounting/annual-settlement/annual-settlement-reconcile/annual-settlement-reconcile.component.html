@@ -51,6 +51,7 @@
                 </td>
                 <td class="saldo-button-container">
                     <button class="saldo-button"
+                            tabindex="-1"
                             [class.invisible]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
                             [disabled]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
                             (click)="updateBalanceFromButton(account)"
