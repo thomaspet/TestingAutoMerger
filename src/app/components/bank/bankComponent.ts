@@ -648,7 +648,7 @@ export class BankComponent {
                         }
                     });
                 },
-                main: this.canEdit && !this.rows.length,
+                main: false,
                 disabled: !this.canEdit || allRowsSelected
             });
 
