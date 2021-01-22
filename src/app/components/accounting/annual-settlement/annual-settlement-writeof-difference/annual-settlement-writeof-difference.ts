@@ -262,7 +262,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				}
 
 				// Corona feedback
-				if (parseFloat(result) > 0) {
+				if (parseFloat(result) < 0) {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
