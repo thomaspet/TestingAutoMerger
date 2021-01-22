@@ -265,7 +265,7 @@
 			<section class="writeof-form-section">
 				<simple-table class="annual-settlement-table">
 					<tbody>
-						<tr *ngFor="let step of stepContentArray">
+						<tr *ngFor="let step of summaryArray">
 							<td> {{ step?.summaryTitle || step?.title }} </td>
 							<td class="align-right"> {{ step.diff | uninumberformat: 'money' }} </td>
 						</tr>
