@@ -87,12 +87,10 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
             tap((result) => {
                 if (result === null) {
                     this.annualSettlementAllowedByType = false;
+                    this.selectedAnnualSettlement$.next(null);
                 } else {
                     this.annualSettlementAllowedByType = true;
                 }
-                this.selectedAnnualSettlement$.next({
-                    ID: 0
-                });
             })
         ).subscribe((as) => {
             this.annualSettlements = as;

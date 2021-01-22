@@ -23,7 +23,16 @@ export class AnnualSettlementRoadMapToolbarComponent {
 
     constructor(private service: AnnualSettlementService, private tabService: TabService) {
         this.addTab();
-        if (this.annualSettlement?.ID) {
+    }
+
+    private addTab() {
+        this.tabService.addTab({
+            name: 'Årsavslutning', url: `/accounting/annual-settlement`,
+            moduleID: UniModules.Accountsettings, active: true
+        });
+    }
+    ngOnInit() {
+        if (this.annualSettlement) {
             this.saveActions.push(<IUniSaveAction>{
                 action: (done) => {
                     this.service
@@ -40,12 +49,5 @@ export class AnnualSettlementRoadMapToolbarComponent {
                 disabled: false,
             });
         }
-    }
-
-    private addTab() {
-        this.tabService.addTab({
-            name: 'Årsavslutning', url: `/accounting/annual-settlement`,
-            moduleID: UniModules.Accountsettings, active: true
-        });
     }
 }
