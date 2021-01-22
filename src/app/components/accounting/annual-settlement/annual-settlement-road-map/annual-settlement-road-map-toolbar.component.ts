@@ -45,8 +45,7 @@ export class AnnualSettlementRoadMapToolbarComponent {
                         });
                 },
                 label: 'Reset annual settlement',
-                main: true,
-                disabled: false,
+                disabled: false
             });
         }
     }

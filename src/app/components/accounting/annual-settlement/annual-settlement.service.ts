@@ -16,8 +16,6 @@ export enum StatusCodeReconcile {
     Completed = 36010
 }
 
-// const journalEntryAccountNumbers = [2050, 8920, 2800, 8300, 8960, 8960, 8990, 2080, 2500, 2120, 8320, 1070, 8920];
-
 @Injectable()
 export class AnnualSettlementService extends BizHttp<any> {
 
@@ -405,15 +403,15 @@ export class AnnualSettlementService extends BizHttp<any> {
                     return [
                         {
                             title: 'Grunnlag for skatt',
-                            items: [list[0], list[1], list[2]]
+                            items: [list[0], list[1], list[2], list[3]]
                         },
                         {
                             title: 'Til disponering',
                             items: (() => {
                                 if (slice === 1) {
-                                    return [list[3], list[4], list[5], list[6], list[7]];
+                                    return [list[4], list[5], list[6], list[7]];
                                 }
-                                return [list[3], list[4], list[5], list[6]];
+                                return [list[4], list[5], list[6]];
                             })()
                         },
                         {
