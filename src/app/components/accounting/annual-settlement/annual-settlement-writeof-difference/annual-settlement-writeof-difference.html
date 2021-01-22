@@ -143,35 +143,14 @@
 				</label>
 
 				<section *ngIf="ct?.value === 1 && annualSettlement.Fields.FinnesProsjekterKey">
-					<label class="left-aligned-span">
-						<span>Oppgi regnskapsmessig inngående balanse på prosjektene</span>
-						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret" (change)="recalc()">
-					</label>
-					<label class="left-aligned-span">
-						<span>Oppgi regnskapsmessig utgående balanse på prosjektene</span>
+					<label class="left-aligned-span" style="margin-top: 1rem;">
+						<span>Oppgi årets regnskapsmessig resultat for prosjekter</span>
 						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt" (change)="recalc()">
-					</label>
-					<label class="left-aligned-span">
-						<span>Angi netto avsatte inntekter/kostnader ved årets start</span>
-						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessigFjoraret" (change)="recalc()">
-					</label>
-					<label class="left-aligned-span">
-						<span>Angi netto avsatte inntekter/kostnader ved årets slutt</span>
-						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektSkattemessig" (change)="recalc()">
 					</label>
 				</section>
 
 				<section *ngIf="ct?.value === 2 && annualSettlement.Fields.FinnesProsjekterKey">
-					<label class="left-aligned-span bigger">
-						<span>Oppgi inngående balanseførte kostnader på pågående/ikke fullførte prosjekter</span>
-						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret" (change)="recalc()">
-					</label>
-
-					<label class="left-aligned-span bigger">
-						<span>Oppgi utgående balanseførte kostnader på pågående/ikke fullførte prosjekter</span>
-						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt" (change)="recalc()">
-					</label>
-
+					<span class="no-diff-msg"> Det er ikke forskjell mellom regnskapsmessig og skattemessig verdi. Du kan lagre og gå videre </span>
 				</section>
 			</section>
 
