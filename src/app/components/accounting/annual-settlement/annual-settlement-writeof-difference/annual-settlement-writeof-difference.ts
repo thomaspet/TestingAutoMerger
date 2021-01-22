@@ -31,6 +31,21 @@ export class AnnualSettlementWriteofDifferenceStep {
 	sumLine: any = {};
 	tableConfig: UniTableConfig;
 
+	summaryArray = [];
+
+	onlySumFields = [{
+		title: 'Utestående fordringer', text: '', diff: 0, step: 11,
+	},
+	{
+		title: 'Uopptjent inntekt', text: '', diff: 0, step: 12,
+	},
+	{
+		title: 'Avsetning for forpliktelser', text: '', diff: 0, step: 13,
+	},
+	{
+		title: 'Inntektsført avsatt utbytte fra datterselskap og tilknyttet selskap', text: '', diff: 0, step: 14,
+	}];
+
 	inventoryFields = [
 		{ 
 			label: 'Råvarer og innkjøpte halvfabrikata', 
@@ -215,6 +230,12 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager =
 					this.annualSettlement.Fields.ErDetBokfortNedskrivingerAvVarerPaLager === 'true';
 
+				// Set diffs from the annual settlement object
+				this.onlySumFields[0].diff = parseFloat(this.annualSettlement.Fields.ForskjellerFordringer);
+				this.onlySumFields[1].diff = parseFloat(this.annualSettlement.Fields.DriftsinntekterUopptjent );
+				this.onlySumFields[2].diff = parseFloat(this.annualSettlement.Fields.AvsetningerForpliktelser );
+				this.onlySumFields[3].diff = parseFloat(this.annualSettlement.Fields.UtbytteDatterTilknyttetSelskapInntektsfort );
+
 				if (this.annualSettlement.Fields.FinnesProsjekterKey) {
 					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt) {
 						this.ct = this.contractTypes[1];
@@ -241,11 +262,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 				}
 
 				// Corona feedback
-				if (parseFloat(result) > 0) {
+				if (parseFloat(result) < 0) {
 					const index = this.stepContentArray.findIndex(step => step.step === 6);
 					this.stepContentArray.splice(index, 1);
 				}
 
+				this.summaryArray = [...this.stepContentArray];
+				this.summaryArray.splice(this.summaryArray.length - 2, 0, ...this.onlySumFields);
+				
 				this.recalc();
 
 				this.changeDetector.markForCheck();
