@@ -217,7 +217,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
                             Tilbake
                         </button>
                         <button (click)="move(1)" class="c2a" [disabled]="buttonLock">
-                            {{ steps === 4 ? 'Opprett avtale' : steps === 5 || noAccounts ? 'Lukk' : 'Fortsett' }}
+                            {{ steps === 5 ? 'Opprett avtale' : steps === 6 || noAccounts ? 'Lukk' : 'Fortsett' }}
                         </button>
                     </div>
                 </footer>
