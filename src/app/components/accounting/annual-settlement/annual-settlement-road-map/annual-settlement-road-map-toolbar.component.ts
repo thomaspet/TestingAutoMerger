@@ -33,20 +33,25 @@ export class AnnualSettlementRoadMapToolbarComponent {
     }
     ngOnInit() {
         if (this.annualSettlement) {
-            this.saveActions.push(<IUniSaveAction>{
-                action: (done) => {
-                    this.service
-                        .reset(this.annualSettlement)
-                        .subscribe(() => {
-                            this.runAction.emit({
-                                name: 'reset-annualsettlement'
-                            });
-                            done();
-                        });
+            this.saveActions = [
+                <IUniSaveAction> {
+                    label: 'Flere valg'
                 },
-                label: 'Reset annual settlement',
-                disabled: false
-            });
+                <IUniSaveAction>{
+                    action: (done) => {
+                        this.service
+                            .reset(this.annualSettlement)
+                            .subscribe(() => {
+                                this.runAction.emit({
+                                    name: 'reset-annualsettlement'
+                                });
+                                done();
+                            });
+                    },
+                    label: 'Reset annual settlement',
+                    disabled: false
+                }
+            ];
         }
     }
 }
