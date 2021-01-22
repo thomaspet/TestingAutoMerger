@@ -24,7 +24,7 @@ export class UniSave {
     busy: boolean = false;
     statusMessage: string;
     main: IUniSaveAction;
-
+    dropdownLabel = '';
     constructor(
         private cdr: ChangeDetectorRef,
         private featurePermissionService: FeaturePermissionService
@@ -33,10 +33,17 @@ export class UniSave {
     ngOnChanges() {
         if (this.actions && this.actions.length) {
             if (this.actions.length > 1) {
+                if (!this.actions[0]?.action)  {
+                    this.dropdownLabel = this.actions[0].label;
+                }
                 this.filteredActions = this.actions.filter(action => {
+                    const isDropdownLabel = !action.action;
                     const hasPermission = !action.featurePermission
                         || this.featurePermissionService.canShowUiFeature(action.featurePermission);
 
+                    if (isDropdownLabel) {
+                        return false;
+                    }
                     if (hasPermission) {
                         return !this.hideDisabled || (action.main || !action.disabled);
                     } else {
@@ -62,7 +69,7 @@ export class UniSave {
     }
 
     checkForSaveKey(event) {
-        const key = event.which || event.keyCode;
+        const key = event.code; // deprecated: || event.which || event.keyCode;
 
         if (key === 83 && (navigator.platform.match('Mac') ? event.metaKey : event.ctrlKey)) {
             event.preventDefault();
