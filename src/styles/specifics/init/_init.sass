@@ -14,6 +14,9 @@ uni-init
     min-height: 100vh
     background: #fff
 
+    &.iOSDevice
+        padding-bottom: 8rem
+
     input
         -webkit-appearance: none // because ios safari doesn't show box-shadow without this
 
@@ -53,7 +56,7 @@ uni-init
         align-items: center
 
     .init-content
-        flex: 1
+        flex: 1 0 auto
         display: flex
         flex-direction: column
     .init-footer
@@ -166,7 +169,7 @@ uni-password-guide
 
 uni-signup, uni-confirm-invite, uni-login
     display: flex
-    height: 100%
+    flex: 1
     position: relative
     padding-top: 2rem
 
