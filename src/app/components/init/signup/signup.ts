@@ -83,7 +83,6 @@ export class Signup {
                 this.step1Form.enable();
                 this.step2Form.disable();
                 this.confirmationCode = null;
-
                 if (theme.theme === THEMES.EXT02) {
                     this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('start', 'signup-start', 'start') }, null);
                 }
@@ -191,10 +190,6 @@ export class Signup {
                     }
                 }
             );
-    }
-
-    authenticateAfterSignup() {
-        this.authService.authenticate();
     }
 
     public validateConfirmationCode(code) {
