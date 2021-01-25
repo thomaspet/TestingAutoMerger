@@ -69,7 +69,7 @@ export class AnnualSettlementRoadMapToolbarComponent {
                                 }
                             });
                         },
-                        label: 'Reset annual settlement'
+                        label: 'Nullstill årsavslutning'
                     }
                 ]
             };
