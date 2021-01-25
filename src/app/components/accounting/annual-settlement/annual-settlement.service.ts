@@ -192,32 +192,31 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
                 tap(resultMvaMelding => {
-                    checkList.IsMvaMeldingOK = checkList.IsMvaMeldingOK === null || checkList.IsMvaMeldingOK === undefined
+                    checkList.IsMvaMeldingOK = !checkList.IsMvaMeldingOK
                         ? resultMvaMelding
                         : checkList.IsMvaMeldingOK;
                 }),
                 switchMap(() => this.checkAmelding(as.AccountYear)),
                 tap(resultAmelding => {
-                    checkList.IsAmeldingOK = checkList.IsAmeldingOK === null || checkList.IsAmeldingOK === undefined
+                    checkList.IsAmeldingOK = !checkList.IsAmeldingOK
                         ? resultAmelding
                         : checkList.IsAmeldingOK;
                 }),
                 switchMap(() => this.checkLastyear(as.AccountYear)),
                 tap(resultLastYear => {
-                    checkList.AreAllPreviousYearsEndedAndBalances = (checkList.AreAllPreviousYearsEndedAndBalances === null
-                    || checkList.AreAllPreviousYearsEndedAndBalances === undefined)
+                    checkList.AreAllPreviousYearsEndedAndBalances = !checkList.AreAllPreviousYearsEndedAndBalances
                         ? resultLastYear
                         : checkList.AreAllPreviousYearsEndedAndBalances;
                 }),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
                 tap(resultStocksCapital => {
-                    checkList.IsShareCapitalOK = checkList.IsShareCapitalOK === null || checkList.IsShareCapitalOK === undefined
+                    checkList.IsShareCapitalOK = !checkList.IsShareCapitalOK
                         ? resultStocksCapital
                         : checkList.IsShareCapitalOK;
                 }),
                 switchMap(() => this.checkAssets(as.AccountYear)),
                 tap(resultAssets => {
-                    checkList.IsAssetsOK = checkList.IsAssetsOK === null || checkList.IsAssetsOK === undefined
+                    checkList.IsAssetsOK = !checkList.IsAssetsOK
                         ? resultAssets
                         : checkList.IsAssetsOK;
                 }),
