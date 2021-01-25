@@ -6,7 +6,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {NumberFormat} from '@app/services/common/numberFormatService';
-import {ConfirmActions, ICommentModalResult} from '@uni-framework/uni-modal';
+import {ConfirmActions, ICommentModalResult, UniModalService, UniFileUploadModal} from '@uni-framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniMath} from '@uni-framework/core/uniMath';
 
@@ -53,7 +53,8 @@ export class AnnualSettlementReconcileComponent {
         private tabService: TabService,
         private toast: ToastService,
         private numberFormat: NumberFormat,
-        private changeDetector: ChangeDetectorRef) {}
+        private changeDetector: ChangeDetectorRef,
+        private modalService: UniModalService) {}
 
     ngOnInit() {
         this.busy = true;
@@ -82,6 +83,13 @@ export class AnnualSettlementReconcileComponent {
             moduleID: UniModules.Accountsettings, active: true
         });
     }
+
+    openFilesModal(account: any) {
+        this.modalService.open(UniFileUploadModal, { data: { entity: 'ReconcileAccount', tag: 'reconcile_account_file' } }).onClose.subscribe(() => {
+            
+        });
+    }
+
     updateBalanceFromButton(_account) {
         const account = this.findAccount(_account._AccountNumber);
         account.Balance = account._TotalAmount;

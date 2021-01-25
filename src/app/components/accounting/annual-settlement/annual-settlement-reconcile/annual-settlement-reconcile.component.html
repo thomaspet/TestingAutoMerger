@@ -29,6 +29,7 @@
                 <th>
                     <i class="material-icons-outlined">chat_bubble_outline</i>
                 </th>
+                <th style="text-align: center">Vedlegg</th>
             </tr>
             </thead>
             <tbody>
@@ -72,6 +73,9 @@
                     <svg [matTooltip]="account?.Comment" *ngIf="account?.Comment" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M4.955 16L0.5 19.5V1C0.5 0.734784 0.605357 0.48043 0.792893 0.292893C0.98043 0.105357 1.23478 0 1.5 0H19.5C19.7652 0 20.0196 0.105357 20.2071 0.292893C20.3946 0.48043 20.5 0.734784 20.5 1V15C20.5 15.2652 20.3946 15.5196 20.2071 15.7071C20.0196 15.8946 19.7652 16 19.5 16H4.955ZM4.263 14H18.5V2H2.5V15.385L4.263 14ZM9.793 9.121L14.036 4.879L15.45 6.293L9.793 11.95L5.903 8.06L7.318 6.646L9.793 9.121Z" fill="#03053D"/>
                     </svg>
+                </td>
+                <td style="text-align: center; cursor: pointer;">
+                    <i class="material-icons-outlined" (click)="openFilesModal(account)" title="{{ account?.file ? 'Se vedlegg' : 'Last opp filer' }}"> {{ account?.file ? 'attach_file' : 'cloud_upload' }} </i> 
                 </td>
             </tr>
             </tbody>

@@ -91,6 +91,7 @@ export class UniFileUploadModal implements IUniModal {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     CURRENT_ENTITY: EntityForFileUpload = EntityForFileUpload.BANK;
+    CURRENT_TAG: string = 'IncomingExpense'
     loading$: Subject<boolean> = new Subject();
     scrollbar: PerfectScrollbar;
     baseUrl: string = environment.BASE_URL_FILES;
@@ -112,6 +113,7 @@ export class UniFileUploadModal implements IUniModal {
     ngOnInit() {
         if (this.options && this.options.data) {
             this.CURRENT_ENTITY = this.options.data.entity || EntityForFileUpload.BANK;
+            this.CURRENT_TAG = this.options.data.tag || this.CURRENT_TAG;
         }
     }
 
@@ -203,7 +205,7 @@ export class UniFileUploadModal implements IUniModal {
                 } else if (this.CURRENT_ENTITY === EntityForFileUpload.EXPENSE) {
                     const tagQueries = [];
                     this.uploadedFileIds.forEach(id => {
-                        tagQueries.push(this.fileService.tag(id, 'IncomingExpense'));
+                        tagQueries.push(this.fileService.tag(id, this.CURRENT_TAG));
                     });
 
                     Observable.forkJoin(tagQueries).subscribe(() => {
