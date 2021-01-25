@@ -76,10 +76,17 @@ export class Signup {
                 this.validateConfirmationCode(this.confirmationCode);
                 this.step1Form.disable();
                 this.step2Form.enable();
+                if (theme.theme === THEMES.EXT02) {
+                    this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('step1', 'pageload-with-code', 'other-step') }, null);
+                }
             } else {
                 this.step1Form.enable();
                 this.step2Form.disable();
                 this.confirmationCode = null;
+
+                if (theme.theme === THEMES.EXT02) {
+                    this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('start', 'signup-start', 'start') }, null);
+                }
             }
         });
     }
@@ -118,8 +125,8 @@ export class Signup {
                 },
                 () => {
                     if (theme.theme === THEMES.EXT02) {
-                        this.celebrusService.useDataLayer('productView', null,
-                            [this.getCelebrusObject('step1', this.step1Successful ? 'signup-step' : 'signup-step-fail')]);
+                        const type = this.step1Successful ? 'signup-step' : 'signup-step-fail';
+                        this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('step1', type, 'other-step') }, null);
                     }
                 }
             );
@@ -137,7 +144,7 @@ export class Signup {
             this.step2Form.controls.ConfirmPassword.markAsTouched();
 
             if (theme.theme === THEMES.EXT02) {
-                this.celebrusService.useDataLayer('productView', null, [this.getCelebrusObject('step2', 'signup-step-form-fail')]);
+                this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('step2', 'signup-step-form-fail', 'other-step') }, null);
             }
             return;
         }
@@ -161,7 +168,7 @@ export class Signup {
                     this.step2Successful = true;
                     this.headerText = 'Brukerregistrering fullført';
                     if (theme.theme === THEMES.EXT02) {
-                        this.celebrusService.useDataLayer('productView', null, [this.getCelebrusObject('step2', 'signup-completed')]);
+                        this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('step2', 'signup-completed', 'receipt') }, null);
                     }
                 },
                 err => {
@@ -178,18 +185,15 @@ export class Signup {
                 },
                 () => {
                     if (theme.theme === THEMES.EXT02) {
-                        this.celebrusService.useDataLayer('productView', null,
-                            [this.getCelebrusObject('step2', this.step2Successful ? 'signup-step' : 'signup-step-fail')]);
+                        const stepType = this.step2Successful ? 'receipt': 'other-step';
+                        const type = this.step2Successful ? 'signup-completed' : 'signup-complete-failed';
+                        this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('final-step', type, stepType) }, null);
                     }
                 }
             );
     }
 
     authenticateAfterSignup() {
-        if (theme.theme === THEMES.EXT02) {
-            this.celebrusService.useDataLayer('productView', null,
-                [this.getCelebrusObject('step3', 'login-clicked-after-signup')]);
-        }
         this.authService.authenticate();
     }
 
@@ -220,12 +224,13 @@ export class Signup {
             );
     }
 
-    getCelebrusObject(step: string, type: string) {
+    getCelebrusObject(step: string, type: string, step_type: string) {
         return {
             application: 'dnb-regnskap',
             name: 'dnb-regnskap-signup',
             step,
-            type
+            type,
+            step_type,
         };
     }
 }
