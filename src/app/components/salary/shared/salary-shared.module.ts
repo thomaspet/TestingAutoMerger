@@ -30,6 +30,7 @@ import { TaxCardRequestComponent } from './components/tax-card-modal/tax-card-re
 import { TaxResponseModalComponent } from './components/tax-card-modal/tax-response-modal.component';
 import { TaxCardReadStatusComponent } from './components/tax-card-modal/tax-card-read-status.component';
 import { SalaryYearService } from './services/salary-year/salary-year.service';
+import { EmployeeReportPickerService } from './services/employee-report-picker/employee-report-picker.service';
 
 
 @NgModule({
@@ -92,6 +93,7 @@ import { SalaryYearService } from './services/salary-year/salary-year.service';
         SalaryTransactionViewService,
         PayrollRunService,
         SalaryYearService,
+        EmployeeReportPickerService,
     ]
   })
   export class SalarySharedModule { }

@@ -7,6 +7,7 @@ import { Employee, CompanySettings } from '@uni-entities';
 import { EmployeeReportPickerListComponent } from '@app/components/salary/shared/components/employee-report-picker-list/employee-report-picker-list.component';
 import { TabService, UniModules } from '@app/components/layout/navbar/tabstrip/tabService';
 import { EmployeeService, BrowserStorageService, FinancialYearService, CompanySettingsService, ReportNames } from '@app/services/services';
+import { EmployeeReportPickerService, IReportPickerEmployee } from '../../shared/services/employee-report-picker/employee-report-picker.service';
 
 const DEFAULT_OPTIONS_KEY = 'Default_Annual_Statement_Options';
 
@@ -17,7 +18,7 @@ const DEFAULT_OPTIONS_KEY = 'Default_Annual_Statement_Options';
 })
 export class AnnualStatementSenderComponent implements OnInit {
     private url: string = '/salary/annualstatements';
-    public employees$: BehaviorSubject<Employee[]> = new BehaviorSubject([]);
+    public employees$: BehaviorSubject<IReportPickerEmployee[]> = new BehaviorSubject([]);
     @Output() public busy: EventEmitter<boolean> = new EventEmitter();
     @Output() public selectedEmps: EventEmitter<number> = new EventEmitter();
 
@@ -34,6 +35,7 @@ export class AnnualStatementSenderComponent implements OnInit {
         private storageService: BrowserStorageService,
         private yearService: FinancialYearService,
         private companySettingsService: CompanySettingsService,
+        private reportPickerService: EmployeeReportPickerService,
     ) {}
 
     public ngOnInit() {
@@ -50,8 +52,9 @@ export class AnnualStatementSenderComponent implements OnInit {
     }
 
     private fetchEmployees() {
-        this.employeeService
-            .getEmpsUsedThisYear(1, ['BusinessRelationInfo.DefaultEmail'])
+
+        this.reportPickerService
+            .getAnnualStatementEmployees()
             .subscribe(emps => this.employees$.next(emps));
     }
 
@@ -95,7 +98,7 @@ export class AnnualStatementSenderComponent implements OnInit {
             );
     }
 
-    private createFilter(employees: Employee[]): string {
+    private createFilter(employees: IReportPickerEmployee[]): string {
         return employees.map(emp => emp.EmployeeNumber).join(',');
     }
 

@@ -6,11 +6,7 @@ import { StatisticsService, ReportDefinitionService, ErrorService } from '@app/s
 import { Employee } from '@uni-entities';
 import { UniTableConfig, UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { UniModalService, UniPreviewModal } from '@uni-framework/uni-modal';
-
-enum PaycheckFormat {
-    E_MAIL = 'E-post',
-    PRINT = 'Utskrift'
-}
+import { IReportPickerEmployee, PaycheckFormat } from '../../services/employee-report-picker/employee-report-picker.service';
 
 const PAYCHECK_FORMAT_KEY = '_paycheckFormat';
 
@@ -22,7 +18,7 @@ const PAYCHECK_FORMAT_KEY = '_paycheckFormat';
 export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
 
     @Input()
-    public employees: Employee[];
+    public employees: IReportPickerEmployee[];
     @Output()
     public busy: EventEmitter<boolean> = new EventEmitter();
     @Output()
@@ -31,9 +27,9 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     @ViewChild(AgGridWrapper, { static: true })
     public table: AgGridWrapper;
 
-    public employeeTableData: Employee[] = [];
-    public employeesWithEmail: Employee[] = [];
-    public employeesWithoutEmail: Employee[] = [];
+    public employeeTableData: IReportPickerEmployee[] = [];
+    public employeesWithEmail: IReportPickerEmployee[] = [];
+    public employeesWithoutEmail: IReportPickerEmployee[] = [];
     public tableConfig$: BehaviorSubject<UniTableConfig> = new BehaviorSubject(null);
     public tabs: IUniTab[];
     private categoriesList: [{Number: number, EmployeeID: number, Name: string}];
@@ -63,9 +59,9 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
 
     private setupTable() {
         const employeenumberCol = new UniTableColumn('EmployeeNumber', 'Ansattnummer', UniTableColumnType.Text, false);
-        const employeenameCol = new UniTableColumn('BusinessRelationInfo.Name', 'Navn', UniTableColumnType.Text, false);
+        const employeenameCol = new UniTableColumn('Name', 'Navn', UniTableColumnType.Text, false);
         const emailCol = new UniTableColumn(
-            'BusinessRelationInfo.DefaultEmail.EmailAddress',
+            'EMail',
             'E-post',
             UniTableColumnType.Text,
             false);
@@ -142,7 +138,7 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
             });
     }
 
-    private getSelected(): Employee[] {
+    private getSelected(): IReportPickerEmployee[] {
         return this.table.getSelectedRows();
     }
 
@@ -155,11 +151,11 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
     private UpdateTable(): void {
         this.linkCatagoriesWithEmployee();
         this.employees.forEach(employee => {
-            employee[PAYCHECK_FORMAT_KEY] = this.employeeHasAddress(employee)
+            employee._paycheckFormat = employee?.EMail
                 ? PaycheckFormat.E_MAIL
                 : PaycheckFormat.PRINT;
 
-            if (employee[PAYCHECK_FORMAT_KEY] === PaycheckFormat.E_MAIL) {
+            if (employee._paycheckFormat === PaycheckFormat.E_MAIL) {
                 this.employeesWithEmail.push(employee);
             } else {
                 this.employeesWithoutEmail.push(employee);
@@ -181,12 +177,12 @@ export class EmployeeReportPickerListComponent implements OnInit, OnChanges {
         this.selectedEmps.next(this.getSelected().length);
     }
 
-    public getSelectedMailEmployees(): Employee[] {
+    public getSelectedMailEmployees(): IReportPickerEmployee[] {
         return this.getSelected()
             .filter(emp => emp['_paycheckFormat'] === PaycheckFormat.E_MAIL);
     }
 
-    public getSelectedPrintEmployees(): Employee[] {
+    public getSelectedPrintEmployees(): IReportPickerEmployee[] {
         return this.getSelected()
             .filter(emp => emp['_paycheckFormat'] === PaycheckFormat.PRINT);
     }
