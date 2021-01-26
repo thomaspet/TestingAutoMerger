@@ -75,7 +75,20 @@
                     </svg>
                 </td>
                 <td style="text-align: center; cursor: pointer;">
-                    <i class="material-icons-outlined" (click)="openFilesModal(account)" title="{{ account?.file ? 'Se vedlegg' : 'Last opp filer' }}"> {{ account?.file ? 'attach_file' : 'cloud_upload' }} </i> 
+                    <i class="material-icons-outlined" #toggle title="Se vedlegg"> attach_file </i>
+                    <dropdown-menu [trigger]="toggle" (click)="$event.stopPropagation()">
+                        <ng-template>
+                            
+                            <uni-attachments style="width: 48rem; margin: 2rem"
+                                class="account-attachments"
+                                [entity]="'ReconcileAccount'"
+                                [entityID]="account?.ID"
+                                [multirowSelect]="false"
+                                [showInfoBox]="false">
+                            </uni-attachments>
+
+                        </ng-template>
+                    </dropdown-menu>
                 </td>
             </tr>
             </tbody>

@@ -84,12 +84,6 @@ export class AnnualSettlementReconcileComponent {
         });
     }
 
-    openFilesModal(account: any) {
-        this.modalService.open(UniFileUploadModal, { data: { entity: 'ReconcileAccount', tag: 'reconcile_account_file' } }).onClose.subscribe(() => {
-            
-        });
-    }
-
     updateBalanceFromButton(_account) {
         const account = this.findAccount(_account._AccountNumber);
         account.Balance = account._TotalAmount;

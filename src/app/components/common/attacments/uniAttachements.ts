@@ -65,6 +65,7 @@ export class UniAttachments {
     @Input() uploadWithoutEntity: boolean = false;
     @Input() canSendEHF: boolean = false;
     @Input() tooltip: string;
+    @Input() multirowSelect: boolean = true;
     @Input() showInfoBox?: boolean = false;
 
     @Output() fileUploaded: EventEmitter<File> = new EventEmitter();
@@ -100,20 +101,18 @@ export class UniAttachments {
             .setColumns([fileNameCol, fileSizeCol])
             .setDeleteButton(true)
             .setSearchable(false)
-            .setMultiRowSelect(true);
+            .setMultiRowSelect(this.multirowSelect);
     }
 
     public ngOnChanges(changes: SimpleChanges) {
-        if (
-            this.showFileList
-            && (changes['entity']
-            || changes['entityID'])
-            && this.entity
-            && this.isDefined(this.entityID)
-        ) {
+        if (this.showFileList && (changes['entity'] || changes['entityID']) && this.entity && this.isDefined(this.entityID) ) {
             this.getFiles();
         } else {
             this.files = [];
+        }
+
+        if (changes['multirowSelect']) {
+            this.tableConfig = this.tableConfig.setMultiRowSelect(changes['multirowSelect'].currentValue);
         }
     }
 
