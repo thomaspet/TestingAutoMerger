@@ -450,7 +450,9 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.infoContent.diff = this.sumLineStep1.change;
 				break;
 			case 1:
-				if (this.ct.value === 1) {
+				if (!this.annualSettlement.Fields.FinnesProsjekterKey) {
+					this.infoContent.diff = 0;
+				} else if (this.ct.value === 1) {
 					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0);
 				} else if (this.ct.value === 2) {
 					this.infoContent.diff = 0;
