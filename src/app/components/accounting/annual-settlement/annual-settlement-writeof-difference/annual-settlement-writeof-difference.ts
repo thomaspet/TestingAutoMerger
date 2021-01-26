@@ -30,6 +30,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	sumLineStep1 = { sumIn: 0, sumOut: 0, change: 0 };
 	sumLine: any = {};
 	tableConfig: UniTableConfig;
+	showInfo = true;
 
 	summaryArray = [];
 
@@ -307,9 +308,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	checkMissingTaxData() {
-		// REMOVE COMMENT WHEN FIXED
-		// this.missingTaxData = !!this.groups.filter(g => !g.Value || !g.ID).length;
-		this.missingTaxData = false;
+		this.missingTaxData = !!this.groups.filter(g => (!g.Value || !g.ID) && g.PurchaseYear !== 2020).length;
 	}
 
 	openEditModal() {

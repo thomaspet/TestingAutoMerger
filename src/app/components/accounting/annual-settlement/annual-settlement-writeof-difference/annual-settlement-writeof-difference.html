@@ -6,7 +6,7 @@
 
 	<section class="top-nav-container">
 		<button class="tertiary" (click)="goBack()"> <i class="material-icons">arrow_back</i> </button>
-		<p>Tilbake til oversikten</p>
+		<p>Tilbake til oversikten <i class="material-icons show-info-icon" title="Vis informasjon" *ngIf="!showInfo" (click)="showInfo = true;"> info</i> </p>
 		<span>2020</span>
 	</section>
 
@@ -21,7 +21,8 @@
 		[icon]="'info'"
 		[title]="infoContent.title"
 		[text]="infoContent.text"
-		[isOpen]="true"
+		[(isOpen)]="showInfo"
+		(close)="showInfo = false"
 	></uni-alert-component>
 
 	<section class="uni-card loading-section">

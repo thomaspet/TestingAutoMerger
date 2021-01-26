@@ -33,7 +33,10 @@ export class AssetsEditModal implements IUniModal {
     ) {}
 
     ngOnInit() {
-        this.groups = [...this.options.data.groups.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 })];
+        this.groups = [...this.options.data.groups.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 })].map(item => {
+            item.Deleted = item.PurchaseYear === 2020;
+            return item;
+        });
         this.setUpTable();
         this.busy = false;
     }
@@ -50,16 +53,14 @@ export class AssetsEditModal implements IUniModal {
 
     save() {
         this.table.finishEdit();
-        console.log(this.groups);
-        const linesToSave = this.groups.filter(group => group._isDirty);
 
-        if (!linesToSave.length) {
+        if (!this.groups.filter(group => group._isDirty)?.length) {
             this.close();
         }
 
         this.busy = true;
 
-        this.annualSettlementService.updateTaxbasedIB(linesToSave).subscribe((updatedGroups) => {
+        this.annualSettlementService.updateTaxbasedIB(this.groups).subscribe((updatedGroups) => {
             this.busy = false;
             this.groups = updatedGroups;
             this.onClose.emit(true);
