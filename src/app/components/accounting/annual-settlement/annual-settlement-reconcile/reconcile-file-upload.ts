@@ -8,12 +8,6 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
             <header>Velg filer som skal lastes opp</header>
 
             <article>
-                <mat-progress-bar
-                    *ngIf="loading$ | async"
-                    class="uni-progress-bar"
-                    mode="indeterminate">
-                </mat-progress-bar>
-
                 <uni-attachments 
                     class="account-attachments"
                     [entity]="'ReconcileAccount'"
