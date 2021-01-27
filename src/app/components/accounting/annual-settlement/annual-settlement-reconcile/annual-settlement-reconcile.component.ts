@@ -9,6 +9,7 @@ import {NumberFormat} from '@app/services/common/numberFormatService';
 import {ConfirmActions, ICommentModalResult, UniModalService, UniFileUploadModal} from '@uni-framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniMath} from '@uni-framework/core/uniMath';
+import {UniReconcileAccountFileUploadModal} from './reconcile-file-upload';
 
 @Component({
     selector: 'annual-settlement-reconcile',
@@ -105,6 +106,19 @@ export class AnnualSettlementReconcileComponent {
             this.allAccountsAreApproved = this.checkIfAllAccountsAreApproved();
         }
     }
+
+    openModal1() {
+        this.modalService.open(UniFileUploadModal, { data: { entity: 'ReconcileAccount', tag: 'reconcile_account_file' } }).onClose.subscribe(() => {
+
+        })
+    }
+
+    openModal2(account) {
+        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose.subscribe(() => {
+            
+        })
+    }
+
     callOpenModalForComment(account, oldBalance) {
         if (this.annualSettlement?.StatusCode !== 36105) {
             return;

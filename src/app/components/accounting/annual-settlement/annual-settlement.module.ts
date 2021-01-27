@@ -22,6 +22,7 @@ import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settle
 import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/annual-settlement-summary.component';
 import {AssetsEditModal} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/assets-edit-modal';
 import {ContactModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/contactModal.component';
+import {UniReconcileAccountFileUploadModal} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/reconcile-file-upload';
 
 @NgModule({
     imports: [
@@ -47,7 +48,8 @@ import {ContactModalComponent} from '@app/components/accounting/annual-settlemen
         AccountsSummaryModalComponent,
         GoToAltinnModalComponent,
         AssetsEditModal,
-        ContactModalComponent
+        ContactModalComponent,
+        UniReconcileAccountFileUploadModal
     ],
     providers: [
         AnnualSettlementService
