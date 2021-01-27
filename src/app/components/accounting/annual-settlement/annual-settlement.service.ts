@@ -297,6 +297,7 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     getAnnualSettlementWithReconcile(annualSettlementID) {
         let annualSettlement = null;
+        let attatchments = [];
         return this.getAnnualSettlement(annualSettlementID).pipe(
             tap((as) => annualSettlement = as),
             switchMap(as => {
@@ -305,8 +306,8 @@ export class AnnualSettlementService extends BizHttp<any> {
                     source$ = this.startReconcile(as);
                 } else {
                     source$ = this.addAccountsToReconcile(as.Reconcile.ID);
-
                 }
+                attatchments = as.Reconcile?.Accounts?.map(acc => acc.HasAttachements);
                 return source$;
             }),
             map(reconcile => {
@@ -318,6 +319,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                 accountsInfo.forEach(info => {
                     const reconcileAccount = annualSettlement.Reconcile.Accounts
                         .find(acc => acc.AccountID === info.AccountID);
+                        
                     if (reconcileAccount) {
                         reconcileAccount._AccountName = info.AccountName;
                         reconcileAccount._AccountNumber = info.AccountNumber;
@@ -325,6 +327,12 @@ export class AnnualSettlementService extends BizHttp<any> {
                         reconcileAccount._LastBalance = reconcileAccount.Balance;
                     }
                 });
+
+                annualSettlement.Reconcile.Accounts = annualSettlement.Reconcile.Accounts.map((acc, i) => {
+                    acc.HasAttachements = attatchments[i];
+                    return acc;
+                });
+
                 annualSettlement.Reconcile.Accounts = _.orderBy(annualSettlement.Reconcile.Accounts, ['_AccountNumber'], ['asc']);
                 annualSettlement.Reconcile.Accounts = annualSettlement.Reconcile.Accounts.filter(acc => !!acc._TotalAmount);
                 return annualSettlement;

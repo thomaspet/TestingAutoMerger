@@ -75,22 +75,7 @@
                     </svg>
                 </td>
                 <td style="text-align: center; cursor: pointer;">
-                    <i class="material-icons-outlined" #toggle title="Se vedlegg" (click)="openModal1()"> {{ account?.HasAttachements ? 'attach_file' : 'cloud_upload' }} </i>
-                    <i class="material-icons-outlined" #toggle title="Se vedlegg" (click)="openModal2(account)"> {{ account?.HasAttachements ? 'attachment' : 'pest_control' }} </i>
-                    <!-- <i class="material-icons-outlined" #toggle title="Se vedlegg"> attach_file </i>
-                    <dropdown-menu [trigger]="toggle" (click)="$event.stopPropagation()">
-                        <ng-template>
-                            
-                            <uni-attachments style="width: 48rem; margin: 2rem"
-                                class="account-attachments"
-                                [entity]="'ReconcileAccount'"
-                                [entityID]="account?.ID"
-                                [multirowSelect]="false"
-                                [showInfoBox]="false">
-                            </uni-attachments>
-
-                        </ng-template>
-                    </dropdown-menu> -->
+                    <i class="material-icons-outlined" #toggle title="{{ account?.HasAttachements ? 'Se og rediger vedlegg' : 'Last opp vedlegg' }}" (click)="openFileModal(account)"> {{ account?.HasAttachements ? 'attach_file' : 'cloud_upload' }} </i>
                 </td>
             </tr>
             </tbody>

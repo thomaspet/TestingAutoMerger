@@ -212,6 +212,11 @@ export class UniAttachments {
     }
 
     onRowSelectionChange(selectedFiles: File[]) {
+        
+        if (!this.multirowSelect) {
+            return;
+        }
+        
         this.fileLinks.forEach(link => {
             const isSelected = selectedFiles.some(f => f.ID === link.FileID);
             if (isSelected !== link.IsAttachment) {

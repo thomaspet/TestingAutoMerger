@@ -6,7 +6,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {NumberFormat} from '@app/services/common/numberFormatService';
-import {ConfirmActions, ICommentModalResult, UniModalService, UniFileUploadModal} from '@uni-framework/uni-modal';
+import {ConfirmActions, ICommentModalResult, UniModalService} from '@uni-framework/uni-modal';
 import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {UniReconcileAccountFileUploadModal} from './reconcile-file-upload';
@@ -107,16 +107,8 @@ export class AnnualSettlementReconcileComponent {
         }
     }
 
-    openModal1() {
-        this.modalService.open(UniFileUploadModal, { data: { entity: 'ReconcileAccount', tag: 'reconcile_account_file' } }).onClose.subscribe(() => {
-
-        })
-    }
-
-    openModal2(account) {
-        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose.subscribe(() => {
-            
-        })
+    openFileModal(account) {
+        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose;
     }
 
     callOpenModalForComment(account, oldBalance) {
