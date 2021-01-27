@@ -378,16 +378,13 @@ export class AnnualSettlementService extends BizHttp<any> {
             .pipe(
                 map(res => res.body),
                 map(list => {
-                    let slice = 1;
-                    if (list[6].Item === 'Til disponering') {
-                        slice = 0;
-                    }
-                    list[4 + slice]['info'] = 'tooltip text for 5';
-                    list[5 + slice]['info'] = 'tooltip text for 6';
-                    list[7 + slice]['editable'] = true;
-                    list[7 + slice]['placeholder'] = 'Sum utbytte';
-                    list[7 + slice]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
+                    list[5]['info'] = 'tooltip text for 5';
+                    list[6]['info'] = 'tooltip text for 6';
+                    list[8]['editable'] = true;
+                    list[8]['placeholder'] = 'Sum utbytte';
+                    list[8]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
                         + ' i utbytte dette året)';
+                    list[9]['info'] = 'tooltip text for 9';
                     return [
                         {
                             title: 'Grunnlag for skatt',
@@ -395,16 +392,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                         },
                         {
                             title: 'Til disponering',
-                            items: (() => {
-                                if (slice === 1) {
-                                    return [list[4], list[5], list[6], list[7]];
-                                }
-                                return [list[4], list[5], list[6]];
-                            })()
+                            items: [list[4], list[5], list[6], list[7]]
                         },
                         {
                             title: 'Utbytte',
-                            items: [list[7 + slice], list[8 + slice], list[9 + slice]]
+                            items: [list[8], list[9], list[10]]
                         }
                     ];
                 })
@@ -428,11 +420,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                 return [
                     {
                         title: 'Skattepliktig inntekt',
-                        items: [list[0], list[1], list[2], list[3], list[4]]
+                        items: [list[0], list[1], list[2], list[3]]
                     },
                     {
                         title: 'Skattekostnad',
-                        items: [list[5], list[6], list[7], list[8]]
+                        items: [list[11], list[12], list[13]]
                     }
                 ];
             })
