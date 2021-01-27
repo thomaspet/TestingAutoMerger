@@ -39,6 +39,7 @@ export class AssetsListComponent {
         this.supplirInvoiceWord = this.getSupplierInvoiceWord()
         // if something changes into state we refresh the lookup function
         this.store.state$.pipe(takeUntil(this.onDestroy$)).subscribe(state => {
+            if (this.table) { this.table.refreshTableData(); }
             this.assetsActions.haveAssetsWithDepreciationNotStarted().subscribe(hasNotStartedDepreciations => {
                 this.hasNotStartedDepreciations = hasNotStartedDepreciations;
             });
