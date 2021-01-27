@@ -57,7 +57,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         }, () => this.busy = false);
     }
     saveAnnualSettlement(done) {
-        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item === 'Utbytte').Amount;
+        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item.startsWith('Utbytte')).Amount;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
                 if (done) {
