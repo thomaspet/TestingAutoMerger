@@ -187,39 +187,28 @@ export class AnnualSettlementService extends BizHttp<any> {
             .map(res => res.body);
     }
 
+    checkStoredValueAndUpdateList(key: string, value: any, list: any) {
+        const stringifiedResult = JSON.stringify(value);
+        const storedData = sessionStorage.getItem(key);
+        if (!list[key] || (list[key] && storedData !== stringifiedResult)) {
+            list[key] = value;
+        }
+        sessionStorage.setItem(key, stringifiedResult);
+    }
+
     getAnnualSettlementWithCheckList(as) {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
-                tap(resultMvaMelding => {
-                    checkList.IsMvaMeldingOK = !checkList.IsMvaMeldingOK
-                        ? resultMvaMelding
-                        : checkList.IsMvaMeldingOK;
-                }),
+                tap(resultMvaMelding => this.checkStoredValueAndUpdateList('IsMvaMeldingOK', resultMvaMelding, checkList)),
                 switchMap(() => this.checkAmelding(as.AccountYear)),
-                tap(resultAmelding => {
-                    checkList.IsAmeldingOK = !checkList.IsAmeldingOK
-                        ? resultAmelding
-                        : checkList.IsAmeldingOK;
-                }),
+                tap(resultAmelding => this.checkStoredValueAndUpdateList('IsAmeldingOK', resultAmelding, checkList)),
                 switchMap(() => this.checkLastyear(as.AccountYear)),
-                tap(resultLastYear => {
-                    checkList.AreAllPreviousYearsEndedAndBalances = !checkList.AreAllPreviousYearsEndedAndBalances
-                        ? resultLastYear
-                        : checkList.AreAllPreviousYearsEndedAndBalances;
-                }),
+                tap(resultLastYear => this.checkStoredValueAndUpdateList('AreAllPreviousYearsEndedAndBalances', resultLastYear, checkList)),
                 switchMap(() => this.checkStocksCapital(as.AccountYear)),
-                tap(resultStocksCapital => {
-                    checkList.IsShareCapitalOK = !checkList.IsShareCapitalOK
-                        ? resultStocksCapital
-                        : checkList.IsShareCapitalOK;
-                }),
+                tap(resultStocksCapital => this.checkStoredValueAndUpdateList('IsShareCapitalOK', resultStocksCapital, checkList)),
                 switchMap(() => this.checkAssets(as.AccountYear)),
-                tap(resultAssets => {
-                    checkList.IsAssetsOK = !checkList.IsAssetsOK
-                        ? resultAssets
-                        : checkList.IsAssetsOK;
-                }),
+                tap(resultAssets => this.checkStoredValueAndUpdateList('IsAssetsOK', resultAssets, checkList)),
                 map(() => {
                     const _as = Object.assign({}, as);
                     _as.AnnualSettlementCheckList = checkList;
