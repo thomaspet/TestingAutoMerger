@@ -81,7 +81,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 if ([1, 6, 26, 38].includes(settings.CompanyTypeID)) {
                     return annualSettlementSource$;
                 } else {
-                    return null;
+                    return of(null);
                 }
             }),
             tap((result) => {
