@@ -5,7 +5,9 @@ import {Router} from '@angular/router';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
 
 export const assetsColumns = (assetsActions: AssetsActions, router: Router) => [
-    new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false),
+    new UniTableColumn('ID', 'Nr.', UniTableColumnType.Number, false)
+        .setAlignment('center')
+        .setWidth('6rem'),
     new UniTableColumn('Account.AccountNumber', 'Balansekonto', UniTableColumnType.Text, false)
         .setWidth(200)
         .setTemplate(rowModel => {
