@@ -76,7 +76,7 @@ export class AnnualSettlementSummaryComponent {
             }
             this.annualSettlementService.openGoToAltinnModal().onClose.subscribe(result => {
                 if (result === true) {
-                    this.router.navigateByUrl('https://altinn.no');
+                    window.open('https://altinn.no', '_blank');
                 }
                 if (done) {
                     done();
