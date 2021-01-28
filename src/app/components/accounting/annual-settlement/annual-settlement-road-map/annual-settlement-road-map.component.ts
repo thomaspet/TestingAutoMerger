@@ -78,7 +78,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
         );
         this.companySettingsService.getCompanySettings().pipe(
             switchMap((settings) => {
-                if ([1, 6, 26, 38].includes(settings.CompanyTypeID)) {
+                if ([1, 2, 6, 26, 38].includes(settings.CompanyTypeID)) {
                     return annualSettlementSource$;
                 } else {
                     return of(null);
