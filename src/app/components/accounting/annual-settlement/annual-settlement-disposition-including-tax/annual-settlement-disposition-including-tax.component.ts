@@ -57,7 +57,8 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         }, () => this.busy = false);
     }
     saveAnnualSettlement(done) {
-        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item.startsWith('Utbytte')).Amount;
+        const amount = parseFloat((this.summary[2].items.find(it => it.Item.startsWith('Utbytte')).Amount + '').replace(',', '.') || '0');
+        this.annualSettlement.Fields.UtbytteBelop = amount;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement)
             .subscribe((as) => {
                 if (done) {
@@ -68,7 +69,8 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     }
 
     openSummaryModal(doneFunction) {
-        this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item.startsWith('Utbytte').Amount);
+        const amount = parseFloat((this.summary[2].items.find(it => it.Item.startsWith('Utbytte')).Amount + '').replace(',', '.') || '0');
+        this.annualSettlement.Fields.UtbytteBelop = amount;
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
             switchMap(() => this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement)),
             switchMap(data => this.modalService.open(AccountsSummaryModalComponent, {data: data}).onClose)
