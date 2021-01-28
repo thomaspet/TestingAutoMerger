@@ -547,8 +547,9 @@ export class BankComponent {
     getHash() {
         const filter = this.getCurrentFilterString();
         const expand = this.selectedTicker.Expand;
-
-        this.paymentService.getHashForPayments(filter, expand).subscribe(hash => this.storedHash = hash);
+        if (!!filter) {
+            this.paymentService.getHashForPayments(filter, expand).subscribe(hash => this.storedHash = hash);
+        }
     }
 
     private generateHashForSelectedPayments(rows: any[]) {
@@ -1244,7 +1245,7 @@ export class BankComponent {
         const filter: TickerFilter = this.tickerContainer.mainTicker.ticker.Filters
                         .find(x => x.Code === this.filter);
 
-        filter.FilterGroups[0]['FieldFilters'].forEach(x => {
+        filter?.FilterGroups[0]['FieldFilters'].forEach(x => {
             filterString = filterString.length
                 ? filterString + ' and ' + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value']
                 : filterString + x['Field'] + ' ' + x['Operator'] + ' ' + x['Value'];
