@@ -1,6 +1,6 @@
 {
     "/api": {
-        "target": "http://kistufell:81",
+        "target": "https://playgrounds.softrig.com:94",
         "secure": false,
         "changeOrigin": true
     }
