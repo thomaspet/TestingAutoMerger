@@ -53,7 +53,7 @@
         <section class="uni-container" style="margin-bottom: 0">
             <uni-tabs class="scoped" [tabs]="tabs" [(activeIndex)]="activeTabIndex"></uni-tabs>
 
-            <ng-template [ngIf]="activeTabIndex === 0">
+            <section [hidden]="activeTabIndex !== 0">
                 <journal-entry-manual
                     *ngIf="(current | async)"
                     [mode]="2"
@@ -82,7 +82,7 @@
                     </tr>
                 </table>
 
-            </ng-template>
+            </section>
 
             <uni-bill-previous
                 *ngIf="activeTabIndex === 1"
