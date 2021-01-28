@@ -9,6 +9,7 @@ import {forkJoin, throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniNumberFormatPipe} from '@uni-framework/pipes/uniNumberFormatPipe';
+import {ContactModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/contactModal.component';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -442,7 +443,9 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.modalService.open(GoToAltinnModalComponent);
     }
     openContactModal(annualSettlement, data) {
-        return this.modalService.open(GoToAltinnModalComponent).onClose.pipe(
+        return this.modalService.open(ContactModalComponent, {
+            data: data
+        }).onClose.pipe(
             map(result => {
                 if (result) {
                     annualSettlement.Fields = Object.assign(annualSettlement.Fields, data);

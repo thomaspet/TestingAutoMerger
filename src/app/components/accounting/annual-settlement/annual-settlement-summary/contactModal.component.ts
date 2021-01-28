@@ -45,7 +45,7 @@ export class ContactModalComponent {
                 Options: {
                     source: [
                         { id: 'Revisor', name: 'Revisor/Regnskasforer'},
-                        { id: 'Foretaket', name: 'Foretaket selv'}
+                        { id: 'Foretak', name: 'Foretaket selv'}
                     ],
                     displayProperty: 'name',
                     valueProperty: 'id'
