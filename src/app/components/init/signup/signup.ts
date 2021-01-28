@@ -166,9 +166,6 @@ export class Signup {
                 () => {
                     this.step2Successful = true;
                     this.headerText = 'Brukerregistrering fullført';
-                    if (theme.theme === THEMES.EXT02) {
-                        this.celebrusService.useDataLayer('pageLoaded', { process: this.getCelebrusObject('step2', 'signup-completed', 'receipt') }, null);
-                    }
                 },
                 err => {
                     this.busy = false;
