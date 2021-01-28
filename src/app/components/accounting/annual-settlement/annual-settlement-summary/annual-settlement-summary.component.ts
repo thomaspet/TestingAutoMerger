@@ -66,7 +66,7 @@ export class AnnualSettlementSummaryComponent {
                 if (!as) {
                     return of(null);
                 }
-                return this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
+                return this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
                     switchMap(() => this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement))
                 );
             })

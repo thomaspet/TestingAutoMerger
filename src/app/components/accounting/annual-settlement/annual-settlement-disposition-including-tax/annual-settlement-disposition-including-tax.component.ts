@@ -69,7 +69,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
 
     openSummaryModal(doneFunction) {
         this.annualSettlement.Fields.UtbytteBelop = this.summary[2].items.find(it => it.Item.startsWith('Utbytte').Amount);
-        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
             switchMap(() => this.annualSettlementService.previewAnnualSettlementJournalEntry(this.annualSettlement)),
             switchMap(data => this.modalService.open(AccountsSummaryModalComponent, {data: data}).onClose)
         ).subscribe(result => {
@@ -87,7 +87,6 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
         this.annualSettlementService.transition(this.annualSettlement, 4, toStep)
             .subscribe((as) => {
                 this.busy = false;
-                this.toast.addToast('Transition 4 to ' + toStep + ' ran', ToastType.good);
                 this.router.navigateByUrl('/accounting/annual-settlement');
             });
     }

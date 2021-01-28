@@ -34,7 +34,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         super(http);
     }
 
-    saveAnnualSettlement(entity) {
+    saveAnnualSettlement(entity, showToast = true) {
         if (!entity) {
             this.toast.addToast('on "saveAnnualSettlement" method entity is null');
             return of(entity);
@@ -43,7 +43,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             entity.AnnualSettlementJSONData = JSON.stringify(entity.Fields);
         }
         return this.Put(entity.ID, entity).pipe(
-            tap(() => this.toast.addToast('Lagret', ToastType.good, ToastTime.short))
+            tap(() => showToast ? this.toast.addToast('Lagret', ToastType.good, ToastTime.short) : null)
         );
     }
 
