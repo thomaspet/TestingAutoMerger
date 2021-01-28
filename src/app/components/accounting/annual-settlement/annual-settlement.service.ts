@@ -319,7 +319,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                 accountsInfo.forEach(info => {
                     const reconcileAccount = annualSettlement.Reconcile.Accounts
                         .find(acc => acc.AccountID === info.AccountID);
-                        
+
                     if (reconcileAccount) {
                         reconcileAccount._AccountName = info.AccountName;
                         reconcileAccount._AccountNumber = info.AccountNumber;
@@ -423,7 +423,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         return this.Action(annualSettlement.ID, 'generate-annualsettlement-journalentry', '', RequestMethod.Get);
     }
     getAnnualSettlementSummary(annualSettlement) {
-        return this.Action(annualSettlement.ID, 'get-annualesettlement-summary', '', RequestMethod.Get).pipe(
+        return this.Action(annualSettlement.ID, `get-tax-calculation-and-disposal`, null, RequestMethod.Get).pipe(
             map(list => {
                 return [
                     {
@@ -447,8 +447,9 @@ export class AnnualSettlementService extends BizHttp<any> {
                 if (result) {
                     annualSettlement.Fields = Object.assign(annualSettlement.Fields, data);
                     return annualSettlement;
+                } else {
+                    return null;
                 }
-                else return null;
             })
         );
     }

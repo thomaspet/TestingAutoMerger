@@ -55,7 +55,7 @@ export class AnnualSettlementSummaryComponent {
             this.busy = false;
         }, () => this.busy = false);
     }
-    completeCheckListStep(done) {
+    completeSummary(done) {
         const data = {
             UtfyllerNaringsoppgave: 'Foretak',
             KontaktpersonNavn: this.authService.currentUser.DisplayName,

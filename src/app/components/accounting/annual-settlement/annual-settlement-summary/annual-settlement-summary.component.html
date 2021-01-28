@@ -8,7 +8,7 @@
     [disableCompleteButton]="false"
     [alert]="infoData"
     [tabTitle]="'Årsavslutning Summary'"
-    (clickCompleteButton)="completeCheckListStep($event)"
+    (clickCompleteButton)="completeSummary($event)"
 >
     <section *ngIf="busy" class="modal-spinner">
         <mat-spinner class="c2a"></mat-spinner>
