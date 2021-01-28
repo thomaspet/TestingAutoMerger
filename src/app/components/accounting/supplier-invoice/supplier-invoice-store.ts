@@ -56,6 +56,7 @@ import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
 import {theme, THEMES} from 'src/themes/theme';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -125,7 +126,8 @@ export class SupplierInvoiceStore {
             this.bankAccounts = accounts;
             this.supportsBankIDApprove = !!agreements?.some(a =>
                 a.StatusCode === StatusCodeBankIntegrationAgreement.Active &&
-                a.PreApprovedBankPayments === PreApprovedBankPayments.Active
+                a.PreApprovedBankPayments === PreApprovedBankPayments.Active &&
+                a.ServiceProvider === BankAgreementServiceProvider.Bruno
             );
 
 
