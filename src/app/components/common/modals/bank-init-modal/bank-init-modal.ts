@@ -16,6 +16,7 @@ import {BehaviorSubject, forkJoin} from 'rxjs';
 import {AuthService} from '@app/authService';
 import {CompanyBankAccountModal} from '../bank-account-modal/company-bank-account-modal';
 import {SafeResourceUrl, DomSanitizer} from '@angular/platform-browser';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Component({
     selector: 'bank-init-modal',
@@ -217,6 +218,7 @@ export class BankInitModal implements IUniModal, OnInit {
         this.busy = true;
         if (this.validatePassword() && this.isValidPhoneNumber(this.payload.Phone)) {
             this.bankService.createInitialAgreement(this.payload).subscribe((agreement) => {
+                this.orderPreApprovedPayments(agreement);
                 this.agreement = agreement;
                 this.busy = false;
                 this.next();
@@ -226,6 +228,23 @@ export class BankInitModal implements IUniModal, OnInit {
             });
         } else {
             this.busy = false;
+        }
+    }
+
+    private orderPreApprovedPayments(agreement: any) {
+        if (!this.payload.BankApproval) {
+            if (agreement.ServiceProvider === BankAgreementServiceProvider.Bruno) {
+                const userID = this.authService.currentUser?.BankIntegrationUserName;
+
+                let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
+                if (userID) {
+                    url += '&userid=' + userID;
+                }
+                window.open(url);
+
+                agreement.PreApprovedBankPayments = 700003;
+            }
+            this.bankService.orderPreApprovedBankPayments(this.companySettings.CompanyBankAccount.BankID).subscribe();
         }
     }
 
