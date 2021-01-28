@@ -21,7 +21,7 @@
                         [config]="{showLabelAbove: true, autoFocus: true}"
                         [fields]="fields$"
                         [model]="companySettings$"
-                        (changeEvent)="isDirty = true;">
+                        (changeEvent)="onCompanySettingsChange($event)">
                     </uni-form>
                 </section>
             </section>
