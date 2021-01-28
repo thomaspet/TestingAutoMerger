@@ -133,7 +133,7 @@ export class AnnualSettlementReconcileComponent {
         });
     }
     completeReconcile(done) {
-        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement).pipe(
+        this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
             switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement))
         ).subscribe(() => {
             if (done) {
