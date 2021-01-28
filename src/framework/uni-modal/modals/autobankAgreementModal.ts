@@ -252,6 +252,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private accounts: any[] = [];
+    private bankID: number = 0;
     agreements: any[] = [];
     bankAgreementUrl: SafeResourceUrl;
 
@@ -462,6 +463,10 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         this.buttonLock = true;
         this.agreementDetails.IsBankStatement = this.agreementDetails.IsBankBalance;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
+
+            if (!this.agreementDetails.BankApproval) {
+                this.bankService.orderPreApprovedBankPayments(this.bankID).subscribe();
+            }
             this.buttonLock = false;
             this.steps++;
         }, (err) => {
@@ -480,6 +485,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.agreementDetails.BankAccountNumber = account[0].AccountNumber || null;
             if (account.length > 0 && account[0] && account[0].Bank) {
                 this.agreementDetails.Bank = account[0].Bank.Name;
+                this.bankID = account[0].BankID;
                 this.formModel$.next(this.agreementDetails);
             } else {
                 this.agreementDetails.Bank = '';
