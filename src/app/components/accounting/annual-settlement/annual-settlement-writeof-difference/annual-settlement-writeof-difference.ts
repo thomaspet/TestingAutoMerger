@@ -17,9 +17,6 @@ import {AssetsEditModal} from './assets-edit-modal';
 	styleUrls: ['./annual-settlement-writeof-difference.sass']
 })
 
-// FremforbartUnderskudd - 	Akkumulert fremført skattemessig underskudd
-// FinnesProsjekterKey - 	Bruker firma tilvirkningskontrakter
-
 export class AnnualSettlementWriteofDifferenceStep {
 
 	busy = true;
@@ -308,7 +305,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	checkMissingTaxData() {
-		this.missingTaxData = !!this.groups.filter(g => (!g.Value || !g.ID) && g.PurchaseYear !== 2020).length;
+		this.missingTaxData = !!this.groups.some(g => !g.Value && g.Value !== 0 && g.PurchaseYear <= 2020);
 	}
 
 	openEditModal() {

@@ -4,7 +4,8 @@ import {
     CompanyTypeService,
     CompanyService,
     ErrorService,
-    EmailService
+    EmailService,
+    ModulusService
 } from '@app/services/services';
 import {AuthService} from '../../../authService';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
@@ -51,7 +52,8 @@ export class UniCompanySettingsView {
         private tabService: TabService,
         private authService: AuthService,
         private errorService: ErrorService,
-        private emailService: EmailService
+        private emailService: EmailService,
+        private modulusService: ModulusService
     ) { }
 
     ngOnInit() {
@@ -167,9 +169,42 @@ export class UniCompanySettingsView {
                     debounceTime: 200
                 }
             },
+            {
+                EntityType: 'Employee',
+                Property: 'PersonNumber',
+                FieldType: FieldType.TEXT,
+                Label: 'Personnumer',
+                Hidden: this.companySettings$.getValue().CompanyTypeID !== 2,
+                Validations: [
+                    (value: number, field: UniFieldLayout) => {
+                        if (!value) {
+                            return;
+                        }
+
+                        if (!isNaN(+value)) {
+                            return;
+                        }
+
+                        return {
+                            field: field,
+                            value: value,
+                            errorMessage: 'Fødselsnummer skal bare inneholde tall',
+                            isWarning: false
+                        };
+                    },
+                    this.modulusService.ssnValidationUniForm
+                ]
+            },
         ];
 
         this.fields$.next(fields);
+    }
+
+    onCompanySettingsChange(change) {
+        this.isDirty = true;
+        if (change['CompanyTypeID'] && (change['CompanyTypeID'].currentValue === 2 || change['CompanyTypeID'].previousValue === 2) ) {
+            this.createFormFields();
+        }
     }
 
     private updateInvoiceEmail() {
@@ -357,6 +392,12 @@ export class UniCompanySettingsView {
     saveCompanySettings(done?) {
         return new Promise(res => {
             const company = this.companySettings$.getValue();
+
+            if (company['PersonNumber'] && !this.modulusService.validSSN(company['PersonNumber'])) {
+                done('Firmainnstillinger kan ikke lagres med ugyldig personnummer');
+                res(false);
+                return;
+            }
 
             if (company.DefaultAddress && company.DefaultAddress.ID === 0 && !company.DefaultAddress['_createguid']) {
                 company.DefaultAddress['_createguid'] = this.companySettingsService.getNewGuid();

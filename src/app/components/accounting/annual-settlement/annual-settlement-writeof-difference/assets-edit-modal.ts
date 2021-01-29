@@ -48,6 +48,15 @@ export class AssetsEditModal implements IUniModal {
             new UniTableColumn('GroupCode', 'Saldogruppe', UniTableColumnType.Text).setEditable(false),
             new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setEditable(false),
             new UniTableColumn('Value', 'Saldogrunnlag 01.01.2020', UniTableColumnType.Money)
+            .setTemplate(row => {
+                if (row.Value === 0) {
+                    return '0,00'
+                } else if (!row.Value) {
+                    return '';
+                } else {
+                    return row.Value;
+                }
+            })
         ]);
     }
 
@@ -58,9 +67,14 @@ export class AssetsEditModal implements IUniModal {
             this.close();
         }
 
+        const saveLines = this.groups.map(g => {
+            g.Deleted = false;
+            return g;
+        })
+
         this.busy = true;
 
-        this.annualSettlementService.updateTaxbasedIB(this.groups).subscribe((updatedGroups) => {
+        this.annualSettlementService.updateTaxbasedIB(saveLines).subscribe((updatedGroups) => {
             this.busy = false;
             this.groups = updatedGroups;
             this.onClose.emit(true);
