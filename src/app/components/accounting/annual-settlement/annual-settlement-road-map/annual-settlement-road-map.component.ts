@@ -39,7 +39,6 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
         const year = currentYear || this.currentYear;
         const calendarYear = new Date().getFullYear();
         if (year < 2020 || year >= calendarYear) {
-            this.toast.addToast(`You can not create an annual settlement less than 2020 or greater than ${calendarYear - 1}`);
             this.busy = false;
             this.annualSettlementAllowedByYear = false;
             this.selectedAnnualSettlement$.next({
