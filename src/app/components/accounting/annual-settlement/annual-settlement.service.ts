@@ -201,7 +201,7 @@ export class AnnualSettlementService extends BizHttp<any> {
         const checkList = Object.assign({}, as.AnnualSettlementCheckList);
         return this.checkMvaMelding(as.AccountYear)
             .pipe(
-                tap(resultMvaMelding => this.checkStoredValueAndUpdateList('IsMvaMeldingOK', resultMvaMelding, checkList)),
+                tap(resultMvaMelding => this.checkStoredValueAndUpdateList('IsVatReportOK', resultMvaMelding, checkList)),
                 switchMap(() => this.checkAmelding(as.AccountYear)),
                 tap(resultAmelding => this.checkStoredValueAndUpdateList('IsAmeldingOK', resultAmelding, checkList)),
                 switchMap(() => this.checkLastyear(as.AccountYear)),

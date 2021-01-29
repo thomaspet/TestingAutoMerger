@@ -8,7 +8,7 @@ export const options = [
         title: 'En eller flere av dine MVA-meldinger er ikke fullført',
         altTitle: 'Alle dine MVA-meldinger er fullført',
         text: `Det er viktig at alle terminer med MVA-melding er sendt inn og signert. <a href="#/accounting/vatreport">Gå til MVA-melding</a> her Dersom du mener at alt er korrekt kan du sjekke ut dette punktet.`,
-        property: 'IsMvaMeldingOK'
+        property: 'IsVatReportOK'
     },
     { // 2 - Lonn
         title: 'En eller flere av dine A-meldinger er ikke fullført',
