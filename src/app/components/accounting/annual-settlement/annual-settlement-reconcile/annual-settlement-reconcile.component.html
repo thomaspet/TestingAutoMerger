@@ -48,21 +48,21 @@
                            style="text-align: right"
                            [disabled]="annualSettlement?.StatusCode !== 36105"
                            [(ngModel)]="account.Balance"
-                           (blur)="updateBalance(account)"/>
+                           (blur)="updateBalance(account);account._isDirty = true;"/>
                 </td>
                 <td class="saldo-button-container">
                     <button class="saldo-button"
                             tabindex="-1"
                             [class.invisible]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
                             [disabled]="account.Balance === account._TotalAmount || annualSettlement?.StatusCode !== 36105"
-                            (click)="updateBalanceFromButton(account)"
+                            (click)="updateBalanceFromButton(account);account._isDirty = true;"
                     >
                         {{account._TotalAmount | uninumberformat: 'money'}}
                     </button>
                 </td>
                 <td style="text-align: center">
-                    <i *ngIf="account?.IsApproved" class="material-icons good">check_circle</i>
-                    <i *ngIf="!account?.IsApproved" class="material-icons warn" [matTooltip]="warningMessage">error</i>
+                    <i *ngIf="account?.IsApproved && (account._isDirty !== undefined)" class="material-icons good">check_circle</i>
+                    <i *ngIf="!account?.IsApproved && (account._isDirty !== undefined)" class="material-icons warn" [matTooltip]="warningMessage">error</i>
                 </td>
                 <td class="comment" (click)="callOpenModalForComment(account, account.Balance)">
                     <!-- add -->
