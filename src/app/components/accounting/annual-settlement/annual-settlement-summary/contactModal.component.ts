@@ -44,7 +44,7 @@ export class ContactModalComponent {
                 FieldType: FieldType.DROPDOWN,
                 Options: {
                     source: [
-                        { id: 'Revisor', name: 'Revisor/Regnskasforer'},
+                        { id: 'Revisor', name: 'Revisor/Regnskapsfører'},
                         { id: 'Foretak', name: 'Foretaket selv'}
                     ],
                     displayProperty: 'name',
