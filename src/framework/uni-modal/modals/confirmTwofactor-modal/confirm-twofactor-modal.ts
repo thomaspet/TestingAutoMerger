@@ -1,11 +1,13 @@
 import {Component, EventEmitter, Input, OnInit, Output, ViewChild, ElementRef} from '@angular/core';
-import {UserService} from '@app/services/services';
+import {UserService} from '@app/services/common/userService';
 import {IUniModal, IModalOptions, ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import {AuthService} from '@app/authService';
+import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'confirm-twofactor-modal',
-    templateUrl: './confirm-twofactor-modal.html'
+    templateUrl: './confirm-twofactor-modal.html',
+    styleUrls: ['./confirm-twofactor-modal.sass'],
 })
 
 export class ConfirmTwoFactorModal implements OnInit, IUniModal {
@@ -25,6 +27,7 @@ export class ConfirmTwoFactorModal implements OnInit, IUniModal {
     constructor (
         private userService: UserService,
         private authService: AuthService,
+        private toastService: ToastService,
     ) {}
 
     ngOnInit() {
@@ -44,18 +47,27 @@ export class ConfirmTwoFactorModal implements OnInit, IUniModal {
             this.busy = false;
             setTimeout(() => this.focus());
         }, err => {
-            if (err.status == 403)
-            {
-                this.msg = 'Din bruker må være satt opp som bankbruker samt ha to-faktor påskrudd.';
-            }
-            else if (err.status == 400 && err.error.Message.indexOf('2FA is not enabled') > 0) {
-                this.msg = 'To-faktor må være påskrudd for din bruker. Gå til brukerinnstillinger for din bruker og skru dette på.';
-            }
-            else {
-                this.msg = 'En feil oppstod, prøv igjen senere.';
-            }
+            this.msg = this.translateError(err, true);
             this.busy = false;
         });
+    }
+
+    private translateError(err, challenge) {
+        let msg = '';
+        if (err.status == 403)
+        {
+            msg = 'Din bruker må være satt opp som bankbruker samt ha to-faktor påskrudd.';
+        }
+        else if (err.status == 400 && err.error.Message.indexOf('2FA is not enabled') > 0) {
+            msg = challenge
+                ? 'To-faktor må være påskrudd for din bruker. Gå til brukerinnstillinger for din bruker og skru dette på.'
+                : 'Ugyldig kode';
+        }
+        else {
+            msg = 'En feil oppstod, prøv igjen senere.';
+        }
+
+        return msg;
     }
 
     verify() {
@@ -64,8 +76,8 @@ export class ConfirmTwoFactorModal implements OnInit, IUniModal {
             this.authService.refreshToken().then(() => {
                 this.accept();
             });
-        }, () => {
-            this.reject();
+        }, (err) => {
+            this.reject(this.translateError(err, false));
         });
     }
 
@@ -79,7 +91,8 @@ export class ConfirmTwoFactorModal implements OnInit, IUniModal {
         this.onClose.emit(ConfirmActions.ACCEPT);
     }
 
-    public reject() {
+    public reject(msg) {
+        this.toastService.addToast('Godkjenning avvist', ToastType.bad, 15, msg);
         this.onClose.emit(ConfirmActions.REJECT);
     }
 

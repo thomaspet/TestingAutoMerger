@@ -15,6 +15,7 @@ import {
     InvoicePaymentData,
     StatusCodeBankIntegrationAgreement,
     PreApprovedBankPayments,
+    PaymentBatch,
 } from '@uni-entities';
 import {
     SupplierInvoiceService,
@@ -36,12 +37,12 @@ import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap, finalize} from 'rxjs/operators';
 import {SmartBookingHelperClass, ISmartBookingResult} from './smart-booking-helper';
 import {OCRHelperClass} from './ocr-helper';
-import {JournalAndPaymentHelper, ActionOnReload} from './journal-and-pay-helper';
+import {JournalAndPaymentHelper, ActionOnReload, ActionContinueWithTwoFactor} from './journal-and-pay-helper';
 import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 import {set} from 'lodash';
 
 import * as moment from 'moment';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
 import {
     IModalOptions,
@@ -57,6 +58,7 @@ import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
 import {theme, THEMES} from 'src/themes/theme';
 import { BankAgreementServiceProvider } from '@app/models/autobank-models';
+import { ZDataPaymentService } from '@app/services/services';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -106,7 +108,8 @@ export class SupplierInvoiceStore {
         private statisticsService: StatisticsService,
         private accountService: AccountService,
         private assetsService: AssetsService,
-        private paymentBatchService: PaymentBatchService
+        private paymentBatchService: PaymentBatchService,
+        private ZDataPaymentService: ZDataPaymentService,
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
@@ -686,22 +689,36 @@ export class SupplierInvoiceStore {
             }
         };
 
-        this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
+        this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload | ActionContinueWithTwoFactor) => {
             if (!response) {
                 done('');
                 return;
             }
 
-            if (response <= ActionOnReload.SentToPaymentList) {
+            if (response instanceof ActionContinueWithTwoFactor) {
+                this.createPaymentAndPayWithTwoFactor(response.paymentBatch, done);
+            }
+            else if (response <= ActionOnReload.SentToPaymentList) {
                 this.loadInvoice(this.invoice$.value.ID, true, response);
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
                 this.loadInvoice(this.invoice$.value.ID, true);
-                done('Faktura ble bokført med kunne ikke sende til betaling');
+                done('Faktura ble bokført men kunne ikke sende til betaling');
             } else {
                 done('Betaling avbrutt');
             }
         });
+    }
+
+    createPaymentAndPayWithTwoFactor(paymentBatch: PaymentBatch, done) {
+        this.ZDataPaymentService.redirectIfNotVerifiedWithBankId(`batchID=${paymentBatch.ID}`).then(() => {
+            this.ZDataPaymentService.sendPaymentWithTwoFactor(paymentBatch)
+                .then((ok) => {
+                    this.loadInvoice(this.invoice$.value.ID, true, ActionOnReload.SentToBank);
+                    done('Faktura sendt til betaling');
+                })
+                .catch((action) => done('Betaling avbrutt'));
+        }).catch(() => done('BankID verfisering feilet'));
     }
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {

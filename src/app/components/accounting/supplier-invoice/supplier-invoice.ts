@@ -6,7 +6,7 @@ import {Subject, of, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {DetailsForm} from './components/details-form/details-form';
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {SupplierInvoiceService, ErrorService, PaymentService} from '@app/services/services';
+import {SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService} from '@app/services/services';
 import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/statustrack';
 import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/components/common/toolbar/toolbar';
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
@@ -16,6 +16,7 @@ import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-m
 import {FeaturePermissionService} from '@app/featurePermissionService';
 import { AuthService } from '@app/authService';
 import { theme, THEMES } from 'src/themes/theme';
+import {ZDataPaymentService} from '@app/services/services';
 
 declare const ResizeObserver;
 
@@ -50,7 +51,9 @@ export class SupplierInvoiceView {
         private modalService: UniModalService,
         private paymentService: PaymentService,
         private featurePermissionService: FeaturePermissionService,
-        private authService: AuthService
+        private authService: AuthService,
+        private paymentBatchService: PaymentBatchService,
+        private ZDataPaymentService: ZDataPaymentService,
     ) {
         this.store.changes$.subscribe((change) => this.updateSaveActions(change));
         this.store.invoice$.subscribe((invoice) => this.updateToolbar(invoice || {} ));
@@ -71,6 +74,7 @@ export class SupplierInvoiceView {
 
             const batchID = this.activeRoute.snapshot.queryParamMap.get('batchID');
             const hashValue = this.activeRoute.snapshot.queryParamMap.get('hashValue');
+            const verified = this.activeRoute.snapshot.queryParamMap.get('verified');
 
             if (batchID && hashValue) {
                 const options: IModalOptions = {
@@ -92,7 +96,13 @@ export class SupplierInvoiceView {
                 });
             }
 
-            if (!invoiceID) {
+            if (batchID && verified === 'true')
+            {
+                this.paymentBatchService.Get(batchID).subscribe(paymentBatch => {
+                    this.ZDataPaymentService.sendPaymentWithTwoFactor(paymentBatch).catch(() => {}).catch(() => {});
+                });
+            }
+            else if (!invoiceID) {
                 const fileID = +this.activeRoute.snapshot.queryParamMap.get('fileid');
                 if (fileID) {
                     this.store.startupFileID$.next(fileID);
