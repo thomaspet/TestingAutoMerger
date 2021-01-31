@@ -15,6 +15,7 @@ import {UniReconciliationReportView} from './reconciliation/reconciliation-repor
 import {BankStatement} from './reconciliation/bank-statement/bank-statement';
 import {BankReconciliationModule} from '../bank-reconciliation/bank-reconciliation.module';
 import {BankStatmentElementsModal} from '../bank/reconciliation/bank-statement/bank-statement-elements-modal';
+import {UniBankId} from './bankId';
 import {
     UniPaymentEditModal,
     UniBankListModal,
@@ -47,7 +48,8 @@ import {
         MatchMainAccountModal,
         UniReconciliationReportView,
         BankStatement,
-        BankStatmentElementsModal
+        BankStatmentElementsModal,
+        UniBankId,
     ],
     providers: [
         MatchMainAccountModal

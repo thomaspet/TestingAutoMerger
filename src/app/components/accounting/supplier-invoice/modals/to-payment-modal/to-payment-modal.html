@@ -1,4 +1,4 @@
-<section role="dialog" class="uni-modal" style="width: 38rem;">
+<section role="dialog" class="uni-modal">
     <header> {{isPaymentOnly ? 'Hva ønsker du å gjøre med betalingen?' : 'Hvordan ønsker du å betale denne regningen?'}} </header>
 
     <article>
@@ -6,7 +6,7 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section class="to-payment-modal-conatiner">
+        <section class="to-payment-modal-container">
 
             <section class="data-summary-container" *ngIf="supplierInvoice || payment">
                 <span> Betaling til {{ supplierInvoice?.Supplier?.Info?.Name || 'leverandør' }} </span>

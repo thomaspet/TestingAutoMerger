@@ -6,6 +6,7 @@ export const environment = {
     authority: 'https://login.dnbregnskap.dnb.no',
     client_id: '0ca1ea2f-faf1-876e-f76c-d0028407cdb0',
     post_logout_redirect_uri: '',
+    zdataauthority: 'https://id.zdata.no',
 
     BASE_URL_INIT: '',
     BASE_URL: '',

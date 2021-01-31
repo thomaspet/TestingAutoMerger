@@ -12,6 +12,7 @@ export const environment = {
     authority: 'https://test-login.softrig.com',
     client_id: 'c1fb43eb-4b42-bbae-d81a-2989b6dd8dff',
     post_logout_redirect_uri: '/#/login',
+    zdataauthority: 'https://id-dev.zdata.no',
 
     BASE_URL_INIT: '',
     BASE_URL: '',

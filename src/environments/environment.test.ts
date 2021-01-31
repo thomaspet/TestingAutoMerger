@@ -6,6 +6,7 @@ export const environment = {
     authority: 'https://test-login.unieconomy.no',
     client_id: '605f1348-8275-5434-0497-0a070694a8f5',
     post_logout_redirect_uri: '/#/login',
+    zdataauthority: 'https://id-dev.zdata.no',
 
     BASE_URL_INIT: '',
     BASE_URL: '',

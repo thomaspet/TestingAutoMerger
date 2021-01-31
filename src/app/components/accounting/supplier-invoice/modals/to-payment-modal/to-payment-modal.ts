@@ -1,23 +1,17 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments } from '@uni-entities';
-import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService, UserRoleService } from '@app/services/services';
-import {ActionOnReload} from '../../journal-and-pay-helper';
+import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, PaymentBatch } from '@uni-entities';
+import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService, UserRoleService, UserService } from '@app/services/services';
+import { ActionContinueWithTwoFactor, ActionOnReload } from '../../journal-and-pay-helper';
 import { of, Observable, BehaviorSubject } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
-import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
-import * as moment from 'moment';
 import {theme, THEMES} from 'src/themes/theme';
 import {environment} from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
 import { BankAgreementServiceProvider } from '@uni-models/autobank-models';
-import { UniModalService, ConfirmTwoFactorModal, ConfirmActions } from '@uni-framework/uni-modal';
-import { UniNumberFormatPipe } from '@uni-framework/pipes/uniNumberFormatPipe';
-import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 
 @Component({
     selector: 'to-payment-modal',
@@ -59,14 +53,9 @@ export class ToPaymentModal implements IUniModal {
         private errorSerivce: ErrorService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
-        private route: ActivatedRoute,
-        private router: Router,
         private authService: AuthService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
         private uniAccountTypePipe: UniAccountTypePipe,
-        private modalService: UniModalService,
-        private numberformat: UniNumberFormatPipe,
-        private toastService: ToastService,
         private userRoleService: UserRoleService,
     ) {}
 
@@ -213,13 +202,17 @@ export class ToPaymentModal implements IUniModal {
                     this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
                     this.errorSerivce.handle(err);
                 });
-            } else {
+            }
+            else {
                 // Creates a payment for the supplier invoice
                 this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(payment => {
-                    // Send that batch to the bank directly
                     if (this.isZDataV3 && this.useTwoFactor) {
-                        this.sendTwoFactorPayment(payment);
-                    } else {
+                        this.paymentService.createPaymentBatch([payment.ID], false).subscribe((paymentBatch) => {
+                            this.onClose.emit(new ActionContinueWithTwoFactor(paymentBatch));
+                        });
+                    }
+                    else
+                    {
                         this.sendAutobankPayment(payment);
                     }
                 }, err => {
@@ -238,55 +231,6 @@ export class ToPaymentModal implements IUniModal {
             });
         }
     }
-
-    private sendTwoFactorPayment(payment: Payment) {
-        // createPaymentBatch for this payment and use hash as 2fa reference
-        this.paymentService.createPaymentBatch([payment.ID], false).subscribe((paymentBatch) => {
-            console.log("batch created", paymentBatch);
-            this.modalService.open(ConfirmTwoFactorModal, {
-                header: 'Godkjenn betaling med to-faktor',
-                buttonLabels: {
-                    accept: 'Godkjenn og betal',
-                    cancel: 'Avbryt'
-                },
-                data: {
-                    reference: paymentBatch.PaymentReferenceID
-                },
-                message: `Send betaling med totalsum på <strong>${this.numberformat.transform(paymentBatch.TotalAmount, 'money')}</strong> til bank og godkjenn med to-faktor`
-            }).onClose.subscribe((result) => {
-                if (result === ConfirmActions.ACCEPT) {
-                    afterTwoFactor(paymentBatch)
-                } else if (result === ConfirmActions.REJECT) {
-                    this.toastService.addToast('To-faktor avvist', ToastType.warn, 15);
-                    finish(ActionOnReload.DoNothing);
-                } else {
-                    finish(ActionOnReload.DoNothing);
-                }
-            });
-        });
-
-        // sendToPayment
-        const afterTwoFactor = (paymentBatch) => {
-            const body = {
-                HashValue: paymentBatch.HashValue
-            };
-
-            this.paymentBatchService.sendToPayment(paymentBatch.ID, body).subscribe(() => {
-                this.toastService.addToast('Sendt til bank', ToastType.good, 8, `Betalingsbunt er opprettet og sendt til bank`);
-                finish(ActionOnReload.JournaledAndSentToBank);
-            }, err => {
-                this.errorMessage = 'Betaling ble opprettet, men kunne ikke sende den til banken. Gå til Bank - Utbetalinger og send den på nytt.';
-                this.errorSerivce.handle(err);
-                finish(ActionOnReload.FailedToSendToBank);
-            });
-        };
-
-        // finish
-        const finish = (action) => {
-            this.busy = false;
-            this.onClose.emit(action);
-        };
-   }
 
     private sendAutobankPayment(payment: Payment) {
         this.paymentBatchService.sendAutobankPayment({ Code: null, Password: null, PaymentIds: [payment.ID] }).subscribe(() => {

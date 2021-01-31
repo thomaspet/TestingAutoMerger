@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {Observable, of} from 'rxjs';
 import {SupplierInvoiceService, ErrorService} from '@app/services/services';
 import {ConfirmActions, UniModalService, UniConfirmModalV2} from '@uni-framework/uni-modal';
-import { SupplierInvoice, Payment } from '@uni-entities';
+import { SupplierInvoice, Payment, PaymentBatch } from '@uni-entities';
 import { switchMap } from 'rxjs/operators';
 
 export enum ActionOnReload {
@@ -13,7 +13,16 @@ export enum ActionOnReload {
     SentToPaymentList = 4,
     FailedToJournal = 5,
     FailedToSendToBank = 6,
-    FailedToSendToPaymentList = 7
+    FailedToSendToPaymentList = 7,
+    ContinueWithTwoFactor = 8,
+}
+
+export class ActionContinueWithTwoFactor {
+    paymentBatch: PaymentBatch;
+
+    constructor(paymentBatch: PaymentBatch) {
+        this.paymentBatch = paymentBatch;
+    }
 }
 
 // HELPER CLASS FOR JOURNALING AND PAYMENT FUNCTIONS
