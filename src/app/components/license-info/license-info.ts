@@ -26,6 +26,7 @@ export class LicenseInfo implements OnDestroy {
     selectedContractID$ = new BehaviorSubject<number>(null);
     isAdmin$ = new BehaviorSubject<boolean>(false);
     isBureauCustomer: boolean;
+    isSb1 = theme.theme === THEMES.SR;
 
     tabs: IUniTab[] = [];
 

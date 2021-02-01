@@ -20,7 +20,7 @@
             </ng-template>
         </dropdown-menu>
     </section>
-    <section *ngIf="(isAdmin$ | async) === true && isBureauCustomer">
+    <section *ngIf="(isAdmin$ | async) === true && isBureauCustomer && isSb1">
         <button class="c2a" (click)="openNewContractModal()">Ny klient</button>
     </section>
 </div>
