@@ -145,7 +145,12 @@
 
 				<section *ngIf="ct?.value === 1 && annualSettlement.Fields.FinnesProsjekterKey">
 					<label class="left-aligned-span" style="margin-top: 1rem;">
-						<span>Oppgi årets regnskapsmessig resultat for prosjekter</span>
+						<span>Oppgi årets regnskapsmessig resultat for prosjekter
+							<uni-tooltip
+							[type]="info"
+                            [text]="tilvirkningskontraktInfotext">
+                        </uni-tooltip>
+						</span>
 						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt" (change)="recalc()">
 					</label>
 				</section>
@@ -260,8 +265,8 @@
 
 		</section>
 
-		<!--  SUMMARY  -->
-		<section class="uni-card-content" *ngIf="infoContent.step === 7">
+		<!--  SUMMARY - REMOVED FOR NOW BECAUSE NOT COMPLETE PRD -->
+		<section class="uni-card-content" *ngIf="false">
 
 			<section class="writeof-form-section">
 				<simple-table class="annual-settlement-table">

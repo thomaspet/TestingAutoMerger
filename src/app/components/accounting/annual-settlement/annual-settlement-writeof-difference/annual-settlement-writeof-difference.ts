@@ -28,6 +28,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	sumLine: any = {};
 	tableConfig: UniTableConfig;
 	showInfo = true;
+	tilvirkningskontraktInfotext = 'Oppgi endring i regnskapsmessig resultat i tilvirkningskontrakter. Summen som skal legges inn er årets regnskapsmessige resultat minus fjorårets regnskapsmessige resultat på tilvirkningskontrakter som har gått over årsskiftet';
 
 	summaryArray = [];
 
@@ -102,7 +103,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
-			step: 3
+			step: 3,
+			summaryTitle: 'Sum inngående balanse gevinst og tap'
 		},
 		{
 			title: 'Skattemessig verdi på aksjer',
@@ -118,7 +120,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 				Endringer i forskjeller mellom regnskapsmessige og skattemessige verdier påvirker skattekostnaden til selskapet via utsatt skattefordel/utsatt skattegjeld. Dersom du har levert ligningsoppgave tidligere år
 				på dette firmaet, anbefaler vi deg å bruke RF-1217 til hjelp i utfylling her </p> `,
 			diff: 0,
-			step: 5
+			step: 5,
+			summaryTitle: 'Sum inngående balanse akkumulert fremførbart underskudd'
 		},
 		{
 			title: 'Coronapakke for firma med underskudd 2020',
@@ -129,13 +132,13 @@ export class AnnualSettlementWriteofDifferenceStep {
 			step: 6,
 			summaryTitle: 'Sum positiv alminnelig inntekt'
 		},
-		{
-			title: 'Oppsummering av endringer i forskjeller',
-			text: ``,
-			diff: 0,
-			step: 7,
-			summaryTitle: 'Endring i grunnlag for utsatt skatt/utsatt skattefordel'
-		}
+		// {
+		// 	title: 'Oppsummering av endringer i forskjeller',
+		// 	text: ``,
+		// 	diff: 0,
+		// 	step: 7,
+		// 	summaryTitle: 'Endring i grunnlag for utsatt skatt/utsatt skattefordel'
+		// }
 	];
 
 	infoContent: any = this.stepContentArray[0];
@@ -386,9 +389,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 		this.stockAccounts = [...this.stockAccounts];
 	}
 
-	checkSaveAndContinue(direction: number) {
+	checkSaveAndContinue(direction: number) {	
 
-		if (this.infoContent.step === 7 && direction > 0) {
+		// THIS SHOULD BE STEP === 7 WHEN SUMMARY IS COMMING BACK
+		if (this.stepContentArray.length - 1 === this.step && direction > 0) {
 			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
 				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
 				this.goBack();
