@@ -67,7 +67,8 @@ export class AnnualSettlementSummaryComponent {
                     return of(null);
                 }
                 return this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
-                    switchMap(() => this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement))
+                    switchMap(() => this.annualSettlementService.moveFromStep5ToStep6(this.annualSettlement)),
+                    map(() => as)
                 );
             })
         ).subscribe((as) => {
