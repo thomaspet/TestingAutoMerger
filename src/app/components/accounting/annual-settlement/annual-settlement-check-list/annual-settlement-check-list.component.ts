@@ -3,9 +3,11 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {infoOption, options} from './checklistoptions';
+import {infoOption, options, optionsForASAndOthers, optionsForENK} from './checklistoptions';
 import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
+import {tap} from 'rxjs/internal/operators/tap';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
 
 @Component({
     selector: 'annual-settlement-check-list-component',
@@ -30,6 +32,7 @@ export class AnnualSettlementCheckListComponent {
         private annualSettlementService: AnnualSettlementService,
         private tabService: TabService,
         private toast: ToastService,
+        private companySettingsService: CompanySettingsService,
         private changeDetector: ChangeDetectorRef) {}
     ngOnInit() {
         this.busy = true;
@@ -39,9 +42,15 @@ export class AnnualSettlementCheckListComponent {
         ).subscribe(id => {
             this.annualSettlementService.getAnnualSettlement(id).pipe(
                 switchMap(as => this.annualSettlementService.getAnnualSettlementWithCheckList(as)),
-            ).subscribe(as => {
-                this.annualSettlement = as;
-                this.initOptions();
+                tap(as => this.annualSettlement = as),
+                switchMap(as => this.companySettingsService.getCompanySettings())
+            ).subscribe(settings => {
+                if (settings.CompanyTypeID === 1) {
+                    this.options = optionsForENK();
+                } else {
+                    this.options = optionsForASAndOthers();
+                }
+
                 this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
                 this.busy = false;
             }, (err) => {

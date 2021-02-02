@@ -25,7 +25,6 @@ export class AnnualSettlementService extends BizHttp<any> {
     baseUrl = environment.BASE_URL + environment.API_DOMAINS.BUSINESS;
     statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     noCache = true;
-
     constructor(
         protected http: UniHttp,
         private modalService: UniModalService,
@@ -210,6 +209,9 @@ export class AnnualSettlementService extends BizHttp<any> {
                 tap(resultStocksCapital => this.checkStoredValueAndUpdateList('IsShareCapitalOK', resultStocksCapital, checkList)),
                 switchMap(() => this.checkAssets(as.AccountYear)),
                 tap(resultAssets => this.checkStoredValueAndUpdateList('IsAssetsOK', resultAssets, checkList)),
+                // check ENK items
+                switchMap( () => this.checkReversalOfCalculatingDepreciation(as.AccountYear)),
+                tap(resultAssets => this.checkStoredValueAndUpdateList('_IsReversalOK', resultAssets, checkList)),
                 map(() => {
                     const _as = Object.assign({}, as);
                     _as.AnnualSettlementCheckList = checkList;
@@ -455,5 +457,37 @@ export class AnnualSettlementService extends BizHttp<any> {
                 }
             })
         );
+    }
+
+    checkReversalOfCalculatingDepreciation(financialYear) {
+        return forkJoin([
+            this.getBalanceForAccount(6000, financialYear),
+            this.getBalanceForAccount(6010, financialYear),
+            this.getBalanceForAccount(6015, financialYear),
+            this.getBalanceForAccount(6017, financialYear),
+            this.getBalanceForAccount(6020, financialYear),
+            this.getBalanceForAccount(6029, financialYear),
+        ]).pipe(
+            map(result => result.reduce((prev, curr) => {
+                if (prev === false) {
+                    return false;
+                }
+                if (curr !== 0.0) {
+                    return false;
+                }
+                return true;
+            }, true))
+        );
+    }
+
+    getBalanceForAccount(account, financialYear) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`annualsettlement?action=get-account-balance&fromAccountNumber=${account}&toAccountNumber=${account}&toFinancialYear=${financialYear}`)
+            .send()
+            .pipe(
+                map(res => res.body)
+            );
     }
 }

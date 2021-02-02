@@ -57,3 +57,6 @@ export const options = [
     }
 ];
 
+export const optionsForASAndOthers = () => options;
+export const optionsForENK = () => options;
+
