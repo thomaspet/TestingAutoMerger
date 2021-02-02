@@ -16,6 +16,7 @@ import {AnnualSettlementReconcileComponent} from '@app/components/accounting/ann
 import {AnnualSettlementDispositionIncludingTaxComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/annual-settlement-disposition-including-tax.component';
 import {AnnualSettlementHeaderComponent} from '@app/components/accounting/annual-settlement/annual-settlement-header/annual-settlement-header.component';
 import {AnnualSettlementWriteofDifferenceStep} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/annual-settlement-writeof-difference';
+import {AnnualSettlementWriteofDifferenceEnkStep} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/difference-enk/difference-enk';
 import {SummaryDetailComponent} from '@app/components/accounting/annual-settlement/summary-detail/summary-detail.component';
 import {AccountsSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/accounts-summary-modal.component';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
@@ -43,6 +44,7 @@ import {UniReconcileAccountFileUploadModal} from '@app/components/accounting/ann
         AnnualSettlementDispositionIncludingTaxComponent,
         AnnualSettlementHeaderComponent,
         AnnualSettlementWriteofDifferenceStep,
+        AnnualSettlementWriteofDifferenceEnkStep,
         AnnualSettlementSummaryComponent,
         SummaryDetailComponent,
         AccountsSummaryModalComponent,

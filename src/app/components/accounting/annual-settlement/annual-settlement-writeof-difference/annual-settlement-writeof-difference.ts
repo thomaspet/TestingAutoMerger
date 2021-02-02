@@ -282,6 +282,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 		});
 	}
 
+	ngOnDestroy() {
+        this.onDestroy$.next();
+    }
+
 	onStep(direction: number) {
 		if (direction > 0) {
 			this.busy = true;
