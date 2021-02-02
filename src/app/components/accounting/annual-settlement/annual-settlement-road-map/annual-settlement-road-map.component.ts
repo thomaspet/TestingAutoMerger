@@ -7,6 +7,7 @@ import {FinancialYearService} from '@app/services/accounting/financialYearServic
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
 import {CompanySettingsService} from '@app/services/common/companySettingsService';
+import { CompanySettings } from '@uni-entities';
 
 @Component({
     selector: 'annual-settlement-road-map-component',
@@ -22,6 +23,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     busy = false;
     annualSettlementAllowedByYear = true;
     annualSettlementAllowedByType = true;
+    companySettings: CompanySettings;
     currentYear;
     constructor(
         private annualSettlementService: AnnualSettlementService,
@@ -77,6 +79,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
         );
         this.companySettingsService.getCompanySettings().pipe(
             switchMap((settings) => {
+                this.companySettings = settings;
                 if ([1, 2, 6, 26, 38].includes(settings.CompanyTypeID)) {
                     return annualSettlementSource$;
                 } else {
@@ -142,9 +145,11 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                     return step;
                 case 2:
                     step.action = () => {
-                        this.router.navigateByUrl(
-                            `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences`
-                        );
+                        let url = `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences`;
+                        if (this.companySettings.CompanyTypeID === 2) {
+                            url = `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences-enk`;
+                        }
+                        this.router.navigateByUrl(url);
                     };
                     return step;
                 case 3:
