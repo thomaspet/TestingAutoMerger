@@ -36,6 +36,7 @@ export class NewContractModal implements IUniModal {
         this.busy = true;
         this.elsaContractService.getCustomContractTypes().subscribe(
             contractTypes => {
+                contractTypes = contractTypes.filter(c => c.ContractType > 20);
                 this.contractTypes = contractTypes;
                 this.selectedContractType = contractTypes[0];
                 this.busy = false;
@@ -53,7 +54,6 @@ export class NewContractModal implements IUniModal {
         contract.Name = this.contractName;
         contract.ContractType = this.selectedContractType.ContractType;
         contract.CustomerID = this.options.data.customerID;
-        console.log(contract);
         this.elsaContractService.createContract(contract).subscribe(
             newContract => {
                 this.busy = false;

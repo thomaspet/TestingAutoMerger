@@ -6,30 +6,45 @@
             <mat-spinner class="c2a"></mat-spinner>
         </section>
 
-        <section class="alert info">
-            <i class="material-icons">info_outline</i>
-            Her oppretter du ny klient av regnskapsbyrået ditt. Hver klient kan ha flere selskaper.
+        <section *ngIf="!contractTypes?.length">
+            Det finnes ingen gyldige, aktive lisenstyper.
+            Vennligst kontakt systemadministrator.
         </section>
 
-        <label class="uni-label">
-            <span>Navn*</span>
-            <input type="text" [(ngModel)]="contractName" required>
-        </label>
-
-        <label class="uni-label">
-            <span>Lisenstype</span>
-            <uni-select
-                [config]="config"
-                [items]="contractTypes"
-                [value]="selectedContractType"
-                (valueChange)="contractTypeChange($event)">
-            </uni-select>
-        </label>
+        <ng-container *ngIf="contractTypes?.length">
+            <section class="alert info">
+                <i class="material-icons">info_outline</i>
+                Her oppretter du ny klient av regnskapsbyrået ditt. Hver klient kan ha flere selskaper.
+            </section>
+    
+            <label class="uni-label">
+                <span>Navn*</span>
+                <input type="text" [(ngModel)]="contractName" required>
+            </label>
+    
+            <label class="uni-label">
+                <span>Lisenstype</span>
+                <uni-select
+                    [config]="config"
+                    [items]="contractTypes"
+                    [value]="selectedContractType"
+                    (valueChange)="contractTypeChange($event)">
+                </uni-select>
+            </label>
+        </ng-container>
         
     </article>
 
     <footer class="center">
-        <button (click)="onClose.emit()">Avbryt</button>
-        <button class="c2a" (click)="createContract()" [disabled]="busy || !contractName?.length">Lagre</button>
+        <button class="secondary" (click)="onClose.emit()">
+            {{contractTypes?.length ? 'Avbryt' : 'Lukk'}}
+        </button>
+
+        <button *ngIf="contractTypes?.length" 
+            class="c2a" 
+            (click)="createContract()" 
+            [disabled]="busy || !contractName?.length">
+            Lagre
+        </button>
     </footer>
 </section>
