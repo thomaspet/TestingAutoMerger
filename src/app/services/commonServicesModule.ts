@@ -70,6 +70,7 @@ import {UniTranslationService} from './common/translationService';
 import {InitService} from './common/initService';
 import {AssetsService} from './common/assetsService';
 import {JobTicketService} from './common/jobTicketService';
+import {TaxReportService} from '@app/services/common/taxReportService';
 
 export * from './common/altinnAuthenticationService';
 export * from './common/altinnIntegrationService';
@@ -141,6 +142,7 @@ export * from './common/translationService';
 export * from './common/initService';
 export * from './common/assetsService';
 export * from './common/jobTicketService';
+export * from '@app/services/common/taxReportService';
 
 @NgModule({})
 export class CommonServicesModule {
@@ -219,6 +221,7 @@ export class CommonServicesModule {
                 InitService,
                 AssetsService,
                 JobTicketService,
+                TaxReportService
             ]
         };
     }
