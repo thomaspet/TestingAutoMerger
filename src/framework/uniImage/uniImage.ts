@@ -652,6 +652,7 @@ export class UniImage {
                     newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
+                        this.refreshFiles();
                         this.setFileViewerData(this.files);
 
                         this.checkFileStatusAndLoadImage(newFile);
