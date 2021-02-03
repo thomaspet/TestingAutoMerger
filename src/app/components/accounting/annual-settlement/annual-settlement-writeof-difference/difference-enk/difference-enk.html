@@ -34,8 +34,40 @@
 		<!-- EIENDELER -->
 		<section class="uni-card-content" *ngIf="infoContent.step === 0">
 
-			<section class="writeof-form-section">
-				Hello world
+			<section class="assets-table-section">
+
+				<!-- DETAILS TABLE START -->
+				<simple-table class="annual-settlement-table" style="margin-bottom: 3rem;" *ngIf="assetsDetails">
+					<thead>
+						<tr>
+							<th>Saldogruppe</th>
+							<th>Avskr. %</th>
+							<th class="align-right">Inngående verdi</th>
+							<th class="align-right">Endring i året</th>
+							<th class="align-right">Avskrivning</th>
+							<th class="align-right">Utgående verdi</th>
+						</tr>
+					</thead>
+
+					<tbody>
+						<tr *ngFor="let group of assetsDetails">
+							<td> {{ group.GroupCode }} </td>
+							<td> {{ group.DepreciationRate }}% </td>
+							<td class="align-right"> {{ group.Value | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ group.Movement | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ group.TaxbasedDepreciation | uninumberformat: 'money' }}  </td>
+							<td class="align-right"> {{ group.TaxBasedUB | uninumberformat: 'money' }} </td>
+						</tr>
+
+						<tr>
+							<td colspan="2">Skattemessig verdi på eiendeler</td>
+							<td class="align-right"> {{ sumLine.Value | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLine.Movement | uninumberformat: 'money' }} </td>
+							<td class="align-right"> {{ sumLine.TaxbasedDepreciation | uninumberformat: 'money' }}  </td>
+							<td class="align-right"> {{ sumLine.TaxBasedUB | uninumberformat: 'money' }} </td>
+						</tr>
+					</tbody>
+				</simple-table>
 			</section>
 
 		</section>
@@ -71,7 +103,15 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 4">
 
 			<section class="writeof-form-section">
-				Hello world #5
+				
+				<span class="info-span-header"> Privat bruk av telefon og bredbånd til eier av firmaet </span>
+				<span class="info-span"> Dersom du har hatt kostnader til elektronisk kommunikasjon (telefon, bredbånd osv) som du bruker både privat og i firmaet får du utgiftsført alt over 4 329.00 kr. </span>
+
+				<label class="left-aligned-span">
+					<span>Private andel av elektronisk kommunikasjon</span>
+					<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.GevinstTapskontoSaldoFjoraret">
+				</label>
+
 			</section>
 
 		</section>

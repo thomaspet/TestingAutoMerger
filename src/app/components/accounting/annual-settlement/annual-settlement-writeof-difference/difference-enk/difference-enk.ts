@@ -66,6 +66,8 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
     step = 0;
     onDestroy$ = new Subject();
     annualSettlement: any;
+    assetsDetails = [];
+    sumLine: any = {};
 
     constructor (
         private router: Router,
@@ -83,9 +85,11 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
             map((params) => params.id)
         ).subscribe(id => {
             Observable.forkJoin([
-                this.annualSettlementService.getAnnualSettlement(id)
-            ]).subscribe(([settlement]) => {
+                this.annualSettlementService.getAnnualSettlement(id),
+                this.annualSettlementService.getAssetTaxbasedIBDetails(id)
+            ]).subscribe(([settlement, details]) => {
                 this.annualSettlement = settlement;
+                this.assetsDetails = this.getFormattedDetailsData(details);
             });
             
         });
@@ -125,6 +129,21 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
             // Continue here
         }
     }
+
+    getFormattedDetailsData(data: any[]): any[] {
+		if (!data.length) {
+			return [];
+		}
+
+		this.sumLine = {
+			Value: data.map(a => a.Value || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			Movement: data.map(a => a.Movement || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			TaxbasedDepreciation: data.map(a => a.TaxbasedDepreciation || 0).reduce((a, b) => (a || 0) + (b || 0)),
+			TaxBasedUB: data.map(a => a.TaxBasedUB || 0).reduce((a, b) => (a || 0) + (b || 0))
+		}
+
+		return data.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 });
+	}
 
     setStepInfoContent() {
 		this.infoContent = this.stepContentArray[this.step];

@@ -1,5 +1,6 @@
-import {Component, Input, Output, EventEmitter} from '@angular/core';
+import {Component, Input, Output, EventEmitter, ViewChild} from '@angular/core';
 import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
+import {UniAttachments} from '@app/components/common/attacments/uniAttachements';
 
 @Component({
     selector: 'recaccount-file-upload-modal',
@@ -20,12 +21,16 @@ import {IUniModal, IModalOptions} from '@uni-framework/uni-modal/interfaces';
             </article>
 
             <footer class="center">
-                <button (click)="close(true)" class="secondary"> Lukk </button>
+                <button (click)="close()" class="secondary"> Lukk </button>
             </footer>
         </section>
     `
 })
 export class UniReconcileAccountFileUploadModal implements IUniModal {
+
+    @ViewChild(UniAttachments)
+    public attachments: UniAttachments;
+
     @Input()
     public options: IModalOptions = {};
 
@@ -40,7 +45,7 @@ export class UniReconcileAccountFileUploadModal implements IUniModal {
         this.account = this.options.data.account;
     }
 
-    public close(cancel: boolean = false) {
-        this.onClose.emit(null);
+    public close() {
+        this.onClose.emit(!!this.attachments.files.length);
     }
 }

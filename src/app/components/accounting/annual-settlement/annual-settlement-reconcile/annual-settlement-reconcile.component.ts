@@ -108,7 +108,13 @@ export class AnnualSettlementReconcileComponent {
     }
 
     openFileModal(account) {
-        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose;
+        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose.subscribe((hasAttachements: boolean) => {
+            account.HasAttachements = hasAttachements;
+            const accounts = this.accounts$.getValue();
+            const index = accounts.findIndex(acc => acc.ID === account.ID);
+            accounts.splice(index, 1, account);
+            this.accounts$.next(accounts);
+        })
     }
 
     callOpenModalForComment(account, oldBalance) {
