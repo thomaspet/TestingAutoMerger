@@ -10,6 +10,8 @@ import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settle
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniNumberFormatPipe} from '@uni-framework/pipes/uniNumberFormatPipe';
 import {ContactModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/contactModal.component';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
+import {CompanySettings} from '@uni-entities';
 
 export enum StatusCodeReconcile {
     NotBegun = 36000,
@@ -25,11 +27,14 @@ export class AnnualSettlementService extends BizHttp<any> {
     baseUrl = environment.BASE_URL + environment.API_DOMAINS.BUSINESS;
     statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     noCache = true;
+    companySettings = null;
+    companyName = null;
     constructor(
         protected http: UniHttp,
         private modalService: UniModalService,
         private toast: ToastService,
-        private numberPipe: UniNumberFormatPipe) {
+        private numberPipe: UniNumberFormatPipe,
+        private companySettingsService: CompanySettingsService) {
         super(http);
     }
 
@@ -489,5 +494,35 @@ export class AnnualSettlementService extends BizHttp<any> {
             .pipe(
                 map(res => res.body)
             );
+    }
+    getCompanySettings() {
+        let companySettings$;
+        if (this.companySettings) {
+            companySettings$ = of(this.companySettings);
+        } else {
+            companySettings$ = this.companySettingsService.getCompanySettings()
+                .pipe(tap((settings) => this.companySettings = settings));
+        }
+        return companySettings$;
+    }
+    getCompanyTypeName(CompanyTypeID) {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`companytypes/${CompanyTypeID}`)
+            .send()
+            .pipe(
+                map(res => res.body),
+                map( res => res.Name)
+            );
+    }
+    checkIfCompanyIsAllowedByType() {
+        const allowedNames = ['AS', 'ENK', 'ASA', 'NUF', 'STI'];
+        const companySettings$ = this.getCompanySettings();
+        return companySettings$.pipe(
+            switchMap((settings: CompanySettings) => this.getCompanyTypeName(settings.CompanyTypeID)),
+            tap((name) => this.companyName = name),
+            map(name => !!allowedNames.find(item => item === name))
+        );
     }
 }
