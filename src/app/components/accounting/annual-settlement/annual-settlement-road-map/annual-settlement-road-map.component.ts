@@ -6,8 +6,6 @@ import steps from './annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
-import {CompanySettingsService} from '@app/services/common/companySettingsService';
-import { CompanySettings } from '@uni-entities';
 
 @Component({
     selector: 'annual-settlement-road-map-component',
@@ -23,14 +21,12 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
     busy = false;
     annualSettlementAllowedByYear = true;
     annualSettlementAllowedByType = true;
-    companySettings: CompanySettings;
     currentYear;
     constructor(
         private annualSettlementService: AnnualSettlementService,
         private financialYearService: FinancialYearService,
         private toast: ToastService,
-        private router: Router,
-        private companySettingsService: CompanySettingsService
+        private router: Router
     ) {
 
     }
@@ -77,24 +73,15 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 }
             })
         );
-        this.companySettingsService.getCompanySettings().pipe(
-            switchMap((settings) => {
-                this.companySettings = settings;
-                if ([1, 2, 6, 26, 38].includes(settings.CompanyTypeID)) {
-                    return annualSettlementSource$;
-                } else {
-                    return of(null);
-                }
-            }),
-            tap((result) => {
-                if (result === null) {
-                    this.annualSettlementAllowedByType = false;
-                    this.selectedAnnualSettlement$.next(null);
-                } else {
-                    this.annualSettlementAllowedByType = true;
-                }
+        this.annualSettlementService.checkIfCompanyIsAllowedByType().pipe(
+            switchMap((result: boolean) => {
+                this.annualSettlementAllowedByType = result;
+                return result ? annualSettlementSource$ : of(null);
             })
         ).subscribe((as) => {
+            if (!as) {
+                this.selectedAnnualSettlement$.next(null);
+            }
             this.annualSettlements = as;
             this.busy = false;
         }, () => this.busy = false, () => this.busy = false);
@@ -146,7 +133,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 case 2:
                     step.action = () => {
                         let url = `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences`;
-                        if (this.companySettings.CompanyTypeID === 2) {
+                        if (this.annualSettlementService.companyName === 'ENK') {
                             url = `/accounting/annual-settlement/${currentAS.ID}/tax-depreciation-and-differences-enk`;
                         }
                         this.router.navigateByUrl(url);

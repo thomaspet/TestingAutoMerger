@@ -24,6 +24,7 @@ import {AnnualSettlementSummaryComponent} from '@app/components/accounting/annua
 import {AssetsEditModal} from '@app/components/accounting/annual-settlement/annual-settlement-writeof-difference/assets-edit-modal';
 import {ContactModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/contactModal.component';
 import {UniReconcileAccountFileUploadModal} from '@app/components/accounting/annual-settlement/annual-settlement-reconcile/reconcile-file-upload';
+import {CompanyAllowedByTypeGuard} from '@app/components/accounting/annual-settlement/annual-settlement.guard';
 
 @NgModule({
     imports: [
@@ -54,7 +55,8 @@ import {UniReconcileAccountFileUploadModal} from '@app/components/accounting/ann
         UniReconcileAccountFileUploadModal
     ],
     providers: [
-        AnnualSettlementService
+        AnnualSettlementService,
+        CompanyAllowedByTypeGuard
     ]
 })
 export class AnnualSettlementModule {}
