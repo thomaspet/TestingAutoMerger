@@ -93,7 +93,7 @@ export class RegisterAssetAsSoldModal {
             model.AssetID,
             model.CustomerID,
             model.VatTypeID,
-            new LocalDate(new Date()),
+            model.SoldDate,
             model.SoldAmount,
             model._createInvoice
         ).pipe(take(1)).subscribe(result => {
