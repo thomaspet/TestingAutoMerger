@@ -397,6 +397,11 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 		// THIS SHOULD BE STEP === 7 WHEN SUMMARY IS COMMING BACK
 		if (this.stepContentArray.length - 1 === this.step && direction > 0) {
+			if (this.annualSettlement.StatusCode > 36110) {
+				this.goBack();
+				return;
+			}
+
 			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
 				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
 				this.goBack();

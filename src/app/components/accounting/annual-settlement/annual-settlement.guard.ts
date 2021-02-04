@@ -9,4 +9,8 @@ export class CompanyAllowedByTypeGuard implements CanDeactivate<any> {
     public canDeactivate(component, currentRoute, currentState, nextState) {
         return this.annualSettlementService.checkIfCompanyIsAllowedByType();
     }
+
+    canActivate() {
+        return this.annualSettlementService.checkIfCompanyIsAllowedByType();
+    }
 }
