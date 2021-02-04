@@ -229,6 +229,7 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
 
     onRunAction(action) {
         if (action.name === 'reset-annualsettlement') {
+            this.annualSettlementService.cleanSessionData();
             this.ngOnInit(this.selectedAnnualSettlement$.getValue().AccountYear);
         }
     }

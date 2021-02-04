@@ -525,4 +525,12 @@ export class AnnualSettlementService extends BizHttp<any> {
             map(name => !!allowedNames.find(item => item === name))
         );
     }
+    cleanSessionData() {
+        sessionStorage.removeItem('IsVatReportOK');
+        sessionStorage.removeItem('IsAmeldingOK');
+        sessionStorage.removeItem('AreAllPreviousYearsEndedAndBalances');
+        sessionStorage.removeItem('IsShareCapitalOK');
+        sessionStorage.removeItem('IsAssetsOK');
+        sessionStorage.removeItem('_IsReversalOK');
+    }
 }
