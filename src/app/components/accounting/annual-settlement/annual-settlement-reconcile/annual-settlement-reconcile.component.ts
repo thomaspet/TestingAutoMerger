@@ -1,7 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Subject} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
@@ -108,7 +108,13 @@ export class AnnualSettlementReconcileComponent {
     }
 
     openFileModal(account) {
-        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose;
+        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose.subscribe((hasAttachements: boolean) => {
+            account.HasAttachements = hasAttachements;
+            const accounts = this.accounts$.getValue();
+            const index = accounts.findIndex(acc => acc.ID === account.ID);
+            accounts.splice(index, 1, account);
+            this.accounts$.next(accounts);
+        })
     }
 
     callOpenModalForComment(account, oldBalance) {
@@ -134,7 +140,9 @@ export class AnnualSettlementReconcileComponent {
     }
     completeReconcile(done) {
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
-            switchMap(() => this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement))
+            switchMap(() => this.annualSettlement.StatusCode > 36105 
+                ? of(true) 
+                : this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement))
         ).subscribe(() => {
             if (done) {
                 done();

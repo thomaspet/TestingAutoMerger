@@ -10,4 +10,8 @@ export class CompanyAllowedByTypeGuard implements CanActivate {
     public canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<boolean> {
         return this.annualSettlementService.checkIfCompanyIsAllowedByType();
     }
+
+    canActivate() {
+        return this.annualSettlementService.checkIfCompanyIsAllowedByType();
+    }
 }
