@@ -4,9 +4,10 @@ import { AppModule } from './app/appModule';
 import { environment } from './environments/environment';
 
 declare global {
-    interface Window {
-        dnbDataLayer: any[];
-    }
+  interface Window {
+    dnbDataLayer: any[];
+    zESettings: any;
+  }
 }
 
 if (environment.useProdMode) {
