@@ -47,7 +47,6 @@ export const PLUS_PACKAGE_BLACKLIST = {
 export const MINI_PACKAGE_BLACKLIST = {
     view_features: [
         ...PLUS_PACKAGE_BLACKLIST.view_features,
-        'ui.dimensions',
         'ui.debt-collection',
         'ui.numberseries-others',
         'ui.accountsettings-add-and-import',
@@ -83,7 +82,6 @@ export const MINI_PACKAGE_BLACKLIST = {
         'ui_sales_productgroups',
 
         'ui_sales_reminders_*',
-        'ui_dimensions_*',
 
         'ui_import',
         'ui_settings_webhooks',
