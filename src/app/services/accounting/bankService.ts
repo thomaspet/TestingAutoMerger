@@ -343,6 +343,15 @@ export class BankService extends BizHttp<Bank> {
             .map(response => response.body);
     }
 
+    public getDefaultServiceProvider() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements?action=get-default-service-provider')
+            .send()
+            .map(response => response.body);
+    }
+
     public updateBankIntegrationAgreement(agreementID: number, agreement: any) {
         return this.http
             .asPUT()

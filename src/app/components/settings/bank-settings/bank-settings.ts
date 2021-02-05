@@ -260,10 +260,6 @@ export class UniBankSettings {
                 return;
             }
 
-            if (this.isRGBDirty) {
-                this.orderRGB();
-            }
-
             // Clean up accounts
             if (companySettings.CompanyBankAccount) {
                 if (!companySettings.CompanyBankAccount.ID) {
@@ -317,6 +313,10 @@ export class UniBankSettings {
                 saveObs.push(this.companySalaryService.Put(companySalary.ID, companySalary));
             }
 
+            if (this.isRGBDirty) {
+                saveObs.push(this.orderRGB());
+            }
+
             Observable.forkJoin(saveObs).subscribe((response) => {
                 if (done) {
                     done('Bankinnstillinger lagret');
@@ -333,7 +333,7 @@ export class UniBankSettings {
         });
     }
 
-    orderRGB() {
+    orderRGB(): Observable<any> {
         const rgbValues = this.RGB$.getValue();
         const bankID = this.agreements[0]?.BankAccount?.BankID;
         const userID = this.authService.currentUser?.BankIntegrationUserName;
@@ -351,12 +351,11 @@ export class UniBankSettings {
 
                 this.updatePreApprovedBankPaymentStatus(false);
             }
-            this.bankService.orderPreApprovedBankPayments(bankID).subscribe();
+
+            this.isRGBDirty = false;
+            return this.bankService.orderPreApprovedBankPayments(bankID);
 
         } else if (!rgbValues.rgb && rgbValues.status !== '') {
-            // Cancell RGB at ZData, to be implemented
-            // this.bankService.orderPreApprovedBankPayments(bankID, true);
-
             if (this.isExt02Environment) {
                 let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
 
@@ -367,8 +366,12 @@ export class UniBankSettings {
 
                 this.updatePreApprovedBankPaymentStatus(true);
             }
+            // Cancell RGB at ZData, to be implemented
+            // return this.bankService.orderPreApprovedBankPayments(bankID, true);
         }
+
         this.isRGBDirty = false;
+        return Observable.of(0);
     }
 
     private updatePreApprovedBankPaymentStatus(cancel: boolean) {
