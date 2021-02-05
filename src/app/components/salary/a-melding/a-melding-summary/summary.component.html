@@ -15,7 +15,7 @@
             <dd>{{statusText}}</dd>
         </section>
 
-        <section class="pension-scheme-text-container">
+        <section *ngIf="currentAMelding" class="pension-scheme-text-container">
             <dt>Pensjonsinnretning</dt>
             <dd class="pension-scheme-text">
                 <p>{{pensionSchemeText}}</p>

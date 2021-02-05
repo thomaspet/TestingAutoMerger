@@ -79,7 +79,7 @@ export class AmeldingSummaryViewComponent implements OnChanges {
             this.entitiesWithData = [];
         }
 
-        if (changes['period'] && !isNaN(this.period)) {
+        if ((changes['period'] || this.ameldingWasGenerated(changes)) && !isNaN(this.period)) {
             this.pensionSchemeService
                 .getNames(this.yearService.getActiveYear(), this.period)
                 .subscribe(names => this.pensionSchemeText = names);
@@ -120,6 +120,11 @@ export class AmeldingSummaryViewComponent implements OnChanges {
                         );
                 }
             });
+    }
+
+    private ameldingWasGenerated(changes: SimpleChanges) {
+        const ameldingChange = changes['currentAMelding']
+        return ameldingChange && !ameldingChange.previousValue && ameldingChange.currentValue
     }
 
     private mapData() {
