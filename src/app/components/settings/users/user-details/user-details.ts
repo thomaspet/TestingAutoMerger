@@ -15,8 +15,10 @@ import {
     UserRoleService,
     ElsaPurchaseService,
     ElsaProductService,
+    BankService,
 } from '@app/services/services';
 import { theme, THEMES } from 'src/themes/theme';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 interface UserRoleGroup {
     label: string;
@@ -53,6 +55,7 @@ export class UserDetails {
     userRoles: UserRole[];
     userRoleGroups: UserRoleGroup[];
     userStatusInvited: boolean;
+    serviceProvider: BankAgreementServiceProvider;
 
     roleGroups: {label: string, roles: UserRole[]}[];
     products: ElsaProduct[];
@@ -70,7 +73,8 @@ export class UserDetails {
         private modalService: UniModalService,
         private elsaPurchaseService: ElsaPurchaseService,
         private productService: ElsaProductService,
-        private purchaseService: ElsaPurchaseService
+        private purchaseService: ElsaPurchaseService,
+        private bankService: BankService
     ) {}
 
     ngAfterViewInit() {
@@ -134,14 +138,14 @@ export class UserDetails {
             if (this.companyHasAutobank) {
                 const authenticatedUser = this.authService.currentUser;
                 if (authenticatedUser && authenticatedUser.IsAutobankAdmin) {
-                    if (this.user.BankIntegrationUserName) {
+                    if (this.user.BankIntegrationUserName && this.serviceProvider !== BankAgreementServiceProvider.ZdataV3) {
                         actions.push({
                             label: 'Tilbakestill autobank passord',
                             action: (user: User) => {
                                 this.modalService.open(ResetAutobankPasswordModal, {data: this.user});
                             }
                         });
-                    } else {
+                    } else if (!this.user.BankIntegrationUserName) {
                         actions.push({
                             label: 'Registrer som bankbruker',
                             action: () => this.registerBankUser()
@@ -162,19 +166,21 @@ export class UserDetails {
     private loadData(): Subscription {
         this.busy = true;
 
-        return forkJoin(
+        return forkJoin([
             this.roleService.GetAll(),
             this.userRoleService.getRolesByUserID(this.user.ID),
             this.productService.getProductsOnContractType(),
             this.purchaseService.getAll(),
-            this.elsaPurchaseService.getPurchaseByProductName('Autobank')
-        ).subscribe(
+            this.elsaPurchaseService.getPurchaseByProductName('Autobank'),
+            this.bankService.getDefaultServiceProvider()
+        ]).subscribe(
             res => {
                 this.roles = res[0] || [];
                 this.userRoles = this.setAssignmentMetadata(res[1] || []);
                 this.products = res[2];
                 this.purchases = res[3];
                 this.companyHasAutobank = !!res[4] || theme.theme === THEMES.SR;
+                this.serviceProvider = res[5];
 
                 this.userRoleGroups = this.getGroupedUserRoles(this.userRoles);
                 this.initUserActions();
@@ -274,7 +280,7 @@ export class UserDetails {
 
     private registerBankUser() {
         this.modalService.open(ActivateAutobankModal, {
-            data: this.user
+            data: { user: this.user, serviceProvider: this.serviceProvider }
         }).onClose.subscribe(activated => {
             if (activated) {
                 this.reloadUsers.emit();

@@ -54,7 +54,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
                         <span [class.is-active-step]="steps === 4">  </span>
                         <div [class.is-active-step]="steps === 4"> Sikkerhet </div>
                     </li>
-                    <li>
+                    <li *ngIf="serviceProvider !== 4">
                         <span [class.is-active-step]="steps === 5">  </span>
                         <div [class.is-active-step]="steps === 5"> Ferdigstilling </div>
                     </li>
@@ -217,7 +217,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
                             Tilbake
                         </button>
                         <button (click)="move(1)" class="c2a" [disabled]="buttonLock">
-                            {{ steps === 5 ? 'Opprett avtale' : steps === 6 || noAccounts ? 'Lukk' : 'Fortsett' }}
+                            {{ steps === 5 || (steps === 4 && serviceProvider === 4) ? 'Opprett avtale' : steps === 6 || noAccounts ? 'Lukk' : 'Fortsett' }}
                         </button>
                     </div>
                 </footer>
@@ -236,6 +236,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     private accounts: any[] = [];
     private bankID: number = 0;
+    serviceProvider: BankAgreementServiceProvider;
     agreements: any[] = [];
     bankAgreementUrl: SafeResourceUrl;
 
@@ -292,6 +293,17 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         if (this.options && this.options.data && this.options.data.agreements) {
             this.hasAgreements = !!this.options?.data?.agreements && this.options?.data?.agreements?.length > 0;
             this.agreements = this.options.data.agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
+        }
+
+        if (this.hasAgreements) {
+            this.serviceProvider =
+                this.agreements.filter(x => x.ServiceProvider === BankAgreementServiceProvider.ZdataV3)[0]?.ServiceProvider
+                ?? this.agreements[0].ServiceProvider;
+        } else {
+            this.bankService.getDefaultServiceProvider().subscribe(serviceProvider => {
+                this.serviceProvider = serviceProvider;
+                this.agreementDetails.ServiceProvider = serviceProvider;
+            });
         }
 
         Observable.forkJoin([
@@ -406,6 +418,16 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             if (!this.validateForm()) {
                 return;
             }
+            if (this.serviceProvider === BankAgreementServiceProvider.ZdataV3) {
+                if (this.useTwoFactor && !this.agreementDetails.Phone) {
+                    this.errorText = 'Mangler telefonnr. Du må fylle inn et gyldig telefonnr når du har valgt 2-faktor autentisering.';
+                    return;
+                } else {
+                    this.errorText = '';
+                }
+                this.sendStartDataToZData();
+                return;
+            }
         }
 
         // Password step
@@ -451,7 +473,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 this.bankService.orderPreApprovedBankPayments(this.bankID).subscribe();
             }
             this.buttonLock = false;
-            this.steps++;
+            this.steps = 6;
         }, (err) => {
             this.buttonLock = false;
             this.errorService.handle(err);

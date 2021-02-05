@@ -1,7 +1,7 @@
 import { Component, EventEmitter } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { UserService, ErrorService } from '@app/services/services';
+import { UserService, ErrorService, BankService } from '@app/services/services';
 import { UserDto } from '@app/unientities';
 import { forkJoin } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import { HttpClient } from '@angular/common/http';
 import { theme, THEMES } from 'src/themes/theme';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Component({
     selector: 'user-settings-modal',
@@ -40,6 +41,7 @@ export class UserSettingsModal implements IUniModal {
         private userService: UserService,
         private toast: ToastService,
         private authService: AuthService,
+        private bankSerivce: BankService
     ) { }
 
     public ngOnInit() {
@@ -47,7 +49,11 @@ export class UserSettingsModal implements IUniModal {
         this.user = this.options.data || {};
         this.epostButtonClicked = false;
 
-        this.showResetAutobankPassword = this.showResetAutobankPassword && !!this.user?.BankIntegrationUserName;
+        this.bankSerivce.getDefaultServiceProvider().subscribe(serviceProvider => {
+            this.showResetAutobankPassword = this.showResetAutobankPassword
+                && !!this.user?.BankIntegrationUserName
+                && serviceProvider !== BankAgreementServiceProvider.ZdataV3;
+        });
 
         this.authService.loadCurrentSession().subscribe((session) => {
             this.busy = false;

@@ -327,7 +327,7 @@ export class BankComponent {
             const method = this.route.snapshot.queryParamMap.get('method');
 
             if (batchID && verified === 'true')
-            {                
+            {
                 if (method === 'payment') {
                     this.paymentBatchService.Get(batchID).subscribe(paymentBatch => {
                         this.ZDataPaymentService.sendPaymentWithTwoFactor(paymentBatch).catch(() => {});

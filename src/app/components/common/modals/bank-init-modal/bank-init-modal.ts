@@ -76,6 +76,7 @@ export class BankInitModal implements IUniModal, OnInit {
     forceSameBank = false;
     bankAgreementUrl: SafeResourceUrl;
     hasReadAgreement = false;
+    serviceProvider: BankAgreementServiceProvider;
 
     constructor(
         private companySettingsService: CompanySettingsService,
@@ -105,10 +106,12 @@ export class BankInitModal implements IUniModal, OnInit {
 
         forkJoin([
             this.elsaContractService.getCurrentContractType(this.currentUser.License?.ContractType?.TypeName),
-            this.elsaAgreementService.getByType('Bank')
-        ]).subscribe(([contracttype, agreement]) => {
+            this.elsaAgreementService.getByType('Bank'),
+            this.bankService.getDefaultServiceProvider()
+        ]).subscribe(([contracttype, agreement, defaultServiceProvider]) => {
             this.forceSameBank = !!contracttype?.ForceSameBank;
             this.bankAgreementUrl = this.sanitizer.bypassSecurityTrustResourceUrl(agreement?.DownloadUrl);
+            this.serviceProvider = defaultServiceProvider;
         });
 
         this.elsaPurchasesService.getPurchaseByProductName('Autobank').subscribe((response) => {
@@ -216,12 +219,12 @@ export class BankInitModal implements IUniModal, OnInit {
 
     postAutobankUser() {
         this.busy = true;
-        if (this.validatePassword() && this.isValidPhoneNumber(this.payload.Phone)) {
+        if (this.serviceProvider === 4 || this.validatePassword() && this.isValidPhoneNumber(this.payload.Phone)) {
             this.bankService.createInitialAgreement(this.payload).subscribe((agreement) => {
                 this.orderPreApprovedPayments(agreement);
                 this.agreement = agreement;
                 this.busy = false;
-                this.next();
+                this.steps = 7;
             }, err => {
                 this.busy = false;
                 this.errorService.handle(err);
