@@ -8,6 +8,7 @@ import { UniNumberFormatPipe } from '@uni-framework/pipes/uniNumberFormatPipe';
 import { PaymentBatchService } from '../accounting/paymentBatchService';
 import { ErrorService } from '../common/errorService';
 import { UserService } from '../common/userService';
+import {AuthService} from '@app/authService';
 
 @Injectable()
 export class ZDataPaymentService {
@@ -18,6 +19,7 @@ export class ZDataPaymentService {
         private paymentBatchService: PaymentBatchService,
         private errorService: ErrorService,
         private userService: UserService,
+        private authService: AuthService,
     ) { }
 
 
@@ -27,30 +29,31 @@ export class ZDataPaymentService {
 
     public redirectIfNotVerifiedWithBankId(parameters: string) {
         return new Promise<void>((resolve, reject) => {
-            let bankIdToast = this.toastService.addToast("Sjekker BankID", ToastType.info, ToastTime.short);
+            let bankIdToast = this.toastService.addToast("Sjekker BankID hos ZData", ToastType.info, ToastTime.short);
             this.userService.isBankIdVerified().subscribe(verified => {
                 this.toastService.removeToast(bankIdToast);
 
                 if (verified) {
                     resolve();
                 } else {
-                    this.modalService.confirm({
-                        header: 'BankID ikke verifisert',
-                        message: `Regnskapsgodkjente betalinger krever BankID verifisering hos ZData. 
-                                Din bruker er enten ikke verifisert med BankID hos ZData eller 90 dager har utløpt. 
-                                Trykk Verifiser for å fortsette til BankID pålogging. 
-                                Utbetaling vil deretter bli sendt.`,
-                        buttonLabels: {
-                            accept: 'Verifiser',
-                        }
-                    }).onClose.subscribe(confirm => {
-                        if (confirm === ConfirmActions.ACCEPT) {
-                            let path = `${window.location.href.split('/#')[1]}&${parameters}`;
-                            window.location.href = this.userService.getBankIdRedirectUrl(path);
-                        }
-                        else {
-                            reject();
-                        }
+                    this.authService.authentication$.subscribe(auth => {
+                        this.modalService.confirm({
+                            header: 'BankID ikke verifisert eller utløpt',
+                            message: `Regnskapsgodkjente betalinger krever at pålogget bruker "${auth?.user?.UserName}" blir knyttet sammen med BankID hos ZData. 
+                                    Bruk kun pålogget bruker sin BankID. BankID innloggingen er gyldig i 90 dager. 
+                                    Trykk "Gå til BankID" for å fortsette til BankID pålogging. Etter pålogging kommer man tilbake og utbetaling vil bli sendt.`,
+                            buttonLabels: {
+                                accept: 'Gå til BankID',
+                            }
+                        }).onClose.subscribe(confirm => {
+                            if (confirm === ConfirmActions.ACCEPT) {
+                                let path = `${window.location.href.split('/#')[1]}&${parameters}`;
+                                window.location.href = this.userService.getBankIdRedirectUrl(path);
+                            }
+                            else {
+                                reject();
+                            }
+                        });    
                     });
                 }
             }, err => {
