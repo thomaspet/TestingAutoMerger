@@ -50,7 +50,7 @@ export class AnnualSettlementCheckListComponent {
                 } else {
                     this.options = optionsForASAndOthers();
                 }
-
+                this.initOptions();
                 this.areAllOptionsChecked = this.checkIfAreAllOptionsChecked();
                 this.busy = false;
             }, (err) => {
@@ -109,8 +109,10 @@ export class AnnualSettlementCheckListComponent {
     }
 
     updateOption(option, value) {
+        const prefix = 'as_';
         if (option.property) {
             option.checked = value.checked;
+            sessionStorage.setItem(prefix + option.property, value);
             this.annualSettlement.AnnualSettlementCheckList[option.property] = value.checked;
         }
         this.setNextOption(this.options);

@@ -193,12 +193,13 @@ export class AnnualSettlementService extends BizHttp<any> {
     }
 
     checkStoredValueAndUpdateList(key: string, value: any, list: any) {
+        const prefix = 'as_';
         const stringifiedResult = JSON.stringify(value);
-        const storedData = sessionStorage.getItem(key);
+        const storedData = sessionStorage.getItem(prefix + key);
         if (!list[key] || (list[key] && storedData !== stringifiedResult)) {
             list[key] = value;
         }
-        sessionStorage.setItem(key, stringifiedResult);
+        sessionStorage.setItem(prefix + key, stringifiedResult);
     }
 
     getAnnualSettlementWithCheckList(as) {
@@ -526,11 +527,15 @@ export class AnnualSettlementService extends BizHttp<any> {
         );
     }
     cleanSessionData() {
-        sessionStorage.removeItem('IsVatReportOK');
-        sessionStorage.removeItem('IsAmeldingOK');
-        sessionStorage.removeItem('AreAllPreviousYearsEndedAndBalances');
-        sessionStorage.removeItem('IsShareCapitalOK');
-        sessionStorage.removeItem('IsAssetsOK');
-        sessionStorage.removeItem('_IsReversalOK');
+        const prefix = 'as_';
+        sessionStorage.removeItem(prefix + 'IsVatReportOK');
+        sessionStorage.removeItem(prefix + 'IsAmeldingOK');
+        sessionStorage.removeItem(prefix + 'AreAllPreviousYearsEndedAndBalances');
+        sessionStorage.removeItem(prefix + 'IsShareCapitalOK');
+        sessionStorage.removeItem(prefix + 'IsAssetsOK');
+        sessionStorage.removeItem(prefix + '_IsReversalOK');
+        sessionStorage.removeItem(prefix + 'AreAllPreviousYearsEndedAndBalances');
+        sessionStorage.removeItem(prefix + 'IsAllCustomerInvoicesPaid');
+        sessionStorage.removeItem(prefix + 'IsAllSupplierInvoicesPaid');
     }
 }
