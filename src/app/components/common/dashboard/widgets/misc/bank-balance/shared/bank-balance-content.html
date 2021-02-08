@@ -19,10 +19,15 @@
                 <tr *ngFor="let item of accountBalanceItems; let idx = index">
                     <td>
                         <span class="pie-indicator" [style.background]="colors[idx]"></span>
-                        {{item.accountName}}
+                        {{item.accountName || item.accountNumber}}
+                        <uni-tooltip *ngIf="item.isMainAccountBalance" 
+                            [type]="'info'" 
+                            [text]="'Denne bankkontoen har ikke integrasjon mot banken. Saldo er derfor hentet fra bankkontoens hovedbokskonto: ' 
+                                    + item.MainAccountName">
+                        </uni-tooltip>
                     </td>
 
-                    <td class="align-right">{{item.balanceAvailable | uninumberformat: 'money'}}</td>
+                    <td class="align-right">{{(item.isMainAccountBalance ? item.balanceBooked : item.balanceAvailable) | uninumberformat: 'money'}}</td>
                 </tr>
             </tbody>
         </simple-table>
