@@ -31,7 +31,23 @@
             <mat-spinner class="c2a"></mat-spinner>
 		</section>
 
-        <section class="uni-card-content" *ngIf="infoContent.step === 0 && annualSettlement">
+		<section class="uni-card-content" *ngIf="infoContent.step === 0">
+			<section class="no-data-info" *ngIf="!assetsList.length">
+				<i class="material-icons info">check_circle_outline</i>
+				<span> Alle eiendeler har korrekt lagrede verdier. Du kan fortsette. </span>
+			</section>
+
+			<section class="writeof-form-section" *ngIf="assetsList.length">
+				<ag-grid-wrapper
+					class="borders"
+                    [resource]="assetsList"
+                    [config]="assetsTableConfig">
+                </ag-grid-wrapper>
+			</section>
+
+		</section>
+
+        <section class="uni-card-content" *ngIf="infoContent.step === 1 && annualSettlement">
 			<section class="error-and-details-container">
 				<span class="error-section" *ngIf="missingTaxData">
 					<i class="material-icons">warning</i>
@@ -123,7 +139,7 @@
 
 		<!--  TILVIRKNINGSKONTRAKTER  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 1">
+		<section class="uni-card-content" *ngIf="infoContent.step === 2">
 			<section class="writeof-form-section">
 				<label>
 					<span>Bruker firmaet tilvirkningskontrakter</span>
@@ -164,7 +180,7 @@
 
 		<!--  VARELAGER  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 2">
+		<section class="uni-card-content" *ngIf="infoContent.step === 3">
 
 			<section class="writeof-form-section">
 
@@ -205,7 +221,7 @@
 
 		<!--  GEVINST OG TAP  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 3">
+		<section class="uni-card-content" *ngIf="infoContent.step === 4">
 
 			<section class="writeof-form-section">
 				<span class="info-span">For å beregne om du har forskjeller mellom regnskapsmessig og skattemessig verdi på gevinst- og tapskonto må du oppgi saldo fra post 51 på RF-1217 fra fjoråret.</span>
@@ -220,7 +236,7 @@
 
 		<!--  SKATTEMESSIG VERDI PÅ AKSJER  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 4">
+		<section class="uni-card-content" *ngIf="infoContent.step === 5">
 
 			<section class="writeof-form-section">
 				<ag-grid-wrapper
@@ -233,7 +249,7 @@
 
 		<!--  AKKUMULERT FREMFØRT SKATTEMESSIG UNDERSKUDD  -->
 
-		<section class="uni-card-content" *ngIf="infoContent.step === 5">
+		<section class="uni-card-content" *ngIf="infoContent.step === 6">
 
 			<section class="writeof-form-section">
 				<span class="info-span">Oppgi beløp for akkumulert skattemessig underskudd fra i fjor. Du finner dette i RF-1217 i post 130</span>
@@ -247,7 +263,7 @@
 		</section>
 
 		<!--  CORONA PACKAGE  -->
-		<section class="uni-card-content" *ngIf="infoContent.step === 6">
+		<section class="uni-card-content" *ngIf="infoContent.step === 7">
 
 			<section class="writeof-form-section">
 				<span class="info-span">Oppgi beløp for alminnelig inntekt i 2018 og 2019. Du finner dette i RF-1028 i post 260.</span>
@@ -283,7 +299,7 @@
 
 
 		<!--  SUM SECTION BOTTOM  -->
-		<section class="sum-section" *ngIf="infoContent.step !== 0 && infoContent.step !== 7">
+		<section class="sum-section" *ngIf="infoContent.step !== 1 && infoContent.step !== 8">
 			<span> {{ infoContent.summaryTitle || 'Sum endring i forskjeller' }} </span>
 			<span> {{ infoContent.diff | uninumberformat: 'money' }} </span>
 		</section>

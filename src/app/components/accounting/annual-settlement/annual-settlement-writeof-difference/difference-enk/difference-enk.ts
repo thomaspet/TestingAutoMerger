@@ -1,6 +1,6 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ErrorService, StatisticsService } from '@app/services/services';
+import { AssetsService, ErrorService, StatisticsService } from '@app/services/services';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -76,7 +76,8 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
         private annualSettlementService: AnnualSettlementService,
         private changeDetector: ChangeDetectorRef,
 		private errorService: ErrorService,
-		private toastService: ToastService,
+        private toastService: ToastService,
+        private assetsService: AssetsService
     ) { }
 
     ngOnInit() {
@@ -128,6 +129,17 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
             this.busy = false;
             // Continue here
         }
+    }
+
+    bookWriteOf() {
+        this.busy = true;
+        this.assetsService.bookWriteOf(2020).subscribe(() => {
+            this.busy = false;
+            this.toastService.addToast('Avskrivninger bokført', ToastType.good, 5);
+        }, err => {
+            this.busy = false;
+            this.errorService.handle(err);
+        })
     }
 
     getFormattedDetailsData(data: any[]): any[] {
