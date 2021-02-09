@@ -334,27 +334,30 @@ export class AnnualSettlementWriteofDifferenceStep {
 	openEditModal() {
 		this.modalService.open(AssetsEditModal, { data: { groups: this.groups } }).onClose.subscribe((hasSavedChanges: boolean) => {
 			if (hasSavedChanges) {
-				this.busy = true;
-				Observable.forkJoin([
-					this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID),
-					this.annualSettlementService.getAssetAndGroups(this.annualSettlement.ID),
-					this.annualSettlementService.getAnnualSettlement(this.annualSettlement.ID),
-				]).subscribe(([data, groups, as]) => {
-					this.assetsDetails = this.getFormattedDetailsData(data);
-					this.groups = groups;
-					this.annualSettlement = as;
-					this.recalc();
-					this.checkMissingTaxData();
-					this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
-					this.busy = false;
-				}, err => {
-					this.errorService.handle(err);
-					this.toastService.addToast('Lagret, men kunne ikke hente data på nytt', ToastType.warn, 5, 
-						'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret, men noe gikk galt da vi skulle hente oppdatert data. Prøv å oppdater bilde, eller gå tilbake il oversikten og start igjen');
-					this.busy = false;
-				})
-
+				this.updateData(true);
 			}
+		})
+	}
+
+	updateData(showToast = false) {
+		this.busy = true;
+		Observable.forkJoin([
+			this.annualSettlementService.getAssetTaxbasedIBDetails(this.annualSettlement.ID),
+			this.annualSettlementService.getAssetAndGroups(this.annualSettlement.ID),
+			this.annualSettlementService.getAnnualSettlement(this.annualSettlement.ID),
+		]).subscribe(([data, groups, as]) => {
+			this.assetsDetails = this.getFormattedDetailsData(data);
+			this.groups = groups;
+			this.annualSettlement = as;
+			this.recalc();
+			this.checkMissingTaxData();
+			if (showToast) {
+				this.toastService.addToast('Lagret', ToastType.good, 5, 'Oppdateringer på inngående skattemessig verdi på dine eiendeler ble lagret.');
+			}
+			this.busy = false;
+		}, err => {
+			this.errorService.handle(err);
+			this.busy = false;
 		})
 	}
 
@@ -396,8 +399,6 @@ export class AnnualSettlementWriteofDifferenceStep {
 		this.infoContent.diff = this.assetsList
 		.map(asset => asset.IncomingFinancialValue)
 		.reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
-
-		debugger
 	}
 	
 	recalcTaxSums() {
@@ -454,7 +455,10 @@ export class AnnualSettlementWriteofDifferenceStep {
 		} else if (this.infoContent.step === 0 && direction > 0) {
 			this.assetsService.updateAssetsList(this.assetsList).subscribe(() => {
 				this.step += direction;
-				this.setStepInfoContent();
+				this.infoContent = this.stepContentArray[this.step];
+				this.updateData();
+			}, err => {
+				this.errorService.handle(err);
 				this.busy = false;
 			});
 		} else {
@@ -500,6 +504,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 		switch (this.infoContent.step) {
 			case 0:
+				this.recalcAssetsSum();
 				break;
 			case 1:
 				this.sumLineStep1.sumIn = parseFloat(this.annualSettlement.Fields.DriftsmidlerFjoraret || 0) - parseFloat(this.annualSettlement.Fields.DriftsmidlerSkattemessigFjoraret || 0);
