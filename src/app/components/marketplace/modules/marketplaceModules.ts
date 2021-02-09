@@ -100,7 +100,39 @@ export class MarketplaceModules implements AfterViewInit {
                 contractType['_isActive'] = contractType.ContractType === this.currentContractType;
 
                 contractType['_isValidUpgrade'] = !contractType['_isActive']
-                    && validUpgrades?.some(typeID => typeID === contractType.ContractType);
+                    && validUpgrades?.some(upgrade => upgrade.Valid && upgrade.TargetType === contractType.ContractType);
+
+                if (!contractType['_isValidUpgrade'] && !contractType['_isActive']) {
+                    const message = validUpgrades.find(upgrade => upgrade.TargetType === contractType.ContractType)?.Message;
+
+                    // Example message: 'Too many companies for 21 - Mini (5 vs 2)'
+                    if (message?.startsWith('Too many companies')) {
+                        const companiesOnContract = message.match(/\d+/g)[1];
+                        const companiesAllowed = message.match(/\d+/g)[2];
+
+                        if (!companiesOnContract || !companiesAllowed) {
+                            contractType['_disabledReason'] = `Maks antall selskaper er overskredet.`;
+                        } else {
+                            contractType['_disabledReason'] = `
+                                Maks antall selskaper er overskredet.
+                                Du har ${companiesOnContract} selskaper, men denne pakken kan kun inneholde ${companiesAllowed}.
+                            `;
+                        }
+                    // Example message: 'Too many users for 21 - Mini (5 vs 2)'
+                    } else if (message?.startsWith('Too many users')) {
+                        const usersOnContract = message.match(/\d+/g)[1];
+                        const usersAllowed = message.match(/\d+/g)[2];
+
+                        if (!usersOnContract || !usersAllowed) {
+                            contractType['_disabledReason'] = `Maks antall brukere er overskredet.`;
+                        } else {
+                            contractType['_disabledReason'] = `
+                                Maks antall brukere er overskredet.
+                                Du har ${usersOnContract} brukere, men denne pakken kan kun inneholde ${usersAllowed}.
+                            `;
+                        }
+                    }
+                }
 
                 return contractType;
             });
