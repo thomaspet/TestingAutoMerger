@@ -8,7 +8,11 @@ import {ObserversModule} from '@angular/cdk/observers';
     selector: 'input-dropdown-menu',
     changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
-        <section (cdkObserveContent)="onContentChange()" *cdkPortal class="input-dropdown-menu" (click)="$event.stopPropagation()">
+        <section (cdkObserveContent)="onContentChange()" 
+            *cdkPortal class="input-dropdown-menu" 
+            [style.max-height]="maxHeight" 
+            (click)="$event.stopPropagation()"
+        >
             <ng-container *ngTemplateOutlet="content"></ng-container>
         </section>
     `
@@ -18,6 +22,7 @@ export class InputDropdownMenu {
     @ViewChild(CdkPortal, { static: true }) contentTemplate: CdkPortal;
     @Input() input: HTMLElement;
     @Input() visible: boolean;
+    @Input() maxHeight: string;
 
     protected overlayRef: OverlayRef;
 

@@ -18,6 +18,7 @@ import {NewCompanyModal} from '../new-company-modal/new-company-modal';
 import {FieldType} from '@uni-entities';
 import {theme, THEMES} from 'src/themes/theme';
 import { Company } from '@uni-entities';
+import {MoveCompanyModal} from './move-company-modal/move-company-modal';
 import { switchMap, tap } from 'rxjs/operators';
 
 @Component({
@@ -59,6 +60,12 @@ export class CompanyList {
             label: 'Slett selskap',
             action: (company: ElsaCompanyLicense) => {
                 this.deleteCompanyModal(company);
+            }
+        },
+        {
+            label: 'Flytt selskap',
+            action: (company: ElsaCompanyLicense) => {
+                this.moveCompanyModal(company);
             }
         },
         {
@@ -203,6 +210,19 @@ export class CompanyList {
             data: { company: company }
         }).onClose.subscribe(companyDeleted => {
             if (companyDeleted) {
+                this.loadData();
+            }
+        });
+    }
+
+    moveCompanyModal(company: ElsaCompanyLicense) {
+        this.modalService.open(MoveCompanyModal, {
+            data: {
+                company: company,
+                customers: this.licenseInfo.customers
+            }
+        }).onClose.subscribe(companyMoved => {
+            if (companyMoved) {
                 this.loadData();
             }
         });
