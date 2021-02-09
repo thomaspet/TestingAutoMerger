@@ -248,6 +248,7 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
             this.setRequiredTooltip(fields, employment, 'LastWorkPercentChangeDate');
             this.setRequiredTooltip(fields, employment, 'LastSalaryChangeDate');
             this.setRequiredTooltip(fields, employment, 'WorkingHoursScheme');
+            this.setRequiredTooltip(fields, employment, 'EmploymentType');
         }
 
         // Only maritime

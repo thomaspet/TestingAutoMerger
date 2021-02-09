@@ -3,6 +3,12 @@ import {UniHttp} from '../../../framework/core/http/http';
 import {Observable} from 'rxjs';
 import {ElsaCustomer} from '@app/models';
 
+export interface CustomerContactInfo {
+    ContactPerson?: string;
+    ContactPhone?: string;
+    ContactEmail?: string;
+}
+
 @Injectable()
 export class ElsaCustomersService {
     constructor(private uniHttp: UniHttp) {}
@@ -123,5 +129,13 @@ export class ElsaCustomersService {
             .withEndPoint(endpoint)
             .send()
             .map(res => res.body);
+    }
+
+    editCustomerContactInfo(customerID: number, customerContactInfo: CustomerContactInfo) {
+        return this.uniHttp.asPUT()
+            .usingEmptyDomain()
+            .withEndPoint(`/api/elsa/customers/${customerID}`)
+            .withBody(customerContactInfo)
+            .send();
     }
 }

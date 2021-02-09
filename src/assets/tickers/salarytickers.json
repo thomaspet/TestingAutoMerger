@@ -380,6 +380,18 @@
                 "DefaultHidden": true
             },
             {
+                "Header": "Ansettelsesform",
+                "Field": "casewhen(EmploymentType eq 1, 'Fast', casewhen(EmploymentType eq 2,'Midlertidig','Ikke valgt'))",
+                "Alias": "EmploymentType",
+                "DefaultHidden": true
+            },
+            {
+                "Header": "Årsak til sluttdato",
+                "Field": "casewhen(EndDateReason eq 1, 'Arbeidsforholdet skulle aldri vært rapportert', casewhen(EndDateReason eq 2,'Arbeidsgiver har sagt opp arbeidstaker',casewhen(EndDateReason eq 3,'Arbeidstaker har sagt opp selv',casewhen(EndDateReason eq 4,'Byttet lønnsystem eller regnskapsfører',casewhen(EndDateReason eq 5,'Endring i organisasjonsstruktur eller byttet jobb internt', casewhen(EndDateReason eq 6,'Kontrakt, engasjement eller vikariat er utløpt','Ikke valgt'))))))",
+                "Alias": "EndDateReason",
+                "DefaultHidden": true
+            },
+            {
                 "Field": "EmployeeID",
                 "Type": "dontdisplay"
             }

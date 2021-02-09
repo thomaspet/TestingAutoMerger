@@ -77,13 +77,13 @@
                 ellers må du ettergodkjenne betalingene i nettbanken.
             </p>
 
-            <mat-radio-group [(ngModel)]="payload.BankApproval">
+            <mat-radio-group [(ngModel)]="payload.BankApproval" (ngModelChange)="step.Limit = 0">
                 <mat-radio-button [value]="false">Regnskapsgodkjente betalinger</mat-radio-button>
                 <mat-radio-button [value]="true">Ettergodkjente betalinger i nettbanken</mat-radio-button>
             </mat-radio-group>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step2">
             <h3>Driftkonto</h3>
             <p>
                 Her velger du hvilken bankkonto som brukes som driftskonto. Denne er <strong>påkrevd</strong> for å fortsette. <br/> Om du allerede har ordnet dette, trykk Neste.
@@ -96,7 +96,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step3">
             <h3>Lønnskonto</h3>
             <p> Her kan du velge å sette opp egen konto for eventuelle lønnsutbetalinger. Hvis ikke du setter opp en konto her, vil systemet bruke konto satt som Driftskonto. Trykk neste for å fortsette. </p>
             <uni-form
@@ -107,7 +107,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step4">
             <h3>Skattetrekkskonto</h3>
             <p> Her kan du sette opp en konto for eventuelle skattetrekk. Denne konto er ikke påkrevd, så om du ønsker å hoppe over, er det bare å trykke Neste. </p>
             <uni-form
@@ -118,7 +118,7 @@
             </uni-form>
         </article>
 
-        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 6" id="step6">
+        <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 6" id="step5">
             <h3>Sikkerhetsinnstillinger</h3>
             <p>
                 Her oppretter du et passord for autobank. Passordet brukes til å bekrefte registrerte utbetalinger i systemet.
@@ -145,7 +145,7 @@
 
         </article>
 
-        <article class="uni-autobank-agreement-modal-body final-msg" *ngIf="steps === 7" id="step7">
+        <article class="uni-autobank-agreement-modal-body final-msg" *ngIf="steps === 7" id="step6">
             <i class="material-icons">thumb_up</i>
             <h3>Avtale opprettet </h3>
             <p>

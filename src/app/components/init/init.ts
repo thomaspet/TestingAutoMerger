@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, HostBinding} from '@angular/core';
 import {Router, NavigationEnd} from '@angular/router';
 import {Subject} from 'rxjs';
 import {AuthService} from '@app/authService';
@@ -10,6 +10,8 @@ import {theme, THEMES} from 'src/themes/theme';
     templateUrl: './init.html',
 })
 export class UniInit {
+    @HostBinding('class.iOSDevice') iOSDevice = navigator.userAgent.match(/(iPod|iPhone|iPad)/);
+
     isAuthenticated: boolean;
     showTryForFree = true;
     confirmed: boolean = true;

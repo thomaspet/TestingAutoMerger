@@ -18,13 +18,15 @@
 </ul>
 
 <section class="footer">
-    <button
-        (click)="selected.emit()"
-        [ngClass]="buttonClass || recommended ? 'c2a' : 'secondary'"
-        [disabled]="disabled || active">
-
-        {{buttonLabel || 'Velg pakke'}}
-    </button>
+    <div [matTooltip]="disabledReason" matTooltipClass="tooltip-linebreak">
+        <button
+            (click)="selected.emit()"
+            [ngClass]="buttonClass || recommended ? 'c2a' : 'secondary'"
+            [disabled]="disabled || active">
+    
+            {{buttonLabel || 'Velg pakke'}}
+        </button>
+    </div>
 
     <section *ngIf="active">Aktiv pakke</section>
 </section>

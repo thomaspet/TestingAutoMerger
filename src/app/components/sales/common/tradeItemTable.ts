@@ -140,7 +140,6 @@ export class TradeItemTable {
 
         source.subscribe(settings => {
             this.settings = settings;
-            // do ngOnChanges stuff
 
             if (changes['readonly'] && this.table) {
                 this.showTable = false;
@@ -177,6 +176,10 @@ export class TradeItemTable {
                 this.items.forEach(item => {
                     item['_dekningsGrad'] = item['_dekningsGrad'] || this.getDekningsGrad(item);
                 });
+
+                if (this.items.some(item => item.PriceExVatCurrency && !item.PriceIncVatCurrency)) {
+                    this.updateVatPercentsAndItems(false)
+                }
             }
 
             if (changes['defaultTradeItem'] && this.table) {
@@ -202,7 +205,7 @@ export class TradeItemTable {
         this.table.focusRow(0);
     }
 
-    public updateVatPercentsAndItems() {
+    public updateVatPercentsAndItems(emitChanges = true) {
         if (this.vatTypes && this.items) {
             const vatTypes = this.vatTypes;
 
@@ -232,8 +235,7 @@ export class TradeItemTable {
                 }
             });
 
-            if (changedVatTypeIDs.length > 0 || this.items.filter(x => x.VatType && !x.VatType.VatPercent).length > 0) {
-
+            if (changedVatTypeIDs.length || this.items.some(item => item.PriceExVatCurrency && !item.PriceIncVatCurrency)) {
                 this.vatTypes = vatTypes;
                 this.items = this.items.map(item => {
                     if (item.VatType) {
@@ -241,15 +243,19 @@ export class TradeItemTable {
                         if (item.VatType) {
                             item.VatPercent = item.VatType.VatPercent;
                         }
-                        this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
-                        this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
-                        this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
                     }
 
+                    this.tradeItemHelper.calculatePriceIncVat(item, this.currencyExchangeRate);
+                    this.tradeItemHelper.calculateBaseCurrencyAmounts(item, this.currencyExchangeRate);
+                    this.tradeItemHelper.calculateDiscount(item, this.currencyExchangeRate);
                     return item;
                 });
 
-                setTimeout(() => this.itemsChange.emit(this.items));
+                setTimeout(() => {
+                    if (emitChanges) {
+                        this.itemsChange.emit(this.items)
+                    }
+                });
             }
         }
     }

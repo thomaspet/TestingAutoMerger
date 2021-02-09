@@ -8,14 +8,9 @@ import {
     OnInit
 } from '@angular/core';
 import {FormControl} from '@angular/forms';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/filter';
-import { get } from 'lodash';
-
+import {Observable, of} from 'rxjs';
+import {debounceTime, distinctUntilChanged, switchMap} from 'rxjs/operators';
+import {get} from 'lodash';
 
 export interface IAutoCompleteOptions {
     lookupFunction: (searchValue: string) => Observable<any> | any[];
@@ -114,21 +109,21 @@ export class UnitableAutocomplete implements OnInit {
             this.showDropdownAbove = 480 > window.innerHeight - document.activeElement.getBoundingClientRect().top;
         }
 
-        this.inputControl.valueChanges
-        .switchMap((value) => {
-            this.lookupResults = [];
-            this.emptySearchString = 'Søker...';
-            this.busy = true;
-            if (value) {
-                this.selectedIndex = this.groupConfig ? 1 : 0;
-            } else {
-                this.selectedIndex = -1;
-            }
-            return Observable.of(value);
-        })
-        .debounceTime(this.options.debounceTime || 100)
-        .distinctUntilChanged()
-        .subscribe((query) => {
+        this.inputControl.valueChanges.pipe(
+            switchMap(value => {
+                this.lookupResults = [];
+                this.emptySearchString = 'Søker...';
+                this.busy = true;
+                if (value) {
+                    this.selectedIndex = this.groupConfig ? 1 : 0;
+                } else {
+                    this.selectedIndex = -1;
+                }
+                return of(value);
+            }),
+            debounceTime(this.options.debounceTime || 100),
+            distinctUntilChanged()
+        ).subscribe((query) => {
             this.performLookup(query).subscribe((results) => {
                 this.lookupResults = this.showExactMatchOnTop(results, query);
                 this.emptySearchString = this.lookupResults.length ? 'Søker' : 'Ingen treff';
@@ -242,9 +237,9 @@ export class UnitableAutocomplete implements OnInit {
 
         // User was "too quick"
         if (this.busy && this.inputControl.value) {
-            return this.performLookup(this.inputControl.value).switchMap((res) => {
-                return Observable.of(this.showExactMatchOnTop(res, this.inputControl.value)[0]);
-            });
+            return this.performLookup(this.inputControl.value).pipe(
+                switchMap(res => of(this.showExactMatchOnTop(res, this.inputControl.value)[0]))
+            );
         }
         return (this.selectedIndex >= 0)
             ? this.lookupResults[this.selectedIndex]
@@ -277,7 +272,7 @@ export class UnitableAutocomplete implements OnInit {
         let observable: Observable<any>;
 
         if (Array.isArray(lookupResult)) {
-            observable = Observable.of(lookupResult);
+            observable = of(lookupResult);
         } else {
             observable = <Observable<any>>lookupResult;
         }

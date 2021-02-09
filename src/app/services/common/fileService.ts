@@ -1,10 +1,8 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {HttpResponse} from '@angular/common/http';
 import {BizHttp, IHttpCacheStore} from '../../../framework/core/http/BizHttp';
 import {File} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
-import 'rxjs/add/operator/switchMap';
 import {Observable, of} from 'rxjs';
 import {take, tap, switchMap, map} from 'rxjs/operators';
 import {ErrorService} from './errorService';

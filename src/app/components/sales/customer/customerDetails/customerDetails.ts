@@ -111,10 +111,7 @@ export class CustomerDetails implements OnInit {
     private customDimensions: any[] = [];
 
     public showReportWithID: number;
-    public commentsConfig: ICommentsConfig = {
-        entityType: 'Customer',
-        entityID: this.customerID
-    };
+    public commentsConfig: ICommentsConfig;
     public selectConfig: any;
     private sellers: Seller[];
     private distributionPlans: any[] = [];
@@ -280,6 +277,11 @@ export class CustomerDetails implements OnInit {
         this.route.paramMap.subscribe(params => {
             this.isDirty = false;
             this.customerID = +params.get('id');
+
+            this.commentsConfig = {
+                entityType: 'Customer',
+                entityID: this.customerID
+            };
 
             this.tabs = [
                 {name: 'Detaljer'},

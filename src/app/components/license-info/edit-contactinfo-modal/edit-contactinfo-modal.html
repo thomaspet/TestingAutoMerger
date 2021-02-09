@@ -1,0 +1,27 @@
+<section role="dialog" class="uni-modal uni-redesign">
+    <header>Rediger kontaktperson</header>
+
+    <article>
+        <form [formGroup]="form">
+            <label class="uni-label">
+                <span>Navn</span>
+                <input type="text" formControlName="ContactPerson">
+            </label>
+
+            <label class="uni-label">
+                <span>E-post</span>
+                <input type="text" formControlName="ContactEmail">
+            </label>
+
+            <label class="uni-label">
+                <span>Adresse</span>
+                <input type="text" formControlName="ContactPhone">
+            </label>
+        </form>
+    </article>
+
+    <footer class="center">
+        <button (click)="onClose.emit(false)">Avbryt</button>
+        <button class="c2a" (click)="saveContactInfo()" [disabled]="!form.valid">Lagre</button>
+    </footer>
+</section>

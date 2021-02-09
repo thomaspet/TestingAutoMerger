@@ -10,18 +10,11 @@ import {
     ChangeDetectionStrategy,
     ChangeDetectorRef,
     SimpleChanges,
-    HostListener
 } from '@angular/core';
-// import html from './UniSearchAttrHtml';
-// import css from './UniSearchAttrCss';
 import {IUniSearchConfig, SearchType1880} from './IUniSearchConfig';
-import {Observable} from 'rxjs';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/map';
+import {fromEvent} from 'rxjs';
 import {KeyCodes} from '../../../app/services/common/keyCodes';
+import {debounceTime, map, tap} from 'rxjs/operators';
 
 export enum SearchType {
     INTERNAL,
@@ -31,8 +24,6 @@ export enum SearchType {
 const HEIGHT_OF_NEW_BUTTON_PADDING = 22;
 const INPUT_DEBOUNCE_TIME = 300;
 const PAGE_DOWN_JUMP_LENGTH = 10;
-
-declare const module;
 
 @Component({
     selector: '[uni-search-attr]',
@@ -83,16 +74,16 @@ export class UniSearchAttr implements OnInit, OnChanges {
         // Move template outside <input> element, because it won't show if it's inside
         el.parentNode.appendChild(el.firstElementChild);
 
-        this.inputSubscription = Observable.fromEvent(el, 'input')
-            .do(() => this.busy = true)
-            .debounceTime(INPUT_DEBOUNCE_TIME)
-            .do(() => this.openSearchResult())
-            .map(event => (<any>event).target.value)
-            .do(() => this.changeDetector.markForCheck())
-            .subscribe(value => {
-                this.performLookup(value);
-                this.currentInputValue = value;
-            });
+        this.inputSubscription = fromEvent(el, 'input').pipe(
+            tap(() => this.busy = true),
+            debounceTime(INPUT_DEBOUNCE_TIME),
+            tap(() => this.openSearchResult()),
+            map(event => (<any> event).target.value),
+            tap(() => this.changeDetector.markForCheck())
+        ).subscribe(value => {
+            this.performLookup(value);
+            this.currentInputValue = value;
+        });
 
         this.config.initialItem$.subscribe(model => {
             // this.componentElement.nativeElement.value = this.inputTemplate(model);

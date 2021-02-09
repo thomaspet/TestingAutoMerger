@@ -166,7 +166,7 @@ export class BankInitModal implements IUniModal, OnInit {
         }
         this.steps++;
         this.errorMsg = '';
-        if (this.steps >= 3 && this.steps <= 5) {
+        if (this.steps >= 2 && this.steps <= 5) {
             this.fields$.next(this.setUpUniForm());
         }
     }
@@ -175,7 +175,7 @@ export class BankInitModal implements IUniModal, OnInit {
         this.steps--;
         this.errorMsg = '';
 
-        if (this.steps >= 3 && this.steps <= 5) {
+        if (this.steps >= 2 && this.steps <= 5) {
             this.fields$.next(this.setUpUniForm());
         }
     }
