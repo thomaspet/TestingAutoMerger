@@ -20,6 +20,7 @@ import {theme, THEMES} from 'src/themes/theme';
 import { Company } from '@uni-entities';
 import { tap } from 'rxjs/internal/operators/tap';
 import { switchMap } from 'rxjs/operators';
+import {MoveCompanyModal} from './move-company-modal/move-company-modal';
 
 @Component({
     selector: 'license-info-company-list',
@@ -60,6 +61,12 @@ export class CompanyList {
             label: 'Slett selskap',
             action: (company: ElsaCompanyLicense) => {
                 this.deleteCompanyModal(company);
+            }
+        },
+        {
+            label: 'Flytt selskap',
+            action: (company: ElsaCompanyLicense) => {
+                this.moveCompanyModal(company);
             }
         },
         {
@@ -204,6 +211,19 @@ export class CompanyList {
             data: { company: company }
         }).onClose.subscribe(companyDeleted => {
             if (companyDeleted) {
+                this.loadData();
+            }
+        });
+    }
+
+    moveCompanyModal(company: ElsaCompanyLicense) {
+        this.modalService.open(MoveCompanyModal, {
+            data: {
+                company: company,
+                customers: this.licenseInfo.customers
+            }
+        }).onClose.subscribe(companyMoved => {
+            if (companyMoved) {
                 this.loadData();
             }
         });

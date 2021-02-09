@@ -24,7 +24,7 @@
         </button>
     </section>
 
-    <input-dropdown-menu [input]="valueInput" [visible]="expanded">
+    <input-dropdown-menu [input]="valueInput" [visible]="expanded" [maxHeight]="config?.dropdownMaxHeight">
         <ng-template>
             <section class="select-search" *ngIf="searchable">
                 <input #searchInput

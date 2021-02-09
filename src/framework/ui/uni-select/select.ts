@@ -15,6 +15,7 @@ export interface ISelectConfig {
     placeholder?: string;
     searchable?: boolean;
     hideDeleteButton?: boolean;
+    dropdownMaxHeight?: string;
 }
 
 @Component({
