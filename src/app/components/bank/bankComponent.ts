@@ -646,9 +646,8 @@ export class BankComponent {
     public updateSaveActions(selectedTickerCode: string) {
         this.actions = [];
         const allRowsSelected = this?.tickerContainer?.mainTicker?.table?.allRowsSelected;
-        const hasBankUserName = theme.theme !== THEMES.EXT02 ? !!this.user?.BankIntegrationUserName : true;
         if (selectedTickerCode === 'payment_list') {
-            const hasBankUserName = theme.theme !== THEMES.EXT02 ? !!this.user?.BankIntegrationUserName : true;
+            const hasBankUserName = theme.theme !== THEMES.EXT02 && !this.isZDataV3 ? !!this.user?.BankIntegrationUserName : true;
             this.actions.push({
                 label: 'Send alle til betaling',
                 action: (done) => this.payAll(done, false, allRowsSelected),
