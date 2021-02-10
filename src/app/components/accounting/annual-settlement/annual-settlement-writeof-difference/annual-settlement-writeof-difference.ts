@@ -391,14 +391,14 @@ export class AnnualSettlementWriteofDifferenceStep {
 			this.assetsList[event.originalIndex] = event.rowModel;
 			this.recalcAssetsSum();
 		})
-		// .setIsRowReadOnly((row) => row._name === 'SUMLINEROW')
-		// .setConditionalRowCls((row) => row._name === 'SUMLINEROW' ? 'sum-line-background' : '');
 	}
 
 	recalcAssetsSum() {
-		this.infoContent.diff = this.assetsList
-		.map(asset => asset.IncomingFinancialValue)
-		.reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
+		if (this.assetsList.length > 0) {
+			this.infoContent.diff = this.assetsList
+				.map(asset => asset.IncomingFinancialValue)
+				.reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
+		}
 	}
 	
 	recalcTaxSums() {
