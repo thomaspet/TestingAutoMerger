@@ -1,0 +1,24 @@
+<section class="row form-row" *ngIf="incomereport && incomereport['Report'].Skjemainnhold.pleiepengerPerioder">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Pleiepenger</h1>
+            <p>Her oppgis perioden det kreves pleiepenger for. Det kan oppgis flere perioder som ikke er sammenhengende i samme
+            inntektsmelding. Perioder her skal også oppgis om arbeidsgiver ikke krever refusjon, og har svart Nei i forrige punkt.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <span>Hele dager dere krever refusjon for?</span>
+                <section>
+                    <uni-income-report-date-period-picker
+                        [readOnly]="readOnly"
+                        (periodsChange)="onPeriodsChange($event)"
+                        [periods]="incomereport['Report'].Skjemainnhold.pleiepengerPerioder">
+                    </uni-income-report-date-period-picker>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>

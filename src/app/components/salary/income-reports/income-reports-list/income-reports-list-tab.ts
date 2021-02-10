@@ -14,10 +14,10 @@ export class IncomeReportsListTab {
     onDestroy$ = new Subject();
     activeIndex = 0;
     tabs = [
+        {name: 'Alle', count: 0 },
         {name: 'Opprettet', count: 0},
         {name: 'Innsendt', count: 0},
-        {name: 'Avvist', count: 0},
-        {name: 'Alle', count: 0}
+        {name: 'Avvist', count: 0}
     ];
     constructor(private router: Router, private incomeReportActions: IncomeReportsActions, private route: ActivatedRoute) {
         this.incomeReportActions.getIncomeReportCounters().pipe(take(1)).subscribe((counters) => {
@@ -31,21 +31,21 @@ export class IncomeReportsListTab {
 
     ngOnInit() {
         this.route.queryParams.pipe(takeUntil(this.onDestroy$)).subscribe(params => {
-            this.activeTabChange.emit(params.incomeReportTab || 'Alle');
-            if (!params.incomeReportTab) {
-                this.activeIndex = 3;
+            this.activeTabChange.emit(params.incomereportstatus || 'Alle');
+            if (!params.incomereportstatus) {
+                this.activeIndex = 0;
             } else {
-                switch (params.incomeReportTab) {
-                    case 'Opprettet': this.activeIndex = 0;
+                switch (params.incomereportstatus) {
+                    case 'Opprettet': this.activeIndex = 1;
                         break;
-                    case 'Innsendt': this.activeIndex = 1;
+                    case 'Innsendt': this.activeIndex = 2;
                         break;
-                    case 'Avvist': this.activeIndex = 2;
+                    case 'Avvist': this.activeIndex = 3;
                         break;
-                    case 'Alle': this.activeIndex = 3;
+                    case 'Alle': this.activeIndex = 0;
                         break;
                     default:
-                        this.activeIndex = 3;
+                        this.activeIndex = 0;
                 }
             }
         });

@@ -1,7 +1,14 @@
 <section class="uni-modal">
-    <header>Inntektsmelding {{ isNewIncomeReport ? '(ny)' : '(endring)' }}</header>
+    <header>Inntektsmelding</header>
 
     <article [attr.aria-busy]="busy">
+        <section *ngIf="showMultipleEmploymentsWarning" class="income-report alert warn">
+            <i class="material-icons warn">warning</i>
+            <article>Du har flere aktive arbeidsforhold på den ansatte. Dersom dette er aktive arbeidsforhold må du huske å levere
+            inntektsmelding på alle arbeidsforholdene. Dersom dette er et avsluttet arbeidsforhold må du sette sluttdato og årsak
+            til sluttdato på dette arbeidsforholdet.</article>
+        </section>
+
         <uni-form
             [model]="incomereport$"
             [fields]="fields$"

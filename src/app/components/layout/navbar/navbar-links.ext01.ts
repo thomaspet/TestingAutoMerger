@@ -366,12 +366,12 @@ export const NAVBAR_LINKS: INavbarLinkSection[] = [
                         moduleID: UniModules.Amelding,
                         activeInSidebar: true
                     },
-                    // {
-                    //     name: 'NAVBAR.INCOMEREPORTS',
-                    //     url: '/salary/incomereports',
-                    //     moduleID: UniModules.IncomeReports,
-                    //     activeInSidebar: true
-                    // },
+                    {
+                        name: 'NAVBAR.INCOMEREPORTS',
+                        url: '/salary/incomereports',
+                        moduleID: UniModules.IncomeReports,
+                        activeInSidebar: true
+                    },
                     {
                         name: 'NAVBAR.BALANCE',
                         url: '/salary/salarybalances',

@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router} from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { of } from 'rxjs';
-import { IncomeReportModal } from './income-report-modal/income-report-modal';
+import { IncomeReportModal } from './shared/components/income-report-modal/income-report-modal';
 
 @Injectable()
 export class NewIncomeReportGuard implements CanActivate {

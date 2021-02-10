@@ -41,7 +41,7 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
                 break;
             case 'innsendt': statusCodeFilter = 'incomereportdata.StatusCode eq ' + StatusCodeIncomeReport.Sent;
                 break;
-            case 'avvist': statusCodeFilter = 'incomereportdata.StatusCode eq ' + 49003;
+            case 'avvist': statusCodeFilter = 'incomereportdata.StatusCode eq ' + StatusCodeIncomeReport.Rejected;
                 break;
         }
         let params = urlParams;
@@ -77,6 +77,14 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
 
     }
 
+    public deleteIncomeReport(ID: number): Observable<boolean> {
+        return this.http.asDELETE()
+            .usingBusinessDomain()
+            .withEndPoint(`${this.relativeURL}/${ID}`)
+            .send();
+    }
+
+
     public getIncomeReport(id: number): Observable<any> {
         return super.Get(id);
     }
@@ -89,9 +97,30 @@ export class IncomeReportsService extends BizHttp<IncomeReportData> {
         return this.http
             .usingBusinessDomain()
             .asPOST()
-            .withEndPoint(`income-reports?action=create&type=${type}` + employmentFilter)
+            .withEndPoint(this.relativeURL + `?action=create&type=${type}` + employmentFilter)
             .send()
             .map(response => response.body);
+    }
+
+    public sendIncomeReport(id: number) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(this.relativeURL + `/${id}?action=send`)
+            .send()
+            .map(response => response.body);
+    }
+
+    public getKontantytelsefromPayroll(employmentId: number, fromDate: Date, periods: number): Observable<any[]> {
+        let monthlyPayFilter: string = '';
+
+        if (!employmentId || !fromDate || !periods) {
+            return Observable.of(null);
+        }
+        monthlyPayFilter = `&employmentID=${employmentId}&fromDate=${fromDate}&periods=${periods}`;
+
+        return super.GetAction(null, 'monthly-pay', monthlyPayFilter);
     }
 
 }

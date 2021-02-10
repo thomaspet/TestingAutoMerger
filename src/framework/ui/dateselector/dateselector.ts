@@ -1,4 +1,4 @@
-import {Component, Input, Output, EventEmitter, OnChanges} from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { LocalDate } from '@uni-entities';
 import * as moment from 'moment';
 
@@ -41,13 +41,13 @@ export class UniDateSelector implements OnChanges {
 
     ngOnInit() {
         this.periodFilters = this.generatePeriodFilters();
-        this.setFromAndToDate(this.fromDate ? this.fromDate.Date : new Date(), this.toDate ? this.toDate.Date : new Date());
+        this.setFromAndToDate(this.fromDate?.Date ?? this.fromDate ?? new Date(), this.toDate?.Date ?? this.toDate ?? new Date());
         this.initialDataLoaded = true;
     }
 
     public ngOnChanges() {
         if (this.initialDataLoaded) {
-            this.setFromAndToDate(this.fromDate ? this.fromDate.Date : new Date(), this.toDate ? this.toDate.Date : new Date());
+            this.setFromAndToDate(this.fromDate?.Date ?? this.fromDate ?? new Date(), this.toDate?.Date ?? this.toDate ?? new Date());
         }
     }
 
@@ -63,6 +63,7 @@ export class UniDateSelector implements OnChanges {
     }
 
     public setFromAndToDate(from: any, to: any, isChange: boolean = false) {
+
         this.toDate = {
             Date: moment(to, this._DATE_FORMAT_STRING),
             DateFormatted: moment(to, this._DATE_FORMAT_STRING).format('YYYY.MM.DD')
@@ -78,7 +79,7 @@ export class UniDateSelector implements OnChanges {
         // Lets see if we can highlight a periodfilter because of match
         this.periodFilters.forEach(array => {
             array.forEach(filter => {
-                if (filter.from === this.fromDate.DateFormatted && filter.to === this.toDate.DateFormatted ) {
+                if (filter.from === this.fromDate.DateFormatted && filter.to === this.toDate.DateFormatted) {
                     filter.selected = true;
                 }
             });

@@ -1,0 +1,29 @@
+<section class="row form-row" *ngIf="incomereport && incomereport['Report'].Skjemainnhold.arbeidsforhold.avtaltFerieListe">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Lovbestemt ferie</h1>
+            <p>{{ferieText}}</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+
+                <span>Har arbeidstaker ferie i perioden?</span>
+                <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="hasFerie" style="margin: 1rem 0"
+                    aria-label="Har du ferie i perioden?">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+                <section *ngIf="hasFerie">
+                    <uni-income-report-date-period-picker
+                        (periodsChange)="onPeriodsChange($event)"
+                        [readOnly]="readOnly"
+                        [periods]="incomereport['Report'].Skjemainnhold.arbeidsforhold.avtaltFerieListe">
+                    </uni-income-report-date-period-picker>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>

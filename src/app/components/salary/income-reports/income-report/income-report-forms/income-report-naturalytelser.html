@@ -1,0 +1,79 @@
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Naturalytelser</h1>
+            <p>Velges Nei, ingen naturalytelser endres under fraværet, så fylles det ikke ut mer informasjon.</p>
+            <p>Ja. Legg til den naturalytelsen som faller bort for denne ansatte. Type naturalytelse, Dato for når bortfallet starter
+            og beløpet som faller bort. Hvis bortfallet av naturalytelser bare er for en periode, så legges det til en linje med når
+            naturalytelsen igjen utbetales, type og dato.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+
+                <span>Har arbeidstaker naturalytelser som blir påvirket?</span>
+                <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="hasNaturalytelser" style="margin: 1rem 0"
+                    aria-label="Har du naturalytelser som blir forandret under fraværet?">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+
+                <section *ngIf="hasNaturalytelser">
+                    <section>
+                    <span>Naturalytelser som faller bort under fraværet</span>
+                        <simple-table class="selectable" *ngIf="opphoerAvNaturalytelseListe?.length">
+                            <thead>
+                                <tr>
+                                    <th>Naturalytelse</th>
+                                    <th>Fra og med</th>
+                                    <th>Beløp</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let item of opphoerAvNaturalytelseListe">
+                                    <td>{{item.naturalytelseType | naturalytelseText:ytelser}}</td>
+                                    <td>{{item.fom | date: 'dd.MM.yyyy'}}</td>
+                                    <td>{{item.beloepPrMnd | unicurrency}}</td>
+                                    <td><button (click)="deleteOpphoer(item)" aria-label="Slett naturalytelse" class="icon-button">
+                                            <i class="material-icons-outlined">delete</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </simple-table>
+                        <a (click)="OpenNaturalytelseModal()" class="add-naturalytelse-link"> + Legg til ny </a>
+                    </section>
+                    <br/>
+                    <section>
+                        <span>Arbeidstaker mottar igjen naturalytelser</span>
+                        <simple-table class="selectable" *ngIf="gjenopptakelseNaturalytelseListe?.length">
+                            <thead>
+                                <tr>
+                                    <th>Naturalytelse</th>
+                                    <th>Fra og med</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr *ngFor="let item of gjenopptakelseNaturalytelseListe">
+                                    <td>{{item.naturalytelseType | naturalytelseText:ytelser}}</td>
+                                    <td>{{item.fom | date: 'dd.MM.yyyy'}}</td>
+                                    <td><button (click)="deleteGjennopptagelse(item)" aria-label="Slett naturalytelse" class="icon-button">
+                                            <i class="material-icons-outlined">delete</i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            </simple-table>
+                            <a (click)="OpenNaturalytelseModal(true)" class="add-naturalytelse-link"> + Legg til ny </a>
+                        </section>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>

@@ -1,0 +1,96 @@
+<section class="row form-row" *ngIf="askForOmsorgspenger">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Omsorgspenger</h1>
+            <p>Er svaret Nei på spørsmålet om mer enn 10 dager er refundert i år, så er det ikke nødvendig å sende inn
+            inntektsmeldingen, da arbeidsgiver ikke har rett på refusjon før 10 dager er betalt (gjelder etter 1.7.2020). Er svaret
+            Ja her så fylles det ut de perioder, enkeltdager eller dager med delvis fravær det kreves refusjon for. Omsorgspenger
+            refunderes for 6-dagers uke, så hvis en ansatt har vært borte fredag og mandag, må dette splittes opp i 2 perioder, hvis
+            ikke den ansatte skulle ha jobbet lørdagen i mellom. En kan legge inn flere perioder/dager/deler av dager i samme
+            refusjonskrav.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <span>Er det utbetalt mer enn ti dager med omsorgspenger i år?</span>
+                <mat-radio-group [disabled]="readOnly" class="horizontal"
+                    [(ngModel)]="incomereport['Report'].Skjemainnhold.omsorgspenger.harUtbetaltPliktigeDager"
+                    style="margin: 1rem 0" aria-label="Utbetalt mer en ti dager omsorgspenger i år?">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+
+                <span>Hele dager dere krever refusjon for?</span>
+                <section>
+                    <uni-income-report-date-period-picker [readOnly]="readOnly" (periodsChange)="onPeriodsChange($event)"
+                        [periods]="incomereport['Report'].Skjemainnhold.omsorgspenger.fravaersPerioder">
+                    </uni-income-report-date-period-picker>
+                </section>
+
+                <span>Dager med delvis fravær dere krever refusjon for?</span>
+                <section>
+                    <simple-table class="selectable">
+                        <thead>
+                            <tr>
+                                <th>Dato</th>
+                                <th>Timer</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr *ngFor="let item of delvisFravaersListe,let i = index">
+                                <td>
+                                    <uni-datepicker [readonly]="true" [(value)]="item.dato"></uni-datepicker>
+                                </td>
+                                <td>{{item.timer}}</td>
+                                <td><i class="material-icons" (click)="deletePartly(i)">delete</i></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <uni-datepicker [readonly]="readOnly" [(value)]="delvisFravaer.dato"></uni-datepicker>
+                                </td>
+                                <td><input [disabled]="readOnly" type="number" [(ngModel)]="delvisFravaer.timer" /></td>
+                                <td><a (click)="addPartlyPeriod()"> + Legg til delvis periode </a></td>
+                            </tr>
+                        </tbody>
+                    </simple-table>
+                </section>
+            </section>
+        </section>
+    </section>
+
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Refusjon</h1>
+            <p>Nei, ingenting fylles ut. Er svaret Ja, må refusjonsbeløp per måned oppgis, dette hentes fra beregnet månedslønn, se
+            forklaring under Arbeidsforhold. Er det endringer i refusjonskravet i fraværsperioden, velg Ja her, det må da legges til
+            informasjon om dato det gjelder fra og Beløpet som det endres til. Opphører refusjonskravet i perioden (feks den ansatte
+            slutter) så velges det Ja og dato for siste arbeidsdag legges inn her. Er det ingen endringer i kravet underveis i
+            fraværet velges Nei begge steder.</p>
+        </section>
+    </section>
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <span>Utbetaler dere lønn under hele eller deler av fraværet og krever dere refusjon?</span>
+                <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="this.incomereport['Report'].Skjemainnhold.refusjon.refusjonsbeloepPrMndSpecified"
+                    (change)="demandsRefusjonChange($event)" style="margin: 1rem 0"
+                    aria-label="Utbetaler dere lønn under hele eller deler av fraværet og krever dere refusjon?">
+                    <mat-radio-button [value]="true">Ja</mat-radio-button>
+                    <mat-radio-button [value]="false">Nei</mat-radio-button>
+                </mat-radio-group>
+
+                <article *ngIf="this.incomereport['Report'].Skjemainnhold.refusjon.refusjonsbeloepPrMndSpecified">
+                    <uni-form [config]="{ showLabelAbove: true}" [model]="incomereport" [fields]="fieldsRefusjonOmsorgspenger$">
+                    </uni-form>
+                    <p>Beløpet skal oppgis som et månedsbeløp. Refusjonskravet gjelder fra den første dagen
+                        arbeidstakeren har rett til
+                        utbetaling fra NAV.</p>
+                </article>
+            </section>
+        </section>
+    </section>
+</section>

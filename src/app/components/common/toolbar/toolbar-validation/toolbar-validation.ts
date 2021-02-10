@@ -4,6 +4,7 @@ export interface IToolbarValidation {
     label: string;
     type: 'good' | 'bad' | 'warn';
     link?: string;
+    tooltip?: string;
     click?: () => void;
 }
 
