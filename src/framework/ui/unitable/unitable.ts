@@ -1,10 +1,7 @@
-import {Component, Input, Output, EventEmitter, OnChanges, HostListener, ElementRef, ViewChild, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation} from '@angular/core';
+import {Component, Input, Output, EventEmitter, OnChanges, ElementRef, ViewChild, SimpleChange, ChangeDetectionStrategy, ChangeDetectorRef, ViewEncapsulation} from '@angular/core';
 import {HttpParams} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/observable/fromEvent';
-import 'rxjs/add/observable/fromPromise';
-import 'rxjs/add/operator/throttleTime';
+import {fromEvent, Observable} from 'rxjs';
+import {map, throttleTime} from 'rxjs/operators';
 
 import {UniTableConfig, IDeleteButton, ISortInfo, IRowChangeEvent} from './config/unitableConfig';
 import {UniTableColumn, UniTableColumnType, UniTableColumnSortMode} from './config/unitableColumn';
@@ -108,13 +105,13 @@ export class UniTable implements OnChanges {
 
     // Life-cycle hooks
     public ngOnInit() {
-        this.resize$ = Observable.fromEvent(window, 'resize')
-            .throttleTime(200)
-            .subscribe((event) => {
-                if (this.lastFocusPosition) {
-                    this.resetFocusedCell();
-                }
-            });
+        this.resize$ = fromEvent(window, 'resize').pipe(
+            throttleTime(200)
+        ).subscribe(() => {
+            if (this.lastFocusPosition) {
+                this.resetFocusedCell();
+            }
+        });
     }
 
     public ngOnDestroy() {
@@ -555,7 +552,7 @@ export class UniTable implements OnChanges {
     }
 
     // Helpers
-    private copyFromCellAbove() {
+    copyFromCellAbove() {
         if (!this.config.copyFromCellAbove) { return; }
 
         const field = this.lastFocusedCellColumn.get('field');
@@ -793,10 +790,10 @@ export class UniTable implements OnChanges {
             odata += `&filter=` + this.HttpParams.get('filter');
         }
 
-        this.statisticsService.GetAll(odata)
-            .map(res => (res && res.Data && res.Data[0]) || {})
-            .catch(err => Observable.empty())
-            .subscribe(sums => {
+        this.statisticsService.GetAll(odata).pipe(
+            map(res => (res && res.Data && res.Data[0]) || {}),
+        ).subscribe(
+            sums => {
                 let columnSums = {};
 
                 sumColumns.forEach(col => {
@@ -805,7 +802,9 @@ export class UniTable implements OnChanges {
 
                 this.columnSums = Object.keys(columnSums).length ? columnSums : undefined;
                 this.cdr.markForCheck();
-            });
+            },
+            err => console.error(err)
+        );
     }
 
     private makeDataImmutable(data) {

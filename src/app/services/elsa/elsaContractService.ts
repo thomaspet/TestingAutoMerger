@@ -89,14 +89,14 @@ export class ElsaContractService {
         return this.http.get<ElsaCategory[]>(this.ELSA_SERVER_URL + '/api/categories');
     }
 
-    getValidContractTypeUpgrades(): Observable<number[]> {
-        const url = `/api/elsa/contracts/${this.authService.contractID}/check-upgrade?valid=true`;
+    getValidContractTypeUpgrades(): Observable<any[]> {
+        const url = `/api/elsa/contracts/${this.authService.contractID}/check-upgrade`;
         return this.http.get<any[]>(url).pipe(
             catchError(err => {
                 console.error(err);
                 return of([]);
             }),
-            map(res => (res || []).map(item => item.TargetType))
+            map(res => (res || []))
         );
     }
 

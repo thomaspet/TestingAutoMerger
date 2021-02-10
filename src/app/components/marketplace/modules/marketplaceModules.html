@@ -45,6 +45,7 @@
                 buttonClass="c2a"
                 [contractType]="contractType"
                 [disabled]="!contractType['_isValidUpgrade']"
+                [disabledReason]="contractType['_disabledReason']"
                 [active]="contractType['_isActive']"
                 [recommended]="contractType['_isValidUpgrade'] && contractType.Name === 'Plus' && isBrunoEnv"
                 (selected)="changeContractType(contractType)">

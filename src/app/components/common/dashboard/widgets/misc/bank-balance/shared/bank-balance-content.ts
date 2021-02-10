@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, ChangeDetectorRef} from '@angular/core';
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, Pipe} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {forkJoin, of, Observable} from 'rxjs';
 import {map, switchMap, catchError} from 'rxjs/operators';
@@ -14,6 +14,8 @@ interface AccountBalanceData {
     accountNumber: string;
     balanceAvailable: number;
     balanceBooked: number;
+    isMainAccountBalance: boolean;
+    MainAccountName: string;
 }
 
 @Component({
@@ -41,7 +43,7 @@ export class BankBalanceWidgetContent {
 
     ngOnInit() {
         forkJoin(
-            this.getAccountBalance(),
+            this.getAccountBalances(),
             this.getReconciliationCount()
         ).subscribe(
             ([balances, reconciliationCount]) => {
@@ -64,7 +66,7 @@ export class BankBalanceWidgetContent {
         );
     }
 
-    private getAccountBalance() {
+    private getAccountBalances() {
         if (this.authService.activeCompany?.IsTest) {
             return this.bankAccountService.getBankBalance(1).pipe(
                 map(res => [{
@@ -72,43 +74,29 @@ export class BankBalanceWidgetContent {
                     accountNumber: res.AccountNumber,
                     balanceAvailable: res.BalanceAvailable,
                     balanceBooked: res.BalanceBooked,
+                    isMainAccountBalance: false,
+                    MainAccountName: ''
                 }])
             );
         }
 
-        const accountIdEndpoint = '/api/statistics?model=CompanySettings&select=CompanyBankAccountID as CompanyBankAccountID,TaxBankAccountID as TaxBankAccountID&top=1&wrap=false';
+        return this.bankAccountService.getAllBankBalances()
+            .map((balances: any[]) => {
+            const data: AccountBalanceData[] = [];
 
-        return this.http.get(accountIdEndpoint).pipe(switchMap(res => {
-            const accountIDs = res && res[0] || {};
-            return forkJoin(
-                this.bankAccountService.getBankBalance(accountIDs.CompanyBankAccountID),
-                this.bankAccountService.getBankBalance(accountIDs.TaxBankAccountID)
-            ).pipe(
-                map(([companyAccountBalance, taxAccountBalance]) => {
-                    const data: AccountBalanceData[] = [];
+            balances.forEach((balance) => {
+                data.push({
+                    accountName: balance.AccountName,
+                    accountNumber: this.numberFormatter.asBankAcct(balance.AccountNumber),
+                    balanceAvailable: balance.BalanceAvailable,
+                    balanceBooked: balance.BalanceBooked,
+                    isMainAccountBalance: balance.IsMainAccountBalance,
+                    MainAccountName: balance.MainAccountName
+                });
+            });
 
-                    if (companyAccountBalance) {
-                        data.push({
-                            accountName: 'Driftskonto standard',
-                            accountNumber: companyAccountBalance.AccountNumber,
-                            balanceAvailable: companyAccountBalance.BalanceAvailable,
-                            balanceBooked: companyAccountBalance.BalanceBooked,
-                        });
-                    }
-
-                    if (taxAccountBalance) {
-                        data.push({
-                            accountName: 'Skattetrekkskonto',
-                            accountNumber: taxAccountBalance.AccountNumber,
-                            balanceAvailable: taxAccountBalance.BalanceAvailable,
-                            balanceBooked: taxAccountBalance.BalanceBooked,
-                        });
-                    }
-
-                    return data;
-                })
-            );
-        }));
+            return data;
+    });
     }
 
     private getReconciliationCount(): Observable<number> {
@@ -131,7 +119,7 @@ export class BankBalanceWidgetContent {
 
     private getChartConfig() {
         const totalAmount = this.accountBalanceItems.reduce((sum, item) => {
-            return sum += (item.balanceAvailable || 0);
+            return sum += (item.isMainAccountBalance ? item.balanceBooked : item.balanceAvailable || 0);
         }, 0);
 
         return {
@@ -139,7 +127,7 @@ export class BankBalanceWidgetContent {
             plugins: [doughnutlabel],
             data: {
                 datasets: [{
-                    data: this.accountBalanceItems.map(item => item.balanceAvailable),
+                    data: this.accountBalanceItems.map(item => item.isMainAccountBalance ? item.balanceBooked : item.balanceAvailable),
                     backgroundColor: this.colors,
                     label: '',
                     borderColor: '#fff',

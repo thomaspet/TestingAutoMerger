@@ -4,7 +4,7 @@ import {EHFLog, CompanySettings} from '../../unientities';
 import {UniHttp} from '../../../framework/core/http/http';
 import {RequestMethod} from '@uni-framework/core/http';
 import {CompanySettingsService} from '../common/companySettingsService';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
+import {BehaviorSubject} from 'rxjs';
 import {ActivateAP} from '@app/models/activateAP';
 
 export const AP_NAME_EHF = 'EHF INVOICE';

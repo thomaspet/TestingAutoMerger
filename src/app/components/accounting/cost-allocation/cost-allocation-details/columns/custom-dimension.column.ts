@@ -1,5 +1,7 @@
 import { UniTableColumn, UniTableColumnType } from '@uni-framework/ui/unitable';
 import { CustomDimensionService } from '@app/services/common/customDimensionService';
+import {catchError} from 'rxjs/operators';
+import {of} from 'rxjs';
 
 export const customDimensionColumns = (customDimensionService: CustomDimensionService, dimensionTypes: any[]) => {
     return dimensionTypes.map(type => {
@@ -23,7 +25,12 @@ export const customDimensionColumns = (customDimensionService: CustomDimensionSe
                     return customDimensionService.getCustomDimensionList(
                         type.Dimension,
                         `?filter=startswith(Number,'${query}') or contains(Name,'${query}')&top=30`
-                    ).catch((err, obs) => this.errorService.handleRxCatch(err, obs));
+                    ).pipe(
+                        catchError(err => {
+                            console.error(err);
+                            return of([]);
+                        })
+                    );
                 }
             });
     });

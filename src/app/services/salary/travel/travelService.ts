@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {BizHttp, UniHttp, RequestMethod, IHttpCacheStore} from '@uni-framework/core/http';
 import {
-    Travel, ApiKey, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
+    Travel, FieldType, state, costtype, Employee, TypeOfIntegration, File, SalaryTransaction, SupplierInvoice, Supplier
 } from '@uni-entities';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
@@ -9,8 +9,7 @@ import {EmployeeService} from '../employee/employeeService';
 import {ApiKeyService} from '../../common/apikeyService';
 import {FileService} from '../../common/fileService';
 import {SupplierService} from '@app/services/accounting/supplierService';
-import { map, filter, switchMap, catchError } from 'rxjs/operators';
-import { isArray } from 'util';
+import { map, switchMap, catchError } from 'rxjs/operators';
 
 @Injectable()
 export class TravelService extends BizHttp<Travel> {
@@ -171,7 +170,7 @@ export class TravelService extends BizHttp<Travel> {
                     map(files => {
                         const fileList = [];
                         files.forEach(f => {
-                            if (!isArray(f)) {
+                            if (!Array.isArray(f)) {
                                 fileList.push(f);
                                 return;
                             }

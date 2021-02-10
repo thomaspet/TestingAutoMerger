@@ -138,7 +138,6 @@ export const APP_ROUTES = RouterModule.forRoot([
         path: 'reload',
         component: ReloadHelper
     },
-
     // everything else does
     {
         path: '',
@@ -146,4 +145,4 @@ export const APP_ROUTES = RouterModule.forRoot([
         canActivateChild: [RoutePermissionGuard],
         children: routes
     }
-]);
+], { relativeLinkResolution: 'legacy' });

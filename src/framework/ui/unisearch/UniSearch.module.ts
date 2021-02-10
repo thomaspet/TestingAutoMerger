@@ -3,7 +3,6 @@ import {CommonModule} from '@angular/common';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {UniSearch} from './UniSearch';
 import {UniSearchAttr} from './UniSearchAttr';
-import {TestDataService} from './TestDataService';
 import {ClickOutsideModule} from '../../click-outside/click-outside.module';
 import {InputDropdownModule} from '../input-dropdown/input-dropdown';
 
@@ -18,9 +17,6 @@ import {InputDropdownModule} from '../input-dropdown/input-dropdown';
     declarations: [
         UniSearch,
         UniSearchAttr
-    ],
-    providers: [
-        TestDataService
     ],
     exports: [
         UniSearch,
