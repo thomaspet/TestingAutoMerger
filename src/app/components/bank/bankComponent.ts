@@ -936,7 +936,7 @@ export class BankComponent {
             this.paymentService.Get(row.ID, ['BusinessRelation', 'FromBankAccount', 'ToBankAccount', 'CurrencyCode'])
                 .subscribe((payment: Payment) => {
                     const newPayment = new Payment();
-                    newPayment.PaymentDate = new LocalDate();
+                    newPayment.PaymentDate = payment.PaymentDate;
                     newPayment.DueDate = payment.DueDate;
                     newPayment.InvoiceNumber = payment.InvoiceNumber;
                     newPayment.Amount = payment.Amount;
