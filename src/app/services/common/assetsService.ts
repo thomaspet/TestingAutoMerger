@@ -108,6 +108,10 @@ export class AssetsService extends BizHttp<Asset>{
         return this.PutAction(null, 'depreciate-year', `year=${year}`);
     }
 
+    getENKAssetsList(ID: number) {
+        return this.GetAction(null, 'get-real-estate-assets', 'annualSettlementID=' + ID);
+    }
+
     getAssetCountersByType(code?: number | null) {
         let statusCode = '';
         if (code) {

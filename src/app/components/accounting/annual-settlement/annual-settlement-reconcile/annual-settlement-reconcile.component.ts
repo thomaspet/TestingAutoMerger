@@ -108,7 +108,8 @@ export class AnnualSettlementReconcileComponent {
     }
 
     openFileModal(account) {
-        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account } }).onClose.subscribe((hasAttachements: boolean) => {
+        this.modalService.open(UniReconcileAccountFileUploadModal, { data: { account }, closeOnClickOutside: false, hideCloseButton: true }).onClose.subscribe((hasAttachements: boolean) => {
+            debugger
             account.HasAttachements = hasAttachements;
             const accounts = this.accounts$.getValue();
             const index = accounts.findIndex(acc => acc.ID === account.ID);

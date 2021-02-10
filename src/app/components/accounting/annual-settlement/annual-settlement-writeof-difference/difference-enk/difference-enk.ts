@@ -87,10 +87,10 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
         ).subscribe(id => {
             Observable.forkJoin([
                 this.annualSettlementService.getAnnualSettlement(id),
-                this.annualSettlementService.getAssetTaxbasedIBDetails(id)
+                this.assetsService.getENKAssetsList(id)
             ]).subscribe(([settlement, details]) => {
                 this.annualSettlement = settlement;
-                this.assetsDetails = this.getFormattedDetailsData(details);
+                this.assetsDetails = details;
             });
             
         });

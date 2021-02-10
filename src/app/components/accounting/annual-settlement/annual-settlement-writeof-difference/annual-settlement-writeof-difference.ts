@@ -438,20 +438,28 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 		// THIS SHOULD BE STEP === 8 WHEN SUMMARY IS COMMING BACK
 		if (this.stepContentArray.length - 1 === this.step && direction > 0) {
-			if (this.annualSettlement.StatusCode > 36110) {
-				this.goBack();
-				return;
-			}
 
-			this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
-				this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
-				this.goBack();
-				return;
+			this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
+
+				if (this.annualSettlement.StatusCode > 36110) {
+					this.goBack();
+					return;
+				}
+				
+				this.annualSettlementService.moveFromStep3ToStep4(this.annualSettlement).subscribe(() => {
+					this.toastService.addToast('Informasjon lagret', ToastType.good, 6, 'Oppdatert informasjon på avskrivninger og forskjeller er lagret');
+					this.goBack();
+					return;
+				}, err => {
+					this.toastService.addToast('Informasjon lagret, men noe gikk galt', ToastType.bad, 6, 'Klarte ikke fullføre steg 3. Se gjennom data og prøv igjen');
+					this.goBack();
+					return;
+				});
 			}, err => {
-				this.toastService.addToast('Informasjon lagret, men noe gikk galt', ToastType.bad, 6, 'Klarte ikke fullføre steg 3. Se gjennom data og prøv igjen');
-				this.goBack();
-				return;
+				this.busy = false;
+				this.errorService.handle(err);
 			});
+
 		} else if (this.infoContent.step === 0 && direction > 0) {
 			this.assetsService.updateAssetsList(this.assetsList).subscribe(() => {
 				this.step += direction;
