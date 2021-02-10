@@ -164,7 +164,11 @@ export class BankInitModal implements IUniModal, OnInit {
         if (!this.checkNextStepValid()) {
             return;
         }
-        this.steps++;
+        if (this.steps === 1 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+            this.steps += 2;
+        } else {
+            this.steps++;
+        }
         this.errorMsg = '';
         if (this.steps >= 3 && this.steps <= 5) {
             this.fields$.next(this.setUpUniForm());
@@ -172,7 +176,11 @@ export class BankInitModal implements IUniModal, OnInit {
     }
 
     prev() {
-        this.steps--;
+        if (this.steps === 3 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+            this.steps -= 2;
+        } else {
+            this.steps--;
+        }
         this.errorMsg = '';
 
         if (this.steps >= 3 && this.steps <= 5) {
@@ -219,7 +227,10 @@ export class BankInitModal implements IUniModal, OnInit {
 
     postAutobankUser() {
         this.busy = true;
-        if (this.serviceProvider === 4 || this.validatePassword() && this.isValidPhoneNumber(this.payload.Phone)) {
+        if (this.serviceProvider === BankAgreementServiceProvider.Bruno
+            || this.validatePassword()
+            && this.isValidPhoneNumber(this.payload.Phone)) {
+
             this.bankService.createInitialAgreement(this.payload).subscribe((agreement) => {
                 this.orderPreApprovedPayments(agreement);
                 this.agreement = agreement;
