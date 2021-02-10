@@ -126,8 +126,8 @@ export class LicenseInfo implements OnDestroy {
             return customer.Contracts?.some(contract => contract.ID === this.selectedContractID$.getValue());
         });
 
-        this.selectedCustomerID = selectedCustomer.ID;
-        this.isBureauCustomer = selectedCustomer.CustomerType === 5;
+        this.selectedCustomerID = selectedCustomer?.ID;
+        this.isBureauCustomer = selectedCustomer?.CustomerType === 5;
     }
 
     openNewContractModal() {
