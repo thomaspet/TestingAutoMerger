@@ -14,7 +14,7 @@
                 <span [class.is-active-step]="steps === 1">  </span>
                 <div [class.is-active-step]="steps === 1"> Avtalevilkår </div>
             </li>
-            <li>
+            <li *ngIf="serviceProvider !== 1">
                 <span [class.is-active-step]="steps === 2">  </span>
                 <div [class.is-active-step]="steps === 2"> Godkjenne betalinger </div>
             </li>

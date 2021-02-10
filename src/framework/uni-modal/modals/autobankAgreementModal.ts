@@ -46,7 +46,7 @@ import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
                         <span [class.is-active-step]="steps === 2">  </span>
                         <div [class.is-active-step]="steps === 2"> Avtalevilkår </div>
                     </li>
-                    <li>
+                    <li *ngIf="serviceProvider !== 1">
                         <span [class.is-active-step]="steps === 3">  </span>
                         <div [class.is-active-step]="steps === 3"> Bankoppsett </div>
                     </li>
@@ -398,7 +398,11 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public move(direction: number) {
         // Go backwards
         if (direction < 0) {
-            this.steps--;
+            if (this.steps === 4 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+                this.steps -= 2;
+            } else  {
+                this.steps--;
+            }
             this.errorText = '';
             this.buttonLock = false;
             return;
@@ -459,7 +463,10 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.sendStartDataToZData();
             return;
         }
-        if (this.steps < 4) {
+
+        if (this.steps === 2 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+            this.steps += 2;
+        } else if (this.steps < 5) {
             this.steps++;
         }
     }
