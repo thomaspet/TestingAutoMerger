@@ -9,6 +9,7 @@ import { LicenseInfo } from '../license-info';
 import {ConfirmActions} from '@uni-framework/uni-modal/interfaces';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import {forkJoin} from 'rxjs';
+import { EditContactInfoModal } from '../edit-contactinfo-modal/edit-contactinfo-modal';
 
 @Component({
     selector: 'license-details',
@@ -161,6 +162,16 @@ export class LicenseDetails {
             () => this.loadData(),
             err => this.errorService.handle(err)
         );
+    }
+
+    editContactInfo() {
+        this.modalService.open(EditContactInfoModal, {
+            data: {customer: this.customer}
+        }).onClose.subscribe(res => {
+            if (res) {
+                this.loadData();
+            }
+        });
     }
 
     filter() {

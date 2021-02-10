@@ -9,6 +9,7 @@ import {ElsaContractType, ElsaProduct, ElsaProductType} from '@app/models';
 export class ContractTypeCard {
     @Input() contractType: ElsaContractType;
     @Input() disabled: boolean;
+    @Input() disabledReason?: string;
     @Input() active: boolean;
     @Input() buttonClass: string;
     @Input() buttonLabel: string;
