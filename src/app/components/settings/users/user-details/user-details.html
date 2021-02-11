@@ -2,24 +2,24 @@
     <section class="left-side">
         <section class="user-info">
             <strong>{{user.DisplayName || user.Email}}</strong>
-            <small *ngIf="user._isActive && !user._isSupport">{{user._isAdmin ? 'Administrator' : 'Standard bruker'}}</small>
-            <small *ngIf="user._isActive && user._isSupport">{{user._supportType}}</small>
+            <small *ngIf="user['_isActive'] && !user['_isSupport']">{{user['_isAdmin'] ? 'Administrator' : 'Standard bruker'}}</small>
+            <small *ngIf="user['_isActive'] && user['_isSupport']">{{user['_supportType']}}</small>
         </section>
 
         <section class="info-bar">
-            <small *ngIf="user._statusText">
-                <i class="material-icons status-icon" [ngClass]="user._statusClass">
-                    {{user._statusIcon}}
+            <small *ngIf="user['_statusText']">
+                <i class="material-icons status-icon" [ngClass]="user['_statusClass']">
+                    {{user['_statusIcon']}}
                 </i>
-                {{user._statusText}}
+                {{user['_statusText']}}
             </small>
 
-            <small *ngIf="!user._isSupport">
+            <small *ngIf="!user['_isSupport']">
                 <i class="material-icons">phone</i>
                 {{user.PhoneNumber || 'Ikke registrert'}}
             </small>
 
-            <small *ngIf="!user._isSupport">
+            <small *ngIf="!user['_isSupport']">
                 <i class="material-icons">email</i>
                 {{user.Email || 'Ikke registrert'}}
             </small>
@@ -47,15 +47,13 @@
 </header>
 
 <section id="role-info">
-
     <mat-accordion multi="true">
-
-        <mat-expansion-panel *ngFor="let group of userRoleGroups; let idx = index" [expanded]="idx === 0">
+        <mat-expansion-panel *ngFor="let group of purchasedProductGroups; let idx = index" [expanded]="idx === 0">
             <mat-expansion-panel-header [collapsedHeight]="'45px'" [expandedHeight]="'45px'" style="background: #f0f0f0;">
                 <mat-panel-title>{{group.label}}</mat-panel-title>
             </mat-expansion-panel-header>
 
-            <section style="padding-top: 16px;">
+            <section style="padding-top: 16px;" *ngIf="group.userRoles?.length">
                 <table>
                     <tr>
                         <th>Rolle</th>
@@ -64,12 +62,17 @@
                     </tr>
                     <tr *ngFor="let role of group.userRoles">
                         <td>{{role.SharedRoleName | translateRole}}</td>
-                        <td>{{role._assignedDate}}</td>
-                        <td>{{role._assignedBy}}</td>
+                        <td>{{role['_assignedDate']}}</td>
+                        <td>{{role['_assignedBy']}}</td>
                     </tr>
                 </table>
             </section>
-        </mat-expansion-panel>
 
+            <section class="alert warn no-roles" *ngIf="!group.userRoles?.length">
+                <i class="material-icons">info_outline</i>
+                Brukeren har ingen roller satt på produktet, og vil derfor ikke ha tilgang.
+                <br>Produktet er aktivt, og vil bli fakturert. 
+            </section>
+        </mat-expansion-panel>
     </mat-accordion>
 </section>
