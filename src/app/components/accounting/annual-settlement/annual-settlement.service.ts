@@ -131,19 +131,29 @@ export class AnnualSettlementService extends BizHttp<any> {
                 .withEndPoint('assets?action=get-assets-incoming-financial-value&year=' + (financialYear + 1))
                 .send()
             .pipe(
-                map(res => res.body)
+                map(res => res.body),
             );
     }
 
     checkAssetsAccountBalance(financialYear) {
-        return this.http
-            .asGET()
-            .usingBusinessDomain()
-            .withEndPoint('annualsettlement?action=get-account-balance&fromAccountNumber=1000&toAccountNumber=1299&toFinancialYear=' + (financialYear))
-            .send()
-            .pipe(
-                map(res => res.body)
-            );
+        const buildHttpCall = (from, to) => {
+            return this.http
+                .asGET()
+                .usingBusinessDomain()
+                .withEndPoint(
+                    'annualsettlement?action=get-account-balance&' +
+                    `fromAccountNumber=${from}&toAccountNumber=${to}&toFinancialYear=${financialYear}`
+                )
+                .send()
+                .pipe(
+                    map(res => res.body)
+                );
+        };
+        const source1$ = buildHttpCall(1000, 1069);
+        const source2$ = buildHttpCall(1080, 1299);
+        return forkJoin([source1$, source2$]).pipe(
+            map(([source1, source2]) => (source1 + source2))
+        );
     }
 
     getAccountBalanceForSet(fromAccountNumber: number, toAccountNumber: number, year: number) {
