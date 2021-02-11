@@ -17,18 +17,26 @@ import {
     BankInfoModal, CompanyActionsModal
 } from '@uni-framework/uni-modal';
 
-// Do not change this import! Since we don't use rx operators correctly
-// we depend on having at least one import getting EVERYTHING in rxjs
-import {Observable} from 'rxjs/Rx';
-
 import {LicenseManager} from 'ag-grid-enterprise';
 import { ChatBoxService } from './components/layout/chat-box/chat-box.service';
 // tslint:disable-next-line
 LicenseManager.setLicenseKey('Uni_Micro__Uni_Economy_1Devs_1Deployment_4_March_2020__MTU4MzI4MDAwMDAwMA==63c1793fa3d1685a93e712c2d20cc2a6');
 import {theme, THEMES} from 'src/themes/theme';
 import {Logger} from '@uni-framework/core/logger';
-import * as moment from 'moment';
 import {environment} from 'src/environments/environment';
+
+// Do not change these imports until migration to rxjs 6+ is complete (without the rxjs-compat package)
+import {Observable} from 'rxjs-compat/Rx';
+import 'rxjs/add/operator/debounceTime';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/do';
+import 'rxjs/add/operator/switchMap';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/observable/of';
+import 'rxjs/add/operator/distinctUntilChanged';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/toPromise';
+//
 
 const HAS_ACCEPTED_USER_AGREEMENT_KEY = 'has_accepted_user_agreement';
 
@@ -277,7 +285,7 @@ export class App {
             buttonIcons: {
                 accept: 'launch'
             },
-            icon: 'themes/ext02/EXT02-companyInitDone-modal-icon.svg',
+            icon: 'config/dist/theme/assets/EXT02-companyInitDone-modal-icon.svg',
             modalConfig: {
                 iconConfig: {
                     size: 3

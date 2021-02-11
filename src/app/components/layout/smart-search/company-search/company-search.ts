@@ -12,7 +12,7 @@ import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
 import { _getOptionScrollPosition } from '@angular/material/core';
 import { throwMatDialogContentAlreadyAttachedError } from '@angular/material/dialog';
 
-import {Observable, Subject} from 'rxjs';
+import {fromEvent, Observable, Subject} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
 
 import {UniSmartSearchItem} from '../smart-search-item';
@@ -66,7 +66,7 @@ export class UniCompanySearch {
                 });
             });
 
-        Observable.fromEvent(document, 'keydown')
+        fromEvent(document, 'keydown')
             .takeUntil(this.componentDestroyed$)
             .subscribe((event: KeyboardEvent) => this.keyHandler(event));
 

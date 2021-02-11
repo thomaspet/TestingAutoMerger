@@ -30,7 +30,7 @@ const DEFAULT_HEADERS = {
 @Injectable()
 export class UniHttp {
     private baseUrl: string = environment.BASE_URL;
-    private apiDomain: string = environment.API_DOMAINS.BUSINESS;
+    private apiDomain: string = '/api/biz/';
     private headers: HttpHeaders;
     private method: string;
     private body: any;
@@ -83,43 +83,37 @@ export class UniHttp {
 
     public usingMetadataDomain() {
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.METADATA;
+        this.apiDomain = '/api/metadata/';
         return this;
     }
 
     public usingBusinessDomain() {
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.BUSINESS;
+        this.apiDomain = '/api/biz/';
         return this;
     }
 
     public usingRootDomain() {
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.ROOT;
+        this.apiDomain = '/api/';
         return this;
     }
 
     public usingInitDomain() {
         this.baseUrl = environment.BASE_URL_INIT;
-        this.apiDomain = environment.API_DOMAINS.INIT;
+        this.apiDomain = '/api/init/';
         return this;
     }
 
     public usingStatisticsDomain() {
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.STATISTICS;
+        this.apiDomain = '/api/statistics/';
         return this;
     }
 
     public usingJobInfoDomain() {
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.JOBINFO;
-        return this;
-    }
-
-    public usingUmhDomain() {
-        this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.UMH;
+        this.apiDomain = 'api/jobinfo/';
         return this;
     }
 
@@ -244,7 +238,7 @@ export class UniHttp {
         const endpoint = request.endPoint || this.endPoint;
         const url = (baseurl + apidomain + endpoint).replace(/([^:]\/)\/+/g, '$1');
         this.baseUrl = environment.BASE_URL;
-        this.apiDomain = environment.API_DOMAINS.BUSINESS;
+        this.apiDomain = '/api/biz/';
         this.endPoint = undefined;
 
         const method = request.method || this.method;

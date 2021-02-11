@@ -27,7 +27,7 @@ export class IntegrationServerCaller {
             .asGET()
             .send({
                 baseUrl: environment.BASE_URL_INTEGRATION,
-                apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
+                apiDomain: '/api/altinn/',
                 endPoint: '/testsystem'
             })
             .map(response => response.body);
@@ -56,7 +56,7 @@ export class IntegrationServerCaller {
             .asGET()
             .send({
                 baseUrl: environment.BASE_URL_INTEGRATION,
-                apiDomain: environment.INTEGRATION_DOMAINS.ALTINN,
+                apiDomain: '/api/altinn/',
                 endPoint: 'receipt/' + receiptID + '/correspondence'
             })
             .map(response => response.body);

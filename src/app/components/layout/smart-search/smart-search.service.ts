@@ -1,7 +1,7 @@
 import {Injectable, Injector} from '@angular/core';
 import {Overlay, OverlayRef} from '@angular/cdk/overlay';
 import {ComponentPortal, PortalInjector} from '@angular/cdk/portal';
-import {Observable} from 'rxjs';
+import {fromEvent, Subscription} from 'rxjs';
 import {UniSmartSearch} from './smart-search';
 import {UniCompanySearch} from './company-search/company-search';
 import {KeyCodes} from '@app/services/common/keyCodes';
@@ -9,12 +9,13 @@ import {KeyCodes} from '@app/services/common/keyCodes';
 @Injectable()
 export class SmartSearchService {
     overlayRef: OverlayRef;
+    keydownSubscription: Subscription;
 
     constructor(
         private injector: Injector,
         private overlay: Overlay
     ) {
-        Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
+        this.keydownSubscription = fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             const key = event.which || event.keyCode;
             if (event.ctrlKey && key === KeyCodes.SPACE) {
                 if (!this.overlayRef || !this.overlayRef.overlayElement) {
@@ -23,6 +24,10 @@ export class SmartSearchService {
                 }
             }
         });
+    }
+
+    ngOnDestroy() {
+        this.keydownSubscription?.unsubscribe();
     }
 
     open(showCompanySearch?: boolean) {

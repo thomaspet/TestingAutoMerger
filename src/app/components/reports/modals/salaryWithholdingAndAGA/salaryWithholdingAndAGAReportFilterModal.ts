@@ -9,9 +9,10 @@ import {
 } from '@app/services/services';
 import {UniModalService, UniPreviewModal} from '@uni-framework/uni-modal';
 import {UniFieldLayout, FieldType, UniFormError} from '@uni-framework/ui/uniform/index';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, from} from 'rxjs';
 import {Observable} from 'rxjs';
 import * as moment from 'moment';
+import {tap} from 'rxjs/operators';
 
 interface ModalConfig {
     report: any;
@@ -181,24 +182,23 @@ export class SalaryWithholdingAndAGAReportFilterModal implements OnInit, OnDestr
                     class: 'good',
                     method: () => {
                         this.subscriptions.push(
-                            Observable
-                                .fromPromise(this.modal.getContent())
-                                .do(() => this.close())
-                                .subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) => {
-                                    const params = component.getParams();
+                            from(this.modal.getContent()).pipe(
+                                tap(() => this.close())
+                            ).subscribe((component: SalaryWithholdingAndAGAReportFilterModalContent) => {
+                                const params = component.getParams();
 
-                                    if (params['isTerm']) {
-                                        params['FromPeriod'] = this.convertToPeriod(params['FromPeriod']) - 1;
-                                        params['ToPeriod'] = this.convertToPeriod(params['ToPeriod']);
-                                    }
-                                    this.setSelectedChoice(params);
-                                    this.modalService
-                                        .open(UniPreviewModal, {
-                                            data: this.updateParamsOnReport(
-                                                component.config.report,
-                                                params)
-                                        });
-                                })
+                                if (params['isTerm']) {
+                                    params['FromPeriod'] = this.convertToPeriod(params['FromPeriod']) - 1;
+                                    params['ToPeriod'] = this.convertToPeriod(params['ToPeriod']);
+                                }
+                                this.setSelectedChoice(params);
+                                this.modalService.open(UniPreviewModal, {
+                                    data: this.updateParamsOnReport(
+                                        component.config.report,
+                                        params
+                                    )
+                                });
+                            })
                         );
                     }
                 },

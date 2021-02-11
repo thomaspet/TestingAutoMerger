@@ -13,7 +13,7 @@ import {UniSearchAccountConfig} from '@app/services/common/uniSearchConfig/uniSe
 import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniReportSettingsView} from '../report/report-setup';
 import {CompanySettings, CustomerInvoiceReminderSettings, Email} from '@app/unientities';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable, BehaviorSubject, from, of, forkJoin } from 'rxjs';
 import {FieldType, UniFieldLayout} from '@uni-framework/ui/uniform/index';
 import {ReminderSettings} from '../../common/reminder/settings/reminderSettings';
 import {KIDSettings} from '../../sales/kidSettings/kidSettings';
@@ -273,13 +273,13 @@ export class UniSalesSettingsView {
                 return;
             }
 
-            Observable.forkJoin(
+            forkJoin(
                 (this.isDirty || companySettings['_isDirty'])
                     ? this.companySettingsService.Put(companySettings.ID, companySettings)
-                    : Observable.of(true),
-                this.reportSettings.isDirty ? this.reportSettings.saveReportSettings() : Observable.of(true),
-                this.reminderSettings.isDirty ? Observable.fromPromise(this.reminderSettings.save()) : Observable.of(true),
-                this.kidSettings.hasUnsavedChanges ? Observable.fromPromise(this.kidSettings.save()) : Observable.of(true)
+                    : of(true),
+                this.reportSettings.isDirty ? this.reportSettings.saveReportSettings() : of(true),
+                this.reminderSettings.isDirty ? from(this.reminderSettings.save()) : of(true),
+                this.kidSettings.hasUnsavedChanges ? from(this.kidSettings.save()) : of(true)
             ).subscribe((response) => {
                 if (done) {
                     done('Salgsinnstillinger lagret');

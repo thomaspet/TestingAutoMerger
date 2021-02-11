@@ -340,11 +340,7 @@ export class AuthService {
     }
 
     loadCurrentSession(): Observable<IAuthDetails> {
-        const url = (
-            environment.BASE_URL +
-            environment.API_DOMAINS.BUSINESS +
-            'users?action=current-session'
-        ).replace(/([^:]\/)\/+/g, '$1');
+        const url = (environment.BASE_URL + '/api/biz/users?action=current-session').replace(/([^:]\/)\/+/g, '$1');
 
         return this.http.get<any>(url, {
             headers: {
@@ -447,7 +443,7 @@ export class AuthService {
 
     // Hotfix 20.12.19. This should only be necessary until the next release.
     private runLogoutRequest() {
-        const url = environment.BASE_URL_INIT + environment.API_DOMAINS.INIT + 'log-out';
+        const url = environment.BASE_URL_INIT + '/api/init/log-out';
         const headers = new HttpHeaders()
             .set('Content-Type', 'application/json')
             .set('Authorization', 'Bearer ' + this.jwt)

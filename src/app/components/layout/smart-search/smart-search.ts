@@ -12,7 +12,7 @@ import {OverlayRef} from '@angular/cdk/overlay';
 import {ActiveDescendantKeyManager} from '@angular/cdk/a11y';
 import { _getOptionScrollPosition } from '@angular/material/core';
 
-import {Observable} from 'rxjs';
+import {fromEvent, Observable} from 'rxjs';
 import {FormControl} from '@angular/forms';
 import {Subject} from 'rxjs';
 import PerfectScrollbar from 'perfect-scrollbar';
@@ -74,7 +74,7 @@ export class UniSmartSearch {
                 });
             });
 
-        Observable.fromEvent(document, 'keydown')
+        fromEvent(document, 'keydown')
             .takeUntil(this.componentDestroyed$)
             .subscribe((event: KeyboardEvent) => this.keyHandler(event));
 

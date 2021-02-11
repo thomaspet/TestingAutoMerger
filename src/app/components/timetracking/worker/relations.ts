@@ -4,7 +4,7 @@ import {WorkRelation} from '../../../unientities';
 import {Router} from '@angular/router';
 import {createFormField, ControlTypes} from '../../common/utils/utils';
 import {ChangeMap} from '../../common/utils/changeMap';
-import {Observable} from 'rxjs';
+import {merge, Observable} from 'rxjs';
 import {IResult} from '../genericview/detail';
 import {ErrorService} from '../../../services/services';
 import {BehaviorSubject} from 'rxjs';
@@ -158,7 +158,7 @@ export class View implements OnInit {
                     this.changeMap.removables.remove(item.ID, false);
                 });
             });
-            return items.length > 0 ? Observable.merge(obsSave, obsDel) : obsDel;
+            return items.length > 0 ? merge(obsSave, obsDel) : obsDel;
         }
 
         return obsSave;

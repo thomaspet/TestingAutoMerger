@@ -24,7 +24,7 @@ export class ProductList {
     public saveActions: IUniSaveAction[];
     private productPermissions: ImportUIPermission;
 
-    productTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
+    productTemplateUrl: string = environment.PUBLIC_FILES_URL + '/files/import/ProductTemplateFinal.xlsx';
 
     constructor(
         private router: Router,

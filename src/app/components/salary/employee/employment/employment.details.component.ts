@@ -1,7 +1,7 @@
 import {UniForm, UniFieldLayout, UniComponentLayout} from '@uni-framework/ui/uniform';
 import {Observable, of} from 'rxjs';
 import {BehaviorSubject} from 'rxjs';
-import {filter, take, switchMap, map, tap, finalize} from 'rxjs/operators';
+import {filter, take, switchMap, map, tap, finalize, share} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
 import { ConfirmActions, UniConfirmModalV2 } from '@uni-framework/uni-modal';
 import * as moment from 'moment';
@@ -107,14 +107,14 @@ export class EmploymentDetailsComponent implements OnChanges, OnInit, OnDestroy 
 
 
             if (this.employment && this.employment.JobCode) {
-                this.jobCodeDefaultData = this.statisticsService
-                    .GetAll(
-                        'model=STYRKCode&select=styrk as styrk,'
-                        + 'tittel as tittel&filter=styrk eq '
-                        + this.employment.JobCode
-                    )
-                    .map(res => res.Data)
-                    .share();
+                this.jobCodeDefaultData = this.statisticsService.GetAll(
+                    'model=STYRKCode&select=styrk as styrk,'
+                    + 'tittel as tittel&filter=styrk eq '
+                    + this.employment.JobCode
+                ).pipe(
+                    map(res => res.Data),
+                    share()
+                );
             } else {
                 this.jobCodeDefaultData = Observable.of([{ styrk: '', tittel: '' }]);
             }
