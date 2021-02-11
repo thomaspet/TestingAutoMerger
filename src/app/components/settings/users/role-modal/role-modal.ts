@@ -53,10 +53,10 @@ export class UniRoleModal implements IUniModal {
         this.userStatusInvited = this.user.StatusCode === 110000;
 
         this.busy = true;
-        forkJoin(
+        forkJoin([
             this.elsaProductService.getProductsOnContractType(),
             this.elsaPurchaseService.getAll()
-        ).pipe(
+        ]).pipe(
             finalize(() => this.busy = false)
         ).subscribe(
             res => {
@@ -69,10 +69,10 @@ export class UniRoleModal implements IUniModal {
     }
 
     private getGroupedRoles(): Observable<IRoleGroup[]> {
-        return forkJoin(
+        return forkJoin([
             this.roleService.GetAll('orderby=Label'),
             this.userRoleService.getRolesByUserID(this.user.ID)
-        ).pipe(
+        ]).pipe(
             map(res => {
                 const roles: Role[] = res[0];
                 const userRoles: UserRole[] = res[1];
@@ -284,6 +284,6 @@ export class UniRoleModal implements IUniModal {
         });
 
         groups.push(otherGroup);
-        return groups.filter(group => group.roles && group.roles.length);
+        return groups.filter(group => group.roles?.length);
     }
 }

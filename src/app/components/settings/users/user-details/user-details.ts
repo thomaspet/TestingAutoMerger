@@ -20,11 +20,10 @@ import {
 import { theme, THEMES } from 'src/themes/theme';
 import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
-interface UserRoleGroup {
+interface PurchasedProductGroup {
     label: string;
     userRoles: UserRole[];
     product?: ElsaProduct;
-    productPurchased?: boolean;
 }
 
 enum UserStatus {
@@ -53,13 +52,13 @@ export class UserDetails {
     scrollbar: PerfectScrollbar;
     roles: Role[];
     userRoles: UserRole[];
-    userRoleGroups: UserRoleGroup[];
+    purchasedProductGroups: PurchasedProductGroup[];
     userStatusInvited: boolean;
     serviceProvider: BankAgreementServiceProvider;
 
     roleGroups: {label: string, roles: UserRole[]}[];
-    products: ElsaProduct[];
     purchases: ElsaPurchase[];
+    products: ElsaProduct[];
 
     companyHasAutobank: boolean;
     userActions: {label: string, action: () => void}[];
@@ -71,10 +70,9 @@ export class UserDetails {
         private roleService: RoleService,
         private userRoleService: UserRoleService,
         private modalService: UniModalService,
-        private elsaPurchaseService: ElsaPurchaseService,
         private productService: ElsaProductService,
         private purchaseService: ElsaPurchaseService,
-        private bankService: BankService
+        private bankService: BankService,
     ) {}
 
     ngAfterViewInit() {
@@ -135,22 +133,19 @@ export class UserDetails {
         }
 
         if (this.user.StatusCode === UserStatus.Active) {
-            if (this.companyHasAutobank) {
-                const authenticatedUser = this.authService.currentUser;
-                if (authenticatedUser && authenticatedUser.IsAutobankAdmin) {
-                    if (this.user.BankIntegrationUserName && this.serviceProvider !== BankAgreementServiceProvider.ZdataV3) {
-                        actions.push({
-                            label: 'Tilbakestill autobank passord',
-                            action: (user: User) => {
-                                this.modalService.open(ResetAutobankPasswordModal, {data: this.user});
-                            }
-                        });
-                    } else if (!this.user.BankIntegrationUserName) {
-                        actions.push({
-                            label: 'Registrer som bankbruker',
-                            action: () => this.registerBankUser()
-                        });
-                    }
+            if (this.companyHasAutobank && this.authService.currentUser?.IsAutobankAdmin) {
+                if (this.user.BankIntegrationUserName && this.serviceProvider !== BankAgreementServiceProvider.ZdataV3) {
+                    actions.push({
+                        label: 'Tilbakestill autobank passord',
+                        action: (user: User) => {
+                            this.modalService.open(ResetAutobankPasswordModal, {data: this.user});
+                        }
+                    });
+                } else if (!this.user.BankIntegrationUserName) {
+                    actions.push({
+                        label: 'Registrer som bankbruker',
+                        action: () => this.registerBankUser()
+                    });
                 }
             }
 
@@ -163,26 +158,40 @@ export class UserDetails {
         this.userActions = actions;
     }
 
+    loadProducts() {
+        const currentContractType = this.authService.currentUser.License.ContractType.TypeID;
+        const filter = `isperuser eq true and (producttype eq 'Module' or producttype eq 'Package')`;
+        const select = 'id,label,listofroles'
+
+        this.productService.getProductsOnContractTypes(currentContractType, filter, select).subscribe(
+            products => this.products = products, 
+            err => console.error(err)
+        );
+    }
+
     private loadData(): Subscription {
         this.busy = true;
+
+        if (!this.products?.length) {
+            this.loadProducts();
+        }
 
         return forkJoin([
             this.roleService.GetAll(),
             this.userRoleService.getRolesByUserID(this.user.ID),
-            this.productService.getProductsOnContractType(),
             this.purchaseService.getAll(),
-            this.elsaPurchaseService.getPurchaseByProductName('Autobank'),
+            this.purchaseService.getPurchaseByProductName('Autobank'),
             this.bankService.getDefaultServiceProvider()
         ]).subscribe(
             res => {
                 this.roles = res[0] || [];
                 this.userRoles = this.setAssignmentMetadata(res[1] || []);
-                this.products = res[2];
-                this.purchases = res[3];
-                this.companyHasAutobank = !!res[4] || theme.theme === THEMES.SR;
-                this.serviceProvider = res[5];
+                this.purchases = res[2];
+                this.companyHasAutobank = !!res[3] || theme.theme === THEMES.SR;
+                this.serviceProvider = res[4];
 
-                this.userRoleGroups = this.getGroupedUserRoles(this.userRoles);
+                this.purchasedProductGroups = this.getGroupedUserRoles(this.userRoles);
+                
                 this.initUserActions();
                 this.busy = false;
             },
@@ -197,53 +206,30 @@ export class UserDetails {
         return roles.map(role => {
             const assignedBy = this.users.find(user => user.GlobalIdentity === role.CreatedBy);
             role['_assignedDate'] = moment(role.CreatedAt).format('DD.MM.YYYY');
-            role['_assignedBy'] = assignedBy && assignedBy.DisplayName;
+            role['_assignedBy'] = assignedBy?.DisplayName || assignedBy?.Email;
 
             return role;
         });
     }
 
-    private getGroupedUserRoles(userRoles: UserRole[]): UserRoleGroup[] {
-        if (!userRoles || !userRoles.length) {
-            return [];
-        }
+    private getGroupedUserRoles(userRoles: UserRole[]): PurchasedProductGroup[] {
 
-        const filteredProducts = this.products.filter(product => {
-            return product.ProductType === ElsaProductType.Module || product.ProductType === ElsaProductType.Package;
-        });
+        const userPurchases = this.purchases.filter(purchase => purchase.GlobalIdentity === this.user.GlobalIdentity);
 
-        // This can be removed when Complete is gone as a product in prod
-        const completeProduct = this.products.find(product => product.Name === 'Complete');
-        const userHasComplete = !!completeProduct && this.purchases.some(purchase => {
-            return purchase.GlobalIdentity === this.user.GlobalIdentity
-                && purchase.ProductID === completeProduct.ID;
-        });
-        // end of removable block
-
-        const groups: UserRoleGroup[] = filteredProducts.map(product => {
-            let isPurchased = this.purchases.some(purchase => {
-                return purchase.ProductID === product.ID
-                    && purchase.GlobalIdentity === this.user.GlobalIdentity;
+        const groups: PurchasedProductGroup[] = [];
+        
+        if (userPurchases?.length) {
+            userPurchases.forEach(purchase => {
+                const product = this.products.find(product => product.ID === purchase.ProductID);
+                if (product) {
+                    groups.push({
+                        label: product.Label,
+                        userRoles: [],
+                        product: product
+                    });
+                }
             });
-
-            // This can be removed when Complete is gone as a product in prod
-            if (!isPurchased) {
-                isPurchased = userHasComplete && (
-                    product.Name === 'Accounting'
-                    || product.Name === 'Sales'
-                    || product.Name === 'Payroll'
-                    || product.Name === 'Timetracking'
-                );
-            }
-            // end of removable block
-
-            return {
-                label: product.Label,
-                userRoles: [],
-                product: product,
-                productPurchased: isPurchased
-            };
-        });
+        }
 
         // Add a group for roles that are not connected to a product
         const otherGroup = {
@@ -252,30 +238,30 @@ export class UserDetails {
         };
 
         // Fill the groups with userRoles
-        userRoles.forEach(userRole => {
-            const roleNameLowerCase = (userRole.SharedRoleName || '').toLowerCase();
-            const groupsThatShouldHaveUserRole = groups.filter(group => {
-                const listOfRoles = group.product && group.product.ListOfRoles;
-                if (listOfRoles) {
+        if (userRoles?.length) {
+            userRoles.forEach(userRole => {
+                const roleNameLowerCase = (userRole.SharedRoleName || '').toLowerCase();
+
+                const groupsThatShouldHaveUserRole = groups.filter(group => {
+                    const listOfRoles = group?.product?.ListOfRoles || '';
                     return listOfRoles.split(',').some(roleName => {
-                        return roleName && roleName.toLowerCase() === roleNameLowerCase;
+                        return roleName?.toLowerCase() === roleNameLowerCase;
                     });
+                });
+
+                if (groupsThatShouldHaveUserRole?.length) {
+                    groupsThatShouldHaveUserRole.forEach(group => group.userRoles.push(userRole));
+                } else {
+                    otherGroup.userRoles.push(userRole);
                 }
             });
+        }
 
-            if (groupsThatShouldHaveUserRole.length) {
-                groupsThatShouldHaveUserRole.forEach(group => group.userRoles.push(userRole));
-            } else {
-                otherGroup.userRoles.push(userRole);
-            }
-        });
+        if (otherGroup.userRoles?.length) {
+            groups.push(otherGroup);
+        }
 
-        groups.push(otherGroup);
-        return groups.filter(group => {
-            return (!group.product || group.productPurchased || this.userStatusInvited)
-                && group.userRoles
-                && group.userRoles.length;
-        });
+        return groups;
     }
 
     private registerBankUser() {

@@ -91,9 +91,10 @@ export class ElsaProductService {
     }
 
     // this does almost the same as the method above, and might replace it
-    getProductsOnContractTypes(id: number, filter?: string): Observable<ElsaProduct[]> {
-        const filterClause = filter ? `?$filter=${filter}` : '';
-        const endpoint = `/api/contracttypes/${id}/products` + filterClause;
+    getProductsOnContractTypes(id: number, filter?: string, select?: string): Observable<ElsaProduct[]> {
+        const filterClause = filter ? `$filter=${filter}` : '';
+        const selectClause = select ? `$select=${select}` : '';
+        const endpoint = `/api/contracttypes/${id}/products?${filterClause}&${selectClause}`;
         return this.http.get<ElsaProduct[]>(this.ELSA_SERVER_URL + endpoint);
     }
 
