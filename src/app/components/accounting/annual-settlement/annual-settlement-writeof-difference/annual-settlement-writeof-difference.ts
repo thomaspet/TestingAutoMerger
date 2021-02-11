@@ -1,15 +1,17 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssetsService, ErrorService, StatisticsService } from '@app/services/services';
-import { BusinessRelation } from '@uni-entities';
 import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { UniModalService } from '@uni-framework/uni-modal';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
-import * as moment from 'moment';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
 import { AnnualSettlementService } from '../annual-settlement.service';
 import {AssetsEditModal} from './assets-edit-modal';
+
+/*
+	INFO! All commented code in this file is work in progress and should stay.. 	
+*/
 
 @Component({
 	selector: 'writeof-difference',
@@ -157,17 +159,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 
 	ct = { value: 0, label: '' };
 
-	runningSettlementIncommingProject = null;
-	runningSettlementOutgoingProject = null;
-	runningSettlementYearStart = null;
-	runningSettlementYearEnd = null;
-
-	incommingProjects = null;
-	outgoingProjects = null;
-
 	groups = [];
 	missingTaxData = true;
-
 	assetsDetails = [];
 	assetsList = [];
 	stockAccounts = [];
@@ -563,12 +556,15 @@ export class AnnualSettlementWriteofDifferenceStep {
 				break;
 		}
 
-		this.stepContentArray[this.stepContentArray.length - 1].diff = this.stepContentArray
-			.map((step) => {
-				if (step.step !== 8) {
-					return step.diff;
-				} 
-			}).reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
+		// THIS SUMS ALL THE DIFF FOR THE SUMMARY VIEW.. SINCE THE SUMMARY IS REMOVED, THIS IS
+		// COMMENTED OUT FOR NOW!
+
+		// this.stepContentArray[this.stepContentArray.length - 1].diff = this.stepContentArray
+		// 	.map((step) => {
+		// 		if (step.step !== 8) {
+		// 			return step.diff;
+		// 		} 
+		// 	}).reduce((accumulator, currentValue) => (accumulator || 0) + (currentValue || 0));
 
 		this.changeDetector.markForCheck();
 	}

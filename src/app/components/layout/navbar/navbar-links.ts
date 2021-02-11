@@ -259,6 +259,12 @@ let defaultNavbarLinks: INavbarLinkSection[] = [
                         activeInSidebar: true
                     },
                     {
+                        name: 'NAVBAR.ANNUAL_SETTLEMENT',
+                        url: '/accounting/annual-settlement',
+                        moduleID: UniModules.VatReport,
+                        activeInSidebar: true
+                    },
+                    {
                         name: 'NAVBAR.ASSETS',
                         url: '/accounting/assets',
                         moduleID: UniModules.Accounting,

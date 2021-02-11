@@ -28,6 +28,7 @@ export const EN = {
         'BUDGET': 'Budget',
         'OPEN_POST': 'Open posts',
         'VAT_MESSAGE': 'VAT message',
+        'ANNUAL_SETTLEMENT': 'Annual settlement',
         'BALANCE_SEARCH': 'Balance main ledger',
         'SEARCH_JOURNALENTRY': 'Search journal entry',
         'SEARCH_ACCOUNT': 'Search account',

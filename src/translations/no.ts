@@ -420,6 +420,7 @@ export const NO = {
         'BUDGET': 'Budsjett',
         'OPEN_POST': 'Åpne poster',
         'VAT_MESSAGE': 'MVA-melding',
+        'ANNUAL_SETTLEMENT': 'Årsavslutning',
         'BALANCE_SEARCH': 'Saldobalanse',
         'SEARCH_JOURNALENTRY': 'Søk på bilag',
         'SEARCH_ACCOUNT': 'Søk på konto',

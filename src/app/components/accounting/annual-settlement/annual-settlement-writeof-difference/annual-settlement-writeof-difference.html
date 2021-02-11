@@ -162,10 +162,7 @@
 				<section *ngIf="ct?.value === 1 && annualSettlement.Fields.FinnesProsjekterKey">
 					<label class="left-aligned-span" style="margin-top: 1rem;">
 						<span>Oppgi årets regnskapsmessig resultat for prosjekter
-							<uni-tooltip
-							[type]="info"
-                            [text]="tilvirkningskontraktInfotext">
-                        </uni-tooltip>
+							<uni-tooltip [type]="info" [text]="tilvirkningskontraktInfotext"> </uni-tooltip>
 						</span>
 						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt" (change)="recalc()">
 					</label>
