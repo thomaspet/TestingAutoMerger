@@ -1,9 +1,10 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { IModalOptions, IUniModal } from '@uni-framework/uni-modal/interfaces';
-import { PayrollRun } from '@uni-entities';
+import { BankIntegrationAgreement, PayrollRun, PreApprovedBankPayments } from '@uni-entities';
 import { ErrorService, PaymentBatchService, ActionOnPaymentReload, UniTranslationService, SharedPayrollRunService } from '@app/services/services';
 import { of, BehaviorSubject } from 'rxjs';
 import { PayrollRunService } from '@app/components/salary/shared/services/payroll-run/payroll-run.service';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Component({
     selector: 'payroll-to-payment-modal',
@@ -56,9 +57,10 @@ export class PayrollToPaymentModal implements IUniModal {
 
         this.VALUE_ITEMS = this.getValueItems();
 
-        this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
+        this.paymentBatchService.checkAutoBankAgreement().subscribe((agreements: BankIntegrationAgreement[]) => {
 
-            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0) {
+            if ((!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0) ||
+                (agreements.some(a => a.PreApprovedBankPayments === PreApprovedBankPayments.Active))) { //temp disable send to bank when rgb is active, since 2fa code  is missing
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
             }
