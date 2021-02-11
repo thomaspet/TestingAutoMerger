@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, throwError, of} from 'rxjs';
+import {Observable, throwError, of, forkJoin} from 'rxjs';
 
 import {
     UniModalService,
@@ -139,10 +139,18 @@ export class OrderDetails implements OnInit {
     isDistributable = false;
 
     private customerExpands: string[] = [
-        'DeliveryTerms',
+        'Info',
+        'Info.Addresses',
+        'Info.DefaultContact.Info',
+        'Info.Emails',
+        'Info.Phones',
+        'Info.DefaultEmail',
+        'Info.DefaultPhone',
+        'Info.InvoiceAddress',
+        'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
-        'Dimensions.Department',
         'Dimensions.Department',
         'Dimensions.Dimension5',
         'Dimensions.Dimension6',
@@ -150,52 +158,38 @@ export class OrderDetails implements OnInit {
         'Dimensions.Dimension8',
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
-        'Dimensions.Project.ProjectTasks',
-        'Info',
-        'Info.Addresses',
-        'Info.DefaultContact.Info',
-        'Info.Emails',
-        'Info.DefaultEmail',
-        'Info.InvoiceAddress',
-        'Info.ShippingAddress',
-        'Info.Contacts.Info',
-        'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
         'DefaultSeller.Seller',
-        'Distributions'
+        'Distributions',
+        'DeliveryTerms',
+        'PaymentTerms',
+
+        'Dimensions.Project.ProjectTasks',
     ];
 
     private orderExpands: Array<string> = [
-        'Customer',
-        'Customer.Info',
-        'Customer.Info.Addresses',
-        'Customer.Info.Contacts.Info',
-        'Customer.Dimensions',
-        'Customer.Dimensions.Project',
-        'Customer.Dimensions.Department',
-        'Customer.Dimensions.Dimension5',
-        'Customer.Dimensions.Dimension6',
-        'Customer.Dimensions.Dimension7',
-        'Customer.Dimensions.Dimension8',
-        'Customer.Dimensions.Dimension9',
-        'Customer.Dimensions.Dimension10',
-        'Customer.Distributions',
         'DefaultDimensions',
+        'DefaultDimensions.Project',
+        'DefaultDimensions.Department',
+        'DefaultDimensions.Dimension5',
+        'DefaultDimensions.Dimension6',
+        'DefaultDimensions.Dimension7',
+        'DefaultDimensions.Dimension8',
+        'DefaultDimensions.Dimension9',
+        'DefaultDimensions.Dimension10',
         'DeliveryTerms',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'DefaultSeller.Seller'
+        'DefaultSeller.Seller',
     ];
 
     private orderItemExpands: string[] = [
         'Product.VatType',
         'VatType',
-        'Dimensions.Info',
         'Account',
+        'Dimensions.Info',
         'Dimensions.Project.ProjectTasks',
     ];
 
@@ -440,24 +434,36 @@ export class OrderDetails implements OnInit {
             );
         }
 
-        return Observable.forkJoin(
-            [this.customerOrderService.Get(ID, this.orderExpands, true),
+        return forkJoin([
+            this.customerOrderService.Get(ID, this.orderExpands, true),
             this.customerOrderItemService.GetAll(
                 `filter=CustomerOrderID eq ${ID}&hateoas=false`,
                 this.orderItemExpands
-            )]
-        ).map(res => {
-            const order: CustomerOrder = res[0];
-            const orderItems: CustomerOrderItem[] = res[1].map(item => {
-                if (item.Dimensions) {
-                    item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
-                }
-                return item;
-            });
+            )
+        ]).pipe(
+            switchMap(res => {
+                const order: CustomerOrder = res[0];
+                const orderItems: CustomerOrderItem[] = res[1].map(item => {
+                    if (item.Dimensions) {
+                        item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
+                    }
+                    return item;
+                });
 
-            order.Items = orderItems;
-            return order;
-        });
+                order.Items = orderItems;
+
+                if (!order.CustomerID) {
+                    return of(order);
+                }
+
+                return this.customerService.Get(order.CustomerID, this.customerExpands).pipe(
+                    map((customer) => {
+                        order.Customer = customer;
+                        return order;
+                    })
+                );
+            })
+        );
     }
 
     numberSeriesChange(selectedSerie) {
@@ -1410,7 +1416,7 @@ export class OrderDetails implements OnInit {
                 return throwError('Lagring avbrutt');
             }
 
-            const navigateAfterSave = true; 
+            const navigateAfterSave = !this.order.ID;
             const saveRequest = this.order.ID > 0
                 ? this.customerOrderService.Put(this.order.ID, this.order)
                 : this.customerOrderService.Post(this.order);
