@@ -173,7 +173,7 @@ export class UniCompanySettingsView {
                 EntityType: 'Employee',
                 Property: 'PersonNumber',
                 FieldType: FieldType.TEXT,
-                Label: 'Personnumer',
+                Label: 'Fødselsnummer',
                 Hidden: this.companySettings$.getValue().CompanyTypeID !== 2,
                 Validations: [
                     (value: number, field: UniFieldLayout) => {
