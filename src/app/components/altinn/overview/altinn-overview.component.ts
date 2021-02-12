@@ -10,7 +10,6 @@ import { Observable } from 'rxjs';
 import { IUniSaveAction } from '@uni-framework/save/save';
 import { Router } from '@angular/router';
 import { UniModalService } from '@uni-framework/uni-modal';
-import { TaxReportModal } from '../taxreport/taxreportModal';
 
 @Component({
     selector: 'uni-altinn-overview',
@@ -41,12 +40,6 @@ export class AltinnOverviewComponent implements OnInit, AfterViewInit {
         {
             label: 'Skattemelding',
             action: () => this.router.navigateByUrl('/altinn/skattemelding'),
-            disabled: false,
-            main: false
-        },
-        {
-            label: 'Test årsoppgjør',
-            action: (done) => this.modalService.open(TaxReportModal).onClose.subscribe(done),
             disabled: false,
             main: false
         }
