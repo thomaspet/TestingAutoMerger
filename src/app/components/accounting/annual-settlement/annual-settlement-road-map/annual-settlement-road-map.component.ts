@@ -4,7 +4,7 @@ import {AnnualSettlementService} from '@app/components/accounting/annual-settlem
 import {switchMap, tap} from 'rxjs/operators';
 import steps from './annual-settlement-steps/annual-settlement-steps-data';
 import {FinancialYearService} from '@app/services/accounting/financialYearService';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {Router} from '@angular/router';
 
 @Component({
@@ -83,8 +83,9 @@ export class AnnualSettlementRoadMapComponent implements OnInit {
                 this.selectedAnnualSettlement$.next(null);
             }
             this.annualSettlements = as;
-            this.busy = false;
-        }, () => this.busy = false, () => this.busy = false);
+        }, (err) => {
+            this.toast.addToast('Error', ToastType.warn, ToastTime.medium, err.message);
+        }, () => this.busy = false);
     }
     onSelectAnnualSettlement(annualSettlement) {
         this.selectedAnnualSettlement$.next(annualSettlement);

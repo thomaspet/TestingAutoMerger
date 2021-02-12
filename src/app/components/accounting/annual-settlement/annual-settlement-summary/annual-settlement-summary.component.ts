@@ -44,14 +44,11 @@ export class AnnualSettlementSummaryComponent {
                 switchMap((as) => this.annualSettlementService.getAnnualSettlementSummary(as))
             ).subscribe((items: any) => {
                 this.summary = items;
-                this.busy = false;
             }, (err) => {
                 this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
-                this.busy = false;
             }, () => this.busy = false);
         }, (err) => {
             this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
-            this.busy = false;
         }, () => this.busy = false);
     }
     completeSummary(done) {
@@ -78,14 +75,8 @@ export class AnnualSettlementSummaryComponent {
                 if (result === true) {
                     window.open('https://altinn.no', '_blank');
                 }
-                if (done) {
-                    done();
-                }
             });
         }, (errorResponse) => {
-            if (done) {
-                done();
-            }
             this.toast.addToast(errorResponse.error.Message);
         }, () => {
             if (done) {

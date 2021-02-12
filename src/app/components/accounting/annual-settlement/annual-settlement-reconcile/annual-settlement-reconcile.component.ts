@@ -149,10 +149,7 @@ export class AnnualSettlementReconcileComponent {
             this.toast.addToast('Avstem balansen completed', ToastType.good, ToastTime.short);
             this.router.navigateByUrl('/accounting/annual-settlement');
         }, (err) => {
-            if (done) {
-                this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
-                done();
-            }
+            this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
         }, () => {
             if (done) {
                 done();
