@@ -161,10 +161,17 @@
 
 				<section *ngIf="ct?.value === 1 && annualSettlement.Fields.FinnesProsjekterKey">
 					<label class="left-aligned-span" style="margin-top: 1rem;">
-						<span>Oppgi årets regnskapsmessig resultat for prosjekter
+						<span>Akkumulert regnskapsmessig resultat på tilvirkningskontrakter pr 31.12.2020
 							<uni-tooltip [type]="info" [text]="tilvirkningskontraktInfotext"> </uni-tooltip>
 						</span>
 						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt" (change)="recalc()">
+					</label>
+
+					<label class="left-aligned-span" style="margin-top: 1rem;">
+						<span>Akkumulert regnskapsmessig resultat på tilvirkningskontrakter pr 31.12.2019
+							<uni-tooltip [type]="info" [text]="tilvirkningskontraktInfotext2"> </uni-tooltip>
+						</span>
+						<input type="number" placeholder="Oppgi beløp" [(ngModel)]="annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret" (change)="recalc()">
 					</label>
 				</section>
 

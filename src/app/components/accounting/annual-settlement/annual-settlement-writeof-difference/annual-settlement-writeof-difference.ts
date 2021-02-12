@@ -31,7 +31,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 	tableConfig: UniTableConfig;
 	assetsTableConfig: UniTableConfig;
 	showInfo = true;
-	tilvirkningskontraktInfotext = 'Oppgi endring i regnskapsmessig resultat i tilvirkningskontrakter. Summen som skal legges inn er årets regnskapsmessige resultat minus fjorårets regnskapsmessige resultat på tilvirkningskontrakter som har gått over årsskiftet';
+	tilvirkningskontraktInfotext = 'Oppgi regnskapsmessig resultat på tilvirkningskontrakter akkumulert ved slutten av året. Dette er sum prosjektresultat fra prosjektet/prosjektenes oppstart til 31.12 i regnskapsåret på aktive, ikke avsluttede tilvirkningskontrakter';
+	tilvirkningskontraktInfotext2 = 'Oppgi regnskapsmessig resultat på tilvirkningskontrakter akkumulert ved starten av året. Dette er sum prosjektresultat fra prosjektet/prosjektenes oppstart til 31.12 i året før regnskapsåret på aktive, ikke avsluttede tilvirkningskontrakter';
 
 	summaryArray = [];
 
@@ -241,7 +242,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.onlySumFields[3].diff = parseFloat(this.annualSettlement.Fields.UtbytteDatterTilknyttetSelskapInntektsfort );
 
 				if (this.annualSettlement.Fields.FinnesProsjekterKey) {
-					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt) {
+					if (!this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt && !this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret) {
 						this.ct = this.contractTypes[1];
 					} else {
 						this.ct = this.contractTypes[0];
@@ -517,7 +518,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 				if (!this.annualSettlement.Fields.FinnesProsjekterKey) {
 					this.infoContent.diff = 0;
 				} else if (this.ct.value === 1) {
-					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0);
+					this.infoContent.diff = parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt || 0) 
+						+ parseFloat(this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret || 0);
 				} else if (this.ct.value === 2) {
 					this.infoContent.diff = 0;
 				}
@@ -572,5 +574,4 @@ export class AnnualSettlementWriteofDifferenceStep {
 	goBack() {
 		this.router.navigateByUrl('/accounting/annual-settlement');
 	}
-
 }
