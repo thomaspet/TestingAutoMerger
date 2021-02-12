@@ -127,12 +127,7 @@ export class AnnualSettlementCheckListComponent {
     }
 
     checkIfAreAllOptionsChecked() {
-        return this.options.reduce((result: boolean, option: any) => {
-            if (result === true) {
-                return option.checked ? true : false;
-            }
-            return false;
-        }, true);
+        return this.options.reduce((result: boolean, option: any) => result && option.checked, true);
     }
 
     ngOnDestroy() {
