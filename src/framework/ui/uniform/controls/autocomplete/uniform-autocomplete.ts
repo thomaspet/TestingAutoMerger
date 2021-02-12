@@ -11,25 +11,16 @@ import {
     HostListener
 } from '@angular/core';
 
-import {Observable, Subscription} from 'rxjs';
+import {Observable, of, Subscription} from 'rxjs';
 import {BaseControl} from '../baseControl';
 import {BehaviorSubject} from 'rxjs';
 import {UniFieldLayout} from '@uni-framework/ui/uniform/interfaces';
-
-import 'rxjs/add/observable/of';
-import 'rxjs/add/operator/debounceTime';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/toPromise';
-import 'rxjs/add/operator/do';
-import 'rxjs/add/operator/merge';
-import 'rxjs/add/operator/share';
 
 import * as _ from 'lodash';
 import {IGroupConfig} from '@uni-framework/ui/unitable/controls/table-autocomplete';
 import {KeyCodes} from '@app/services/common/keyCodes';
 import {take, debounceTime} from 'rxjs/operators';
+import {get, set} from 'lodash';
 
 @Component({
     selector: 'uniform-autocomplete',
@@ -87,7 +78,7 @@ export class UniFormAutocomplete extends BaseControl {
             this.readOnly$.next(this.field && this.field.ReadOnly);
         }
         if (changes['model']) {
-            const modelValue = _.get(changes['model'].currentValue, this.field.Property);
+            const modelValue = get(changes['model'].currentValue, this.field.Property);
             if (!modelValue) {
                 this.currentValue = modelValue;
             }
@@ -148,7 +139,7 @@ export class UniFormAutocomplete extends BaseControl {
         }
 
         if (!searchResult || !searchResult.subscribe) {
-            searchResult = Observable.of(searchResult || []);
+            searchResult = of(searchResult || []);
         }
 
         searchResult.pipe(take(1)).subscribe(items => {
@@ -198,7 +189,7 @@ export class UniFormAutocomplete extends BaseControl {
 
     private template(obj: any) {
         if (!this.options.template) {
-            return _.get(obj, this.options.displayProperty);
+            return get(obj, this.options.displayProperty);
         } else {
             return this.options.template(obj);
         }
@@ -206,13 +197,13 @@ export class UniFormAutocomplete extends BaseControl {
 
     private getInitialDisplayValue(value): Observable<any> {
         if (!this.source) {
-            return Observable.of([]);
+            return of([]);
         }
         if (this.options.getDefaultData) {
             return this.options.getDefaultData();
         } else if (Array.isArray(this.source)) {
-            return Observable.of([(<any[]> this.source).find((item) => {
-                return _.get(item, this.field.Options.valueProperty) === value;
+            return of([(<any[]> this.source).find((item) => {
+                return get(item, this.field.Options.valueProperty) === value;
             })]);
         }
     }
@@ -270,11 +261,11 @@ export class UniFormAutocomplete extends BaseControl {
         }
         this.selectedIndex = -1;
 
-        this.value = this.currentValue ? _.get(this.currentValue, this.field.Options.valueProperty) : null;
+        this.value = this.currentValue ? get(this.currentValue, this.field.Options.valueProperty) : null;
         this.initialDisplayValue = this.currentValue ? this.template(this.currentValue) : '';
         this.control.setValue(this.initialDisplayValue, {emitEvent: false});
-        const current = _.get(this.model, this.field.Property);
-        _.set(this.model, this.field.Property, this.value);
+        const current = get(this.model, this.field.Property);
+        set(this.model, this.field.Property, this.value);
         if (this.field.Options && this.field.Options.events && this.field.Options.events.select) {
             // just select if we change the value
             if (undefinedToNull(current) !== undefinedToNull(this.value)) {

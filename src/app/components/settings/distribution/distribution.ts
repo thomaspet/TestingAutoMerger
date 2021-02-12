@@ -40,7 +40,7 @@ export class UniDistributionSettings {
     loaded: boolean = false;
     type: IEntityType;
 
-    defaultImageUrl = theme.widgets?.empty_state_illustration || 'themes/empty_state.svg';
+    defaultImageUrl = theme.widgets?.empty_state_illustration || 'config/dist/theme/assets/empty_state.svg';
     activeIndex = 0;
 
     tabs = [

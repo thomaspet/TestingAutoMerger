@@ -41,8 +41,6 @@ export class UniReports implements OnInit {
 
     @ViewChild(SalaryPaymentListReportFilterModal, { static: true }) private salaryPaymentListFilterModal: SalaryPaymentListReportFilterModal;
 
-    @ViewChild(VacationPayBaseReportFilterModal, { static: true }) private vacationBaseFilterModal: VacationPayBaseReportFilterModal;
-
     @ViewChild(SalaryWithholdingAndAGAReportFilterModal, { static: true })
         private salaryWithholdingAndAGAReportFilterModal: SalaryWithholdingAndAGAReportFilterModal;
 
@@ -162,9 +160,6 @@ export class UniReports implements OnInit {
             case 7:
             case 8:
                 this.salaryPaymentListFilterModal.open(report);
-                break;
-            case 9:
-                this.vacationBaseFilterModal.open(report);
                 break;
             case 10:
                 this.paycheckReportFilterModal.open(report);

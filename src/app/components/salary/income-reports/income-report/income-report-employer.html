@@ -1,0 +1,72 @@
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Arbeidsgiverinformasjon</h1>
+            <p>Virksomhetsnummer hentes fra arbeidsforholdet som er valgt for innsending, ikke redigerbart. Ditt Navn og Telefonnummer
+            hentes fra Min profil: Brukerinnstillinger. Feltene kan overskrives i skjemaet. Det er også mulig å endre opplysningene
+            i brukerinnstillinger hvis endringen er varig.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form class="two-column-layout"
+                    [config]="{ autofocus: true, showLabelAbove: true}"
+                    [model]="incomereport"
+                    [fields]="fieldsArbeidsgiver$"
+                    (changeEvent)="onChangeEvent($event)"
+                ></uni-form>
+            </section>
+        </section>
+    </section>
+</section>
+
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Arbeidstaker som inntektsmeldingen gjelder</h1>
+            <p>Fødselsnummer (eller Dnr) hentes fra ansattkort, og er ikke redigerbart. Nær relasjon er standard utfylt Nei, men skulle
+            du være i nær relasjon til den ansatte det sendes inntektsmelding for må det krysses Ja her. (Nær relasjon er
+            nåværende/tidligere ektefelle/samboer/forlovede, i familie, nære venner)</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form 
+                    [config]="{ showLabelAbove: true}"
+                    [model]="incomereport"
+                    [fields]="fieldsArbeidstaker$"
+                    (changeEvent)="onChangeEvent($event)"
+                ></uni-form>
+            </section>
+        </section>
+    </section>
+</section>
+
+
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Ytelsen som inntektsmeldingen gjelder</h1>
+            <p>Ytelse er allerede valgt ved opprettelse av skjema og kan ikke endres her. Årsak til innsending: Ny, hvis dette er
+            første innsending for denne stønadsperioden. Endret hvis dette er en endring/korrigering av allerede innsendt melding.
+            Merk at sendes korrigert melding for samme periode vil denne erstatte den opprinnelige innsendte meldingen hos NAV.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <uni-form class="two-column-layout"
+                    [config]="{ showLabelAbove: true}"
+                    [model]="incomereport"
+                    [fields]="fieldsYtelse$"
+                    (changeEvent)="onChangeEvent($event)"
+                ></uni-form>
+            </section>
+        </section>
+    </section>
+</section>

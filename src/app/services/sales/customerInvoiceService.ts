@@ -19,6 +19,7 @@ import { Observable } from 'rxjs';
 import { ErrorService } from '../common/errorService';
 import { ConfirmActions } from '@uni-framework/uni-modal/interfaces';
 import { ReportTypeEnum } from '@app/models/reportTypeEnum';
+import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
 
 @Injectable()
 export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
@@ -83,19 +84,14 @@ export class CustomerInvoiceService extends BizHttp<CustomerInvoice> {
     }
 
     public onCheckRegisterPaymentDisabled(selectedRow: any): boolean {
-        if (!selectedRow) {
-            return true;
-        }
+        const approvedStatusCodesForAction = [StatusCodeCustomerInvoice.Invoiced, StatusCodeCustomerInvoice.PartlyPaid,
+            StatusCodeCustomerInvoice.Credited, StatusCodeCustomerInvoice.PartlyCredited];
 
-        const row = selectedRow;
-        const isInvoiced = row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.Invoiced;
-        const isPartlyPaid = row.CustomerInvoiceStatusCode === StatusCodeCustomerInvoice.PartlyPaid;
-
-        if (isInvoiced || isPartlyPaid) {
+        if (selectedRow?.CustomerInvoiceInvoiceType !== InvoiceTypes.CreditNote &&
+            approvedStatusCodesForAction.includes(selectedRow?.CustomerInvoiceStatusCode)) {
             return false;
-        } else {
-            return true;
         }
+        return true;
     }
 
     public onRegisterPayment(selectedRows: Array<any>): Promise<any> {

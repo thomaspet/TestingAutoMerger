@@ -162,7 +162,7 @@ export class AccountDetails implements OnInit {
             const vatCodeField = fields.find(f => f.Property === 'VatTypeID');
 
             accountNumberField.ReadOnly = account?.ID > 0;
-            vatCodeField.ReadOnly = account?.ID > 0;
+            vatCodeField.ReadOnly = account?.ID > 0 && !this.permissionService.canShowUiFeature('ui.accounting.advanced-account-settings');
         }
     }
 

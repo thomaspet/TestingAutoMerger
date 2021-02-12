@@ -27,7 +27,7 @@ export class AssetsListComponent {
     tabHasAssets = false;
     tabs = [];
     activeTab = null;
-    imageUrl = 'themes/ue/eiendel-ue.svg';
+    imageUrl = 'config/dist/theme/assets/eiendel.svg';
     supplirInvoiceWord = 'leverandørfakturaen';
     constructor(
         private store: AssetsStore,
@@ -35,10 +35,10 @@ export class AssetsListComponent {
         private route: ActivatedRoute,
         private router: Router
     ) {
-        this.imageUrl = this.getEmptyStateImageUrl();
         this.supplirInvoiceWord = this.getSupplierInvoiceWord()
         // if something changes into state we refresh the lookup function
         this.store.state$.pipe(takeUntil(this.onDestroy$)).subscribe(state => {
+            if (this.table) { this.table.refreshTableData(); }
             this.assetsActions.haveAssetsWithDepreciationNotStarted().subscribe(hasNotStartedDepreciations => {
                 this.hasNotStartedDepreciations = hasNotStartedDepreciations;
             });
@@ -115,15 +115,6 @@ export class AssetsListComponent {
         this.tabHasAssets = false;
     }
 
-    getEmptyStateImageUrl() {
-        if (theme.theme === THEMES.EXT02) {
-            return 'themes/ext02/eiendel-ext02.svg';
-        }
-        if (theme.theme === THEMES.SR) {
-            return 'themes/ext01/eiendel-ext01.svg';
-        }
-        return 'themes/ue/eiendel-ue.svg';
-    }
     getSupplierInvoiceWord() {
         if (theme.theme === THEMES.EXT02 || theme.theme === THEMES.SR) {
             return 'regningen';

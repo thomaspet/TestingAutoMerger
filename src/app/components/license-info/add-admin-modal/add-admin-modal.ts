@@ -18,6 +18,7 @@ export class AddAdminModal implements IUniModal {
     users: ElsaUserLicense[];
     filteredUsers: ElsaUserLicense[];
     filterValue: string;
+    header: string;
 
     constructor(
         private errorService: ErrorService,
@@ -28,13 +29,16 @@ export class AddAdminModal implements IUniModal {
     public ngOnInit() {
         const data = this.options.data || {};
         this.customer = data.customer;
+        this.header = this.options.header;
         this.busy = true;
 
         this.elsaContractService.getUserLicenses(data.contractID).subscribe(
             users => {
                 users = (users || []).filter(u => {
-                    return u.Email && !this.customer.Managers.some(m => {
+                    return u.Email && !this.customer.Managers?.some(m => {
                         return m.User && m.User.Email === u.Email;
+                    }) && !this.customer.CustomerRoamingUsers?.some(ru => {
+                        return ru && ru.Email === u.Email;
                     });
                 });
 
@@ -70,7 +74,10 @@ export class AddAdminModal implements IUniModal {
     save() {
         const selectedUsers = this.users.filter(u => u['_selected']);
         const requests = selectedUsers.map(user => {
-            return this.elsaCustomerService.addAdmin(this.customer.ID, user.Email);
+            if (this.options.data.addAdmin) {
+                return this.elsaCustomerService.addAdmin(this.customer.ID, user.Email);
+            }
+            return this.elsaCustomerService.addRoamingUser(this.customer.ID, user.Email);
         });
 
         if (requests.length) {

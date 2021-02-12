@@ -4,7 +4,7 @@ import {BizHttp} from '../../../framework/core/http/BizHttp';
 import {UniHttp} from '../../../framework/core/http/http';
 import {HttpClient} from '@angular/common/http';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import {Observable} from 'rxjs';
+import {from, Observable} from 'rxjs';
 import {NumberFormat} from './numberFormatService';
 import {AuthService} from '../../authService';
 import {ApiModelService, ApiModel} from './apiModelService';
@@ -36,6 +36,10 @@ import * as moment from 'moment';
 import {cloneDeep} from 'lodash';
 import {ColumnTemplateOverrides} from '@app/components/uniticker/ticker/column-template-overrides';
 import {QuickFilter} from '@uni-framework/ui/unitable';
+import { theme, THEMES } from 'src/themes/theme';
+import { InvoiceTypes } from '@app/models/sales/invoiceTypes';
+import {map} from 'rxjs/operators';
+
 
 @Injectable()
 export class UniTickerService {
@@ -353,14 +357,32 @@ export class UniTickerService {
     public getTickers(): Promise<Ticker[]> {
         return this.loadTickerCache()
             .then(() => {
+                this.tickers = this.tickers.map(t => {​​​​
+
+                    // Kind of dirty hack to remove filters from supplier invoice and customer invoice list based on company settings value
+
+                    if (t.Code.includes('invoice_list') && theme.theme === THEMES.EXT02) {
+                        t.Filters = t.Filters.map(f => {
+
+                            if (f.Code === 'invoices_reminded' || f.Code === 'invoices_sentforcollection' || f.Code === 'my_invoices') {​​​​
+                                f.hidden = true;
+                            }​​​​
+                            return f;
+                        });
+                    }​​​​
+
+                    return t;
+
+                }​​​​);
+
                 return this.tickers;
             });
     }
 
     public getTicker(code: string): Observable<Ticker> {
-        return Observable
-            .fromPromise(this.getTickers())
-            .map(tickers => tickers.find(ticker => ticker.Code === code));
+        return from(this.getTickers()).pipe(
+            map(tickers => tickers.find(ticker => ticker.Code === code))
+        );
     }
 
     public executeAction(action: TickerAction, ticker: Ticker, selectedRows: Array<any>): Promise<any> {
@@ -591,7 +613,8 @@ export class UniTickerService {
         }
 
         if (column.SelectableFieldName.toLowerCase().endsWith('statuscode')) {
-            formattedFieldValue = this.statusCodeToText(data[column.Alias]);
+            const statusCodeText = this.statusCodeToText(data[column.Alias]);
+            formattedFieldValue = this.statusCodeOverrides(statusCodeText, ticker.Code, data)
         }
 
         if (column.SubFields && column.SubFields.length > 0) {
@@ -726,6 +749,13 @@ export class UniTickerService {
     private statusCodeToText(statusCode: number): string {
         const text: string = this.statusService.getStatusText(statusCode);
         return text || (statusCode ? statusCode.toString() : '');
+    }
+
+    private statusCodeOverrides(text, tickerCode, data): string {
+        if (tickerCode === 'invoice_list' && data.CustomerInvoiceInvoiceType === InvoiceTypes.CreditNote) {
+            return 'Kreditnota';
+        }
+        return text;
     }
 
     private getFieldValueInternal(column: TickerColumn, model: any): any {
@@ -1271,6 +1301,7 @@ export class TickerColumn {
     public ShowOnlyOnThisFilter?: number;
     public ExcludeFromEnvironments?: string[];
     public DefaultHiddenOnGivenFilters?: string[];
+    public DefualtShowOnlyOnGivenFilters?: string[];
     public CssClass?: string;
     public Type?: string;
     public SumFunction?: string;
@@ -1318,6 +1349,7 @@ export class TickerFilter {
     public CurrentCount?: number;
     public IsMultiRowSelect: boolean = false;
     public featurePermission?: string;
+    public hidden?: boolean;
 }
 
 export class TickerAction {
@@ -1335,6 +1367,8 @@ export class TickerAction {
     public SendParentModel?: boolean = false;
     public Options: TickerActionOptions;
     public Route?: String;
+    public GoToUrlTarget?: string;
+    public DisplayOnlyInFilterCode?: string;
 }
 
 export class TickerActionOptions {

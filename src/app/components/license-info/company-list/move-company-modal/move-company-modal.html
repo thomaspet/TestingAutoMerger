@@ -1,0 +1,37 @@
+<section role="dialog" class="uni-modal uni-redesign">
+	<header>Flytt selskapet {{ company?.CompanyName }}</header>
+
+	<article>
+		<section *ngIf="busy" class="modal-spinner">
+			<mat-spinner class="c2a"></mat-spinner>
+		</section>
+
+        <section *ngIf="!selectableItems?.length">
+            Du har ingen aktive lisenser å flytte selskapet til.
+        </section>
+		
+        <ng-container *ngIf="selectableItems?.length">
+            <section class="alert info">
+                <i class="material-icons">info_outline</i>
+                Flytt selskapet til en annen lisens.
+            </section>
+    
+            <label class="uni-label">
+                <span>Velg lisens</span>
+                <uni-select
+                    [config]="config"
+                    [items]="selectableItems"
+                    [value]="selectedItem"
+                    (valueChange)="onSelect($event)">
+                </uni-select>
+            </label>
+        </ng-container>
+
+	</article>
+	<footer class="center">
+		<button class="secondary" (click)="onClose.emit(false)">
+            {{selectableItems?.length ? 'Avbryt' : 'Lukk'}}
+        </button>
+		<button *ngIf="selectableItems?.length" class="c2a" (click)="moveCompany()" [disabled]="busy || !selectedItem">Flytt</button>
+	</footer>
+</section>

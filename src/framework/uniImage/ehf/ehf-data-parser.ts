@@ -15,18 +15,10 @@ function get(data, path, defaultValue?) {
 }
 
 export function parseEHFData(data) {
-    let invoiceData;
-    let isCreditNote;
-
-    if (data.StandardBusinessDocument) {
-        isCreditNote = !!data.StandardBusinessDocument.CreditNote;
-        invoiceData = data.StandardBusinessDocument.Invoice
-            || data.StandardBusinessDocument['inv:Invoice']
-            || data.StandardBusinessDocument.CreditNote;
-    } else {
-        isCreditNote = !!data.CreditNote;
-        invoiceData = data.Invoice || data.CreditNote;
-    }
+    let sbdhKey = Object.keys(data).find(name => name.endsWith("StandardBusinessDocument"));
+    let dataKey = Object.keys(sbdhKey ? data[sbdhKey] : data).find(name => name.endsWith('Invoice') || name.endsWith('CreditNote'));
+    let isCreditNote = dataKey.endsWith('CreditNote');
+    let invoiceData = sbdhKey ? data[sbdhKey][dataKey] : data[dataKey];
 
     if (invoiceData) {
         try {

@@ -9,7 +9,7 @@ import {TableUtils} from './services/table-utils';
 import {ColumnMenuNew} from './column-menu-modal';
 import {EditorChangeEvent, TableEditor} from './editor/editor';
 import {CellRenderer} from './cell-renderer/cell-renderer';
-import {ICellClickEvent, IRowChangeEvent, ITableFilter} from './interfaces';
+import {ITableFilter, ICellClickEvent, IRowChangeEvent, IOptionBanner} from './interfaces';
 
 import {
     CellClickedEvent,
@@ -49,6 +49,7 @@ export class AgGridWrapper {
     @ViewChild(TableEditor) public editor: TableEditor;
 
     @Input() public config: UniTableConfig;
+    @Input() public optionBanner: IOptionBanner;
     @Input() public columnSumResolver: (params: HttpParams) => Observable<{[field: string]: number}>;
     @Input() public resource: any[] | ((params: HttpParams) => Observable<any>);
     @Output() public resourceChange: EventEmitter<any[]> = new EventEmitter(false);
@@ -87,16 +88,21 @@ export class AgGridWrapper {
     hasLoadedData: boolean;
     columns: UniTableColumn[];
     hasSumRow: boolean;
+    loadedRowsCount: number;
+    rowsCountTotal: number;
+    rowsSumTotal: number;
 
     private colResizeDebouncer$: Subject<ColumnResizedEvent> = new Subject();
     private gridSizeChangeDebouncer$: Subject<GridSizeChangedEvent> = new Subject();
     private rowSelectionDebouncer$: Subject<SelectionChangedEvent> = new Subject();
     private columnMoveDebouncer$: Subject<ColumnMovedEvent> = new Subject();
     private sumRowSubscription: Subscription;
+    private selectAllRowsDebouncer$: Subject<[boolean, string]> = new Subject();
 
     private isInitialLoad: boolean = true;
     public suppressRowClick: boolean = false;
     public sumColName: string = '';
+    public allRowsSelected: boolean;
 
     // Used for custom cell renderers
     public context: any;
@@ -133,12 +139,31 @@ export class AgGridWrapper {
             .debounceTime(50)
             .subscribe((event: SelectionChangedEvent) => {
                 this.agGridApi.refreshHeader();
-                const rows = event.api.getSelectedRows();
-                this.markedRowCount = rows ? rows.length : 0;
-                this.sumMarkedRows = (rows && this.sumColName) ? this.sumTotalInGroup(rows.map(row => row[this.sumColName])) : 0;
-                this.rowSelectionChange.emit(rows);
+                const rows = event?.api.getSelectedRows();
+                if (this.allRowsSelected) {
+                    this.dataService.sumRow$.take(1).subscribe((rowsSum) => {
+                        this.rowsSumTotal = rowsSum[0]['Amount'];
+                    });
+
+                    this.sumMarkedRows = this.rowsSumTotal;
+                    this.markedRowCount = this.rowsCountTotal;
+                } else {
+                    this.sumMarkedRows = (rows && this.sumColName) ? this.sumTotalInGroup(rows.map(row => row[this.sumColName])) : 0;
+                    this.markedRowCount = rows ? rows.length : 0;
+                }
+                this.rowSelectionChange.emit(this.allRowsSelected ? [] : rows);
                 this.cdr.markForCheck();
             });
+
+        this.dataService.totalRowCount$.subscribe((sum) => {
+            this.rowsCountTotal = sum;
+        });
+
+
+        this.selectAllRowsDebouncer$.subscribe((data: [boolean, string]) => {
+            this.allRowsSelected = data[0];
+            this.rowSelectionDebouncer$.next();
+        });
 
         this.columnMoveDebouncer$
             .debounceTime(1000)
@@ -169,6 +194,7 @@ export class AgGridWrapper {
         this.dataService.sumRow$.complete();
         this.dataService.localDataChange$.complete();
         this.sumRowSubscription.unsubscribe();
+        this.selectAllRowsDebouncer$.unsubscribe();
     }
 
     public ngOnChanges(changes) {
@@ -361,6 +387,7 @@ export class AgGridWrapper {
     public onDataLoaded() {
         if (!this.localData) {
             if (this.dataService.loadedRowCount) {
+                this.loadedRowsCount = this.dataService.loadedRowCount;
                 this.agGridApi.hideOverlay();
             } else {
                 this.agGridApi.showNoRowsOverlay();
@@ -371,6 +398,10 @@ export class AgGridWrapper {
             setTimeout(() => {
                 this.dataService.isDataLoading = false;
             });
+
+            if (this.allRowsSelected) {
+                this.agGridApi.forEachNode(x => x.selectThisNode(true));
+            }
         }
     }
 
@@ -507,7 +538,7 @@ export class AgGridWrapper {
 
     public onRowClick(event: RowClickedEvent) {
         const row = event && event.data;
-        if (row && !row['_isSumRow']) {
+        if (row && !row['_isSumRow'] && !(this.config.multiRowSelect && this.config.multiRowSelectOnRowClick)) {
             this.rowClick.next(event.data);
         }
     }
@@ -762,10 +793,49 @@ export class AgGridWrapper {
 
     public onSelectionChange(event: SelectionChangedEvent) {
         if (this.selectionMode === 'multiple') {
+            const selectedRows = event.api.getSelectedRows() || [];
+            if (this.config?.useInfobannerWhenMoreThenSelectedRowsExists &&
+                selectedRows.length === this.loadedRowsCount &&
+                this.rowsCountTotal > selectedRows.length) {
+                this.optionBanner = {
+                    visible: true,
+                    text: `Alle ${selectedRows.length} radene på denne siden er markert. `,
+                    link: `Marker alle ${this.rowsCountTotal} radene i listen`,
+                    action: () => {
+                        this.selectAllRowsDebouncer$.subscribe((data: [boolean, string]) => {
+                            if (data[0]) {
+                                this.optionBanner = {
+                                    visible: true,
+                                    text: `Alle ${this.rowsCountTotal} radene er markert. `,
+                                    link: `Fjern markeringen`,
+                                    action: () => {
+                                        this.agGridApi.deselectAll();
+                                        this.selectAllRowsDebouncer$.next([false, this.getFilterString()]);
+                                    }
+                                };
+                            }
+                        });
+                        this.selectAllRowsDebouncer$.next([true, this.getFilterString()]);
+                        if (this.allRowsSelected) {
+                            this.agGridApi.forEachNode(x => x.selectThisNode(true));
+                        }
+                    }
+                };
+            } else if (this.config?.useInfobannerWhenMoreThenSelectedRowsExists && this.optionBanner?.visible) {
+                this.optionBanner = {
+                    visible: false,
+                    text: '',
+                    link: '',
+                    action: null
+                };
+                this.selectAllRowsDebouncer$.next([false, this.getFilterString()]);
+            }
+
             // If we have multirow select run the events through a debouncer.
             // This is done because selecting all rows will trigger one event
             // per row, and we dont need to emit for every row
             this.rowSelectionDebouncer$.next(event);
+            this.cdr.markForCheck();
         } else {
             const selectedRows = event.api.getSelectedRows() || [];
             if (selectedRows.length) {

@@ -25,7 +25,7 @@
         <p>{{'SALARY.TAX_CARD_REQUEST.CHANGED_EMPS_INFO' | translate}}</p>
     </section>
 
-    <mat-checkbox *ngIf="(model$ | async).empChoice !== 'CHANGED_ONLY'" [checked]="model$.value.empsAndChanged" (change)="checkboxChange($event)">{{'SALARY.TAX_CARD_REQUEST.CHANGED_EMPS_LABEL' | translate}}</mat-checkbox>
+    <mat-checkbox *ngIf="(model$ | async).empChoice !== 'CHANGED_ONLY'" [checked]="model$.value.empsAndChanged" (change)="checkboxChange($event)" [disabled]="isFutureFinancialYear">{{'SALARY.TAX_CARD_REQUEST.CHANGED_EMPS_LABEL' | translate}}</mat-checkbox>
 
     <section class="alert employee-alert" *ngIf="empCount && !employee">
         <i class="material-icons">info</i>

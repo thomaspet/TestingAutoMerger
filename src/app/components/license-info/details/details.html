@@ -53,7 +53,10 @@
 
     <section class="info-card">
         <section class="info-field">
-            <strong>Kontaktperson</strong>
+            <strong>
+                Kontaktperson
+                <i *ngIf="isAdmin" (click)="editContactInfo()" class="material-icons edit">edit</i>
+            </strong>
             <span>
                 {{customer?.ContactPerson || '-'}}
                 <a href="mailto:{{customer?.ContactEmail}}">{{customer?.ContactEmail || '-'}}</a>
@@ -66,28 +69,45 @@
 
 <section class="list-container">
     <section class="header">
-        <h1>Administratorer</h1>
+        <h1>
+            Administratorer
+            <!-- <span (click)="showManagerList = true" [ngClass]="{'active-header': showManagerList}">
+                Administratorer
+            </span>
+            &nbsp;/&nbsp;
+            <span (click)="showManagerList = false" [ngClass]="{'active-header': !showManagerList}">
+                Regnskapsførere
+            </span> -->
+        </h1>
 
         <div class="pull-right">
-            <button *ngIf="isAdmin" (click)="addAdmin()" class="tertiary c2a add-admin">
-                Legg til administrator
+            <button *ngIf="isAdmin" (click)="addToList()" class="tertiary c2a add-admin">
+                Legg til {{showManagerList ? 'administrator' : 'regnskapsfører'}}
             </button>
 
             <input
                 type="search"
                 placeholder="Søk"
                 [(ngModel)]="filterValue"
-                (ngModelChange)="filterManagers()"
+                (ngModelChange)="filter()"
             />
         </div>
 
     </section>
 
     <license-info-list
-        *ngIf="filteredManagers?.length"
-        [columns]="columns"
+        *ngIf="filteredManagers?.length && showManagerList"
+        [columns]="managerColumns"
         [rows]="filteredManagers"
         [orderBy]="'User.Name'"
-        [contextMenu]="contextMenu">
+        [contextMenu]="managerContextMenu">
+    </license-info-list>
+
+    <license-info-list
+        *ngIf="filteredRoamingUsers?.length && !showManagerList"
+        [columns]="roamingColumns"
+        [rows]="filteredRoamingUsers"
+        [orderBy]="'UserName'"
+        [contextMenu]="roamingContextMenu">
     </license-info-list>
 </section>

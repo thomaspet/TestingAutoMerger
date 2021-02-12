@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable} from 'rxjs';
+import {from, Observable, of} from 'rxjs';
 
 import {
     CompanySettings,
@@ -66,6 +66,7 @@ import {TofHelper} from '../salesHelper/tofHelper';
 import {theme, THEMES} from "src/themes/theme";
 import {TradeItemHelper, ISummaryLine} from '../salesHelper/tradeItemHelper';
 import {UniRecurringInvoiceLogModal} from './recurringInvoiceLogModal';
+import {catchError, map, switchMap} from 'rxjs/operators';
 
 declare const _: any;
 
@@ -441,23 +442,25 @@ export class UniRecurringInvoice implements OnInit {
 
     canDeactivate(): boolean | Observable<boolean> {
         if (this.isDirty) {
-            return this.modalService.openUnsavedChangesModal().onClose
-                .switchMap(result => {
+            return this.modalService.openUnsavedChangesModal().onClose.pipe(
+                switchMap(result => {
                     if (result === ConfirmActions.ACCEPT) {
                         if (!this.invoice.ID && !this.invoice.StatusCode) {
                             this.invoice.StatusCode = StatusCode.Draft;
                         }
 
-                        return Observable.fromPromise(this.saveInvoice())
-                            .catch(err => {
+                        return from(this.saveInvoice()).pipe(
+                            catchError(err => {
                                 this.handleSaveError(err);
-                                return Observable.of(false);
-                            })
-                            .map(res => !!res);
+                                return of(false);
+                            }),
+                            map(res => !!res)
+                        );
                     }
 
-                    return Observable.of(result !== ConfirmActions.CANCEL);
-                });
+                    return of(result !== ConfirmActions.CANCEL);
+                })
+            );
         }
         return true;
     }

@@ -1,9 +1,24 @@
 <uni-toolbar
     [config]="toolbarconfig"
-    [saveactions]="saveActions">
+    [saveactions]="saveActions"
+    [validationMessages]="toolbarStatusValidation"
+    [dropdownButton]="dropdownButton">
 </uni-toolbar>
 
 <section class="application">
-    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="true"></uni-tabs>
-    <router-outlet></router-outlet>
+    <section class="income-report alert info" *ngIf="!isHidden">
+        <i class="material-icons-outlined">info</i>
+        <span>{{statusInfoText}}</span>
+        <i class="material-icons close-button" role="button" (click)="this.isHidden = true">close</i>
+    </section>
+
+    <uni-tabs [tabs]="childRoutes" [useRouterLinkTabs]="false" (tabClick)="tabOnClick($event)" [(activeIndex)]="activeTabIndex"></uni-tabs>
+    <section class="container-fluid uni-grid-container">
+        <income-report-employer [readOnly]="readOnly" [incomereport]="(state$ | async)?.currentIncomeReport" [hidden]="activeTabIndex !== 0"></income-report-employer>
+        <income-report-incomedetail [readOnly]="readOnly" [incomereport]="(state$ | async)?.currentIncomeReport" [hidden]="activeTabIndex !== 1"></income-report-incomedetail>
+
+        <section class="row col-md-12" *ngIf="activeTabIndex === 0">
+            <button (click)="saveAndcontinue()" class="good save-and-continue-button" [disabled]="readOnly">Lagre og fortsett</button>
+        </section>
+    </section>
 </section>

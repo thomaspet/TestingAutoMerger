@@ -49,6 +49,14 @@
                 {{button.label}}
             </button>
         </section>
+
+        <section *ngIf="optionBanner?.visible">
+            <section style="background-color: var(--alert-warn); padding: 7px;">
+                <span>
+                    {{optionBanner?.text}} <a (click)="optionBanner?.action()">{{optionBanner?.link}}</a>
+                </span>
+            </section>
+        </section>
     </section>
 </section>
 

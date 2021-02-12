@@ -1,0 +1,34 @@
+<section role="dialog" class="uni-modal confirm-twofactor-modal">
+    <header>{{options.header | translate}}</header>
+    <article>
+        <section *ngIf="busy" class="modal-spinner">
+            <mat-spinner class="c2a"></mat-spinner>
+        </section>
+
+        <section [hidden]="msg">
+            <label class="uni-label">
+                <span>Tilsendt kode</span>
+                <input #codeElement type="text" [disabled]="busy" [(ngModel)]="model.Code">
+            </label>
+        </section>
+
+        <section [innerHtml]="options.message | translate"></section>
+
+        <span class="message-bottom-section">
+            <small *ngIf="msg" class="bad"> {{ msg }} </small>
+        </span>
+    </article>
+
+    <footer class="center">
+        <button *ngIf="options.buttonLabels.cancel"
+            class="secondary" [disabled]="busy" 
+            (click)="cancel()">
+            {{options.buttonLabels.cancel}}
+        </button>
+        <button *ngIf="options.buttonLabels.accept" 
+            class="c2a" [disabled]="msg || !model.Code || busy"
+            (click)="verify()">
+            {{options.buttonLabels.accept}}
+        </button>
+    </footer>
+</section>

@@ -93,7 +93,6 @@ export class TofCustomerCard {
     ];
 
     lastPeppolAddressChecked: string;
-    canSendEHF: boolean;
     canSendEfaktura: boolean;
     distributionChanels = [];
 

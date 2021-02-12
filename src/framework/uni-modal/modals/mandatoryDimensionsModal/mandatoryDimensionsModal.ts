@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { IUniModal, IModalOptions } from '@uni-framework/uni-modal/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { StatusCode } from '@app/components/sales/salesHelper/salesEnums';
 import { AccountService } from '@app/services/accounting/accountService';
 import { Account, DimensionSettings } from '@app/unientities';

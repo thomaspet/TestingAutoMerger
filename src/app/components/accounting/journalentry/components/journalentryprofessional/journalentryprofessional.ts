@@ -36,7 +36,8 @@ import {
     VatDeduction,
     InvoicePaymentData,
     NumberSeries,
-    SupplierInvoice
+    SupplierInvoice,
+    StatusCodeCustomerOrder
 } from '../../../../../unientities';
 import {JournalEntryData, NumberSeriesTaskIds, FieldAndJournalEntryData, AccountingCostSuggestion} from '@app/models';
 import {AccrualModal} from '../../../../common/modals/accrualModal';
@@ -970,6 +971,14 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
 
         if (rowModel.CustomerOrder) {
              rowModel.CustomerOrderID = rowModel.CustomerOrder.ID;
+             if(rowModel.CustomerOrder.StatusCode === StatusCodeCustomerOrder.Completed){
+                 this.toastService.addToast(
+                 'Advarsel',
+                 ToastType.warn,
+                 ToastTime.forever,
+                 'Denne ordre er merket som Avsluttet.'
+                 );
+             }
             if (rowModel.CustomerOrder.ProjectID) {
                 rowModel.Dimensions.Project = {
                     ID: rowModel.CustomerOrder.ProjectID,
@@ -2203,6 +2212,87 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         }
     }
 
+    public showAgioDialogFromPayments(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
+        const customerInvoice = journalEntryRow.CustomerInvoice;
+
+        return new Promise(resolve => {
+            const paymentData = <InvoicePaymentData> {
+                Amount: customerInvoice.RestAmount,
+                AmountCurrency: UniMath.round(customerInvoice.RestAmountCurrency, 2),
+                BankChargeAmount: 0,
+                CurrencyCodeID: customerInvoice.CurrencyCodeID,
+                CurrencyExchangeRate: 0,
+                PaymentDate: journalEntryRow.FinancialDate || new LocalDate(),
+                AgioAccountID: 0,
+                BankChargeAccountID: 0,
+                AgioAmount: 0,
+                PaymentID: null,
+                DimensionsID: null
+            };
+
+            const title = `Faktura nr: ${customerInvoice.InvoiceNumber},`
+                + ` ${customerInvoice.RestAmount} ${this.companySettings.BaseCurrencyCode.Code}`;
+
+            const paymentModal = this.modalService.open(UniRegisterPaymentModal, {
+                header: title,
+                data: paymentData,
+                modalConfig: {
+                    entityName: CustomerInvoice.EntityType,
+                    customerID: customerInvoice.CustomerID,
+                    currencyCode: customerInvoice.CurrencyCode.Code,
+                    currencyExchangeRate: customerInvoice.CurrencyExchangeRate,
+                    hideBankCharges: true // temp fix until payInvoice endpoint support bankcharges
+                }
+            });
+
+            paymentModal.onClose.subscribe(payment => {
+                if (!payment) {
+                    resolve(journalEntryRow);
+                }
+                journalEntryRow.FinancialDate = paymentData.PaymentDate;
+                journalEntryRow.VatDate = paymentData.PaymentDate;
+
+                // we use the amount paid * the original invoices CurrencyExchangeRate to calculate
+                // the Amount that was paid in the base currency - the diff between this and what
+                // is registerred as a payment on the opposite account (normally a bankaccount)
+                // will be balanced using an agio line
+                journalEntryRow.Amount = paymentData.Amount;
+                journalEntryRow.AmountCurrency = paymentData.AmountCurrency;
+                journalEntryRow.NetAmount = journalEntryRow.Amount;
+                journalEntryRow.NetAmountCurrency = journalEntryRow.AmountCurrency;
+                journalEntryRow.CreditAccountID = journalEntryRow.CreditAccountID;
+                journalEntryRow.CreditAccount = journalEntryRow.CreditAccount;
+                journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+
+                if (paymentData.AgioAmount !== 0 && paymentData.AgioAccountID) {
+                    const oppositeRow = this.createOppositeRow(journalEntryRow, paymentData);
+                    oppositeRow.CurrencyExchangeRate = Math.abs(oppositeRow.Amount / oppositeRow.AmountCurrency);
+                    journalEntryRow.DebitAccount = null;
+                    journalEntryRow.DebitAccountID = null;
+
+
+                    this.createAgioRow(journalEntryRow, paymentData).then(agioRow => {
+                        const agioSign = agioRow.DebitAccountID > 0 ? -1 : 1;
+                        agioRow.CustomerInvoiceID = customerInvoice.ID;
+                        journalEntryRow.Amount = oppositeRow.Amount - agioRow.Amount * agioSign;
+                        journalEntryRow.CurrencyExchangeRate = Math.abs(journalEntryRow.Amount / journalEntryRow.AmountCurrency);
+                        this.updateJournalEntryLine(journalEntryRow);
+                        resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([oppositeRow, agioRow]));
+                    });
+                } else {
+                    resolve(journalEntryRow);
+                }
+                if (paymentData.BankChargeAmount !== 0 && paymentData.BankChargeAccountID) {
+                    this.createBankChargesRow(journalEntryRow, paymentData).then(bankChargesRow => {
+                        bankChargesRow.CustomerInvoiceID = customerInvoice.ID;
+                        resolve(journalEntryRow);
+                        setTimeout(() => this.addJournalEntryLines([bankChargesRow]));
+                    });
+                }
+            });
+        });
+    }
 
     public showAgioDialog(journalEntryRow: JournalEntryData): Promise<JournalEntryData> {
 
@@ -2485,7 +2575,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
         return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
             `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
             `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
-            `&select=ID as ID,OrderNumber as OrderNumber,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `&select=ID as ID,OrderNumber as OrderNumber,StatusCode as StatusCode,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
             `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
             `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
         `filter=contains(OrderNumber, '${searchValue}') `).map(x => x.Data ? x.Data : []);
@@ -3178,7 +3268,7 @@ export class JournalEntryProfessional implements OnInit, OnChanges {
             data.CurrencyExchangeRate = 1;
             this.addJournalEntryLines([data]);
         } else {
-            this.showAgioDialog(data)
+            this.showAgioDialogFromPayments(data)
                 .then(journalEntryData => this.addJournalEntryLines([journalEntryData]));
         }
     }

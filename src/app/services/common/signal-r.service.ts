@@ -64,27 +64,32 @@ export class SignalRService {
             this.connected = false;
             setTimeout(() => this.start(), 1000);
         });
+
+        this.hubConnection.on("disconnected", function() {
+            this.connected = false;
+            setTimeout(function() {
+                this.start();
+            }, 5000); // Restart connection after 5 seconds.
+         });
     }
 
     async start() {
         if (!this.connected && this.hubConnection) {
-            await this.hubConnection.start()
-                .then(() => {
-                    // console.log('SignalR connection started');
-                    this.connected = true;
-                    this.addGlobalListener();
-                })
-                .catch(err => {
-                    // console.log('Error while starting SignalR connection');
-                    if (this.retryConnectionCounter < 5) {
-                        // console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
-                        setTimeout(() => this.start(), 5000);
-                        this.retryConnectionCounter++;
-                    } else {
-                        // console.log('Tried to reconnect too many times');
-                        delete this.hubConnection;
-                    }
-            });
+            try {
+                await this.hubConnection.start()
+                this.connected = true;
+                this.addGlobalListener();
+            } catch (err) {
+                // console.log('Error while starting SignalR connection');
+                if (this.retryConnectionCounter < 5) {
+                    // console.log('DEBUG:: attempting to reconnect, attempt nr: ' + this.retryConnectionCounter);
+                    setTimeout(() => this.start(), 5000);
+                    this.retryConnectionCounter++;
+                } else {
+                    // console.log('Tried to reconnect too many times');
+                    delete this.hubConnection;
+                }
+            }
         }
     }
 }

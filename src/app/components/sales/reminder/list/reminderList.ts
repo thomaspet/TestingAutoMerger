@@ -4,9 +4,10 @@ import {Router} from '@angular/router';
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ISummaryConfig} from '../../../common/summary/summary';
 import {IUniSaveAction} from '../../../../../framework/save/save';
-import {ToastService, ToastType} from '../../../../../framework/uniToast/toastService';
+import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {UniModalService} from '../../../../../framework/uni-modal';
 import {UniReminderSettingsModal} from '../../../common/reminder/settings/reminderSettingsModal';
+import { UniReminderSendingModal } from '../sending/reminderSendingModal';
 import {CustomerInvoiceReminderSettings, LocalDate} from '../../../../unientities';
 import {
     UniTableColumn,
@@ -93,13 +94,13 @@ export class ReminderList {
         this.saveActions = [];
 
         this.saveActions.push({
-            label: 'Kjør',
+            label: 'Kjør og send purringer',
             action: (done) => this.run(done),
             disabled: false
         });
 
         this.saveActions.push({
-            label: 'Oppdater',
+            label: 'Oppdater liste',
             action: (done) => this.reload(done),
             disabled: false
         });
@@ -151,23 +152,23 @@ export class ReminderList {
             this.customerInvoiceReminderService.createInvoiceRemindersForInvoicelist(selected);
 
         method.subscribe((reminders) => {
-            let filter = '';
-            if (reminders && reminders.length > 0)
-            {
-                filter = '?runNumber=' + reminders[0].RunNumber
-            }
-            this.router.navigateByUrl('/sales/reminders/reminded' + filter);
-            /*
-            TODO:   discarded modal view of sending av printing,
-            completely remove modal view if BA approves of this simplified prosess
-                    Using
-            this.reminderSendingModal.confirm(reminders).then((action) => {
-                this.updateReminderTable();
-            });
-            */
-        });
+            this.reload(done);
 
-        done();
+            if (reminders && reminders.length > 0) {
+                this.modalService.open(UniReminderSendingModal, {
+                    data: {
+                        reminders: reminders.map(x => x.ID)
+                    }
+                })
+                .onClose.subscribe(res => {
+                    if (!res) {
+                        return;
+                    }
+
+                    this.toastService.addToast(`Purring${reminders.length > 1 ? 'er' : ''} sendes`, ToastType.good, ToastTime.short);
+                });
+            }
+        });
     }
 
     public reload(done) {

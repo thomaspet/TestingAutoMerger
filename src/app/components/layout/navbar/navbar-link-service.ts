@@ -2,7 +2,6 @@ import {Injectable} from '@angular/core';
 import {BehaviorSubject, Observable, of} from 'rxjs';
 import {cloneDeep} from 'lodash';
 import {AuthService} from '@app/authService';
-import {NAVBAR_LINKS} from './navbar-links';
 import {INavbarLinkSection, SETTINGS_LINKS} from './navbar-links-common';
 import {UniModules} from './tabstrip/tabService';
 import {UserDto} from '@uni-entities';
@@ -10,11 +9,16 @@ import {BrowserStorageService, DimensionSettingsService, StatisticsService} from
 import {UniHttp} from '@uni-framework/core/http/http';
 import {theme, THEMES} from 'src/themes/theme';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import {HttpClient} from '@angular/common/http';
+import {catchError, take} from 'rxjs/operators';
+import {NAVBAR_LINKS} from './navbar-links';
 
 export type SidebarState = 'collapsed' | 'expanded';
 
 @Injectable()
 export class NavbarLinkService {
+    private defaultNavbarLinks: INavbarLinkSection[];
+
     private user: UserDto;
     public localeValue: string = '';
     public linkSections$: BehaviorSubject<INavbarLinkSection[]> = new BehaviorSubject([]);
@@ -31,6 +35,7 @@ export class NavbarLinkService {
         private featurePermissionService: FeaturePermissionService,
         private dimensionSettingsService: DimensionSettingsService,
         private http: UniHttp,
+        private httpClient: HttpClient,
         browserStorage: BrowserStorageService,
         private statisticsService: StatisticsService
     ) {
@@ -38,13 +43,20 @@ export class NavbarLinkService {
         this.sidebarState$ = new BehaviorSubject(initState);
         this.sidebarState$.subscribe(state => browserStorage.setSessionItem('sidebar_state', state));
 
-        this.authService.authentication$.subscribe(authDetails => {
-            this.company = authDetails.activeCompany;
-            if (authDetails.user) {
-                this.user = authDetails.user;
-                this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
-                this.resetNavbar();
-            }
+        // Load theme specific navbar links, fall back to defaults if they don't exist
+        this.httpClient.get<INavbarLinkSection[]>(`config/dist/theme/navbar-links.json?v=${window['VERSION_GUID']}`).pipe(
+            take(1),
+            catchError(() => of(NAVBAR_LINKS)),
+        ).subscribe(res => {
+            this.defaultNavbarLinks = res;
+            this.authService.authentication$.subscribe(authDetails => {
+                this.company = authDetails.activeCompany;
+                if (authDetails.user) {
+                    this.user = authDetails.user;
+                    this.linkSections$.next(this.getLinksFilteredByPermissions(this.user));
+                    this.resetNavbar();
+                }
+            });
         });
     }
 
@@ -119,7 +131,7 @@ export class NavbarLinkService {
     private getLinksFilteredByPermissions(user): any[] {
 
         const fromLocalStorage = this.company.Key ? localStorage.getItem(`SIDEBAR_${this.localeValue}_${this.company.Key}`) : null;
-        const routeSections: INavbarLinkSection[] = cloneDeep(NAVBAR_LINKS);
+        const routeSections: INavbarLinkSection[] = cloneDeep(this.defaultNavbarLinks);
 
         if (fromLocalStorage) {
             const valuesFromLS: any[] = JSON.parse(fromLocalStorage);

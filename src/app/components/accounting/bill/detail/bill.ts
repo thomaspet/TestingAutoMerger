@@ -2,7 +2,7 @@ import {Component, OnInit, SimpleChanges, ViewChild, AfterViewInit, ChangeDetect
 import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {ActivatedRoute, Router} from '@angular/router';
-import {BehaviorSubject, forkJoin, Observable, of} from 'rxjs';
+import {BehaviorSubject, forkJoin, from, Observable, of} from 'rxjs';
 import {ICommentsConfig, IToolbarConfig, StatusIndicator} from '../../../common/toolbar/toolbar';
 import {filterInput, getNewGuid, roundTo, safeDec, safeInt, trimLength} from '../../../common/utils/utils';
 import {
@@ -11,12 +11,14 @@ import {
     BankAccount,
     CompanySettings,
     CurrencyCode,
+    Department,
     Dimensions,
     InvoicePaymentData,
     JournalEntry,
     JournalEntryLineDraft,
     LocalDate,
     Payment,
+    Project,
     StatusCodeSupplierInvoice,
     Supplier,
     SupplierInvoice,
@@ -25,7 +27,8 @@ import {
     User,
     UserRole,
     ValidationLevel,
-    VatDeduction
+    VatDeduction,
+    StatusCodeCustomerOrder
 } from '@uni-entities';
 import {IStatus, STATUSTRACK_STATES} from '../../../common/toolbar/statustrack';
 import {StatusCode} from '../../../sales/salesHelper/salesEnums';
@@ -79,7 +82,6 @@ import {
     SupplierInvoiceService,
     SupplierService,
     UniFilesService,
-    UniSearchDimensionConfig,
     UserService,
     ValidationService,
     VatDeductionService
@@ -94,9 +96,7 @@ import {ValidationMessage} from '@app/models/validationResult';
 import {BillInitModal} from '../bill-init-modal/bill-init-modal';
 import {SupplierEditModal} from '../../../common/modals/edit-supplier-modal/edit-supplier-modal';
 import {Autocomplete} from '@uni-framework/ui/autocomplete/autocomplete';
-import {PaymentStatus} from '@app/models/printStatus';
 import {finalize, map, tap, catchError} from 'rxjs/operators';
-import { O } from '@angular/cdk/keycodes';
 
 
 interface ITab {
@@ -174,7 +174,7 @@ export class BillView implements OnInit, AfterViewInit {
     public orgNumber: string;
     autocompleteOptions: any;
     public journalEntryManual: JournalEntryManual;
-
+    public customerOrderData: any;
     public loadingFiles: boolean;
 
     private supplierExpandOptions: Array<string> = [
@@ -250,7 +250,6 @@ export class BillView implements OnInit, AfterViewInit {
         private currencyCodeService: CurrencyCodeService,
         private currencyService: CurrencyService,
         private ehfService: EHFService,
-        private uniSearchDimensionConfig: UniSearchDimensionConfig,
         private modulusService: ModulusService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
@@ -626,24 +625,40 @@ export class BillView implements OnInit, AfterViewInit {
             },
             {
                 Property: 'DefaultDimensions.DepartmentID',
-                FieldType: FieldType.UNI_SEARCH,
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Avdeling',
                 Classes: 'bill-small-field',
                 Section: 0,
                 Options: {
-                    uniSearchConfig: this.uniSearchDimensionConfig.generateDepartmentConfig(this.departmentService),
-                    valueProperty: 'ID'
+                    valueProperty: 'ID',
+                    template: (department: Department) => department ? `${department.DepartmentNumber || ''} - ${department.Name || ''}` : '',
+                    getDefaultData: () => this.current
+                        .switchMap(model => Observable.forkJoin([ Observable.of(model), of(this.departments).take(1)]))
+                        .map((result: [SupplierInvoice, Department[]]) =>
+                            result[1].filter(p => result[0].DefaultDimensions && p.ID === result[0].DefaultDimensions.DepartmentID)),
+                    search: (query: string) => of(this.departments)
+                        .map(deps =>
+                            deps.filter(d =>
+                                d?.Name?.toLowerCase().includes(query.toLowerCase()) || d?.DepartmentNumber?.startsWith(query)))
                 }
             },
             {
                 Property: 'DefaultDimensions.ProjectID',
-                FieldType: FieldType.UNI_SEARCH,
+                FieldType: FieldType.AUTOCOMPLETE,
                 Label: 'Prosjekt',
                 Classes: 'bill-small-field',
                 Section: 0,
                 Options: {
-                    uniSearchConfig: this.uniSearchDimensionConfig.generateProjectConfig(this.projectService),
-                    valueProperty: 'ID'
+                    valueProperty: 'ID',
+                    template: (project: Project) => project ? `${project.ProjectNumber || ''} - ${project.Name || ''}` : '',
+                    getDefaultData: () => this.current
+                        .switchMap(model => Observable.forkJoin(Observable.of(model), of(this.projects).take(1)))
+                        .map((result: [SupplierInvoice, Project[]]) =>
+                            result[1].filter(p => result[0].DefaultDimensions && p.ID === result[0].DefaultDimensions.ProjectID)),
+                    search: (query: string) => of(this.projects)
+                        .map(projects =>
+                            projects.filter(p =>
+                                p?.Name?.toLowerCase().includes(query.toLowerCase()) || p?.ProjectNumber?.startsWith(query)))
                 }
             }
         ];
@@ -725,66 +740,28 @@ export class BillView implements OnInit, AfterViewInit {
 
     /// =============================
 
-    private runConverter(files: Array<any>, force: boolean) {
-
+    private runConverter(files: Array<any>, forceNewAnalysis: boolean) {
         if (this.companySettings.UseOcrInterpretation) {
             // user has accepted license/agreement for ocr
-            this.runOcrOrEHF(files);
+            this.runOcrOrEHF(files, forceNewAnalysis);
         } else {
-            // check for undefined or null, because this is a "tristate", so null != false here,
-            // false means that the user has rejected the agreement, while null means he/she has
-            // neither accepted or rejected it yet
-            if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                // user has not accepted license/agreement for ocr
-                this.uniFilesService.getOcrStatistics()
-                    .subscribe(res => {
-                            const countUsed = res.CountOcrDataUsed;
-
-                            if (countUsed <= 10) {
-                                // allow running OCR the first 10 times for free
-                                this.runOcrOrEHF(files);
-                            } else {
-                                this.companySettingsService.PostAction(1, 'ocr-trial-used')
-                                    .subscribe(success => {
-                                            // this is set through the ocr-trial-used, but set it in the local object as well to
-                                            // avoid displaying the same message multiple times
-                                            this.companySettings.UseOcrInterpretation = false;
-
-                                            const modal = this.modalService.open(UniConfirmModalV2, {
-                                                header: 'Fakturatolkning er ikke aktivert',
-                                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                                + ' videre må du aktivere Fakturatolk under firmainnstillinger i menyen.',
-                                                buttonLabels: {
-                                                    accept: 'Ok',
-                                                    cancel: 'Avbryt'
-                                                }
-                                            });
-                                        }, err => this.errorService.handle(err)
-                                    );
-                            }
-                        },
-                        err => this.errorService.handle(err)
-                    );
-            } else if (force) {
-                // user has deactivated license/agreement for ocr
-                const modal = this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
-                    message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolkning av fakturaer',
-                    buttonLabels: {
-                        accept: 'Ok',
-                        cancel: 'Avbryt'
-                    }
-                });
-            }
+            // user has deactivated license/agreement for ocr
+            const modal = this.modalService.open(UniConfirmModalV2, {
+                header: 'Fakturatolkning er ikke aktivert',
+                message: 'Vennligst aktiver fakturatolkning i Markedsplassen for å benytte tolkning av fakturaer',
+                buttonLabels: {
+                    accept: 'Ok',
+                    cancel: 'Avbryt'
+                }
+            });
         }
     }
 
-    private runOcrOrEHF(files: Array<any>) {
+    private runOcrOrEHF(files: Array<any>, forceNewAnalysis: boolean = false) {
         if (files && files.length > 0) {
             const file = this.uniImage.getCurrentFile() || files[0];
             if (this.supplierInvoiceService.isOCR(file)) {
-                this.runOcr(file);
+                this.runOcr(file, forceNewAnalysis);
             } else if (this.supplierInvoiceService.isEHF(file)) {
                 this.runEHF(file);
             }
@@ -1058,9 +1035,9 @@ export class BillView implements OnInit, AfterViewInit {
         return (current && current.SupplierID) ? true : false;
     }
 
-    private runOcr(file: any) {
+    private runOcr(file: any, force: boolean) {
         this.userMsg('Kjører fakturatolkning av dokumentet og leter etter gjenkjennbare verdier. Vent litt..', null, null, true);
-        this.uniFilesService.runOcr(file.StorageReference)
+        this.uniFilesService.runOcr(file.StorageReference, force)
             .subscribe((result: IOcrServiceResult) => {
                 this.updateSummary([]);
                 const current = this.current.getValue();
@@ -1144,6 +1121,10 @@ export class BillView implements OnInit, AfterViewInit {
         }
         if (ocr.PaymentDueDate) {
             current.PaymentDueDate = new LocalDate(moment(ocr.PaymentDueDate).toDate());
+        }
+
+        if (ocr.Requisition && !isNaN(parseFloat(ocr.Requisition))) {
+            this.setCustomerOrder(ocr.Requisition);
         }
 
         this.current.next(current);
@@ -2854,7 +2835,7 @@ export class BillView implements OnInit, AfterViewInit {
             }
 
             this.busy = true;
-            return Observable.fromPromise(
+            return from(
                 this.tryJournal(href).then((status: ILocalValidation) => {
                     if (!status.success) return status;
 
@@ -3208,6 +3189,50 @@ export class BillView implements OnInit, AfterViewInit {
                         currentSupplierInvoice.DefaultDimensions['Dimension' + dimension.Dimension + 'ID'];
                 }
             });
+
+            if (this.ocrData && this.customerOrderData) {
+                const customerOrder = this.customerOrderData;
+                line.CustomerOrderID = customerOrder.ID;
+                line.CustomerOrder = customerOrder;
+                if(line.CustomerOrder.StatusCode === StatusCodeCustomerOrder.Completed){
+                    this.toast.addToast(
+                        'Advarsel',
+                        ToastType.warn,
+                        ToastTime.forever,
+                        'Denne ordre er merket som Avsluttet.'
+                        );
+                }
+                if (!line.Dimensions.Project && customerOrder.ProjectID) {
+                    line.Dimensions.Project = {
+                        ID: customerOrder.ProjectID,
+                        Name: customerOrder.ProjectName,
+                        ProjectNumber: customerOrder.ProjectNumber
+                    };
+                    line.Dimensions.ProjectID = customerOrder.ProjectID;
+                }
+
+                if (!line.Dimensions.Department && customerOrder.DepartmentID) {
+                    line.Dimensions.Department = {
+                        ID: customerOrder.DepartmentID,
+                        Name: customerOrder.DepartmentName,
+                        DepartmentNumber: customerOrder.DepartmentNumber
+                    };
+                    line.Dimensions.DepartmentID = customerOrder.DepartmentID;
+                }
+
+                this.customDimensions.forEach((dimension) => {
+                    if (!line.Dimensions['Dimension' + dimension.Dimension]
+                        && customerOrder[`Dimension${dimension.Dimension}ID`]) {
+
+                        line.Dimensions['Dimension' + dimension.Dimension] = {
+                            ID: customerOrder[`Dimension${dimension.Dimension}ID`],
+                            Name: customerOrder[`Dimension${dimension.Dimension}Name`],
+                            Number: customerOrder[`Dimension${dimension.Dimension}Number`]
+                        };
+                        line.Dimensions['Dimension' + dimension.Dimension + 'ID'] = customerOrder[`Dimension${dimension.Dimension}ID`];
+                    }
+                });
+            }
 
             if (!line.Amount && !line.AmountCurrency) {
                 line.AmountCurrency = UniMath.round(this.sumRemainder);
@@ -4165,6 +4190,28 @@ export class BillView implements OnInit, AfterViewInit {
                 action: () => { this.openSmartBookingSettingsModal(); }
             }
         ];
+
+        const bankAccountNumber = invoice.BankAccount ? invoice.BankAccount.AccountNumber : null;
+        const orgNo = invoice.Supplier ? invoice.Supplier.OrgNumber : null;
+
+        if (bankAccountNumber || orgNo) {
+            this.contextMenuItems.push(
+            {
+                label: 'Tilbakestill regler for OCR tolkning',
+                action: () => {
+                    this.uniFilesService.removeUsedTemplate(orgNo, bankAccountNumber)
+                        .subscribe(res => {
+                            this.toast.addToast(
+                                'Tolkningsregler for leverandørens fakturaer er nå tilbakestilt',
+                                ToastType.good,
+                                ToastTime.medium,
+                                'Du kan tolke dokumentet på ny ved å velge "Kjør tolk (OCR/EHF)" i menyen. Korriger eventuelle feil i tolkningen, så vil reglene oppdateres når du lagrer');
+                        }, err => this.errorService.handle(err)
+                    );
+                }
+            });
+        }
+
         this.toolbarConfig = {
             title: invoice && invoice.ID
                 ? `Leverandørfaktura ${invoice.InvoiceNumber || 'kladd'}`
@@ -4439,5 +4486,23 @@ export class BillView implements OnInit, AfterViewInit {
             );
         }
         return of(false);
+    }
+
+    private customerOrderSearch(searchValue): Observable<any> {
+        return this.statisticsService.GetAll(`model=CustomerOrder&expand=DefaultDimensions.Department,DefaultDimensions.Project,` +
+            `DefaultDimensions.Dimension5,DefaultDimensions.Dimension6,DefaultDimensions.Dimension7,DefaultDimensions.Dimension8,` +
+            `DefaultDimensions.Dimension9,DefaultDimensions.Dimension10` +
+            `&select=ID as ID,OrderNumber as OrderNumber,StatusCode as StatusCode,DefaultDimensions.ID as DimensionsID,Project.ID as ProjectID,` +
+            `Project.Name as ProjectName,Project.ProjectNumber as ProjectNumber,Department.ID as DepartmentID,Department.Name as DepartmentName,Department.DepartmentNumber as DepartmentNumber,` +
+            `Dimension5.ID,Dimension5.Name,Dimension5.Number,Dimension6.ID,Dimension6.Name,Dimension6.Number,Dimension7.ID,Dimension7.Name,Dimension7.Number,Dimension8.ID,Dimension8.Name,Dimension8.Number,Dimension9.ID,Dimension9.Name,Dimension9.Number,Dimension10.ID,Dimension10.Name,Dimension10.Number&` +
+            `filter=OrderNumber eq '${searchValue}'`).map(x => x.Data ? x.Data : []);
+    }
+
+    private setCustomerOrder(orderNumber) {
+        if (orderNumber) {
+            this.customerOrderSearch(orderNumber).subscribe(res => {
+                this.customerOrderData = res[0];
+            });
+        }
     }
 }

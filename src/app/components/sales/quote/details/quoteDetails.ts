@@ -1,6 +1,6 @@
 import {Component, EventEmitter, HostListener, Input, ViewChild, OnInit, AfterViewInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {Observable, throwError, of} from 'rxjs';
+import {Observable, throwError, of, forkJoin} from 'rxjs';
 import {tap, switchMap, catchError, map, filter} from 'rxjs/operators';
 import * as moment from 'moment';
 
@@ -131,7 +131,9 @@ export class QuoteDetails implements OnInit {
         'Info.Addresses',
         'Info.DefaultContact.Info',
         'Info.Emails',
+        'Info.Phones',
         'Info.DefaultEmail',
+        'Info.DefaultPhone',
         'Info.InvoiceAddress',
         'Info.ShippingAddress',
         'Info.Contacts.Info',
@@ -144,19 +146,15 @@ export class QuoteDetails implements OnInit {
         'Dimensions.Dimension8',
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
-        'PaymentTerms',
-        'DeliveryTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
         'DefaultSeller.Seller',
-        'Distributions'
+        'Distributions',
+        'DeliveryTerms',
+        'PaymentTerms',
     ];
 
     private quoteExpands: string[] = [
-        'Customer',
-        'Customer.Info.Contacts.Info',
-        'Customer.Info.Addresses',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -166,16 +164,14 @@ export class QuoteDetails implements OnInit {
         'DefaultDimensions.Dimension8',
         'DefaultDimensions.Dimension9',
         'DefaultDimensions.Dimension10',
+        'DeliveryTerms',
+        'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
         'DefaultSeller.Seller',
-        'PaymentTerms',
-        'DeliveryTerms'
     ];
 
     private quoteItemExpands: string[] = [
-        'Product',
         'Product.VatType',
         'VatType',
         'Account',
@@ -389,24 +385,36 @@ export class QuoteDetails implements OnInit {
             );
         }
 
-        return Observable.forkJoin(
+        return forkJoin([
             this.customerQuoteService.Get(ID, this.quoteExpands, true),
             this.customerQuoteItemService.GetAll(
                 `filter=CustomerQuoteID eq ${ID}&hateoas=false`,
                 this.quoteItemExpands
             )
-        ).map(res => {
-            const quote: CustomerQuote = res[0];
-            const quoteItems: CustomerQuoteItem[] = res[1].map(item => {
-                if (item.Dimensions) {
-                    item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
-                }
-                return item;
-            });
+        ]).pipe(
+            switchMap(res => {
+                const quote: CustomerQuote = res[0];
+                const quoteItems: CustomerQuoteItem[] = res[1].map(item => {
+                    if (item.Dimensions) {
+                        item.Dimensions = this.customDimensionService.mapDimensionInfoToDimensionObject(item.Dimensions);
+                    }
+                    return item;
+                });
 
-            quote.Items = quoteItems;
-            return quote;
-        });
+                quote.Items = quoteItems;
+
+                if (!quote.CustomerID) {
+                    return of(quote);
+                }
+
+                return this.customerService.Get(quote.CustomerID, this.customerExpands).pipe(
+                    map((customer) => {
+                        quote.Customer = customer;
+                        return quote;
+                    })
+                );
+            })
+        );
     }
 
     canDeactivate(): boolean | Observable<boolean> {
@@ -1025,7 +1033,7 @@ export class QuoteDetails implements OnInit {
                 config.buttons.push({
                     label: 'Lagre kladd',
                     action: () => {
-                        this.quote.StatusCode = StatusCode.Draft;
+                        this.quote.StatusCode = this.quote?.ID ? StatusCodeCustomerQuote.Draft : StatusCode.Draft;
                         return this.saveQuote();
                     }
                 });

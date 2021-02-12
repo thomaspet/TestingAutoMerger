@@ -90,6 +90,33 @@ export class UserService extends BizHttp<User> {
             .send();
     }
 
+    public sendUserCodeChallenge(reference: string = '') {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint(`users?action=user-code-challenge&reference=` + reference)
+            .send();
+    }
+
+    public verifyUserCodeChallenge(code: string, reference: string = '') {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`users?action=verify-code-challenge&reference=` + reference)
+            .withBody(code)
+            .send();
+    }
+
+    public isBankIdVerified() {
+        return this.GetAction(null, 'bankid-verified');
+    }
+
+    public getBankIdRedirectUrl(state: string) {
+        let baseurl = window.location.href.split('/#/')[0];
+        let redirecturl = `${baseurl}/#/bank/bankid`;
+        return `${environment.zdataauthority}/connect/authorize?client_id=unimicro&redirect_uri=${encodeURIComponent(redirecturl)}&response_type=code&prompt=login&scope=bankservice&acr_values=verify+idp:softrig&state=${btoa(state)}`;
+    }
+
     public getUsersByGUIDs(GUIDs: string[]): Observable<User[]> {
         if (GUIDs.length === 0) {
             return Observable.of([]);

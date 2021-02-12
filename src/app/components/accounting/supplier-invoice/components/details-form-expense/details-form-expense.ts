@@ -1,13 +1,12 @@
 import {Component, Input} from '@angular/core';
 import {StatisticsService, SupplierService} from '@app/services/services';
-import {Supplier} from '@uni-entities';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {SupplierEditModal} from '@app/components/common/modals/edit-supplier-modal/edit-supplier-modal';
-import {Observable} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
+import {takeUntil, tap} from 'rxjs/operators';
 import {SupplierInvoiceStore} from '../../supplier-invoice-store';
 import {AutocompleteOptions} from '@uni-framework/ui/autocomplete/autocomplete';
 import {RecieverModal} from '@app/components/accounting/bill/expense/reciever-modal/reciever-modal';
-import {tap} from 'rxjs/operators';
 
 @Component({
     selector: 'details-form-expense',
@@ -16,10 +15,9 @@ import {tap} from 'rxjs/operators';
 })
 
 export class DetailsFormExpense {
+    @Input() currentMode: number = 1;
 
-    @Input()
-    currentMode: number = 1;
-
+    onDestroy$ = new Subject();
     selectedBankAccount;
     autocompleteOptions: any;
     date: Date = new Date();
@@ -27,7 +25,6 @@ export class DetailsFormExpense {
     supplierExpands: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'Dimensions.Info'];
     elementRef: any;
     cachedQuery = {};
-
 
     accountOptions: AutocompleteOptions = {
         lookup: x => this.lookupAccountByQuery(x),
@@ -51,7 +48,9 @@ export class DetailsFormExpense {
         private supplierService: SupplierService,
         private store: SupplierInvoiceStore,
     ) {
-        this.store.invoice$.subscribe(invoice => {
+        this.store.invoice$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(invoice => {
             if (invoice?.InvoiceDate && typeof invoice.InvoiceDate !== 'string') {
                 this.date = new Date(invoice?.InvoiceDate.toDate() || new Date());
             }
@@ -91,6 +90,11 @@ export class DetailsFormExpense {
                 return this.modalService.open(SupplierEditModal, {listkey: !!value.trim() ? value : '' }).onClose;
             }
         };
+    }
+
+    ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
     }
 
     newSupplierSelected(supplier) {

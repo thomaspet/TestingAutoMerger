@@ -334,6 +334,34 @@ export class BankService extends BizHttp<Bank> {
             .map(response => response.body);
     }
 
+    public orderPreApprovedBankPayments(bankID: number) {
+        return this.http
+            .asPOST()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements?action=order-preapprovedbankpayments&bankID=' + bankID)
+            .send()
+            .map(response => response.body);
+    }
+
+    public getDefaultServiceProvider() {
+        return this.http
+            .asGET()
+            .usingBusinessDomain()
+            .withEndPoint('/bank-agreements?action=get-default-service-provider')
+            .send()
+            .map(response => response.body);
+    }
+
+    public updateBankIntegrationAgreement(agreementID: number, agreement: any) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`bank-agreements/${agreementID}`)
+            .withBody(agreement)
+            .send()
+            .map(response => response.body);
+    }
+
     deleteAgreement(agreement: BankIntegrationAgreement) {
         return this.http.asDELETE()
             .usingBusinessDomain()

@@ -38,7 +38,7 @@ export class AccountSettings {
     public account: Account;
     private hasChanges: boolean = false;
     private ledgerPermissions: ImportUIPermission;
-    mainLedgerTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER;
+    mainLedgerTemplateUrl: string = environment.PUBLIC_FILES_URL + '/files/import/MainLedgerTemplate.xlsx';
 
     public toolbarconfig: IToolbarConfig = {
         title: 'Kontoplan',

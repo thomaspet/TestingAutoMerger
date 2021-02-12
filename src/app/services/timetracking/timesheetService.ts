@@ -1,7 +1,7 @@
 ﻿import {Injectable} from '@angular/core';
 import { WorkItem, WorkRelation, WorkBalance } from '../../unientities';
 import { WorkerService, ItemInterval, IFilterInterval } from './workerService';
-import {Observable} from 'rxjs';
+import {from, merge, Observable, of} from 'rxjs';
 import {parseTime, toIso, parseDate, ChangeMap, safeInt, safeDec} from '../../components/common/utils/utils';
 import {Dimension} from '../common/dimensionService';
 import {HttpParams} from '@angular/common/http';
@@ -331,8 +331,8 @@ export class TimesheetService {
 
     public initUser(userid = 0, autoCreate = false): Observable<TimeSheet> {
         const userIDSource = userid > 0
-            ? Observable.of(userid)
-            : Observable.fromPromise(this.workerService.getCurrentUserId());
+            ? of(userid)
+            : from(this.workerService.getCurrentUserId());
 
         return userIDSource.switchMap(userID => {
             if (!userID) {
@@ -394,7 +394,7 @@ export class TimesheetService {
                     return { original: item, saved: null };
                 });
             });
-            return items.length > 0 ? Observable.merge(obsSave, obsDel) : obsDel;
+            return items.length > 0 ? merge(obsSave, obsDel) : obsDel;
         }
 
         return obsSave;

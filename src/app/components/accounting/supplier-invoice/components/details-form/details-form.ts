@@ -1,6 +1,7 @@
 import { Component, ElementRef } from '@angular/core';
 import { SupplierInvoiceStore } from '../../supplier-invoice-store';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { SupplierInvoice, BankAccount } from '@uni-entities';
 import { FieldType } from '@uni-framework/ui/uniform';
 import { UniModalService, UniBankAccountModal } from '@uni-framework/uni-modal';
@@ -50,6 +51,7 @@ import { trigger, transition, animate, style, state, group } from '@angular/anim
 export class DetailsForm {
 
     supplierExpands: Array<string> = ['Info', 'Info.BankAccounts', 'Info.DefaultBankAccount', 'Dimensions.Info'];
+    onDestroy$ = new Subject();
     supplierInvoice$ = new BehaviorSubject<SupplierInvoice>(null);
     fields$ = new BehaviorSubject<any[]>([]);
     addOnfields$ = new BehaviorSubject<any[]>([]);
@@ -69,10 +71,14 @@ export class DetailsForm {
         private bankAccountService: BankAccountService,
         private errorService: ErrorService
     ) {
-        this.store.invoice$.subscribe(invoice => this.supplierInvoice$.next(invoice));
+        this.store.invoice$
+            .pipe(takeUntil(this.onDestroy$))
+            .subscribe(invoice => this.supplierInvoice$.next(invoice));
 
         // Update form config when readonly changes!
-        this.store.readonly$.subscribe(readonly => {
+        this.store.readonly$.pipe(
+            takeUntil(this.onDestroy$)
+        ).subscribe(readonly => {
             this.readonly = readonly;
             this.fields$.next(this.getFields());
             this.addOnfields$.next(this.getAddOnFields());
@@ -116,6 +122,8 @@ export class DetailsForm {
     }
 
     ngOnDestroy() {
+        this.onDestroy$.next();
+        this.onDestroy$.complete();
         this.supplierInvoice$.complete();
         this.fields$.complete();
         this.addOnfields$.complete();

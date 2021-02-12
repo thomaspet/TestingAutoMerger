@@ -10,7 +10,7 @@ import {
     ICellClickEvent
 } from '../../../../../framework/ui/unitable/index';
 import { UniSearch } from '@uni-framework/ui/unisearch/UniSearch';
-import { JournalEntry } from '../../../../unientities';
+import { JournalEntry, NumberSeries } from '../../../../unientities';
 import { ImageModal } from '../../../common/modals/ImageModal';
 import { UniModalService } from '../../../../../framework/uni-modal';
 import { IToolbarConfig } from './../../../common/toolbar/toolbar';
@@ -25,7 +25,8 @@ import {
     ErrorService,
     FinancialYearService,
     AccountService,
-    PageStateService
+    PageStateService,
+    NumberSeriesService
 } from '../../../../services/services';
 import { YearModal, IChangeYear } from '../../../layout/navbar/company-dropdown/yearModal';
 import { IUniTab } from '@uni-framework/uni-tabs';
@@ -113,6 +114,7 @@ export class AccountDetailsReport {
     });
     filter = this.filter$.getValue();
     periodFilter: PeriodFilter;
+    balanceNumberseries: NumberSeries[];
     constructor(
         private statisticsService: StatisticsService,
         private errorService: ErrorService,
@@ -127,7 +129,8 @@ export class AccountDetailsReport {
         private pageStateService: PageStateService,
         private projectService: ProjectService,
         private departmentService: DepartmentService,
-        private periodFilterHelper: PeriodFilterHelper
+        private periodFilterHelper: PeriodFilterHelper,
+        private numberSeriesService: NumberSeriesService
     ) {
         this.config = {
             close: () => { },
@@ -155,19 +158,21 @@ export class AccountDetailsReport {
             }, this.activeFinancialYear.Year, false);
         });
 
-        Observable.forkJoin(
-            this.financialYearService.GetAll('orderby=Year desc')
-        ).subscribe(data => {
+        this.financialYearService.GetAll('orderby=Year desc').subscribe(data => {
             this.financialYears = data[0];
         });
 
         // get filter data
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.projectService.GetAll(null),
             this.departmentService.GetAll(null)
-        ).subscribe((response: Array<any>) => {
+        ]).subscribe((response: Array<any>) => {
             const [projects, departments] = response;
             this.fields$.next(resultBalanceFilter(projects, departments));
+        });
+
+        this.numberSeriesService.getNumberSeriesList(`NumberSeriesType.EntityType eq 'Supplier' or NumberSeriesType.EntityType eq 'Customer'`).subscribe(numberseries => {
+            this.balanceNumberseries = numberseries;
         });
     }
 
@@ -312,10 +317,12 @@ export class AccountDetailsReport {
     }
 
     public doTurnAndInclude() {
+        let isBalanceAccount =
+            this.config.accountNumber >= 1000 && this.config.accountNumber <= 2999 ||
+            !!this.balanceNumberseries.find(ns => this.config.accountNumber >= ns.FromNumber && this.config.accountNumber <= ns.ToNumber);
+
         // include incoming balance for balance accounts
-        this.includeIncomingBalanceInDistributionReport$
-            .next(this.config.accountNumber.toString().substring(0, 1) === '1'
-                || this.config.accountNumber.toString().substring(0, 1) === '2');
+        this.includeIncomingBalanceInDistributionReport$.next(isBalanceAccount);
     }
 
     public updateToolbar() {

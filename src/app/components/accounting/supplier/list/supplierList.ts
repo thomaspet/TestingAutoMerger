@@ -32,7 +32,7 @@ export class SupplierList {
         disabled: false
     }];
 
-    supplierTemplateUrl: string = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER;
+    supplierTemplateUrl: string = environment.PUBLIC_FILES_URL + '/files/import/SupplierTemplateFinal.xlsx';
 
     constructor(
         private tabService: TabService,

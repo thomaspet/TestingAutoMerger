@@ -88,7 +88,7 @@ export class UniTickerContainer {
 
             const previousTicker = changes['ticker'].previousValue;
             if (!previousTicker || previousTicker.Code !== this.ticker.Code) {
-                this.filters = (this.ticker && this.ticker.Filters) || [];
+                this.filters = (this.ticker && this.ticker.Filters).filter(f => !f.hidden) || [];
                 const tabIndex = this.ticker.DefaultTabIndex >= 0 && this.ticker.Filters[this.ticker.DefaultTabIndex]
                     ? this.ticker.DefaultTabIndex
                     : 0;

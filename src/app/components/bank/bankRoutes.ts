@@ -4,6 +4,7 @@ import {BankComponent} from './bankComponent';
 import {UniBank} from './bank';
 import {BankReconciliation} from '../bank-reconciliation/bank-reconciliation';
 import {UniBankReconciliationList} from './reconciliation/reconciliation-list/reconciliation-list';
+import {UniBankId} from './bankId';
 
 export const bankRoutes: Routes = [
     {
@@ -23,5 +24,9 @@ export const bankRoutes: Routes = [
     {
         path: 'reconciliation',
         component: UniBankReconciliationList
+    },
+    {
+        path: 'bankid',
+        component: UniBankId
     }
 ];

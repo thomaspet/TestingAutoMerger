@@ -29,7 +29,7 @@ export class CelebrusService {
             this.router.events.pipe(
                 filter((e): e is NavigationEnd => e instanceof NavigationEnd),
             ).subscribe(e => {
-                this.useDataLayer('pageLoaded', {});
+                this.useDataLayer('PageLoaded', {});
             });
         }
     }

@@ -24,7 +24,16 @@ export class ImportCentralPage implements OnInit {
 
   busy: boolean = true;
   importCardsList: ImportCardModel[] = [];
-  templateUrls = environment.IMPORT_CENTRAL_TEMPLATE_URLS;
+  templateUrls = {
+    CUSTOMER: environment.PUBLIC_FILES_URL + '/files/import/CustomerTemplateFinal.xlsx',
+    SUPPLIER: environment.PUBLIC_FILES_URL + '/files/import/SupplierTemplateFinal.xlsx',
+    PRODUCT: environment.PUBLIC_FILES_URL + '/files/import/ProductTemplateFinal.xlsx',
+    MAIN_LEDGER: environment.PUBLIC_FILES_URL + '/files/import/MainLedgerTemplate.xlsx',
+    PAYROLL: environment.PUBLIC_FILES_URL + '/files/import/PayrollTemplate.xlsx',
+    VOUCHER: environment.PUBLIC_FILES_URL + '/files/import/VoucherExcelTemplate.xlsx',
+    ORDER: environment.PUBLIC_FILES_URL + '/files/import/OrderTemplate.xlsx'
+  };
+
   uiPermission = {
     customer: new ImportUIPermission(),
     product: new ImportUIPermission(),
@@ -208,7 +217,7 @@ export class ImportCentralPage implements OnInit {
         type = 'Produkter';
         formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.ProductFormatStatement;
         downloadStatement = ImportStatement.ProductDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PRODUCT;
+        templateUrl = this.templateUrls.PRODUCT;
         break;
       case TemplateType.Customer:
         header = 'Importer kunder';
@@ -216,7 +225,7 @@ export class ImportCentralPage implements OnInit {
         type = 'Kunder';
         formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.CustomerFormatStatement;
         downloadStatement = ImportStatement.CustomerDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.CUSTOMER;
+        templateUrl = this.templateUrls.CUSTOMER;
         break;
       case TemplateType.Supplier:
         header = 'Importer leverandører';
@@ -224,7 +233,7 @@ export class ImportCentralPage implements OnInit {
         type = 'Leverandører';
         formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.SupplierFormatStatement;
         downloadStatement = ImportStatement.SupplierDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.SUPPLIER;
+        templateUrl = this.templateUrls.SUPPLIER;
         break;
       case TemplateType.MainLedger:
         header = 'Importer kontoplan';
@@ -233,13 +242,13 @@ export class ImportCentralPage implements OnInit {
         conditionalStatement = ImportStatement.MainLedgerConditionalStatement;
         formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.MainLedgerFormatStatement;
         downloadStatement = ImportStatement.MainLedgerDownloadStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.MAIN_LEDGER;
+        templateUrl = this.templateUrls.MAIN_LEDGER;
         break;
       case TemplateType.Payroll:
         header = 'Importer lønnsposter';
         jobName = ImportJobName.Payroll;
         type = 'lønnsposter';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.PAYROLL;
+        templateUrl = this.templateUrls.PAYROLL;
         break;
       case TemplateType.Saft:
         header = 'Importer SAF-T';
@@ -250,15 +259,15 @@ export class ImportCentralPage implements OnInit {
         header = 'Importer bilag';
         jobName = ImportJobName.Voucher;
         type = 'bilag';
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.VOUCHER;
+        templateUrl = this.templateUrls.VOUCHER;
         break;
       case TemplateType.Order:
         header = 'Importer Order';
         jobName = ImportJobName.Order;
         type = 'Order';
         conditionalStatement = ImportStatement.OrderConditionalStatement;
-        formatStatement = (theme.theme !== THEMES.UE && theme.theme !== THEMES.SOFTRIG) ? '' : ImportStatement.OrderFormatStatement;
-        templateUrl = environment.IMPORT_CENTRAL_TEMPLATE_URLS.ORDER;
+        formatStatement = ImportStatement.OrderFormatStatement;
+        templateUrl = this.templateUrls.ORDER;
         break;
       default:
         header = '';

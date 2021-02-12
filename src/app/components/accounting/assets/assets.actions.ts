@@ -2,7 +2,7 @@ import {Injectable, SimpleChanges} from '@angular/core';
 import {AssetsStore} from '@app/components/accounting/assets/assets.store';
 import {catchError, filter, map, mergeMap, switchMap, take, tap} from 'rxjs/operators';
 import {AssetsService} from '@app/services/common/assetsService';
-import {ActivatedRoute, Router} from '@angular/router';
+import {Router} from '@angular/router';
 import {forkJoin, of, throwError} from 'rxjs';
 import {ConfirmActions, IModalOptions, UniConfirmModalV2, UniModalService} from '@uni-framework/uni-modal';
 import {RegisterAssetAsSoldModal} from '@app/components/accounting/assets/register-asset-as-sold-modal/register-asset-as-sold-modal';
@@ -10,13 +10,11 @@ import {RegisterDepreciationModal} from '@app/components/accounting/assets/regis
 import {DeleteAssetModal} from '@app/components/accounting/assets/delete-asset-modal/delete-asset-modal';
 import {RegisterAssetAsLostModal} from '@app/components/accounting/assets/register-asset-as-lost-modal/register-asset-as-lost-modal';
 import {Asset, AssetStatusCode, LocalDate, SupplierInvoice} from '@uni-entities';
-import {AccountService} from '@app/services/accounting/accountService';
 import {HttpParams} from '@angular/common/http';
 import * as lodash from 'lodash';
 import * as moment from 'moment';
 import {SupplierInvoiceService} from '@app/services/accounting/supplierInvoiceService';
 import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
-import { isNullOrUndefined } from 'util';
 import {ManualDepreciationModal} from '@app/components/accounting/assets/manual-depreciation-modal/manual-depreciation-modal';
 
 @Injectable()
@@ -25,10 +23,8 @@ export class AssetsActions {
     constructor(
         private store: AssetsStore,
         private assetsService: AssetsService,
-        private accountService: AccountService,
         private supplierInvoiceService: SupplierInvoiceService,
         private router: Router,
-        private route: ActivatedRoute,
         private modalService: UniModalService,
         private browserStorageService: BrowserStorageService
     ) {

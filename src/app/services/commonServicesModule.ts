@@ -35,7 +35,6 @@ import {BrowserStorageService} from '@uni-framework/core/browserStorageService';
 import {UniCacheService} from './common/cacheService';
 import {DimensionService} from './common/dimensionService';
 import {EmailService} from './common/emailService';
-import {UmhService} from './common/UmhService';
 import {UniSearchAccountConfig} from './common/uniSearchConfig/uniSearchAccountConfig';
 import {UniSearchCustomerConfig} from './common/uniSearchConfig/uniSearchCustomerConfig';
 import {UniSearchDimensionConfig} from './common/uniSearchConfig/uniSearchDimensionConfig';
@@ -188,7 +187,6 @@ export class CommonServicesModule {
                 UniCacheService,
                 DimensionService,
                 EmailService,
-                UmhService,
                 UniSearchAccountConfig,
                 UniSearchCustomerConfig,
                 UniSearchSupplierConfig,

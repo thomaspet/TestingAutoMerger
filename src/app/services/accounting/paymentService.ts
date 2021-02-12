@@ -7,15 +7,6 @@ import { THEMES, theme } from 'src/themes/theme';
 
 @Injectable()
 export class PaymentService extends BizHttp<Payment> {
-
-    // THIS IS A LIST CREATED FOR TESTING PREAPPROVED PAYMENTS WITH BANKID..
-    whitelistedCompanyKeys = [
-        'dba624ee-d722-4cab-9fa1-2e62ee88cdc2',
-        '35e5d3ed-e594-4215-9a5d-7557294e0423', // Local
-        '535dc5b8-a065-45e7-af3f-d19cb847b69e', // Dennis
-        '98257887-d459-4a93-a63d-c6645d0f2120' // Test Tonje-Forhåndsgodkjente betalinger
-    ];
-
     constructor(http: UniHttp) {
         super(http);
         this.relativeURL = Payment.RelativeUrl;
@@ -23,8 +14,8 @@ export class PaymentService extends BizHttp<Payment> {
         this.DefaultOrderBy = null;
     }
 
-    public createPaymentBatchForAll(isManual: boolean = false, paramString: string = '') {
-        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}${paramString}`);
+    public createPaymentBatchForAll(isManual: boolean = false, hashAndFilter: string = '') {
+        return super.PostAction(null, 'create-payment-batch-for-all-payments', `acceptjob=true&isManual=${isManual}${hashAndFilter}`);
     }
 
     public createPaymentBatch(paymentIDs: Array<number>, isManual: boolean = false): Observable<any> {
@@ -64,18 +55,18 @@ export class PaymentService extends BizHttp<Payment> {
             case 44001:
                 return 'Opprettet';
             case 44002:
-                return theme.theme === THEMES.EXT02 ? 'mottat av bank' : 'Overført bank';
+                return theme.theme === THEMES.EXT02 ? 'Mottatt av bank' : 'Overført bank';
             case 44003:
             case 44012:
                 return 'Feilet';
             case 44004:
                 return 'Fullført';
             case 44005:
-                return theme.theme === THEMES.EXT02 ? 'sendes til bank' : 'Fil overført - avventer bankstatus';
+                return theme.theme === THEMES.EXT02 ? 'Betalingsfil generert' : 'Fil overført - avventer bankstatus';
             case 44006:
                 return 'Betalt';
             case 44007:
-                return 'Fil mottatt av zdata';
+                return theme.theme === THEMES.EXT02 ? 'Sendes til bank' : 'Fil mottatt av zdata';
             case 44008:
                 return 'I bankens forfallsregister';
             case 44009:

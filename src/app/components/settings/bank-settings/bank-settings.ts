@@ -10,7 +10,8 @@ import {
     StatisticsService,
     BankService,
     BrunoOnboardingService,
-    PaymentBatchService
+    PaymentBatchService,
+    UserRoleService
 } from '@app/services/services';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {FieldType, UniFieldLayout} from '../../../../framework/ui/uniform/index';
@@ -26,6 +27,19 @@ import { FeaturePermissionService } from '@app/featurePermissionService';
 import { IContextMenuItem, IToolbarConfig } from '@app/components/common/toolbar/toolbar';
 import { ToastService, ToastType } from '@uni-framework/uniToast/toastService';
 import { BrunoBankOffboardingModal } from '@uni-framework/uni-modal/modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
+import {AuthService} from '@app/authService';
+
+interface RGBValues {
+    rgb: boolean;
+    status: string;
+}
+
+enum ServiceProvider {
+    ZData = 1,
+    Bruno = 2,
+    Mock = 3,
+    ZDataV3 = 4
+}
 
 @Component({
     selector: 'bank-settings',
@@ -40,6 +54,8 @@ export class UniBankSettings {
     dataLoaded: boolean = false;
     hideBankValues: boolean = false;
     hideXtraPaymentOrgXmlTagValue: boolean = false;
+    isBankAdmin: boolean = false;
+    isRGBDirty: boolean = false;
     expands: string[] = [
         'CompanyBankAccount',
         'TaxBankAccount',
@@ -51,7 +67,12 @@ export class UniBankSettings {
         'BankAccounts.Bank',
         'BankAccounts.Account',
     ];
+    RGBValues: RGBValues = {
+        rgb:  false,
+        status: ''
+    };
 
+    RGBFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     bankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     autobankFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
     remitteringFields$ = new BehaviorSubject<UniFieldLayout[]>([]);
@@ -59,14 +80,16 @@ export class UniBankSettings {
 
     companySalary$ = new BehaviorSubject<CompanySalary>(null);
     companySettings$ = new BehaviorSubject<CompanySettings>(null);
+    RGB$ = new BehaviorSubject<RGBValues>(null);
     companySettings: CompanySettings;
     agreements: any[];
+    serviceProvider: ServiceProvider;
+    isPreApprovedPaymentsServiceProvider: boolean = false;
 
     activeIndex: number = 0;
     tabs: IUniTab[] = [
         {name: 'Bankkontoer'},
         {name: 'Bankinnstillinger'}
-
     ];
     bankAccountQuery = 'model=BankAccount&filter=CompanySettingsID eq 1&join=BankAccount.ID eq Payment.FromBankAccountID&select=ID as ID,count(Payment.ID) as count';
 
@@ -98,6 +121,8 @@ export class UniBankSettings {
         private brunoOnboardingService: BrunoOnboardingService,
         private paymentBatchService: PaymentBatchService,
         private toast: ToastService,
+        private authService: AuthService,
+        private userRoleService: UserRoleService
     ) {}
 
     ngOnInit() {
@@ -110,26 +135,43 @@ export class UniBankSettings {
             this.loadAccountsDataAndInit();
             this.updateTabAndUrl();
         });
+
+        const currentUser = this.authService.currentUser;
+        this.userRoleService.getRolesByUserID(currentUser.ID).subscribe(res => {
+            res.forEach(role => {
+                if (role.SharedRoleName === 'Bank.Admin') {
+                    this.isBankAdmin = true;
+                }
+            });
+        });
     }
 
     ngOnDestroy() {
+        this.RGBFields$.complete();
         this.bankFields$.complete();
         this.autobankFields$.complete();
         this.remitteringFields$.complete();
         this.remitteringFields$2.complete();
         this.companySalary$.complete();
         this.companySettings$.complete();
+        this.RGB$.complete();
     }
 
     loadAccountsDataAndInit() {
-        Observable.forkJoin(
+        Observable.forkJoin([
             this.companySettingsService.Get(1, this.expands),
             this.companySalaryService.getCompanySalary(),
             this.statisticsService.GetAllUnwrapped(this.bankAccountQuery),
             this.paymentBatchService.checkAutoBankAgreement()
-        ).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
+        ]).subscribe(([companySettings, companySalary, accountCounts, agreements]) => {
 
             this.agreements = agreements;
+            this.setRGBValues(agreements);
+            this.RGB$.next(this.RGBValues);
+            this.serviceProvider = agreements[0]?.ServiceProvider;
+            this.isPreApprovedPaymentsServiceProvider = this.serviceProvider === ServiceProvider.Bruno
+                                    || this.serviceProvider === ServiceProvider.ZDataV3;
+
             companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account, agreements));
 
             // This should always be ordered the same way..
@@ -161,10 +203,33 @@ export class UniBankSettings {
        });
     }
 
+    setRGBValues(agreements: any[]) {
+        const preApprovedBankPayments = agreements[0]?.PreApprovedBankPayments;
+
+        this.RGBValues.rgb = preApprovedBankPayments === 700003 || preApprovedBankPayments === 700005;
+
+        if (preApprovedBankPayments !== null) {
+            switch (preApprovedBankPayments) {
+                case 700003: {
+                    this.RGBValues.status = 'Venter på godkjenning';
+                    break;
+                }
+                case 700005: {
+                    this.RGBValues.status = 'Aktiv';
+                    break;
+                }
+            }
+        }
+    }
+
     setAsDirty() {
         const cs = this.companySettings$.getValue();
         cs['_isDirty'] = true;
         this.companySettings$.next(cs);
+    }
+
+    setRGBAsDirty() {
+        this.isRGBDirty = true;
     }
 
     setCompanySalaryAsDirty() {
@@ -187,7 +252,7 @@ export class UniBankSettings {
                 return;
             }
 
-            if (!companySalary['_isDirty'] && !companySettings['_isDirty']) {
+            if (!companySalary['_isDirty'] && !companySettings['_isDirty'] && !this.isRGBDirty) {
                 if (done) {
                     done('Ingen endringer');
                 }
@@ -248,6 +313,10 @@ export class UniBankSettings {
                 saveObs.push(this.companySalaryService.Put(companySalary.ID, companySalary));
             }
 
+            if (this.isRGBDirty) {
+                saveObs.push(this.orderRGB());
+            }
+
             Observable.forkJoin(saveObs).subscribe((response) => {
                 if (done) {
                     done('Bankinnstillinger lagret');
@@ -262,6 +331,54 @@ export class UniBankSettings {
                 res(false);
             });
         });
+    }
+
+    orderRGB(): Observable<any> {
+        const rgbValues = this.RGB$.getValue();
+        const bankID = this.agreements[0]?.BankAccount?.BankID;
+        const userID = this.authService.currentUser?.BankIntegrationUserName;
+
+        // Box is checked, order RGB
+        if (rgbValues.rgb && rgbValues.status === '') {
+            if (this.isExt02Environment) {
+                let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
+
+                if (userID) {
+                    url += '&userid=' + userID;
+                }
+
+                window.open(url);
+
+                this.updatePreApprovedBankPaymentStatus(false);
+            }
+
+            this.isRGBDirty = false;
+            return this.bankService.orderPreApprovedBankPayments(bankID);
+
+        } else if (!rgbValues.rgb && rgbValues.status !== '') {
+            if (this.isExt02Environment) {
+                let url = 'https://www.dnb.no/bedrift/konto-kort-og-betaling/betaling/logginn-rgb-etterbestilling.html?erp=DNBRegnskap&utbetalingerval=true&rgb=etterbestill';
+
+                if (userID) {
+                    url += '&userid=' + userID;
+                }
+                window.open(url);
+
+                this.updatePreApprovedBankPaymentStatus(true);
+            }
+            // Cancell RGB at ZData, to be implemented
+            // return this.bankService.orderPreApprovedBankPayments(bankID, true);
+        }
+
+        this.isRGBDirty = false;
+        return Observable.of(0);
+    }
+
+    private updatePreApprovedBankPaymentStatus(cancel: boolean) {
+        const agreement = this.agreements[0];
+        agreement.PreApprovedBankPayments = cancel ? 700000 : 700003;
+
+        this.bankService.updateBankIntegrationAgreement(agreement.ID, agreement).subscribe();
     }
 
     canDeactivate(): boolean | Observable<boolean> {
@@ -338,6 +455,28 @@ export class UniBankSettings {
     }
 
     createFormFields() {
+        this.RGBFields$.next([
+            <any>{
+                EntityType: 'RGBValues',
+                Property: 'rgb',
+                FieldType: FieldType.CHECKBOX,
+                Label: 'Regnskapsgodkjente betalinger',
+                Hidden: !this.isBankAdmin && this.serviceProvider !== ServiceProvider.Bruno
+            },
+            {
+                EntityType: 'RGBValues',
+                Property: 'status',
+                FieldType: FieldType.STATIC_TEXT,
+                Label: 'Status:',
+                Hidden: this.RGBValues.status === ''
+            },
+            {
+                EntityType: 'RGBValues',
+                FieldType: FieldType.STATIC_TEXT,
+                Label: 'Kun Bank-Admin rollen kan aktivere eller slå av regnskapsgodkjente betalinger.',
+                Hidden: this.isBankAdmin || this.serviceProvider === ServiceProvider.Bruno
+            }
+        ]);
         this.bankFields$.next([
             <any>{
                 EntityType: 'CompanySettings',

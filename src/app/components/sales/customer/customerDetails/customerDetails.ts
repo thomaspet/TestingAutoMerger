@@ -10,7 +10,6 @@ import {
     Email,
     Phone,
     Address,
-    CustomerInvoiceReminderSettings,
     CurrencyCode,
     Terms,
     NumberSeries,
@@ -24,7 +23,6 @@ import {TabService, UniModules} from '../../../layout/navbar/tabstrip/tabService
 import {IReference} from '../../../../models/iReference';
 import {ToastService, ToastType, ToastTime} from '../../../../../framework/uniToast/toastService';
 import {LedgerAccountReconciliation} from '../../../common/reconciliation/ledgeraccounts/ledgeraccountreconciliation';
-import {ReminderSettings} from '../../../common/reminder/settings/reminderSettings';
 import {IToolbarConfig, ICommentsConfig, IToolbarSubhead, IToolbarValidation} from '../../../common/toolbar/toolbar';
 import {
     DepartmentService,
@@ -35,7 +33,6 @@ import {
     UniQueryDefinitionService,
     ErrorService,
     NumberFormat,
-    CustomerInvoiceReminderSettingsService,
     CurrencyCodeService,
     TermsService,
     UniSearchCustomerConfig,
@@ -95,12 +92,10 @@ const isNumber = (value) => _.reduce(value, (res, letter) => {
 export class CustomerDetails implements OnInit {
     @ViewChild(UniForm) public form: UniForm;
     @ViewChild(LedgerAccountReconciliation) private postpost: LedgerAccountReconciliation;
-    @ViewChild(ReminderSettings) public reminderSettings: ReminderSettings;
 
     private customerID: any;
     public fields$ = new BehaviorSubject([]);
     public customer$ = new BehaviorSubject<Customer>(null);
-    public showReminderSection: boolean = false; // used in template
     public showContactSection: boolean = false; // used in template
     public showSellerSection: boolean = false; // used in template
 
@@ -116,10 +111,7 @@ export class CustomerDetails implements OnInit {
     private customDimensions: any[] = [];
 
     public showReportWithID: number;
-    public commentsConfig: ICommentsConfig = {
-        entityType: 'Customer',
-        entityID: this.customerID
-    };
+    public commentsConfig: ICommentsConfig;
     public selectConfig: any;
     private sellers: Seller[];
     private distributionPlans: any[] = [];
@@ -217,9 +209,6 @@ export class CustomerDetails implements OnInit {
         'Dimensions',
         'Info.DefaultBankAccount',
         'Info.BankAccounts.Bank',
-        'CustomerInvoiceReminderSettings',
-        'CustomerInvoiceReminderSettings.CustomerInvoiceReminderRules',
-        'CustomerInvoiceReminderSettings.DebtCollectionSettings',
         'Info.Contacts.Info',
         'Info.Contacts.Info.DefaultEmail',
         'Info.Contacts.Info.DefaultPhone',
@@ -259,7 +248,6 @@ export class CustomerDetails implements OnInit {
         private toastService: ToastService,
         private errorService: ErrorService,
         private numberFormat: NumberFormat,
-        private customerInvoiceReminderSettingsService: CustomerInvoiceReminderSettingsService,
         private currencyCodeService: CurrencyCodeService,
         private uniSearchCustomerConfig: UniSearchCustomerConfig,
         private modalService: UniModalService,
@@ -289,6 +277,11 @@ export class CustomerDetails implements OnInit {
         this.route.paramMap.subscribe(params => {
             this.isDirty = false;
             this.customerID = +params.get('id');
+
+            this.commentsConfig = {
+                entityType: 'Customer',
+                entityID: this.customerID
+            };
 
             this.tabs = [
                 {name: 'Detaljer'},
@@ -607,12 +600,6 @@ export class CustomerDetails implements OnInit {
                     this.getDataAndUpdateToolbarSubheads();
                 }
 
-                if (!customer.CustomerInvoiceReminderSettings) {
-                    customer.CustomerInvoiceReminderSettings = <CustomerInvoiceReminderSettings>{
-                        _createguid: this.customerInvoiceReminderSettingsService.getNewGuid()
-                    };
-                }
-
                 this.setMainContact(customer);
                 this.customer$.next(customer);
                 this.setCustomerStatusOnToolbar();
@@ -633,12 +620,6 @@ export class CustomerDetails implements OnInit {
                 response => {
                     const customer = response;
                     this.setMainContact(customer);
-
-                    if (customer.CustomerInvoiceReminderSettings === null) {
-                        customer.CustomerInvoiceReminderSettings = new CustomerInvoiceReminderSettings();
-                        customer.CustomerInvoiceReminderSettings['_createguid'] =
-                            this.customerInvoiceReminderSettingsService.getNewGuid();
-                    }
 
                     this.customer$.next(customer);
                     if (this.customerID > 0) {
@@ -880,12 +861,6 @@ export class CustomerDetails implements OnInit {
         if (customer.Info.Contacts.filter(x => !x.ID && x.Info.Name === '')) {
             // remove new contacts where name is not set, probably an empty row anyway
             customer.Info.Contacts = customer.Info.Contacts.filter(x => !(!x.ID && x.Info.Name === ''));
-        }
-
-        if ((customer.CustomerInvoiceReminderSettingsID === 0 ||
-            !customer.CustomerInvoiceReminderSettingsID) &&
-            ((this.reminderSettings && !this.reminderSettings.isDirty)) || !this.reminderSettings) {
-                customer.CustomerInvoiceReminderSettings = null;
         }
 
         customer['_CustomerSearchResult'] = undefined;

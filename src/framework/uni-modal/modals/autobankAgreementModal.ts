@@ -6,12 +6,13 @@ import {
     UserService,
     ErrorService,
     CompanySettingsService,
-    BankService
+    BankService,
+    ElsaAgreementService
 } from '@app/services/services';
 import {Observable} from 'rxjs';
 import {AutoBankAgreementDetails, BankAgreementServiceProvider} from '@app/models/autobank-models';
 import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
-
+import {DomSanitizer, SafeResourceUrl} from '@angular/platform-browser';
 
 @Component({
     selector: 'uni-autobank-agreement-modal',
@@ -45,23 +46,24 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         <span [class.is-active-step]="steps === 2">  </span>
                         <div [class.is-active-step]="steps === 2"> Avtalevilkår </div>
                     </li>
-                    <li>
+                    <li *ngIf="serviceProvider !== 1">
                         <span [class.is-active-step]="steps === 3">  </span>
-                        <div [class.is-active-step]="steps === 3"> Bankoppsett </div>
-                    </li>
+                        <div [class.is-active-step]="steps === 3"> Godkjenne betalinger </div>
                     <li>
                         <span [class.is-active-step]="steps === 4">  </span>
-                        <div [class.is-active-step]="steps === 4"> Sikkerhet </div>
+                        <div [class.is-active-step]="steps === 4"> Bankoppsett </div>
+                    </li>
+                    <li *ngIf="serviceProvider !== 4">
+                        <span [class.is-active-step]="steps === 5">  </span>
+                        <div [class.is-active-step]="steps === 5"> Sikkerhet </div>
                     </li>
                     <li>
-                        <span [class.is-active-step]="steps === 5">  </span>
-                        <div [class.is-active-step]="steps === 5"> Ferdigstilling </div>
+                        <span [class.is-active-step]="steps === 6">  </span>
+                        <div [class.is-active-step]="steps === 6"> Ferdigstilling </div>
                     </li>
                 </ul>
             </div>
-
             <div style="width: 40vw; flex: 2; display: flex; flex-direction: column; justify-content: center;">
-
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 0" id="step0"
                     style="width: 65%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <h3>Oppsett for ny autobankavtale</h3>
@@ -81,27 +83,39 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         </strong>
                     </span>
                 </article>
-
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 1" id="step1"
                     style="width: 65%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <!-- ADD COMPANY SELECTION HERE WHEN THAT IS AVAILABLE! -->
                     <h3>Firma</h3>
-
                     <p> Ny autobankavtale for klienten du står på: <br/><strong>{{ companySettings?.CompanyName }}</strong> </p>
                 </article>
-
                 <article *ngIf="steps === 2" class="uni-autobank-agreement-modal-body" id="step2">
-                    <object data="https://public-files.unieconomy.no/files/license/Bankavtale.pdf#zoom=100" type="application/pdf">
-                        <a href="https://public-files.unieconomy.no/files/license/Bankavtale.pdf">Avtalevilkår</a>
-                    </object>
-                    <br>
-
-                    <mat-checkbox [(ngModel)]="haveReadAgreement">
-                        Godta vilkår og avtaler
-                    </mat-checkbox>
+                    <ng-container *ngIf="bankAgreementUrl">
+                        <object [data]="bankAgreementUrl" type="application/pdf">
+                            <a [href]="bankAgreementUrl">Avtalevilkår</a>
+                        </object>
+                        <br>
+                        <mat-checkbox [(ngModel)]="hasReadAgreement">
+                            Godta vilkår og avtaler
+                        </mat-checkbox>
+                    </ng-container>
+                    <p *ngIf="!bankAgreementUrl">
+                        Fant ingen avtalevilkår. Kontakt systemansvarlig.
+                    </p>
                 </article>
-
                 <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 3" id="step3"
+                    style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
+                    <h3>Godkjenning av betalinger</h3>
+                    <p>
+                        Her velger du metoden for å godkjenne betalinger: velger du regnskapsgodkjente betalinger kan du forhåndsgodkjenne betalingene,
+                        ellers må du ettergodkjenne betalingene i nettbanken.
+                    </p>
+                    <mat-radio-group [(ngModel)]="agreementDetails.BankApproval">
+                        <mat-radio-button [value]="false">Regnskapsgodkjente betalinger</mat-radio-button>
+                        <mat-radio-button [value]="true">Ettergodkjente betalinger i nettbanken</mat-radio-button>
+                    </mat-radio-group>
+                </article>
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4" id="step4"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <uni-form
                         style="font-size: .9rem; width: 80%"
@@ -110,48 +124,40 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         [model]="formModel$"
                         (changeEvent)="onFormChange($event)">
                     </uni-form>
-
                     <label class="uni-label agreement-checkboxes">
                         <span>Marker for å ta med i avtale</span>
                         <mat-checkbox [(ngModel)]="agreementDetails.IsInbound">
                             Innbetalinger
                         </mat-checkbox>
-
                         <mat-checkbox [(ngModel)]="agreementDetails.IsOutgoing">
                             Utbetalinger
                         </mat-checkbox>
-
                         <mat-checkbox [(ngModel)]="agreementDetails.IsBankBalance">
                             Banksaldo + avstemming
                             <i class="material-icons" [matTooltip]="infoTextForBalance">info</i>
                         </mat-checkbox>
                     </label>
                 </article>
-
-                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && !hasAgreements" id="step4"
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5 && !hasAgreements" id="step5"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
                     <h3>Sikkerhetsinnstillinger</h3>
                     <p>
                         Velg et passord for autobank. Dette passordet brukes for å sende betalinger.
                         <!-- Velg 2-faktor autentisering for å øke sikkerheten. Vi vil da også trenge et mobilnummer. -->
                     </p>
-
                     <i class="material-icons" style="margin-bottom: 1rem;" [matTooltip]="passwordCriteriaMsg">
                         info
                     </i>
-
                     <section>
                         <label class="uni-label label-left">
                             <span>Passord</span>
                             <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails.Password">
                         </label>
-
                         <label class="uni-label label-left">
                             <span>Bekreft passord</span>
                             <input type="password" autocomplete="new-password" [(ngModel)]="agreementDetails._confirmPassword">
                         </label>
                     </section>
-
                     <!-- HIDE THIS UNTIL 2-FACTOR IS READY FOR PROD -->
                     <span style="font-weight: 400; margin: 1rem 0 1rem 9.5rem;" *ngIf="false">
                         <span style="color: #9198aa;">
@@ -159,7 +165,6 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                             <i class="material-icons two-factor-tooltip" matTooltip="{{ twoFactorMsg }}">
                                 info
                             </i>
-
                             <div class="payments-checkboxes">
                                 <div>
                                     <i class="material-icons" (click)="useTwoFactor = !useTwoFactor">
@@ -177,14 +182,11 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         </label>
                     </section>
                 </article>
-
-                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 4 && hasAgreements" id="step4"
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5 && hasAgreements" id="step5"
                     style="width: 75%; display: flex; justify-content: center; flex-direction: column; margin: 0 auto;">
-
                     <span style="color: #9198aa; margin: 0 0 .8rem 9.5rem;">
                         Bekreft eksisterende autobankpassord
                     </span>
-
                     <section class="uni-html-form bank-agreement-password-form">
                         <label>
                             <span>Passord</span>
@@ -192,8 +194,7 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         </label>
                     </section>
                 </article>
-
-                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 5" id="step5"
+                <article class="uni-autobank-agreement-modal-body" *ngIf="steps === 6" id="step6"
                     style="width: 65%; display: flex; justify-content: center; text-align: center; flex-direction: column; margin: 0 auto;">
                     <i class="material-icons" style="color: #7bcb45; font-size: 5rem; text-align: center;">check_circle</i>
                     <h3>Avtale opprettet </h3>
@@ -203,15 +204,14 @@ import {StatusCodeBankIntegrationAgreement} from '@uni-entities';
                         "Ny autobankavtale" i bankbilde.
                     </p>
                 </article>
-
                 <footer>
                     <span *ngIf="errorText"> {{ errorText }}</span>
                     <div>
-                        <button *ngIf="steps > 0 && steps !== 5" (click)="move(-1)" class="secondary">
+                        <button *ngIf="steps > 0 && steps !== 6" (click)="move(-1)" class="secondary">
                             Tilbake
                         </button>
                         <button (click)="move(1)" class="c2a" [disabled]="buttonLock">
-                            {{ steps === 4 ? 'Opprett avtale' : steps === 5 || noAccounts ? 'Lukk' : 'Fortsett' }}
+                            {{ steps === 5 || (steps === 4 && serviceProvider === 4) ? 'Opprett avtale' : steps === 6 || noAccounts ? 'Lukk' : 'Fortsett' }}
                         </button>
                     </div>
                 </footer>
@@ -229,7 +229,10 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public onClose: EventEmitter<any> = new EventEmitter();
 
     private accounts: any[] = [];
+    private bankID: number = 0;
+    serviceProvider: BankAgreementServiceProvider;
     agreements: any[] = [];
+    bankAgreementUrl: SafeResourceUrl;
 
     usedBanks: string[] = [];
     buttonLock: boolean = false;
@@ -269,13 +272,15 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
 
     formModel$: BehaviorSubject<AutoBankAgreementDetails> = new BehaviorSubject(null);
     formFields$: BehaviorSubject<UniFieldLayout[]> = new BehaviorSubject([]);
-    haveReadAgreement = false;
+    hasReadAgreement = false;
 
     constructor(
         private userService: UserService,
         private errorService: ErrorService,
         private companySettingsService: CompanySettingsService,
-        private bankService: BankService
+        private bankService: BankService,
+        private elsaAgreementService: ElsaAgreementService,
+        private sanitizer: DomSanitizer,
     ) { }
 
     public ngOnInit() {
@@ -284,12 +289,24 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.agreements = this.options.data.agreements.filter(a => a.StatusCode === StatusCodeBankIntegrationAgreement.Active);
         }
 
-        Observable.forkJoin(
-            this.companySettingsService.Get(1, ['BankAccounts.Bank', 'BankAccounts.Account']),
-            this.userService.getCurrentUser()
-        ).subscribe((res) => {
+        if (this.hasAgreements) {
+            this.serviceProvider =
+                this.agreements.filter(x => x.ServiceProvider === BankAgreementServiceProvider.ZdataV3)[0]?.ServiceProvider
+                ?? this.agreements[0].ServiceProvider;
+        } else {
+            this.bankService.getDefaultServiceProvider().subscribe(serviceProvider => {
+                this.serviceProvider = serviceProvider;
+                this.agreementDetails.ServiceProvider = serviceProvider;
+            });
+        }
 
-            this.companySettings = res[0];
+        Observable.forkJoin([
+            this.companySettingsService.Get(1, ['BankAccounts.Bank', 'BankAccounts.Account']),
+            this.userService.getCurrentUser(),
+            this.elsaAgreementService.getByType('Bank')
+        ]).subscribe(([settings, user, elsaAgreement]) => {
+
+            this.companySettings = settings;
             this.accounts = [];
 
             // Filter out the accounts of banks already in use
@@ -316,9 +333,12 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
                 this.noAccounts = true;
             }
 
-            this.agreementDetails.Orgnr = res[0].OrganizationNumber;
-            this.agreementDetails.Phone = res[1].PhoneNumber;
-            this.agreementDetails.Email = res[1].Email;
+            this.agreementDetails.Orgnr = settings.OrganizationNumber;
+            this.agreementDetails.Phone = user.PhoneNumber;
+            this.agreementDetails.Email = user.Email;
+
+            this.bankAgreementUrl = this.sanitizer.bypassSecurityTrustResourceUrl(elsaAgreement?.DownloadUrl);
+
             this.steps = 0;
 
             this.formModel$.next(this.agreementDetails);
@@ -372,30 +392,44 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     public move(direction: number) {
         // Go backwards
         if (direction < 0) {
-            this.steps--;
+            if (this.steps === 4 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+                this.steps -= 2;
+            } else  {
+                this.steps--;
+            }
             this.errorText = '';
             this.buttonLock = false;
             return;
         }
 
-        if (this.steps === 5 || this.noAccounts) {
+        if (this.steps === 6 || this.noAccounts) {
             this.close();
         }
 
         // Bank agreement step
-        if (this.steps === 2 && !this.haveReadAgreement) {
+        if (this.steps === 2 && !this.hasReadAgreement) {
             return;
         }
 
         // Full form step
-        if (this.steps === 3) {
+        if (this.steps === 4) {
             if (!this.validateForm()) {
+                return;
+            }
+            if (this.serviceProvider === BankAgreementServiceProvider.ZdataV3) {
+                if (this.useTwoFactor && !this.agreementDetails.Phone) {
+                    this.errorText = 'Mangler telefonnr. Du må fylle inn et gyldig telefonnr når du har valgt 2-faktor autentisering.';
+                    return;
+                } else {
+                    this.errorText = '';
+                }
+                this.sendStartDataToZData();
                 return;
             }
         }
 
         // Password step
-        if (this.steps === 4 && this.hasAgreements) {
+        if (this.steps === 5 && this.hasAgreements) {
             this.bankService.validateAutobankPassword(this.agreementDetails.Password).subscribe(isCorrectPassword => {
                 if (!isCorrectPassword) {
                     this.errorText = 'Feil passord!';
@@ -408,7 +442,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             });
         }
 
-        if (this.steps === 4 && !this.hasAgreements) {
+        if (this.steps === 5 && !this.hasAgreements) {
             if (!this.isValidPassword(this.agreementDetails)) {
                 return;
             }
@@ -423,7 +457,9 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.sendStartDataToZData();
             return;
         }
-        if (this.steps < 4) {
+        if (this.steps === 2 && this.serviceProvider === BankAgreementServiceProvider.ZData) {
+            this.steps += 2;
+        } else if (this.steps < 5) {
             this.steps++;
         }
     }
@@ -432,8 +468,12 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
         this.buttonLock = true;
         this.agreementDetails.IsBankStatement = this.agreementDetails.IsBankBalance;
         this.bankService.createAutobankAgreement(this.agreementDetails).subscribe((result) => {
+
+            if (!this.agreementDetails.BankApproval) {
+                this.bankService.orderPreApprovedBankPayments(this.bankID).subscribe();
+            }
             this.buttonLock = false;
-            this.steps++;
+            this.steps = 6;
         }, (err) => {
             this.buttonLock = false;
             this.errorService.handle(err);
@@ -450,6 +490,7 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
             this.agreementDetails.BankAccountNumber = account[0].AccountNumber || null;
             if (account.length > 0 && account[0] && account[0].Bank) {
                 this.agreementDetails.Bank = account[0].Bank.Name;
+                this.bankID = account[0].BankID;
                 this.formModel$.next(this.agreementDetails);
             } else {
                 this.agreementDetails.Bank = '';
@@ -556,4 +597,3 @@ export class UniAutobankAgreementModal implements IUniModal, OnInit {
     }
 
 }
-

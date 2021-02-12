@@ -5,6 +5,7 @@ import {UserService, ErrorService, BankService} from '@app/services/services';
 import {ToastService, ToastType, ToastTime} from '@uni-framework/uniToast/toastService';
 import {User} from '@uni-entities';
 import {UniHttp} from '@uni-framework/core/http/http';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Component({
     selector: 'activate-autobank-modal',
@@ -20,6 +21,7 @@ export class ActivateAutobankModal implements IUniModal {
     errorMessages: string[];
     busy: boolean;
     hasSentWrongPassword = false;
+    serviceProvider: BankAgreementServiceProvider;
 
     constructor(
         private errorService: ErrorService,
@@ -30,7 +32,8 @@ export class ActivateAutobankModal implements IUniModal {
     ) {}
 
     ngOnInit() {
-        this.user = this.options.data || {};
+        this.user = this.options.data.user || {};
+        this.serviceProvider = this.options.data.serviceProvider || 1;
 
         this.autobankData = new FormGroup({
             AdminPassword: new FormControl(''),
@@ -45,12 +48,22 @@ export class ActivateAutobankModal implements IUniModal {
         const data = this.autobankData.value;
         this.errorMessages = [];
 
-        if (!data.Password || data.Password.length < 10 || data.ConfirmPassword !== data.Password) {
-            this.errorMessages.push('Passord og bekreft passord må være like og minst 10 tegn');
+        if (this.serviceProvider !== BankAgreementServiceProvider.ZdataV3) {
+            this.validatePassword(data);
         }
 
         if (!this.isValidPhoneNumber(data.Phone)) {
             this.errorMessages.push('Telefon må være et gyldig norsk telefonnummer');
+        }
+
+        if (!this.errorMessages.length) {
+            this.activateBankUser(data);
+        }
+    }
+
+    private validatePassword(data) {
+        if (!data.Password || data.Password.length < 10 || data.ConfirmPassword !== data.Password) {
+            this.errorMessages.push('Passord og bekreft passord må være like og minst 10 tegn');
         }
 
         if (!/[a-z]/.test(data.Password)) {
@@ -70,10 +83,6 @@ export class ActivateAutobankModal implements IUniModal {
         if (!/[\@\#\$\%\^\&\*\-_\\+\=\[\]\{\}\:\,\.\?\!\`\(\)\;]/.test(data.Password)) {
             this.errorMessages.push('Passord må inneholde minst ett tegn: ! @ # $ % ^ & * _ - = + . : ? , ( ) [ ] { }');
             return;
-        }
-
-        if (!this.errorMessages.length) {
-            this.activateBankUser(data);
         }
     }
 
@@ -98,37 +107,44 @@ export class ActivateAutobankModal implements IUniModal {
     private activateBankUser(autobankData) {
         this.busy = true;
 
-        this.bankService.validateAutobankPassword(autobankData.AdminPassword).subscribe(isCorrectPassword => {
-            if (isCorrectPassword) {
+        if (this.serviceProvider === BankAgreementServiceProvider.ZdataV3) {
+            // ZDataV3 doesn't require an autobank password
+            this.makeAutobankUser(autobankData);
+        } else {
+            this.bankService.validateAutobankPassword(autobankData.AdminPassword).subscribe(isCorrectPassword => {
+                if (isCorrectPassword) {
+                    this.makeAutobankUser(autobankData);
+                } else {
+                    this.busy = false;
+                    this.hasSentWrongPassword = true;
+                    this.errorMessages.push('Noe gikk galt. Sjekk at ditt autobank passord er korrekt.');
+                }
+            }, err => this.errorService.handle(err));
+        }
+    }
 
-                this.userService.getCurrentUser().switchMap(authenticatedUser => {
-                    return this.http.usingBusinessDomain()
-                        .asPUT()
-                        .withEndPoint(`users/${this.user.ID}?action=make-autobank-user`)
-                        .withBody({
-                            AdminUserId: authenticatedUser.ID,
-                            AdminPassword: autobankData.AdminPassword,
-                            IsAdmin: autobankData.IsAdmin,
-                            Password: autobankData.Password,
-                            Phone: autobankData.Phone
-                        })
-                        .send()
-                        .map(res => res.body);
-                }).subscribe(
-                    () => this.onClose.emit(true),
-                    err => {
-                        this.busy = false;
-                        this.errorMessages.push('Noe gikk galt. Se melding i varsel');
-                        this.errorService.handle(err);
-                    }
-                );
-
-            } else {
+    private makeAutobankUser(autobankData) {
+        this.userService.getCurrentUser().switchMap(authenticatedUser => {
+            return this.http.usingBusinessDomain()
+                .asPUT()
+                .withEndPoint(`users/${this.user.ID}?action=make-autobank-user`)
+                .withBody({
+                    AdminUserId: authenticatedUser.ID,
+                    AdminPassword: autobankData.AdminPassword,
+                    IsAdmin: autobankData.IsAdmin,
+                    Password: autobankData.Password,
+                    Phone: autobankData.Phone
+                })
+                .send()
+                .map(res => res.body);
+        }).subscribe(
+            () => this.onClose.emit(true),
+            err => {
                 this.busy = false;
-                this.hasSentWrongPassword = true;
-                this.errorMessages.push('Noe gikk galt. Sjekk at ditt autobank passord er korrekt.');
+                this.errorMessages.push('Noe gikk galt. Se melding i varsel');
+                this.errorService.handle(err);
             }
-        }, err => this.errorService.handle(err));
+        );
     }
 
     private isValidPhoneNumber(phone) {

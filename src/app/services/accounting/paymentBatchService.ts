@@ -81,6 +81,12 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             return 'Fullført';
         } else if (statusCode === 45010) {
             return 'Transit til bank';
+        } else if (statusCode === 45011) {
+            return 'Klar for godkjenning';
+        } else if (statusCode === 45012) {
+            return 'Godkjent';
+        } else if (statusCode === 45013) {
+            return 'Avvist';
         } else if (statusCode === 45014) {
             return 'Kommunikasjonsfeil. Vennligst dobbelsjekk i nettbanken';
         }
@@ -131,6 +137,16 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .map(response => response.body);
     }
 
+    public updateAllPaymentsToPaidAndJournalPayments(hashAndFilter: string) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`paymentbatches?action=update-all-payments-to-paid-and-journal-payments${hashAndFilter}`)
+            .send()
+            .map(response => response.body);
+    }
+
     public updatePaymentsToPaid(paymentIDs: number[]) {
         super.invalidateCache();
         return this.http
@@ -138,6 +154,16 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .usingBusinessDomain()
             .withBody(paymentIDs)
             .withEndPoint('paymentbatches?action=update-payments-to-completed')
+            .send()
+            .map(response => response.body);
+    }
+
+    public updateAllPaymentsToPaid(hashAndFilter: string) {
+        super.invalidateCache();
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint(`paymentbatches?action=update-all-payments-to-completed${hashAndFilter}`)
             .send()
             .map(response => response.body);
     }
@@ -150,5 +176,13 @@ export class PaymentBatchService extends BizHttp<PaymentBatch> {
             .withEndPoint('bank-agreements?action=auth-code')
             .send()
             .map(response => response.body);
+    }
+
+    public approveBatch(paymentBatchID: number): Observable<any> {
+        return super.PutAction(null, 'approve', `ID=${paymentBatchID}`);
+    }
+
+    public dismissBatch(paymentBatchID: number): Observable<any> {
+        return super.PutAction(null, 'dismiss', `ID=${paymentBatchID}`);
     }
 }

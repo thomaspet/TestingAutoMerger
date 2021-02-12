@@ -1,6 +1,10 @@
 h1
-    font: 400 20px var(--font-family)
-    margin: 2rem 0 1rem
+    font: 400 18px var(--font-family) !important
+    span
+        &:hover
+            cursor: pointer
+        &.active-header
+            font-weight: 500
 
 .list-container
     min-height: 150px
@@ -47,14 +51,16 @@ h1
                 border-radius: 3px
                 border: 1px solid #D2DAE2
 
-            i.material-icons
-                margin-left: 10px
-                & + i.material-icons
-                    margin-left: 5px
+        i.material-icons
+            margin-left: 10px
+            & + i.material-icons
+                margin-left: 5px
 
-                &.edit
-                    font-size: 21px
-                    margin-bottom: 2px
+            &.edit
+                font-size: 21px
+                margin-bottom: 2px
+                &:hover
+                    cursor: pointer
 
-                &.close
-                    color: #F53B57
+            &.close
+                color: #F53B57

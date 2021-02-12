@@ -1,10 +1,8 @@
 // tslint:disable:max-line-length
-import {UniModules} from './tabstrip/tabService';
 export interface INavbarLink {
     name: string;
     url: string;
     activeInSidebar: boolean;
-    moduleID?: number;
     routerLinkActiveExact?: boolean;
     isSuperSearchComponent?: boolean;
     predefinedFilter?: string;
@@ -105,10 +103,10 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                 name: 'Verktøy',
                 links: [
                     {name: 'NAVBAR.DISTRIBUTION', activeInSidebar: false, url: '/settings/distribution', featurePermission: 'ui.distribution'},
-                    {name: 'Jobber', url: '/admin/jobs', moduleID: UniModules.Jobs, activeInSidebar: false, keyWords: ['Export', 'SAF-T', 'SAFT']},
+                    {name: 'Jobber', url: '/admin/jobs', activeInSidebar: false, keyWords: ['Export', 'SAF-T', 'SAFT']},
                     {name: 'NAVBAR.IMPORT_CENTRAL', activeInSidebar: true, url: '/import'},
                     {
-                        name: 'Flyt', url: '/admin/flow', moduleID: UniModules.Flow, activeInSidebar: false,
+                        name: 'Flyt', url: '/admin/flow', activeInSidebar: false,
                         keyWords: ['Autotildeling', 'Leverandørsynkronisering', 'Automatisk bankavstemming', 'Automatikk', 'Automasjon']
                     },
                 ]
@@ -123,7 +121,7 @@ export const SETTINGS_LINKS: INavbarLinkSection[] = [
                     {name: 'NAVBAR.TEAMS', activeInSidebar: false, url: '/settings/teams', keyWords: ['Godkjenning', 'Tilgang']},
                     {name: 'NAVBAR.INTEGRATION', activeInSidebar: false, url: '/settings/webhooks'},
                     {name: 'NAVBAR.RULES', activeInSidebar: false, url: '/approval-rules', keyWords: ['Regler', 'Fakturagodkjenning', 'Vikar']},
-                    {name: 'GDPR', url: '/admin/gdpr', moduleID: UniModules.GDPRList, activeInSidebar: false, keyWords: ['Personopplysninger', 'Personvern']},
+                    {name: 'GDPR', url: '/admin/gdpr', activeInSidebar: false, keyWords: ['Personopplysninger', 'Personvern']},
                 ]
             }
         ]

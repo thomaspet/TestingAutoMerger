@@ -3,23 +3,23 @@
         <mat-spinner class="c2a"></mat-spinner>
     </section>
     <article>
-        <img src="themes/ext02/ext02-cancel-integration.svg" alt="Avslutt bankintegrasjon illustrasjon">
+        <img src="config/dist/theme/assets/ext02-cancel-integration.svg" alt="Avslutt bankintegrasjon illustrasjon">
 
         <h1>{{options.header}}</h1>
 
         <span id="message">{{options.message}}</span>
-        
+
         <!-- If all accounts are selected -->
-        <ag-grid-wrapper *ngIf="!bankAccount" 
-            [(resource)]="allBankAccountsWithIntergration" 
+        <ag-grid-wrapper *ngIf="!bankAccount"
+            [(resource)]="allBankAccountsWithIntergration"
             [config]="tableConfig">
         </ag-grid-wrapper>
-                
+
         <section class="selectionSection">
             <!-- Only one account is selected -->
             <section *ngIf="bankAccount" class="integrationSelection">
                 <span *ngIf="bankAccount?.HasStatements">
-                    <mat-checkbox                     
+                    <mat-checkbox
                         [(ngModel)]="cancelStatements"
                         [disabled]="deleteAccount">
                         Kontotransaksjoner/Bankavstemming
@@ -27,7 +27,7 @@
                     <br>
                 </span>
                 <span *ngIf="bankAccount?.HasIncoming">
-                    <mat-checkbox 
+                    <mat-checkbox
                         [(ngModel)]="cancelIngoing"
                         [disabled]="deleteAccount">
                         Innbetaling/KID
@@ -40,9 +40,9 @@
                         [disabled]="deleteAccount">
                         Utbetaling
                     </mat-checkbox>
-                </span>                
+                </span>
             </section>
-                
+
             <label class="uni-label">
                 <span>E-postadresse for kvittering</span>
                 <input type="text" [(ngModel)]="mailForReceipt">

@@ -19,6 +19,7 @@ import {IUniTab} from '@uni-framework/uni-tabs';
 import PerfectScrollbar from 'perfect-scrollbar';
 import {takeUntil} from 'rxjs/operators';
 import {Subject} from 'rxjs';
+import {AuthService} from '@app/authService';
 declare var _;
 
 @Component({
@@ -70,6 +71,7 @@ export class Project {
     ];
 
     constructor(
+        private authService: AuthService,
         private tabService: TabService,
         public projectService: ProjectService,
         private errorService: ErrorService,
@@ -79,7 +81,8 @@ export class Project {
         private user: UserService,
         private modalService: UniModalService,
         private navbarLinkService: NavbarLinkService,
-        private pageStateService: PageStateService) {
+        private pageStateService: PageStateService
+    ) {
 
         this.init();
         this.searchControl.valueChanges
@@ -120,40 +123,29 @@ export class Project {
         ];
 
         // Add tabs that the user has access to, and set some booleans used later when fetching data..
-        this.navbarLinkService.linkSections$.subscribe(linkSections => {
-            const mySalesSection = linkSections.filter(sec => sec.url === '/sales');
-            const myAccountingSection = linkSections.filter(sec => sec.url === '/accounting');
-            if (mySalesSection.length) {
-                mySalesSection[0].linkGroups.forEach((group) => {
-                    group.links.forEach( (li) => {
-                        if (li.moduleID === 204) {
-                            this.childRoutes.push( { name: 'Faktura', path: 'invoices' } );
-                        }
-                        if (li.moduleID === 203) {
-                            this.childRoutes.push( { name: 'Ordre', path: 'orders' } );
-                            this.projectService.hasOrderModule = true;
-                        }
-                        if (li.moduleID === 202) {
-                            this.childRoutes.push( { name: 'Tilbud', path: 'quotes' } );
-                        }
-                    });
-                });
-            }
+        const user = this.authService.currentUser;
 
-            if (myAccountingSection.length) {
-                myAccountingSection[0].linkGroups.forEach((group) => {
-                    group.links.forEach( (li) => {
-                        if (li.moduleID === 300) {
-                            this.projectService.hasJournalEntryLineModule = true;
-                        }
-                        if (li.moduleID === 312) {
-                            this.projectService.hasSupplierInvoiceModule = true;
-                            this.childRoutes.push( { name: 'Leverandørfaktura', path: 'supplierinvoices'} );
-                        }
-                    });
-                });
-            }
-        });
+        if (this.authService.canActivateRoute(user, '/sales/invoices')) {
+            this.childRoutes.push( { name: 'Faktura', path: 'invoices' } );
+        }
+
+        if (this.authService.canActivateRoute(user, '/sales/orders')) {
+            this.childRoutes.push( { name: 'Ordre', path: 'orders' } );
+            this.projectService.hasOrderModule = true;
+        }
+
+        if (this.authService.canActivateRoute(user, '/sales/quotes')) {
+            this.childRoutes.push( { name: 'Tilbud', path: 'quotes' } );
+        }
+
+        if (this.authService.canActivateRoute(user, '/accounting/journalentry')) {
+            this.projectService.hasJournalEntryLineModule = true;
+        }
+
+        if (this.authService.canActivateRoute(user, '/accounting/bills')) {
+            this.projectService.hasSupplierInvoiceModule = true;
+            this.childRoutes.push( { name: 'Leverandørfaktura', path: 'supplierinvoices'} );
+        }
 
         this.childRoutes = this.childRoutes.concat([], ...[
             { name: 'Timer', path: 'hours' },

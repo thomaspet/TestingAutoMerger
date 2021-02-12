@@ -56,7 +56,7 @@ export class SmartBookingHelperClass {
 					? 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_2'
 					: 'ACCOUNTING.SUPPLIER_INVOICE.SMART_BOOKING_3';
 
-				return this.journalEntryService.getAccountsFromSuggeestions(result.Suggestion.AccountNumber.toString().substr(0, 3));
+				return this.journalEntryService.getAccountsFromSuggeestions(result.Suggestion.AccountNumber.toString().substr(0, 3), false);
 			}).subscribe(accounts => {
 				if (accounts.length) {
 					response.account = accounts.find(acc => acc.AccountNumber === accountNumber) || accounts[0];

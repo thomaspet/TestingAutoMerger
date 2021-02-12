@@ -1,12 +1,12 @@
 import {Component, ViewChild, ChangeDetectorRef} from '@angular/core';
 import {SupplierInvoiceStore} from './supplier-invoice-store';
-import {SupplierInvoice, StatusCodeSupplierInvoice} from '@uni-entities';
+import {SupplierInvoice, StatusCodeSupplierInvoice, UserDto} from '@uni-entities';
 import {ActivatedRoute, Router} from '@angular/router';
 import {Subject, of, Observable} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
 import {DetailsForm} from './components/details-form/details-form';
 import {IUniSaveAction} from '@uni-framework/save/save';
-import {SupplierInvoiceService, ErrorService, PaymentService} from '@app/services/services';
+import {SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService} from '@app/services/services';
 import { IStatus, STATUSTRACK_STATES } from '@app/components/common/toolbar/statustrack';
 import { IToolbarSubhead, IToolbarConfig, ICommentsConfig } from '@app/components/common/toolbar/toolbar';
 import {BillInitModal} from '../bill/bill-init-modal/bill-init-modal';
@@ -14,6 +14,9 @@ import * as moment from 'moment';
 import { UniModalService, ConfirmActions, IModalOptions} from '@uni-framework/uni-modal';
 import {BankIDPaymentModal} from '@app/components/common/modals/bankid-payment-modal/bankid-payment-modal';
 import {FeaturePermissionService} from '@app/featurePermissionService';
+import { AuthService } from '@app/authService';
+import { theme, THEMES } from 'src/themes/theme';
+import {ZDataPaymentService} from '@app/services/services';
 
 declare const ResizeObserver;
 
@@ -36,6 +39,7 @@ export class SupplierInvoiceView {
     subHeads: IToolbarSubhead[] = [];
     commentsConfig: ICommentsConfig;
     paymentStatusIndicator;
+    private user: UserDto;
 
     constructor(
         public store: SupplierInvoiceStore,
@@ -46,10 +50,17 @@ export class SupplierInvoiceView {
         private supplierInvoiceService: SupplierInvoiceService,
         private modalService: UniModalService,
         private paymentService: PaymentService,
-        private featurePermissionService: FeaturePermissionService
+        private featurePermissionService: FeaturePermissionService,
+        private authService: AuthService,
+        private paymentBatchService: PaymentBatchService,
+        private ZDataPaymentService: ZDataPaymentService,
     ) {
         this.store.changes$.subscribe((change) => this.updateSaveActions(change));
         this.store.invoice$.subscribe((invoice) => this.updateToolbar(invoice || {} ));
+
+        this.authService.authentication$.take(1).subscribe(auth => {
+            this.user = auth.user;
+        });
 
         this.activeRoute.paramMap.pipe(
             takeUntil(this.onDestroy$)
@@ -63,6 +74,7 @@ export class SupplierInvoiceView {
 
             const batchID = this.activeRoute.snapshot.queryParamMap.get('batchID');
             const hashValue = this.activeRoute.snapshot.queryParamMap.get('hashValue');
+            const verified = this.activeRoute.snapshot.queryParamMap.get('verified');
 
             if (batchID && hashValue) {
                 const options: IModalOptions = {
@@ -84,7 +96,13 @@ export class SupplierInvoiceView {
                 });
             }
 
-            if (!invoiceID) {
+            if (batchID && verified === 'true')
+            {
+                this.paymentBatchService.Get(batchID).subscribe(paymentBatch => {
+                    this.ZDataPaymentService.sendPaymentWithTwoFactor(paymentBatch).catch(() => {}).catch(() => {});
+                });
+            }
+            else if (!invoiceID) {
                 const fileID = +this.activeRoute.snapshot.queryParamMap.get('fileid');
                 if (fileID) {
                     this.store.startupFileID$.next(fileID);
@@ -197,7 +215,7 @@ export class SupplierInvoiceView {
                 disabled: !this.featurePermissionService.canShowUiFeature('ui.assigning')
                 || invoice?.StatusCode !== StatusCodeSupplierInvoice.ForApproval
             },
-            
+
             {
                 label: 'Bokfør og betal',
                 action: (done) => {
@@ -314,7 +332,7 @@ export class SupplierInvoiceView {
             this.toolbarconfig.contextmenu = [
                 {
                     label: 'Kjør fakturatolkning',
-                    action: () => { this.store.runOcr(true); }
+                    action: () => { this.store.runOcr(); }
                 },
                 {
                     label: 'Kjør smart bokføring',

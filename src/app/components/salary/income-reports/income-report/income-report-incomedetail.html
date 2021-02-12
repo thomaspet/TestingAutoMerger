@@ -1,0 +1,63 @@
+<section class="row form-row">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Arbeidsforhold</h1>
+            <p>{{arbeidsforholdText}}</p>
+            <p>Her oppgis den ansatte sin inntekt i perioden før fraværet oppsto. Dette skal som hovedregel beregnes ut fra
+            arbeidsinntekt i 3 måneder før fraværet oppsto, og det skal oppgis som månedsbeløp. Trykk på Kalkuler for å at systemet
+            skal hjelpe deg å beregne dette beløpet. Merk at dette er bare et verktøy for å hjelpe og det kan være at dette beløpet
+            må beregnes manuelt. Det er også mulig å skrive arbeidsinntekten direkte i feltet uten å bruke hjelpefunksjonen under
+            kalkuler. <a href="https://www.nav.no/no/bedrift/oppfolging/sykmeldt-arbeidstaker/sykepenger/beregningsregler-for-sykepenger-fra-2019" target="_blank">Her finnes NAV sin forklaring på hvordan beregne grunnlaget</a></p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <section class="income-report-uni-field-alignment">
+                    <span>Har arbeidstaker flere arbeidsforhold i denne virksomheten?</span>
+                    <mat-radio-group [disabled]="readOnly" class="horizontal" [(ngModel)]="hasMultipleEmployment"
+                        (change)="multipleEmploymentChange($event)" style="margin: 1rem 0"
+                        aria-label="Har arbeidstaker flere arbeidsforhold i denne virksomheten?">
+                        <mat-radio-button [value]="true">Ja</mat-radio-button>
+                        <mat-radio-button [value]="false">Nei</mat-radio-button>
+                    </mat-radio-group>
+
+                    <p *ngIf="isForeldrepenger && hasMultipleEmployment">
+                        Hvis arbeidstakeren har flere arbeidsforhold i virksomheten, skal det sendes kun én inntektsmelding med opplysninger om
+                        det totale arbeidet som arbeidstakeren utfører i virksomheten.
+                        Du må derfor slå sammen opplysningene fra alle arbeidsforholdene som arbeidstakeren har i virksomheten når du fyller ut
+                        inntektsmeldingen.
+                    </p>
+                </section>
+                <uni-form [config]="{ showLabelAbove: true}" [model]="incomereport"
+                    [fields]="fieldsInntekstmeldingBasis$" (changeEvent)="onChangeEvent($event)"></uni-form>
+
+                <section class="income-report-uni-field-alignment">
+                    <section class="income-report alert info">
+                        <i class="material-icons-outlined vertical-middle" title="Trykk på Kalkuler for at systemet skal hjelpe deg å beregne månedslønn">help</i><span>Usikker på beløp?</span>
+                        <button class="calculate-income-button" (click)="this.OpenMonthlyPayModal()" [disabled]="readOnly">Kalkuler</button>
+                    </section>
+                </section>
+
+                <section *ngIf="hasMultipleEmployment && checkIkkeFravaer" class="income-report-uni-field-alignment">
+                    <span>Er det fravær i dette arbeidsforholdet?</span>
+                    <mat-radio-group [disabled]="readOnly" class="horizontal"
+                        [(ngModel)]="this.incomereport['Report'].Skjemainnhold.sykepengerIArbeidsgiverperioden.begrunnelseForReduksjonEllerIkkeUtbetalt"
+                        (change)="IkkeFravaerChange($event)"
+                        aria-label="Er det fravær i dette arbeidsforholdet?">
+                        <mat-radio-button [value]="''">Ja</mat-radio-button>
+                        <mat-radio-button [value]="'IkkeFravaer'">Nei</mat-radio-button>
+                    </mat-radio-group>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>
+
+<income-report-arbeidsgiverperiode [readOnly]="readOnly" [incomereport]="incomereport"></income-report-arbeidsgiverperiode>
+<income-report-refusjon [readOnly]="readOnly" [incomereport]="incomereport"></income-report-refusjon>
+<income-report-pleiepenger [readOnly]="readOnly" [incomereport]="incomereport"></income-report-pleiepenger>
+<income-report-omsorgspenger [readOnly]="readOnly" [incomereport]="incomereport"></income-report-omsorgspenger>
+<income-report-ferie [readOnly]="readOnly" [incomereport]="incomereport"></income-report-ferie>
+<income-report-naturalytelser [readOnly]="readOnly" [incomereport]="incomereport"></income-report-naturalytelser>

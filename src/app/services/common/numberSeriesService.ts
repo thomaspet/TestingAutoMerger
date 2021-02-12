@@ -77,11 +77,11 @@ export class NumberSeriesService extends BizHttp<NumberSeries> {
         this.DefaultOrderBy = null;
     }
 
-    public getNumberSeriesList() {
+    public getNumberSeriesList(filter: string = null) {
         return this.http
             .asGET()
             .usingBusinessDomain()
-            .withEndPoint('number-series?hateoas=false&orderby=AccountYear desc,NumberSeriesTaskID,FromNumber&expand=NumberSeriesType,NumberSeriesTask,MainAccount')
+            .withEndPoint(`number-series?hateoas=false&orderby=AccountYear desc,NumberSeriesTaskID,FromNumber&expand=NumberSeriesType,NumberSeriesTask,MainAccount${filter ? '&filter=' + filter : ''}`)
             .send().map(response => response.body);
     }
 

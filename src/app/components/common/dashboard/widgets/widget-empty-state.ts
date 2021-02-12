@@ -22,6 +22,6 @@ export class WidgetEmptyState {
     @Input() imageUrl: string;
     @Input() hideImage: boolean;
 
-    defaultImageUrl = theme.widgets?.empty_state_illustration || 'themes/empty_state.svg';
+    defaultImageUrl = theme.widgets?.empty_state_illustration || 'config/dist/theme/assets/empty_state.svg';
     imageLoaded = false;
 }

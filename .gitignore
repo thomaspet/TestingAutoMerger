@@ -271,3 +271,4 @@ src/app/AppConfig.ts
 # Files that are generated on build
 src/environments/metadata.ts
 src/environments/raygun.ts
+src/config/dist/

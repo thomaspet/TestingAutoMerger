@@ -144,7 +144,6 @@ export class ImportVoucherModal implements OnInit, IUniModal {
 
             switch (type) {
                 case 'txt':
-                    this.isVatEnabled = false;
                     this.fileType = ImportFileType.StandardUniFormat;
                     this.selectedFormat = this.dateformats[0];
                     break;
@@ -276,7 +275,7 @@ export class ImportVoucherModal implements OnInit, IUniModal {
             displayInHeader: false
         };
         this.toastService.addToast('', ToastType.info, ToastTime.medium,
-        `Filen er lastet opp, vennlist sjekk loggen for resultat.`, action);
+            `Filen er lastet opp, vennlist sjekk loggen for resultat.`, action);
     }
 
     public close() {

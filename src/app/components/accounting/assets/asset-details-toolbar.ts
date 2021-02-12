@@ -1,4 +1,4 @@
-import {Component, ErrorHandler} from '@angular/core';
+import {Component} from '@angular/core';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AssetsActions} from '@app/components/accounting/assets/assets.actions';
 import {IUniSaveAction} from '@uni-framework/save/save';
@@ -9,6 +9,7 @@ import {Subject} from 'rxjs';
 import {Router} from '@angular/router';
 import {Asset, AssetStatusCode} from '@uni-entities';
 import {STATUSTRACK_STATES} from '@app/components/common/toolbar/statustrack';
+import {ErrorService} from '@app/services/services';
 
 @Component({
     selector: 'asset-details-toolbar',
@@ -31,7 +32,7 @@ export class AssetDetailsToolbar {
         private assetsActions: AssetsActions,
         private assetsStore: AssetsStore,
         private router: Router,
-        private errorHandler: ErrorHandler
+        private errorService: ErrorService,
     ) {}
 
     ngOnInit() {
@@ -141,7 +142,7 @@ export class AssetDetailsToolbar {
                 this.assetsStore.currentAsset = asset;
                 this.router.navigateByUrl(`/accounting/assets/${asset.ID}`);
             }, (error) => {
-                this.errorHandler.handleError(error);
+                this.errorService.handle(error);
                 done()
 
             }),

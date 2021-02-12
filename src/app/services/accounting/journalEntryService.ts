@@ -119,7 +119,7 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .map(res => res.body);
     }
 
-    public getAccountsFromSuggeestions(accountNumberStart) {
+    public getAccountsFromSuggeestions(accountNumberStart, mapTopLevelAccountGroup: boolean = true) {
         return this.http
             .asGET()
             .usingStatisticsDomain()
@@ -131,6 +131,11 @@ export class JournalEntryService extends BizHttp<JournalEntry> {
             .send()
             .map(res => {
                 const accounts = res.body;
+
+                if (!mapTopLevelAccountGroup) {
+                    return accounts;
+                }
+                
                 return accounts.map(acc => {
                     const account: Account = Object.assign(<Account> {}, acc);
                     account.TopLevelAccountGroup = <AccountGroup> {};

@@ -114,4 +114,8 @@ export class CompanyService extends BizHttp<Company> {
     updateCompanyLicense(companyID: number, body) {
         return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/companylicenses/${companyID}`, body).pipe(map(res => res[0]));
     }
+
+    moveCompanyLicense(companyID: number, customerID: number, contractID: number) {
+        return this.commonHttp.put(this.ELSA_SERVER_URL + `/api/companylicenses/${companyID}/move-to-customer/${customerID}/${contractID}`, null);
+    }
 }

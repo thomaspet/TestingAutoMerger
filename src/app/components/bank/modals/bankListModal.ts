@@ -13,6 +13,7 @@ import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastS
 import {FileService, ErrorService} from '@app/services/services';
 import {saveAs} from 'file-saver';
 import { BankIntegrationAgreement } from '@uni-entities';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
 
 @Component({
     selector: 'uni-autobank-agreement-list-modal',
@@ -39,6 +40,7 @@ export class UniBankListModal implements IUniModal, OnInit {
     displayInfo: boolean;
     busy: boolean = false;
     showInputField: boolean = false;
+    serviceProvider: BankAgreementServiceProvider;
     infoTextForNewServiceID: string = 'OBS! ServiceID skal kun endres etter avtale med Z-data. ' +
     'Du må skrive inn passord for autobank for å lagre.';
 
@@ -62,6 +64,9 @@ export class UniBankListModal implements IUniModal, OnInit {
         this.bankAgreements = this.options.list;
         this.currentAgreement = {...this.bankAgreements[0]};
         this.loadedAgreement = {...this.bankAgreements[0]};
+        this.bankService.getDefaultServiceProvider().subscribe(serviceProvider => {
+            this.serviceProvider = serviceProvider;
+        });
     }
 
     public onBankSelected(event: BankIntegrationAgreement) {

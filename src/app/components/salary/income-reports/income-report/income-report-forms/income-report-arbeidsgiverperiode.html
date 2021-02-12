@@ -1,0 +1,39 @@
+<section class="row form-row" *ngIf="incomereport && incomereport['Report']?.Skjemainnhold?.sykepengerIArbeidsgiverperioden && isSykemelding">
+    <section class="col-md-4">
+        <section class="form-info-section">
+            <h1>Sykepenger i arbeidsgiverperioden</h1>
+            <p>Legg inn arbeidsgiverperioden for fraværet, totalt 16 kalenderdager. Dette kan bestå av mange fravær der perioden mellom
+            fraværene ikke overstiger 16 dager og siste periode er mindre enn 16 dager før sykefraværet som overstiger
+            arbeidsgiverperioden. Merk at det for enkeltstående behandlingsdager kun er 12 dager i arbeidsgiverperioden.
+
+            Systemet foreslår et beløp i utbetalt i arbeidsgiverperioden basert på beregnet månedslønn. Er det ikke ubetalt
+            sykepenger i arbeidsgiverperioden må dette endres til kr 0,- og det må også oppgis en begrunnelse. Det er kun
+            begrunnelsene i listen som er godkjent for innsending til NAV.</p>
+        </section>
+    </section>
+
+    <section class="col-md-8">
+        <section class="uni-card">
+            <section class="uni-card-content">
+                <section class="date-picker">
+                    <uni-income-report-date-period-picker
+                        [validationDays]="{
+                            maxDaysPeriods: 16,
+                            maxDaysWithSingleDayPeriod: 12,
+                            maxDaysBetweenPeriods: 16
+                        }"
+                        [readOnly]="readOnly"
+                        (periodsChange)="onPeriodsChange($event)"
+                        [periods]="incomereport['Report']?.Skjemainnhold?.sykepengerIArbeidsgiverperioden?.arbeidsgiverperiodeListe">
+                    </uni-income-report-date-period-picker>
+                </section>
+                <uni-form
+                    [config]="{autofocus: true, showLabelAbove: true}"
+                    [model]="incomereport"
+                    [fields]="fieldsSykepenger$"
+                    (changeEvent)="onChangeEvent($event)">
+                </uni-form>
+            </section>
+        </section>
+    </section>
+</section>

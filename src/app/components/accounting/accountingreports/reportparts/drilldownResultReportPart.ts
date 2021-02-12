@@ -25,7 +25,9 @@ interface IReportRow {
     SubGroupName: string;
     BudgetSum: number;
     Sum: number;
+    SumPeriod: number;
     SumLastYear: number;
+    SumPeriodLastYear: number;
 }
 
 export class ResultSummaryData {
@@ -264,8 +266,8 @@ export class DrilldownResultReportPart implements OnChanges {
 
     private toSummaryData(row: IReportRow, level = 0, presign = 1): ResultSummaryData {
         const ret = new ResultSummaryData();
-        ret.amountPeriod1 = row.Sum * presign;
-        ret.amountPeriod2 = row.SumLastYear * presign;
+        ret.amountPeriod1 = row.SumPeriod * presign;
+        ret.amountPeriod2 = row.SumPeriodLastYear * presign;
         ret.budget = row.BudgetSum * presign;
         ret.isAccount = true;
         ret.name = row.AccountName;
@@ -320,8 +322,8 @@ export class DrilldownResultReportPart implements OnChanges {
                     } else {
                         sumrow.children = [];
                     }
-                    sumrow.amountPeriod1 = (sumrow.amountPeriod1 || 0) + (row.Sum * presign);
-                    sumrow.amountPeriod2 = (sumrow.amountPeriod2 || 0) + (row.SumLastYear * presign);
+                    sumrow.amountPeriod1 = (sumrow.amountPeriod1 || 0) + (row.SumPeriod * presign);
+                    sumrow.amountPeriod2 = (sumrow.amountPeriod2 || 0) + (row.SumPeriodLastYear * presign);
                     sumrow.budget = (sumrow.budget || 0) + (row.BudgetSum * presign);
                     sumrow.level = 0;
                     sumrow.isAccount = false;

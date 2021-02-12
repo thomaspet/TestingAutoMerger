@@ -1,5 +1,7 @@
 import {Pipe, PipeTransform} from '@angular/core';
-import {ErrorService, NumberFormat, CompanySettingsService} from '@app/services/services';
+import {ErrorService} from '@app/services/common/errorService';
+import {NumberFormat} from '@app/services/common/numberFormatService';
+import {CompanySettingsService} from '@app/services/common/companySettingsService';
 import {CompanySettings} from '@uni-entities';
 import {AuthService} from '@app/authService';
 

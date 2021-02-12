@@ -15,7 +15,7 @@ import * as printJS from 'print-js';
 import {File} from '../../app/unientities';
 import {UniHttp} from '../core/http/http';
 import {AuthService} from '../../app/authService';
-import {Observable, Subject, of as observableOf, forkJoin} from 'rxjs';
+import {Observable, Subject, of as observableOf, forkJoin, fromEvent} from 'rxjs';
 import {catchError, map} from 'rxjs/operators';
 import {environment} from 'src/environments/environment';
 import {ErrorService, FileService, UniFilesService} from '../../app/services/services';
@@ -333,7 +333,7 @@ export class UniImage {
 
     public onClick() {
         if (!this.keyListener || this.keyListener.closed) {
-            this.keyListener = Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
+            this.keyListener = fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
                 const key = event.which || event.keyCode;
                 if (key === 37) {
                     this.previous();
@@ -652,6 +652,7 @@ export class UniImage {
                     newFile => {
                         this.files.push(newFile);
                         this.fileIDs.push(newFile.ID);
+                        this.refreshFiles();
                         this.setFileViewerData(this.files);
 
                         this.checkFileStatusAndLoadImage(newFile);

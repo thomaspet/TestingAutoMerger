@@ -13,6 +13,9 @@ import {
     Payment,
     File,
     InvoicePaymentData,
+    StatusCodeBankIntegrationAgreement,
+    PreApprovedBankPayments,
+    PaymentBatch,
 } from '@uni-entities';
 import {
     SupplierInvoiceService,
@@ -28,18 +31,18 @@ import {
     BankService,
     CurrencyCodeService,
     PaymentMode,
-    StatisticsService, AccountService, AssetsService
+    StatisticsService, AccountService, AssetsService, PaymentBatchService
 } from '@app/services/services';
 import {BehaviorSubject, of, forkJoin, Observable, throwError} from 'rxjs';
 import {switchMap, catchError, map, tap, finalize} from 'rxjs/operators';
 import {SmartBookingHelperClass, ISmartBookingResult} from './smart-booking-helper';
 import {OCRHelperClass} from './ocr-helper';
-import {JournalAndPaymentHelper, ActionOnReload} from './journal-and-pay-helper';
+import {JournalAndPaymentHelper, ActionOnReload, ActionContinueWithTwoFactor} from './journal-and-pay-helper';
 import {ToPaymentModal} from './modals/to-payment-modal/to-payment-modal';
 import {set} from 'lodash';
 
 import * as moment from 'moment';
-import {ToastService, ToastType} from '@uni-framework/uniToast/toastService';
+import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import * as _ from 'lodash';
 import {
     IModalOptions,
@@ -54,6 +57,8 @@ import { BillAssignmentModal } from '../bill/assignment-modal/assignment-modal';
 import { roundTo } from '@app/components/common/utils/utils';
 import { DoneRedirectModal } from '../bill/expense/done-redirect-modal/done-redirect-modal';
 import {theme, THEMES} from 'src/themes/theme';
+import { BankAgreementServiceProvider } from '@app/models/autobank-models';
+import { ZDataPaymentService } from '@app/services/services';
 
 @Injectable()
 export class SupplierInvoiceStore {
@@ -70,6 +75,7 @@ export class SupplierInvoiceStore {
     smartBookingResult: ISmartBookingResult = {};
     invoicePayments: Array<Payment> = [];
     initDataLoaded$: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    supportsBankIDApprove: boolean;
 
     vatTypes = [];
     currencyCodes = [];
@@ -101,7 +107,9 @@ export class SupplierInvoiceStore {
         private currencyCodeService: CurrencyCodeService,
         private statisticsService: StatisticsService,
         private accountService: AccountService,
-        private assetsService: AssetsService
+        private assetsService: AssetsService,
+        private paymentBatchService: PaymentBatchService,
+        private ZDataPaymentService: ZDataPaymentService,
     ) {}
 
     init(invoiceID: number, currentMode: number = 0) {
@@ -112,12 +120,19 @@ export class SupplierInvoiceStore {
             [this.companySettingsService.Get(1, []),
             this.vatTypeService.GetAll(),
             this.currencyCodeService.GetAll(),
-            this.getSystemBankAccounts()]
-        ).subscribe(([companySettings, types, codes, accounts]) => {
+            this.getSystemBankAccounts(),
+            this.paymentBatchService.checkAutoBankAgreement()]
+        ).subscribe(([companySettings, types, codes, accounts, agreements]) => {
             this.companySettings = companySettings;
             this.vatTypes = types;
             this.currencyCodes = codes;
             this.bankAccounts = accounts;
+            this.supportsBankIDApprove = !!agreements?.some(a =>
+                a.StatusCode === StatusCodeBankIntegrationAgreement.Active &&
+                a.PreApprovedBankPayments === PreApprovedBankPayments.Active &&
+                a.ServiceProvider === BankAgreementServiceProvider.Bruno
+            );
+
 
             const defaultAccount = accounts.find(a => a.ID === this.companySettings.CompanyBankAccountID);
             this.selectedBankAccount = defaultAccount || accounts[0];
@@ -149,7 +164,11 @@ export class SupplierInvoiceStore {
                 }
 
                 return Observable.forkJoin(obs).pipe(map(res => {
-                    this.invoicePayments = res[0].concat(res[1]);
+                    let bankPayments = res[0];
+                    let registeredPayments = res[1];
+                    this.invoicePayments = bankPayments.concat(registeredPayments).filter(
+                        payment => !bankPayments.some(bankpayment => bankpayment.ID === payment.PaymentID)
+                    );
                     invoice.JournalEntry = res[2];
                     return invoice;
                 }));
@@ -267,7 +286,7 @@ export class SupplierInvoiceStore {
         }
     }
 
-    runOcr(force: boolean = false) {
+    runOcr() {
         const invoice = this.invoice$.value;
 
         const run = () => {
@@ -295,29 +314,9 @@ export class SupplierInvoiceStore {
         if (this.selectedFile && invoice && !invoice?.SupplierID) {
             if (this.companySettings.UseOcrInterpretation) {
                 run();
-            } else if (this.companySettings.UseOcrInterpretation === undefined || this.companySettings.UseOcrInterpretation === null) {
-                this.ocrHelper.getOCRCount().subscribe((res) => {
-                    if (res?.CountOcrDataUsed <= 10) {
-                        run();
-                    } else {
-                        this.companySettingsService.PostAction(1, 'ocr-trial-used').subscribe(success => {
-                            this.companySettings.UseOcrInterpretation = false;
-
-                            this.modalService.open(UniConfirmModalV2, {
-                                header: 'Fakturatolkning er ikke aktivert',
-                                message: 'Du har nå fått prøve vår tjeneste for å tolke fakturaer maskinelt'
-                                + ' 10 ganger gratis. For å bruke tjenesten'
-                                + ' videre må du aktivere Fakturatolk under regnskapsinnstillinger.',
-                                buttonLabels: {
-                                    accept: 'OK',
-                                }
-                            });
-                        }, err => this.errorService.handle(err));
-                    }
-                });
-            } else if (force) {
+            } else {
                 this.modalService.open(UniConfirmModalV2, {
-                    header: 'Fakturatolkning er deaktivert',
+                    header: 'Fakturatolkning er ikke aktivert',
                     message: 'Vennligst aktiver fakturatolkning under firmainnstillinger i menyen for å benytte tolking av fakturaer',
                     buttonLabels: {
                         accept: 'OK'
@@ -685,26 +684,41 @@ export class SupplierInvoiceStore {
                 supplierInvoice: invoice,
                 onlyToPayment: isOnlyPayment,
                 accounts: this.bankAccounts,
-                payment: paymentData
+                payment: paymentData,
+                supportsBankIDApprove: this.supportsBankIDApprove
             }
         };
 
-        this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload) => {
+        this.modalService.open(ToPaymentModal, options).onClose.subscribe((response: ActionOnReload | ActionContinueWithTwoFactor) => {
             if (!response) {
                 done('');
                 return;
             }
 
-            if (response <= ActionOnReload.SentToPaymentList) {
+            if (response instanceof ActionContinueWithTwoFactor) {
+                this.createPaymentAndPayWithTwoFactor(response.paymentBatch, done);
+            }
+            else if (response <= ActionOnReload.SentToPaymentList) {
                 this.loadInvoice(this.invoice$.value.ID, true, response);
                 done('Faktura sendt til betaling');
             } else if (response >= ActionOnReload.FailedToSendToBank) {
                 this.loadInvoice(this.invoice$.value.ID, true);
-                done('Faktura ble bokført med kunne ikke sende til betaling');
+                done('Faktura ble bokført men kunne ikke sende til betaling');
             } else {
                 done('Betaling avbrutt');
             }
         });
+    }
+
+    createPaymentAndPayWithTwoFactor(paymentBatch: PaymentBatch, done) {
+        this.ZDataPaymentService.redirectIfNotVerifiedWithBankId(`batchID=${paymentBatch.ID}`).then(() => {
+            this.ZDataPaymentService.sendPaymentWithTwoFactor(paymentBatch)
+                .then((ok) => {
+                    this.loadInvoice(this.invoice$.value.ID, true, ActionOnReload.SentToBank);
+                    done('Faktura sendt til betaling');
+                })
+                .catch((action) => done('Betaling avbrutt'));
+        }).catch(() => done('BankID verfisering feilet'));
     }
 
     showSavedJournalToast(response: Array<{ JournalEntryNumber: string }>, withPayment = false) {

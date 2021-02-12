@@ -1,19 +1,17 @@
 import {Component, Input, Output, EventEmitter} from '@angular/core';
-import {ActivatedRoute, Router} from '@angular/router';
 import {IModalOptions, IUniModal} from '@uni-framework/uni-modal/interfaces';
-import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine } from '@uni-entities';
-import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService } from '@app/services/services';
-import {ActionOnReload} from '../../journal-and-pay-helper';
+import { SupplierInvoice, Payment, InvoicePaymentData, JournalEntryLine, StatusCodeBankIntegrationAgreement, PreApprovedBankPayments, PaymentBatch } from '@uni-entities';
+import { SupplierInvoiceService, ErrorService, PaymentService, PaymentBatchService, UserRoleService, UserService } from '@app/services/services';
+import { ActionContinueWithTwoFactor, ActionOnReload } from '../../journal-and-pay-helper';
 import { of, Observable, BehaviorSubject } from 'rxjs';
 import { RequestMethod } from '@uni-framework/core/http';
-import { UniFieldLayout } from '@uni-framework/ui/uniform/interfaces';
 import { FieldType } from '@uni-framework/ui/uniform';
-import * as moment from 'moment';
 import {theme, THEMES} from 'src/themes/theme';
 import {environment} from 'src/environments/environment';
 import { AuthService } from '@app/authService';
 import {UniAccountNumberPipe} from '@uni-framework/pipes/uniAccountNumberPipe';
 import {UniAccountTypePipe} from '@uni-framework/pipes/uniAccountTypePipe';
+import { BankAgreementServiceProvider } from '@uni-models/autobank-models';
 
 @Component({
     selector: 'to-payment-modal',
@@ -43,6 +41,8 @@ export class ToPaymentModal implements IUniModal {
         vat: 0,
         sum: 0
     };
+    useTwoFactor = false;
+    isZDataV3 = false;
 
     supportsBankIDApprove: boolean = false;
 
@@ -53,11 +53,10 @@ export class ToPaymentModal implements IUniModal {
         private errorSerivce: ErrorService,
         private paymentService: PaymentService,
         private paymentBatchService: PaymentBatchService,
-        private route: ActivatedRoute,
-        private router: Router,
         private authService: AuthService,
         private uniAccountNumberPipe: UniAccountNumberPipe,
         private uniAccountTypePipe: UniAccountTypePipe,
+        private userRoleService: UserRoleService,
     ) {}
 
     ngOnInit() {
@@ -72,12 +71,6 @@ export class ToPaymentModal implements IUniModal {
         this.supportsBankIDApprove = this.options?.data?.supportsBankIDApprove;
 
         this.supplierInvoice['_mainAccount'] = this.supplierInvoice['_mainAccount'] || this.accounts[0];
-
-        // Checks if the current company is whitelisted for preapproved payments
-        this.supportsBankIDApprove = this.paymentService.whitelistedCompanyKeys.includes(this.authService.getCompanyKey())
-        
-
-        this.VALUE_ITEMS = this.getValueItems();
 
         this.paymentBatchService.checkAutoBankAgreement().subscribe(agreements => {
             this.supplierInvoice?.JournalEntry?.DraftLines.filter(line => line.AmountCurrency > 0).forEach(line => {
@@ -96,13 +89,34 @@ export class ToPaymentModal implements IUniModal {
                 this.total.net += net;
             }
 
-            if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 || theme.theme !== THEMES.EXT02) {
+            this.useTwoFactor = agreements.some(a =>
+                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
+                a.StatusCode === StatusCodeBankIntegrationAgreement.Active && a.PreApprovedBankPayments === PreApprovedBankPayments.Active
+            );
+
+            this.isZDataV3 = agreements.some(a =>
+                a.ServiceProvider === BankAgreementServiceProvider.ZdataV3 &&
+                a.StatusCode === StatusCodeBankIntegrationAgreement.Active
+            );
+
+            this.VALUE_ITEMS = this.getValueItems();
+            this.userRoleService.GetAll(`filter=userid eq ${this.authService.currentUser.ID}`).subscribe(roles => {
+                let hasBankPaymentRole = roles.some(r => r.SharedRoleName === 'Bank.Payment');
+                if (!agreements?.length || agreements.filter(a => a.StatusCode === 700005).length === 0 ||
+                (!hasBankPaymentRole && theme.theme !== THEMES.EXT02) || (!this.isZDataV3 && theme.theme !== THEMES.EXT02)) {
+                    this.VALUE_ITEMS[0].disabled = true;
+                    this.valueItemSelected(this.VALUE_ITEMS[1]);
+                }
+                this.busy = false;
+
+            }, err => {
                 this.VALUE_ITEMS[0].disabled = true;
                 this.valueItemSelected(this.VALUE_ITEMS[1]);
-            } 
-
-            this.busy = false;
+                this.busy = false;
+                this.errorSerivce.handle(err);
+            });
         }, err => {
+            this.VALUE_ITEMS = this.getValueItems();
             this.VALUE_ITEMS[0].disabled = true;
             this.valueItemSelected(this.VALUE_ITEMS[1]);
             this.busy = false;
@@ -168,7 +182,7 @@ export class ToPaymentModal implements IUniModal {
 
             if (this.supportsBankIDApprove) {
                 this.MD5Hash = this.generateHash();
-    
+
                 // Creates a payment for the supplier invoice
                 this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment, this.MD5Hash).subscribe(payment => {
                     // Send that batch to the bank directly
@@ -188,11 +202,19 @@ export class ToPaymentModal implements IUniModal {
                     this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
                     this.errorSerivce.handle(err);
                 });
-            } else {
+            }
+            else {
                 // Creates a payment for the supplier invoice
                 this.supplierInvoiceService.sendForPaymentWithData(this.supplierInvoice.ID, this.payment).subscribe(payment => {
-                    // Send that batch to the bank directly
-                    this.sendAutobankPayment(payment);
+                    if (this.isZDataV3 && this.useTwoFactor) {
+                        this.paymentService.createPaymentBatch([payment.ID], false).subscribe((paymentBatch) => {
+                            this.onClose.emit(new ActionContinueWithTwoFactor(paymentBatch));
+                        });
+                    }
+                    else
+                    {
+                        this.sendAutobankPayment(payment);
+                    }
                 }, err => {
                     this.busy = false;
                     this.errorMessage = 'Noe gikk galt ved oppretting av betaling';
@@ -228,11 +250,12 @@ export class ToPaymentModal implements IUniModal {
     }
 
     private getValueItems() {
+        const approveInBank = this.isZDataV3 && this.useTwoFactor ? '': ' Du må logge deg på nettbanken din for å godkjenne utbetalingen.';
         const items = [
             {
                 selected: true,
                 label: this.isPaymentOnly ? 'Send betalingen til banken nå' : 'Send regning til banken nå',
-                infoText: (this.isPaymentOnly ? 'Betalingen' : 'Regningen') + ' vil bli sendt til banken. Du må logge deg på nettbanken din for å godkjenne utbetalingen',
+                infoText: (this.isPaymentOnly ? 'Betalingen' : 'Regningen') + ' vil bli sendt til banken.' + approveInBank,
                 value: 1,
                 disabled: false
             },
@@ -308,7 +331,7 @@ export class ToPaymentModal implements IUniModal {
             this.payment.AmountCurrency.toFixed(2) + ';' +
             this.payment.CurrencyCodeID.toString() + ';' +
             this.supplierInvoice.BankAccount.AccountNumber + ';' +
-            this.supplierInvoice.BankAccount.IBAN + '|';
+            (this.supplierInvoice.BankAccount.IBAN === null ? '' : this.supplierInvoice.BankAccount.IBAN) + '|';
         return this.supplierInvoiceService.MD5(string);
     }
 }

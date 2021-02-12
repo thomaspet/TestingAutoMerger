@@ -47,6 +47,7 @@ import {BrunoBankOnboardingModal} from './modals/bruno-bank-onboarding-modal/bru
 import {BrunoBankOffboardingModal} from './modals/bruno-bank-offboarding-modal/bruno-bank-offboarding-modal';
 import {PreapprovedPaymentsModal} from './modals/preapproved-payments-modal/preapproved-payments-modal';
 import {CommentModalComponent} from '@uni-framework/uni-modal/modals/comment-modal/comment-modal.component';
+import {ConfirmTwoFactorModal} from './modals/confirmTwofactor-modal/confirm-twofactor-modal';
 
 
 export * from './modalService';
@@ -97,6 +98,7 @@ export * from './modals/bruno-bank-onboarding-modal/bruno-bank-onboarding-modal'
 export * from './modals/give-support-access-modal/give-support-access-modal';
 export * from './modals/preapproved-payments-modal/preapproved-payments-modal';
 export * from './modals/comment-modal/comment-modal.component';
+export * from './modals/confirmTwofactor-modal/confirm-twofactor-modal';
 
 export const MODALS = [
     UniConfirmModalV2,
@@ -147,6 +149,7 @@ export const MODALS = [
     BrunoBankOnboardingModal,
     BrunoBankOffboardingModal,
     PreapprovedPaymentsModal,
-    CommentModalComponent
+    CommentModalComponent,
+    ConfirmTwoFactorModal,
 ];
 

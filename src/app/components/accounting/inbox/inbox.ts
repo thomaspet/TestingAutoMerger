@@ -109,7 +109,7 @@ export class UniInbox {
 
     registerBuy(item, event) {
         event.stopPropagation();
-        if (theme.theme === THEMES.UE || theme.theme === THEMES.SOFTRIG) {
+        if (theme.theme === THEMES.UE) {
             this.router.navigateByUrl(`/accounting/bills/0?fileid=${item.ID}`);
         } else {
             this.modalService.open(NewOutgoingWizardModal).onClose.subscribe((res) => {

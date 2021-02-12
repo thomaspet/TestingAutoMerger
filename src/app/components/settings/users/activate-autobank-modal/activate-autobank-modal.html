@@ -11,47 +11,51 @@
         </section>
 
         <form [formGroup]="autobankData">
-            <label class="uni-label label-left">
+            <label *ngIf="serviceProvider !== 4" class="uni-label label-left">
                 <span>Ditt autobank passord</span>
                 <input formControlName="AdminPassword" type="password" autocomplete="new-password" autofocus>
             </label>
 
-            <div class="reset-password-link" *ngIf="hasSentWrongPassword">
+            <div class="reset-password-link" *ngIf="hasSentWrongPassword || serviceProvider !== 4">
                 <a (click)="resetPassword()">Nullstill passord</a>
             </div>
 
             <fieldset>
-                <legend>Brukerinfo</legend>
-                <small>
-                    For å registrere bankbruker trenger vi et passord å knytte til brukeren.
-                    Brukeren kan selv endre dette senere via brukerinnstillingene oppe til høyre
-                    i applikasjonen.
-                    <br><br>
-                    Det jobbes med en bedre flyt, der brukeren fyller ut registreringsinfo selv.
-                    Dette vil være tilgjengelig om kort tid.
-                    <br><br>
-                    Passordet må være minst 10 tegn og inneholde en stor bokstav [A-Z], en liten bokstav [a-z], ett tall [0-9] og ett tegn
-                </small>
+                <section *ngIf="serviceProvider !== 4">
+                    <legend>Brukerinfo</legend>
+                    <small>
+                        For å registrere bankbruker trenger vi et passord å knytte til brukeren.
+                        Brukeren kan selv endre dette senere via brukerinnstillingene oppe til høyre
+                        i applikasjonen.
+                        <br><br>
+                        Det jobbes med en bedre flyt, der brukeren fyller ut registreringsinfo selv.
+                        Dette vil være tilgjengelig om kort tid.
+                        <br><br>
+                        Passordet må være minst 10 tegn og inneholde en stor bokstav [A-Z], en liten bokstav [a-z], ett tall [0-9] og ett tegn
+                    </small>
 
-                <label class="uni-label label-left">
-                    <span>Passord</span>
-                    <input formControlName="Password" type="password" autocomplete="new-password">
-                </label>
+                    <label class="uni-label label-left">
+                        <span>Passord</span>
+                        <input formControlName="Password" type="password" autocomplete="new-password">
+                    </label>
 
-                <label class="uni-label label-left">
-                    <span>Bekreft passord</span>
-                    <input formControlName="ConfirmPassword" type="password" autocomplete="new-password">
-                </label>
+                    <label class="uni-label label-left">
+                        <span>Bekreft passord</span>
+                        <input formControlName="ConfirmPassword" type="password" autocomplete="new-password">
+                    </label>
+                </section>
 
-                <label class="uni-label label-left">
-                    <span>Telefon</span>
-                    <input formControlName="Phone" type="tel">
-                </label>
+                <section>
+                    <label class="uni-label label-left">
+                        <span>Telefon</span>
+                        <input formControlName="Phone" type="tel">
+                    </label>
 
-                <label class="uni-label label-left">
-                    <span>Autobank administrator</span>
-                    <mat-checkbox formControlName="IsAdmin"></mat-checkbox>
-                </label>
+                    <label class="uni-label label-left">
+                        <span>Autobank administrator</span>
+                        <mat-checkbox formControlName="IsAdmin"></mat-checkbox>
+                    </label>
+                </section>
             </fieldset>
         </form>
     </article>

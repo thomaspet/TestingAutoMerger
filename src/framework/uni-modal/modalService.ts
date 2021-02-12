@@ -27,7 +27,7 @@ export class UniModalService {
     ) {
         this.createContainer();
 
-        Observable.fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
+        fromEvent(document, 'keydown').subscribe((event: KeyboardEvent) => {
             const key = event.which || event.keyCode;
             if (this.openModalRefs.length && key === 27) {
                 const activeModal = this.openModalRefs[this.openModalRefs.length - 1];

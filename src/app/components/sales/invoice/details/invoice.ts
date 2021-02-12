@@ -148,7 +148,6 @@ export class InvoiceDetails implements OnInit {
     private currentCustomer: Customer;
     currentUser: User;
     selectConfig: any;
-    canSendEHF: boolean = false;
     customerDistributions: any;
 
     sellers: Seller[];
@@ -163,7 +162,16 @@ export class InvoiceDetails implements OnInit {
     validEHFFileTypes: string[] = ['.csv', '.pdf', '.png', '.jpg', '.xlsx', '.ods'];
 
     private customerExpands: string[] = [
-        'DeliveryTerms',
+        'Info',
+        'Info.Addresses',
+        'Info.DefaultContact.Info',
+        'Info.Emails',
+        'Info.Phones',
+        'Info.DefaultEmail',
+        'Info.DefaultPhone',
+        'Info.InvoiceAddress',
+        'Info.ShippingAddress',
+        'Info.Contacts.Info',
         'Dimensions',
         'Dimensions.Project',
         'Dimensions.Department',
@@ -173,24 +181,15 @@ export class InvoiceDetails implements OnInit {
         'Dimensions.Dimension8',
         'Dimensions.Dimension9',
         'Dimensions.Dimension10',
-        'Info',
-        'Info.Addresses',
-        'Info.DefaultContact.Info',
-        'Info.Emails',
-        'Info.DefaultEmail',
-        'Info.Contacts.Info',
-        'Info.DefaultPhone',
-        'Info.Phones',
-        'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
-        'Distributions'
+        'DefaultSeller.Seller',
+        'Distributions',
+        'DeliveryTerms',
+        'PaymentTerms',
     ];
 
     private invoiceExpands: Array<string> = [
-        'Customer',
-        'Customer.Info.Contacts.Info',
         'DefaultDimensions',
         'DefaultDimensions.Project',
         'DefaultDimensions.Department',
@@ -201,12 +200,12 @@ export class InvoiceDetails implements OnInit {
         'DefaultDimensions.Dimension9',
         'DefaultDimensions.Dimension10',
         'DeliveryTerms',
-        'InvoiceReference',
-        'JournalEntry',
         'PaymentTerms',
         'Sellers',
         'Sellers.Seller',
-        'DefaultSeller',
+        'DefaultSeller.Seller',
+        'JournalEntry',
+        'InvoiceReference',
         'CustomerInvoiceReminders'
     ];
 
@@ -320,12 +319,6 @@ export class InvoiceDetails implements OnInit {
                     }
                     this.companySettings = res[3];
 
-                    this.canSendEHF = this.companySettings.APActivated
-                        && this.companySettings.APOutgoing
-                        && this.companySettings.APOutgoing.some(format => {
-                            return format.Name === 'EHF INVOICE 2.0';
-                        });
-
                     this.currencyCodes = res[4];
                     if (res[5]) {
                         invoice.DefaultDimensions = invoice.DefaultDimensions || new Dimensions();
@@ -419,12 +412,6 @@ export class InvoiceDetails implements OnInit {
                         invoice.CurrencyExchangeRate = 1;
                     }
 
-                    this.canSendEHF = this.companySettings.APActivated
-                        && this.companySettings.APOutgoing
-                        && this.companySettings.APOutgoing.some(format => {
-                            return format.Name === 'EHF INVOICE 2.0';
-                        });
-
                     this.currencyCodeID = invoice.CurrencyCodeID;
                     this.currencyExchangeRate = invoice.CurrencyExchangeRate;
 
@@ -456,9 +443,8 @@ export class InvoiceDetails implements OnInit {
                         this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID);
                     }
 
-                    // If the user has activated EHF, and entering an invoice in draft state,
-                    // check if the invoice has files with unsupported formats
-                    if (this.canSendEHF && invoice.StatusCode === 42001) {
+                    // If the user is entering an invoice in draft state, check if the invoice has files with unsupported formats
+                    if (invoice.StatusCode === 42001) {
                         this.customerInvoiceService.getFileList(invoice.ID).subscribe((files) => {
                             const hasMismatch = files.some(file => {
                                 const fileNameLowerCase = (file.Name || '').toLowerCase();
@@ -653,7 +639,9 @@ export class InvoiceDetails implements OnInit {
             }
             shouldGetCurrencyRate = true;
             this.tradeItemTable.setDefaultProjectAndRefreshItems(invoice.DefaultDimensions, true);
-            if (this.accountsWithMandatoryDimensionsIsUsed && invoice.CustomerID && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
+            if (this.accountsWithMandatoryDimensionsIsUsed
+                && invoice.CustomerID
+                && invoice.StatusCode < StatusCodeCustomerInvoice.Invoiced) {
                 this.tofHead.getValidationMessage(invoice.CustomerID, invoice.DefaultDimensionsID, invoice.DefaultDimensions);
             }
         }
@@ -1099,7 +1087,7 @@ export class InvoiceDetails implements OnInit {
 
         this.invoiceItems = invoice.Items.sort((a, b) => a.SortIndex - b.SortIndex);
         this.invoice = invoice;
-        
+
         this.recalcItemSums(invoice.Items);
         this.updateCurrency(invoice, true);
 
@@ -1636,7 +1624,11 @@ export class InvoiceDetails implements OnInit {
         });
 
         if (this.aprilaOption.hasPermission && this.invoice.InvoiceType === InvoiceTypes.Invoice) {
-            if (this.invoiceID === 0 || (this.invoice && (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft))) {
+            if (this.invoiceID === 0 ||
+                (this.invoice &&
+                    (!this.invoice.StatusCode || this.invoice.StatusCode === StatusCodeCustomerInvoice.Draft)
+                )
+            ) {
                 this.saveActions.push({
                     label: 'Selg til Aprila',
                     action: (done) => this.sellInvoiceToAprila(done),
@@ -1776,6 +1768,7 @@ export class InvoiceDetails implements OnInit {
         this.invoiceID = 0;
         this.currentCustomer = invoice.Customer;
         invoice.ID = 0;
+        invoice.AccrualID = 0;
         invoice.InvoiceNumber = null;
         invoice.InvoiceNumberSeriesID = null;
         invoice.CollectorStatusCode = null;
@@ -2021,8 +2014,8 @@ export class InvoiceDetails implements OnInit {
                             this.errorService.handle(err);
                             if (isCreditNote) {
                                 const isAprilaInvoice = this.invoice.InvoiceReference &&
-                                    this.invoice.InvoiceReference["CustomValues"] &&
-                                    this.invoice.InvoiceReference["CustomValues"].CustomAprilaReferenceID;
+                                    this.invoice.InvoiceReference['CustomValues'] &&
+                                    this.invoice.InvoiceReference['CustomValues'].CustomAprilaReferenceID;
                                 if (isAprilaInvoice) {
                                     this.openAprilaCreditNoteModal('ERROR');
                                 }
@@ -2165,7 +2158,19 @@ export class InvoiceDetails implements OnInit {
                         () => { }
                     );
 
-                    this.modalService.open(UniReminderSendingModal, { data: reminders });
+                    this.modalService.open(UniReminderSendingModal, {
+                        data: {
+                            reminders: reminders.map(x => x.ID)
+                        }
+                    })
+                    .onClose.subscribe(res => {
+                        if (!res) {
+                            return;
+                        }
+
+                        this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                    });
+
                     doneCallback();
                 },
                 () => {
@@ -2194,7 +2199,18 @@ export class InvoiceDetails implements OnInit {
                     if (result === ConfirmActions.ACCEPT) {
                         sendReminder();
                     } else if (result === ConfirmActions.REJECT) {
-                        this.modalService.open(UniReminderSendingModal, { data: reminderList.Data });
+                        this.modalService.open(UniReminderSendingModal, {
+                            data: {
+                                reminders: reminderList.Data.map( x => x.CustomerInvoiceReminderID )
+                            }
+                        })
+                        .onClose.subscribe(res => {
+                            if (!res) {
+                                return;
+                            }
+
+                            this.toastService.addToast(`Purring sendes`, ToastType.good, ToastTime.short);
+                        });
                         doneCallback();
                     } else {
                         doneCallback();
@@ -2207,7 +2223,9 @@ export class InvoiceDetails implements OnInit {
     }
 
     private creditInvoice(done) {
-        this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
+        // set up the function to actually create the creditnote to reuse later in this function
+        // (depending on user feedback if the invoice is e.g. already paid)
+        const createCreditNoteFunc = () => this.customerInvoiceService.createCreditNoteFromInvoice(this.invoice.ID).subscribe(
             (data) => {
                 done('Kreditkladd opprettet');
                 this.router.navigateByUrl('/sales/invoices/' + data.ID);
@@ -2217,6 +2235,47 @@ export class InvoiceDetails implements OnInit {
                 this.errorService.handle(err);
             }
         );
+
+        if (this.invoice.StatusCode === StatusCodeCustomerInvoice.Credited
+            || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyCredited) {
+            this.modalService.confirm({
+                header: `Fakturaen er allerede ${(this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyCredited ? 'del' : '')}kreditert!`,
+                message: 'Normalt vil man ikke kreditere en faktura som allerede er kreditert. ' +
+                'Det vil ikke være mulig å kreditere mer enn det opprinnelige beløpet på fakturaen.<br/><br/>' +
+                'Vennligst bekreft at du likevel vil opprette en ny kreditnota for denne fakturaen',
+                buttonLabels: {
+                    accept: 'Opprett kreditnota likevel',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    createCreditNoteFunc();
+                } else {
+                    done();
+                }
+            });
+        } else if (this.invoice.RestAmount !== this.invoice.TaxInclusiveAmount &&
+            (this.invoice.StatusCode === StatusCodeCustomerInvoice.Paid
+                || this.invoice.StatusCode === StatusCodeCustomerInvoice.PartlyPaid)) {
+            this.modalService.confirm({
+                header: 'Innbetalinger er registrert på fakturaen',
+                message: 'Hvis fakturaen krediteres vil innbetalinger koblet til fakturaen markeres som åpne poster i kundereskontroen.<br/><br/> ' +
+                'Fra kundereskontroen vil du kunne betale tilbake dette til kunden, eller koble det mot en annen åpen post',
+                buttonLabels: {
+                    accept: 'Opprett kreditnota likevel',
+                    cancel: 'Avbryt'
+                }
+            }).onClose.subscribe(response => {
+                if (response === ConfirmActions.ACCEPT) {
+                    createCreditNoteFunc();
+                } else {
+                    done();
+                }
+            });
+        } else {
+            //
+            createCreditNoteFunc();
+        }
     }
 
     private payInvoice(done) {

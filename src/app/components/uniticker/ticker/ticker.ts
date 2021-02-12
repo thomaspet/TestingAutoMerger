@@ -44,6 +44,7 @@ import {ImageModal} from '../../common/modals/ImageModal';
 import {UniModalService, UniPreviewModal} from '../../../../framework/uni-modal';
 import {GetPrintStatusText, GetPaymentStatusText} from '../../../models/printStatus';
 import {SharingType, StatusCodeSharing} from '../../../unientities';
+import { theme, THEMES } from 'src/themes/theme';
 
 import * as moment from 'moment';
 import {saveAs} from 'file-saver';
@@ -54,7 +55,6 @@ import * as _ from 'lodash';
 import {ColumnTemplateOverrides} from './column-template-overrides';
 import {TickerTableConfigOverrides} from './table-config-overrides';
 import {FeaturePermissionService} from '@app/featurePermissionService';
-import {theme, THEMES} from 'src/themes/theme';
 
 export const SharingTypeText = [
     {ID: 0, Title: 'Bruk utsendelsesplan'},
@@ -584,9 +584,17 @@ export class UniTicker {
     }
 
     private getTickerActions(): Array<TickerAction> {
-        return this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
+        let tickerActions = this.ticker.UseParentTickerActions && this.parentTicker && this.parentTicker.Actions ?
             this.parentTicker.Actions :
             this.ticker.Actions ? this.ticker.Actions : [];
+
+        tickerActions.forEach(action => {
+            if (action.DisplayOnlyInFilterCode && action.DisplayOnlyInFilterCode !== this.selectedFilter.Code){
+                tickerActions = tickerActions.filter(x => x.Code !== action.Code);
+            }
+        })
+
+        return tickerActions;
     }
 
     public onRowClick(row) {
@@ -739,9 +747,7 @@ export class UniTicker {
                     }, err => this.errorService.handle(err)
                 );
             } else if (actionType === 'goto') {
-                if (action.Code === 'reminders') {
-                    this.router.navigateByUrl('/sales/reminders/ready');
-                }
+                this.router.navigateByUrl(action.GoToUrlTarget);
             } else {
                 this.uniTickerService
                     .executeAction(
@@ -1171,6 +1177,10 @@ export class UniTicker {
                     col.setVisible(false);
                 }
 
+                if (column.DefualtShowOnlyOnGivenFilters) {
+                    col.setVisible(column.DefualtShowOnlyOnGivenFilters.includes(this.selectedFilter.Code));
+                }
+
                 if (column.FilterOperator === 'startswith' || column.FilterOperator === 'eq'
                     || column.FilterOperator === 'contains') {
                         col.setFilterOperator(column.FilterOperator);
@@ -1400,6 +1410,11 @@ export class UniTicker {
         }
 
         config.isGroupingTicker = this.groupingIsOn;
+
+        if (this.ticker.Code === 'payment_list') {
+            config.useInfobannerWhenMoreThenSelectedRowsExists = true;
+        }
+
         return config;
     }
 
