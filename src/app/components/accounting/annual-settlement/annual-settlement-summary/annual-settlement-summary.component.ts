@@ -4,9 +4,8 @@ import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniModalService} from '@uni-framework/uni-modal';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
-import {map, switchMap, takeUntil} from 'rxjs/operators';
-import {tap} from 'rxjs/internal/operators/tap';
-import {of} from 'rxjs/observable/of';
+import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {of} from 'rxjs';
 import {AuthService} from '@app/authService';
 
 @Component({

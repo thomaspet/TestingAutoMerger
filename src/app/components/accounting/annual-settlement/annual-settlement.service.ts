@@ -1,9 +1,8 @@
 import {Injectable} from '@angular/core';
 import {BizHttp, RequestMethod, UniHttp} from '@uni-framework/core/http';
 import {map, switchMap, tap} from 'rxjs/operators';
-import {environment} from '../../../../environments/environment';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {of} from 'rxjs/observable/of';
+import {of} from 'rxjs';
 import * as _ from 'lodash';
 import {forkJoin, throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
@@ -24,8 +23,6 @@ export class AnnualSettlementService extends BizHttp<any> {
 
     public relativeURL = 'annualsettlement';
     protected entityType = 'AnnualSettlement';
-    baseUrl = environment.BASE_URL + environment.API_DOMAINS.BUSINESS;
-    statisticsUrl = environment.BASE_URL + environment.API_DOMAINS.STATISTICS;
     noCache = true;
     companySettings = null;
     companyName = null;

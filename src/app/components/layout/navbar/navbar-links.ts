@@ -235,7 +235,6 @@ export let NAVBAR_LINKS: INavbarLinkSection[] = [
                     {
                         name: 'NAVBAR.ANNUAL_SETTLEMENT',
                         url: '/accounting/annual-settlement',
-                        moduleID: UniModules.VatReport,
                         activeInSidebar: true
                     },
                     {

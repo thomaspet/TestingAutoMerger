@@ -7,7 +7,7 @@
     "post_logout_redirect_uri": "/#/login",
     "zdataauthority": "https://id-dev.zdata.no",
 
-    "BASE_URL_INIT": "http://localhost:29077",
+    "BASE_URL_INIT": "https://localhost:29077",
     "BASE_URL": "http://localhost:29077",
     "BASE_URL_INTEGRATION": "https://dev-integrations.unieconomy.no/",
     "BASE_URL_FILES": "https://dev-unifiles.unieconomy.no",
@@ -18,5 +18,9 @@
     "APP_INSIGHTS_KEY": "",
 
     "PUBLIC_FILES_URL": "https://public-files.unieconomy.no",
-    "LICENSE_AGREEMENT_URL": "https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf"
+    "LICENSE_AGREEMENT_URL": "https://public-files.unieconomy.no/files/license/Lisensavtale_UniEconomy_v2.pdf",
+    "ID_PORTEN": {
+        "authority": "https://oidc-ver2.difi.no/idporten-oidc-provider/",
+        "client_id": "213d95cf-9f5a-4ea2-b3a8-e45fee9248c5"
+    }
 }

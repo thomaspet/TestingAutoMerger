@@ -1,12 +1,11 @@
 import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
-import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Subject} from 'rxjs';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {infoOption, options, optionsForASAndOthers, optionsForENK} from './checklistoptions';
 import {TabService} from '@app/components/layout/navbar/tabstrip/tabService';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {tap} from 'rxjs/internal/operators/tap';
 import {CompanySettingsService} from '@app/services/common/companySettingsService';
 
 @Component({

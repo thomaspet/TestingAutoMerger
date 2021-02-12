@@ -1,10 +1,9 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ActivatedRoute, Router} from '@angular/router';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
-import {map, switchMap, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import {Subject} from 'rxjs';
-import {tap} from 'rxjs/internal/operators/tap';
 import {AccountsSummaryModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-disposition-including-tax/accounts-summary-modal.component';
 import {UniModalService} from '@uni-framework/uni-modal';
 

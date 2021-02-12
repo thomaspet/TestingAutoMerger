@@ -4,7 +4,7 @@ import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tab
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ConfirmActions, UniModalService} from '@uni-framework/uni-modal';
 import {switchMap} from 'rxjs/operators';
-import {of} from 'rxjs/observable/of';
+import {of} from 'rxjs';
 
 @Component({
     selector: 'annual-settlement-road-map-toolbar-component',

@@ -1,13 +1,12 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, ViewEncapsulation} from '@angular/core';
-import {catchError, map, switchMap, takeUntil} from 'rxjs/operators';
+import {map, switchMap, takeUntil} from 'rxjs/operators';
 import {ActivatedRoute, Router} from '@angular/router';
-import {of, Subject} from 'rxjs';
+import {of, Subject, BehaviorSubject} from 'rxjs';
 import {TabService, UniModules} from '@app/components/layout/navbar/tabstrip/tabService';
 import {AnnualSettlementService} from '@app/components/accounting/annual-settlement/annual-settlement.service';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {NumberFormat} from '@app/services/common/numberFormatService';
 import {ConfirmActions, ICommentModalResult, UniModalService} from '@uni-framework/uni-modal';
-import {BehaviorSubject} from 'rxjs/BehaviorSubject';
 import {UniMath} from '@uni-framework/core/uniMath';
 import {UniReconcileAccountFileUploadModal} from './reconcile-file-upload';
 
@@ -141,8 +140,8 @@ export class AnnualSettlementReconcileComponent {
     }
     completeReconcile(done) {
         this.annualSettlementService.saveAnnualSettlement(this.annualSettlement, false).pipe(
-            switchMap(() => this.annualSettlement.StatusCode > 36105 
-                ? of(true) 
+            switchMap(() => this.annualSettlement.StatusCode > 36105
+                ? of(true)
                 : this.annualSettlementService.moveFromStep2ToStep3(this.annualSettlement))
         ).subscribe(() => {
             if (done) {
