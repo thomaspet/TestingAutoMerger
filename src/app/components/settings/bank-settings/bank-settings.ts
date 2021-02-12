@@ -169,8 +169,7 @@ export class UniBankSettings {
             this.setRGBValues(agreements);
             this.RGB$.next(this.RGBValues);
             this.serviceProvider = agreements[0]?.ServiceProvider;
-            this.isPreApprovedPaymentsServiceProvider = this.serviceProvider === ServiceProvider.Bruno
-                                    || this.serviceProvider === ServiceProvider.ZDataV3;
+            this.isPreApprovedPaymentsServiceProvider = this.serviceProvider === ServiceProvider.ZDataV3;
 
             companySettings.BankAccounts.map(account => this.bankService.mapBankIntegrationValues(account, agreements));
 
