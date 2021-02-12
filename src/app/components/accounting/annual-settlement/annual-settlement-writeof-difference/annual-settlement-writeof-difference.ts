@@ -35,6 +35,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	tilvirkningskontraktInfotext2 = 'Oppgi regnskapsmessig resultat på tilvirkningskontrakter akkumulert ved starten av året. Dette er sum prosjektresultat fra prosjektet/prosjektenes oppstart til 31.12 i året før regnskapsåret på aktive, ikke avsluttede tilvirkningskontrakter';
 
 	summaryArray = [];
+	isCompleted: boolean = false;
 
 	onlySumFields = [{
 		title: 'Utestående fordringer', text: '', diff: 0, step: 11,
@@ -208,6 +209,8 @@ export class AnnualSettlementWriteofDifferenceStep {
 				this.assetsDetails = this.getFormattedDetailsData(details);
 				this.assetsList = assets;
 
+				this.isCompleted = this.annualSettlement.StatusCode > 36110;
+
 				if (stockAccounts.length) {
 					this.stockAccounts = stockAccounts.map(account => {
 						account._taxIB = account.IB;
@@ -306,6 +309,15 @@ export class AnnualSettlementWriteofDifferenceStep {
 		}
 	}
 
+	onCompleteSted(direction) {
+		if (this.step === this.stepContentArray.length - 1) {
+			this.goBack();
+		} else {
+			this.step += direction;
+			this.setStepInfoContent();
+		}
+	}
+
 	getFormattedDetailsData(data: any[]): any[] {
 		if (!data.length) {
 			return [];
@@ -356,7 +368,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 	}
 
 	setUpTable() {
-        this.tableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', true, false, 20)
+        this.tableConfig = new UniTableConfig('acconting.annualsettlement.editstockaccounts', !this.isCompleted, false, 20)
         .setAutoAddNewRow(false)
         .setColumns([
             new UniTableColumn('AccountNumber', 'Konto', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
@@ -467,6 +479,7 @@ export class AnnualSettlementWriteofDifferenceStep {
 			if (this.infoContent.step === 2 && this.annualSettlement.Fields.FinnesProsjekterKey) {
 				if (this.ct.value === 2) {
 					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntekt = null;
+					this.annualSettlement.Fields.TilvirkningskontraktOpptjentInntektFjoraret = null;
 				}
 			}
 	
