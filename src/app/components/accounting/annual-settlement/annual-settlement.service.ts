@@ -404,7 +404,7 @@ export class AnnualSettlementService extends BizHttp<any> {
                 map(list => {
                     list[5]['info'] = 'tooltip text for 5';
                     list[6]['info'] = 'tooltip text for 6';
-                    list[8]['editable'] = true;
+                    list[8]['editable'] = annualSettlement.StatusCode === 36115;
                     list[8]['placeholder'] = 'Sum utbytte';
                     list[8]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
                         + ' i utbytte dette året)';
