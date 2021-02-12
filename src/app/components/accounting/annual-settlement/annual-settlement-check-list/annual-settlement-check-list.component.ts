@@ -67,9 +67,6 @@ export class AnnualSettlementCheckListComponent {
         }, (err) => {
             const message = err && err.error && err.error.Messages && err.error.Messages.length > 0 && err.error.Messages[0].Message;
             this.toast.addToast('Error in Transition', ToastType.warn, ToastTime.medium, err.message + ' - ' + message);
-            if (done) {
-                done();
-            }
         }, () => {
             if (done) {
                 done();
@@ -86,9 +83,6 @@ export class AnnualSettlementCheckListComponent {
             }, (err) => {
                 this.toast.addToast('Error lagring', ToastType.warn, ToastTime.medium, err.message);
                 this.busy = false;
-                if (done) {
-                    done();
-                }
             }, () => {
                 if (done) {
                     done();
