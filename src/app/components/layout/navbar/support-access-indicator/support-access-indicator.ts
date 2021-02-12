@@ -35,7 +35,7 @@ import {ElsaSupportUserDTO} from '@app/models';
 })
 export class SupportAccessIndicator {
     supportUsers: ElsaSupportUserDTO[] = [];
-    showDialog = true;
+    showDialog = false;
 
     isAdmin = false;
 
