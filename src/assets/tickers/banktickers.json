@@ -140,6 +140,12 @@
                 "Type": "attachment",
                 "Width": "40px",
                 "ExternalModel": "JournalEntry"
+            },
+            {
+                "Header": "Innbetalingsfil",
+                "Field": "PaymentBatch.PaymentFileID",
+                "Alias": "PaymentFileID",
+                "Type": "dontdisplay"
             }
         ],
         "Filters": [
