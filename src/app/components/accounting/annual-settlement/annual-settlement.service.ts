@@ -411,11 +411,11 @@ export class AnnualSettlementService extends BizHttp<any> {
                     list[9]['info'] = 'tooltip text for 9';
                     return [
                         {
-                            title: 'Grunnlag for skatt',
+                            title: 'Beregning av skatt',
                             items: [list[0], list[1], list[2], list[3]]
                         },
                         {
-                            title: 'Til disponering',
+                            title: 'Disponering',
                             items: [list[4], list[5], list[6], list[7]]
                         },
                         {
