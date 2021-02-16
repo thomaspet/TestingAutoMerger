@@ -19,7 +19,7 @@ export class AnnualSettlementDispositionIncludingTaxComponent {
     onDestroy$ = new Subject();
     infoData = {
         title: 'Skatteberegning og disponering av resultat',
-        text: 'Her er det virkelig lorum ipsum'
+        text: 'Her blir skattemessig resultat beregnet, slik at vi kan beregne betalbar skatt, utsatt skatt/skattefordel og disponering av årets resultat. Dersom du ønsker å ta ut utbytte må det registreres i feltet for Utbytte. Når du trykker på Bokfør disponering vil du få opp visning av bilaget ditt med skatt og disponering av resultat før du bokfører.'
     };
     summary = [];
     busy = false;

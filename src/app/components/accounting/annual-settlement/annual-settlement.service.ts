@@ -405,20 +405,20 @@ export class AnnualSettlementService extends BizHttp<any> {
             .pipe(
                 map(res => res.body),
                 map(list => {
-                    list[5]['info'] = 'tooltip text for 5';
-                    list[6]['info'] = 'tooltip text for 6';
-                    list[8]['editable'] = true;
+                    list[5]['info'] = 'Betalbar skatt beregnes ut fra skattemessig resultat etter formelen; skattemessig resultat * 22%. Denne blir bokført til slutt i dette steget.';
+                    list[6]['info'] = 'Denne beregnes ut fra endringene i midlertidige forskjeller. Formelen er: (UB, midlertidige forskjeller - IB, midlertidige forskjeller) * 22%. ';
+                    list[8]['editable'] = annualSettlement.StatusCode === 36115;
                     list[8]['placeholder'] = 'Sum utbytte';
                     list[8]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
                         + ' i utbytte dette året)';
-                    list[9]['info'] = 'tooltip text for 9';
+                    list[9]['info'] = 'Dette er årets regnskapsmessige resultat, etter skatt og utbytte, som vil overføres til egenkapitalen. Etter at dette steget er bokført, vil resultat- og balanseregnskapet balansere.';
                     return [
                         {
-                            title: 'Grunnlag for skatt',
+                            title: 'Beregning av skatt',
                             items: [list[0], list[1], list[2], list[3]]
                         },
                         {
-                            title: 'Til disponering',
+                            title: 'Disponering',
                             items: [list[4], list[5], list[6], list[7]]
                         },
                         {
@@ -528,7 +528,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             );
     }
     checkIfCompanyIsAllowedByType() {
-        const allowedNames = ['AS', 'ENK', 'ASA', 'NUF', 'STI'];
+        const allowedNames = ['AS', 'ASA', 'NUF']; // , 'ENK', 'STI'];
         const companySettings$ = this.getCompanySettings();
         return companySettings$.pipe(
             switchMap((settings: CompanySettings) => this.getCompanyTypeName(settings.CompanyTypeID)),
