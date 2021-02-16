@@ -70,9 +70,9 @@
 				</simple-table>
 			</section>
 
-			<section>
-				<button class="c2a" (click)="bookWriteOf()"> Bokfør avskrivningen  </button>
-				<span> Avskrivningen er bokført </span>
+			<section style="display: flex; align-items: center; justify-content: flex-end;">
+				<button class="c2a" (click)="bookWriteOf()" *ngIf="!annualSettlement?.IsBooked"> Bokfør avskrivningen  </button>
+				<span style="font-size: 14px;" *ngIf="annualSettlement?.IsBooked"> Avskrivningen er bokført </span>
 			</section>
 
 		</section>
@@ -81,7 +81,10 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 1">
 
 			<section class="writeof-form-section">
-				Hello world #2
+				<ag-grid-wrapper
+                    [resource]="realEstates"
+                    [config]="realEstateTableConfig">
+                </ag-grid-wrapper>
 			</section>
 
 		</section>
@@ -90,7 +93,10 @@
 		<section class="uni-card-content" *ngIf="infoContent.step === 2">
 
 			<section class="writeof-form-section">
-				Hello world #3
+				<ag-grid-wrapper
+                    [resource]="oldAssets"
+                    [config]="buildingTableConfig">
+                </ag-grid-wrapper>
 			</section>
 
 		</section>

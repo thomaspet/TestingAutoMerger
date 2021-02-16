@@ -1,6 +1,7 @@
 import {ChangeDetectorRef, Component} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AssetsService, ErrorService, StatisticsService } from '@app/services/services';
+import { UniTableColumn, UniTableColumnType, UniTableConfig } from '@uni-framework/ui/unitable';
 import { ToastService, ToastType, ToastTime } from '@uni-framework/uniToast/toastService';
 import { Observable, Subject } from 'rxjs';
 import { map, takeUntil } from 'rxjs/operators';
@@ -33,7 +34,7 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
             buttonText: 'Lagre og gå videre'
 		},
 		{
-			title: 'Foretningsbygg anskaffet før 01.01.1985',
+			title: 'Foretningsbygg anskaffet før 01.01.1984',
 			text: ` <p>
                 Her finner du en oversikt over dine foretningsbygg som er anskaffet før 01.01.1984. Du må fylle ut historisk kostpris, nedskrevet verdi pr. 01.01.1984 og nedre grense for avskrivning på disse
                 foretningsbyggene. Du finner tallene i RF-1084 (post 113, 114 og 115) som du leverte ifjor. </p> `,
@@ -65,8 +66,13 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
     busy = false;
     step = 0;
     onDestroy$ = new Subject();
+    buildingTableConfig: any = {};
+    realEstateTableConfig: any = {};
     annualSettlement: any;
+
+    realEstates = [];
     assetsDetails = [];
+    oldAssets = [];
     sumLine: any = {};
 
     constructor (
@@ -87,10 +93,34 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
         ).subscribe(id => {
             Observable.forkJoin([
                 this.annualSettlementService.getAnnualSettlement(id),
-                this.assetsService.getENKAssetsList(id)
-            ]).subscribe(([settlement, details]) => {
-                this.annualSettlement = settlement;
-                this.assetsDetails = details;
+                // this.assetsService.getENKAssetsList(2020, false),
+                // this.assetsService.getENKAssetsList(2020, true),
+                this.assetsService.GetAll()
+            ]).subscribe(([settlement, assets = [], oldAssets = []]) => {
+                this.annualSettlement =  settlement;
+                this.realEstates = assets;
+                this.oldAssets = oldAssets;
+                this.assetsDetails = [];
+
+                // Dont show locked real estate if none
+                if (!this.realEstates.length) {
+                    const index = this.stepContentArray.findIndex(step => step.step === 1);
+                    this.stepContentArray.splice(index, 1);
+                } else {
+                    this.setupAssetsTable();
+                }
+
+                // Dont show old company builds step if none
+                if (!this.oldAssets.length) {
+                    const index = this.stepContentArray.findIndex(step => step.step === 2);
+                    this.stepContentArray.splice(index, 1);
+                } else {
+                    this.setupBuildingsTable();
+                }
+                
+            }, err => {
+                this.errorService.handle(err);
+                this.goBack();
             });
             
         });
@@ -123,6 +153,35 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
 			// 	this.goBack();
 			// 	return;
 			// });
+        } else if (direction > 0 && false) { 
+            if (this.infoContent.step === 1) {
+
+                this.assetsService.updateRealEstatesAssetsList(this.realEstates).subscribe((l) => {
+                    this.realEstates = l;
+                    this.step += direction;
+                    this.setStepInfoContent();
+                    this.busy = false;
+                })
+            } else if (this.infoContent.step === 2) {
+                this.assetsService.updateRealEstatesAssetsList(this.oldAssets).subscribe((l) => {
+                    this.oldAssets = l;
+                    this.step += direction;
+                    this.setStepInfoContent();
+                    this.busy = false;
+                })
+            } else if (this.infoContent.step === 3) {
+                this.step += direction;
+                this.setStepInfoContent();
+                this.busy = false;
+            } else {
+                this.annualSettlementService.updateAnnualSettlement(this.annualSettlement).subscribe(() => {
+                    this.step += direction;
+                    this.setStepInfoContent();
+                    this.busy = false;
+                }, err => {
+                    this.busy = false;
+                });
+            }
         } else {
             this.step += direction;
             this.setStepInfoContent();
@@ -141,7 +200,7 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
             this.errorService.handle(err);
         })
     }
-
+    
     getFormattedDetailsData(data: any[]): any[] {
 		if (!data.length) {
 			return [];
@@ -156,6 +215,30 @@ export class AnnualSettlementWriteofDifferenceEnkStep {
 
 		return data.sort((a, b) => { return a.GroupCode > b.GroupCode ? 1 : -1 });
 	}
+
+    setupBuildingsTable() {
+        this.buildingTableConfig = new UniTableConfig('acconting.annualsettlement.editbuildings', true, false, 20)
+        .setAutoAddNewRow(false)
+        .setColumns([
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
+            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setEditable(false),
+			new UniTableColumn('PurchaseDate', 'Kjøpsdato', UniTableColumnType.DateTime).setEditable(false),
+			new UniTableColumn('HistoricalCostPrice', 'Historisk kostpris', UniTableColumnType.Money),
+			new UniTableColumn('IBValue1984', 'Verdi pr 01.01.1984', UniTableColumnType.Money),
+			new UniTableColumn('LowerDepreciationValue', 'Nedre grense for avskr.', UniTableColumnType.Money)]);
+    }
+
+    setupAssetsTable() {
+        this.realEstateTableConfig = new UniTableConfig('acconting.annualsettlement.editenkassets', true, false, 20)
+        .setAutoAddNewRow(false)
+        .setColumns([
+            new UniTableColumn('ID', 'Nr.', UniTableColumnType.Text).setEditable(false).setAlignment('center'),
+            new UniTableColumn('Name', 'Navn', UniTableColumnType.Text).setEditable(false),
+			new UniTableColumn('PurchaseDate', 'Kjøpsdato', UniTableColumnType.DateTime).setEditable(false),
+			new UniTableColumn('Knr', 'Kommunenummer', UniTableColumnType.Number),
+			new UniTableColumn('Gnr', 'Gårdsnummer', UniTableColumnType.Number),
+			new UniTableColumn('Bnr', 'Bruksnummer', UniTableColumnType.Number)]);
+    }
 
     setStepInfoContent() {
 		this.infoContent = this.stepContentArray[this.step];

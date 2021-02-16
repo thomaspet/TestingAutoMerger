@@ -108,8 +108,18 @@ export class AssetsService extends BizHttp<Asset>{
         return this.PutAction(null, 'depreciate-year', `year=${year}`);
     }
 
-    getENKAssetsList(ID: number) {
-        return this.GetAction(null, 'get-real-estate-assets', 'annualSettlementID=' + ID);
+    updateRealEstatesAssetsList(list: any[]) {
+        return this.http
+            .asPUT()
+            .usingBusinessDomain()
+            .withEndPoint('/assets?action=update-real-estate-assets')
+            .withBody(list)
+            .send()
+            .map(res => res.body);
+    }
+
+    getENKAssetsList(year: number, onlyRealEstatesPurchasedBefore1984: boolean) {
+        return this.GetAction(null, 'get-real-estate-assets', 'year=' + year + '&onlyRealEstatesPurchasedBefore1984=' + onlyRealEstatesPurchasedBefore1984);
     }
 
     getAssetCountersByType(code?: number | null) {
