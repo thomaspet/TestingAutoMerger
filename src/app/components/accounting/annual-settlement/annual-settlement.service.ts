@@ -2,9 +2,8 @@ import {Injectable} from '@angular/core';
 import {BizHttp, RequestMethod, UniHttp} from '@uni-framework/core/http';
 import {map, switchMap, tap} from 'rxjs/operators';
 import {UniModalService} from '@uni-framework/uni-modal/modalService';
-import {of} from 'rxjs';
 import * as _ from 'lodash';
-import {forkJoin, throwError} from 'rxjs';
+import {of, forkJoin, throwError} from 'rxjs';
 import {GoToAltinnModalComponent} from '@app/components/accounting/annual-settlement/annual-settlement-summary/goToAltinnModal.component';
 import {ToastService, ToastTime, ToastType} from '@uni-framework/uniToast/toastService';
 import {UniNumberFormatPipe} from '@uni-framework/pipes/uniNumberFormatPipe';
@@ -402,13 +401,13 @@ export class AnnualSettlementService extends BizHttp<any> {
             .pipe(
                 map(res => res.body),
                 map(list => {
-                    list[5]['info'] = 'tooltip text for 5';
-                    list[6]['info'] = 'tooltip text for 6';
+                    list[5]['info'] = 'Betalbar skatt beregnes ut fra skattemessig resultat etter formelen; skattemessig resultat * 22%. Denne blir bokført til slutt i dette steget.';
+                    list[6]['info'] = 'Denne beregnes ut fra endringene i midlertidige forskjeller. Formelen er: (UB, midlertidige forskjeller - IB, midlertidige forskjeller) * 22%. ';
                     list[8]['editable'] = annualSettlement.StatusCode === 36115;
                     list[8]['placeholder'] = 'Sum utbytte';
                     list[8]['Item'] += ' (Du kan maksimalt ta ut ' + this.numberPipe.transform(maxDividendAmount, 'money')
                         + ' i utbytte dette året)';
-                    list[9]['info'] = 'tooltip text for 9';
+                    list[9]['info'] = 'Dette er årets regnskapsmessige resultat, etter skatt og utbytte, som vil overføres til egenkapitalen. Etter at dette steget er bokført, vil resultat- og balanseregnskapet balansere.';
                     return [
                         {
                             title: 'Beregning av skatt',
@@ -525,7 +524,7 @@ export class AnnualSettlementService extends BizHttp<any> {
             );
     }
     checkIfCompanyIsAllowedByType() {
-        const allowedNames = ['AS', 'ENK', 'ASA', 'NUF', 'STI'];
+        const allowedNames = ['AS', 'ASA', 'NUF']; // , 'ENK', 'STI'];
         const companySettings$ = this.getCompanySettings();
         return companySettings$.pipe(
             switchMap((settings: CompanySettings) => this.getCompanyTypeName(settings.CompanyTypeID)),
